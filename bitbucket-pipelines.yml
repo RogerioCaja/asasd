@@ -1,0 +1,41 @@
+image: salesforce/salesforcedx:7.82.1-0-full
+pipelines:
+  pull-requests:
+    mergedevelop/*: #run check only on dev when creating/commiting pull request to develop 
+      - step:
+          script:
+            - sfdx force:source:convert -r force-app -d converted/main
+            - sfdx force:auth:jwt:grant --clientid $DEV_CLIENTID --jwtkeyfile build/serverDev.key --setdefaultusername --username=$DEV_USERNAME --instanceurl $DEV_INSTANCE_URL
+            - sfdx force:mdapi:deploy -c -d converted/main -w 250
+    mergeqa/*: #run check only on qa when creating/commiting pull request to qa 
+      - step:
+          script:
+            - sfdx force:source:convert -r force-app -d converted/main
+            - sfdx force:auth:jwt:grant --clientid $QA_CLIENTID --jwtkeyfile build/serverQa.key --setdefaultusername --username=$QA_USERNAME --instanceurl $QA_INSTANCE_URL
+            - sfdx force:mdapi:deploy -c -d converted/main -w 250
+    mergemain/*: #run check only on prod when creating/commiting pull request to main 
+      - step:
+          script:
+            - sfdx force:source:convert -r force-app -d converted/main
+            - sfdx force:auth:jwt:grant --clientid $PROD_CLIENTID --jwtkeyfile build/serverProd.key --setdefaultusername --username=$PROD_USERNAME --instanceurl $PROD_INSTANCE_URL
+            - sfdx force:mdapi:deploy -c -d converted/main -w 250
+
+  branches:
+    develop: #deploy to dev when commiting on develop 
+      - step:
+          script:
+            - sfdx force:source:convert -r force-app -d converted/main
+            - sfdx force:auth:jwt:grant --clientid $DEV_CLIENTID --jwtkeyfile build/serverDev.key --setdefaultusername --username=$DEV_USERNAME --instanceurl $DEV_INSTANCE_URL
+            - sfdx force:mdapi:deploy -d converted/main -w 250
+    qa: #deploy to qa when commiting on qa 
+      - step:
+          script:
+            - sfdx force:source:convert -r force-app -d converted/main
+            - sfdx force:auth:jwt:grant --clientid $QA_CLIENTID --jwtkeyfile build/serverQa.key --setdefaultusername --username=$QA_USERNAME --instanceurl $QA_INSTANCE_URL
+            - sfdx force:mdapi:deploy -d converted/main -w 250
+    main: #deploy to prod when commiting on main branch
+      - step:
+          script:
+            - sfdx force:source:convert -r force-app -d converted/main
+            - sfdx force:auth:jwt:grant --clientid $PROD_CLIENTID --jwtkeyfile build/serverProd.key --setdefaultusername --username=$PROD_USERNAME --instanceurl $PROD_INSTANCE_URL
+            - sfdx force:mdapi:deploy -d converted/main -w 250

@@ -1,0 +1,52 @@
+# This file is used for Git repositories to specify intentionally untracked files that Git should ignore. 
+# If you are not using git, you can delete this file. For more information see: https://git-scm.com/docs/gitignore
+# For useful gitignore templates see: https://github.com/github/gitignore
+
+# Salesforce cache
+.sfdx/
+*.dup
+.sfdx/
+.forceignore
+.vscode/
+README.md
+scripts/dxutils/main/output/*
+scripts/dxutils/config/*
+scripts/dxutils/main/node_modules/*
+scripts/dxutils/main/csv
+scripts/dxutils/main/package-lock.json
+
+retrieveSource
+
+csv/converted-output/*
+
+converted
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Dependency directories
+node_modules/
+
+# Eslint cache
+.eslintcache
+
+# MacOS system filesq
+.DS_Store
+
+# Windows system files
+Thumbs.db
+ehthumbs.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+#force-app/main/default/profiles/*
+force-app/main/default/lwc/jsconfig.json
+force-app/main/default/lwc/.eslintrc.json
+manifest/package.xml
+
+destructiveChanges
+force-app/main/default/profiles/*
+scripts/csv/converted-output/*
+scripts/csv/converted-output-error/*

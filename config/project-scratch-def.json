@@ -1,0 +1,49 @@
+{
+  "orgName": "Example - SF",
+  "edition": "Enterprise",
+  "language": "pt_BR",
+  "features": ["Communities", "AdditionalFieldHistory:40", "Entitlements"],
+  "settings": {
+    "currencySettings": {
+      "enableMultiCurrency": true
+    },
+    "territory2Settings": {
+      "enableTerritoryManagement2": true
+    },
+    "languageSettings": {
+      "enableTranslationWorkbench": true,
+      "enableEndUserLanguages": true
+    },
+    "lightningExperienceSettings": {
+      "enableS1DesktopEnabled": true
+    },
+    "apexSettings": {
+      "enableApexApprovalLockUnlock": true
+    },
+    "enhancedNotesSettings": {
+      "enableEnhancedNotes": true
+    },
+    "quoteSettings": {
+      "enableQuote": true
+    },
+    "accountSettings": {
+      "enableAccountTeams": true
+    },
+    "nameSettings": {
+      "enableMiddleName": true
+    },
+    "entitlementSettings": {
+      "enableEntitlements": true
+    },
+    "orgPreferenceSettings": {
+      "chatterEnabled": true
+    },
+    "communitiesSettings": {
+      "enableNetworksEnabled": true
+    },
+    "workDotComSettings": {
+      "enableWorkThanksPref": true,
+      "enableProfileSkills": true
+    }
+  }
+}
