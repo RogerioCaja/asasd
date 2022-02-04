@@ -1,7 +1,7 @@
 {
   "orgName": "Example - SF",
   "edition": "Enterprise",
-  "language": "pt_BR",
+  "language": "en_US",
   "features": ["Communities", "AdditionalFieldHistory:40", "Entitlements"],
   "settings": {
     "currencySettings": {
