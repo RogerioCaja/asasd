@@ -1,0 +1,7 @@
+<template>
+    <div class="tituloPesquisa">
+      <span>Pesquisar <b>CONTA</b>: Nome, CNPJ ou CPF, Razão Social:</span>
+    </div>
+    <c-custom-order-search object-name="Account" field-name="Name" onshowresults={showResults} label="Pesquisar CONTA: Nome, CNPJ ou CPF, Razão Social:" placeholder="Digite o nome da conta" required="true" onchild={getFieldsValueAccount}></c-custom-order-search>
+    <c-order-account-results if:true={showList} records={records} message={message} onaccountselected={accountSelected}></c-order-account-results>
+</template>

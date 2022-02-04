@@ -1,0 +1,23 @@
+<template>
+    <div class="principal">
+        <div class="conteudo">
+            <div class="title">
+            <span>Nova Venda</span>
+            <hr>
+            </div>      
+            <c-order-screen-navbar tabs-data={tabs} onchangetab={setTabs}></c-order-screen-navbar>
+            
+            <template if:true={account}>
+                <c-order-account-screen message={message}></c-order-account-screen>
+            </template>
+
+            <c-order-header-screen if:true={header} tab="header"></c-order-header-screen>
+
+            <template if:true={product}>
+                <c-order-product-screen  tab="product"></c-order-product-screen>
+            </template>
+            
+            <c-order-summary-screen if:true={summary} tab="summary"></c-order-summary-screen>
+        </div>
+    </div>
+</template>
