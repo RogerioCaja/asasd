@@ -3,6 +3,6 @@
     <active>true</active>
     <entityName>Lead</entityName>
     <fieldName>Status</fieldName>
-    <masterLabel>Prospecção do Lead</masterLabel>
+    <masterLabel>Default</masterLabel>
     <recordTypeName>__MASTER__</recordTypeName>
 </PathAssistant>
