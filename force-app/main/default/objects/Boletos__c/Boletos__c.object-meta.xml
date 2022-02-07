@@ -159,7 +159,6 @@
     <enableSharing>true</enableSharing>
     <enableStreamingApi>true</enableStreamingApi>
     <externalSharingModel>Private</externalSharingModel>
-   
     <label>Boleto</label>
     <nameField>
         <label>Nome de Boleto</label>

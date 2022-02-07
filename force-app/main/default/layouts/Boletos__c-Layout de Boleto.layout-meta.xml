@@ -13,10 +13,6 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Required</behavior>
-                <field>AccountCode__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Required</behavior>
                 <field>InvoiceNumber__c</field>
             </layoutItems>
             <layoutItems>
@@ -42,6 +38,10 @@
             <layoutItems>
                 <behavior>Required</behavior>
                 <field>Drawee__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Required</behavior>
+                <field>AccountCode__c</field>
             </layoutItems>
         </layoutColumns>
         <layoutColumns>
