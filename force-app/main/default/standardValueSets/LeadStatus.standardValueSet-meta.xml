@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<StandardValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <sorted>false</sorted>
+    <standardValue>
+        <fullName>Novo</fullName>
+        <default>true</default>
+        <label>Novo</label>
+        <converted>false</converted>
+    </standardValue>
+    <standardValue>
+        <fullName>Pendente de Contato</fullName>
+        <default>false</default>
+        <label>Pendente de Contato</label>
+        <converted>false</converted>
+    </standardValue>
+    <standardValue>
+        <fullName>Apresentação de Portifólio</fullName>
+        <default>false</default>
+        <label>Apresentação de Portifólio</label>
+        <converted>false</converted>
+    </standardValue>
+    <standardValue>
+        <fullName>Convertido</fullName>
+        <default>false</default>
+        <label>Convertido</label>
+        <converted>true</converted>
+    </standardValue>
+    <standardValue>
+        <fullName>Perdido</fullName>
+        <default>false</default>
+        <label>Perdido</label>
+        <converted>false</converted>
+    </standardValue>
+</StandardValueSet>
