@@ -5,6 +5,7 @@
     <label>Código do Cliente</label>
     <length>40</length>
     <required>true</required>
+    <trackFeedHistory>false</trackFeedHistory>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>
     <type>Text</type>
