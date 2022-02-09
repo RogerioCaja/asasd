@@ -1,3 +1,93 @@
 <template>
-    <h3>summary Screen</h3>
+    <div class="cabecalho"> 
+       <span class="titulo_agrogalaxy">Agrogalaxy</span>
+        <!-- Parte que engloba todos os dados -->
+        <section>
+             <!-- Parte de dados de cabeçalho -->
+            <div>
+                 <section>
+                     <span>Razão Social:</span>
+                     <span> AGROGALAXY PARTICIPAÇÕES</span>
+                    </section>
+                    
+                    <section>
+                        <span>Cliente de Entrega:</span>
+                        <span> Wharlen de Souza Pimentel Ferrari Santana</span>
+                    </section>
+                    
+                    <section>
+                        <span>CPF:</span>
+                        <span> 088.073.526-05</span>
+                    </section>
+            </div>
+
+            <div>
+                <section>
+                    <span>Tipo de Conta:</span>
+                    <span> Jurídica</span>
+                </section>
+
+                <section>
+                    <span>CNPJ:</span>
+                    <span> 21.240.146/0001-01</span>
+                </section>
+
+                <section>
+                    <span>Endereço: </span>
+                    <span>Rua Alfredo Alves Pinto, 78, Casa 1 - São João Batista - MG 31520-030</span>
+                </section>
+
+                <section>
+                    <span>Código SAP: </span>
+                    <span>466578</span>
+                </section>
+            </div>
+
+            <div>
+                <section>
+                    <span>Tipo de Venda: </span>
+                    <span>Consignação</span>
+                </section>
+
+                <section>
+                    <span>Condição de Pagto: </span>
+                    <span>Parcelado em 30x</span>
+                </section>
+
+                <section>
+                    <span>Data de Pagamento: </span>
+                    <span>10/02/2022</span>
+                </section>
+
+                <section>
+                    <span>Data de Entrega: </span>
+                    <span>22/02/2022</span>
+                </section>
+            </div>
+
+            <div>
+                <section>
+                    <span>Safra: </span>
+                    <span>Safra 21/22</span>
+                </section>
+
+                <section>
+                    <span>Cultura: </span>
+                    <span>Algodão</span>
+                </section>
+
+                <section>
+                    <span>Lista de Preços: </span>
+                    <span>Lista numero 1</span>
+                </section>
+            </div>
+
+        </section>
+
+        <lightning-datatable
+            key-field="id"
+            data={_data}
+            columns={columns}>
+        </lightning-datatable>
+    </div>
 </template>

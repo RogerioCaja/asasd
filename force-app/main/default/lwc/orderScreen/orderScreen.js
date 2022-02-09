@@ -51,21 +51,21 @@ export default class OrderScreen extends LightningElement {
         {
             name: 'header',
             current: false,
-            enable: false,
+            enable: true,
             message: 'Necessário preencher todos os dados obrigatórios antes de seguir',
             component: 'c-order-header-screen'
         },
         {
             name: 'product',
             current: false,
-            enable: false,
+            enable: true,
             message: 'Necessário selecionar pelo menos 1 produto',
             component: 'c-order-product-screen'
         },
         {
             name: 'summary',
             current: false,
-            enable: false,
+            enable: true,
             message: '',
             component: 'c-order-summary-screen'
         }

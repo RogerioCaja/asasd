@@ -1,0 +1,42 @@
+.cabecalho{
+    width: 100%;
+    bottom: 90px;
+    border: #DDD solid 1px;
+    border-radius: 5px;
+    background-color: #FFF;
+    margin: 10px 0 20px 0;
+    display: flex; 
+    padding: 1em;
+    flex-direction: column;
+    gap: 5px;
+    
+}
+
+.titulo_agrogalaxy{
+    font-weight: bold;
+    font-size: 16pt;
+}
+
+section{
+   display: flex;
+   flex-direction: column;
+   gap: 1em;
+}
+
+section > div{
+    display: flex;
+    justify-content: space-between;
+}
+
+section > div > section{
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+    color: #57595c;
+    
+}
+
+section > div > section > span:nth-child(even) {
+    color: black;
+    font-weight: bold;
+} 
