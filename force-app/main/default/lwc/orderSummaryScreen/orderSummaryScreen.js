@@ -77,12 +77,6 @@ export default class OrderSummaryScreen extends LightningElement {
 
     },];
 
-    handleRowAction(event) {
-        const action = event.detail.action;
-        const row = event.detail.row;
-        
-        alert('Showing Details: ' + JSON.stringify(row));
-    }
                 
             
         

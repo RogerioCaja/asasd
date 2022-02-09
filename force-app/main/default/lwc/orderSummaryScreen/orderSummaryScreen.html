@@ -83,12 +83,52 @@
             </div>
 
         </section>
-
-        <lightning-datatable
+        <!-- <div class="tooltip-wrap">
+            Peppa pig é demais
+            <div class="tooltip-content">
+              <p>Here is some content for the tooltip</p>
+            </div> 
+          </div> -->
+        <!-- <lightning-datatable
             key-field="id"
             data={_data}
-            columns={columns}
-            onrowaction={handleRowAction}>
-        </lightning-datatable>
+            columns={columns}>
+        </lightning-datatable> -->
+
+        <table>
+            <tr>
+              <th>Nome do Produto</th>
+              <th>Unidade de Medida</th>
+              <th>Preço Unitário</th>
+              <th>Quantidade</th>
+              <th>Preço Total</th>
+              <th>Percentual Desconto Comercial</th>
+              <th>Valor Desconto Comercial</th>
+              <th>Percentual Acréscimo Financeiro</th>
+              <th>Valor Acréscimo Financeiro</th>
+              <th>Remessas</th>
+            </tr>
+            <tr>
+              <td>Semente de Soja</td>
+              <td>Kilogramas</td>
+              <td>4.12</td>
+              <td>3</td>
+              <td>3.00</td>
+              <td>0.03</td>
+              <td>3.00</td>
+              <td>0.03</td>
+              <td>102.67</td>
+                <td>
+                    <div class="tooltip">
+                        <a href="TESTE.COM" label="picles">Remessa</a>
+                        <div class="tooltiptext">
+                        <p>information Data</p>
+                        </div> 
+                    </div>  
+                </td>
+            
+            </tr>
+            
+          </table>
     </div>
 </template>
