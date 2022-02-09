@@ -27,12 +27,9 @@ const columns = [
     },
     { label: 'Valor Acréscimo Financeiro', fieldName: 'FinancialAggregateValue', type: 'currency' },
     { label: 'Remessas', fieldName: 'shipping', type: 'url',
-    typeAttributes: {
-        label: { 
-            fieldName: 'Remessas' 
-        },
-        target : '_blank'
-    }
+        typeAttributes: { 
+            label : 'Remessa'
+        }
     },
 ];
 
@@ -48,7 +45,9 @@ export default class OrderSummaryScreen extends LightningElement {
         comercialDiscountValue:3.00,
         FinancialAggregatePercent:0.03,
         FinancialAggregateValue:102.67,
-        shipping:'https://data-ruby-3671.lightning.force.com/lightning/r/Account/0011700001Rt7JnAAJ/view',
+        
+        shipping: 'TESTE.COM' 
+
 
     },
     {
