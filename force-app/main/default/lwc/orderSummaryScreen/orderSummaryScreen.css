@@ -40,3 +40,7 @@ section > div > section > span:nth-child(even) {
     color: black;
     font-weight: bold;
 } 
+
+lightning-datatable{
+    padding-top: 30px;
+}
