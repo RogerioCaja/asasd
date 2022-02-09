@@ -14,7 +14,7 @@
     border-radius: 5px;
     background-color: #F2F2F2;
     width: 100%;
-    margin-bottom: 32px;
+    margin: 32px 0px;
     display: grid;
     grid-template-columns: 1fr;
     padding: 10px;
@@ -67,7 +67,6 @@
   .resultados_conta h2{
     color: #2A9676;
     font-size: 18px;
-    margin: 35px 0px;
   }
 
   .texto{

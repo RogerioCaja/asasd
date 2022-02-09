@@ -1,3 +1,5 @@
+@import './orderScreenNavbar.css';
+
 * {
     box-sizing: border-box;
 }
@@ -72,7 +74,7 @@ c-order-account-screen, c-order-header-screen, c-order-product-screen, c-order-s
     flex-direction: row;
     justify-content: space-between;
     color: #2A9676;
-    margin-bottom: 102px;
+    margin: 52px 0px 102px 0px;
     align-items: stretch;
 }
 

@@ -1,5 +1,3 @@
-@import './orderAccountResults.css';
-
 .tituloPesquisa{
     align-self: center;
     width: 80%;
@@ -17,4 +15,4 @@
     .tituloPesquisa{
       width: 90%;
     }
-}  
+}

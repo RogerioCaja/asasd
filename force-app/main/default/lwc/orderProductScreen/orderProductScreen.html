@@ -1,3 +1,6 @@
 <template>
-    <h3>product Screen</h3>
+    <div class="tituloPesquisa">
+        <span>Pesquisar <b>PRODUTO</b>:</span>
+      </div>
+    <c-custom-order-search object-name="Product2" field-name="Name" onshowresults={showResults} label="Pesquisar PRODUTO:" placeholder="Digite o nome do Produto" required="true" onchild={getFieldsValueProduct}></c-custom-order-search>
 </template>

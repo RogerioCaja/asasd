@@ -30,6 +30,28 @@ public without sharing class CustomLookupController {
 	    }
     }
 
+    @AuraEnabled
+    public static List<SObject> fetchAccountRecords(String searchString) {
+        try {
+            List<SObject> recordsData = new List<SObject>();
+            String query = 'SELECT Id, Name, Phone FROM Account WHERE Name LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' LIMIT 49999';
+            
+	        for(SObject s : Database.query(query)) {
+	            recordsData.add(s);
+	        }
+
+            return recordsData;
+
+	    } catch (Exception err) {
+
+	    	if ( String.isNotBlank( err.getMessage() ) && err.getMessage().contains( 'error:' ) ) {
+                throw new AuraHandledException(err.getMessage().split('error:')[1].split(':')[0] + '.');
+            } else {
+                throw new AuraHandledException(err.getMessage());
+            }
+	    }
+    }
+
     public class RecordsData {
 
         @AuraEnabled public String label;
