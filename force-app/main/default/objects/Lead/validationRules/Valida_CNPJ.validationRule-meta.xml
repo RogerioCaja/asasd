@@ -2,12 +2,53 @@
 <ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Valida_CNPJ</fullName>
     <active>true</active>
-    <description>Valida o formato do CNPJ</description>
-    <errorConditionFormula>NOT(
-OR(
-ISBLANK(CNPJ__c),
-REGEX( CNPJ__c , &quot;[0-9]{2}.[0-9]{3}.[0-9]{3}/[0-9]{4}-[0-9]{2}&quot;)
-)
-)</errorConditionFormula>
-    <errorMessage>O CNPJ deve ter o seguinte formato: XX. XXX. XXX/0001-XX</errorMessage>
+    <description>Verifica se o CNPJ é válido</description>
+    <errorConditionFormula>IF(LEN(CNPJ__c)=14,OR(AND(MOD((
+(VALUE(MID(CNPJ__c,1,1))*6)+
+(VALUE(MID(CNPJ__c,2,1))*5)+
+(VALUE(MID(CNPJ__c,3,1))*4)+
+(VALUE(MID(CNPJ__c,4,1))*3)+
+(VALUE(MID(CNPJ__c,5,1))*2)+
+(VALUE(MID(CNPJ__c,6,1))*9)+
+(VALUE(MID(CNPJ__c,7,1))*8)+
+(VALUE(MID(CNPJ__c,8,1))*7)+
+(VALUE(MID(CNPJ__c,9,1))*6)+
+(VALUE(MID(CNPJ__c,10,1))*5)+
+(VALUE(MID(CNPJ__c,11,1))*4)+
+(VALUE(MID(CNPJ__c,12,1))*3)+
+(VALUE(MID(CNPJ__c,13,1))*2))
+,11)&lt;=1
+,VALUE(MID(CNPJ__c,14,1))!=0)
+,AND(MOD((
+(VALUE(MID(CNPJ__c,1,1))*6)+
+(VALUE(MID(CNPJ__c,2,1))*5)+
+(VALUE(MID(CNPJ__c,3,1))*4)+
+(VALUE(MID(CNPJ__c,4,1))*3)+
+(VALUE(MID(CNPJ__c,5,1))*2)+
+(VALUE(MID(CNPJ__c,6,1))*9)+
+(VALUE(MID(CNPJ__c,7,1))*8)+
+(VALUE(MID(CNPJ__c,8,1))*7)+
+(VALUE(MID(CNPJ__c,9,1))*6)+
+(VALUE(MID(CNPJ__c,10,1))*5)+
+(VALUE(MID(CNPJ__c,11,1))*4)+
+(VALUE(MID(CNPJ__c,12,1))*3)+
+(VALUE(MID(CNPJ__c,13,1))*2))
+,11)&gt;1
+,(11-MOD((
+(VALUE(MID(CNPJ__c,1,1))*6)+
+(VALUE(MID(CNPJ__c,2,1))*5)+
+(VALUE(MID(CNPJ__c,3,1))*4)+
+(VALUE(MID(CNPJ__c,4,1))*3)+
+(VALUE(MID(CNPJ__c,5,1))*2)+
+(VALUE(MID(CNPJ__c,6,1))*9)+
+(VALUE(MID(CNPJ__c,7,1))*8)+
+(VALUE(MID(CNPJ__c,8,1))*7)+
+(VALUE(MID(CNPJ__c,9,1))*6)+
+(VALUE(MID(CNPJ__c,10,1))*5)+
+(VALUE(MID(CNPJ__c,11,1))*4)+
+(VALUE(MID(CNPJ__c,12,1))*3)+
+(VALUE(MID(CNPJ__c,13,1))*2)
+),11
+))!=VALUE(MID(CNPJ__c,14,1)))),true)</errorConditionFormula>
+    <errorMessage>O CNPJ informado é inválido.</errorMessage>
 </ValidationRule>
