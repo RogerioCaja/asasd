@@ -17,11 +17,11 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>StartDateOrderInsertion__c</field>
+                <field>Codigo__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>Codigo__c</field>
+                <field>StartDateOrderInsertion__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
@@ -38,6 +38,14 @@
             <layoutItems>
                 <behavior>Required</behavior>
                 <field>NumberOfDaysAfterPayment__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Required</behavior>
+                <field>Code__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Required</behavior>
+                <field>ReleaseStatus__c</field>
             </layoutItems>
         </layoutColumns>
         <layoutColumns>
@@ -83,7 +91,7 @@
     <showRunAssignmentRulesCheckbox>false</showRunAssignmentRulesCheckbox>
     <showSubmitAndAttachButton>false</showSubmitAndAttachButton>
     <summaryLayout>
-        <masterLabel>00h3C000001B813</masterLabel>
+        <masterLabel>00h1D000006MYQl</masterLabel>
         <sizeX>4</sizeX>
         <sizeY>0</sizeY>
         <summaryLayoutStyle>Default</summaryLayoutStyle>
