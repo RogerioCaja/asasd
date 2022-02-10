@@ -159,7 +159,7 @@
     <enableSharing>true</enableSharing>
     <enableStreamingApi>true</enableStreamingApi>
     <externalSharingModel>Private</externalSharingModel>
-    <gender>Feminine</gender>
+   
     <label>Cultura</label>
     <nameField>
         <label>Nome de Cultura</label>
