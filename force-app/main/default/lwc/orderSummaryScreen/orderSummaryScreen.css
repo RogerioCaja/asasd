@@ -1,3 +1,4 @@
+/* Organização das informações do cabeçalho */
 .cabecalho{
     width: 100%;
     bottom: 90px;
@@ -8,13 +9,20 @@
     display: flex; 
     padding: 1em;
     flex-direction: column;
-    gap: 5px;
+    gap: 10px;
     
 }
 
 .titulo_agrogalaxy{
     font-weight: bold;
     font-size: 16pt;
+}
+
+.titulo_agrogalaxy span{
+    font-weight: bold;
+    font-size: 16pt;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 section{
@@ -32,6 +40,7 @@ section > div > section{
     display: flex;
     flex-direction: row;
     gap: 1em;
+    font-weight: bold;
     color: #57595c;
     
 }
@@ -44,9 +53,26 @@ section > div > section > span:nth-child(even) {
 lightning-datatable{
     padding-top: 30px;
 }
+/* ---------------------------------------------- */
 
+/* Estilização da tabela */
+tr{
+    border-top: solid 1px #989898;
+    border-bottom: solid 1px #989898;
+}
+tr:first-of-type{
+    background-color: #f2f2f2;
+}
+td{
+    padding: 10px;
+    text-align: center;
+}
+th{
+    text-align: center; 
+}
+/* ----------------------------------------------------------- */
 
-
+/* Parte do tooltip(Quando passar o mouse em cima de remessas) */
 .tooltip {
     position: relative;
     display: inline-block;
@@ -56,10 +82,10 @@ lightning-datatable{
 .tooltip .tooltiptext {
     visibility: hidden;
     width: 120px;
-    background-color: black;
-    color: #fff;
+    background-color: #e7e7e7;
+    color: black;
     text-align: center;
-    border-radius: 6px;
+    border-radius: 12px;
     padding: 5px 0;
     position: absolute;
     z-index: 1;
@@ -73,12 +99,15 @@ lightning-datatable{
     position: absolute;
     top: 100%;
     left: 50%;
-    margin-left: -5px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: black transparent transparent transparent;
+    width: 0; 
+    height: 0; 
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #949396;
+    
 }
 
 .tooltip:hover .tooltiptext {
     visibility: visible;
 }
+/* ---------------------------------------------------------- */
