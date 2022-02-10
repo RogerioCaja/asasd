@@ -1,0 +1,123 @@
+/* Organização das informações do cabeçalho */
+.cabecalho{
+    width: 100%;
+    bottom: 90px;
+    border: #DDD solid 1px;
+    border-radius: 5px;
+    background-color: #FFF;
+    margin: 10px 0 20px 0;
+    display: flex; 
+    padding: 1em;
+    flex-direction: column;
+    gap: 10px;
+    
+}
+
+.titulo{
+    font-weight: bold;
+    font-size: 13pt;
+}
+
+.titulo span{
+    font-weight: bold;
+    font-size: 16pt;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+section{
+   display: flex;
+   flex-direction: column;
+   gap: 1em;
+}
+
+section > div{
+    display: flex;
+    justify-content: space-between;
+}
+
+section > div > section{
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+    font-weight: bold;
+    color: #57595c;
+    
+}
+
+section > div > section > span:nth-child(even) {
+    color: black;
+    font-weight: bold;
+} 
+
+lightning-datatable{
+    padding-top: 30px;
+}
+/* ---------------------------------------------- */
+
+/* Estilização da tabela */
+tr{
+    border-top: solid 1px #989898;
+    border-bottom: solid 1px #989898;
+}
+tr:first-of-type{
+    background-color: #f2f2f2;
+}
+td{
+    padding: 10px;
+    text-align: center;
+}
+th{
+    text-align: center; 
+}
+/* ----------------------------------------------------------- */
+
+/* Parte do tooltip(Quando passar o mouse em cima de remessas) */
+.tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: #e7e7e7;
+    color: black;
+    text-align: center;
+    border-radius: 12px;
+    padding: 5px 0;
+    position: absolute;
+    z-index: 1;
+    bottom: 150%;
+    left: 50%;
+    margin-left: -60px;
+}
+
+.tooltip .tooltiptext::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    width: 0; 
+    height: 0; 
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #949396;
+    
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+}
+/* ---------------------------------------------------------- */
+
+textarea{
+    border-radius: 5px;
+    font-size: 10pt;
+    resize: none;
+}
+
+textarea:hover{
+    box-shadow: 1px 1px 1px #999;
+}
