@@ -13,12 +13,12 @@
     
 }
 
-.titulo_agrogalaxy{
+.titulo{
     font-weight: bold;
-    font-size: 16pt;
+    font-size: 13pt;
 }
 
-.titulo_agrogalaxy span{
+.titulo span{
     font-weight: bold;
     font-size: 16pt;
     padding-left: 10px;
@@ -111,3 +111,13 @@ th{
     visibility: visible;
 }
 /* ---------------------------------------------------------- */
+
+textarea{
+    border-radius: 5px;
+    font-size: 10pt;
+    resize: none;
+}
+
+textarea:hover{
+    box-shadow: 1px 1px 1px #999;
+}
