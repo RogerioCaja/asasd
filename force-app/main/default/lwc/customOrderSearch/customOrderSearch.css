@@ -15,7 +15,7 @@
     align-content: center;
   }
   
-  .inputDiv > input {
+  input[name="search"] {
     padding: 10px;
     font-size: 17px;
     border: 1px solid #2A9676;
@@ -24,7 +24,7 @@
     width: 70%;
   }
   
-  .inputDiv > input:focus-visible {
+  .inputDiv > input[name="search"]:focus-visible {
     border: 2px solid #54b195;
   }
   
@@ -65,3 +65,11 @@
   }
 
   /* CSS DE RESULTADOS */
+
+ /* .slds-dropdown-trigger .slds-dropdown {
+  width: 100%;
+}
+
+.slds-combobox_container {
+  width: 100%;
+}*/

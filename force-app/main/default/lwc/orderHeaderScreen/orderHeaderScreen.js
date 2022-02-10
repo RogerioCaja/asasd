@@ -14,19 +14,32 @@ export default class OrderHeaderScreen extends LightningElement {
     readonly = false
     @api accountData;
 
+    @api headerData = {
+        lista_precos:'01s3F000006RwA7QAK'
+    };
+
     tipo_venda;
     filial;
     cliente_entrega;
     safra;
     cultura;
-    lista_precos;
+    lista_precos = '01s3F000006RwA7QAK';
     condicao_pagamento;
     data_pagamento;
     data_entrega;
 
+    //Lista de Preço
     @track redispatchListaPrecosSearchFields = [LISTA_PRECO_NAME];
     @track redispatchListaPrecoObject = LISTA_PRECO_OBJECT;
     @track redispatchListaPrecoListItemOptions = { title: 'Name', description: 'Name' };
+
+    moedas = [{
+        value: 'BRL',
+        label: 'BRL (R$)'
+    },{
+        value: 'USD',
+        label: 'USD (US$)'
+    }];
 
     tiposVenda = [{
             value: '0',

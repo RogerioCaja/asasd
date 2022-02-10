@@ -52,6 +52,28 @@ public without sharing class CustomLookupController {
 	    }
     }
 
+    @AuraEnabled
+    public static List<ProductData> fetchProductsRecords(String searchString) {
+        try {
+            List<ProductData> recordsDataList = new List<ProductData>();
+            String query = 'SELECT Id, Name, QuantityUnitOfMeasure FROM Product2 WHERE Name LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' LIMIT 49999';
+            
+	        for(SObject s : Database.query(query)) {
+	            recordsDataList.add(new ProductData((String)s.get('Id'), (String)s.get('Name'), (String)s.get('QuantityUnitOfMeasure')));
+	        }
+
+            return recordsDataList;
+
+	    } catch (Exception err) {
+
+	    	if ( String.isNotBlank( err.getMessage() ) && err.getMessage().contains( 'error:' ) ) {
+                throw new AuraHandledException(err.getMessage().split('error:')[1].split(':')[0] + '.');
+            } else {
+                throw new AuraHandledException(err.getMessage());
+            }
+	    }
+    }
+
     public class RecordsData {
 
         @AuraEnabled public String label;
@@ -60,6 +82,18 @@ public without sharing class CustomLookupController {
         public RecordsData(String label, String value) {
             this.label = label;
             this.value = value;
+        }
+    }
+
+    public class ProductData {
+        @AuraEnabled public String Id;
+        @AuraEnabled public String Name;
+        @AuraEnabled public String unidade;
+        
+        public ProductData(String Id, String Name, String unidade) {
+            this.Id = Id;
+            this.Name = Name;
+            this.unidade = unidade;
         }
     }
 }

@@ -5,6 +5,7 @@ import {
 } from 'lwc';
 import fetchRecords from '@salesforce/apex/CustomLookupController.fetchRecords';
 import fetchAccountRecords from '@salesforce/apex/CustomLookupController.fetchAccountRecords';
+import fetchOrderRecords from '@salesforce/apex/CustomLookupController.fetchProductsRecords';
 import {
     ShowToastEvent
 } from 'lightning/platformShowToastEvent';
@@ -72,6 +73,34 @@ export default class CustomOrderSearch extends LightningElement {
         this.recordsList = [];
         if (this.objectName == 'Account') {
             fetchAccountRecords({
+                    searchString: this.searchString
+                })
+                .then(result => {
+                    const tabEvent = new CustomEvent("showresults");
+                    if (result && result.length > 0) {
+                        this.recordsList = result;
+                        /*console.log(JSON.parse(JSON.stringify(result)));
+                        if (selectedAccount) { this.recordsList.filter(x => x.Id !== this.selectedRecord.Id); }
+                        console.log(JSON.parse(JSON.stringify( this.recordsList)));*/
+                        this.showResultList = true;
+
+                        tabEvent.results = this.recordsList;
+                        tabEvent.showResults = true;
+                        tabEvent.message = false;
+                    } else {
+                        tabEvent.results = result;
+                        tabEvent.showResults = true;
+                        tabEvent.message = "Nenhum registro encontrado para '" + this.searchString + "'";
+                    }
+
+                    this.dispatchEvent(tabEvent);
+                    this.showSpinner = false;
+                }).catch(error => {
+                    this.message = error.message;
+                    this.showSpinner = false;
+                });
+        }else if (this.objectName == 'Product2') {
+            fetchOrderRecords({
                     searchString: this.searchString
                 })
                 .then(result => {

@@ -16,3 +16,25 @@
       width: 90%;
     }
 }
+
+.resultados_produto{
+  width: 100%;
+  top: 50%;
+  left: 50%;
+  margin-top: 10px;
+}
+
+.resultados_produto h2{
+  color: #2A9676;
+  font-size: 18px;
+}
+
+lightning-datatable{
+  margin: 50px 0px;
+  width: 100%;
+}
+
+lightning-datatable.dt-outer-container{
+  border: 1px solid #DDDDDD;
+  border-radius: 4px;
+}

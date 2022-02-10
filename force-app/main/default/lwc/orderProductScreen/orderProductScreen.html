@@ -3,4 +3,23 @@
         <span>Pesquisar <b>PRODUTO</b>:</span>
       </div>
     <c-custom-order-search object-name="Product2" field-name="Name" onshowresults={showResults} label="Pesquisar PRODUTO:" placeholder="Digite o nome do Produto" required="true" onchild={getFieldsValueProduct}></c-custom-order-search>
+    <div class="resultados_produto" if:true={showList}>
+      <template if:false={message}>
+        <h2 class="descricao">Resultados de <b>Conta</b>:</h2>
+        <lightning-datatable class="slds-is-relative"
+            data={products}
+            columns={columns}
+            key-field="id"
+            onrowaction={handleRowAction}
+            onrowselection={getSelectedName}
+        >
+        </lightning-datatable>
+      </template>
+      <template if:true={message}>
+        <h2 class="descricao">{message}</h2>
+      </template>
+    </div>
+
+    <!--Modal-->
+    <c-modal-remessa></c-modal-remessa>
 </template>
