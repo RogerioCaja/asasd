@@ -91,6 +91,7 @@ export default class OrderSummaryScreen extends LightningElement {
             this.staticValue = "visible"
             values[0].style.visibility = this.staticValue;
             buttons[0].style.setProperty("-webkit-transform", "rotate(-180deg)", null);
+            buttons[0].style.setProperty("transition-duration", "1s", null);
         }
         else{
             this.staticValue = "hidden"
