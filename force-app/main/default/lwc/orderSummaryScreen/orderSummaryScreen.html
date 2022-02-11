@@ -183,7 +183,11 @@
             
           </table>
 
-          <span class="titulo">Observações:</span>
-          <textarea rows="5" placeholder="Observações sobre o pedido"></textarea>
+          <span class="titulo">Observações:
+                <button type="button" onclick={showandHiddenTextArea}>
+                  <div class="triangle"></div>
+                </button>
+            </span>
+          <textarea data-id="observacao" rows="5" placeholder="Observações sobre o pedido"></textarea>
     </div>
 </template>

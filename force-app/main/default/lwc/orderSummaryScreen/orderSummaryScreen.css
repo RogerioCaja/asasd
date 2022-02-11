@@ -111,11 +111,32 @@ th{
     visibility: visible;
 }
 /* ---------------------------------------------------------- */
+.triangle{
+    width: 0; 
+    height: 0; 
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #949396;
+}
+.triangle:hover{
+    border-radius: 2px;
+    border-top-color: black;
+    -webkit-transition: border-top-color 1000ms linear;
+    -ms-transition: border-top-color 1000ms linear;
+    transition: border-top-color 1000ms linear;
+}
+button{
+    background-color: transparent;
+    border: none;
+}
+
+
 
 textarea{
     border-radius: 5px;
     font-size: 10pt;
     resize: none;
+    visibility: hidden;
 }
 
 textarea:hover{
