@@ -18,4 +18,8 @@
         <tab>NotaFiscal__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
+    <tabSettings>
+        <tab>Pedido</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
 </PermissionSet>
