@@ -1,0 +1,66 @@
+.cabecalho{
+    width: 100%;
+    bottom: 90px;
+    border: #DDD solid 1px;
+    border-radius: 5px;
+    background-color: #FFF;
+    margin: 10px 0 20px 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 2fr;
+    grid-column-gap: 12px;
+    grid-row-gap: 12px;
+}
+
+div.titulo {
+  width: 100%;
+  text-align: left;
+  margin: 25px 0;
+}
+
+.titulo > h2{
+  color: #2A9676;
+  font-size: 18px;
+}
+
+.detalhes_conta{
+    padding: 10px;
+}
+
+.tituloItem{
+    width: 100%;
+    font-weight: bold;
+    font-size: 18px;
+    color: #121212;
+    display: flex;
+    align-items: center;
+  }
+
+  .tituloItem span{
+    margin-left: 5px;
+  }
+
+  .texto{
+    font-weight: bold;
+  }
+
+  .texto span{
+    color: #999999;
+    font-weight: normal;
+  }
+
+
+.dadosConta { display: grid; grid-template-columns: auto auto auto;  }
+
+@media only screen and (max-width: 500px){
+.dadosConta { display: grid; grid-template-columns: auto;  }
+}
+
+.dadosConta div{ padding: 12px; }
+
+.campos{
+    background-color: #F7F7F7;
+    padding: 12px;
+}
+
+.tituloResumo { padding: 12px; height: auto; grid-area: 1 / 1 / 1 / 4; }
