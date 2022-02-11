@@ -2,4 +2,20 @@
 <PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
     <hasActivationRequired>false</hasActivationRequired>
     <label>Admin</label>
+    <tabSettings>
+        <tab>Cultura__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Boletos__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>ItensNotaFiscal__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>NotaFiscal__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
 </PermissionSet>
