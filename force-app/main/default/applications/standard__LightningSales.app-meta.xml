@@ -58,6 +58,7 @@
         <profile>Standard</profile>
     </profileActionOverrides>
     <tabs>standard-home</tabs>
+    <tabs>Pedido</tabs>
     <tabs>standard-Opportunity</tabs>
     <tabs>standard-Quote</tabs>
     <tabs>standard-Lead</tabs>
@@ -75,5 +76,6 @@
     <tabs>standard-OtherUserProfile</tabs>
     <tabs>standard-Case</tabs>
     <tabs>standard-Forecasting3</tabs>
+    <tabs>standard-Order</tabs>
     <uiType>Lightning</uiType>
 </CustomApplication>

@@ -1,0 +1,75 @@
+:host{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  width: 80%;
+}
+
+.inputDiv{
+    display: flex;
+    flex-direction: row;
+    height: 44px;
+    width: 100%;
+    align-self: center;
+    justify-content: stretch;
+    align-content: center;
+  }
+  
+  input[name="search"] {
+    padding: 10px;
+    font-size: 17px;
+    border: 1px solid #2A9676;
+    background: #FFF;
+    border-radius: 4px 0 0 4px;
+    width: 70%;
+  }
+  
+  .inputDiv > input[name="search"]:focus-visible {
+    border: 2px solid #54b195;
+  }
+  
+  /* Style the submit button */
+  div.inputDiv >  button {
+    background: #2a9676;
+    color: white;
+    padding: 12px;
+    font-size: 14px;
+    border: 1px solid grey;
+    border-left: none; /* Prevent double borders */
+    cursor: pointer;
+    border-radius: 0 4px 4px 0;
+    width: 30%;
+  }
+  
+  div.inputDiv >  button:hover {
+    background: #127B5C;
+  }
+  
+
+  
+  @media screen and (max-width: 500px) {
+
+    :host{
+      width: 100%;
+    }
+    
+    .inputDiv >  div {
+      float: none;
+      display: block;
+      width: 100%;
+      text-align: left;
+    }
+    .inputDiv{
+      flex-wrap: wrap !important;
+    }
+  }
+
+  /* CSS DE RESULTADOS */
+
+ /* .slds-dropdown-trigger .slds-dropdown {
+  width: 100%;
+}
+
+.slds-combobox_container {
+  width: 100%;
+}*/

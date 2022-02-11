@@ -1,0 +1,49 @@
+:host {
+    height: 90px;
+    text-align: left;
+    font-size: 16px;
+    font-weight: bold;
+    position: fixed;
+    border: 1px solid #DDD;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: #F2F2F2;
+    color: #000;
+    -webkit-box-shadow: 5px 5px 15px 1px #6E6E6E; 
+    box-shadow: 5px 5px 15px 1px #6E6E6E;
+    z-index: 9999;
+ }
+ 
+ :host .content{
+    width: 90%;
+    margin: auto;
+    display: grid;
+    grid-template-columns: 33% 33% 33%;
+    padding: 12px 0 0 0;
+    align-items: center;
+ }
+ 
+ .content div{
+    display: grid;
+    align-items: center;
+    justify-items: left;
+    grid-template-columns: auto auto auto;
+    grid-column-gap: 5px;
+ }
+ 
+ @media only screen and (max-width: 500px){
+    .content{   grid-template-columns: 40% 30% 30%;}
+    .content div{
+       width: 100%;
+       display: grid;
+       align-items: stretch;
+       justify-items: left;
+       grid-template-columns: auto auto;
+       grid-template-rows: auto auto;
+       grid-column-gap: 10px;
+    }
+ }
+ :host span{
+    color: #A79A9A;
+ }
