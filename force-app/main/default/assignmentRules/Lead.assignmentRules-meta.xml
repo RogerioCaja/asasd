@@ -11,6 +11,11 @@
                 <operation>equals</operation>
                 <value>Site</value>
             </criteriaItems>
+            <criteriaItems>
+                <field>Lead.Status</field>
+                <operation>equals</operation>
+                <value>Novo</value>
+            </criteriaItems>
         </ruleEntry>
     </assignmentRule>
 </AssignmentRules>
