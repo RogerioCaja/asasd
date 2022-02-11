@@ -22,7 +22,8 @@ export default class OrderProductScreen extends LightningElement {
         'preco_total': 0,
         'percentual_desconto_comercial': 0,
         'valor_desconto_comercial': 0,
-        'percentual_acrescimo_financeiro': 0
+        'percentual_acrescimo_financeiro': 0,
+        'remessas': []
     }, {
         'Id': '2',
         'Name': 'Produto 2',
@@ -34,11 +35,13 @@ export default class OrderProductScreen extends LightningElement {
         'valor_desconto_comercial': 0,
         'percentual_acrescimo_financeiro': 0,
         'remessas': [{
-                'data_entrega': '02-05-2022',
+                'index':0,
+                'data': '02-05-2022',
                 'quantidade': 150
             },
             {
-                'data_entrega': '28-05-2022',
+                'index':1,
+                'data': '28-05-2022',
                 'quantidade': 50
             }
         ]

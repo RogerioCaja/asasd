@@ -1,5 +1,5 @@
 .cabecalho{
-    width: 90%;
+    width: 100%;
     bottom: 90px;
     border: #DDD solid 1px;
     border-radius: 5px;
@@ -13,7 +13,7 @@
 }
 
 div.titulo {
-  width: 90%;
+  width: 100%;
   text-align: left;
   margin: 25px 0;
 }
