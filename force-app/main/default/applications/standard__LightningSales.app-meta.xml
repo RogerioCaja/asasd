@@ -7,7 +7,6 @@
     <isNavPersonalizationDisabled>false</isNavPersonalizationDisabled>
     <label>Sales</label>
     <navType>Standard</navType>
-    <tabs>standard-home</tabs>
     <tabs>Pedido</tabs>
     <tabs>standard-Opportunity</tabs>
     <tabs>standard-Quote</tabs>
