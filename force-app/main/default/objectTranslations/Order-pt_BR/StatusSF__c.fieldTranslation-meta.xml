@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Status SF --></label>
+    <name>StatusSF__c</name>
+    <picklistValues>
+        <masterLabel>Aprovado</masterLabel>
+        <translation><!-- Aprovado --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Em Aprovação - Comitê Margem</masterLabel>
+        <translation><!-- Em Aprovação - Comitê Margem --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Em aprovação</masterLabel>
+        <translation><!-- Em aprovação --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Em digitação</masterLabel>
+        <translation><!-- Em digitação --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Integrado</masterLabel>
+        <translation><!-- Integrado --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Recusado</masterLabel>
+        <translation><!-- Recusado --></translation>
+    </picklistValues>
+</CustomFieldTranslation>
