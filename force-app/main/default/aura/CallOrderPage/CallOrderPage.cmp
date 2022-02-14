@@ -1,0 +1,3 @@
+<aura:component implements="force:lightningQuickActionWithoutHeader,force:hasRecordId,lightning:actionOverride" access="global">
+    <c:orderScreen recordId="{!v.recordId}"></c:orderScreen>
+</aura:component>
