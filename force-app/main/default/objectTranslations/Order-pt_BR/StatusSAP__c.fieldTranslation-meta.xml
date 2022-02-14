@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Status SAP --></label>
+    <name>StatusSAP__c</name>
+    <picklistValues>
+        <masterLabel>Cancelado</masterLabel>
+        <translation><!-- Cancelado --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Concluído</masterLabel>
+        <translation><!-- Concluído --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Crédito Bloqueado</masterLabel>
+        <translation><!-- Crédito Bloqueado --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Crédito Liberado</masterLabel>
+        <translation><!-- Crédito Liberado --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Em análise de Crédito</masterLabel>
+        <translation><!-- Em análise de Crédito --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Faturado Parcialmente</masterLabel>
+        <translation><!-- Faturado Parcialmente --></translation>
+    </picklistValues>
+</CustomFieldTranslation>
