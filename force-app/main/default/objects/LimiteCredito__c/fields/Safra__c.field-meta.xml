@@ -8,6 +8,7 @@
     <relationshipLabel>Limites de Créditos</relationshipLabel>
     <relationshipName>Limites_de_Cr_ditos</relationshipName>
     <required>true</required>
+    <trackFeedHistory>false</trackFeedHistory>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>
     <type>Lookup</type>
