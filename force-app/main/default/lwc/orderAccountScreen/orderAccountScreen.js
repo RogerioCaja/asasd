@@ -22,7 +22,9 @@ export default class OrderAccountScreen extends LightningElement {
         try{
             console.log(event.target.key, event.target.dataset.key, event.target.dataset.key.toString());
             this.changeStyle(event.target.dataset.key);
-            this.selectedAccount = this.records.filter(i => event.target.dataset.key == i.Id);
+            const listafiltrada = this.records.filter(i => event.target.dataset.key == i.Id);
+            console.log(listafiltrada);
+            this.selectedAccount = listafiltrada;
             this._verifyFieldsToSave();
         }catch(e){
             console.log(e);
@@ -46,24 +48,15 @@ export default class OrderAccountScreen extends LightningElement {
 
     @api
     verifyMandatoryFields(){
-        if(this.selectedAccount !== null){
+        if(this.selectedAccount !== undefined){
             return true;
         }
         return false;
     }
 
+    @api
     _verifyFieldsToSave() {
-        if (this.tipo_venda !== null &&
-            /* this.filial &&
-            this.cliente_entrega &&
-            this.safra &&
-            this.cultura &&
-            this.lista_precos &&
-            this.condicao_pagamento &&*/
-            this.lista_precos !== null &&
-            this.cliente_entrega !== null &&
-            this.data_pagamento !== null &&
-            this.data_entrega !== null) {
+        if (this.verifyMandatoryFields()) {
             this._setData();
             return true;
         }

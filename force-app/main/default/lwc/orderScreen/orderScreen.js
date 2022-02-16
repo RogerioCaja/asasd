@@ -10,7 +10,7 @@ import {
 import {
     ShowToastEvent
 } from 'lightning/platformShowToastEvent';
-//import getOrder from '@salesforce/apex/CustomOrderScreen.getOrder';
+import saveOrder from '@salesforce/apex/OrderScreenController.saveOrder';
 
 export default class OrderScreen extends LightningElement {
     @api recordId;
@@ -51,7 +51,7 @@ export default class OrderScreen extends LightningElement {
         {
             name: 'header',
             current: false,
-            enable: true,
+            enable: false,
             message: 'Necessário preencher todos os dados obrigatórios antes de seguir',
             component: 'c-order-header-screen'
         },
@@ -97,6 +97,10 @@ export default class OrderScreen extends LightningElement {
         this.checkPreviousNextBtn();
         this.changeStyle();
     }
+
+    async loadVariable(){
+        await this.recordId;
+    }
     /*connectedCallback() {
         this.loadVariable();
     }
@@ -126,6 +130,22 @@ export default class OrderScreen extends LightningElement {
         })
     }*/
 
+    async saveOrder(){
+        await this.recordId;
+        const data = {'accountData':this.accountData, headerData: this.headerData};
+        saveOrder({orderId: this.recordId, data: JSON.stringify(data)})
+        .then((result) => {
+            result = JSON.parse(result);
+            if(result.hasError)
+                this.showNotification(result.message, 'success');
+            else
+                this.showNotification(result.message, 'erro');
+        }).catch((err)=>{
+            console.log(err);
+            this.showNotification(err.message, 'error');
+        });
+    }
+
     connectedCallback() {
         //Importando estilo para esconder header padrão de página
         loadStyle(this, NoHeader);
@@ -151,7 +171,7 @@ export default class OrderScreen extends LightningElement {
 
     _setProductData(event) {
         this.productData = event.data;
-        console.log('acproductcount data setted:', this.productData);
+        console.log('acproductcount data setted:', this.productData, event.detail, event.data, event);
         this.enableNextScreen();
         this.completeCurrentScreen();
     }
@@ -247,11 +267,11 @@ export default class OrderScreen extends LightningElement {
         }
     }
 
-    showNotification(message) {
+    showNotification(message, variant = 'warning', title= this._title) {
         const evt = new ShowToastEvent({
-            title: this._title,
+            title: title,
             message: `${message}`,
-            variant: this.variant,
+            variant: variant,
         });
         this.dispatchEvent(evt);
     }

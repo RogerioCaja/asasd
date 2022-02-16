@@ -62,12 +62,17 @@
                 </svg>
                 Voltar
                 </span>
+                <template if:false={summary}>
                 <span onclick={handleNext}>
                 Avançar
                 <svg style="margin-left: 15px;" width="11" height="19" viewBox="0 0 11 19" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path fill="#2A9676" d="M2.1868 18.1771L10.6971 9.33859L2.18681 0.500045L0.76758 1.97296L7.8607 9.33859L0.767579 16.7042L2.1868 18.1771Z"></path>
                 </svg>
                 </span>
+                </template>
+                <template if:true={summary}>
+                    <button type="button" onclick={saveOrder} class="slds-button slds-button_success">Finalizar</button>
+                </template>
             </div>
             <!--FINAL NAVBAR BOTTOM-->
 
