@@ -4,7 +4,8 @@
         evt.setParams({
             componentDef: "c:orderScreen",
             componentAttributes: {
-                recordId: component.get("v.recordId")
+                recordId: component.get("v.recordId"),
+                originScreen: System.URL.getCurrentRequestUrl().GetPath()
             }
         });
         evt.fire();
