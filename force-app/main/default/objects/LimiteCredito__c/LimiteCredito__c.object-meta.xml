@@ -162,7 +162,7 @@
     <gender>Masculine</gender>
     <label>Limite de Crédito</label>
     <nameField>
-        <label>Nome de Limite de Crédito</label>
+        <label>Nome do Limite</label>
         <trackFeedHistory>false</trackFeedHistory>
         <trackHistory>false</trackHistory>
         <type>Text</type>
