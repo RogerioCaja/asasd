@@ -159,7 +159,7 @@
     <enableSharing>true</enableSharing>
     <enableStreamingApi>true</enableStreamingApi>
     <externalSharingModel>ControlledByParent</externalSharingModel>
-    <gender>Masculine</gender>
+   
     <label>Limite de Crédito</label>
     <nameField>
         <label>Nome do Limite</label>
