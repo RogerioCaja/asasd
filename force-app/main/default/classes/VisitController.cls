@@ -10,7 +10,7 @@ public with sharing class VisitController {
         // })
     }
 
-    public String getDatetime(){
+    public static String getDatetime(){
         Datetime  dt = DateTime.now();
         String dateFormat = dt.format('dd/MM/yyyy HH:mm:ss', 
         'America/Sao_Paulo');
