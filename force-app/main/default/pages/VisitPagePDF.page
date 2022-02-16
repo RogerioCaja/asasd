@@ -1,5 +1,6 @@
 <apex:page applyBodyTag="false" docType="html-5.0" readOnly="true" renderAs="advanced_pdf" controller="VisitController">
 
+
 <!-- Estilização Básica do PDF => Cores e dimensionamento -->
 <head>
     <style>
@@ -195,6 +196,12 @@
     <h4>Coordenadas</h4>
         <span>Latitude: ????</span><br/>
         <span>Longitude: ????</span>
+        <!-- <apex:pageBlockTable value="{! contacts }" var="ct">
+            <apex:column value="{! ct.FirstName }"/>
+            <apex:column value="{! ct.LastName }"/>
+            <apex:column value="{! ct.Title }"/>
+            <apex:column value="{! ct.Email }"/>
+        </apex:pageBlockTable> -->
         <table class="coordinate">
             <tr>
                 <td>
