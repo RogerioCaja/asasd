@@ -1,0 +1,240 @@
+<apex:page applyBodyTag="false" docType="html-5.0" readOnly="true" renderAs="advanced_pdf">
+
+<!-- Estilização Básica do PDF => Cores e dimensionamento -->
+<head>
+    <style>
+    
+    body{
+        font-family: Arial, Helvetica, sans-serif;
+    }
+    .Header-1{
+        width: 100%;
+    }
+
+    table{
+        width: 100%;
+        border: none;
+    }
+
+    h2{
+        border-top: solid 1px black;
+        border-bottom: solid 1px black;
+        padding: 10px;
+        text-align: center;
+    }
+
+    h4{
+        background-color: #b1afaf;
+    }
+
+    .sub-title{
+        background-color: #b1afaf;
+        width: 100%;
+    }
+
+    .informacao-header{
+        width: 66.66%;
+        text-align: left;
+        padding-left: 20px
+    } 
+
+
+    .title-information{
+        font-weight: bold;
+        font-size: 10pt;
+    }
+
+    .information{
+        font-size: 10pt;
+    }
+
+    .coordinate{
+        width:100%;
+        background-color: #dcdcdc;
+    }
+
+   
+    .coordinate > tr > td{
+        width:50%;
+        height: 100%;
+    }
+
+    .description{
+        height: 300px;
+        vertical-align: top;
+    }
+
+    </style>
+</head>
+
+<!-- Cabeçalho do PDF => Comporta o Logo e as informações da Organização de Vendas -->
+<div class="Header-1">
+
+    <table>
+        <tr>
+            <td><apex:image url="{!URLFOR($Resource.Images_logo, 'ImageToPDF/imgs/agro3-960x540.jpg')}" width="160" height="90" alt="Description of image here"/></td>
+            <td class="informacao-header">
+               <table cellspacing="5">
+                   <tr>
+                       <td>
+                            Organização de venda: AGROFERRARI
+                       </td>
+                   </tr>
+                   <tr>
+                        <td>
+                            AGROFERRARI - Primavera/Verão 
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Emissão: {! DAY(TODAY())} / {! MONTH(TODAY())} / {! YEAR(TODAY())} {!TIMENOW()}
+                        </td>
+                    </tr>
+               </table>
+            </td>
+        </tr>
+    </table>
+</div>
+
+
+<div>
+    <!-- Título do PDF -->
+    <h2>RELATÓRIO EM TEMPO REAL</h2>
+    <!-- Informações do Cabeçalho => Dados básicos-->
+    <h4>Informações da visita</h4>
+        <table>
+            <tr>
+                <td class="title-information">
+                    PROFISSIONAL:
+                </td>
+                <td class="information">
+                    FELIPE SOARES DE PAULA
+                </td>
+                <td class="title-information">
+                    DATA INÍCIO:
+                </td >
+                <td class="information"> 
+                    16/07/2018 16:48:00
+                </td>
+            </tr>
+            <tr>
+                <td class="title-information">
+                    PESSOA:
+                </td>
+                <td class="information">
+                    ANTONIO SADI BALDOPESSOA
+                </td>
+                <td class="title-information">
+                    MUNICÍPIO:
+                </td>
+                <td class="information">
+                    AGUA BOA
+                </td>
+            </tr>
+            <tr>
+                <td class="title-information">
+                    ENDEREÇO:
+                </td>
+                <td class="information">
+                    MARGEM ESQ. DA ROD. 158 A 25 KM DA SEDE
+                </td>
+                <td class="title-information">
+                    BAIRRO:
+                </td>
+                <td class="information">
+                    ZONA RURAL
+                </td>
+            </tr>
+            <tr>
+                <td class="title-information">
+                    ESTADO:
+                </td>
+                <td class="information">
+                    MG
+                </td>
+                <td class="title-information">
+                    CONTATO:
+                </td>
+                <td class="information">
+                    (66) 34682102
+                </td>
+            </tr>
+        </table>
+    <!-- Título de Detalhes => informações como safra e cultura -->
+    <h4>Detalhes da Visita</h4>
+        <tr>
+            <td class="title-information">
+                SERVIÇO:
+            </td>
+            <td class="information">
+                ACOMPANHAMENTO DE COLHEITA
+            </td>
+            <td class="title-information">
+                PROPRIEDADE:
+            </td>
+            <td class="information">
+                FAZENDA NOSSA SENHORA APARECIDA
+            </td>
+        </tr>
+        <tr>
+            <td class="title-information">
+                SAFRA:
+            </td>
+            <td class="information">
+                19/19 SAFRINHA MILHO
+            </td>
+            <td class="title-information">
+                CULTURA:
+            </td>
+            <td class="information">
+                MILHO
+            </td>
+        </tr>
+
+    <!-- Informações de coordenadas => Localização do Cliente -->
+    <h4>Coordenadas</h4>
+        <span>Latitude: ????</span><br/>
+        <span>Longitude: ????</span>
+        <table class="coordinate">
+            <tr>
+                <td>
+                    <apex:image url="{!URLFOR($Resource.Images_logo, 'ImageToPDF/imgs/AgroLogo.jpg')}" width="300" height="300" alt="Description of image here"/>
+                </td>
+                <td>
+                    <table class="description">
+                        <tr>
+                            <td>
+                                <div class="sub-title">Descrição / Sugestão</div> 
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+                
+        </table>
+    <!-- Possíveis Observações Finais do Cliente -->
+    <h4>Considerações Finais</h4>
+        <table>
+            <tr>
+                <td>
+                    Acompanhamento de colheita de Milho
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Lado a lado
+                </td>
+            </tr>
+        </table>
+
+    
+    
+
+
+    <!-- Informações sobre a próxima visita => datas, endereços, coisas assim -->
+    <h4>Próxima Visita:</h4>
+     
+</div>
+
+
+</apex:page>
