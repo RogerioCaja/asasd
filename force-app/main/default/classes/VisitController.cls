@@ -22,7 +22,7 @@ public with sharing class VisitController {
         return dateFormat;
     }
 
-    public void getVisitById(Id visitId, Set<String> fieldsSet){
+    public static void getVisitById(Id visitId, Set<String> fieldsSet){
 
         Boolean isNotBlank = String.isNotBlank(String.valueOf(visitId));
         
