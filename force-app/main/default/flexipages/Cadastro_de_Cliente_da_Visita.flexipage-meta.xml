@@ -35,7 +35,7 @@
                 <componentName>force:detailPanel</componentName>
             </componentInstance>
         </itemInstances>
-        <name>Facet-c14b2436-a4ca-44d8-bdbb-92675ee70fde</name>
+        <name>Facet-f59dea4a-a9d6-4282-a8a8-ac91cc05ab28</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -44,7 +44,7 @@
                 <componentName>runtime_sales_activities:activityPanel</componentName>
             </componentInstance>
         </itemInstances>
-        <name>Facet-3e6f6b61-9381-4819-ba44-cf6e569b6bd9</name>
+        <name>Facet-d40bad52-3046-4404-b609-4df53922752a</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -56,7 +56,7 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>body</name>
-                    <value>Facet-c14b2436-a4ca-44d8-bdbb-92675ee70fde</value>
+                    <value>Facet-f59dea4a-a9d6-4282-a8a8-ac91cc05ab28</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>title</name>
@@ -68,8 +68,12 @@
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
+                    <name>active</name>
+                    <value>false</value>
+                </componentInstanceProperties>
+                <componentInstanceProperties>
                     <name>body</name>
-                    <value>Facet-3e6f6b61-9381-4819-ba44-cf6e569b6bd9</value>
+                    <value>Facet-d40bad52-3046-4404-b609-4df53922752a</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>title</name>
@@ -78,7 +82,7 @@
                 <componentName>flexipage:tab</componentName>
             </componentInstance>
         </itemInstances>
-        <name>Facet-08cbbeef-e870-4067-8855-89fe49fd96f7</name>
+        <name>Facet-7e3c31e3-34c0-4378-9440-e31cea3755aa</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -86,7 +90,7 @@
             <componentInstance>
                 <componentInstanceProperties>
                     <name>tabs</name>
-                    <value>Facet-08cbbeef-e870-4067-8855-89fe49fd96f7</value>
+                    <value>Facet-7e3c31e3-34c0-4378-9440-e31cea3755aa</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:tabset</componentName>
             </componentInstance>
@@ -99,11 +103,11 @@
             <componentInstance>
                 <componentInstanceProperties>
                     <name>parentFieldApiName</name>
-                    <value>Fotos__c.Id</value>
+                    <value>Cadastro_ClientedaVisita__c.Id</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>relatedListApiName</name>
-                    <value>AttachedContentDocuments</value>
+                    <value>Fotos__r</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>relatedListComponentOverride</name>
@@ -120,19 +124,15 @@
                 <componentName>force:relatedListSingleContainer</componentName>
             </componentInstance>
         </itemInstances>
-        <name>Facet-d0069e28-e790-4530-a365-b6f989eb24a3</name>
+        <name>Facet-udlvc5cxs3c</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
                 <componentInstanceProperties>
-                    <name>active</name>
-                    <value>true</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
                     <name>body</name>
-                    <value>Facet-d0069e28-e790-4530-a365-b6f989eb24a3</value>
+                    <value>Facet-udlvc5cxs3c</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>title</name>
@@ -141,7 +141,7 @@
                 <componentName>flexipage:tab</componentName>
             </componentInstance>
         </itemInstances>
-        <name>Facet-2405f938-685c-4f61-92bb-67853f13e1f7</name>
+        <name>Facet-a38mjq8e9x8</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -149,7 +149,7 @@
             <componentInstance>
                 <componentInstanceProperties>
                     <name>tabs</name>
-                    <value>Facet-2405f938-685c-4f61-92bb-67853f13e1f7</value>
+                    <value>Facet-a38mjq8e9x8</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:tabset</componentName>
             </componentInstance>
@@ -157,8 +157,8 @@
         <name>sidebar</name>
         <type>Region</type>
     </flexiPageRegions>
-    <masterLabel>Fotos</masterLabel>
-    <sobjectType>Fotos__c</sobjectType>
+    <masterLabel>Cadastro de Cliente da Visita</masterLabel>
+    <sobjectType>Cadastro_ClientedaVisita__c</sobjectType>
     <template>
         <name>flexipage:recordHomeTemplateDesktop</name>
         <properties>
