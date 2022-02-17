@@ -1,4 +1,4 @@
-<apex:page standardController="Account" applyBodyTag="false" docType="html-5.0" readOnly="true" renderAs="advanced_pdf" extensions="VisitController" >
+<apex:page standardController="Cadastro_ClientedaVisita__c" applyBodyTag="false" docType="html-5.0" readOnly="true" renderAs="advanced_pdf" extensions="VisitController" >
 
 
 <!-- Estilização Básica do PDF => Cores e dimensionamento -->
@@ -109,13 +109,13 @@
                     PROFISSIONAL:
                 </td>
                 <td class="information">
-                    FELIPE SOARES DE PAULA
+                    {! Visit.visitCTV}
                 </td>
                 <td class="title-information">
                     DATA INÍCIO:
                 </td >
                 <td class="information"> 
-                    16/07/2018 16:48:00
+                    {! Visit.dateVisit}
                 </td>
             </tr>
             <tr>
@@ -123,13 +123,13 @@
                     PESSOA:
                 </td>
                 <td class="information">
-                    ANTONIO SADI BALDOPESSOA
+                    {! Visit.accountName}
                 </td>
                 <td class="title-information">
                     MUNICÍPIO:
                 </td>
                 <td class="information">
-                    AGUA BOA
+                    {! Visit.accountCity}
                 </td>
             </tr>
             <tr>
@@ -137,13 +137,13 @@
                     ENDEREÇO:
                 </td>
                 <td class="information">
-                    MARGEM ESQ. DA ROD. 158 A 25 KM DA SEDE
+                    {! Visit.accountStreet}
                 </td>
                 <td class="title-information">
                     BAIRRO:
                 </td>
                 <td class="information">
-                    ZONA RURAL
+                    {! Visit.accountCity}
                 </td>
             </tr>
             <tr>
@@ -151,13 +151,13 @@
                     ESTADO:
                 </td>
                 <td class="information">
-                    MG
+                    {! Visit.accountState}
                 </td>
                 <td class="title-information">
                     CONTATO:
                 </td>
                 <td class="information">
-                    (66) 34682102
+                    {! Visit.accountPhone}
                 </td>
             </tr>
         </table>
@@ -168,13 +168,13 @@
                 SERVIÇO:
             </td>
             <td class="information">
-                ACOMPANHAMENTO DE COLHEITA
+                {! Visit.service}
             </td>
             <td class="title-information">
                 PROPRIEDADE:
             </td>
             <td class="information">
-                FAZENDA NOSSA SENHORA APARECIDA
+                {! Visit.localeVisit}
             </td>
         </tr>
         <tr>
@@ -182,26 +182,27 @@
                 SAFRA:
             </td>
             <td class="information">
-                19/19 SAFRINHA MILHO
+                {! Visit.crop}
             </td>
             <td class="title-information">
                 CULTURA:
             </td>
             <td class="information">
-                MILHO
+                {! Visit.culture}
             </td>
         </tr>
 
     <!-- Informações de coordenadas => Localização do Cliente -->
     <h4>Coordenadas</h4>
-        <span>Latitude: ????</span><br/>
-        <span>Longitude: ????</span>
-        <!-- <apex:pageBlockTable value="{! contacts }" var="ct">
-            <apex:column value="{! ct.FirstName }"/>
-            <apex:column value="{! ct.LastName }"/>
-            <apex:column value="{! ct.Title }"/>
-            <apex:column value="{! ct.Email }"/>
-        </apex:pageBlockTable> -->
+        <span>Latitude: {! visit.accountLatitude}</span><br/>
+        <span>Longitude: {! visit.accountLongitude}</span>
+        <!-- <apex:relatedList list="Foto__r" subject="{! visit.id}"/> -->
+        <!-- <apex:relatedList list="Fotos"/> -->
+        <!-- <apex:pageBlock title="Fotos">
+            <apex:pageBlockTable value="{! Cadastro_ClientedaVisita__c.Fotos }" var="ct">
+                <apex:column value="{! ct.Observation__c }"/>
+            </apex:pageBlockTable>
+        </apex:pageBlock> -->
         <table class="coordinate">
             <tr>
                 <td>
