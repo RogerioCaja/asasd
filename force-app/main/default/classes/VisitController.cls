@@ -1,15 +1,16 @@
 public with sharing class VisitController {
     public VisitDAO visit {get; set;}
-    public String visitIdPageReference {get; set;}
+    
 
-    public VisitController() {
+    public VisitController(ApexPages.StandardController stdController) {
         if(ApexPages.currentPage().getParameters().get('Id') != null) {
-            this.visitIdPageReference = String.escapeSingleQuotes(ApexPages.currentPage().getParameters().get('Id').escapeHtml4());
+            String visitIdPageReference = String.escapeSingleQuotes(ApexPages.currentPage().getParameters().get('Id').escapeHtml4());
         }
-
+        
         // getVisitById(visitIdPageReference, 
         // new Set<String>{
-            
+        //     'VisitCTV__c', 'InitialDate', 'EndDate', 'PlanName', 'SalesOrg', 'Safra__c', 'Cultura__c',
+        //     'Account__c', 'VisitType', 'VisitAddress', 'BaseCheckIn', 'DateTimeVisit', 'VisitStatus'
         // })
     }
 
@@ -22,11 +23,8 @@ public with sharing class VisitController {
     }
 
     public void getVisitById(Id visitId, Set<String> fieldsSet){
-        //0011100002ChWgSAAV
-        //0011100002ChWqAAAV
-        //Verify Id
-        //Boolean isTrueFormat = Pattern.matches('([0-9]){10} ([A-Z] + [a-z]){8}', this.visitIdPageReference);
-        Boolean isNotBlank = String.isNotBlank(this.visitIdPageReference);
+
+        Boolean isNotBlank = String.isNotBlank(String.valueOf(visitId));
         
         //Modeling Query to search data
         String query = 'SELECT Id, #FIELDS# FROM Visit__c WHERE Id = #OBJECTID#';
@@ -35,8 +33,10 @@ public with sharing class VisitController {
         
         //Verify Id between IF 
         if(isNotBlank){
-            query = query.replace('#OBJECTID#', this.visitIdPageReference);
+            query = query.replace('#OBJECTID#', visitId);
         }
+
+        //Database.query(query);
          
     }
 
