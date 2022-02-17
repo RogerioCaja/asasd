@@ -11,9 +11,12 @@ import {
     ShowToastEvent
 } from 'lightning/platformShowToastEvent';
 import saveOrder from '@salesforce/apex/OrderScreenController.saveOrder';
+import getOrder from '@salesforce/apex/OrderScreenController.getOrder';
+import getAccount from '@salesforce/apex/OrderScreenController.getAccount';
 
 export default class OrderScreen extends LightningElement {
     @api recordId;
+    @api originScreen;
 
     account = true;
     header = false;
@@ -96,20 +99,50 @@ export default class OrderScreen extends LightningElement {
     renderedCallback() {
         this.checkPreviousNextBtn();
         this.changeStyle();
+        
+        if(this.originScreen.includes('/lightning/r/Order')){
+            if(this.recordId)
+                this.getOrder();
+        }else if(this.originScreen.includes('/lightning/r/Account')){
+            this.getAccount();
+        }
+        console.log(this.recordId, this.originScreen);
     }
 
-    async loadVariable(){
-        await this.recordId;
+    getAccount(){
+        getAccount({recordId: this.recordId})
+        .then((result) =>{
+            console.log(result);
+        })
+        .catch((err)=>{
+            this.showNotification(err.message);
+        })
     }
-    /*connectedCallback() {
+
+    getOrder(){
+        getOrder({recordId: this.recordId})
+        .then((result) =>{
+            console.log(result);
+        })
+        .catch((err)=>{
+            this.showNotification(err.message);
+        })
+    }
+
+    connectedCallback() {
         this.loadVariable();
     }
 
     async loadVariable(){
         await this.recordId;
-        this.getOrder();
     }
 
+    async loadVariable(){
+        await this.recordId;
+        console.log(this.recordId);
+        //this.getOrder();
+    }
+/*
     getOrder(){
         getOrder({orderId: this.recordId})
         .then((result) => {

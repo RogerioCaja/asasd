@@ -5,7 +5,7 @@
             componentDef: "c:orderScreen",
             componentAttributes: {
                 recordId: component.get("v.recordId"),
-                originScreen: System.URL.getCurrentRequestUrl().GetPath()
+                originScreen: window.location.pathname
             }
         });
         evt.fire();

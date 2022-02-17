@@ -4,9 +4,24 @@ public with sharing class OrderScreenController {
         Order order;
         Account account;
         List<OrderItem> ordItemList;
+
         order = getOrderData(recordId);
         ordItemList = getOrderItemData(order.Id);
         account = getOrderAccountData(order.AccountId);
+
+        return new OrderScreenBaseData(order, ordItemList, account);
+    }
+
+    @AuraEnabled
+    public static OrderScreenBaseData getAccount(String recordId) {
+        Order order;
+        Account account;
+        List<OrderItem> ordItemList;
+        
+        order = getOrderData(recordId);
+        ordItemList = getOrderItemData(order.Id);
+        account = getOrderAccountData(order.AccountId);
+
         return new OrderScreenBaseData(order, ordItemList, account);
     }
 
@@ -58,14 +73,14 @@ public with sharing class OrderScreenController {
     }
 
     public class OrderScreenBaseData{
-        @AuraEnabled public Order OrderObj;
-        @AuraEnabled public List<OrderItem> orderItemsObj;
-        @AuraEnabled public Account AccountObj;
+        @AuraEnabled public Order headerData;
+        @AuraEnabled public List<OrderItem> productData;
+        @AuraEnabled public Account accountData;
 
         OrderScreenBaseData(Order order, List<OrderItem> items, Account account){
-            this.orderObj = order;
-            this.orderItemsObj = items;
-            this.AccountObj = account;
+            this.headerData = order;
+            this.productData = items;
+            this.accountData = account;
         }
     }
 
