@@ -1,6 +1,6 @@
 import {
     LightningElement,
-    api
+    api, track
 } from 'lwc';
 import NoHeader from '@salesforce/resourceUrl/NoHeader';
 import {
@@ -21,22 +21,12 @@ export default class OrderScreen extends LightningElement {
     account = true;
     header = false;
     product = false;
-    summary = false;
+    @track summary = false;
 
-    @api accountData;
-    @api headerData = {
-        'tipo_venda': null,
-        'filial': null,
-        'cliente_entrega': null,
-        'safra': null,
-        'cultura': null,
-        'lista_precos': null,
-        'condicao_pagamento': null,
-        'data_pagamento': null,
-        'data_entrega': null
-    };
-    @api productData;
-    @api summaryData;
+    @track accountData;
+    @track headerData;
+    @track productData;
+    @track summaryData;
 
     qtdItens = 0;
     valorTotal = 0;
@@ -44,10 +34,13 @@ export default class OrderScreen extends LightningElement {
 
     currentTab = 0;
 
+    isLoading = false;
+
     tabs = [{
             name: 'account',
             current: true,
-            enable: true,
+            enable: false,
+            completed:false,
             message: 'Necessário selecionar pelo menos uma conta',
             component: 'c-order-account-screen'
         },
@@ -55,6 +48,7 @@ export default class OrderScreen extends LightningElement {
             name: 'header',
             current: false,
             enable: false,
+            completed:false,
             message: 'Necessário preencher todos os dados obrigatórios antes de seguir',
             component: 'c-order-header-screen'
         },
@@ -62,6 +56,7 @@ export default class OrderScreen extends LightningElement {
             name: 'product',
             current: false,
             enable: true,
+            completed:false,
             message: 'Necessário selecionar pelo menos 1 produto',
             component: 'c-order-product-screen'
         },
@@ -69,6 +64,7 @@ export default class OrderScreen extends LightningElement {
             name: 'summary',
             current: false,
             enable: true,
+            completed:false,
             message: '',
             component: 'c-order-summary-screen'
         }
@@ -99,48 +95,65 @@ export default class OrderScreen extends LightningElement {
     renderedCallback() {
         this.checkPreviousNextBtn();
         this.changeStyle();
-        
-        if(this.originScreen.includes('/lightning/r/Order')){
+        if(this.originScreen.includes('Order')){
             if(this.recordId)
                 this.getOrder();
-        }else if(this.originScreen.includes('/lightning/r/Account')){
+        }else if(this.originScreen.includes('Account')){
             this.getAccount();
         }
         console.log(this.recordId, this.originScreen);
+
     }
 
     getAccount(){
+        console.log('getAccount');
+        if(this.accountData)
+            return;
+            
+        this.isLoading = true;
         getAccount({recordId: this.recordId})
         .then((result) =>{
-            console.log(result);
+            const account = JSON.parse(JSON.stringify(result));
+            this.accountData = account.accountData;
+            this.enableNextScreen();
+            this.completeCurrentScreen();
+            this.isLoading = false;
         })
         .catch((err)=>{
-            this.showNotification(err.message);
-        })
+            this.showNotification(err.message, 'Ocorreu algum erro');
+            this.isLoading = false;
+        });
     }
 
     getOrder(){
+        console.log('getOrder');
+        if(this.headerData)
+            return;
+
+        this.isLoading = true;
         getOrder({recordId: this.recordId})
         .then((result) =>{
-            console.log(result);
+            const data = JSON.parse(result);
+            this.accountData = data.accountData;
+            this.headerData = data.headerData;
+            this.enableScreens([0, 1]);
+            this.completeScreens([0, 1]);
+            this.isLoading = false;
         })
         .catch((err)=>{
-            this.showNotification(err.message);
+            this.showNotification(err.message, 'Ocorreu algum erro');
+            this.isLoading = false;
         })
     }
 
     connectedCallback() {
+        //Importando estilo para esconder header padrão de página
+        loadStyle(this, NoHeader);
         this.loadVariable();
     }
 
     async loadVariable(){
         await this.recordId;
-    }
-
-    async loadVariable(){
-        await this.recordId;
-        console.log(this.recordId);
-        //this.getOrder();
     }
 /*
     getOrder(){
@@ -162,26 +175,27 @@ export default class OrderScreen extends LightningElement {
             }
         })
     }*/
-
     async saveOrder(){
         await this.recordId;
-        const data = {'accountData':this.accountData, headerData: this.headerData};
-        saveOrder({orderId: this.recordId, data: JSON.stringify(data)})
-        .then((result) => {
-            result = JSON.parse(result);
-            if(result.hasError)
-                this.showNotification(result.message, 'success');
-            else
-                this.showNotification(result.message, 'erro');
-        }).catch((err)=>{
-            console.log(err);
-            this.showNotification(err.message, 'error');
-        });
-    }
+        const data = {accountData: this.accountData, headerData: this.headerData};
+        this.isLoading = true;
 
-    connectedCallback() {
-        //Importando estilo para esconder header padrão de página
-        loadStyle(this, NoHeader);
+        saveOrder({orderId: (this.recordId && this.originScreen.includes('Order')) ? this.recordId : null, 
+                    data: JSON.stringify(data)})
+        .then((result) => {
+
+            result = JSON.parse(result);
+
+            if(result.hasError)
+                this.showNotification(result.message, 'Sucesso', 'success');
+            else
+                this.showNotification(result.message, 'Algo de errado aconteceu','erro');
+
+            this.isLoading = false;
+        }).catch((err)=>{
+            this.showNotification(err.message, 'Aconteceram alguns erros', 'error');
+            this.isLoading = false;
+        });
     }
 
     _setAccountData(event) {
@@ -215,35 +229,42 @@ export default class OrderScreen extends LightningElement {
         this.enableNextScreen();
     }
 
-
     //c/orderScreenNavbar
     changeStyle() {
         for (var index = 0; index < this.tabs.length; index++) {
             const element = this.tabs[index];
+            let tab = this.template.querySelector(`[data-tab-name="${element.name}"]`);
+            if(tab){
+                if (element.enable === true && element.current === false)
+                    tab.className = 'succeed';
+                else if (element.enable === true && element.current === true)
+                    tab.className = 'current';
+                else if (element.enable === false && element.current === false)
+                    tab.className = '';
 
-            if (element.enable === true && element.current === false)
-                this.template.querySelector(`[data-tab-name="${element.name}"]`).className = 'succeed';
-            else if (element.enable === true && element.current === true)
-                this.template.querySelector(`[data-tab-name="${element.name}"]`).className = 'current';
-            else if (element.enable === false && element.current === false)
-                this.template.querySelector(`[data-tab-name="${element.name}"]`).className = '';
-
-            if (element.completed === true)
-                this.template.querySelector(`[data-tab-name="${element.name}"] input[type="checkbox"]`).checked = true;
-
+                if (element.completed === true){
+                    let inputCheck = this.template.querySelector(`[data-tab-name="${element.name}"] input[type="checkbox"]`);
+                    if(inputCheck)
+                        this.template.querySelector(`[data-tab-name="${element.name}"] input[type="checkbox"]`).checked = true;
+                }
+            }
         }
     }
 
     checkPreviousNextBtn() {
-        if (this.currentTab == 0) {
-            this.template.querySelector('[data-tab="previous"]').className = 'previous disabled';
-            this.template.querySelector('[data-tab="next"]').className = 'next';
-        } else if (this.currentTab == 3) {
-            this.template.querySelector('[data-tab="next"]').className = 'next disabled';
-            this.template.querySelector('[data-tab="previous"]').className = 'previous';
-        } else {
-            this.template.querySelector('[data-tab="next"]').className = 'next';
-            this.template.querySelector('[data-tab="previous"]').className = 'previous';
+        let previousTab = this.template.querySelector('[data-tab="previous"]');
+        let nextTab = this.template.querySelector('[data-tab="next"]');
+        if(previousTab && nextTab){
+            if (this.currentTab == 0) {
+                nextTab.className = 'next';
+                previousTab.className = 'previous disabled';
+            } else if (this.currentTab == 3) {
+                nextTab.className = 'next disabled';
+                previousTab.className = 'previous';
+            } else {
+                nextTab.className = 'next';
+                previousTab.className = 'previous';
+            }
         }
     }
 
@@ -256,7 +277,7 @@ export default class OrderScreen extends LightningElement {
                 this.changeTab();
                 this.changeStyle();
             } else {
-                this.showNotification(this.tabs[this.currentTab].message);
+                this.showNotification(this.tabs[this.currentTab].message, 'Não é possível voltar uma etapa');
             }
         }
     }
@@ -270,12 +291,13 @@ export default class OrderScreen extends LightningElement {
                 this.changeTab();
                 this.changeStyle();
             } else {
-                this.showNotification(this.tabs[this.currentTab].message);
+                this.showNotification(this.tabs[this.currentTab].message, 'Não é possível avançar uma etapa');
             }
         }
     }
 
     handleTab(event) {
+        console.log('orderScreenData:', this.accountData, this.headerData);
         try {
             if(this.currentTab > event.target.dataset.tab){
                 this.handlePrevious();
@@ -290,17 +312,17 @@ export default class OrderScreen extends LightningElement {
                     this.changeTab();
                     this.changeStyle();
                 } else {
-                    this.showNotification(this.tabs[this.currentTab].message);
+                    this.showNotification(this.tabs[this.currentTab].message, 'Próxima etapa não habilitada');
                 }
             }else{
-                this.showNotification(this.tabs[this.currentTab].message);
+                this.showNotification(this.tabs[this.currentTab].message, 'Próxima etapa não habilitada');
             }
         } catch (e) {
             console.log(e);
         }
     }
 
-    showNotification(message, variant = 'warning', title= this._title) {
+    showNotification(message, title, variant = 'warning') {
         const evt = new ShowToastEvent({
             title: title,
             message: `${message}`,
@@ -348,13 +370,29 @@ export default class OrderScreen extends LightningElement {
 
     enableNextScreen() {
         console.log('enableNextScreen');
-        console.log(this.currentTab + 1);
-        console.log((this.currentTab + 1) < 3);
         if ((this.currentTab + 1) < 3) {
-            console.log('enableNextScreen if 1');
             if (this.tabs[this.currentTab + 1].enable == false) {
-                console.log('enableNextScreen if 2');
                 this.tabs[this.currentTab + 1].enable = true;
+            }
+        }
+    }
+
+    enableScreens(screens){
+        if(screens.length <= 0)
+            return;
+        for(let index = 0; index < screens.length; index++){
+            if (this.tabs[screens[index]].enable == false) {
+                this.tabs[screens[index]].enable = true;
+            }
+        }
+    }
+
+    completeScreens(screens) {
+        if(screens.length <= 0)
+        return;
+        for(let index = 0; index < screens.length; index++){
+            if (this.tabs[screens[index]].completed == false) {
+                this.tabs[screens[index]].completed = true;
             }
         }
     }

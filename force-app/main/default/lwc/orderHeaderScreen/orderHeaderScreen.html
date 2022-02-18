@@ -3,8 +3,7 @@
         <h2>Detalhes do <b>Cabeçalho do Pedido</b></h2>
     </div>
     <div class="cabecalho">
-        <template for:each={accountData} for:item="rec">
-            <div class="detalhes_conta" key={rec.Id}>
+            <div class="detalhes_conta">
                 <div class="tituloItem">
                     <svg width="25" height="27" viewBox="0 0 25 27" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <rect width="25" height="26.0417" rx="4" fill="#2A9676" />
@@ -17,23 +16,23 @@
                                 fill="white"></path>
                         </g>
                     </svg>
-                    <span>{rec.Name}</span>
+                    <span>{accountData.Name}</span>
                 </div>
                 <div class="dadosConta">
                     <div class="texto">
-                        <span>Razão Social:</span> {rec.Name}
+                        <span>Razão Social:</span> {accountData.Name}
                     </div>
                     <div class="texto">
                         <span>Tipo de Conta:</span> Jurídica
                     </div>
-                    <template if:true={rec.cnpj}>
+                    <template if:true={accountData.cnpj}>
                         <div class="texto">
-                            <span>CNPJ:</span> {rec.cnpj}
+                            <span>CNPJ:</span> {accountData.cnpj}
                         </div>
                     </template>
-                    <template if:true={rec.cpf}>
+                    <template if:true={accountData.cpf}>
                         <div class="texto">
-                            <span>CPF:</span> {rec.cpf}
+                            <span>CPF:</span> {accountData.cpf}
                         </div>
                     </template>
                     <div class="texto">
@@ -43,25 +42,25 @@
                         <span>Código SAP:</span> NÃO INTEGRADO
                     </div>
                     <div class="texto">
-                        <span>Telefone:</span> {rec.Phone}
+                        <span>Telefone:</span> {accountData.Phone}
                     </div>
                 </div>
             </div>
             <!--final de detalhes_conta-->
-        </template>
         <div class="campos">
             <fieldset class="slds-form-element slds-form-element_compound">
                 <div class="slds-form-element__control">
                     <div class="slds-form-element__row">
-                        <div class="slds-form-elemen slds-size_1-of-3">
+                        <div class="slds-form-element slds-size_1-of-3">
                             <lightning-combobox name="tipo_venda" label="Tipo de Venda" placeholder="Escolha um Tipo de Venda"
-                                value="0" onchange={selectTipoVenda} options={tiposVenda}>
+                                value={headerData.tipo_venda} onchange={selectTipoVenda} options={tiposVenda}>
                             </lightning-combobox>
                         </div>
                         <div class="slds-size_1-of-3">
                             <c-lookup input-label="Filial" object-icon-name="standard:action_list_component"
-                                target-object="" record-id={filial}
+                                target-object=""
                                 search-fields=""
+                                record-id={headerData.filial} 
                                 list-item-options="" new-record-button="true" placeholder="Pesquisar Filiais" style="width: 100%;"
                                 required="true"></c-lookup>
                                 <!--c-lookup input-label="Filial" object-icon-name="standard:action_list_component"
@@ -72,6 +71,9 @@
                                     required="true"></c-lookup-->
                         </div>
                         <div class="slds-size_1-of-3">
+                            <lightning-input label="Número Pedido de Cliente" field-name="numero_pedido_cliente"
+                                value={headerData.numero_pedido_cliente} onchange={selectNumeroPedido} type="text">
+                            </lightning-input>
                             <!--c-lookup input-label="Cliente de Entrega" object-icon-name="standard:action_list_component"
                                 target-object={redispatchClienteEntregaObject} record-id={cliente_entrega}
                                 search-fields={redispatchClienteEntregaSearchFields}
@@ -83,7 +85,7 @@
                     <div class="slds-form-element__row">
                         <div class="slds-size_1-of-3">
                             <c-lookup input-label="Safras" object-icon-name="standard:action_list_component"
-                                target-object={redispatchSafraObject} record-id={safra}
+                                target-object={redispatchSafraObject} record-id={headerData.safra}
                                 search-fields={redispatchSafraSearchFields}
                                 list-item-options={redispatchSafraListItemOptions} new-record-button="true"
                                 onselectrecord={selectSafra} placeholder="Pesquisar Safras" style="width: 100%;"
@@ -92,7 +94,7 @@
                         </div>
                         <div class="slds-size_1-of-3">
                             <c-lookup input-label="Culturas" object-icon-name="standard:action_list_component"
-                                target-object={redispatchCulturaObject} record-id={cultura}
+                                target-object={redispatchCulturaObject} record-id={headerData.cultura}
                                 search-fields={redispatchCulturaSearchFields}
                                 list-item-options={redispatchCulturaListItemOptions} new-record-button="true"
                                 onselectrecord={selectCultura} placeholder="Pesquisar Culturas" style="width: 100%;"
@@ -102,7 +104,8 @@
                         <div class="slds-size_1-of-3">
                             <!--c-custom-Lookup object-name="Pricebook2" label="Lista de Preços" field-name="Name" icon-name="standard:action_list_component" placeholder="Digite a lista de preços" onchild={selectListaPrecos}></c-custom-Lookup-->
                             <c-lookup input-label="Lista de Preços" object-icon-name="standard:action_list_component"
-                                target-object={redispatchListaPrecoObject} record-id="01s3F000006RwA7QAK"
+                                target-object={redispatchListaPrecoObject}
+                                record-id={headerData.lista_precos}
                                 search-fields={redispatchListaPrecosSearchFields}
                                 list-item-options={redispatchListaPrecoListItemOptions} new-record-button="true"
                                 onselectrecord={selectListaPrecos} placeholder="Pesquisar Lista de Preços"
@@ -114,7 +117,7 @@
                         <div class="slds-size_1-of-3">
                             <c-lookup input-label="Condição de Pagamento"
                                 object-icon-name="standard:action_list_component"
-                                target-object="" record-id={condicao_pagamento}
+                                target-object="" record-id={headerData.condicao_pagamento}
                                 search-fields=""
                                 list-item-options="" new-record-button="true" placeholder="Pesquisar Condições de Pagamento"
                                 style="width: 100%;" required="true"></c-lookup>
@@ -128,11 +131,11 @@
                         </div>
                         <div class="slds-size_1-of-3">
                             <lightning-input label="Data de Pagamento" field-name="data_pagamento"
-                                value="2022-02-16" onchange={selectDataPagamento} type="date">
+                                value={headerData.data_pagamento} onchange={selectDataPagamento} type="date">
                             </lightning-input>
                         </div>
                         <div class="slds-size_1-of-3">
-                            <lightning-input label="Data de Entrega" field-name="data_entrega" value="2022-02-22"
+                            <lightning-input label="Data de Entrega" field-name="data_entrega" value={headerData.data_entrega} 
                                 type="date" onchange={selectDataEntrega}>
                             </lightning-input>
                         </div>
@@ -140,15 +143,16 @@
                     <div class="slds-form-element__row">
                         <div class="slds-size_1-of-3">
                             <lightning-combobox name="status_pedido" label="Status de Pedido"
-                                placeholder="Escolha um Status do Pedido" value={value} onchange={selectStatusPedido}
+                                placeholder="Escolha um Status do Pedido" value={headerData.status_pedido} onchange={selectStatusPedido}
                                 options={statusPedido}>
                             </lightning-combobox>
                         </div>
                         <div class="slds-size_1-of-3">
                             <c-lookup input-label="Cliente Faturamento"
                                 object-icon-name="standard:action_list_component"
-                                target-object={redispatchClienteFaturamentoObject} record-id="0013F00000nNXeQQAW"
+                                target-object={redispatchClienteFaturamentoObject}
                                 search-fields={redispatchClienteFaturamentoSearchFields}
+                                record-id={headerData.cliente_faturamento} 
                                 list-item-options={redispatchClienteFaturamentoListItemOptions} new-record-button="true"
                                 onselectrecord={selectClienteFaturamento} placeholder="Pesquisar Cliente de Faturamento"
                                 style="width: 100%;" required="true">
@@ -156,8 +160,9 @@
                         </div>
                         <div class="slds-size_1-of-3">
                             <c-lookup input-label="Cliente de Entrega" object-icon-name="standard:action_list_component"
-                                target-object={redispatchClienteEntregaObject} record-id="0013F00000n20JpQAI"
+                                target-object={redispatchClienteEntregaObject}
                                 search-fields={redispatchClienteEntregaSearchFields}
+                                record-id={headerData.cliente_entrega} 
                                 list-item-options={redispatchClienteEntregaListItemOptions} new-record-button="true"
                                 onselectrecord={selectClienteEntrega} placeholder="Pesquisar Cliente de Entrega"
                                 style="width: 100%;" required="true"></c-lookup>
@@ -167,7 +172,8 @@
                         <div class="slds-size_1-of-3">
                             <c-lookup input-label="Organização de Vendas"
                                 object-icon-name="standard:action_list_component"
-                                target-object="" record-id=""
+                                target-object="" 
+                                record-id={headerData.organizacao_vendas} 
                                 list-item-options="" new-record-button="true" placeholder="Pesquisar Organização de Vendas"
                                 style="width: 100%;" required="true"></c-lookup>
                                 <!--c-lookup input-label="Organização de Vendas"
@@ -179,29 +185,32 @@
                         </div>
                         <div class="slds-size_1-of-3">
                             <lightning-input class="inputBox" type="text" autocomplete="off"
-                                label="Canal de Distribuição" value=""></lightning-input>
+                                value={headerData.canal_distribuicao} 
+                                label="Canal de Distribuição"></lightning-input>
                         </div>
                         <div class="slds-size_1-of-3">
                             <lightning-input class="inputBox" type="text" autocomplete="off" label="Setor de Atividade"
-                                value=""></lightning-input>
+                            value={headerData.setor_atividade}></lightning-input>
                         </div>
                     </div>
 
                     <div class="slds-form-element__row">
                         <div class="slds-size_1-of-3">
                             <lightning-combobox name="forma_pagamento" label="Forma de Pagamento"
-                                placeholder="Escolha a Forma de pagamento" value={value} onchange={selectFormaPagamento}
+                                placeholder="Escolha a Forma de pagamento"
+                                value={headerData.forma_pagamento}  onchange={selectFormaPagamento}
                                 options={formasPagamento}>
                             </lightning-combobox>
                         </div>
                         <div class="slds-size_1-of-3">
-                            <lightning-combobox name="moeda" label="Moeda" placeholder="Escolha a Moeda" value={value}
+                            <lightning-combobox name="moeda" label="Moeda" placeholder="Escolha a Moeda"
+                                value={headerData.moeda} 
                                 onchange={selectMoeda} options={moedas}>
                             </lightning-combobox>
                         </div>
                         <div class="slds-size_1-of-3">
                             <c-lookup input-label="CTV da Venda" object-icon-name="standard:action_list_component"
-                                target-object={redispatchCtvVendaObject} record-id={ctv_venda}
+                                target-object={redispatchCtvVendaObject} record-id={headerData.ctv_venda}
                                 list-item-options={redispatchCtvVendaListItemOptions} new-record-button="true"
                                 onselectrecord={selectCtvVenda} placeholder="Pesquisar CTV da Venda"
                                 style="width: 100%;" required="true"></c-lookup>

@@ -13,8 +13,8 @@ import LISTA_PRECO_NAME from '@salesforce/schema/Pricebook2.Name';
 import CTV_OBJECT from '@salesforce/schema/User';
 import CTV_NAME from '@salesforce/schema/User.Name';
 
-//import ORG_VENDA_OBJECT from '@salesforce/schema/';
-//import ORG_VENDAS_NAME from '@salesforce/schema/';
+import ORG_VENDA_OBJECT from '@salesforce/schema/SalesOrg__c';
+import ORG_VENDAS_NAME from '@salesforce/schema/SalesOrg__c.Name';
 
 import CLIENTE_ENTREGA_OBJECT from '@salesforce/schema/Account';
 import CLIENTE_ENTREGA_NAME from '@salesforce/schema/Account.Name';
@@ -134,6 +134,8 @@ export default class OrderHeaderScreen extends LightningElement {
 
     forma_pagamento;
 
+    numero_pedido_cliente;
+
     //Lista de Preço
     redispatchListaPrecoObject = LISTA_PRECO_OBJECT;
     lista_precos;// = '01s3F000006RwA7QAK';
@@ -153,10 +155,10 @@ export default class OrderHeaderScreen extends LightningElement {
     };
 
     //Organizacao Vendas
-    /*@track redispatchOrgVendasObject = ORG_VENDA_OBJECT;
+    @track redispatchOrgVendasObject = ORG_VENDA_OBJECT;
     organizacao_vendas;
     @track redispatchOrgVendasSearchFields = [ORG_VENDAS_NAME]
-    @track redispatchOrgVendasListItemOptions = {title:'Name', description:'Name'};*/
+    @track redispatchOrgVendasListItemOptions = {title:'Name', description:'Name'};
 
     //Cliente Entrega
     @track redispatchClienteEntregaObject = CLIENTE_ENTREGA_OBJECT;
@@ -218,6 +220,11 @@ export default class OrderHeaderScreen extends LightningElement {
     selectOrgVendas(event) {
         const { record } = event.detail;
         this.organizacao_vendas = record.Id;
+        this._verifyFieldsToSave();
+    }
+
+    selectNumeroPedido(event) {
+        this.numero_pedido_cliente = event.detail.value;
         this._verifyFieldsToSave();
     }
 
@@ -294,18 +301,6 @@ export default class OrderHeaderScreen extends LightningElement {
 
     @api
     _verifyFieldsToSave() {
-        console.log(
-            this.tipo_venda !== undefined,
-            /* this.filial &&
-            this.safra !== null &&
-            this.cultura !== null &&
-            this.condicao_pagamento !== null &&*/
-            this.cliente_entrega !== undefined,
-            this.lista_precos !== undefined,
-            this.cliente_faturamento !== undefined,
-            this.data_pagamento !== undefined,
-            this.data_entrega !== undefined
-        );
         if (this.verifyMandatoryFields()) {
             this._setData();
             return true;

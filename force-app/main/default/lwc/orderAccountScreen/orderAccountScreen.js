@@ -5,7 +5,7 @@ export default class OrderAccountScreen extends LightningElement {
     showList = false;
     records = [];
     message = false;
-    selectedAccount = false;
+    @api selectedAccount = false;
 
     account;
 
@@ -16,15 +16,17 @@ export default class OrderAccountScreen extends LightningElement {
         this.message = event.message;
     }
 
-    renderedCallback(){}
+    renderedCallback(){
+        console.log(this.selectedAccount);
+    }
 
-    selectAccount(event){
+    selectAccountFromResults(event){
         try{
             console.log(event.target.key, event.target.dataset.key, event.target.dataset.key.toString());
             this.changeStyle(event.target.dataset.key);
-            const listafiltrada = this.records.filter(i => event.target.dataset.key == i.Id);
-            console.log(listafiltrada);
-            this.selectedAccount = listafiltrada;
+            let listafiltrada = this.records.filter(i => event.target.dataset.key == i.Id);
+            console.log(listafiltrada, listafiltrada[0]);
+            this.selectedAccount = listafiltrada[0];
             this._verifyFieldsToSave();
         }catch(e){
             console.log(e);
