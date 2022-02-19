@@ -25,6 +25,7 @@
     }
 
     h4{
+        margin-top: 15px;
         background-color: #b1afaf;
     }
 
@@ -39,30 +40,36 @@
         padding-left: 20px
     } 
 
-
     .title-information{
         font-weight: bold;
         font-size: 10pt;
     }
 
     .information{
+        text-transform: uppercase;
         font-size: 10pt;
+    }
+    .line{
+        height: 360px;
+        /* margin-top: 15px; */
     }
 
     .coordinate{
+        padding-top: 60px;
+        margin-top: 40px;
         width:100%;
         background-color: #dcdcdc;
     }
 
-   
     .coordinate > tr > td{
         width:50%;
         height: 100%;
+        vertical-align: top;
     }
 
     .description{
         height: 300px;
-        vertical-align: top;
+       
     }
 
     </style>
@@ -78,12 +85,12 @@
                <table cellspacing="5">
                    <tr>
                        <td>
-                            Organização de venda: AGROFERRARI
+                            Organização de venda: {! visit.orgSales }
                        </td>
                    </tr>
                    <tr>
                         <td>
-                            AGROFERRARI - Primavera/Verão 
+                            {! visit.orgSales } - Primavera/Verão 
                         </td>
                     </tr>
                     <tr>
@@ -174,7 +181,7 @@
                 PROPRIEDADE:
             </td>
             <td class="information">
-                {! Visit.localeVisit}
+                {! Visit.accountName}
             </td>
         </tr>
         <tr>
@@ -196,29 +203,32 @@
     <h4>Coordenadas</h4>
         <span>Latitude: {! visit.accountLatitude}</span><br/>
         <span>Longitude: {! visit.accountLongitude}</span>
-        <!-- <apex:relatedList list="Foto__r" subject="{! visit.id}"/> -->
-        <!-- <apex:relatedList list="Fotos"/> -->
-        <!-- <apex:pageBlock title="Fotos">
-            <apex:pageBlockTable value="{! Cadastro_ClientedaVisita__c.Fotos }" var="ct">
-                <apex:column value="{! ct.Observation__c }"/>
-            </apex:pageBlockTable>
-        </apex:pageBlock> -->
+
+        <!-- <div style="page-break-after:always;"/> -->
         <table class="coordinate">
-            <tr>
-                <td>
-                    <apex:image url="{!URLFOR($Resource.Images_logo, 'ImageToPDF/imgs/AgroLogo.jpg')}" width="300" height="300" alt="Description of image here"/>
-                </td>
-                <td>
-                    <table class="description">
-                        <tr>
-                            <td>
-                                <div class="sub-title">Descrição / Sugestão</div> 
-                            </td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-                
+
+            <apex:repeat value="{! Photos}" var='photo'>
+                <tr class="line">
+                    <td>
+                        <apex:image url="/sfc/servlet.shepherd/version/download/{!photo.image}" width="300" height="300" alt="Description of image here"/>
+                    </td>
+                    <td>
+                        <table class="description">
+                            <tr>
+                                <td>
+                                    <div class="sub-title">Descrição / Sugestão</div> 
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    {! photo.observation}
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </apex:repeat>
+        
         </table>
     <!-- Possíveis Observações Finais do Cliente -->
     <h4>Considerações Finais</h4>

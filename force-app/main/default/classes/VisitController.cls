@@ -1,28 +1,59 @@
 public with sharing class VisitController {
     public VisitDAO visit {get; set;}
-    public PhotoDAO photo {get;set;}
+    public List<PhotoDAO> photos {get;set;}
     
-
     public VisitController(ApexPages.StandardController stdController) {
         Id visitIdPageReference;
         if(ApexPages.currentPage().getParameters().get('Id') != null) {
             visitIdPageReference = Id.valueOf(String.escapeSingleQuotes(ApexPages.currentPage().getParameters().get('Id').escapeHtml4()));
+
+            //Queries 
+            List<Cadastro_ClientedaVisita__c> clientVisitList = getVisitById(visitIdPageReference, 
+            new Set<String>{
+                'Id', 'Name', 'Local_da_Visita__c', 'Tipo_da_Visita__c' , 'PlanejamentoVisita__r.Culture__r.Name' ,'PlanejamentoVisita__r.Safra__r.Name' , 'PlanejamentoVisita__r.CTVvisit__c', 'PlanejamentoVisita__r.SellOrg__r.Name' , 'Account__r.Name', 'Account__r.BillingStreet', 'Account__r.BillingState' , 'Account__r.Phone', 'Account__r.BillingCity', 'DataVisita__c'
+            , 'Account__r.BillingLongitude', 'Account__r.BillingLatitude'
+            });
+
+            List<Fotos__c> photoList = getPhotoByClientId(visitIdPageReference,
+            new Set<String>{
+                'Id','Observation__c', 'ClienteVisita__c'
+            });
+        
+            List<ContentVersion> contentVersionList = getFileByPhotoId(photoList);
+            // ----------------------------------------------------------------------
+            // Preparing Data to Photos
+            this.photos = new List<PhotoDAO>();
+            for(Integer i = 0; i< contentVersionList.size(); i++){
+                if(photoList.size() == 1){
+                    this.photos.add( new PhotoDAO(photoList.get(0), contentVersionList.get(i)));
+                }
+                else{
+                    this.photos.add(new PhotoDAO(photoList.get(i), contentVersionList.get(i)));
+                }
+            }
+            // ---------------------------------------------------------------------------------
+
+
+            
+            this.visit = new VisitDAO(clientVisitList.get(0));
+
+
+            String downloadingFileName = 'VisitReport-' + this.visit.name + '.pdf';
+            Apexpages.currentPage().getHeaders().put( 'content-disposition', 'inline; filename=' + downloadingFileName );
         }
         
-        List<Cadastro_ClientedaVisita__c> ClientVisitList = getVisitById(visitIdPageReference, 
-        new Set<String>{
-            'PlanejamentoVisita__r.CTVvisit__c', 'Account__r.Name', 'Account__r.BillingStreet', 'Account__r.BillingState' , 'Account__r.Phone', 'Account__r.BillingCity', 'DataVisita__c'
-           });
+    }
 
-        List<Fotos__c> photoList = getPhotoByClientId(visitIdPageReference);
-
-        this.visit = new VisitDAO(ClientVisitList.get(0));
+    public List<PhotoDAO> getPhotos(){
+        return this.photos;
     }
 
     public VisitDAO getVisit(){
         return this.visit;
     }
+
     public static String getDatetime(){
+
         Datetime  dt = DateTime.now();
         String dateFormat = dt.format('dd/MM/yyyy HH:mm:ss', 
         'America/Sao_Paulo');
@@ -32,39 +63,51 @@ public with sharing class VisitController {
 
     public static List<Cadastro_ClientedaVisita__c> getVisitById(Id visitId, Set<String> fieldsSet){
 
-        Boolean isNotBlank = String.isNotBlank(String.valueOf(visitId));
-        
-        List<Cadastro_ClientedaVisita__c> visitList = [SELECT Id, Local_da_Visita__c, Tipo_da_Visita__c , PlanejamentoVisita__r.Culture__r.Name ,PlanejamentoVisita__r.Safra__r.Name , PlanejamentoVisita__r.CTVvisit__c, Account__r.Name, Account__r.BillingStreet, Account__r.BillingState , Account__r.Phone, Account__r.BillingCity, DataVisita__c
-        , Account__r.BillingLongitude, Account__r.BillingLatitude
-                                                        FROM Cadastro_ClientedaVisita__c
-                                                        WHERE Id =: visitId ];
-        return visitList;
-         
+        String query = new Q(Cadastro_ClientedaVisita__c.SObjectType)
+                        .selectFields(fieldsSet)
+                        .add(Q.condition('Id').equalsTo(visitId)).build();
+
+        return Database.query(query); 
     }
 
-    public static List<Fotos__c> getPhotoByClientId(Id visitId){
-        List<Fotos__c> photoList = [SELECT Observation__c, ClienteVisita__c
-                                    FROM Fotos__c
-                                    WHERE ClienteVisita__c =: visitId];
+    public static List<Fotos__c> getPhotoByClientId(Id visitId, Set<String> fieldsSet){
 
-        return photoList;
+        String query = new Q(Fotos__c.SObjectType)
+                        .selectFields(fieldsSet)
+                        .add(Q.condition('ClienteVisita__c').equalsTo(visitId)).build();
+    
+        //FirstPublishLocationId
+        return Database.query(query);
     }
+
+    public static List<ContentVersion> getFileByPhotoId(List<Fotos__c> photoList){
+        List<String> photoIds = new List<String>();
+        for(Fotos__c photo : photoList){
+            photoIds.add(String.valueOf(photo.Id));
+        }
+        String query = new Q(ContentVersion.SObjectType)
+        .selectFields(new Set<String>{'Id', 'FirstPublishLocationId'})
+        .add(Q.condition('FirstPublishLocationId').isIn(photoIds)).build();
+
+        return Database.query(query);
+    }
+    
     public class PhotoDAO{
+        public String id {get; set;}
         public String observation {get; set;}
         public String image {get; set;}
 
-        public PhotoDAO(Fotos__c photo){
-
+        public PhotoDAO(Fotos__c photo, ContentVersion contentVersion){
+            this.id = photo.Id;
+            this.observation = photo.Observation__c;
+            this.image = contentVersion.Id;
         }
     }
 
     public class VisitDAO{
 
-        // CTV da Visita, Data de Início e Fim do Plano de visitas; Nome do Plano, Organização de Vendas, Safra, Cultura
-        // Cliente, Tipo da visita, Local da visita, Base check in, Data e hora da visita, status da visita
-        
-        //  , 'Account__r.Phone', 'Account__r.BillingCity', 
         public String id {get; set;}
+        public String name {get; set;}
         public String visitCTV {get; set;}
         public String dateVisit {get; set;}
         public String accountName {get; set;}
@@ -80,12 +123,11 @@ public with sharing class VisitController {
 
         public String accountLatitude {get; set;}
         public String accountLongitude {get; set;}
+        public String orgSales {get; set;}
 
-        //Local_da_Visita__c, Tipo_da_Visita__c PlanejamentoVisita__r.Cultura__r.Name ,PlanejamentoVisita__r.Safra__r.Name
-
-        public VisitDAO(){}
         public VisitDAO(Cadastro_ClientedaVisita__c clientVisit){
             this.id = clientVisit.Id;
+            this.name = clientVisit.Name;
             //Bloco 1
             this.visitCTV = clientVisit.PlanejamentoVisita__r.CTVvisit__c;
             this.dateVisit = String.valueOf(clientVisit.DataVisita__c);
@@ -104,9 +146,8 @@ public with sharing class VisitController {
             //Bloco 3
             this.accountLatitude = String.valueOf(clientVisit.Account__r.BillingLatitude);
             this.accountLongitude =String.valueOf(clientVisit.Account__r.BillingLongitude);
-
+            this.orgSales = clientVisit.PlanejamentoVisita__r.SellOrg__r.Name;
         }
-
     }
 
   
