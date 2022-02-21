@@ -24,7 +24,28 @@ export default class OrderScreen extends LightningElement {
     @track summary = false;
 
     @track accountData;
-    @track headerData;
+    @api headerData = {
+        Id: " ",
+        AccountId: " ",
+        tipo_venda: " ",
+        filial: " ",
+        numero_pedido_cliente: " ",
+        safra: " ",
+        cultura: " ",
+        lista_precos: " ",
+        condicao_pagamento: " ",
+        data_pagamento: " ",
+        data_entrega: " ",
+        status_pedido: "Em digitação",
+        cliente_faturamento: " ",
+        cliente_entrega: " ",
+        organizacao_vendas: " ",
+        canal_distribuicao: " ",
+        setor_atividade: " ",
+        forma_pagamento: " ",
+        moeda: " ",
+        ctv_venda: " "
+    };
     @track productData;
     @track summaryData;
 
@@ -127,7 +148,7 @@ export default class OrderScreen extends LightningElement {
 
     getOrder(){
         console.log('getOrder');
-        if(this.headerData)
+        if(this.headerData.Id != " ")
             return;
 
         this.isLoading = true;
@@ -179,20 +200,21 @@ export default class OrderScreen extends LightningElement {
         await this.recordId;
         const data = {accountData: this.accountData, headerData: this.headerData};
         this.isLoading = true;
+        //console.log(data);
 
         saveOrder({orderId: (this.recordId && this.originScreen.includes('Order')) ? this.recordId : null, 
                     data: JSON.stringify(data)})
         .then((result) => {
 
             result = JSON.parse(result);
-
-            if(result.hasError)
+            if(!result.hasError)
                 this.showNotification(result.message, 'Sucesso', 'success');
             else
                 this.showNotification(result.message, 'Algo de errado aconteceu','erro');
 
             this.isLoading = false;
         }).catch((err)=>{
+            console.log(this.headerData);
             this.showNotification(err.message, 'Aconteceram alguns erros', 'error');
             this.isLoading = false;
         });

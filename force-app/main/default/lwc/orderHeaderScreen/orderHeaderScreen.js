@@ -36,6 +36,7 @@ import SAFRA_NAME from '@salesforce/schema/Safra__c.Name';
 
 export default class OrderHeaderScreen extends LightningElement {
     readonly = false
+    booleanTrue = true;
     @api accountData;
 
     @api headerData;
@@ -93,36 +94,50 @@ export default class OrderHeaderScreen extends LightningElement {
     ];
 
     statusPedido = [{
-            value: '0',
+            value: 'Em digitação',
             label: 'Em digitação',
             description: 'Em digitação',
         },
         {
-            value: '1',
-            label: 'Confirmado',
-            description: 'Confirmado',
+            value: 'Em aprovação',
+            label: 'Em aprovação',
+            description: 'Em aprovação',
         },
         {
-            value: '2',
+            value: 'Recusado',
+            label: 'Recusado',
+            description: 'Recusado',
+        },
+        {
+            value: 'Em Aprovação - Comitê Margem',
+            label: 'Em Aprovação - Comitê Margem',
+            description: 'Em Aprovação - Comitê Margem',
+        },
+        {
+            value: 'Aprovado',
+            label: 'Aprovado',
+            description: 'Aprovado',
+        },
+        {
+            value: 'Integrado',
             label: 'Integrado',
             description: 'Integrado',
         }
     ];
 
     formasPagamento = [{
-            label: 'Credito',
-            value: '0',
-            description: 'Crédito'
-        },{
-            label: 'A vista',
-            value: '1',
-            description: 'A vista'
-        },{
-            label: 'Cheque',
-            value: '2',
-            description: 'Cheque'
+            label: 'Bonificação',
+            value: 'Bonificação',
+            description: 'Bonificação'
         },
-    ]
+    ];
+
+    canalDistribuicao = [{
+        label: 'Venda Direta',
+        value: 'Venda Direta',
+        description: 'Venda Direta'
+        },
+    ];
 
     tipo_venda;
 
@@ -135,6 +150,10 @@ export default class OrderHeaderScreen extends LightningElement {
     forma_pagamento;
 
     numero_pedido_cliente;
+
+    canal_distribuicao;
+
+    setor_atividade;
 
     //Lista de Preço
     redispatchListaPrecoObject = LISTA_PRECO_OBJECT;
@@ -179,7 +198,7 @@ export default class OrderHeaderScreen extends LightningElement {
     };
 
     //Status Pedido
-    status_pedido;
+    status_pedido = "Em digitação";
 
     //Condicao Pagamento
     /*@track redispatchCondicaoPagamentoObject = COND_PAGAMENTO_OBJECT;
@@ -299,6 +318,15 @@ export default class OrderHeaderScreen extends LightningElement {
         this._verifyFieldsToSave();
     }
 
+    selectCanalDistribution(event){
+        this.canal_distribuicao = event.detail.value;
+        this._verifyFieldsToSave();
+    }
+
+    selectSetorAtividade(event){
+        this.setor_atividade = event.detail.value;
+    }
+
     @api
     _verifyFieldsToSave() {
         if (this.verifyMandatoryFields()) {
@@ -310,16 +338,16 @@ export default class OrderHeaderScreen extends LightningElement {
 
     @api
     verifyMandatoryFields() {
-        if (this.tipo_venda !== undefined &&
+        if (this.tipo_venda !== undefined
             /* this.filial &&
             this.safra !== null &&
             this.cultura !== null &&
-            this.condicao_pagamento !== null &&*/
+            this.condicao_pagamento !== null &&
             this.cliente_entrega !== undefined &&
             this.lista_precos !== undefined &&
             this.cliente_faturamento !== undefined &&
             this.data_pagamento !== undefined &&
-            this.data_entrega !== undefined) {
+            this.data_entrega !== undefined*/) {
             return true;
         }
         return false;
@@ -331,6 +359,7 @@ export default class OrderHeaderScreen extends LightningElement {
             'tipo_venda': this.tipo_venda,
             'filial': this.filial,
             'cliente_entrega': this.cliente_entrega,
+            'numero_pedido_cliente': this.numero_pedido_cliente,
             'safra': this.safra,
             'cultura': this.cultura,
             'lista_precos': this.lista_precos,
@@ -340,7 +369,9 @@ export default class OrderHeaderScreen extends LightningElement {
             'status_pedido': this.status_pedido,
             'cliente_faturamento': this.cliente_faturamento,
             'moeda': this.moeda,
+            'setor_atividade': this.setor_atividade,
             'organizacao_vendas': this.organizacao_vendas,
+            'canal_distribuicao': this.canal_distribuicao,
             'forma_pagamento': this.forma_pagamento,
             'ctv_venda': this.ctv_venda,
         };

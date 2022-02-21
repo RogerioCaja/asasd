@@ -25,7 +25,7 @@ public with sharing class OrderScreenController {
 
     public static HeaderSerialize getOrderData(Id orderId){
         Order order = [SELECT Id, AccountId, Type, ShippingAccount__c, Pricebook2Id, PaymentDate__c, CustomerOrderNumber__c,
-        Crop__c, Culture__c, PaymentForm__c, Status, SalesOrg__c, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c
+        Crop__c, Culture__c, PaymentForm__c, StatusSF__c, SalesOrg__c, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c
         FROM Order 
         WHERE Id = :orderId LIMIT 1];
         return new HeaderSerialize(order);
@@ -40,7 +40,7 @@ public with sharing class OrderScreenController {
     }
 
     public static AccountSerialize getOrderAccountData(Id accountId) {
-        Account account = [SELECT Id, Name, CNPJ__c, CPF__c FROM Account WHERE Id =: accountId LIMIT 1];
+        Account account = [SELECT Id, Name, CNPJ__c, CPF__c, Phone FROM Account WHERE Id =: accountId LIMIT 1];
         return new AccountSerialize(account);
     }
 
@@ -55,7 +55,7 @@ public with sharing class OrderScreenController {
             if(orderId != NULL){
                 newOrder = false;
                 order = [SELECT Id, AccountId, Type, ShippingAccount__c, Pricebook2Id, PaymentDate__c, CustomerOrderNumber__c,
-                Crop__c, Culture__c, PaymentForm__c, Status, SalesOrg__c, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c
+                Crop__c, Culture__c, PaymentForm__c, StatusSF__c, SalesOrg__c, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c
                 FROM Order WHERE Id =: orderId LIMIT 1];
             }else{
                 order = new Order();
@@ -80,6 +80,7 @@ public with sharing class OrderScreenController {
             order.ActivitySector__c = orderData.headerData.setor_atividade ;
             order.Currency__c = orderData.headerData.moeda ;
             order.SalesCTV__c = orderData.headerData.ctv_venda ;
+            order.StatusSF__c = orderData.headerData.status_pedido;
 
             Database.UpsertResult insResults = Database.upsert(order, false);
             if(insResults.isSuccess()){
@@ -124,6 +125,7 @@ public with sharing class OrderScreenController {
         public String setor_atividade;
         public String moeda;
         public String ctv_venda;
+        public String status_pedido;
         //public String data_entrega;
         //public String cliente_faturamento;
     }
@@ -156,10 +158,12 @@ public with sharing class OrderScreenController {
     public class AccountSerialize {
         public String Id;
         public String Name;
+        public String Phone;
         AccountSerialize(){}
         AccountSerialize(Account account){
             this.Id = account.Id;
             this.Name = account.Name;
+            this.Phone = account.Phone;
         }
     }
     
@@ -198,7 +202,7 @@ public with sharing class OrderScreenController {
             this.safra = order.Crop__c;
             this.cultura = order.Culture__c;
             this.forma_pagamento = order.PaymentForm__c;
-            this.status_pedido = order.Status;
+            this.status_pedido = order.StatusSF__c;
             this.organizacao_vendas = order.SalesOrg__c;
             this.canal_distribuicao = order.DistributionChannel__c;
             this.setor_atividade = order.ActivitySector__c;
