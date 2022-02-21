@@ -147,14 +147,6 @@
         <relatedList>RelatedOrderList</relatedList>
     </relatedLists>
     <relatedLists>
-        <fields>TERRITORY.NAME</fields>
-        <fields>MODEL.NAME</fields>
-        <fields>MODEL.STATE</fields>
-        <fields>ASSIGNMENT_DATE</fields>
-        <fields>ASSOCIATION_CAUSE</fields>
-        <relatedList>AccountAssignedTerritory2sRelatedList</relatedList>
-    </relatedLists>
-    <relatedLists>
         <fields>FULL_NAME</fields>
         <fields>CONTACT.TITLE</fields>
         <fields>CONTACT.EMAIL</fields>
