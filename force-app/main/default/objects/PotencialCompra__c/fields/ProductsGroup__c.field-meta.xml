@@ -3,7 +3,7 @@
     <fullName>ProductsGroup__c</fullName>
     <deleteConstraint>Restrict</deleteConstraint>
     <externalId>false</externalId>
-    <label>Grupo de Produto</label>
+    <label>Grupo de Produtos</label>
     <referenceTo>ProductGroup__c</referenceTo>
     <relationshipLabel>Potencial de Compras</relationshipLabel>
     <relationshipName>Potencial_de_Compras</relationshipName>

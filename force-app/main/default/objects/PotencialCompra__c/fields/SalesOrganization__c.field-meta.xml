@@ -3,7 +3,7 @@
     <fullName>SalesOrganization__c</fullName>
     <deleteConstraint>Restrict</deleteConstraint>
     <externalId>false</externalId>
-    <label>Organização de Venda</label>
+    <label>Organização de Vendas</label>
     <referenceTo>SalesOrg__c</referenceTo>
     <relationshipLabel>Potencial de Compras</relationshipLabel>
     <relationshipName>Potencial_de_Compras</relationshipName>
