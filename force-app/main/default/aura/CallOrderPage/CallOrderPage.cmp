@@ -1,0 +1,5 @@
+<aura:component implements="force:lightningQuickActionWithoutHeader,force:hasRecordId,lightning:actionOverride" access="global">
+    <!-- <c:orderScreen recordId="{!v.recordId}"></c:orderScreen> -->
+    <aura:attribute name="recordId" type="Id"/>
+    <aura:handler name="init" action="{!c.navigateToeDiscoverySearchCmp}" value="{!this}"/>
+</aura:component>

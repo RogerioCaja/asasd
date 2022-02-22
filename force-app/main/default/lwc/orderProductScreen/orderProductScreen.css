@@ -27,6 +27,7 @@
 .resultados_produto h2{
   color: #2A9676;
   font-size: 18px;
+  margin:15px 0;
 }
 
 lightning-datatable{
