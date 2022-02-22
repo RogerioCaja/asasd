@@ -7,7 +7,13 @@ public with sharing class VisitControllerTest {
     static void makeData(){
         //Requisitos: Account, Planejamento de visita
         Account ac = new Account(
-            Name = 'Teste 1'
+            Name = 'Teste 1',
+            BillingStreet = ' ',
+            BillingState = '' ,
+            Phone= '', 
+            BillingCity = ' ', 
+            BillingLongitude = 000000,
+            BillingLatitude = 00000
         );
         
 
@@ -111,5 +117,13 @@ public with sharing class VisitControllerTest {
 
         VisitController.VisitDAO visitTest = new VisitController.VisitDAO(responseCadastro.get(0));
         System.assert(cp.get(0).Id == visitTest.id);
+    }
+
+    @isTest
+    public static void verifyProcedureMain(){
+        List<Cadastro_ClientedaVisita__c> cp = [SELECT Id, Name, Local_da_Visita__c, Tipo_da_Visita__c , PlanejamentoVisita__r.Culture__r.Name ,PlanejamentoVisita__r.Safra__r.Name , PlanejamentoVisita__r.CTVvisit__c, PlanejamentoVisita__r.SellOrg__r.Name , Account__r.Name, Account__r.BillingStreet, Account__r.BillingState , Account__r.Phone, Account__r.BillingCity, DataVisita__c
+        , Account__r.BillingLongitude, Account__r.BillingLatitude FROM Cadastro_ClientedaVisita__c LIMIT 1];
+        VisitController vc = new VisitController();
+        System.assert(vc.generatePDF(cp.get(0).Id) == true, 'Houve algum erro no processo de gerar PDF'); 
     }
 }

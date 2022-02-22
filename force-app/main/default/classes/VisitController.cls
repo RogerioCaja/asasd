@@ -1,11 +1,15 @@
 public with sharing class VisitController {
     public VisitDAO visit {get; set;}
     public List<PhotoDAO> photos {get;set;}
-    
+    public VisitController(){}
     public VisitController(ApexPages.StandardController stdController) {
-        Id visitIdPageReference;
-        if(ApexPages.currentPage().getParameters().get('Id') != null) {
-            visitIdPageReference = Id.valueOf(String.escapeSingleQuotes(ApexPages.currentPage().getParameters().get('Id').escapeHtml4()));
+        Id visitIdPageReference = Id.valueOf(String.escapeSingleQuotes(ApexPages.currentPage().getParameters().get('Id').escapeHtml4()));
+        if(visitIdPageReference != null) generatePDF(visitIdPageReference);
+
+    }
+
+    @TestVisible
+    public Boolean generatePDF(Id visitIdPageReference){
 
             //Queries 
             List<Cadastro_ClientedaVisita__c> clientVisitList = getVisitById(visitIdPageReference, 
@@ -19,31 +23,29 @@ public with sharing class VisitController {
                 'Id','Observation__c', 'ClienteVisita__c'
             });
         
-            List<ContentVersion> contentVersionList = getFileByPhotoId(photoList);
-            // ----------------------------------------------------------------------
-            // Preparing Data to Photos
-            this.photos = new List<PhotoDAO>();
-            for(Integer i = 0; i< contentVersionList.size(); i++){
-                if(photoList.size() == 1){
-                    this.photos.add( new PhotoDAO(photoList.get(0), contentVersionList.get(i)));
-                }
-                else{
-                    this.photos.add(new PhotoDAO(photoList.get(i), contentVersionList.get(i)));
+            if(this.photos != null){
+                List<ContentVersion> contentVersionList = getFileByPhotoId(photoList);
+                // ----------------------------------------------------------------------
+                // Preparing Data to Photos
+                this.photos = new List<PhotoDAO>();
+                
+                for(Integer i = 0; i< contentVersionList.size(); i++){
+                    if(photoList.size() == 1){
+                        this.photos.add( new PhotoDAO(photoList.get(0), contentVersionList.get(i)));
+                    }
+                    else{
+                        this.photos.add(new PhotoDAO(photoList.get(i), contentVersionList.get(i)));
+                    }
                 }
             }
             // ---------------------------------------------------------------------------------
-
-
-            
             this.visit = new VisitDAO(clientVisitList.get(0));
-
-
             String downloadingFileName = 'VisitReport-' + this.visit.name + '.pdf';
             Apexpages.currentPage().getHeaders().put( 'content-disposition', 'inline; filename=' + downloadingFileName );
-        }
+            if(this.visit != null) return true;
+            else return false;
         
     }
-
     public List<PhotoDAO> getPhotos(){
         return this.photos;
     }
