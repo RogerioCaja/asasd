@@ -122,7 +122,7 @@ export default class OrderScreen extends LightningElement {
         }else if(this.originScreen.includes('Account')){
             this.getAccount();
         }
-        console.log(this.recordId, this.originScreen);
+        //console.log(this.recordId, this.originScreen);
 
     }
 

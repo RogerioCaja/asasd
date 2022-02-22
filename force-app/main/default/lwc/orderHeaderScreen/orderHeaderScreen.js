@@ -224,6 +224,18 @@ export default class OrderHeaderScreen extends LightningElement {
         description: 'Name'
     };
 
+    connectedCallback(){
+        this.tipo_venda = this.headerData.tipo_venda;
+        this.safra = this.headerData.safra;
+        this.cultura = this.headerData.cultura;
+        this.cliente_entrega = this.headerData.cliente_entrega;
+        this.data_pagamento = this.headerData.data_pagamento;
+        this.lista_precos = this.headerData.lista_precos;
+        this.moeda = this.headerData.moeda;
+        this.numero_pedido_cliente = this.headerData.numero_pedido_cliente;
+        this.ctv_venda = this.headerData.ctv_venda;
+        this.forma_pagamento = this.headerData.forma_pagamento;
+    }
     //Filial
     /*@track redispatchFilialObject = [FILIAL_OBJECT];
     filial;
@@ -338,16 +350,17 @@ export default class OrderHeaderScreen extends LightningElement {
 
     @api
     verifyMandatoryFields() {
-        if (this.tipo_venda !== undefined
-            /* this.filial &&
-            this.safra !== null &&
-            this.cultura !== null &&
-            this.condicao_pagamento !== null &&
+        if (this.tipo_venda !== undefined &&
+            this.safra !== undefined &&
+            this.cultura !== undefined &&
             this.cliente_entrega !== undefined &&
-            this.lista_precos !== undefined &&
-            this.cliente_faturamento !== undefined &&
             this.data_pagamento !== undefined &&
-            this.data_entrega !== undefined*/) {
+            this.lista_precos !== undefined &&
+            this.moeda !== undefined &&
+            this.numero_pedido_cliente !== undefined &&
+            this.ctv_venda !==undefined &&
+            this.forma_pagamento !== undefined
+            ) {
             return true;
         }
         return false;

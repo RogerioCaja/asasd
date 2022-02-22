@@ -49,6 +49,12 @@ div.titulo {
     font-weight: normal;
   }
 
+  .campos > fieldset{
+    width: 100%;
+    padding: 0 5% 0 5%;
+    margin: 0 12% 0 12%;
+  }
+
 
 .dadosConta { display: grid; grid-template-columns: auto auto auto;  }
 
