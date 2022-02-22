@@ -224,17 +224,24 @@ export default class OrderHeaderScreen extends LightningElement {
         description: 'Name'
     };
 
+    @track pass = false;
     connectedCallback(){
-        this.tipo_venda = this.headerData.tipo_venda;
-        this.safra = this.headerData.safra;
-        this.cultura = this.headerData.cultura;
-        this.cliente_entrega = this.headerData.cliente_entrega;
-        this.data_pagamento = this.headerData.data_pagamento;
-        this.lista_precos = this.headerData.lista_precos;
-        this.moeda = this.headerData.moeda;
-        this.numero_pedido_cliente = this.headerData.numero_pedido_cliente;
-        this.ctv_venda = this.headerData.ctv_venda;
-        this.forma_pagamento = this.headerData.forma_pagamento;
+        if(this.headerData.tipo_venda != " "){
+            this.tipo_venda = this.headerData.tipo_venda;
+            this.safra = this.headerData.safra;
+            this.cultura = this.headerData.cultura;
+            this.cliente_entrega = this.headerData.cliente_entrega;
+            this.data_pagamento = this.headerData.data_pagamento;
+            this.lista_precos = this.headerData.lista_precos;
+            this.moeda = this.headerData.moeda;
+            this.numero_pedido_cliente = this.headerData.numero_pedido_cliente;
+            this.ctv_venda = this.headerData.ctv_venda;
+            this.forma_pagamento = this.headerData.forma_pagamento;
+            this.pass = false;
+        }
+        else{
+            this.pass = true;
+        }
     }
     //Filial
     /*@track redispatchFilialObject = [FILIAL_OBJECT];
@@ -350,7 +357,7 @@ export default class OrderHeaderScreen extends LightningElement {
 
     @api
     verifyMandatoryFields() {
-        if (this.tipo_venda !== undefined &&
+        if ((this.tipo_venda !== undefined &&
             this.safra !== undefined &&
             this.cultura !== undefined &&
             this.cliente_entrega !== undefined &&
@@ -359,7 +366,7 @@ export default class OrderHeaderScreen extends LightningElement {
             this.moeda !== undefined &&
             this.numero_pedido_cliente !== undefined &&
             this.ctv_venda !==undefined &&
-            this.forma_pagamento !== undefined
+            this.forma_pagamento !== undefined) || this.pass
             ) {
             return true;
         }
