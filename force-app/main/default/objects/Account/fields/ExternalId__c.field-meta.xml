@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>ExternalId__c</fullName>
-    <caseSensitive>true</caseSensitive>
-    <externalId>true</externalId>
-    <label>Código</label>
+    <externalId>false</externalId>
+    <label>Código SAP</label>
     <length>100</length>
     <required>true</required>
-    <trackHistory>false</trackHistory>
-    <trackTrending>false</trackTrending>
+    <trackFeedHistory>false</trackFeedHistory>
     <type>Text</type>
-    <unique>true</unique>
+    <unique>false</unique>
 </CustomField>
