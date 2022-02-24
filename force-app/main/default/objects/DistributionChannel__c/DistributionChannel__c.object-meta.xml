@@ -153,14 +153,13 @@
     <enableSharing>true</enableSharing>
     <enableStreamingApi>true</enableStreamingApi>
     <externalSharingModel>Private</externalSharingModel>
-    <label>Divisão de Remessa</label>
+    <label>Canal de Distribuição</label>
     <nameField>
-        <displayFormat>{00000000}</displayFormat>
-        <label>Divisão de Remessa</label>
+        <label>Canal de Distribuição</label>
         <trackHistory>false</trackHistory>
-        <type>AutoNumber</type>
+        <type>Text</type>
     </nameField>
-    <pluralLabel>Divisões de Remessa</pluralLabel>
+    <pluralLabel>Canais de Distribuição</pluralLabel>
     <searchLayouts/>
     <sharingModel>ReadWrite</sharingModel>
     <visibility>Public</visibility>

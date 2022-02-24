@@ -152,16 +152,15 @@
     <enableSearch>true</enableSearch>
     <enableSharing>true</enableSharing>
     <enableStreamingApi>true</enableStreamingApi>
-    <externalSharingModel>Private</externalSharingModel>
-    <label>Divisão de Remessa</label>
+    <externalSharingModel>ControlledByParent</externalSharingModel>
+    <label>Empresa</label>
     <nameField>
-        <displayFormat>{00000000}</displayFormat>
-        <label>Divisão de Remessa</label>
+        <label>Empresas</label>
         <trackHistory>false</trackHistory>
-        <type>AutoNumber</type>
+        <type>Text</type>
     </nameField>
-    <pluralLabel>Divisões de Remessa</pluralLabel>
+    <pluralLabel>Empresas</pluralLabel>
     <searchLayouts/>
-    <sharingModel>ReadWrite</sharingModel>
+    <sharingModel>ControlledByParent</sharingModel>
     <visibility>Public</visibility>
 </CustomObject>
