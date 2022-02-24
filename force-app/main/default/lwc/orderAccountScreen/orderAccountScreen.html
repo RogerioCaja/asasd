@@ -33,7 +33,8 @@
                         <span if:true={selectedAccount.CPF__c}>CPF: {selectedAccount.CPF__c}</span> 
                     </div>
                     <div class="texto">
-                        {selectedAccount.BillingCity} - {selectedAccount.BillingState} - Brasil
+                        <span if:true={selectedAccount.City}>{selectedAccount.City} - {selectedAccount.UF} - Brasil</span>
+                        <span if:true={selectedAccount.BillingCity}>{selectedAccount.BillingCity} - {selectedAccount.BillingState} - Brasil</span>
                     </div>
                     <div class="texto">
                         <span>Código SAP:</span> NÃO INTEGRADO
