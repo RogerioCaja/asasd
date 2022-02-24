@@ -4,8 +4,7 @@
     </div>
     <c-custom-order-search object-name="Account" field-name="Name" onshowresults={showResults} label="Pesquisar CONTA: Nome, CNPJ ou CPF, Razão Social:" placeholder="Digite o nome da conta" required="true" onchild={getFieldsValueAccount}></c-custom-order-search>
     <div if:true={selectedAccount} class="resultados_conta">
-        <template for:each={selectedAccount} for:item="rec">
-            <div class="item accountSelected" key={rec.Id}>
+        <div class="item accountSelected">
                 <div class="tituloItem">
                     <svg width="25" height="27" viewBox="0 0 25 27" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <rect width="25" height="26.0417" rx="4" fill="#121212" />
@@ -19,7 +18,7 @@
                         </g>
                     </svg>
                     <span>
-                        {rec.Name}
+                        {selectedAccount.Name}
                     </span>
                 </div>
                 <div class="dadosConta">
@@ -39,7 +38,7 @@
                         <span>Código SAP:</span> NÃO INTEGRADO
                     </div>
                     <div class="texto">
-                        <span>Telefone:</span> {rec.Phone}
+                        <span>Telefone:</span> {selectedAccount.Phone}
                     </div>
                 </div>
                 <div class="botaoConta">
@@ -53,8 +52,7 @@
                         </svg>
                     </button>
                 </div>
-            </div>
-        </template>
+        </div>
     </div>
     <div class="resultados_conta" if:true={showList}>
       <template if:false={message}>
@@ -98,7 +96,7 @@
                       </div>
                   </div>
                   <div class="botaoConta">
-                      <button data-key={rec.Id} onclick={selectAccount}>
+                      <button data-key={rec.Id} onclick={selectAccountFromResults}>
                           SELECIONAR
                           <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                               xmlns="http://www.w3.org/2000/svg">

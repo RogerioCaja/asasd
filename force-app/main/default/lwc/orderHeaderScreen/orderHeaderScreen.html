@@ -3,8 +3,7 @@
         <h2>Detalhes do <b>Cabeçalho do Pedido</b></h2>
     </div>
     <div class="cabecalho">
-        <template for:each={accountData} for:item="rec">
-            <div class="detalhes_conta" key={rec.Id}>
+            <div class="detalhes_conta">
                 <div class="tituloItem">
                     <svg width="25" height="27" viewBox="0 0 25 27" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <rect width="25" height="26.0417" rx="4" fill="#2A9676" />
@@ -17,18 +16,25 @@
                                 fill="white"></path>
                         </g>
                     </svg>
-                    <span>{rec.Name}</span>
+                    <span>{accountData.Name}</span>
                 </div>
                 <div class="dadosConta">
                     <div class="texto">
-                        <span>Razão Social:</span> {rec.Name}
+                        <span>Razão Social:</span> {accountData.Name}
                     </div>
                     <div class="texto">
                         <span>Tipo de Conta:</span> Jurídica
                     </div>
-                    <div class="texto">
-                        <span>CNPJ:</span> 104037480001-99
-                    </div>
+                    <template if:true={accountData.cnpj}>
+                        <div class="texto">
+                            <span>CNPJ:</span> {accountData.cnpj}
+                        </div>
+                    </template>
+                    <template if:true={accountData.cpf}>
+                        <div class="texto">
+                            <span>CPF:</span> {accountData.cpf}
+                        </div>
+                    </template>
                     <div class="texto">
                         São Bernardo do Campo - SP - Brasil
                     </div>
@@ -36,133 +42,220 @@
                         <span>Código SAP:</span> NÃO INTEGRADO
                     </div>
                     <div class="texto">
-                        <span>Telefone:</span> {rec.Phone}
+                        <span>Telefone:</span> {accountData.Phone}
                     </div>
                 </div>
             </div>
             <!--final de detalhes_conta-->
-        </template>
         <div class="campos">
             <fieldset class="slds-form-element slds-form-element_compound">
                 <div class="slds-form-element__control">
                     <div class="slds-form-element__row">
-                        <div class="slds-form-elemen slds-size_1-of-3">
-                            <lightning-combobox name="tipo_venda" label="Tipo de Venda" placeholder="Choose Status"
-                                value={value} onchange={selectTipoVenda} options={tiposVenda}>
+                        <div class="slds-form-element slds-size_1-of-4">
+                            <!-- <c-lookup 
+                                input-label="Cliente de Entrega" 
+                                object-icon-name="standard:action_list_component"
+                                target-object={redispatchClienteEntregaObject}
+                                search-fields={redispatchClienteEntregaSearchFields}
+                                record-id={headerData.cliente_entrega} 
+                                standard-form-layout={booleanTrue}
+                                list-item-options={redispatchClienteEntregaListItemOptions} 
+                                new-record-button="true"
+                                onselectrecord={selectClienteEntrega} 
+                                placeholder="Pesquisar Cliente de Entrega"
+                                style="width: 100%;" 
+                                required="true">
+                            </c-lookup> -->
+                            <c-lookup-account record-id={headerData.cliente_entrega} onclearselectedrecord={removeSelectClienteEntrega} onselectrecord={selectClienteEntrega} account-list={accountChildData}></c-lookup-account>
+                        </div>
+                        <div class="slds-form-element slds-size_1-of-4">
+                            <lightning-combobox 
+                                name="tipo_venda" 
+                                label="Tipo de Venda" 
+                                placeholder="Escolha um Tipo de Venda"
+                                value={headerData.tipo_venda} 
+                                onchange={selectTipoVenda} 
+                                options={tiposVenda} 
+                                required="true">
                             </lightning-combobox>
                         </div>
-                        <div class="slds-size_1-of-3">
-                            <c-custom-Lookup object-name="Filial__c" label="Filial" field-name="Name"
-                                icon-name="standard:action_list_component" placeholder="Digite a Filial"
-                                onchild={selectFilial}></c-custom-Lookup>
-                        </div>
-                        <div class="slds-size_1-of-3">
-                            <c-custom-Lookup object-name="Account" label="Cliente de Entrega" field-name="Name"
-                                icon-name="standard:action_list_component" placeholder="Digite o Cliente de Entrega"
-                                required="true" onchild={selectClienteEntrega}></c-custom-Lookup>
-                        </div>
+                        
+                        <div class="slds-form-element slds-size_1-of-4">
+                            <c-lookup 
+                                input-label="CTV da Venda" 
+                                object-icon-name="standard:action_list_component"
+                                target-object={redispatchCtvVendaObject}
+                                search-fields={redispatchCtvSearchFields} 
+                                record-id={headerData.ctv_venda}
+                                list-item-options={redispatchCtvVendaListItemOptions} 
+                                new-record-button="true"
+                                standard-form-layout={booleanTrue}
+                                onselectrecord={selectCtvVenda} 
+                                placeholder="Pesquisar CTV da Venda"
+                                style="width: 100%;" 
+                                required="true">
+                            </c-lookup>
+                        </div>  
                     </div>
                     <div class="slds-form-element__row">
-                        <div class="slds-size_1-of-3">
-                            <c-custom-Lookup object-name="Safra__c" label="Safra" field-name="Name"
-                                icon-name="standard:action_list_component" placeholder="Digite a Safra"
-                                onchild={selectSafra}></c-custom-Lookup>
+                        <div class="slds-form-element slds-size_1-of-4">
+                            <c-lookup 
+                                input-label="Safras" 
+                                object-icon-name="standard:action_list_component"
+                                target-object={redispatchSafraObject} 
+                                record-id={headerData.safra}
+                                search-fields={redispatchSafraSearchFields}
+                                list-item-options={redispatchSafraListItemOptions} 
+                                new-record-button={booleanTrue}
+                                standard-form-layout={booleanTrue}
+                                onselectrecord={selectSafra} 
+                                placeholder="Pesquisar Safras" 
+                                style="width: 100%;"
+                                required="true">
+                            </c-lookup>
                         </div>
-                        <div class="slds-size_1-of-3">
-                            <c-custom-Lookup object-name="Cultura__c" label="Cultura" field-name="Name"
-                                icon-name="standard:action_list_component" placeholder="Digite a cultura"
-                                onchild={selectCultura}></c-custom-Lookup>
+                        <div class="slds-form-element slds-size_1-of-4">
+                            <c-lookup 
+                                input-label="Culturas" 
+                                object-icon-name="standard:action_list_component"
+                                target-object={redispatchCulturaObject} 
+                                record-id={headerData.cultura}
+                                search-fields={redispatchCulturaSearchFields}
+                                list-item-options={redispatchCulturaListItemOptions} 
+                                new-record-button={booleanTrue}
+                                onselectrecord={selectCultura} 
+                                standard-form-layout={booleanTrue} 
+                                placeholder="Pesquisar Culturas" 
+                                style="width: 100%;"
+                                required="true">
+                            </c-lookup>
                         </div>
-                        <div class="slds-size_1-of-3">
-                            <!--c-custom-Lookup object-name="Pricebook2" label="Lista de Preços" field-name="Name" icon-name="standard:action_list_component" placeholder="Digite a lista de preços" onchild={selectListaPrecos}></c-custom-Lookup-->
-                            <c-lookup input-label="Lista de Preços" object-icon-name="standard:action_list_component"
-                                target-object={redispatchListaPrecoObject} record-id={lista_precos}
+                        <div class="slds-form-element slds-size_1-of-4">
+                            <c-lookup 
+                                input-label="Lista de Preços" 
+                                object-icon-name="standard:action_list_component"
+                                target-object={redispatchListaPrecoObject}
+                                record-id={headerData.lista_precos}
                                 search-fields={redispatchListaPrecosSearchFields}
-                                list-item-options={redispatchListaPrecoListItemOptions} new-record-button="true"
-                                onselectrecord={selectListaPrecos} placeholder="Pesquisar Lista de Preços"
-                                style="width: 100%;" required="true">
+                                list-item-options={redispatchListaPrecoListItemOptions} 
+                                standard-form-layout={booleanTrue}
+                                new-record-button={booleanTrue}
+                                onselectrecord={selectListaPrecos} 
+                                placeholder="Pesquisar Lista de Preços"
+                                style="width: 100%;" 
+                                required="true">
                             </c-lookup>
                         </div>
                     </div>
                     <div class="slds-form-element__row">
-                        <div class="slds-size_1-of-3">
-                            <c-custom-Lookup object-name="PaymentCondition__c" label="Condição de Pagamento"
-                                field-name="Name" icon-name="standard:action_list_component"
-                                placeholder="Digite a lista de preços" onchild={selectCondicaoPagamento}>
-                            </c-custom-Lookup>
-                        </div>
-                        <div class="slds-size_1-of-3">
-                            <lightning-input label="Data de Pagamento" field-name="data_pagamento" type="date">
-                            </lightning-input>
-                        </div>
-                        <div class="slds-size_1-of-3">
-                            <lightning-input label="Data de Entrega" field-name="data_pagamento" type="date">
-                            </lightning-input>
-                        </div>
-                    </div>
-                    <div class="slds-form-element__row">
-                        <div class="slds-size_1-of-3">
-                            <lightning-combobox name="status_pedido" label="Status de Pedido"
-                                placeholder="Choose Status" value={value} onchange={selectStatusPedido}
-                                options={statusPedido}>
-                            </lightning-combobox>
-                        </div>
-                        <div class="slds-size_1-of-3">
-                            <c-lookup input-label="Cliente Faturamento"
+                        <div class="slds-size_1-of-4">
+                            <c-lookup 
+                                input-label="Condição de Pagamento"
                                 object-icon-name="standard:action_list_component"
-                                target-object={redispatchClienteFaturamentoObject} record-id={cliente_faturamento}
-                                list-item-options={redispatchClienteFaturamentoListItemOptions} new-record-button="true"
-                                onselectrecord={selectClienteFaturamento} placeholder="Pesquisar Cliente de Faturamento"
-                                style="width: 100%;" required="true">
+                                target-object="" 
+                                record-id={headerData.condicao_pagamento}
+                                search-fields=""
+                                standard-form-layout={booleanTrue}
+                                list-item-options="" 
+                                new-record-button="true" 
+                                placeholder="Pesquisar Condições de Pagamento"
+                                style="width: 100%;" 
+                                required="true">
                             </c-lookup>
                         </div>
-                        <div class="slds-size_1-of-3">
-                            <c-lookup input-label="Cliente de Entrega" object-icon-name="standard:action_list_component"
-                                target-object={redispatchClienteEntregaObject} record-id={cliente_entrega}
-                                list-item-options={redispatchClienteEntregaListItemOptions} new-record-button="true"
-                                onselectrecord={selectClienteEntrega} placeholder="Pesquisar Cliente de Entrega"
-                                style="width: 100%;" required="true"></c-lookup>
+                        <div class="slds-size_1-of-8">
+                            <lightning-input 
+                                label="Data de Pagamento" 
+                                field-name="data_pagamento"
+                                value={headerData.data_pagamento} 
+                                date-style="short" 
+                                onchange={selectDataPagamento} 
+                                type="date" 
+                                required="true">
+                            </lightning-input>
+                        </div>
+                        <div class="slds-size_1-of-8">
+                            <lightning-input 
+                                label="Data de Entrega" 
+                                field-name="data_entrega" 
+                                value={headerData.data_entrega} 
+                                type="date" 
+                                date-style="short" 
+                                onchange={selectDataEntrega} 
+                                required="true">
+                            </lightning-input>
+                        </div>
+                        <div class="slds-size_1-of-4">
+                            <lightning-combobox 
+                                name="forma_pagamento" 
+                                label="Forma de Pagamento"
+                                placeholder="Escolha a Forma de pagamento"
+                                value={headerData.forma_pagamento}  
+                                onchange={selectFormaPagamento}
+                                options={formasPagamento} 
+                                required="true">
+                            </lightning-combobox>
                         </div>
                     </div>
                     <div class="slds-form-element__row">
-                        <div class="slds-size_1-of-3">
-                            <c-lookup input-label="Organização de Vendas"
-                                object-icon-name="standard:action_list_component"
-                                target-object={redispatchOrgVendasObject} record-id={organizacao_vendas}
-                                list-item-options={redispatchOrgVendasListItemOptions} new-record-button="true"
-                                onselectrecord={selectOrgVendas} placeholder="Pesquisar Organização de Vendas"
-                                style="width: 100%;" required="true"></c-lookup>
+                        <div class="slds-size_1-of-4">
+                            <lightning-combobox 
+                                name="status_pedido" 
+                                label="Status de Pedido"
+                                placeholder="Escolha um Status do Pedido" 
+                                value={headerData.status_pedido} 
+                                onchange={selectStatusPedido}
+                                options={statusPedido} 
+                                read-only="true">
+                            </lightning-combobox>
                         </div>
-                        <div class="slds-size_1-of-3">
-                            <lightning-input class="inputBox" type="text" autocomplete="off"
-                                label="Canal de Distribuição" value=""></lightning-input>
+                        <div class="slds-size_1-of-4">
+                            <lightning-combobox 
+                                name="moeda" 
+                                label="Moeda" 
+                                placeholder="Escolha a Moeda"
+                                value={headerData.moeda} 
+                                onchange={selectMoeda} 
+                                options={moedas} 
+                                required="true">
+                            </lightning-combobox>
                         </div>
-                        <div class="slds-size_1-of-3">
-                            <lightning-input class="inputBox" type="text" autocomplete="off" label="Setor de Atividade"
-                                value=""></lightning-input>
+                        <div class="slds-size_1-of-4">
+                            <lightning-input 
+                                label="Número Pedido de Cliente" 
+                                field-name="numero_pedido_cliente"
+                                value={headerData.numero_pedido_cliente} 
+                                onchange={selectNumeroPedido} 
+                                type="text" 
+                                required="true">
+                            </lightning-input>
                         </div>
                     </div>
-
                     <div class="slds-form-element__row">
-                        <div class="slds-size_1-of-3">
-                            <lightning-combobox name="forma_pagamento" label="Forma de Pagamento"
-                                placeholder="Escolha a Forma de pagamento" value={value} onchange={selectFormaPagamento}
-                                options={formas_pagamento}>
+                        <div class="slds-size_2-of-7">
+                            <lightning-combobox 
+                                name="frete" 
+                                label="Tipo de Frete" 
+                                placeholder="Escolha o Frete"
+                                value={headerData.frete} 
+                                onchange={selectFrete} 
+                                options={fretes} 
+                                required="true">
                             </lightning-combobox>
+                            
                         </div>
-                        <div class="slds-size_1-of-3">
-                            <lightning-combobox name="moeda" label="Moeda" placeholder="Escolha a Moeda" value={value}
-                                onchange={selectMoeda} options={moedas}>
-                            </lightning-combobox>
-                        </div>
-                        <div class="slds-size_1-of-3">
-                            <c-lookup input-label="CTV da Venda" object-icon-name="standard:action_list_component"
-                                target-object={redispatchCtvVendaObject} record-id={ctv_venda}
-                                list-item-options={redispatchCtvVendaListItemOptions} new-record-button="true"
-                                onselectrecord={selectCtvVenda} placeholder="Pesquisar CTV da Venda"
-                                style="width: 100%;" required="true"></c-lookup>
+                        <div class="slds-size_2-of-7">
+                            <lightning-input 
+                            label="Pedido Mãe" 
+                            field-name="pedido_mae"
+                            value={headerData.pedido_mae} 
+                            type="text" 
+                            disabled="true"
+                            required="true">
+                            </lightning-input>
                         </div>
                     </div>
+                    
                 </div>
             </fieldset>
         </div>

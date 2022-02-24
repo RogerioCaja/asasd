@@ -158,9 +158,9 @@ export default class OrderProductScreen extends LightningElement {
         console.log(JSON.parse(JSON.stringify(this.selectedProducts)));
     }
 
-
+    @api
     _verifyFieldsToSave() {
-        if (this.products !== null) {
+        if (this.verifyMandatoryFields()) {
             this._setData();
             return true;
         }
@@ -169,8 +169,7 @@ export default class OrderProductScreen extends LightningElement {
 
     @api
     verifyMandatoryFields() {
-        if (this.products !== null) {
-            this._verifyFieldsToSave();
+        if (this.products !== undefined) {
             return true;
         }
         return false;

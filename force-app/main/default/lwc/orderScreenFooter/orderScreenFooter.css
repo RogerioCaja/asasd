@@ -47,3 +47,19 @@
  :host span{
     color: #A79A9A;
  }
+
+ button {
+   background: #2a9676;
+   color: white;
+   padding: 12px;
+   font-size: 14px;
+   border: 1px solid grey;
+   border-left: none; /* Prevent double borders */
+   cursor: pointer;
+   border-radius: 0 4px 4px 0;
+   width: 30%;
+ }
+ 
+button:hover {
+   background: #127B5C;
+ }
