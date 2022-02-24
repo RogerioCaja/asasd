@@ -250,8 +250,6 @@ export default class OrderHeaderScreen extends LightningElement {
         .then((result) =>{
             const accountsChild = JSON.parse(result);
             this.accountChildData = accountsChild.accountList;
-            console.log('aqui pfv');
-            console.log(this.accountChildData);
         })
         .catch((err)=>{
         });

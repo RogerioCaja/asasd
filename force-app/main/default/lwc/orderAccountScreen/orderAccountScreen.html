@@ -29,10 +29,11 @@
                         <span>Tipo de Conta:</span> Jurídica
                     </div>
                     <div class="texto">
-                        <span>CNPJ:</span> 104037480001-99
+                        <span if:true={selectedAccount.CPNJ__c}>CNPJ: {selectedAccount.CPNJ__c}</span>
+                        <span if:true={selectedAccount.CPF__c}>CPF: {selectedAccount.CPF__c}</span> 
                     </div>
                     <div class="texto">
-                        São Bernardo do Campo - SP - Brasil
+                        {selectedAccount.BillingCity} - {selectedAccount.BillingState} - Brasil
                     </div>
                     <div class="texto">
                         <span>Código SAP:</span> NÃO INTEGRADO
@@ -83,10 +84,11 @@
                           <span>Tipo de Conta:</span> Jurídica
                       </div>
                       <div class="texto">
-                          <span>CNPJ:</span> 104037480001-99
+                        <span if:true={rec.CPNJ__c}>CNPJ: {rec.CPNJ__c}</span>
+                        <span if:true={rec.CPF__c}>CPF: {rec.CPF__c}</span>
                       </div>
                       <div class="texto">
-                          São Bernardo do Campo - SP - Brasil
+                        {rec.BillingCity} - {rec.BillingState} - Brasil
                       </div>
                       <div class="texto">
                           <span>Código SAP:</span> NÃO INTEGRADO
