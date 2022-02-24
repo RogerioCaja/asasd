@@ -48,5 +48,8 @@ manifest/package.xml
 
 destructiveChanges
 force-app/main/default/profiles/*
+force-app/main/default/profileSessionSettings/*
+force-app/main/default/profilePasswordPolicies/*
 scripts/csv/converted-output/*
 scripts/csv/converted-output-error/*
+force-app/main/default/customIndex/*
