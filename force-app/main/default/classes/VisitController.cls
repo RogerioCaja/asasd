@@ -23,7 +23,7 @@ public with sharing class VisitController {
                 'Id','Observation__c', 'ClienteVisita__c'
             });
         
-            if(this.photos != null){
+            if(photoList != null){
                 List<ContentVersion> contentVersionList = getFileByPhotoId(photoList);
                 // ----------------------------------------------------------------------
                 // Preparing Data to Photos
