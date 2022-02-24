@@ -855,11 +855,11 @@
         <field>ProductFamily__c.ExternalId__c</field>
         <readable>true</readable>
     </fieldPermissions>
-    <fieldPermissions>
+    <!-- <fieldPermissions>
         <editable>true</editable>
         <field>ProductGroup__c.ExternalId__c</field>
         <readable>true</readable>
-    </fieldPermissions>
+    </fieldPermissions> -->
     <fieldPermissions>
         <editable>true</editable>
         <field>ProductSubGroup__c.ExternalId__c</field>
