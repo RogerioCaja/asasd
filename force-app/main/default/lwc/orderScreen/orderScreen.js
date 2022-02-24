@@ -62,7 +62,7 @@ export default class OrderScreen extends LightningElement {
     tabs = [{
             name: 'account',
             current: true,
-            enable: false,
+            enable: true,
             completed:false,
             message: 'Necessário selecionar pelo menos uma conta',
             component: 'c-order-account-screen'

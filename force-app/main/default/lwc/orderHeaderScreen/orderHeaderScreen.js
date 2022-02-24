@@ -78,32 +78,37 @@ export default class OrderHeaderScreen extends LightningElement {
             description: ''
         },
         {
-            value: '1',
+            value: '2',
             label: 'Venda Entrega Futura',
             description: ''
         },
         {
-            value: '2',
-            label: 'Venda Exportação',
-            description: ''
-        },
-        {
-            value: '3',
-            label: 'Venda Sucata',
-            description: ''
-        },
-        {
             value: '4',
-            label: 'Venda de Ativo',
+            label: 'Venda Consignação',
             description: ''
         },
         {
             value: '5',
-            label: 'Venda de Serviço',
+            label: 'Venda Exportação',
             description: ''
         },
         {
             value: '6',
+            label: 'Venda Sucata',
+            description: ''
+        },
+        {
+            value: '7',
+            label: 'Venda de Ativo',
+            description: ''
+        },
+        {
+            value: '8',
+            label: 'Venda de Serviço',
+            description: ''
+        },
+        {
+            value: '9',
             label: 'Remessas Promocionais',
             description: ''
         },
