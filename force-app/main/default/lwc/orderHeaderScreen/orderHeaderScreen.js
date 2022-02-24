@@ -56,6 +56,17 @@ export default class OrderHeaderScreen extends LightningElement {
         description: 'Dólar Americano'
     }];
 
+    fretes = [{
+        value: 'CIF',
+        label: 'CIF',
+        description: 'Frete'
+    }, {
+        value: 'FOB',
+        label: 'FOB',
+        description: 'Frete'
+    }];
+
+
     tiposVenda = [{
             value: '0',
             label: 'Venda Normal',
@@ -146,6 +157,8 @@ export default class OrderHeaderScreen extends LightningElement {
 
     tipo_venda;
 
+    
+
     moeda;
 
     data_pagamento;
@@ -204,6 +217,7 @@ export default class OrderHeaderScreen extends LightningElement {
 
     //Status Pedido
     status_pedido = "Em digitação";
+    frete = "CIF";
 
     //Condicao Pagamento
     /*@track redispatchCondicaoPagamentoObject = COND_PAGAMENTO_OBJECT;
@@ -270,6 +284,11 @@ export default class OrderHeaderScreen extends LightningElement {
     selectCtvVenda(event) {
         const { record } = event.detail;
         this.ctv_venda = record.Id;
+        this._verifyFieldsToSave();
+    }
+
+    selectFrete(event) {
+        this.frete = event.detail.value;
         this._verifyFieldsToSave();
     }
 
@@ -440,6 +459,7 @@ export default class OrderHeaderScreen extends LightningElement {
             'canal_distribuicao': this.canal_distribuicao,
             'forma_pagamento': this.forma_pagamento,
             'ctv_venda': this.ctv_venda,
+            'frete': this.frete
         };
         this.dispatchEvent(setHeaderData);
     }

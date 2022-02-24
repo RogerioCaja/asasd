@@ -25,7 +25,7 @@ public with sharing class OrderScreenController {
 
     public static HeaderSerialize getOrderData(Id orderId){
         Order order = [SELECT Id, AccountId, Type, ShippingAccount__c, Pricebook2Id, PaymentDate__c, CustomerOrderNumber__c,
-        Crop__c, Culture__c, PaymentForm__c, StatusSF__c, SalesOrg__c, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c
+        Crop__c, Culture__c, PaymentForm__c, StatusSF__c, SalesOrg__c, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, Incoterms__c
         FROM Order 
         WHERE Id = :orderId LIMIT 1];
         return new HeaderSerialize(order);
@@ -97,6 +97,7 @@ public with sharing class OrderScreenController {
             order.Currency__c = orderData.headerData.moeda ;
             order.SalesCTV__c = orderData.headerData.ctv_venda ;
             order.StatusSF__c = orderData.headerData.status_pedido;
+            order.Incoterms__c = orderData.headerData.frete;
 
             Database.UpsertResult insResults = Database.upsert(order, false);
             if(insResults.isSuccess()){
@@ -142,6 +143,7 @@ public with sharing class OrderScreenController {
         public String moeda;
         public String ctv_venda;
         public String status_pedido;
+        public String frete;
         //public String data_entrega;
         //public String cliente_faturamento;
     }
@@ -217,6 +219,7 @@ public with sharing class OrderScreenController {
         public String setor_atividade;
         public String forma_pagamento;
         public String moeda;
+        public String frete;
         public String ctv_venda;
         //public String data_entrega;
         //public String cliente_faturamento;
@@ -238,6 +241,7 @@ public with sharing class OrderScreenController {
             this.setor_atividade = order.ActivitySector__c;
             this.moeda = order.Currency__c;
             this.ctv_venda = order.SalesCTV__c;
+            this.frete = order.Incoterms__c;
         }
     }
     

@@ -44,7 +44,9 @@ export default class OrderScreen extends LightningElement {
         setor_atividade: " ",
         forma_pagamento: " ",
         moeda: " ",
-        ctv_venda: " "
+        ctv_venda: " ",
+        frete: "CIF",
+        pedido_mae:" "
     };
     @track productData;
     @track summaryData;

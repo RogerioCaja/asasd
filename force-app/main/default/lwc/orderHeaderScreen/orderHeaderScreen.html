@@ -231,6 +231,30 @@
                             </lightning-input>
                         </div>
                     </div>
+                    <div class="slds-form-element__row">
+                        <div class="slds-size_2-of-7">
+                            <lightning-combobox 
+                                name="frete" 
+                                label="Tipo de Frete" 
+                                placeholder="Escolha o Frete"
+                                value={headerData.frete} 
+                                onchange={selectFrete} 
+                                options={fretes} 
+                                required="true">
+                            </lightning-combobox>
+                            
+                        </div>
+                        <div class="slds-size_2-of-7">
+                            <lightning-input 
+                            label="Pedido Mãe" 
+                            field-name="pedido_mae"
+                            value={headerData.pedido_mae} 
+                            type="text" 
+                            disabled="true"
+                            required="true">
+                            </lightning-input>
+                        </div>
+                    </div>
                     
                 </div>
             </fieldset>

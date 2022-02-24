@@ -60,6 +60,9 @@ export default class LookupAccount extends LightningElement {
 		}
 	}
 
+	handleCloseList(){
+		this.showDataMethod();
+	}
     selectAccountChild(event) {
 		const { value } = event.currentTarget.dataset;
 		const record = this.accountList.find(item => item.Id == value);

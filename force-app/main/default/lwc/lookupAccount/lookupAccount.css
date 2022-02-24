@@ -6,7 +6,7 @@
 .container-records-list {
 	z-index: 999;
 	max-height: 200px;
-    width: 400px;
+    width: 500px;
 	overflow-y: auto;
 	margin-top: 0.072rem;
 	border: 1px solid rgb(221, 219, 218);

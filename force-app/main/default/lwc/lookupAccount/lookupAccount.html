@@ -12,6 +12,7 @@
 		</lightning-input>
 
 		<template if:true={showData}>
+			<div class="bg-list-full" onclick={handleCloseList}></div>
 			<div class="container-records-list slds-container_fluid slds-is-absolute">
 				<ul>
 				  <template for:each={accountList} for:item="account">
