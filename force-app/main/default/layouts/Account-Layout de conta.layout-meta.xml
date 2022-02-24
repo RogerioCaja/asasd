@@ -19,6 +19,10 @@
                 <behavior>Edit</behavior>
                 <field>CNPJ__c</field>
             </layoutItems>
+            <!-- <layoutItems>
+                <behavior>Required</behavior>
+                <field>ExternalId__c</field>
+            </layoutItems> -->
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>MunicipalRegistration__c</field>
@@ -38,7 +42,7 @@
                 <field>ParentId</field>
             </layoutItems>
             <layoutItems>
-                <behavior>Edit</behavior>
+                <behavior>Required</behavior>
                 <field>ExternalId__c</field>
             </layoutItems>
             <layoutItems>
@@ -312,6 +316,10 @@
         <fields>MEMBER_NAME</fields>
         <fields>TEAM_MEMBER_ROLE</fields>
         <relatedList>RelatedAccountSalesTeam</relatedList>
+    </relatedLists>
+    <relatedLists>
+        <fields>NAME</fields>
+        <relatedList>PotencialCompra__c.Client__c</relatedList>
     </relatedLists>
     <relatedObjects>ParentId</relatedObjects>
     <showEmailCheckbox>false</showEmailCheckbox>
