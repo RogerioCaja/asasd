@@ -19,10 +19,10 @@
                 <behavior>Edit</behavior>
                 <field>CNPJ__c</field>
             </layoutItems>
-            <layoutItems>
+            <!-- <layoutItems>
                 <behavior>Required</behavior>
                 <field>ExternalId__c</field>
-            </layoutItems>
+            </layoutItems> -->
         </layoutColumns>
         <layoutColumns>
             <layoutItems>
@@ -43,10 +43,10 @@
                 <behavior>Edit</behavior>
                 <field>ParentId</field>
             </layoutItems>
-            <!-- <layoutItems>
-                <behavior>Edit</behavior>
+            <layoutItems>
+                <behavior>Required</behavior>
                 <field>ExternalId__c</field>
-            </layoutItems> -->
+            </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>Status__c</field>
