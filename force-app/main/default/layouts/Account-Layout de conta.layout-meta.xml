@@ -23,8 +23,6 @@
                 <behavior>Required</behavior>
                 <field>ExternalId__c</field>
             </layoutItems> -->
-        </layoutColumns>
-        <layoutColumns>
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>MunicipalRegistration__c</field>
