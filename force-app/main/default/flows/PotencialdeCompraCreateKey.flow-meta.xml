@@ -30,7 +30,7 @@
         <inputAssignments>
             <field>Key__c</field>
             <value>
-                <stringValue>{!$Record.SalesOrganization__r.SalesOrganizationCode__c} {!$Record.Client__r.ExternalId__c} {!$Record.ProductsGroup__r.ExternalId__c} {!$Record.Culture__r.ExternalId__c} {!$Record.harvest__r.Code__c} </stringValue>
+                <stringValue>{!$Record.SalesOrganization__r.SalesOrganizationCode__c}{!$Record.Client__r.ExternalId__c}{!$Record.ProductsGroup__r.ExternalId__c}{!$Record.Culture__r.ExternalId__c}{!$Record.harvest__r.Code__c} </stringValue>
             </value>
         </inputAssignments>
         <inputReference>$Record</inputReference>
