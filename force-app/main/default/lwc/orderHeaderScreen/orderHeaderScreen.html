@@ -52,7 +52,7 @@
                 <div class="slds-form-element__control">
                     <div class="slds-form-element__row">
                         <div class="slds-form-element slds-size_1-of-4">
-                            <c-lookup 
+                            <!-- <c-lookup 
                                 input-label="Cliente de Entrega" 
                                 object-icon-name="standard:action_list_component"
                                 target-object={redispatchClienteEntregaObject}
@@ -65,7 +65,8 @@
                                 placeholder="Pesquisar Cliente de Entrega"
                                 style="width: 100%;" 
                                 required="true">
-                            </c-lookup>
+                            </c-lookup> -->
+                            <c-lookup-account record-id={headerData.cliente_entrega} onclearselectedrecord={removeSelectClienteEntrega} onselectrecord={selectClienteEntrega} account-list={accountChildData}></c-lookup-account>
                         </div>
                         <div class="slds-form-element slds-size_1-of-4">
                             <lightning-combobox 

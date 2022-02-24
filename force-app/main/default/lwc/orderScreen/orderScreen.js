@@ -23,7 +23,7 @@ export default class OrderScreen extends LightningElement {
     product = false;
     @track summary = false;
 
-    @track accountData;
+    @api accountData;
     @api headerData = {
         Id: " ",
         AccountId: " ",

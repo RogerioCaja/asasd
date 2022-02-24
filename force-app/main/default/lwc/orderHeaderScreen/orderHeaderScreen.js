@@ -31,14 +31,19 @@ import CULTURA_NAME from '@salesforce/schema/Cultura__c.Name';
 import SAFRA_OBJECT from '@salesforce/schema/Safra__c';
 import SAFRA_NAME from '@salesforce/schema/Safra__c.Name';
 
+import getAccountDataChild from '@salesforce/apex/OrderScreenController.getAccountDataChild';
+
 //import FILIAL_OBJECT from '@salesforce/schema/';
 //import FILIAL_NAME from '@salesforce/schema/';
 
 export default class OrderHeaderScreen extends LightningElement {
-    readonly = false
+    readonly = false;
     booleanTrue = true;
-    @api accountData;
+    showAccountChilds = false;
+    selected = false;
 
+    @api accountData;
+    @api accountChildData;
     @api headerData;
 
     moedas = [{
@@ -226,6 +231,19 @@ export default class OrderHeaderScreen extends LightningElement {
 
     @track pass = false;
     connectedCallback(){
+        this.loadDataHeader();
+        getAccountDataChild({accountId: this.accountData.Id})
+        .then((result) =>{
+            const accountsChild = JSON.parse(result);
+            this.accountChildData = accountsChild.accountList;
+            console.log('aqui pfv');
+            console.log(this.accountChildData);
+        })
+        .catch((err)=>{
+        });
+    }
+
+    loadDataHeader(){
         if(this.headerData.tipo_venda != " "){
             this.tipo_venda = this.headerData.tipo_venda;
             this.safra = this.headerData.safra;
@@ -266,9 +284,21 @@ export default class OrderHeaderScreen extends LightningElement {
         this._verifyFieldsToSave();
     }
 
+   
     selectClienteEntrega(event) {
-        const { record } = event.detail;
-        this.cliente_entrega = record.Id;
+        try{
+            
+            const { record } = event.detail;
+            this.cliente_entrega = record.Id;
+            this._verifyFieldsToSave();
+        }catch(e){
+            console.log(e);
+        }
+        
+    }
+
+    removeSelectClienteEntrega(event){
+        this.cliente_entrega = '';
         this._verifyFieldsToSave();
     }
 
@@ -346,6 +376,22 @@ export default class OrderHeaderScreen extends LightningElement {
         this.setor_atividade = event.detail.value;
     }
 
+    showAccounts()
+    {
+        this.showAccountChilds = !this.showAccountChilds;
+       
+    }
+
+
+
+
+
+
+
+
+
+
+
     @api
     _verifyFieldsToSave() {
         if (this.verifyMandatoryFields()) {
@@ -360,7 +406,7 @@ export default class OrderHeaderScreen extends LightningElement {
         if ((this.tipo_venda !== undefined &&
             this.safra !== undefined &&
             this.cultura !== undefined &&
-            this.cliente_entrega !== undefined &&
+            
             this.data_pagamento !== undefined &&
             this.lista_precos !== undefined &&
             this.moeda !== undefined &&

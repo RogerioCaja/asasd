@@ -40,8 +40,24 @@ public with sharing class OrderScreenController {
     }
 
     public static AccountSerialize getOrderAccountData(Id accountId) {
-        Account account = [SELECT Id, Name, CNPJ__c, CPF__c, Phone FROM Account WHERE Id =: accountId LIMIT 1];
+        Account account = [SELECT Id, Name, CNPJ__c, CPF__c, Phone, BillingCity, BillingState FROM Account WHERE Id =: accountId LIMIT 1];
         return new AccountSerialize(account);
+    }
+
+    @AuraEnabled
+    public static string getAccountDataChild(Id accountId){
+        try {
+            List<AccountSerialize> accountListSerialize = new List<AccountSerialize>();
+            Account accountMom = [SELECT Id, Name, CNPJ__c, CPF__c, Phone, BillingCity, BillingState FROM Account WHERE Id =: accountId LIMIT 1];
+            List<Account> accountList = [SELECT Id, Name, CNPJ__c, CPF__c, Phone, BillingCity, BillingState FROM Account WHERE ParentId =: accountId];
+            accountList.add(accountMom);
+            for(Account account : accountList)
+                accountListSerialize.add(new AccountSerialize(account));
+            return JSON.serialize(new AccountSerialize(accountListSerialize));
+            
+        } catch (Exception e) {
+            throw new AuraHandledException(e.getMessage());
+        }
     }
 
     @AuraEnabled
@@ -159,11 +175,25 @@ public with sharing class OrderScreenController {
         public String Id;
         public String Name;
         public String Phone;
+        public String CNPJ;
+        public String CPF;
+        public String City;
+        public String UF;
+        
+        public List<AccountSerialize> accountList;
         AccountSerialize(){}
         AccountSerialize(Account account){
             this.Id = account.Id;
             this.Name = account.Name;
             this.Phone = account.Phone;
+            this.CNPJ = account.CNPJ__c;
+            this.CPF = account.CPF__c;
+            this.City = account.BillingCity;
+            this.UF = account.BillingState;
+        }
+
+        AccountSerialize(List<AccountSerialize> accountList){
+            this.accountList = accountList;
         }
     }
     
