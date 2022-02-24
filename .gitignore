@@ -44,9 +44,13 @@ $RECYCLE.BIN/
 #force-app/main/default/profiles/*
 force-app/main/default/lwc/jsconfig.json
 force-app/main/default/lwc/.eslintrc.json
+force-app/main/default/customindex/*
+
 manifest/package.xml
 
 destructiveChanges
 force-app/main/default/profiles/*
+force-app/main/default/profileSessionSettings/*
+force-app/main/default/profilePasswordPolicies/*
 scripts/csv/converted-output/*
 scripts/csv/converted-output-error/*
