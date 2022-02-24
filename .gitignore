@@ -50,4 +50,3 @@ destructiveChanges
 force-app/main/default/profiles/*
 scripts/csv/converted-output/*
 scripts/csv/converted-output-error/*
-force-app/main/default/customIndex/*
