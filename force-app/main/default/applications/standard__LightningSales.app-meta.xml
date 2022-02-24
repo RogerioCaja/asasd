@@ -77,8 +77,5 @@
     <tabs>standard-Case</tabs>
     <tabs>standard-Forecasting3</tabs>
     <tabs>standard-Order</tabs>
-    <tabs>PotencialCompra__c</tabs>
-    <tabs>Cultura__c</tabs>
-    <tabs>Safra__c</tabs>
     <uiType>Lightning</uiType>
 </CustomApplication>

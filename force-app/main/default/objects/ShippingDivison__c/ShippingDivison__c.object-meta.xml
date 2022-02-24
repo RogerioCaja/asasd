@@ -153,6 +153,7 @@
     <enableSharing>true</enableSharing>
     <enableStreamingApi>true</enableStreamingApi>
     <externalSharingModel>Private</externalSharingModel>
+    
     <label>Divisão de Remessa</label>
     <nameField>
         <displayFormat>{00000000}</displayFormat>
