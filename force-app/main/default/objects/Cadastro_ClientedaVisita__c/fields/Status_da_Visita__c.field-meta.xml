@@ -27,9 +27,14 @@
                 <label>Finalizado Com Pendências</label>
             </value>
             <value>
-                <fullName>Finalizado e Cancelada</fullName>
+                <fullName>Finalizado</fullName>
                 <default>false</default>
-                <label>Finalizado e Cancelada</label>
+                <label>Finalizado</label>
+            </value>
+            <value>
+                <fullName>Cancelada</fullName>
+                <default>false</default>
+                <label>Cancelada</label>
             </value>
         </valueSetDefinition>
     </valueSet>
