@@ -1,4 +1,3 @@
-
 @isTest
 public with sharing class VisitControllerTest {
     public VisitControllerTest() {}
