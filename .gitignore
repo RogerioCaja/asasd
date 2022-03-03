@@ -55,3 +55,14 @@ force-app/main/default/profilePasswordPolicies/*
 scripts/csv/converted-output/*
 scripts/csv/converted-output-error/*
 force-app/main/default/customIndex/*
+
+force-app/main/default/applications/*
+force-app/main/default/assignmentRules/*
+force-app/main/default/contentassets/*
+force-app/main/default/fieldRestrictionRules/*
+force-app/main/default/flexipages/*
+force-app/main/default/flows/*
+force-app/main/default/layouts/*
+force-app/main/default/objects/*
+force-app/main/default/queues/*
+force-app/main/default/tabs/*
