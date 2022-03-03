@@ -120,9 +120,19 @@
     </tbody>
 </table>
 
-<div class="bisteca">
-    Palm,eiras
-</div>
+
+<table class="total_amount">
+    <tbody>
+        <tr>
+            <td>
+                Valor total do Pedido:
+            </td>
+            <td style="width: 120px;">
+                R$ 48,99
+            </td>
+        </tr>
+    </tbody>
+</table>
 
 <div class="footer">
     Obs:<br/>

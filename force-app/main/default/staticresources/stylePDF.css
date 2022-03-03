@@ -76,11 +76,17 @@ body{
 
 }
 
-.bisteca{
-    border: solid 1px black;
-    width: 100px;
-    
+.total_amount > tbody{
+    text-align: right;
 }
+
+.total_amount > tbody > tr :first-child{
+    border-top: none;
+    border-left: none;
+    border-bottom: none;
+    font-weight: bold;
+}
+
 .footer{
     width: 98%;
     position:absolute;
