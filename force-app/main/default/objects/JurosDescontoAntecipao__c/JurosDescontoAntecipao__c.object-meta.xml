@@ -129,7 +129,7 @@
     <actionOverrides>
         <actionName>View</actionName>
         <comment>Action override created by Lightning App Builder during activation.</comment>
-        <content>Limite_de_Cr_dito_P_gina_de_registro</content>
+        <content>Juros_e_Desconto_Antecipa_o_Record_Page1</content>
         <formFactor>Large</formFactor>
         <skipRecordTypeSelect>false</skipRecordTypeSelect>
         <type>Flexipage</type>
@@ -137,7 +137,7 @@
     <actionOverrides>
         <actionName>View</actionName>
         <comment>Action override created by Lightning App Builder during activation.</comment>
-        <content>Limite_de_Cr_dito_P_gina_de_registro</content>
+        <content>Juros_e_Desconto_Antecipa_o_Record_Page1</content>
         <formFactor>Small</formFactor>
         <skipRecordTypeSelect>false</skipRecordTypeSelect>
         <type>Flexipage</type>
@@ -158,16 +158,16 @@
     <enableSearch>true</enableSearch>
     <enableSharing>true</enableSharing>
     <enableStreamingApi>true</enableStreamingApi>
-    <externalSharingModel>ControlledByParent</externalSharingModel>
-    <label>Limite de Crédito</label>
+    <externalSharingModel>Private</externalSharingModel>
+    <label>Juros e Desconto Antecipação</label>
     <nameField>
-        <label>Nome do Limite</label>
+        <label>Condição</label>
         <trackFeedHistory>false</trackFeedHistory>
         <trackHistory>false</trackHistory>
         <type>Text</type>
     </nameField>
-    <pluralLabel>Limites de Créditos</pluralLabel>
+    <pluralLabel>Juros e Descontos Antecipação</pluralLabel>
     <searchLayouts/>
-    <sharingModel>ControlledByParent</sharingModel>
+    <sharingModel>ReadWrite</sharingModel>
     <visibility>Public</visibility>
 </CustomObject>

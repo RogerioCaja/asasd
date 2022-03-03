@@ -77,6 +77,10 @@
         <fields>PRICEBOOK2.IS_ACTIVE</fields>
         <relatedList>Pricebook2.SalesTeam__c</relatedList>
     </relatedLists>
+    <relatedLists>
+        <fields>NAME</fields>
+        <relatedList>JurosDescontoAntecipao__c.SalesTeam__c</relatedList>
+    </relatedLists>
     <showEmailCheckbox>false</showEmailCheckbox>
     <showHighlightsPanel>false</showHighlightsPanel>
     <showInteractionLogPanel>false</showInteractionLogPanel>
