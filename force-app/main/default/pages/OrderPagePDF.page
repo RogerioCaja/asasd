@@ -1,9 +1,5 @@
-<apex:page standardController="Order" applyBodyTag="false" docType="html-5.0" readOnly="true" renderAs="advanced_pdf">
+<apex:page standardController="Order" applyBodyTag="false" docType="html-5.0" readOnly="true" renderAs="advanced_pdf" extensions="OrderPageController">
 <apex:stylesheet value="{!$Resource.stylePDF}"/>
-<head>
-
-            
-</head>
 
 <!-- O PDF inicialmente são divididos em 3 partes -->
 <!-- PRIMEIRA PARTE - DADOS DA ORGANIZAÇÃO DE VENDAS E SEUS DADOS -->
@@ -28,14 +24,14 @@
                 <div>INSCRIÇÃO ESTADUAL 136445977</div>
             </td>
             <td class="information_monetary">
-                <div> 1542142PV </div><br/>
+                <div> {! orderToPage.codeSapOrder } </div><br/>
                 <div>
-                    <section><img src="/img/checkbox_checked.gif"/> Reais</section>
-                    <section><img src="/img/checkbox_unchecked.gif"/> Dólar</section>
-                    <section><img src="/img/checkbox_unchecked.gif"/> Bartner</section>
+                    <section><apex:image value="{!If(orderToPage.currencyOrder == 'R$', '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}"/> Reais</section>
+                    <section><apex:image value="{!If(orderToPage.currencyOrder == 'USD', '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}"/> Dólar</section>
+                    <section><apex:image value="{!If(orderToPage.currencyOrder == 'Bartner', '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}"/> Bartner</section>
                 </div>
                 <div>
-                    Data de emissão: 24/09/2001
+                    Data de emissão: {! Datetime}
                 </div>
             </td>
         </tr>
@@ -47,35 +43,35 @@
     <tbody class="information_order">
         <tr>
             <td><strong> Cód. Pessoa</strong></td>
-            <td>0001</td>
+            <td>{! orderToPage.codeSap }</td>
             <td><strong>Pessoa</strong></td>
-            <td colspan="3">Nome da Silva Sauro</td>
+            <td colspan="3">{! orderToPage.account }</td>
         </tr>
         <tr>
             <td><strong>Local</strong></td>
-            <td colspan="5">Fazenda de jequetinhonafnjsdjsgsgfg</td>
+            <td colspan="5">{! orderToPage.accountAddress }</td>
         </tr>
         <tr>
             <td><strong>Fazenda</strong></td>
-            <td colspan="2">Estrada do planalto</td>
+            <td colspan="2">{! orderToPage.ranch }</td>
             <td><strong>municipio</strong></td>
-            <td colspan="2">Esquilo</td>
+            <td colspan="2">{! orderToPage.district }</td>
         </tr>
         <tr>
             <td><strong>CPF/CNPJ</strong></td>
-            <td >Estrada do planalto</td>
+            <td >{! orderToPage.CPF_CNPJ }</td>
             <td><strong>I.E.</strong></td>
-            <td >Esquilo</td>
+            <td >{! orderToPage.IE }</td>
             <td><strong>CEP</strong></td>
-            <td >09823-695</td>
+            <td >{! orderToPage.CEP }</td>
         </tr>
         <tr>
             <td><strong>Safra</strong></td>
-            <td >Safrinha ALgodão</td>
+            <td >{! orderToPage.safra }</td>
             <td><strong>Cond. de Pagamento</strong></td>
-            <td >A vista</td>
+            <td >{! orderToPage.paymentCondition }</td>
             <td><strong>Vencimento</strong></td>
-            <td >02/03/2022</td>
+            <td >{! orderToPage.dueDate }</td>
         </tr>
     </tbody>
 </table>
