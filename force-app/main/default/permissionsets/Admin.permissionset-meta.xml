@@ -40,11 +40,11 @@
         <field>Account.Description</field>
         <readable>true</readable>
     </fieldPermissions>
-    <fieldPermissions>
+    <!-- <fieldPermissions>
         <editable>false</editable>
         <field>Account.ExternalId__c</field>
         <readable>false</readable>
-    </fieldPermissions>
+    </fieldPermissions> -->
     <fieldPermissions>
         <editable>true</editable>
         <field>Account.Fax</field>
