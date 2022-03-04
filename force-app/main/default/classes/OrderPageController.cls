@@ -13,9 +13,9 @@ public with sharing class OrderPageController {
         }
     }
 
-    public void generatePDF(Id orderId){
+    public OrderDAO generatePDF(Id orderId){
         Order order = getOrderById(orderId);
-        List<OrderItem> orderItemList = getOrderItemByOrderId(order.Id);
+        List<OrderItem> orderItemList = getOrderItemByOrderId(orderId);
 
         this.orderToPage = new OrderDAO(order);
 
@@ -23,14 +23,17 @@ public with sharing class OrderPageController {
             this.orderToPage.orderItemList.add(new OrderItemDAO(orderItem, this.orderToPage.culture));
         }
 
+        return this.orderToPage;
+
     }
 
-    public Order getOrderById(Id orderId){
+    public static Order getOrderById(Id orderId){
   
         Set<String> fieldSet = new Set<String>{
             'Id', 'Account.ExternalId__c', 'Account.Name', 'Account.BillingStreet',
             'ShippingAccount__r.Name','Account.BillingCity', 'Account.StateRegistration__c',
-            'Account.BillingPostalCode', 'Safra__r.Name', 'PaymentForm__c', 'PaymentDate__c',
+            'Account.CPF__c', 'Account.CNPJ__c',
+            'Account.BillingPostalCode', 'Crop__r.Name', 'PaymentForm__c', 'PaymentDate__c',
             'Currency__c', 'Culture__c', 'CodigoSap__c'
         };
 
@@ -42,7 +45,7 @@ public with sharing class OrderPageController {
         return Database.query(query);
     }
 
-    public List<OrderItem> getOrderItemByOrderId(Id orderId){
+    public static List<OrderItem> getOrderItemByOrderId(Id orderId){
 
         Set<String> fieldSet = new Set<String>{
             'Product2Id', 'Description', 'UnitMeasure__c', 
@@ -51,7 +54,7 @@ public with sharing class OrderPageController {
 
         String query = new Q(OrderItem.SObjectType)
                             .selectFields(fieldSet)
-                            .add(Q.condition('Id').equalsTo(orderId)).build();
+                            .add(Q.condition('OrderId').equalsTo(orderId)).build();
 
         return Database.query(query);
     }
@@ -93,11 +96,13 @@ public with sharing class OrderPageController {
             this.district = order.Account.BillingCity;
             this.IE = order.Account.StateRegistration__c;
             this.CEP = order.Account.BillingPostalCode;
+            this.CPF_CNPJ = order.Account.CNPJ__c == null ? order.Account.CPF__c : order.Account.CNPJ__c;
             this.safra = order.Crop__r.Name;
             this.paymentCondition = order.PaymentForm__c;
             this.currencyOrder = order.Currency__c;
             this.culture = order.Culture__c;
             this.dueDate = String.valueOf(order.PaymentDate__c);
+            this.orderItemList = new List<OrderItemDAO>();
         }
     }
 

@@ -78,6 +78,7 @@ body{
 
 .total_amount > tbody{
     text-align: right;
+    padding: 5px;
 }
 
 .total_amount > tbody > tr :first-child{
