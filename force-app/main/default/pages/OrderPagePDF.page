@@ -26,7 +26,7 @@
             <td class="information_monetary">
                 <div> {! orderToPage.codeSapOrder } </div><br/>
                 <div>
-                    <section><apex:image value="{!If(orderToPage.currencyOrder == 'R$', '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}"/> Reais</section>
+                    <section><apex:image value="{!If(orderToPage.currencyOrder == 'BRL', '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}"/> Reais</section>
                     <section><apex:image value="{!If(orderToPage.currencyOrder == 'USD', '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}"/> Dólar</section>
                     <section><apex:image value="{!If(orderToPage.currencyOrder == 'Bartner', '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}"/> Bartner</section>
                 </div>
@@ -90,6 +90,32 @@
         </tr>
     </thead>
     <tbody  class="information_order_item">
+        <!-- Esperando para o pedido conseguir gerar produtos do pedido -->
+        <!-- <apex:repeat value="{! orderToPage.orderItemList }" var='oI'>
+            <tr>
+                <td>
+                    {! oI.productCode}
+                </td>
+                <td>
+                    {! oI.description}
+                </td>
+                <td>
+                    {! oI.culture}
+                </td>
+                <td>
+                    {! oI.unitOfMeasure}
+                </td>
+                <td>
+                    {! oI.unitPrice}
+                </td>
+                <td>
+                    {! oI.quantity}
+                </td>
+                <td>
+                    {! oI.totalAmount}
+                </td>
+            </tr>
+        </apex:repeat> -->
         <tr>
             <td>
                 0215412
