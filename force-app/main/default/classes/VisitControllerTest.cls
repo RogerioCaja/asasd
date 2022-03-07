@@ -1,4 +1,3 @@
-
 @isTest
 public with sharing class VisitControllerTest {
     public VisitControllerTest() {}
@@ -13,7 +12,9 @@ public with sharing class VisitControllerTest {
             Phone= '', 
             BillingCity = ' ', 
             BillingLongitude = 000000,
-            BillingLatitude = 00000
+            BillingLatitude = 00000,
+            BillingPostalCode = '',
+            ExternalId__c = '11111'
         );
         
 
@@ -41,7 +42,8 @@ public with sharing class VisitControllerTest {
         insert cultura;
 
         SalesOrg__c so = new SalesOrg__c(
-            Name = 'AgroGalaxy'
+            Name = 'AgroGalaxy',
+            SalesOrganizationCode__c = '1111'
         );
 
         insert so;

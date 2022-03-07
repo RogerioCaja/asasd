@@ -19,10 +19,6 @@
                 <behavior>Edit</behavior>
                 <field>CNPJ__c</field>
             </layoutItems>
-            <!-- <layoutItems>
-                <behavior>Required</behavior>
-                <field>ExternalId__c</field>
-            </layoutItems> -->
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>MunicipalRegistration__c</field>
