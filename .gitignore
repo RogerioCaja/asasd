@@ -55,3 +55,9 @@ force-app/main/default/profilePasswordPolicies/*
 scripts/csv/converted-output/*
 scripts/csv/converted-output-error/*
 force-app/main/default/customIndex/*
+
+force-app/main/default/assignmentRules/*
+force-app/main/default/fieldRestrictionRules/*
+
+
+

@@ -375,9 +375,9 @@
     <showRunAssignmentRulesCheckbox>false</showRunAssignmentRulesCheckbox>
     <showSubmitAndAttachButton>false</showSubmitAndAttachButton>
     <summaryLayout>
-        <masterLabel>00h63000006GnXy</masterLabel>
+        <masterLabel>00h8D000000iWqU</masterLabel>
         <sizeX>4</sizeX>
         <sizeY>0</sizeY>
-        <summaryLayoutStyle>Default</summaryLayoutStyle>
+        <!-- <summaryLayoutStyle>Default</summaryLayoutStyle> -->
     </summaryLayout>
 </Layout>
