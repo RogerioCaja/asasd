@@ -160,11 +160,11 @@
         <field>Boletos__c.IssueDate__c</field>
         <readable>true</readable>
     </fieldPermissions>
-    <fieldPermissions>
+    <!-- <fieldPermissions>
         <editable>true</editable>
         <field>Cadastro_ClientedaVisita__c.Account__c</field>
         <readable>true</readable>
-    </fieldPermissions>
+    </fieldPermissions> -->
     <fieldPermissions>
         <editable>true</editable>
         <field>Cadastro_ClientedaVisita__c.ChekIn__c</field>
