@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Permite_CriarVisita</fullName>
+    <active>true</active>
+    <errorConditionFormula>Account__r.ContagemVisita__c &gt;= 1</errorConditionFormula>
+    <errorMessage>Contém visitas em aberto.</errorMessage>
+</ValidationRule>

@@ -21,6 +21,7 @@
     <tabs>Cultura__c</tabs>
     <tabs>NotaFiscal__c</tabs>
     <tabs>SalesOrg__c</tabs>
+    <tabs>JurosDescontoAntecipao__c</tabs>
     <uiType>Lightning</uiType>
     <utilityBar>AgroGalaxy_UtilityBar</utilityBar>
 </CustomApplication>

@@ -45,11 +45,11 @@
         <field>Account.Industry</field>
         <readable>true</readable>
     </fieldPermissions>
-    <fieldPermissions>
+    <!-- <fieldPermissions>
         <editable>true</editable>
         <field>Account.IsExcludedFromRealign</field>
         <readable>true</readable>
-    </fieldPermissions>
+    </fieldPermissions> -->
     <fieldPermissions>
         <editable>true</editable>
         <field>Account.Jigsaw</field>
@@ -160,11 +160,11 @@
         <field>Boletos__c.IssueDate__c</field>
         <readable>true</readable>
     </fieldPermissions>
-    <fieldPermissions>
+    <!-- <fieldPermissions>
         <editable>true</editable>
         <field>Cadastro_ClientedaVisita__c.Account__c</field>
         <readable>true</readable>
-    </fieldPermissions>
+    </fieldPermissions> -->
     <fieldPermissions>
         <editable>true</editable>
         <field>Cadastro_ClientedaVisita__c.ChekIn__c</field>
@@ -1539,7 +1539,7 @@
     </tabSettings>
     <!-- <tabSettings>
         <tab>Pedido</tab>
-        <visibility>Hidden</visibility>
+        <visibility>DefaultOff</visibility>
     </tabSettings> -->
     <tabSettings>
         <tab>PlanejamentoVendas__c</tab>
