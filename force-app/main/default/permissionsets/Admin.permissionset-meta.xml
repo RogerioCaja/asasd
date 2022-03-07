@@ -1539,7 +1539,7 @@
     </tabSettings>
     <tabSettings>
         <tab>Pedido</tab>
-        <visibility>Hidden</visibility>
+        <visibility>DefaultOff</visibility>
     </tabSettings>
     <tabSettings>
         <tab>PlanejamentoVendas__c</tab>
