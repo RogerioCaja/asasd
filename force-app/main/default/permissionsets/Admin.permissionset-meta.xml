@@ -1537,10 +1537,10 @@
         <tab>NotaFiscal__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
-    <tabSettings>
+    <!-- <tabSettings>
         <tab>Pedido</tab>
         <visibility>Hidden</visibility>
-    </tabSettings>
+    </tabSettings> -->
     <tabSettings>
         <tab>PlanejamentoVendas__c</tab>
         <visibility>Visible</visibility>
