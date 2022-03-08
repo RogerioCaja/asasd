@@ -106,7 +106,7 @@ export default class Lookup extends LightningElement {
 		}
 
 		if (error) {
-			//console.log(error);
+			console.log(error);
 			return;
 		}
 

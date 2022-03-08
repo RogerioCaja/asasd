@@ -1,11 +1,11 @@
 import { LightningElement, api, track, wire } from 'lwc';
 import { getRecord } from 'lightning/uiRecordApi';
 import CLIENTE_ENTREGA_NAME from '@salesforce/schema/Account.Name';
-// import CLIENTE_ID from '@salesforce/schema/Account.Id';
-// import CLIENTE_CNPJ from '@salesforce/schema/Account.CNPJ__c';
-// import CLIENTE_CPF from '@salesforce/schema/Account.CPF__c';
-// import CLIENTE_UF from '@salesforce/schema/Account.BillingState';
-// import CLIENTE_CITY from '@salesforce/schema/Account.BillingCity';
+import CLIENTE_ID from '@salesforce/schema/Account.Id';
+import CLIENTE_CNPJ from '@salesforce/schema/Account.CNPJ__c';
+import CLIENTE_CPF from '@salesforce/schema/Account.CPF__c';
+import CLIENTE_UF from '@salesforce/schema/Account.BillingState';
+import CLIENTE_CITY from '@salesforce/schema/Account.BillingCity';
 export default class LookupAccount extends LightningElement {
     @api recordId;
     @api selectedRecord = null;
@@ -13,7 +13,7 @@ export default class LookupAccount extends LightningElement {
     @track showData = false;
     
     // WIREs
-	@wire(getRecord, { recordId: '$recordId', fields: [CLIENTE_ENTREGA_NAME] })
+	@wire(getRecord, { recordId: '$recordId', fields: [CLIENTE_ENTREGA_NAME, CLIENTE_CNPJ, CLIENTE_CPF, CLIENTE_UF, CLIENTE_CITY] })
 	wiredGetRecord({ error, data }) {
 		this.isLoading = false;
 
@@ -44,11 +44,16 @@ export default class LookupAccount extends LightningElement {
 			} else {
 				this.selectedRecord = {
 					Id: id,
-					Name: fields['Name'].value
+					Name: fields['Name'].value,
+					CNPJ: fields['CNPJ__c'].value,
+					CPF: fields['CPF__c'].value,
+					City: fields['BillingCity'].value,
+					UF: fields['BillingState'].value
 				};
 			}
 
-			let record = { Id: this.recordId };
+			let record = this.selectedRecord
+
 
 			this.dispatchEvent(
 				new CustomEvent('selectrecord', {

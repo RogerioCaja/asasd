@@ -24,6 +24,7 @@ export default class OrderScreen extends LightningElement {
     @track summary = false;
 
     @api accountData;
+    @api headerDataTitle = {};
     @api headerData = {
         Id: " ",
         AccountId: " ",
@@ -235,7 +236,8 @@ export default class OrderScreen extends LightningElement {
 
     _setHeaderData(event) {
         this.headerData = event.data;
-        console.log('header data setted:', this.headerData);
+        this.headerDataTitle = event.dataTitles;
+        console.log('header data setted:', this.headerData, this.headerDataTitle);
         this.enableNextScreen();
         this.completeCurrentScreen();
     }

@@ -39,13 +39,42 @@ import getAccountDataChild from '@salesforce/apex/OrderScreenController.getAccou
 export default class OrderHeaderScreen extends LightningElement {
     readonly = false;
     booleanTrue = true;
-    showAccountChilds = false;
-    selected = false;
 
     @api accountData;
     @api accountChildData;
+
+    @api headerDataTitle;
+    @api headerDataTitleLocale = {};
+
     @api headerData;
+    @api headerDictLocale ={
+        Id: " ",
+        AccountId: " ",
+        tipo_venda: " ",
+        filial: " ",
+        numero_pedido_cliente: " ",
+        safra: " ",
+        cultura: " ",
+        lista_precos: " ",
+        condicao_pagamento: " ",
+        data_pagamento: " ",
+        data_entrega: " ",
+        status_pedido: "Em digitação",
+        cliente_faturamento: " ",
+        cliente_entrega: " ",
+        organizacao_vendas: " ",
+        canal_distribuicao: " ",
+        setor_atividade: " ",
+        forma_pagamento: " ",
+        moeda: " ",
+        ctv_venda: " ",
+        frete: "CIF",
+        pedido_mae:" "
+    };
+
     @api productData;
+
+    @track pass = false;
 
     moedas = [{
         value: 'BRL',
@@ -66,7 +95,6 @@ export default class OrderHeaderScreen extends LightningElement {
         label: 'FOB',
         description: 'Frete'
     }];
-
 
     tiposVenda = [{
             value: '0',
@@ -156,29 +184,10 @@ export default class OrderHeaderScreen extends LightningElement {
         },
     ];
 
-    tipo_venda;
-
-    
-
-    moeda;
-
-    data_pagamento;
-
-    data_entrega;
-
-    forma_pagamento;
-
-    numero_pedido_cliente;
-
-    canal_distribuicao;
-
-    setor_atividade;
-
-    hectares;
 
     //Lista de Preço
     redispatchListaPrecoObject = LISTA_PRECO_OBJECT;
-    lista_precos;// = '01s3F000006RwA7QAK';
+    lista_precos;
     redispatchListaPrecosSearchFields = [LISTA_PRECO_NAME];
     redispatchListaPrecoListItemOptions = {
         title: 'Name',
@@ -246,33 +255,24 @@ export default class OrderHeaderScreen extends LightningElement {
         description: 'Name'
     };
 
-    @track pass = false;
+    
     connectedCallback(){
+
         this.loadDataHeader();
         getAccountDataChild({accountId: this.accountData.Id})
         .then((result) =>{
             const accountsChild = JSON.parse(result);
             this.accountChildData = accountsChild.accountList;
-            console.log('aqui pfv');
-            console.log(this.accountChildData);
         })
         .catch((err)=>{
         });
+    
     }
 
     loadDataHeader(){
         if(this.headerData.tipo_venda != " "){
-            this.tipo_venda = this.headerData.tipo_venda;
-            this.safra = this.headerData.safra;
-            this.cultura = this.headerData.cultura;
-            this.cliente_entrega = this.headerData.cliente_entrega;
-            this.data_pagamento = this.headerData.data_pagamento;
-            this.lista_precos = this.headerData.lista_precos;
-            this.moeda = this.headerData.moeda;
-            this.numero_pedido_cliente = this.headerData.numero_pedido_cliente;
-            this.ctv_venda = this.headerData.ctv_venda;
-            this.forma_pagamento = this.headerData.forma_pagamento;
-            this.hectares = this.headerData.hectares;
+            this.headerDictLocale ={...this.headerData};
+            this.headerDataTitleLocale = {... this.headerDataTitle};
             this.pass = false;
         }
         else{
@@ -284,141 +284,44 @@ export default class OrderHeaderScreen extends LightningElement {
     filial;
     @track redispatchFilialSearchFields = [FILIAL_NAME];
     @track redispatchFilialListItemOptions = {title:'Name', description:'Name'};*/
+    @track registerDetails = ['cliente_entrega'];
 
-    selectCtvVenda(event) {
-        const { record } = event.detail;
-        this.ctv_venda = record.Id;
-        this._verifyFieldsToSave();
-    }
-
-    selectFrete(event) {
-        this.frete = event.detail.value;
-        this._verifyFieldsToSave();
-    }
-
-    selectOrgVendas(event) {
-        const { record } = event.detail;
-        this.organizacao_vendas = record.Id;
-        this._verifyFieldsToSave();
-    }
-
-    selectNumeroPedido(event) {
-        this.numero_pedido_cliente = event.detail.value;
-        this._verifyFieldsToSave();
-    }
-
-   
-    selectClienteEntrega(event) {
-        try{
-            
-            const { record } = event.detail;
-            this.cliente_entrega = record.Id;
-            this._verifyFieldsToSave();
-        }catch(e){
-            console.log(e);
-        }
+    selectItemRegister(event){
         
+        var field = event.target.name;
+        if(event.detail.value){
+            this.headerDictLocale[field] = event.detail.value;
+            this.headerDataTitleLocale[field] = (field == 'tipo_venda' ? this.tiposVenda.find(element => element.value == event.detail.value).label : event.detail.value);
+        }
+        else{
+            const { record } = event.detail;
+            console.log(JSON.stringify(record));
+            this.headerDictLocale[field] = record.Id;
+            try{
+            this.headerDataTitleLocale[field] = (this.registerDetails.includes(field) ? this.resolveRegister(record)  : record.Name);
+            }
+            catch(e){
+                console.log(e);
+            }
+        }
+        this._verifyFieldsToSave();
     }
 
+    resolveRegister(record){
+   
+        return  {
+            Name:record.Name,
+            CPF:record.CPF,
+            CNPJ:record.CNPJ,
+            City:record.City,
+            UF:record.UF
+        }
+    }
+  
     removeSelectClienteEntrega(event){
-        this.cliente_entrega = '';
+        this.headerDataTitleLocale.cliente_entrega = '';
         this._verifyFieldsToSave();
     }
-
-    selectClienteFaturamento(event) {
-        const { record } = event.detail;
-        this.cliente_faturamento = record.Id;
-        this._verifyFieldsToSave();
-    }
-
-    selectCondicaoPagamento(event) {
-        this.condicao_pagamento = event.detail;
-        this._verifyFieldsToSave();
-    }
-
-    selectListaPrecos(event) {
-        const { record } = event.detail;
-        this.lista_precos = record.Id;
-        this._verifyFieldsToSave();
-    }
-
-    selectCultura(event) {
-        const { record } = event.detail;
-        this.cultura = record.Id;
-        this._verifyFieldsToSave();
-    }
-
-    selectSafra(event) {
-        const { record } = event.detail;
-        this.safra = record.Id;
-        this._verifyFieldsToSave();
-    }
-
-    selectFilial(event) {
-        const { record } = event.detail;
-        this.filial = record.Id;
-        this._verifyFieldsToSave();
-    }
-
-    selectTipoVenda(event) {
-        this.tipo_venda = event.detail.value;
-        this._verifyFieldsToSave();
-    }
-
-    selectMoeda(event) {
-        this.moeda = event.detail.value;
-        this._verifyFieldsToSave();
-    }
-
-    selectFormaPagamento(event) {
-        this.forma_pagamento = event.detail.value;
-        this._verifyFieldsToSave();
-    }
-
-    selectDataPagamento(event) {
-        this.data_pagamento = event.detail.value;
-        this._verifyFieldsToSave();
-    }
-
-    selectDataEntrega(event) {
-        this.data_entrega = event.detail.value;
-        this._verifyFieldsToSave();
-    }
-
-    selectStatusPedido(event){
-        this.status_pedido = event.detail.value;
-        this._verifyFieldsToSave();
-    }
-
-    selectCanalDistribution(event){
-        this.canal_distribuicao = event.detail.value;
-        this._verifyFieldsToSave();
-    }
-
-    selectSetorAtividade(event){
-        this.setor_atividade = event.detail.value;
-    }
-
-    selectHectares(event) {
-        this.hectares = event.detail.value;
-        this._verifyFieldsToSave();
-    }
-
-    showAccounts()
-    {
-        this.showAccountChilds = !this.showAccountChilds;
-       
-    }
-
-
-
-
-
-
-
-
-
-
 
     @api
     _verifyFieldsToSave() {
@@ -431,17 +334,16 @@ export default class OrderHeaderScreen extends LightningElement {
 
     @api
     verifyMandatoryFields() {
-        if ((this.tipo_venda !== undefined &&
-            this.safra !== undefined &&
-            this.cultura !== undefined &&
-            
-            this.data_pagamento !== undefined &&
-            this.lista_precos !== undefined &&
-            this.moeda !== undefined &&
-            this.numero_pedido_cliente !== undefined &&
-            this.ctv_venda !==undefined &&
-            this.forma_pagamento !== undefined &&
-            this.hectares !== undefined) || this.pass
+        if ((this.headerDictLocale.tipo_venda !== undefined &&
+            this.headerDictLocale.safra !== undefined &&
+            this.headerDictLocale.cultura !== undefined &&
+            this.headerDictLocale.data_pagamento !== undefined &&
+            this.headerDictLocale.lista_precos !== undefined &&
+            this.headerDictLocale.moeda !== undefined &&
+            this.headerDictLocale.numero_pedido_cliente !== undefined &&
+            this.headerDictLocale.ctv_venda !==undefined &&
+            this.headerDictLocale.forma_pagamento !== undefined &&
+            this.headerDictLocale.hectares !== undefined) || this.pass
             ) {
             return true;
         }
@@ -449,29 +351,11 @@ export default class OrderHeaderScreen extends LightningElement {
     }
 
     _setData() {
+       
         const setHeaderData = new CustomEvent('setheaderdata');
-        setHeaderData.data = {
-            'tipo_venda': this.tipo_venda,
-            'filial': this.filial,
-            'cliente_entrega': this.cliente_entrega,
-            'numero_pedido_cliente': this.numero_pedido_cliente,
-            'safra': this.safra,
-            'cultura': this.cultura,
-            'lista_precos': this.lista_precos,
-            'condicao_pagamento': this.condicao_pagamento,
-            'data_pagamento': this.data_pagamento,
-            'data_entrega': this.data_entrega,
-            'status_pedido': this.status_pedido,
-            'cliente_faturamento': this.cliente_faturamento,
-            'moeda': this.moeda,
-            'setor_atividade': this.setor_atividade,
-            'organizacao_vendas': this.organizacao_vendas,
-            'canal_distribuicao': this.canal_distribuicao,
-            'forma_pagamento': this.forma_pagamento,
-            'ctv_venda': this.ctv_venda,
-            'frete': this.frete,
-            'hectares': this.hectares
-        };
+        setHeaderData.data = this.headerDictLocale;
+        setHeaderData.dataTitles = this.headerDataTitleLocale;
         this.dispatchEvent(setHeaderData);
+       
     }
 }

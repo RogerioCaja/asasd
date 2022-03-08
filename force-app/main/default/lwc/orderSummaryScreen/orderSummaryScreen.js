@@ -36,6 +36,10 @@ const columns = [
 export default class OrderSummaryScreen extends LightningElement {
     columns = columns;
     staticValue = 'hidden';
+
+    @api accountData;
+    @api productData;
+    @api headerDataTitle;
     @api _data = [{
         productName:'Semente de Soja',
         unitMeasure:'Kilogramas',
@@ -79,7 +83,10 @@ export default class OrderSummaryScreen extends LightningElement {
     },];
 
                 
-            
+    connectedCallback(){
+        console.log(JSON.stringify(this.productData));
+        console.log(JSON.stringify(this.headerDataTitle));
+    }    
         
     @api showandHiddenTextArea(){
         let values;
