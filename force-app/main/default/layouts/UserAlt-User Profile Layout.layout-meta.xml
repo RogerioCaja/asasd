@@ -106,8 +106,8 @@
     </relatedLists>
     <relatedLists>
         <!-- <fields>TERRITORY.NAME</fields> -->
-        <fields>MODEL.NAME</fields>
-        <!-- <fields>MODEL.STATE</fields> -->
+        <!-- <fields>MODEL.NAME</fields> -->
+        <fields>MODEL.STATE</fields>
         <fields>ASSIGNMENT_DATE</fields>
         <relatedList>UserAssignedTerritory2sRelatedList</relatedList>
     </relatedLists>
