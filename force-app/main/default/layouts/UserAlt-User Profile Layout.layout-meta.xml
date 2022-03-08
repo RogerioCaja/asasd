@@ -105,7 +105,7 @@
         <relatedList>UserFollowingList</relatedList>
     </relatedLists>
     <relatedLists>
-        <fields>TERRITORY.NAME</fields>
+        <!-- <fields>TERRITORY.NAME</fields> -->
         <fields>MODEL.NAME</fields>
         <fields>MODEL.STATE</fields>
         <fields>ASSIGNMENT_DATE</fields>
