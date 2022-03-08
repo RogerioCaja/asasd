@@ -45,6 +45,7 @@ export default class OrderHeaderScreen extends LightningElement {
     @api accountData;
     @api accountChildData;
     @api headerData;
+    @api productData;
 
     moedas = [{
         value: 'BRL',
@@ -173,6 +174,8 @@ export default class OrderHeaderScreen extends LightningElement {
 
     setor_atividade;
 
+    hectares;
+
     //Lista de Preço
     redispatchListaPrecoObject = LISTA_PRECO_OBJECT;
     lista_precos;// = '01s3F000006RwA7QAK';
@@ -269,6 +272,7 @@ export default class OrderHeaderScreen extends LightningElement {
             this.numero_pedido_cliente = this.headerData.numero_pedido_cliente;
             this.ctv_venda = this.headerData.ctv_venda;
             this.forma_pagamento = this.headerData.forma_pagamento;
+            this.hectares = this.headerData.hectares;
             this.pass = false;
         }
         else{
@@ -395,6 +399,11 @@ export default class OrderHeaderScreen extends LightningElement {
         this.setor_atividade = event.detail.value;
     }
 
+    selectHectares(event) {
+        this.hectares = event.detail.value;
+        this._verifyFieldsToSave();
+    }
+
     showAccounts()
     {
         this.showAccountChilds = !this.showAccountChilds;
@@ -413,10 +422,10 @@ export default class OrderHeaderScreen extends LightningElement {
 
     @api
     _verifyFieldsToSave() {
-        if (this.verifyMandatoryFields()) {
+        // if (this.verifyMandatoryFields()) {
             this._setData();
             return true;
-        }
+        // }
         return false;
     }
 
@@ -431,7 +440,8 @@ export default class OrderHeaderScreen extends LightningElement {
             this.moeda !== undefined &&
             this.numero_pedido_cliente !== undefined &&
             this.ctv_venda !==undefined &&
-            this.forma_pagamento !== undefined) || this.pass
+            this.forma_pagamento !== undefined &&
+            this.hectares !== undefined) || this.pass
             ) {
             return true;
         }
@@ -459,7 +469,8 @@ export default class OrderHeaderScreen extends LightningElement {
             'canal_distribuicao': this.canal_distribuicao,
             'forma_pagamento': this.forma_pagamento,
             'ctv_venda': this.ctv_venda,
-            'frete': this.frete
+            'frete': this.frete,
+            'hectares': this.hectares
         };
         this.dispatchEvent(setHeaderData);
     }

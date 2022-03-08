@@ -232,7 +232,7 @@
                         </div>
                     </div>
                     <div class="slds-form-element__row">
-                        <div class="slds-size_2-of-7">
+                        <div class="slds-size_1-of-4">
                             <lightning-combobox 
                                 name="frete" 
                                 label="Tipo de Frete" 
@@ -244,13 +244,23 @@
                             </lightning-combobox>
                             
                         </div>
-                        <div class="slds-size_2-of-7">
+                        <div class="slds-size_1-of-4">
                             <lightning-input 
                             label="Pedido Mãe" 
                             field-name="pedido_mae"
                             value={headerData.pedido_mae} 
                             type="text" 
                             disabled="true"
+                            required="true">
+                            </lightning-input>
+                        </div>
+                        <div class="slds-size_1-of-4">
+                            <lightning-input 
+                            label="Hectares" 
+                            field-name="hectares"
+                            value={headerData.hectares}
+                            onchange={selectHectares}
+                            type="text" 
                             required="true">
                             </lightning-input>
                         </div>
