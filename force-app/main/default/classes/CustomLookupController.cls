@@ -1,0 +1,99 @@
+public without sharing class CustomLookupController {
+    
+    @AuraEnabled
+    public static List<RecordsData> fetchRecords(String objectName, String filterField, String searchString, String value) {
+
+        try {
+
+            List<RecordsData> recordsDataList = new List<RecordsData>();
+            String query = 'SELECT Id, ' + filterField + ' FROM '+objectName;
+
+            if(String.isNotBlank(value)) {
+                query += ' WHERE Id = \''+ value + '\' LIMIT 49999';
+            } else {
+                query += ' WHERE '+filterField+
+                		' LIKE ' + '\'' + String.escapeSingleQuotes(searchString.trim()) + '%\' LIMIT 49999';
+            }
+	        for(SObject s : Database.query(query)) {
+	            recordsDataList.add( new RecordsData((String)s.get(filterField), (String)s.get('id')) );
+	        }
+
+            return recordsDataList;
+
+	    } catch (Exception err) {
+
+	    	if ( String.isNotBlank( err.getMessage() ) && err.getMessage().contains( 'error:' ) ) {
+                throw new AuraHandledException(err.getMessage().split('error:')[1].split(':')[0] + '.');
+            } else {
+                throw new AuraHandledException(err.getMessage());
+            }
+	    }
+    }
+
+    @AuraEnabled
+    public static List<SObject> fetchAccountRecords(String searchString) {
+        try {
+            List<SObject> recordsData = new List<SObject>();
+            String query = 'SELECT Id, Name, Phone, CNPJ__c, CPF__c FROM Account WHERE Name LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' LIMIT 49999';
+            
+	        for(SObject s : Database.query(query)) {
+	            recordsData.add(s);
+	        }
+
+            return recordsData;
+
+	    } catch (Exception err) {
+
+	    	if ( String.isNotBlank( err.getMessage() ) && err.getMessage().contains( 'error:' ) ) {
+                throw new AuraHandledException(err.getMessage().split('error:')[1].split(':')[0] + '.');
+            } else {
+                throw new AuraHandledException(err.getMessage());
+            }
+	    }
+    }
+
+    @AuraEnabled
+    public static List<ProductData> fetchProductsRecords(String searchString) {
+        try {
+            List<ProductData> recordsDataList = new List<ProductData>();
+            String query = 'SELECT Id, Name, QuantityUnitOfMeasure FROM Product2 WHERE Name LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' LIMIT 49999';
+            
+	        for(SObject s : Database.query(query)) {
+	            recordsDataList.add(new ProductData((String)s.get('Id'), (String)s.get('Name'), (String)s.get('QuantityUnitOfMeasure')));
+	        }
+
+            return recordsDataList;
+
+	    } catch (Exception err) {
+
+	    	if ( String.isNotBlank( err.getMessage() ) && err.getMessage().contains( 'error:' ) ) {
+                throw new AuraHandledException(err.getMessage().split('error:')[1].split(':')[0] + '.');
+            } else {
+                throw new AuraHandledException(err.getMessage());
+            }
+	    }
+    }
+
+    public class RecordsData {
+
+        @AuraEnabled public String label;
+        @AuraEnabled public String value;
+        
+        public RecordsData(String label, String value) {
+            this.label = label;
+            this.value = value;
+        }
+    }
+
+    public class ProductData {
+        @AuraEnabled public String Id;
+        @AuraEnabled public String Name;
+        @AuraEnabled public String unidade;
+        
+        public ProductData(String Id, String Name, String unidade) {
+            this.Id = Id;
+            this.Name = Name;
+            this.unidade = unidade;
+        }
+    }
+}

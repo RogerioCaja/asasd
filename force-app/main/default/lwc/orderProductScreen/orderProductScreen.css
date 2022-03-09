@@ -1,0 +1,56 @@
+.tituloPesquisa{
+    align-self: center;
+    width: 80%;
+    color: #666666 !important;
+    font-size: 16px !important;
+    font-weight: bold;
+    margin: 35px 0px 10px 0;
+  }
+  
+  .tituloPesquisa b{
+    color: #000;
+  }
+
+  @media screen and (max-width: 500px) {
+    .tituloPesquisa{
+      width: 90%;
+    }
+}
+
+.resultados_produto{
+  width: 100%;
+  top: 50%;
+  left: 50%;
+  margin-top: 10px;
+}
+
+.resultados_produto h2{
+  color: #2A9676;
+  font-size: 18px;
+  margin:15px 0;
+}
+
+lightning-datatable{
+  margin: 50px 0px;
+  width: 100%;
+}
+
+lightning-datatable.dt-outer-container{
+  border: 1px solid #DDDDDD;
+  border-radius: 4px;
+}
+
+.resultados_produto {
+  overflow-y: scroll; /* Tells the browser to treat `overflow` content as scrollable */
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.resultados_produto::-webkit-scrollbar {
+   display: none; /* WebKit browsers, like Chrome and Safari */
+}
+
+.slds-table_header-fixed_container{
+  border: 1px #DDD SOLID;
+  border-radius: 4px;
+}

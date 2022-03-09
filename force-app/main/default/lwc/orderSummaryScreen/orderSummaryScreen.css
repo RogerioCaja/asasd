@@ -1,0 +1,191 @@
+/* Organização das informações do cabeçalho */
+.cabecalho{
+    width: 100%;
+    bottom: 90px;
+    border: #DDD solid 1px;
+    border-radius: 5px;
+    background-color: #FFF;
+    margin: 10px 0 20px 0;
+    display: flex; 
+    padding: 1em;
+    flex-direction: column;
+    gap: 10px;
+    
+}
+.titulo_agro{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    font-weight: bold;
+    font-size: 13pt;
+    justify-content: space-between;
+    align-items: center;
+}
+.titulo{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    font-weight: bold;
+    font-size: 13pt;
+}
+
+.Agro{
+    font-weight: bold;
+    font-size: 16pt;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.titulo_agro section{
+    display: flex;
+    flex-direction: row;
+    font-weight: bold;
+    color: #57595c;
+    font-size: 10pt;
+}
+
+.titulo_agro section > span:nth-child(even) {
+    color: black;
+    font-weight: bold;
+} 
+
+section{
+   display: flex;
+   flex-direction: column;
+   gap: 1em;
+}
+
+section > div{
+    display: flex;
+    justify-content: space-between;
+}
+section > div > div{
+    display: flex;
+    flex-direction: column;
+    gap:-1em;
+}
+.dashed-style{
+    border-left: dashed 1px #989898;
+    padding-left: 1em;
+    padding-right: 5em;
+}
+
+
+section > div > div > section{
+    display: flex;
+    flex-direction: row;
+    font-weight: bold;
+    color: #57595c;
+}
+
+section > div > div > section > span:nth-child(even) {
+    color: black;
+    font-weight: bold;
+} 
+
+section > div > section{
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+    font-weight: bold;
+    color: #57595c;
+    
+}
+
+section > div > section > span:nth-child(even) {
+    color: black;
+    font-weight: bold;
+} 
+
+lightning-datatable{
+    padding-top: 30px;
+}
+/* ---------------------------------------------- */
+
+/* Estilização da tabela */
+tr{
+    border-top: solid 1px #989898;
+    border-bottom: solid 1px #989898;
+}
+tr:first-of-type{
+    background-color: #f2f2f2;
+}
+td{
+    padding: 10px;
+    text-align: center;
+}
+th{
+    text-align: center; 
+}
+/* ----------------------------------------------------------- */
+
+/* Parte do tooltip(Quando passar o mouse em cima de remessas) */
+.tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: #e7e7e7;
+    color: black;
+    text-align: center;
+    border-radius: 12px;
+    padding: 5px 0;
+    position: absolute;
+    z-index: 1;
+    bottom: 150%;
+    left: 50%;
+    margin-left: -60px;
+}
+
+.tooltip .tooltiptext::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    width: 0; 
+    height: 0; 
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #949396;
+    
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+}
+/* ---------------------------------------------------------- */
+.triangle{
+    width: 0; 
+    height: 0; 
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #949396;
+}
+.triangle:hover{
+    border-radius: 2px;
+    border-top-color: black;
+    -webkit-transition: border-top-color 1000ms linear;
+    -ms-transition: border-top-color 1000ms linear;
+    transition: border-top-color 1000ms linear;
+}
+button{
+    background-color: transparent;
+    border: none;
+}
+
+
+
+textarea{
+    border-radius: 5px;
+    font-size: 10pt;
+    resize: none;
+    visibility: hidden;
+}
+
+textarea:hover{
+    box-shadow: 1px 1px 1px #999;
+}

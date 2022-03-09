@@ -1,0 +1,167 @@
+<apex:page standardController="Order" applyBodyTag="false" docType="html-5.0" readOnly="true" renderAs="advanced_pdf" extensions="OrderPageController">
+<apex:stylesheet value="{!$Resource.stylePDF}"/>
+
+<!-- O PDF inicialmente são divididos em 3 partes -->
+<!-- PRIMEIRA PARTE - DADOS DA ORGANIZAÇÃO DE VENDAS E SEUS DADOS -->
+<!-- SEGUNDA PARTE - CABEÇALHO DO PEDIDO-->
+<!-- TERCEIRA PARTE - LISTAGEM DE PRODUTOS -->
+<!-- Não é uma parte em si, mas lá no final as Obs. -->
+<body>
+
+<!-- PRIMEIRA PARTE -->
+<table>
+    <tbody>
+        <tr>
+            <td class="information_logo">
+                <apex:image url="{!URLFOR($Resource.Images_logo, 'ImageToPDF/imgs/agro3-960x540.jpg')}" width="160" height="90" alt="Description of image here"/>
+            </td>
+            <td class="information_org">
+                <div>RURAL BRASIL - PRIMAVERA</div>
+                <div>RUA OLIVEIRO PORTA PRIMAVERA II</div>
+                <div>CEP 7885000 - PRIMAVERA DO LERSTE = MT</div>
+                <div>FONE (66) 3498-2139</div>
+                <div>CNPJ 149479000001470</div>
+                <div>INSCRIÇÃO ESTADUAL 136445977</div>
+            </td>
+            <td class="information_monetary">
+                <div> {! orderToPage.codeSapOrder } </div><br/>
+                <div>
+                    <section><apex:image value="{!If(orderToPage.currencyOrder == 'BRL', '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}"/> Reais</section>
+                    <section><apex:image value="{!If(orderToPage.currencyOrder == 'USD', '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}"/> Dólar</section>
+                    <section><apex:image value="{!If(orderToPage.currencyOrder == 'Bartner', '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}"/> Bartner</section>
+                </div>
+                <div>
+                    Data de emissão: {! Datetime}
+                </div>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<!-- SEGUNDA PARTE -->
+<table >
+    <tbody class="information_order">
+        <tr>
+            <td><strong> Cód. Pessoa</strong></td>
+            <td>{! orderToPage.codeSap }</td>
+            <td><strong>Pessoa</strong></td>
+            <td colspan="3">{! orderToPage.account }</td>
+        </tr>
+        <tr>
+            <td><strong>Local</strong></td>
+            <td colspan="5">{! orderToPage.accountAddress }</td>
+        </tr>
+        <tr>
+            <td><strong>Fazenda</strong></td>
+            <td colspan="2">{! orderToPage.ranch }</td>
+            <td><strong>municipio</strong></td>
+            <td colspan="2">{! orderToPage.district }</td>
+        </tr>
+        <tr>
+            <td><strong>CPF/CNPJ</strong></td>
+            <td >{! orderToPage.CPF_CNPJ }</td>
+            <td><strong>I.E.</strong></td>
+            <td >{! orderToPage.IE }</td>
+            <td><strong>CEP</strong></td>
+            <td >{! orderToPage.CEP }</td>
+        </tr>
+        <tr>
+            <td><strong>Safra</strong></td>
+            <td >{! orderToPage.safra }</td>
+            <td><strong>Cond. de Pagamento</strong></td>
+            <td >{! orderToPage.paymentCondition }</td>
+            <td><strong>Vencimento</strong></td>
+            <td >{! orderToPage.dueDate }</td>
+        </tr>
+    </tbody>
+</table>
+
+<!-- TERCEIRA PARTE -->
+<table>
+    <thead class="information_order_item_header">
+        <tr style="height: 40px;">
+            <th>Cód. Produto</th>
+            <th style="width: 30%;">Descrição</th>
+            <th>Cultura</th>
+            <th>Unid. Medida</th>
+            <th>Quant.</th>
+            <th>Preço Unit.</th>
+            <th>Valor Total</th>
+        </tr>
+    </thead>
+    <tbody  class="information_order_item">
+        <!-- Esperando para o pedido conseguir gerar produtos do pedido -->
+        <!-- <apex:repeat value="{! orderToPage.orderItemList }" var='oI'>
+            <tr>
+                <td>
+                    {! oI.productCode}
+                </td>
+                <td>
+                    {! oI.description}
+                </td>
+                <td>
+                    {! oI.culture}
+                </td>
+                <td>
+                    {! oI.unitOfMeasure}
+                </td>
+                <td>
+                    {! oI.unitPrice}
+                </td>
+                <td>
+                    {! oI.quantity}
+                </td>
+                <td>
+                    {! oI.totalAmount}
+                </td>
+            </tr>
+        </apex:repeat> -->
+        <tr>
+            <td>
+                0215412
+            </td>
+            <td>
+                COMPACT Item
+            </td>
+            <td>
+                SOJA
+            </td>
+            <td>
+                L
+            </td>
+            <td>
+               1
+            </td>
+            <td>
+                R$48,99
+            </td>
+            <td>
+                R$48,99
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+
+<table class="total_amount">
+    <tbody>
+        <tr>
+            <td>
+                Valor total do Pedido:
+            </td>
+            <td style="width: 120px;">
+                R$ 48,99
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="footer">
+    Obs:<br/>
+    testando o teste teste teste teste teste <br/>
+    testando o teste teste teste teste teste
+</div>
+</body>
+
+
+</apex:page>

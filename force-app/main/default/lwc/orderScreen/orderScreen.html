@@ -1,0 +1,88 @@
+<template>
+    <div class="principal">
+            <div if:true={isLoading} class="slds-is-relative">
+                <lightning-spinner alternative-text="Loading...">
+                </lightning-spinner>
+            </div>
+        <div if:false={isLoading} class="conteudo">
+            <div class="title">
+                <span>Nova Venda</span>
+                <hr>
+            </div>
+            <!--COMEÇO NAVBAR-->
+            <div class="navbar">
+                <a class="previous" onclick={handlePrevious} data-tab="previous">
+                    <svg width="11" height="19" viewBox="0 0 11 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M9.16031 0.5L0.650024 9.33854L9.16031 18.1771L10.5795 16.7042L3.48645 9.33854L10.5795 1.97292L9.16031 0.5Z"
+                            fill="white"></path>
+                    </svg>
+                    Voltar
+                </a>
+                <a class="current" onclick={handleTab} data-tab-name="account" data-tab="0">
+                    <input type="checkbox" name="" disabled>
+                    Seleção da Conta
+                </a>
+                <a class="" onclick={handleTab} data-tab-name="header" data-tab="1">
+                    <input type="checkbox" name="" disabled>
+                    Detalhes da Venda
+                </a>
+                <a class="" onclick={handleTab} data-tab-name="product" data-tab="2">
+                    <input type="checkbox" name="" disabled>
+                    Seleção de Produtos
+                </a>
+                <a class="" onclick={handleTab} data-tab-name="summary" data-tab="3">
+                    <input type="checkbox" name="" disabled>
+                    Resumo da Venda
+                </a>
+                <a class="next" onclick={handleNext} data-tab="next">
+                    Avançar
+                    <svg width="11" height="19" viewBox="0 0 11 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M2.1868 18.1771L10.6971 9.33859L2.18681 0.500045L0.76758 1.97296L7.8607 9.33859L0.767579 16.7042L2.1868 18.1771Z"
+                            fill="white"></path>
+                    </svg>
+                </a>
+            </div>
+            <!--FINAL NAVBAR-->
+
+            <c-order-account-screen if:true={account} message={message} onsetaccountdata={_setAccountData} selected-account={accountData}>
+            </c-order-account-screen>
+
+            <c-order-header-screen if:true={header} tab="header" onsetheaderdata={_setHeaderData} account-data={accountData} header-data={headerData}>
+            </c-order-header-screen>
+
+            <c-order-product-screen if:true={product} tab="product" onsetproductdata={_setProductData}>
+            </c-order-product-screen>
+
+            <c-order-summary-screen if:true={summary} tab="summary" onsetsummarydata={_setSummaryData}>
+            </c-order-summary-screen>
+
+            <!--COMEÇO NAVBAR BOTTOM-->
+            <div class="navbar_bottom">
+                <span onclick={handlePrevious}>
+                <svg style="margin-right: 15px;" width="11" height="19" viewBox="0 0 11 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill="#2A9676" d="M9.16031 0.5L0.650024 9.33854L9.16031 18.1771L10.5795 16.7042L3.48645 9.33854L10.5795 1.97292L9.16031 0.5Z"></path>
+                </svg>
+                Voltar
+                </span>
+                <template if:false={summary}>
+                <span onclick={handleNext}>
+                Avançar
+                <svg style="margin-left: 15px;" width="11" height="19" viewBox="0 0 11 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill="#2A9676" d="M2.1868 18.1771L10.6971 9.33859L2.18681 0.500045L0.76758 1.97296L7.8607 9.33859L0.767579 16.7042L2.1868 18.1771Z"></path>
+                </svg>
+                </span>
+                </template>
+                <template if:true={summary}>
+                    <button type="button" onclick={saveOrder} class="slds-button slds-button_success">Finalizar</button>
+                </template>
+            </div>
+            <!--FINAL NAVBAR BOTTOM-->
+
+            <!--COMEÇO FOOTER-->
+            <c-order-screen-footer if:false={account} valor-total={valorTotal} qtd-itens={qtdItens} frete={frete} summary={summary}></c-order-screen-footer>
+            <!--FINAL FOOTER-->
+        </div>
+    </div>
+</template>
