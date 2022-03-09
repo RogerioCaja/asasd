@@ -29,20 +29,20 @@ export default class OrderScreen extends LightningElement {
         Id: " ",
         AccountId: " ",
         tipo_venda: " ",
-        filial: " ",
+        filial: null,
         numero_pedido_cliente: " ",
         safra: " ",
         cultura: " ",
         lista_precos: " ",
-        condicao_pagamento: " ",
+        condicao_pagamento: null,
         data_pagamento: " ",
         data_entrega: " ",
         status_pedido: "Em digitação",
         cliente_faturamento: " ",
         cliente_entrega: " ",
         organizacao_vendas: " ",
-        canal_distribuicao: " ",
-        setor_atividade: " ",
+        canal_distribuicao: null,
+        setor_atividade: null,
         forma_pagamento: " ",
         moeda: " ",
         ctv_venda: " ",
@@ -208,7 +208,7 @@ export default class OrderScreen extends LightningElement {
         saveOrder({orderId: (this.recordId && this.originScreen.includes('Order')) ? this.recordId : null, 
                     data: JSON.stringify(data)})
         .then((result) => {
-
+            console.log(JSON.stringify(result));
             result = JSON.parse(result);
             if(!result.hasError)
                 this.showNotification(result.message, 'Sucesso', 'success');
@@ -218,6 +218,7 @@ export default class OrderScreen extends LightningElement {
             this.isLoading = false;
         }).catch((err)=>{
             console.log(this.headerData);
+            console.log(JSON.stringify(err));
             this.showNotification(err.message, 'Aconteceram alguns erros', 'error');
             this.isLoading = false;
         });

@@ -114,21 +114,52 @@
 
         </section>
       
+        <!-- Nome do Produto
+- Código SAP
+- Quantidade
+- Preço de Lista
+- Valor Total
+- Desconto em valor
+- Margem do Item
+- Porcentagem de desconto
+- Grupo de Produtos -->
         <!-- Aqui terá um template com um for que armazenará dados na tabela -->
         <table>
             <tr>
               <th>Produto(Código-Nome)</th>
               <th>U. M.</th>
-              <th>Preço Unitário</th>
               <th>Quantidade</th>
+              <th>Preço de Lista</th>
               <th>Preço Total</th>
-              <th>Percentual Desconto Comercial</th>
               <th>Valor Desconto Comercial</th>
               <th>Grupo de Produtos</th>
-              <th>Valor Acréscimo Financeiro</th>
               <th>Remessas</th>
             </tr>
-            <tr>
+        
+            <template for:each={productData} for:item="product">
+                <tr key={product.name}>
+                    <td>{product.name}</td>
+                    <td>{product.unity}</td>
+                    <td>{product.unitPrice}</td>
+                    <td>{product.quantity}</td>
+                    <td>R$ {product.totalPrice}</td>
+                    <td>R$ {product.commercialDiscountValue}</td>
+                    <td>{product.productGroup}</td>
+                      <td>
+                          <div class="tooltip">
+                              <a href="TESTE.COM" label="picles">Remessa</a>
+                              <div class="tooltiptext">
+                              <p>Data      Quantidade</p>
+                              <br>
+                              <p>02/08/2022    1500</p>
+                              <br>
+                              <p>28/08/2022    1500</p>
+                              </div> 
+                          </div>  
+                      </td>
+                  </tr>
+            </template>
+            <!-- <tr>
               <td>0001-Semente de Soja</td>
               <td>Kg</td>
               <td>R$ 4,12</td>
@@ -150,7 +181,7 @@
                         </div> 
                     </div>  
                 </td>
-            </tr>
+            </tr> -->
           </table>
 
           <span class="titulo">Observações:

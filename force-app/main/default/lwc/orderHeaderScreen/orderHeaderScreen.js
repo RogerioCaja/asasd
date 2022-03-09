@@ -51,7 +51,7 @@ export default class OrderHeaderScreen extends LightningElement {
         Id: " ",
         AccountId: " ",
         tipo_venda: " ",
-        filial: " ",
+        filial: null,
         numero_pedido_cliente: " ",
         safra: " ",
         cultura: " ",
@@ -62,9 +62,9 @@ export default class OrderHeaderScreen extends LightningElement {
         status_pedido: "Em digitação",
         cliente_faturamento: " ",
         cliente_entrega: " ",
-        organizacao_vendas: " ",
-        canal_distribuicao: " ",
-        setor_atividade: " ",
+        organizacao_vendas: null,
+        canal_distribuicao: null,
+        setor_atividade: null,
         forma_pagamento: " ",
         moeda: " ",
         ctv_venda: " ",
@@ -274,10 +274,16 @@ export default class OrderHeaderScreen extends LightningElement {
             this.headerDictLocale ={...this.headerData};
             this.headerDataTitleLocale = {... this.headerDataTitle};
             this.pass = false;
+            if(this.headerDataTitleLocale.tipo_venda != " "){
+                this.headerDataTitleLocale.tipo_venda = this.tiposVenda.find(element => element.value == this.headerData.tipo_venda).label;
+                this.headerDataTitleLocale.data_pagamento = this.headerData.data_pagamento;
+                this.headerDataTitleLocale.data_entrega = this.headerData.data_entrega ? this.headerData.data_entrega : null;
+            }
         }
         else{
             this.pass = true;
         }
+        
     }
     //Filial
     /*@track redispatchFilialObject = [FILIAL_OBJECT];

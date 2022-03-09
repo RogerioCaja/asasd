@@ -36,7 +36,7 @@ const columns = [
 export default class OrderSummaryScreen extends LightningElement {
     columns = columns;
     staticValue = 'hidden';
-    hasData = false;
+    hasData = true;
 
     @api accountData;
     @api productData;
@@ -83,13 +83,10 @@ export default class OrderSummaryScreen extends LightningElement {
 
     },];
 
-                
-    connectedCallback(){
-        if(this.productData != undefined && (this.headerDataTitle != {} || this.headerDataTitle != undefined)){
-            this.hasData = true;
-        }
-    }    
-        
+    formatCurrency(num){
+        return num.toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
+    }
+   
     @api showandHiddenTextArea(){
         let values;
         let buttons;
