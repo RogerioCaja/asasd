@@ -41,7 +41,7 @@ lightning-datatable.dt-outer-container {
 }
 
 .products-result {
-  	overflow-y: scroll;
+  	/* overflow-y: scroll; */
   	-ms-overflow-style: none;
   	scrollbar-width: none;
 }

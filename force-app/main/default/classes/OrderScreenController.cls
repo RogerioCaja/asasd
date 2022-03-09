@@ -1,11 +1,13 @@
-public with sharing class OrderScreenController {
+public without sharing class OrderScreenController {
     @AuraEnabled
     public static String getOrder(String recordId) {
+        System.debug('recordId: ' + recordId);
         HeaderSerialize order;
         AccountSerialize account;
         List<ProductSerialize> ordItemList;
 
         order = getOrderData(recordId);
+        System.debug('order.Id: ' + order.Id);
         ordItemList = getOrderItemData(order.Id);
         account = getOrderAccountData(order.AccountId);
 
@@ -32,9 +34,39 @@ public with sharing class OrderScreenController {
     }
 
     public static List<ProductSerialize> getOrderItemData(Id orderId) {
-        List<ProductSerialize> prods;
-        for(OrderItem item : [SELECT Id, Product2Id FROM OrderItem WHERE OrderId =: orderId]){
-            prods.add(new ProductSerialize(item));
+        List<ProductSerialize> prods = new List<ProductSerialize>();
+        System.debug('orderId: ' + orderId);
+        Integer counter = 0;
+        for(OrderItem item : [
+            SELECT Id,
+                   Product2Id,
+                   Product2.Name,
+                   Product2.PrincipleActive__c,
+                   InvoicedQuantity__c,
+                   OrderId,
+                   PricebookEntryId,
+                   ServiceDate,
+                   Quantity,
+                   ListPrice,
+                   UnitPrice,
+                   FinalTotalValue__c,
+                   toLabel(Status__c),
+                   UnitMeasure__c,
+                   DiscountPercent__c,
+                   DiscountValue__c,
+                   CommercialAdditionPercent__c,
+                   CommercialAdditionValue__c,
+                   FinancialAdditionPercent__c,
+                   FinancialAdditionValue__c,
+                   FinancialDiscountPercent__c,
+                   FinancialDiscountValue__c,
+                   ComissionValue__c,
+                   CommercialMargin__c
+              FROM OrderItem
+             WHERE OrderId =: orderId
+        ]){
+            prods.add(new ProductSerialize(item, counter));
+            counter++;
         }
         return prods;
     }
@@ -62,24 +94,32 @@ public with sharing class OrderScreenController {
 
     @AuraEnabled
     public static String saveOrder(Id orderId, String data) {
+        Savepoint sp = Database.setSavepoint();
         try{
+            System.debug('orderId: ' + orderId);
+            System.debug('data: ' + data);
             Order order;
             String msg;
             Boolean newOrder = true;
             OrderDeserialize orderData = (OrderDeserialize) JSON.deserialize(data, OrderDeserialize.class);
-
-            if(orderId != NULL){
+            
+            if (orderId != NULL) {
                 newOrder = false;
                 order = [SELECT Id, AccountId, Type, ShippingAccount__c, Pricebook2Id, PaymentDate__c, CustomerOrderNumber__c,
                 Crop__c, Culture__c, PaymentForm__c, StatusSF__c, SalesOrg__c, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c
                 FROM Order WHERE Id =: orderId LIMIT 1];
-            }else{
+            } else {
                 order = new Order();
             }
             System.debug(order);
 
             Account acc = [SELECT Id FROM Account WHERE Id =: orderData.accountData.Id LIMIT 1];
     
+            Decimal orderTotalValue = 0;
+            for (ProductDeserialize orderProduct : orderData.productData) {
+                orderTotalValue += orderProduct.totalPrice;
+            }
+
             order.AccountId = acc.Id;
             order.Status = 'Draft';
             order.PriceBook2Id = orderData.headerData.lista_precos;
@@ -91,29 +131,90 @@ public with sharing class OrderScreenController {
             order.Crop__c = orderData.headerData.safra ;
             order.Culture__c = orderData.headerData.cultura ;
             order.PaymentForm__c = orderData.headerData.forma_pagamento ;
-            order.SalesOrg__c = orderData.headerData.organizacao_vendas ;
+            // order.SalesOrg__c = orderData.headerData.organizacao_vendas ;
             order.DistributionChannel__c = orderData.headerData.canal_distribuicao ;
             order.ActivitySector__c = orderData.headerData.setor_atividade ;
             order.Currency__c = orderData.headerData.moeda ;
             order.SalesCTV__c = orderData.headerData.ctv_venda ;
             order.StatusSF__c = orderData.headerData.status_pedido;
             order.Incoterms__c = orderData.headerData.frete;
+            order.FinalTotalValue__c = orderTotalValue;
 
             Database.UpsertResult insResults = Database.upsert(order, false);
-            if(insResults.isSuccess()){
+            if (insResults.isSuccess()) {
                 msg = 'Pedido ' + (newOrder ? 'criado' : 'atualizado') + ' com sucesso';
+
+                List<OrderItem> listOrderItems = new List<OrderItem>();
+                Map<String, String> statusValueByLabel = new Map<String, String>{
+                    'Concluído' => '5',
+                    'Faturado Parcialmente' => '4',
+                    'Crédito Liberado' => '3',
+                    'Cancelado' => 'X'
+                };
+                for (ProductDeserialize orderProduct : orderData.productData) {
+                    System.debug('orderProduct: ' + orderProduct);
+                    OrderItem orderItem;
+                    if (newOrder) {
+                        orderItem = new OrderItem();
+                    } else {
+                        orderItem.Id = orderProduct.orderItemId;
+                    }
+
+                    orderItem.OrderId = order.Id;
+                    orderItem.PricebookEntryId = orderProduct.entryId;
+                    orderItem.ServiceDate = System.today();
+                    orderItem.Product2Id = orderProduct.productId;
+                    orderItem.Quantity = orderProduct.quantity;
+                    orderItem.ListPrice = orderProduct.listPrice;
+                    orderItem.UnitPrice = orderProduct.unitPrice;
+                    orderItem.Status__c = orderProduct.sapStatus != null ? statusValueByLabel.get(orderProduct.sapStatus) : null;
+                    orderItem.UnitMeasure__c = orderProduct.unity;
+                    orderItem.FinalTotalValue__c = orderProduct.totalPrice;
+                    orderItem.DiscountPercent__c = stringToDecimal(orderProduct.commercialDiscountPercentage);
+                    orderItem.DiscountValue__c = orderProduct.commercialDiscountValue;
+                    orderItem.CommercialAdditionPercent__c = stringToDecimal(orderProduct.commercialAdditionPercentage);
+                    orderItem.CommercialAdditionValue__c = orderProduct.commercialAdditionValue;
+                    orderItem.FinancialAdditionPercent__c = stringToDecimal(orderProduct.financialAdditionPercentage);
+                    orderItem.FinancialAdditionValue__c = orderProduct.financialAdditionValue;
+                    orderItem.FinancialDiscountPercent__c = stringToDecimal(orderProduct.financialDecreasePercentage);
+                    orderItem.FinancialDiscountValue__c = orderProduct.financialDecreaseValue;
+                    orderItem.ComissionValue__c = orderProduct.comissionValue;
+                    orderItem.CommercialMargin__c = orderProduct.commercialMarginPercentage;
+                    System.debug('orderItem: ' + orderItem);
+                    listOrderItems.add(orderItem);
+                }
+
+                String orderItemErrors = '';
+                List<Database.UpsertResult> insOrderItemResults = Database.upsert(listOrderItems, false);
+                for (Database.UpsertResult result : insOrderItemResults){
+                    if(!result.isSuccess()){
+                        for (Database.error error: insResults.getErrors()){
+                            orderItemErrors += '\n' + error.getMessage();
+                            msg = 'Pedido não pôde ser ' + (newOrder ? 'criado' : 'atualizado');
+                            return JSON.serializePretty(new AGRO_RemotingResult(false, '200', msg + orderItemErrors));
+                        }
+                    }
+                }
                 return JSON.serializePretty(new AGRO_RemotingResult(false, '200', msg));
             }
+
             String errors = '';
-            for (Database.error error: insResults.getErrors()){
+            for (Database.error error: insResults.getErrors()) {
                  errors += '\n' + error.getMessage();
             }
             msg = 'Pedido não pôde ser ' + (newOrder ? 'criado' : 'atualizado');
             return JSON.serializePretty(new AGRO_RemotingResult(false, '200', msg + errors));
-        }catch (Exception ex)
-		{
+        } catch (Exception ex) {
+            Database.rollback(sp);
+            System.debug('Erro: ' + ex.getMessage() + '   -   ' + ex.getStackTraceString());
 			throw new AuraHandledException('Exception occured:\r\n' + ex.getMessage() + '\r\n' + ex.getStackTraceString() + '\r\n');
 		}
+    }
+
+    public static Decimal stringToDecimal(String value) {
+        if (value.contains(',')) value = value.replaceAll(',', '.');
+        if (value.contains('%')) value = value.replaceAll('%', '');
+        return Decimal.valueOf(value);
     }
 
     //Classe para deserialização
@@ -149,8 +250,31 @@ public with sharing class OrderScreenController {
     }
 
     public class ProductDeserialize{
-        public Id Id;
-        public String Name;
+        public String orderItemId;
+        public String productId;
+        public String name;
+        public String entryId;
+        public String sapStatus;
+        public String unity;
+        public String activePrinciple;
+        public String productGroup;
+        public Integer position;
+        public Integer invoicedQuantity;
+        public Decimal quantity;
+        public Decimal listPrice;
+        public Decimal unitPrice;
+        public Decimal totalPrice;
+        public Decimal dosage;
+        public String commercialDiscountPercentage;
+        public Decimal commercialDiscountValue;
+        public String commercialAdditionPercentage;
+        public Decimal commercialAdditionValue;
+        public String financialAdditionPercentage;
+        public Decimal financialAdditionValue;
+        public String financialDecreasePercentage;
+        public Decimal financialDecreaseValue;
+        public Decimal commercialMarginPercentage;
+        public Decimal comissionValue;
     }
 
 
@@ -246,12 +370,62 @@ public with sharing class OrderScreenController {
     }
     
     public class ProductSerialize{
-        public Id Id;
-        public String lista_precos;
+        public String orderId;
+        public String orderItemId;
+        public String productId;
+        public String name;
+        public String entryId;
+        public String sapStatus;
+        public String unity;
+        public String activePrinciple;
+        public String productGroup;
+        public Date serviceDate;
+        public Integer position;
+        public Decimal invoicedQuantity;
+        public Decimal quantity;
+        public Decimal listPrice;
+        public Decimal unitPrice;
+        public Decimal totalPrice;
+        public Decimal dosage;
+        public String commercialDiscountPercentage;
+        public Decimal commercialDiscountValue;
+        public String commercialAdditionPercentage;
+        public Decimal commercialAdditionValue;
+        public String financialAdditionPercentage;
+        public Decimal financialAdditionValue;
+        public String financialDecreasePercentage;
+        public Decimal financialDecreaseValue;
+        public Decimal commercialMarginPercentage;
+        public Decimal comissionValue;
+
         ProductSerialize(){}
-        ProductSerialize(OrderItem product){
-            this.Id = product.Id;
-            this.lista_precos = product.Product2Id;
+
+        ProductSerialize(OrderItem orderItem, Integer position){
+            this.position = position;
+            this.orderItemId = orderItem.Id;
+            this.productId = orderItem.Product2Id;
+            this.name = orderItem.Product2.Name;
+            this.activePrinciple = orderItem.Product2.PrincipleActive__c;
+            this.entryId = orderItem.PricebookEntryId;
+            this.orderId = OrderId;
+            this.serviceDate = ServiceDate;
+            this.quantity = orderItem.Quantity;
+            this.invoicedQuantity = orderItem.InvoicedQuantity__c;
+            this.listPrice = orderItem.ListPrice;
+            this.unitPrice = orderItem.UnitPrice;
+            this.totalPrice = orderItem.FinalTotalValue__c;
+            this.sapStatus = orderItem.Status__c;
+            this.unity = orderItem.UnitMeasure__c;
+            this.commercialDiscountPercentage = String.valueOf(orderItem.DiscountPercent__c) + '%';
+            this.commercialDiscountValue = orderItem.DiscountValue__c;
+            this.commercialAdditionPercentage = String.valueOf(orderItem.CommercialAdditionPercent__c) + '%';
+            this.commercialAdditionValue = orderItem.CommercialAdditionValue__c;
+            this.financialAdditionPercentage = String.valueOf(orderItem.FinancialAdditionPercent__c) + '%';
+            this.financialAdditionValue = orderItem.FinancialAdditionValue__c;
+            this.financialDecreasePercentage = String.valueOf(orderItem.FinancialDiscountPercent__c) + '%';
+            this.financialDecreaseValue = orderItem.FinancialDiscountValue__c;
+            this.comissionValue = orderItem.ComissionValue__c;
+            this.commercialMarginPercentage = orderItem.CommercialMargin__c;
         }
     }
 }

@@ -11,7 +11,8 @@
 				<div class="container">
 					<div class="card-01">
 						<p class="product-name">{prod.Name}</p>
-						<p><b>Grupo:</b> {prod.family}</p>
+						<p><b>Grupo:</b> {prod.productGroup}</p>
+						<p><b>Princípio ativo:</b> {prod.activePrinciple}</p>
 					</div>
 					<div class="card-02">
 						<button class="include-button" data-target-id={prod.Id} onclick={showProductModal}>Incluir</button>
@@ -30,8 +31,7 @@
                 data={products}
                 columns={columns}
                 key-field="id"
-                onrowaction={handleRowAction}
-                onrowselection={getSelectedName}
+                onrowaction={handleRowActions}
             >
             </lightning-datatable>
         </template>
@@ -45,38 +45,38 @@
         <div id="product-modal" class="modal">
             <div class="modal-content">
                 <span class="close" onclick={showProductModal}>&times;</span>
-                <p class="new-product-title">Incluir novo produto: {name}</p>
+                <p class="new-product-title">Incluir novo produto: {addProduct.name}</p>
 
 				<div class="row">
 					<div class="column">
 						<label>Unidade de Medida</label><br>
-						<input class="input-design" type="text" value={unity} disabled/> 
+						<input class="input-design" type="text" value={addProduct.unity} disabled/> 
 					</div>
 					<div class="column">
 						<label>Preço de Lista</label><br>
-						<input class="input-design" type="number" value={listPrice} disabled/>
+						<input class="input-design" type="number" value={addProduct.listPrice} disabled/>
 					</div>
 				</div>
 
 				<div class="row">
 					<div class="column">
 						<label>Dosagem</label><br>
-						<input class="input-design" type="number" value={dosage} onchange={changeValue} data-target-id="dosage"/>
+						<input class="input-design" type="number" value={addProduct.dosage} onchange={changeValue} data-target-id="dosage"/>
 					</div>
 					<div class="column">
 						<label>Quantidade</label><br>
-						<input class="input-design" type="number" value={quantity} onchange={changeValue} data-target-id="quantity"/>
+						<input class="input-design" type="number" value={addProduct.quantity} onchange={changeValue} data-target-id="quantity"/>
 					</div>
 				</div>
 
 				<div class="row">
 					<div class="column">
 						<label>Preço Unitário</label><br>
-						<input class="input-design" type="number" value={unitPrice} onchange={changeValue} data-target-id="unitPrice"/>
+						<input class="input-design" type="number" value={addProduct.unitPrice} onchange={changeValue} data-target-id="unitPrice"/>
 					</div>
 					<div class="column">
 						<label>Preço Total</label><br>
-						<input class="input-design" type="number" value={totalPrice} disabled/>
+						<input class="input-design" type="number" value={addProduct.totalPrice} disabled/>
 					</div>
 				</div>
 
@@ -86,22 +86,22 @@
 				<div class="row">
 					<div class="column">
 						<label>Percentual de Desconto Comercial</label><br>
-						<input class="input-design" type="text" value={commercialDiscountPercentage} maxlength="8" onkeypress={changeToPercentage} onchange={changeValue} data-target-id="commercialDiscountPercentage"/>
+						<input class="input-design" type="text" value={addProduct.commercialDiscountPercentage} maxlength="8" onkeypress={changeToPercentage} onchange={changeValue} data-target-id="commercialDiscountPercentage"/>
 					</div>
 					<div class="column">
 						<label>Valor de Desconto Comercial</label><br>
-						<input class="input-design" type="number" value={commercialDiscountValue} onchange={changeValue} data-target-id="commercialDiscountValue"/>
+						<input class="input-design" type="number" value={addProduct.commercialDiscountValue} onchange={changeValue} data-target-id="commercialDiscountValue"/>
 					</div>
 				</div>
 
 				<div class="row">
 					<div class="column">
 						<label>Percentual de Acréscimo Comercial</label><br>
-						<input class="input-design" type="text" value={commercialAdditionPercentage} maxlength="8" onkeypress={changeToPercentage} onchange={changeValue} data-target-id="commercialAdditionPercentage"/>
+						<input class="input-design" type="text" value={addProduct.commercialAdditionPercentage} maxlength="8" onkeypress={changeToPercentage} onchange={changeValue} data-target-id="commercialAdditionPercentage"/>
 					</div>
 					<div class="column">
 						<label>Valor de Acréscimo Comercial</label><br>
-						<input class="input-design" type="number" value={commercialAdditionValue} onchange={changeValue} data-target-id="commercialAdditionValue"/>
+						<input class="input-design" type="number" value={addProduct.commercialAdditionValue} onchange={changeValue} data-target-id="commercialAdditionValue"/>
 					</div>
 				</div>
 
@@ -111,22 +111,22 @@
 				<div class="row">
 					<div class="column">
 						<label>Percentual de Acréscimo Financeiro</label><br>
-						<input class="input-design" type="text" value={financialAdditionPercentage} maxlength="8" onkeypress={changeToPercentage} onchange={changeValue} data-target-id="financialAdditionPercentage"/>
+						<input class="input-design" type="text" value={addProduct.financialAdditionPercentage} maxlength="8" onkeypress={changeToPercentage} onchange={changeValue} data-target-id="financialAdditionPercentage"/>
 					</div>
 					<div class="column">
 						<label>Valor de Acréscimo Financeiro</label><br>
-						<input class="input-design" type="number" value={financialAdditionValue} onchange={changeValue} data-target-id="financialAdditionValue"/>
+						<input class="input-design" type="number" value={addProduct.financialAdditionValue} onchange={changeValue} data-target-id="financialAdditionValue"/>
 					</div>
 				</div>
 
 				<div class="row">
 					<div class="column">
 						<label>Percentual de Decréscimo Financeiro</label><br>
-						<input class="input-design" type="text" value={financialDecreasePercentage} maxlength="8" onkeypress={changeToPercentage} onchange={changeValue} data-target-id="financialDecreasePercentage"/>
+						<input class="input-design" type="text" value={addProduct.financialDecreasePercentage} maxlength="8" onkeypress={changeToPercentage} onchange={changeValue} data-target-id="financialDecreasePercentage"/>
 					</div>
 					<div class="column">
 						<label>Valor de Decréscimo Financeiro</label><br>
-						<input class="input-design" type="number" value={financialDecreaseValue} onchange={changeValue} data-target-id="financialDecreaseValue"/>
+						<input class="input-design" type="number" value={addProduct.financialDecreaseValue} onchange={changeValue} data-target-id="financialDecreaseValue"/>
 					</div>
 				</div>
 
@@ -136,22 +136,22 @@
 				<div class="row">
 					<div class="column">
 						<label>Quantidade Faturada</label><br>
-						<input class="input-design" type="number" value={invoicedQuantity} disabled/> 
+						<input class="input-design" type="number" value={addProduct.invoicedQuantity} disabled/> 
 					</div>
 					<div class="column">
 						<label>Princípio Ativo</label><br>
-						<input class="input-design" type="text" value={activePrinciple} onchange={changeValue} data-target-id="activePrinciple"/>
+						<input class="input-design" type="text" value={addProduct.activePrinciple} onchange={changeValue} data-target-id="activePrinciple" disabled/>
 					</div>
 				</div>
 
 				<div class="row">
 					<div class="column">
 						<label>Grupo do Produto</label><br>
-						<input class="input-design" type="text" value={productGroup} onchange={changeValue} data-target-id="productGroup"/>
+						<input class="input-design" type="text" value={addProduct.productGroup} onchange={changeValue} data-target-id="productGroup" disabled/>
 					</div>
 					<div class="column">
 						<label>Status SAP</label><br>
-						<input class="input-design" type="text" value={sapStatus} disabled/>
+						<input class="input-design" type="text" value={addProduct.sapStatus} disabled/>
 					</div>
 				</div>
 
@@ -159,9 +159,16 @@
 					<div class="back-button">
 						<a onclick={showProductModal}>Fechar</a>
 					</div>
-					<div class="column">
-						<button class="confirm-button" onclick={includeProduct}>Incluir Produto</button>
-					</div>
+					<template if:true={updateProduct}>
+						<div class="column">
+							<button class="confirm-button" onclick={changeProduct}>Alterar Produto</button>
+						</div>
+					</template>
+					<template if:false={updateProduct}>
+						<div class="column">
+							<button class="confirm-button" onclick={includeProduct}>Incluir Produto</button>
+						</div>
+					</template>
 				</div>
             </div>
         </div>
@@ -175,99 +182,99 @@
 
 				<div class="row">
 					<div class="column">
-						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={columnUnity} data-target-id="columnUnity">
+						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnUnity} data-target-id="columnUnity">
 						<label class="column-title">Unidade de Medida</label><br>
 					</div>
 					<div class="column">
-						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={columnListPrice} data-target-id="columnListPrice">
+						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnListPrice} data-target-id="columnListPrice">
 						<label class="column-title">Preço de Lista</label><br>
 					</div>
 				</div>
 
 				<div class="row">
 					<div class="column">
-						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={columnDosage} data-target-id="columnDosage">
+						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnDosage} data-target-id="columnDosage">
 						<label class="column-title">Dosagem</label><br>
 					</div>
 					<div class="column">
-						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={columnQuantity} data-target-id="columnQuantity">
+						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnQuantity} data-target-id="columnQuantity">
 						<label class="column-title">Quantidade</label><br>
 					</div>
 				</div>
 
 				<div class="row">
 					<div class="column">
-						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={columnUnitPrice} data-target-id="columnUnitPrice">
+						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnUnitPrice} data-target-id="columnUnitPrice">
 						<label class="column-title">Preço Unitário</label><br>
 					</div>
 					<div class="column">
-						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={columnTotalPrice} data-target-id="columnTotalPrice">
+						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnTotalPrice} data-target-id="columnTotalPrice">
 						<label class="column-title">Preço Total</label><br>
 					</div>
 				</div>
 
 				<div class="row">
 					<div class="column">
-						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={columnCommercialDiscountPercentage} data-target-id="columnCommercialDiscountPercentage">
+						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnCommercialDiscountPercentage} data-target-id="columnCommercialDiscountPercentage">
 						<label class="column-title">Percentual de Desconto Comercial</label><br>
 					</div>
 					<div class="column">
-						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={columnCommercialDiscountValue} data-target-id="columnCommercialDiscountValue">
+						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnCommercialDiscountValue} data-target-id="columnCommercialDiscountValue">
 						<label class="column-title">Valor de Desconto Comercial</label><br>
 					</div>
 				</div>
 
 				<div class="row">
 					<div class="column">
-						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={columnCommercialAdditionPercentage} data-target-id="columnCommercialAdditionPercentage">
+						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnCommercialAdditionPercentage} data-target-id="columnCommercialAdditionPercentage">
 						<label class="column-title">Percentual de Acréscimo Comercial</label><br>
 					</div>
 					<div class="column">
-						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={columnCommercialAdditionValue} data-target-id="columnCommercialAdditionValue">
+						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnCommercialAdditionValue} data-target-id="columnCommercialAdditionValue">
 						<label class="column-title">Valor de Acréscimo Comercial</label><br>
 					</div>
 				</div>
 
 				<div class="row">
 					<div class="column">
-						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={columnFinancialAdditionPercentage} data-target-id="columnFinancialAdditionPercentage">
+						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnFinancialAdditionPercentage} data-target-id="columnFinancialAdditionPercentage">
 						<label class="column-title">Percentual de Acréscimo Financeiro</label><br>
 					</div>
 					<div class="column">
-						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={columnFinancialAdditionValue} data-target-id="columnFinancialAdditionValue">
+						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnFinancialAdditionValue} data-target-id="columnFinancialAdditionValue">
 						<label class="column-title">Valor de Acréscimo Financeiro</label><br>
 					</div>
 				</div>
 
 				<div class="row">
 					<div class="column">
-						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={columnFinancialDecreasePercentage} data-target-id="columnFinancialDecreasePercentage">
+						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnFinancialDecreasePercentage} data-target-id="columnFinancialDecreasePercentage">
 						<label class="column-title">Percentual de Decréscimo Financeiro</label><br>
 					</div>
 					<div class="column">
-						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={columnFinancialDecreaseValue} data-target-id="columnFinancialDecreaseValue">
+						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnFinancialDecreaseValue} data-target-id="columnFinancialDecreaseValue">
 						<label class="column-title">Valor de Decréscimo Financeiro</label><br>
 					</div>
 				</div>
 
 				<div class="row">
 					<div class="column">
-						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={columnInvoicedQuantity} data-target-id="columnInvoicedQuantity">
+						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnInvoicedQuantity} data-target-id="columnInvoicedQuantity">
 						<label class="column-title">Quantidade Faturada</label><br>
 					</div>
 					<div class="column">
-						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={columnActivePrinciple} data-target-id="columnActivePrinciple">
+						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnActivePrinciple} data-target-id="columnActivePrinciple">
 						<label class="column-title">Princípio Ativo</label><br>
 					</div>
 				</div>
 
 				<div class="row">
 					<div class="column">
-						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={columnGroup} data-target-id="columnGroup">
+						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnGroup} data-target-id="columnGroup">
 						<label class="column-title">Grupo do Produto</label><br>
 					</div>
 					<div class="column">
-						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={columnSapStatus} data-target-id="columnSapStatus">
+						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnSapStatus} data-target-id="columnSapStatus">
 						<label class="column-title">Status SAP</label><br>
 					</div>
 				</div>

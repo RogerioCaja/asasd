@@ -6,27 +6,25 @@ import {
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
 
-const actions = [{
-        label: 'Adicionar remessa',
-        name: 'adicionar_remessa'
-    },
-    {
-        label: 'Remover',
-        name: 'delete'
-    }
+const actions = [
+    { label: 'Editar', name: 'edit' },
 ];
 export default class OrderProductScreen extends LightningElement {
-    name='';unity='';productGroup='';sapStatus='';activePrinciple='';commercialDiscountPercentage='';
-    commercialAdditionPercentage='';financialAdditionPercentage='';financialDecreasePercentage='';
-    commercialDiscountValue;commercialAdditionValue;financialAdditionValue;financialDecreaseValue;
-    listPrice;unitPrice;totalPrice;dosage;quantity;invoicedQuantity;listTotalPrice;
+    @track addProduct={};
+    costPrice;
+    multiplicity=5;
+    listTotalPrice;
+    productPosition;
 
-    columnUnity=true;columnListPrice=true;columnDosage=false;columnQuantity=true;columnUnitPrice=true;
-    columnTotalPrice=true;columnCommercialDiscountPercentage=false;columnCommercialDiscountValue=false;
-    columnCommercialAdditionPercentage=true;columnCommercialAdditionValue=true;
-    columnFinancialAdditionPercentage=true;columnFinancialAdditionValue=true;
-    columnFinancialDecreasePercentage=false;columnFinancialDecreaseValue=false;columnInvoicedQuantity=false;
-    columnActivePrinciple=false;columnGroup=false;columnSapStatus=true;
+    selectedColumns={
+        columnListPrice: true,
+        columnQuantity: true,
+        columnUnitPrice: true,
+        columnTotalPrice: true,
+        columnCommercialAdditionValue: true,
+        columnFinancialAdditionValue: true,
+        columnSapStatus: true
+    }
 
     paymentDate;hectares;priceBookListId;
 
@@ -35,6 +33,7 @@ export default class OrderProductScreen extends LightningElement {
     showIncludedProducts = false;
     message = false;
     createNewProduct = false;
+    updateProduct = false;
     showList = false;
     changeColumns = false;
     selectedProducts;
@@ -54,86 +53,72 @@ export default class OrderProductScreen extends LightningElement {
         this.applySelectedColumns(event);
     }
 
-    handleRowAction(event) {
-        const action = event.detail.action;
-        const row = event.detail.row;
-        switch (action.name) {
-            case 'adicionar_remessa':
-                this.template.querySelector('c-modal-remessa').openModal(row);
-                break;
-            case 'delete':
-                const rows = this.products;
-                const rowIndex = rows.indexOf(row);
-                rows.splice(rowIndex, 1);
-                this.products = rows;
-                break;
+    showProductModal(event) {
+        this.createNewProduct = !this.createNewProduct;
+
+        if (this.createNewProduct) {
+            let currentProduct = this.baseProducts.find(e => e.Id == event.target.dataset.targetId);
+            this.costPrice = currentProduct.costPrice;
+            this.addProduct = {
+                entryId: currentProduct.entryId,
+                productId: currentProduct.Id,
+                name: currentProduct.Name,
+                unity: currentProduct.unity,
+                listPrice: currentProduct.listPrice,
+                dosage: null,
+                quantity: null,
+                unitPrice: null,
+                totalPrice: null,
+                commercialDiscountPercentage: '',
+                commercialDiscountValue: null,
+                commercialAdditionPercentage: '',
+                commercialAdditionValue: null,
+                financialAdditionPercentage: '',
+                financialAdditionValue: null,
+                financialDecreasePercentage: '',
+                financialDecreaseValue: null,
+                invoicedQuantity: 50,
+                activePrinciple: currentProduct.activePrinciple != null ? currentProduct.activePrinciple : '',
+                productGroup: currentProduct.productGroup != null ? currentProduct.productGroup : '',
+                sapStatus: 'Concluído'
+            };
         }
     }
 
-    getFieldsValueProduct() {
-
-    }
-
-    getSelectedName(event){
-        this.selectedProducts =  event.detail.selectedRows;
-        console.log(JSON.parse(JSON.stringify(this.selectedProducts)));
-    }
-
-    showProductModal(event) {
-        let currentProduct = this.baseProducts.find(e => e.Id == event.target.dataset.targetId);
-        this.createNewProduct = !this.createNewProduct;
-
-        this.name = currentProduct.Name;
-        this.unity = 'Quilos';
-        this.productGroup = currentProduct.family;
-        this.listPrice = currentProduct.listPrice;
-        this.invoicedQuantity = 50;
-        this.sapStatus = 'Concluído';
-    }
-
     changeTableColumns(event) {
-        if (event.target.dataset.targetId == 'columnUnity') this.columnUnity = !this.columnUnity;
-        if (event.target.dataset.targetId == 'columnListPrice') this.columnListPrice = !this.columnListPrice;
-        if (event.target.dataset.targetId == 'columnDosage') this.columnDosage = !this.columnDosage;
-        if (event.target.dataset.targetId == 'columnQuantity') this.columnQuantity = !this.columnQuantity;
-        if (event.target.dataset.targetId == 'columnUnitPrice') this.columnUnitPrice = !this.columnUnitPrice;
-        if (event.target.dataset.targetId == 'columnTotalPrice') this.columnTotalPrice = !this.columnTotalPrice;
-        if (event.target.dataset.targetId == 'columnCommercialDiscountPercentage') this.columnCommercialDiscountPercentage = !this.columnCommercialDiscountPercentage;
-        if (event.target.dataset.targetId == 'columnCommercialDiscountValue') this.columnCommercialDiscountValue = !this.columnCommercialDiscountValue;
-        if (event.target.dataset.targetId == 'columnCommercialAdditionPercentage') this.columnCommercialAdditionPercentage = !this.columnCommercialAdditionPercentage;
-        if (event.target.dataset.targetId == 'columnCommercialAdditionValue') this.columnCommercialAdditionValue = !this.columnCommercialAdditionValue;
-        if (event.target.dataset.targetId == 'columnFinancialAdditionPercentage') this.columnFinancialAdditionPercentage = !this.columnFinancialAdditionPercentage;
-        if (event.target.dataset.targetId == 'columnFinancialAdditionValue') this.columnFinancialAdditionValue = !this.columnFinancialAdditionValue;
-        if (event.target.dataset.targetId == 'columnFinancialDecreasePercentage') this.columnFinancialDecreasePercentage = !this.columnFinancialDecreasePercentage;
-        if (event.target.dataset.targetId == 'columnFinancialDecreaseValue') this.columnFinancialDecreaseValue = !this.columnFinancialDecreaseValue;
-        if (event.target.dataset.targetId == 'columnInvoicedQuantity') this.columnInvoicedQuantity = !this.columnInvoicedQuantity;
-        if (event.target.dataset.targetId == 'columnActivePrinciple') this.columnActivePrinciple = !this.columnActivePrinciple;
-        if (event.target.dataset.targetId == 'columnGroup') this.columnGroup = !this.columnGroup;
-        if (event.target.dataset.targetId == 'columnSapStatus') this.columnSapStatus = !this.columnSapStatus;
+        let field = event.target.dataset.targetId;
+        this.selectedColumns[field] = this.isFilled(this.selectedColumns[field]) ? !this.selectedColumns[field] : true;
     }
 
     applySelectedColumns(event) {
         let selectedColumns = [{label: 'Nome', fieldName: 'name'}];
-        if (this.columnUnity) selectedColumns.push({label: 'Unidade de Medida', fieldName: 'unity'})
-        if (this.columnListPrice) selectedColumns.push({label: 'Preço da Lista', fieldName: 'listPrice'})
-        if (this.columnDosage) selectedColumns.push({label: 'Dosagem', fieldName: 'dosage'})
-        if (this.columnQuantity) selectedColumns.push({label: 'Quantidade', fieldName: 'quantity'})
-        if (this.columnUnitPrice) selectedColumns.push({label: 'Preço Unitário', fieldName: 'unitPrice'})
-        if (this.columnTotalPrice) selectedColumns.push({label: 'Preço Total', fieldName: 'totalPrice'})
-        if (this.columnCommercialDiscountPercentage) selectedColumns.push({label: 'Percentual de Desconto Comercial', fieldName: 'commercialDiscountPercentage'})
-        if (this.columnCommercialDiscountValue) selectedColumns.push({label: 'Valor de Desconto Comercial', fieldName: 'commercialDiscountValue'})
-        if (this.columnCommercialAdditionPercentage) selectedColumns.push({label: 'Percentual de Acréscimo Comercial', fieldName: 'commercialAdditionPercentage'})
-        if (this.columnCommercialAdditionValue) selectedColumns.push({label: 'Valor de Acréscimo Comercial', fieldName: 'commercialAdditionValue'})
-        if (this.columnFinancialAdditionPercentage) selectedColumns.push({label: 'Percentual de Acréscimo Financeiro', fieldName: 'financialAdditionPercentage'})
-        if (this.columnFinancialAdditionValue) selectedColumns.push({label: 'Valor de Acréscimo Financeiro', fieldName: 'financialAdditionValue'})
-        if (this.columnFinancialDecreasePercentage) selectedColumns.push({label: 'Percentual de Decréscimo Financeiro', fieldName: 'financialDecreasePercentage'})
-        if (this.columnFinancialDecreaseValue) selectedColumns.push({label: 'Valor de Decréscimo Financeiro', fieldName: 'financialDecreaseValue'})
-        if (this.columnInvoicedQuantity) selectedColumns.push({label: 'Quantidade Faturada', fieldName: 'invoicedQuantity'})
-        if (this.columnActivePrinciple) selectedColumns.push({label: 'Princípio Ativo', fieldName: 'activePrinciple'})
-        if (this.columnGroup) selectedColumns.push({label: 'Grupo do Produto', fieldName: 'productGroup'})
-        if (this.columnSapStatus) selectedColumns.push({label: 'Status SAP', fieldName: 'sapStatus'})
+        if (this.isFilled(this.selectedColumns.columnUnity)) selectedColumns.push({label: 'Unidade de Medida', fieldName: 'unity'})
+        if (this.isFilled(this.selectedColumns.columnListPrice)) selectedColumns.push({label: 'Preço da Lista', fieldName: 'listPrice'})
+        if (this.isFilled(this.selectedColumns.columnDosage)) selectedColumns.push({label: 'Dosagem', fieldName: 'dosage'})
+        if (this.isFilled(this.selectedColumns.columnQuantity)) selectedColumns.push({label: 'Quantidade', fieldName: 'quantity'})
+        if (this.isFilled(this.selectedColumns.columnUnitPrice)) selectedColumns.push({label: 'Preço Unitário', fieldName: 'unitPrice'})
+        if (this.isFilled(this.selectedColumns.columnTotalPrice)) selectedColumns.push({label: 'Preço Total', fieldName: 'totalPrice'})
+        if (this.isFilled(this.selectedColumns.columnCommercialDiscountPercentage)) selectedColumns.push({label: 'Percentual de Desconto Comercial', fieldName: 'commercialDiscountPercentage'})
+        if (this.isFilled(this.selectedColumns.columnCommercialDiscountValue)) selectedColumns.push({label: 'Valor de Desconto Comercial', fieldName: 'commercialDiscountValue'})
+        if (this.isFilled(this.selectedColumns.columnCommercialAdditionPercentage)) selectedColumns.push({label: 'Percentual de Acréscimo Comercial', fieldName: 'commercialAdditionPercentage'})
+        if (this.isFilled(this.selectedColumns.columnCommercialAdditionValue)) selectedColumns.push({label: 'Valor de Acréscimo Comercial', fieldName: 'commercialAdditionValue'})
+        if (this.isFilled(this.selectedColumns.columnFinancialAdditionPercentage)) selectedColumns.push({label: 'Percentual de Acréscimo Financeiro', fieldName: 'financialAdditionPercentage'})
+        if (this.isFilled(this.selectedColumns.columnFinancialAdditionValue)) selectedColumns.push({label: 'Valor de Acréscimo Financeiro', fieldName: 'financialAdditionValue'})
+        if (this.isFilled(this.selectedColumns.columnFinancialDecreasePercentage)) selectedColumns.push({label: 'Percentual de Decréscimo Financeiro', fieldName: 'financialDecreasePercentage'})
+        if (this.isFilled(this.selectedColumns.columnFinancialDecreaseValue)) selectedColumns.push({label: 'Valor de Decréscimo Financeiro', fieldName: 'financialDecreaseValue'})
+        if (this.isFilled(this.selectedColumns.columnInvoicedQuantity)) selectedColumns.push({label: 'Quantidade Faturada', fieldName: 'invoicedQuantity'})
+        if (this.isFilled(this.selectedColumns.columnActivePrinciple)) selectedColumns.push({label: 'Princípio Ativo', fieldName: 'activePrinciple'})
+        if (this.isFilled(this.selectedColumns.columnGroup)) selectedColumns.push({label: 'Grupo do Produto', fieldName: 'productGroup'})
+        if (this.isFilled(this.selectedColumns.columnSapStatus)) selectedColumns.push({label: 'Status SAP', fieldName: 'sapStatus'})
 
         if (selectedColumns.length >= 2) {
+            selectedColumns.push({
+                type: 'action',
+                typeAttributes: {
+                    rowActions: actions,
+                    menuAlignment: 'right'
+                }
+            });
             this.columns = selectedColumns;
             this.changeColumns = false;
         } else {
@@ -164,100 +149,108 @@ export default class OrderProductScreen extends LightningElement {
     }
 
     changeValue(event) {
-        if (this.isFilled(event.target.value)) {
-            if (event.target.dataset.targetId == 'unitPrice') {
-                this.unitPrice = event.target.value;
+        let fieldId = event.target.dataset.targetId;
+        let fieldValue = event.target.value;
+        
+        if (this.isFilled(fieldValue)) {
+            this.addProduct[fieldId] = fieldValue;
+            if (fieldId == 'unitPrice') {
                 this.calculateDiscountOrAddition();
                 this.calculateTotalPrice();
-            } else if (event.target.dataset.targetId == 'commercialDiscountPercentage') {
-                this.commercialDiscountPercentage = event.target.value;
-                this.commercialDiscountValue = this.isFilled(this.listTotalPrice) ?
-                                               this.calculateValue(this.commercialDiscountPercentage, this.listTotalPrice) :
-                                               this.commercialDiscountValue;
+            } else if (fieldId == 'commercialDiscountPercentage') {
+                this.addProduct.commercialDiscountValue = 
+                    this.isFilled(this.listTotalPrice) ?
+                    this.calculateValue(this.addProduct.commercialDiscountPercentage, this.listTotalPrice) :
+                    this.addProduct.commercialDiscountValue;
+                
                 this.calculateTotalPrice();
-            } else if (event.target.dataset.targetId == 'commercialDiscountValue') {
-                this.commercialDiscountValue = event.target.value;
-                this.commercialDiscountPercentage = this.isFilled(this.listTotalPrice) ?
-                                                    this.calculatePercentage(this.commercialDiscountValue, this.listTotalPrice) :
-                                                    this.commercialDiscountPercentage;
+            } else if (fieldId == 'commercialDiscountValue') {
+                this.addProduct.commercialDiscountPercentage = 
+                    this.isFilled(this.listTotalPrice) ?
+                    this.calculatePercentage(this.addProduct.commercialDiscountValue, this.listTotalPrice) :
+                    this.addProduct.commercialDiscountPercentage;
+                
                 this.calculateTotalPrice();
-            } else if (event.target.dataset.targetId == 'commercialAdditionPercentage') {
-                this.commercialAdditionPercentage = event.target.value;
-                this.commercialAdditionValue = this.isFilled(this.listTotalPrice) ?
-                                               this.calculateValue(this.commercialAdditionPercentage, this.listTotalPrice) :
-                                               this.commercialAdditionValue;
+            } else if (fieldId == 'commercialAdditionPercentage') {
+                this.addProduct.commercialAdditionValue = 
+                    this.isFilled(this.listTotalPrice) ?
+                    this.calculateValue(this.addProduct.commercialAdditionPercentage, this.listTotalPrice) :
+                    this.addProduct.commercialAdditionValue;
+                
                 this.calculateTotalPrice();
-            } else if (event.target.dataset.targetId == 'commercialAdditionValue') {
-                this.commercialAdditionValue = event.target.value;
-                this.commercialAdditionPercentage = this.isFilled(this.listTotalPrice) ?
-                                                    this.calculatePercentage(this.commercialAdditionValue, this.listTotalPrice) :
-                                                    this.commercialAdditionPercentage;
+            } else if (fieldId == 'commercialAdditionValue') {
+                this.addProduct.commercialAdditionPercentage = 
+                    this.isFilled(this.listTotalPrice) ?
+                    this.calculatePercentage(this.addProduct.commercialAdditionValue, this.listTotalPrice) :
+                    this.addProduct.commercialAdditionPercentage;
+                
                 this.calculateTotalPrice();
-            } else if (event.target.dataset.targetId == 'financialAdditionPercentage') {
-                this.financialAdditionPercentage = event.target.value;
-                this.financialAdditionValue = this.isFilled(this.listTotalPrice) ?
-                                              this.calculateValue(this.financialAdditionPercentage, this.listTotalPrice) :
-                                              this.financialAdditionValue;
+            } else if (fieldId == 'financialAdditionPercentage') {
+                this.addProduct.financialAdditionValue = 
+                    this.isFilled(this.listTotalPrice) ?
+                    this.calculateValue(this.addProduct.financialAdditionPercentage, this.listTotalPrice) :
+                    this.addProduct.financialAdditionValue;
+                
                 this.calculateTotalPrice();
-            } else if (event.target.dataset.targetId == 'financialAdditionValue') {
-                this.financialAdditionValue = event.target.value;
-                this.financialAdditionPercentage = this.isFilled(this.listTotalPrice) ?
-                                                   this.calculatePercentage(this.financialAdditionValue, this.listTotalPrice) :
-                                                   this.financialAdditionPercentage;
+            } else if (fieldId == 'financialAdditionValue') {
+                this.addProduct.financialAdditionPercentage = 
+                    this.isFilled(this.listTotalPrice) ?
+                    this.calculatePercentage(this.addProduct.financialAdditionValue, this.listTotalPrice) :
+                    this.addProduct.financialAdditionPercentage;
+                
                 this.calculateTotalPrice();
-            } else if (event.target.dataset.targetId == 'financialDecreasePercentage') {
-                this.financialDecreasePercentage = event.target.value;
-                this.financialDecreaseValue = this.isFilled(this.listTotalPrice) ?
-                                              this.calculateValue(this.financialDecreasePercentage, this.listTotalPrice) :
-                                              this.financialDecreaseValue;
+            } else if (fieldId == 'financialDecreasePercentage') {
+                this.addProduct.financialDecreaseValue = 
+                    this.isFilled(this.listTotalPrice) ?
+                    this.calculateValue(this.addProduct.financialDecreasePercentage, this.listTotalPrice) :
+                    this.addProduct.financialDecreaseValue;
+                
                 this.calculateTotalPrice();
-            } else if (event.target.dataset.targetId == 'financialDecreaseValue') {
-                this.financialDecreaseValue = event.target.value;
-                this.financialDecreasePercentage = this.isFilled(this.listTotalPrice) ?
-                                                   this.calculatePercentage(this.financialDecreaseValue, this.listTotalPrice) :
-                                                   this.financialDecreasePercentage;
+            } else if (fieldId == 'financialDecreaseValue') {
+                this.addProduct.financialDecreasePercentage = 
+                    this.isFilled(this.listTotalPrice) ?
+                    this.calculatePercentage(this.addProduct.financialDecreaseValue, this.listTotalPrice) :
+                    this.addProduct.financialDecreasePercentage;
+                
                 this.calculateTotalPrice();
-            } else if (event.target.dataset.targetId == 'dosage') {
-                this.dosage = event.target.value;
-                this.quantity = this.dosage * this.hectares;
-                this.listTotalPrice = this.listPrice * this.quantity;
-            } else if (event.target.dataset.targetId == 'quantity') {
-                this.quantity = event.target.value;
-                this.listTotalPrice = this.listPrice * this.quantity;
+            } else if (fieldId == 'dosage') {
+                this.addProduct.quantity = this.addProduct.dosage * this.hectares;
+                this.listTotalPrice = this.addProduct.listPrice * this.addProduct.quantity;
+                this.calculateTotalPrice();
+            } else if (fieldId == 'quantity') {
+                this.listTotalPrice = this.addProduct.listPrice * this.addProduct.quantity;
                 this.calculateTotalPrice();
                 this.calculateDiscountOrAddition();
             }
-            if (event.target.dataset.targetId == 'activePrinciple') this.activePrinciple = event.target.value;
-            if (event.target.dataset.targetId == 'productGroup') this.productGroup = event.target.value;
         }
     }
 
     calculateTotalPrice() {
-        this.totalPrice = null;
+        this.addProduct.totalPrice = null;
 
-        if (this.isFilled(this.quantity) && this.isFilled(this.listPrice)) {
-            this.totalPrice = this.quantity * this.listPrice;
-            this.totalPrice = this.isFilled(this.commercialAdditionValue) ? (this.totalPrice + Number(this.commercialAdditionValue)) : this.totalPrice;
-            this.totalPrice = this.isFilled(this.commercialDiscountValue) ? (this.totalPrice - Number(this.commercialDiscountValue)) : this.totalPrice;
-            this.totalPrice = this.isFilled(this.financialAdditionValue) ? (this.totalPrice + Number(this.financialAdditionValue)) : this.totalPrice;
-            this.totalPrice = this.isFilled(this.financialDecreaseValue) ? (this.totalPrice - Number(this.financialDecreaseValue)) : this.totalPrice;
+        if (this.isFilled(this.addProduct.quantity) && this.isFilled(this.addProduct.listPrice)) {
+            this.addProduct.totalPrice = this.addProduct.quantity * this.addProduct.listPrice;
+            this.addProduct.totalPrice = this.isFilled(this.addProduct.commercialAdditionValue) ? (this.addProduct.totalPrice + Number(this.addProduct.commercialAdditionValue)) : this.addProduct.totalPrice;
+            this.addProduct.totalPrice = this.isFilled(this.addProduct.commercialDiscountValue) ? (this.addProduct.totalPrice - Number(this.addProduct.commercialDiscountValue)) : this.addProduct.totalPrice;
+            this.addProduct.totalPrice = this.isFilled(this.addProduct.financialAdditionValue) ? (this.addProduct.totalPrice + Number(this.addProduct.financialAdditionValue)) : this.addProduct.totalPrice;
+            this.addProduct.totalPrice = this.isFilled(this.addProduct.financialDecreaseValue) ? (this.addProduct.totalPrice - Number(this.addProduct.financialDecreaseValue)) : this.addProduct.totalPrice;
         }
     }
 
     calculateDiscountOrAddition() {
-        if (this.isFilled(this.listPrice) && this.isFilled(this.quantity) && this.isFilled(this.unitPrice)) {
-            this.commercialAdditionValue = '0';
-            this.commercialDiscountValue = '0';
-            this.commercialAdditionPercentage = '0%';
-            this.commercialDiscountPercentage = '0%';
-            let currentPrice = this.unitPrice * this.quantity;
+        if (this.isFilled(this.addProduct.listPrice) && this.isFilled(this.addProduct.quantity) && this.isFilled(this.addProduct.unitPrice)) {
+            this.addProduct.commercialAdditionValue = '0';
+            this.addProduct.commercialDiscountValue = '0';
+            this.addProduct.commercialAdditionPercentage = '0%';
+            this.addProduct.commercialDiscountPercentage = '0%';
+            let currentPrice = this.addProduct.unitPrice * this.addProduct.quantity;
             
-            if (this.isFilled(currentPrice) && this.unitPrice > this.listPrice) {
-                this.commercialAdditionValue = (currentPrice - this.listTotalPrice).toFixed(4);
-                this.commercialAdditionPercentage = this.calculatePercentage(this.commercialAdditionValue, this.listTotalPrice);
-            } else if (this.isFilled(currentPrice) && this.unitPrice < this.listPrice) {
-                this.commercialDiscountValue = (this.listTotalPrice - currentPrice).toFixed(4);
-                this.commercialDiscountPercentage = this.calculatePercentage(this.commercialDiscountValue, this.listTotalPrice);
+            if (this.isFilled(currentPrice) && this.addProduct.unitPrice > this.addProduct.listPrice) {
+                this.addProduct.commercialAdditionValue = (currentPrice - this.listTotalPrice).toFixed(4);
+                this.addProduct.commercialAdditionPercentage = this.calculatePercentage(this.addProduct.commercialAdditionValue, this.listTotalPrice);
+            } else if (this.isFilled(currentPrice) && this.addProduct.unitPrice < this.addProduct.listPrice) {
+                this.addProduct.commercialDiscountValue = (this.listTotalPrice - currentPrice).toFixed(4);
+                this.addProduct.commercialDiscountPercentage = this.calculatePercentage(this.addProduct.commercialDiscountValue, this.listTotalPrice);
             }
         }
     }
@@ -277,68 +270,107 @@ export default class OrderProductScreen extends LightningElement {
     isFilled(field) {
         return (field !== undefined && field != null && field != '');
     }
-        
+
     includeProduct() {
-        console.log('includeProduct');
-        if (this.isFilled(this.name) && this.isFilled(this.unity) && this.isFilled(this.listPrice) && this.isFilled(this.unitPrice) &&
-            this.isFilled(this.totalPrice) && this.isFilled(this.commercialDiscountPercentage) && this.isFilled(this.commercialDiscountValue) &&
-            this.isFilled(this.commercialAdditionPercentage) && this.isFilled(this.commercialAdditionValue) &&
-            this.isFilled(this.financialAdditionPercentage) && this.isFilled(this.financialAdditionValue) &&
-            this.isFilled(this.financialDecreasePercentage) && this.isFilled(this.financialDecreaseValue) &&
-            this.isFilled(this.dosage) && this.isFilled(this.quantity) && this.isFilled(this.invoicedQuantity) &&
-            this.isFilled(this.activePrinciple) && this.isFilled(this.productGroup) && this.isFilled(this.sapStatus)) {
+        let prod = this.addProduct;
+        if (this.checkRequiredFields(prod)) {
             let allProducts = JSON.parse(JSON.stringify(this.products));
-            allProducts.push({
-                name: this.name,
-                unity: this.unity,
-                listPrice: this.listPrice,
-                unitPrice: this.unitPrice,
-                totalPrice: this.totalPrice,
-                commercialDiscountPercentage: this.commercialDiscountPercentage,
-                commercialDiscountValue: this.commercialDiscountValue,
-                commercialAdditionPercentage: this.commercialAdditionPercentage,
-                commercialAdditionValue: this.commercialAdditionValue,
-                financialAdditionPercentage: this.financialAdditionPercentage,
-                financialAdditionValue: this.financialAdditionValue,
-                financialDecreasePercentage: this.financialDecreasePercentage,
-                financialDecreaseValue: this.financialDecreaseValue,
-                dosage: this.dosage,
-                quantity: this.quantity,
-                invoicedQuantity: this.invoicedQuantity,
-                activePrinciple: this.activePrinciple,
-                productGroup: this.productGroup,
-                sapStatus: this.sapStatus
-            });
+            let margin = this.isFilled(this.costPrice) ? ((prod.totalPrice / prod.quantity) / this.costPrice).toFixed(2) : null;
             
-            this.products = JSON.parse(JSON.stringify(allProducts));
-            this.name = '';
-            this.unity = '';
-            this.productGroup = '';
-            this.sapStatus = '';
-            this.activePrinciple = '';
-            this.commercialDiscountPercentage = '';
-            this.commercialAdditionPercentage = '';
-            this.financialAdditionPercentage = '';
-            this.financialDecreasePercentage = '';
-            this.commercialDiscountValue = null;
-            this.commercialAdditionValue = null;
-            this.financialAdditionValue = null;
-            this.financialDecreaseValue = null;
-            this.listPrice = null;
-            this.unitPrice = null;
-            this.totalPrice = null;
-            this.dosage = null;
-            this.quantity = null;
-            this.invoicedQuantity = null;
+            prod.commercialMarginPercentage = margin;
+            prod.position = this.isFilled(this.products) ? this.products.length : 0
+            allProducts.push(prod);
+
+            // comissionValue
+            console.log(JSON.stringify(allProducts));
             this.showIncludedProducts = true;
-            this.createNewProduct = false;
+            this.addProduct = {};
+            this.products = JSON.parse(JSON.stringify(allProducts));
 
             this.showToast('success', 'Sucesso!', 'Produto incluso.');
-            this._verifyFieldsToSave();
-            this.showProductModal();
+            // this._verifyFieldsToSave();
+
+            this.createNewProduct = !this.createNewProduct;
         } else {
-            this.showToast('error', 'Atenção!', 'Todos campos são obrigatórios.');
+            this.showToast('error', 'Atenção!', 'Campos obrigatórios não preenchidos.');
         }
+    }
+
+    changeProduct() {
+        let includedProducts = JSON.parse(JSON.stringify(this.products));
+        for (let index = 0; index < includedProducts.length; index++) {
+            if (includedProducts[index].position == this.productPosition) {
+                if (this.checkRequiredFields(this.addProduct)) {
+                    let margin = this.isFilled(this.costPrice) ? ((this.addProduct.totalPrice / this.addProduct.quantity) / this.costPrice).toFixed(2) : null;
+                    this.addProduct.commercialMarginPercentage = margin;
+                    includedProducts[index] = JSON.parse(JSON.stringify(this.addProduct));
+                    break;
+                } else {
+                    this.showToast('error', 'Atenção!', 'Campos obrigatórios não preenchidos.');
+                    return;
+                }
+            }
+        }
+
+        this.products = JSON.parse(JSON.stringify(includedProducts));
+        this.updateProduct = !this.updateProduct;
+        this.createNewProduct = !this.createNewProduct;
+        this.showToast('success', 'Sucesso!', 'Produto alterado.');
+        console.log(JSON.stringify(this.products));
+    }
+
+    handleRowActions(event) {
+        const actionName = event.detail.action.name;
+        const row = event.detail.row;
+        switch (actionName) {
+            case 'edit':
+                this.editProduct(row.position);
+            break;
+        }
+    }
+
+    editProduct(position) {
+        this.productPosition = position;
+        let currentProduct = this.products.find(e => e.position == position);
+        this.addProduct = {
+            name: currentProduct.name,
+            entryId: currentProduct.entryId,
+            productId: currentProduct.productId,
+            unity: currentProduct.unity,
+            productGroup: currentProduct.productGroup,
+            sapStatus: currentProduct.sapStatus,
+            activePrinciple: currentProduct.activePrinciple,
+            commercialDiscountPercentage: currentProduct.commercialDiscountPercentage,
+            commercialAdditionPercentage: currentProduct.commercialAdditionPercentage,
+            financialAdditionPercentage: currentProduct.financialAdditionPercentage,
+            financialDecreasePercentage: currentProduct.financialDecreasePercentage,
+            commercialDiscountValue: currentProduct.commercialDiscountValue,
+            commercialAdditionValue: currentProduct.commercialAdditionValue,
+            financialAdditionValue: currentProduct.financialAdditionValue,
+            financialDecreaseValue: currentProduct.financialDecreaseValue,
+            listPrice: currentProduct.listPrice,
+            unitPrice: currentProduct.unitPrice,
+            totalPrice: currentProduct.totalPrice,
+            dosage: currentProduct.dosage,
+            quantity: currentProduct.quantity,
+            invoicedQuantity: currentProduct.invoicedQuantity
+        }
+
+        this.createNewProduct = !this.createNewProduct;
+        this.updateProduct = !this.updateProduct;
+    }
+
+    checkRequiredFields(prod) {
+        console.log('prod: ' + JSON.stringify(prod));
+        if (this.isFilled(prod.name) && this.isFilled(prod.listPrice) && this.isFilled(prod.unitPrice) &&
+            this.isFilled(prod.totalPrice) && this.isFilled(prod.commercialDiscountPercentage) &&
+            this.isFilled(prod.commercialDiscountValue) && this.isFilled(prod.commercialAdditionPercentage) &&
+            this.isFilled(prod.commercialAdditionValue) && this.isFilled(prod.financialAdditionPercentage) &&
+            this.isFilled(prod.financialAdditionValue) && this.isFilled(prod.financialDecreasePercentage) &&
+            this.isFilled(prod.financialDecreaseValue) && this.isFilled(prod.dosage) && this.isFilled(prod.quantity)) {
+            return true;
+        }
+        return false;
     }
 
     @api

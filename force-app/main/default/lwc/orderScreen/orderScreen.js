@@ -160,6 +160,7 @@ export default class OrderScreen extends LightningElement {
             const data = JSON.parse(result);
             this.accountData = data.accountData;
             this.headerData = data.headerData;
+            this.productData = data.productData;
             this.enableScreens([0, 1]);
             this.completeScreens([0, 1]);
             this.isLoading = false;
@@ -201,12 +202,13 @@ export default class OrderScreen extends LightningElement {
     }*/
     async saveOrder(){
         await this.recordId;
-        const data = {accountData: this.accountData, headerData: this.headerData};
+        const data = {accountData: this.accountData, headerData: this.headerData, productData: this.productData};
         this.isLoading = true;
         //console.log(data);
-
-        saveOrder({orderId: (this.recordId && this.originScreen.includes('Order')) ? this.recordId : null, 
-                    data: JSON.stringify(data)})
+        saveOrder({
+            orderId: (this.recordId && this.originScreen.includes('Order')) ? this.recordId : null, 
+            data: JSON.stringify(data)
+        })
         .then((result) => {
             console.log(JSON.stringify(result));
             result = JSON.parse(result);
