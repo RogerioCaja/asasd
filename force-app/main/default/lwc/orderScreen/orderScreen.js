@@ -137,7 +137,7 @@ export default class OrderScreen extends LightningElement {
         this.isLoading = true;
         getAccount({recordId: this.recordId})
         .then((result) =>{
-            const account = JSON.parse(JSON.stringify(result));
+            const account = JSON.parse(result);
             this.accountData = account.accountData;
             this.enableNextScreen();
             this.completeCurrentScreen();

@@ -13,14 +13,14 @@ public with sharing class OrderScreenController {
     }
 
     @AuraEnabled
-    public static OrderSerialize getAccount(String recordId) {
+    public static String getAccount(String recordId) {
         OrderSerialize order;
         AccountSerialize account;
         List<ProductSerialize> ordItemList;
         
         account = getOrderAccountData(recordId);
 
-        return new OrderSerialize(account);
+        return JSON.serialize(new OrderSerialize(account));
     }
 
     public static HeaderSerialize getOrderData(Id orderId){
