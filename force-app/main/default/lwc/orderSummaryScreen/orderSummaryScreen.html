@@ -26,7 +26,7 @@
                 <div>
                     <section>
                         <span>Cliente Emissor:</span>
-                        <span> {accountData.Name} </span>
+                        <span if:true={accountData.Name}> {accountData.Name} </span>
                    </section>
    
                    <section>
@@ -39,17 +39,17 @@
                 <div class="dashed-style">
                     <section>
                         <span>Cliente de Entrega:</span>
-                        <span>{headerDataTitle.cliente_entrega.Name}</span>
+                        <span if:true={hasData}>{headerDataTitle.cliente_entrega.Name}</span>
                     </section>
 
                     <section>
                         <span>Endereço: </span>
-                        <span>{headerDataTitle.cliente_entrega.City} - {headerDataTitle.cliente_entrega.UF}</span>
+                        <span if:true={hasData}>{headerDataTitle.cliente_entrega.City} - {headerDataTitle.cliente_entrega.UF}</span>
                     </section>
                     
                     <section>
                         <span>CPF:</span>
-                        <span if:true={headerDataTitle.cliente_entrega.CPF}> {headerDataTitle.cliente_entrega.CPF}</span>
+                        <span if:true={hasData}> {headerDataTitle.cliente_entrega.CPF}</span>
                         <span>Código SAP: </span>
                         <span>466578</span>
                     </section>
@@ -63,11 +63,11 @@
                 <div>
                     <section>
                         <span>Tipo de Venda: </span>
-                        <span>{headerDataTitle.tipo_venda}</span>
+                        <span if:true={hasData}>{headerDataTitle.tipo_venda}</span>
                     </section>
                     <section>
                         <span>Safra: </span>
-                        <span>{headerDataTitle.safra}</span>
+                        <span if:true={hasData}>{headerDataTitle.safra}</span>
                     </section>
 
                     
@@ -80,7 +80,7 @@
                     </section>
                     <section>
                         <span>Cultura: </span>
-                        <span>{headerDataTitle.cultura}</span>
+                        <span if:true={hasData}>{headerDataTitle.cultura}</span>
                     </section>
                     
                 </div>
@@ -88,12 +88,12 @@
                 <div>
                     <section>
                         <span>Data de Pagamento: </span>
-                        <span>{headerDataTitle.data_pagamento}</span>
+                        <span if:true={hasData}>{headerDataTitle.data_pagamento}</span>
                     </section>
 
                     <section>
                         <span>Data de Entrega: </span>
-                        <span>{headerDataTitle.data_entrega}</span>
+                        <span if:true={hasData}>{headerDataTitle.data_entrega}</span>
                     </section>
                     
                 </div>
