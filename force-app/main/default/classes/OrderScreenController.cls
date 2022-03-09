@@ -131,7 +131,7 @@ public without sharing class OrderScreenController {
             order.Crop__c = orderData.headerData.safra ;
             order.Culture__c = orderData.headerData.cultura ;
             order.PaymentForm__c = orderData.headerData.forma_pagamento ;
-            // order.SalesOrg__c = orderData.headerData.organizacao_vendas ;
+            order.SalesOrg__c = orderData.headerData.organizacao_vendas ;
             order.DistributionChannel__c = orderData.headerData.canal_distribuicao ;
             order.ActivitySector__c = orderData.headerData.setor_atividade ;
             order.Currency__c = orderData.headerData.moeda ;
