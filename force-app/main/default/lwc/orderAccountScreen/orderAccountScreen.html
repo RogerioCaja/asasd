@@ -28,12 +28,24 @@
                     <div class="texto">
                         <span>Tipo de Conta:</span> Jurídica
                     </div>
-                    <div class="texto">
-                        <span>CNPJ:</span> 104037480001-99
+                    <div class="texto" if:true={selectedAccount.CPNJ__c}>
+                        CNPJ: <span>{selectedAccount.CPNJ__c}</span>
                     </div>
-                    <div class="texto">
-                        São Bernardo do Campo - SP - Brasil
+                    <div class="texto" if:true={selectedAccount.CPF__c}>
+                        CPF: <span>{selectedAccount.CPF__c}</span>
                     </div>
+                    <div class="texto" if:true={selectedAccount.CPNJ}>
+                        CNPJ: <span>{selectedAccount.CPNJ}</span>
+                    </div>
+                    <div class="texto" if:true={selectedAccount.CPF}>
+                        CPF: <span>{selectedAccount.CPF}</span>
+                    </div>
+                    <div class="texto" if:true={selectedAccount.City}>
+                       {selectedAccount.City} - {selectedAccount.UF} - Brasil
+                    </div>
+                    <div class="texto" if:true={selectedAccount.BillingCity}>
+                        {selectedAccount.BillingCity} - {selectedAccount.BillingState} - Brasil
+                     </div>
                     <div class="texto">
                         <span>Código SAP:</span> NÃO INTEGRADO
                     </div>
@@ -83,10 +95,11 @@
                           <span>Tipo de Conta:</span> Jurídica
                       </div>
                       <div class="texto">
-                          <span>CNPJ:</span> 104037480001-99
+                        <span if:true={rec.CPNJ__c}>CNPJ: {rec.CPNJ__c}</span>
+                        <span if:true={rec.CPF__c}>CPF: {rec.CPF__c}</span>
                       </div>
                       <div class="texto">
-                          São Bernardo do Campo - SP - Brasil
+                        {rec.BillingCity} - {rec.BillingState} - Brasil
                       </div>
                       <div class="texto">
                           <span>Código SAP:</span> NÃO INTEGRADO

@@ -18,8 +18,10 @@
  :host .content{
     width: 90%;
     margin: auto;
-    display: grid;
-    grid-template-columns: 33% 33% 33%;
+    display: flex;
+    /* grid-template-columns: auto auto auto auto; */
+    flex-direction:row;
+    justify-content: space-around;
     padding: 12px 0 0 0;
     align-items: center;
  }
@@ -31,6 +33,7 @@
     grid-template-columns: auto auto auto;
     grid-column-gap: 5px;
  }
+
  
  @media only screen and (max-width: 500px){
     .content{   grid-template-columns: 40% 30% 30%;}
@@ -51,13 +54,22 @@
  button {
    background: #2a9676;
    color: white;
-   padding: 12px;
+   padding: 6px;
    font-size: 14px;
    border: 1px solid grey;
    border-left: none; /* Prevent double borders */
    cursor: pointer;
-   border-radius: 0 4px 4px 0;
-   width: 30%;
+   border-radius: 4px;
+   width: 100%;
+ }
+
+ button > span{
+    color: white;
+ }
+
+ .finished_buttons{
+    display: flex;
+    gap: 8px;
  }
  
 button:hover {

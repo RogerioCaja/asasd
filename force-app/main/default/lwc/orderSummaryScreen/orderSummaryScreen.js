@@ -1,4 +1,4 @@
-import { LightningElement, api } from 'lwc';
+import { LightningElement, api, track } from 'lwc';
 
 const columns = [
     { label: 'Nome do Produto', fieldName: 'productName' },
@@ -36,6 +36,19 @@ const columns = [
 export default class OrderSummaryScreen extends LightningElement {
     columns = columns;
     staticValue = 'hidden';
+    hasData = true;
+
+    @api accountData;
+    @api productData;
+    @api summaryData ={
+        observation : ""
+    };
+    
+    @api summaryDataLocale = {
+        observation : ""
+    };
+    @api productDataLocale = [];
+    @api headerDataTitle = {};
     @api _data = [{
         productName:'Semente de Soja',
         unitMeasure:'Kilogramas',
@@ -78,9 +91,54 @@ export default class OrderSummaryScreen extends LightningElement {
 
     },];
 
-                
-            
-        
+    connectedCallback(){
+        this.summaryDataLocale = {... this.summaryData};
+        this.loadData();
+    }
+
+    loadData(){
+        if(this.productData){
+            this.productDataLocale = JSON.parse(JSON.stringify(this.productData));
+            console.log(JSON.stringify(this.productDataLocale));
+            for(var i= 0; i< this.productDataLocale.length; i++){
+                this.productDataLocale[i]['unitPrice'] = this.formatCurrency(this.productDataLocale[i].unitPrice);
+                this.productDataLocale[i]['totalPrice']  = this.formatCurrency(this.productDataLocale[i].totalPrice);
+                this.productDataLocale[i]['commercialDiscountValue']  =  this.formatCurrency(this.productDataLocale[i].commercialDiscountValue);
+                this.productDataLocale[i]['commercialMarginPercentage']  = this.formatPercent( this.productDataLocale[i].commercialMarginPercentage);
+            }
+        }
+    }
+
+    formatCurrency(num){
+        try{
+            return parseFloat(num).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
+        }
+        catch(err){
+            console.log(err);
+        }
+    }
+
+    formatPercent(num){
+        try{
+            if(num.toString().indexOf('%') != -1)
+                num = num.toString().split('%')[0];
+            return Number(num/100).toLocaleString(undefined,{style: 'percent', minimumFractionDigits:2});
+        }
+        catch(err){
+            console.log(err);
+        }
+        //num = parseFloat(num).toFixed()+'%';
+
+    }
+
+    changeObservation(event){
+        this.summaryDataLocale.observation = event.target.value;
+        const setSummaryData = new CustomEvent('setsummarydata');
+        setSummaryData.data = this.summaryDataLocale;
+      
+        this.dispatchEvent(setSummaryData);
+    }
+   
     @api showandHiddenTextArea(){
         let values;
         let buttons;
