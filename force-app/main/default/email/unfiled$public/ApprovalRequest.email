@@ -1,0 +1,13 @@
+{!Today}
+
+{!User.Name},
+
+Você recebeu uma nova solicitação para Aprovação de Desconto de Pedido {!Workitem.ID}.
+
+Clique no Link para responder.
+
+{!ApprovalRequest.External_URL}
+
+--
+
+AgroGalaxy.
