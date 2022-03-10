@@ -57,7 +57,6 @@ public without sharing class CustomLookupController {
         try {
             Map<Id, PricebookEntry> productsPriceById = new Map<Id, PricebookEntry>();
             Set<String> pricebookEntryFields = new Set<String>{'Id', 'UnitPrice', 'CostPrice__c', 'Product2Id'};
-            
             String pricebookEntryQuery = new Q(PricebookEntry.SObjectType)
                            .selectFields(pricebookEntryFields)
                            .add(Q.condition('Pricebook2Id').equalsTo(pricebookListId))
@@ -69,22 +68,39 @@ public without sharing class CustomLookupController {
 
             Set<Id> prodsId = productsPriceById.keySet();
             List<ProductData> recordsDataList = new List<ProductData>();
-            String productQuery = 'SELECT Id, Name, QuantityUnitOfMeasure, ProductGroup__c, PrincipleActive__c FROM Product2' +
+            String productQuery = 'SELECT Id, Name, QuantityUnitOfMeasure, ProductGroup__c, ProductGroup__r.Name, PrincipleActive__c, Multiplicity__c' +
+                                  '  FROM Product2' +
                                   ' WHERE Id IN:prodsId' +
                                   '   AND ('+
                                   '            Name LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\'' +
-                                  // '         OR ProductGroup__r.Name LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\'' +
+                                  '         OR ProductGroup__r.Name LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\'' +
                                   '         OR PrincipleActive__c LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\'' +
                                   '       )' +
                                   ' LIMIT 49999';
             
-            System.debug('productQuery: ' + productQuery);
-            for(SObject s : Database.query(productQuery)) {
+            List<SObject> queryResult = Database.query(productQuery);
+            Set<Id> prodGroupIds = new Set<Id>();
+            for (SObject product : queryResult) {
+                prodGroupIds.add((String)product.get('ProductGroup__c'));
+            }
+
+            Map<Id, ProductGroup__c> productsGroupById = new Map<Id, ProductGroup__c>([
+                SELECT Id, Name
+                  FROM ProductGroup__c
+                 WHERE Id IN:prodGroupIds
+            ]);
+
+            for(SObject s : queryResult) {
                 PricebookEntry pbe = productsPriceById.get((Id) s.get('Id'));
-	            recordsDataList.add(new ProductData((String)s.get('Id'), (String)s.get('Name'), (String)s.get('QuantityUnitOfMeasure'), (String)s.get('ProductGroup__c'), (String)s.get('PrincipleActive__c'), pbe.Id, pbe.UnitPrice, pbe.CostPrice__c));
+                String productGroupId = (String)s.get('ProductGroup__c');
+                String productGroupName = '';
+                
+                if (productGroupId != null) {
+                    productGroupName = productsGroupById.get(productGroupId) != null ? productsGroupById.get(productGroupId).Name : '';
+                }
+                recordsDataList.add(new ProductData((String)s.get('Id'), (String)s.get('Name'), (String)s.get('QuantityUnitOfMeasure'), (String)s.get('PrincipleActive__c'), (Decimal)s.get('Multiplicity__c'), productGroupId, productGroupName, pbe.Id, pbe.UnitPrice, pbe.CostPrice__c));
 	        }
 
-            System.debug('recordsDataList: ' + recordsDataList);
             return recordsDataList;
 	    } catch (Exception err) {
 
@@ -111,18 +127,22 @@ public without sharing class CustomLookupController {
         @AuraEnabled public String Id;
         @AuraEnabled public String Name;
         @AuraEnabled public String unity;
-        @AuraEnabled public String productGroup;
+        @AuraEnabled public String productGroupId;
+        @AuraEnabled public String productGroupName;
         @AuraEnabled public String activePrinciple;
+        @AuraEnabled public Decimal multiplicity;
         @AuraEnabled public String entryId;
         @AuraEnabled public Decimal listPrice;
         @AuraEnabled public Decimal costPrice;
         
-        public ProductData(String Id, String Name, String unity, String productGroup, String activePrinciple, String entryId, Decimal listPrice, Decimal costPrice) {
+        public ProductData(String Id, String Name, String unity, String activePrinciple, Decimal multiplicity, String productGroup, String productGroupName, String entryId, Decimal listPrice, Decimal costPrice) {
             this.Id = Id;
             this.Name = Name;
             this.unity = unity != null ? unity : '';
-            this.productGroup = productGroup != null ? productGroup : '';
+            this.productGroupId = productGroup != null ? productGroup : '';
+            this.productGroupName = productGroupName != null ? productGroupName : '';
             this.activePrinciple = activePrinciple != null ? activePrinciple : '';
+            this.multiplicity = multiplicity;
             this.entryId = entryId;
             this.listPrice = listPrice != null ? listPrice : 0;
             this.costPrice = costPrice != null ? costPrice : 0;

@@ -12,7 +12,7 @@ const actions = [
 export default class OrderProductScreen extends LightningElement {
     @track addProduct={};
     costPrice;
-    multiplicity=5;
+    multiplicity;
     listTotalPrice;
     productPosition;
 
@@ -49,7 +49,7 @@ export default class OrderProductScreen extends LightningElement {
         this.priceBookListId = this.headerData.lista_precos;
 
         this.products = this.isFilled(this.productData) ? this.productData : [];
-        this.showIncludedProducts = this.isFilled(this.products);
+        this.showIncludedProducts = this.products.length > 0;
         this.applySelectedColumns(event);
     }
 
@@ -58,6 +58,7 @@ export default class OrderProductScreen extends LightningElement {
 
         if (this.createNewProduct) {
             let currentProduct = this.baseProducts.find(e => e.Id == event.target.dataset.targetId);
+            this.multiplicity = currentProduct.multiplicity;
             this.costPrice = currentProduct.costPrice;
             this.addProduct = {
                 entryId: currentProduct.entryId,
@@ -65,7 +66,7 @@ export default class OrderProductScreen extends LightningElement {
                 name: currentProduct.Name,
                 unity: currentProduct.unity,
                 listPrice: currentProduct.listPrice,
-                dosage: null,
+                dosage: currentProduct.dosage,
                 quantity: null,
                 unitPrice: null,
                 totalPrice: null,
@@ -77,10 +78,11 @@ export default class OrderProductScreen extends LightningElement {
                 financialAdditionValue: null,
                 financialDecreasePercentage: '',
                 financialDecreaseValue: null,
-                invoicedQuantity: 50,
+                invoicedQuantity: currentProduct.invoicedQuantity,
                 activePrinciple: currentProduct.activePrinciple != null ? currentProduct.activePrinciple : '',
-                productGroup: currentProduct.productGroup != null ? currentProduct.productGroup : '',
-                sapStatus: 'Concluído'
+                productGroupId: currentProduct.productGroupId != null ? currentProduct.productGroupId : '',
+                productGroupName: currentProduct.productGroupName != null ? currentProduct.productGroupName : '',
+                sapStatus: currentProduct.sapStatus != null ? currentProduct.sapStatus : ''
             };
         }
     }
@@ -108,7 +110,7 @@ export default class OrderProductScreen extends LightningElement {
         if (this.isFilled(this.selectedColumns.columnFinancialDecreaseValue)) selectedColumns.push({label: 'Valor de Decréscimo Financeiro', fieldName: 'financialDecreaseValue'})
         if (this.isFilled(this.selectedColumns.columnInvoicedQuantity)) selectedColumns.push({label: 'Quantidade Faturada', fieldName: 'invoicedQuantity'})
         if (this.isFilled(this.selectedColumns.columnActivePrinciple)) selectedColumns.push({label: 'Princípio Ativo', fieldName: 'activePrinciple'})
-        if (this.isFilled(this.selectedColumns.columnGroup)) selectedColumns.push({label: 'Grupo do Produto', fieldName: 'productGroup'})
+        if (this.isFilled(this.selectedColumns.columnGroup)) selectedColumns.push({label: 'Grupo do Produto', fieldName: 'productGroupName'})
         if (this.isFilled(this.selectedColumns.columnSapStatus)) selectedColumns.push({label: 'Status SAP', fieldName: 'sapStatus'})
 
         if (selectedColumns.length >= 2) {
@@ -214,13 +216,28 @@ export default class OrderProductScreen extends LightningElement {
                 
                 this.calculateTotalPrice();
             } else if (fieldId == 'dosage') {
-                this.addProduct.quantity = this.addProduct.dosage * this.hectares;
-                this.listTotalPrice = this.addProduct.listPrice * this.addProduct.quantity;
-                this.calculateTotalPrice();
-            } else if (fieldId == 'quantity') {
+                this.addProduct.quantity = this.calculateMultiplicity(this.addProduct.dosage * this.hectares);
                 this.listTotalPrice = this.addProduct.listPrice * this.addProduct.quantity;
                 this.calculateTotalPrice();
                 this.calculateDiscountOrAddition();
+            } else if (fieldId == 'quantity') {
+                this.calculateMultiplicity(this.addProduct.quantity);
+                this.listTotalPrice = this.addProduct.listPrice * this.addProduct.quantity;
+                this.calculateTotalPrice();
+                this.calculateDiscountOrAddition();
+            }
+        }
+    }
+
+    calculateMultiplicity(quantity) {
+        if (this.isFilled(this.multiplicity)) {
+            let remainder = quantity % this.multiplicity;
+            if (remainder == 0) {
+                return quantity;
+            } else {
+                quantity = Math.ceil(quantity / this.multiplicity) * this.multiplicity;
+                this.showToast('warning', 'Atenção!', 'A quantidade foi arredondada para ' + quantity + '.');
+                return quantity;
             }
         }
     }
@@ -244,6 +261,7 @@ export default class OrderProductScreen extends LightningElement {
             this.addProduct.commercialAdditionPercentage = '0%';
             this.addProduct.commercialDiscountPercentage = '0%';
             let currentPrice = this.addProduct.unitPrice * this.addProduct.quantity;
+            this.listTotalPrice = this.addProduct.listPrice * this.addProduct.quantity;
             
             if (this.isFilled(currentPrice) && this.addProduct.unitPrice > this.addProduct.listPrice) {
                 this.addProduct.commercialAdditionValue = (currentPrice - this.listTotalPrice).toFixed(4);
@@ -268,7 +286,7 @@ export default class OrderProductScreen extends LightningElement {
     }
 
     isFilled(field) {
-        return (field !== undefined && field != null && field != '');
+        return ((field !== undefined && field != null && field != '') || field == 0);
     }
 
     includeProduct() {
@@ -333,14 +351,15 @@ export default class OrderProductScreen extends LightningElement {
     editProduct(position) {
         this.productPosition = position;
         let currentProduct = this.products.find(e => e.position == position);
-        console.log('currentProduct.orderItemId: ' + currentProduct.orderItemId);
+        this.multiplicity = currentProduct.multiplicity;
         this.addProduct = {
             orderItemId: currentProduct.orderItemId,
             name: currentProduct.name,
             entryId: currentProduct.entryId,
             productId: currentProduct.productId,
             unity: currentProduct.unity,
-            productGroup: currentProduct.productGroup,
+            productGroupId: currentProduct.productGroupId,
+            productGroupName: currentProduct.productGroupName,
             sapStatus: currentProduct.sapStatus,
             activePrinciple: currentProduct.activePrinciple,
             commercialDiscountPercentage: currentProduct.commercialDiscountPercentage,
@@ -358,16 +377,13 @@ export default class OrderProductScreen extends LightningElement {
             quantity: currentProduct.quantity,
             invoicedQuantity: currentProduct.invoicedQuantity
         }
-
         console.log('this.addProduct: ' + JSON.stringify(this.addProduct));
 
         this.createNewProduct = !this.createNewProduct;
         this.updateProduct = !this.updateProduct;
-        console.log('this.updateProduct: ' + this.updateProduct);
     }
 
     checkRequiredFields(prod) {
-        console.log('prod: ' + JSON.stringify(prod));
         if (this.isFilled(prod.name) && this.isFilled(prod.listPrice) && this.isFilled(prod.unitPrice) &&
             this.isFilled(prod.totalPrice) && this.isFilled(prod.commercialDiscountPercentage) &&
             this.isFilled(prod.commercialDiscountValue) && this.isFilled(prod.commercialAdditionPercentage) &&
@@ -402,6 +418,7 @@ export default class OrderProductScreen extends LightningElement {
     showResults(event){
         this.showBaseProducts = event.showResults;
         this.baseProducts = event.results;
+        console.log('this.baseProducts: ' + JSON.stringify(this.baseProducts));
         this.message = event.message;
     }
 

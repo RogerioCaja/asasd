@@ -7,7 +7,6 @@ public without sharing class OrderScreenController {
         List<ProductSerialize> ordItemList;
 
         order = getOrderData(recordId);
-        System.debug('order.Id: ' + order.Id);
         ordItemList = getOrderItemData(order.Id);
         account = getOrderAccountData(order.AccountId);
 
@@ -35,13 +34,15 @@ public without sharing class OrderScreenController {
 
     public static List<ProductSerialize> getOrderItemData(Id orderId) {
         List<ProductSerialize> prods = new List<ProductSerialize>();
-        System.debug('orderId: ' + orderId);
         Integer counter = 0;
         for(OrderItem item : [
             SELECT Id,
                    Product2Id,
                    Product2.Name,
                    Product2.PrincipleActive__c,
+                   Product2.Multiplicity__c,
+                   Product2.ProductGroup__c,
+                   Product2.ProductGroup__r.Name,
                    InvoicedQuantity__c,
                    OrderId,
                    PricebookEntryId,
@@ -50,6 +51,7 @@ public without sharing class OrderScreenController {
                    ListPrice,
                    UnitPrice,
                    FinalTotalValue__c,
+                   Dosage__c,
                    toLabel(Status__c),
                    UnitMeasure__c,
                    DiscountPercent__c,
@@ -96,8 +98,6 @@ public without sharing class OrderScreenController {
     public static String saveOrder(Id orderId, String data) {
         Savepoint sp = Database.setSavepoint();
         try{
-            System.debug('orderId: ' + orderId);
-            System.debug('data: ' + data);
             Order order;
             String msg;
             Boolean newOrder = true;
@@ -111,7 +111,7 @@ public without sharing class OrderScreenController {
             } else {
                 order = new Order();
             }
-            System.debug(order);
+            System.debug('order: ' + order);
 
             Account acc = [SELECT Id FROM Account WHERE Id =: orderData.accountData.Id LIMIT 1];
     
@@ -152,7 +152,6 @@ public without sharing class OrderScreenController {
 
             Database.UpsertResult insResults = Database.upsert(order, false);
             if (insResults.isSuccess()) {
-                System.debug('teste');
                 msg = 'Pedido ' + (newOrder ? 'criado' : 'atualizado') + ' com sucesso';
 
                 List<OrderItem> listOrderItems = new List<OrderItem>();
@@ -163,7 +162,6 @@ public without sharing class OrderScreenController {
                     'Cancelado' => 'X'
                 };
                 for (ProductDeserialize orderProduct : orderData.productData) {
-                    System.debug('orderProduct: ' + orderProduct.unitPrice);
                     OrderItem orderItem;
                     if (!newOrder && orderItemsById.containsKey(orderProduct.orderItemId)) {
                         orderItem = orderItemsById.get(orderProduct.orderItemId);
@@ -178,6 +176,7 @@ public without sharing class OrderScreenController {
                     orderItem.ServiceDate = System.today();
                     orderItem.Quantity = orderProduct.quantity;
                     orderItem.UnitPrice = orderProduct.unitPrice;
+                    orderItem.Dosage__c = orderProduct.dosage;
                     orderItem.Status__c = orderProduct.sapStatus != null ? statusValueByLabel.get(orderProduct.sapStatus) : null;
                     orderItem.UnitMeasure__c = orderProduct.unity;
                     orderItem.FinalTotalValue__c = orderProduct.totalPrice;
@@ -268,7 +267,8 @@ public without sharing class OrderScreenController {
         public String sapStatus;
         public String unity;
         public String activePrinciple;
-        public String productGroup;
+        public String productGroupId;
+        public String productGroupName;
         public Integer position;
         public Integer invoicedQuantity;
         public Decimal quantity;
@@ -389,9 +389,12 @@ public without sharing class OrderScreenController {
         public String sapStatus;
         public String unity;
         public String activePrinciple;
+        public String productGroupId;
+        public String productGroupName;
         public String productGroup;
         public Date serviceDate;
         public Integer position;
+        public Decimal multiplicity;
         public Decimal invoicedQuantity;
         public Decimal quantity;
         public Decimal listPrice;
@@ -416,7 +419,10 @@ public without sharing class OrderScreenController {
             this.orderItemId = orderItem.Id;
             this.productId = orderItem.Product2Id;
             this.name = orderItem.Product2.Name;
+            this.multiplicity = orderItem.Product2.Multiplicity__c;
             this.activePrinciple = orderItem.Product2.PrincipleActive__c;
+            this.productGroupId = orderItem.Product2.ProductGroup__c;
+            this.productGroupName = orderItem.Product2.ProductGroup__r.Name;
             this.entryId = orderItem.PricebookEntryId;
             this.orderId = OrderId;
             this.serviceDate = ServiceDate;
@@ -425,6 +431,7 @@ public without sharing class OrderScreenController {
             this.listPrice = orderItem.ListPrice;
             this.unitPrice = orderItem.UnitPrice;
             this.totalPrice = orderItem.FinalTotalValue__c;
+            this.dosage = orderItem.Dosage__c;
             this.sapStatus = orderItem.Status__c;
             this.unity = orderItem.UnitMeasure__c;
             this.commercialDiscountPercentage = String.valueOf(orderItem.DiscountPercent__c) + '%';

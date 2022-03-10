@@ -11,7 +11,7 @@
 				<div class="container">
 					<div class="card-01">
 						<p class="product-name">{prod.Name}</p>
-						<p><b>Grupo:</b> {prod.productGroup}</p>
+						<p><b>Grupo:</b> {prod.productGroupName}</p>
 						<p><b>Princípio ativo:</b> {prod.activePrinciple}</p>
 					</div>
 					<div class="card-02">
@@ -147,7 +147,7 @@
 				<div class="row">
 					<div class="column">
 						<label>Grupo do Produto</label><br>
-						<input class="input-design" type="text" value={addProduct.productGroup} onchange={changeValue} data-target-id="productGroup" disabled/>
+						<input class="input-design" type="text" value={addProduct.productGroupName} onchange={changeValue} data-target-id="productGroupName" disabled/>
 					</div>
 					<div class="column">
 						<label>Status SAP</label><br>
