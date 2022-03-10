@@ -113,7 +113,7 @@ export default class OrderHeaderScreen extends LightningElement {
         },
         {
             value: '3',
-            label: 'Venda Entrega Futura',
+            label: 'Venda Consignação',
             description: ''
         },
         {
@@ -336,10 +336,10 @@ export default class OrderHeaderScreen extends LightningElement {
 
     @api
     _verifyFieldsToSave() {
-        // if (this.verifyMandatoryFields()) {
+        if (this.verifyMandatoryFields()) {
             this._setData();
             return true;
-        // }
+        }
         return false;
     }
 
