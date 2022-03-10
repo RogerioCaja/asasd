@@ -22,6 +22,13 @@
     <tabs>NotaFiscal__c</tabs>
     <tabs>SalesOrg__c</tabs>
     <tabs>JurosDescontoAntecipao__c</tabs>
+    <tabs>ShippingDivison__c</tabs>
+    <tabs>Company__c</tabs>
+    <tabs>ProductFamily__c</tabs>
+    <tabs>ProductGroup__c</tabs>
+    <tabs>OrgVProduct__c</tabs>
+    <tabs>ActivitySector__c</tabs>
+    <tabs>ProductSubGroup__c</tabs>
     <uiType>Lightning</uiType>
     <utilityBar>AgroGalaxy_UtilityBar</utilityBar>
 </CustomApplication>
