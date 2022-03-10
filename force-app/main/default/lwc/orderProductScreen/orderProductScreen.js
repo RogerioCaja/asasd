@@ -288,7 +288,7 @@ export default class OrderProductScreen extends LightningElement {
             this.products = JSON.parse(JSON.stringify(allProducts));
 
             this.showToast('success', 'Sucesso!', 'Produto incluso.');
-            // this._verifyFieldsToSave();
+            this._verifyFieldsToSave();
 
             this.createNewProduct = !this.createNewProduct;
         } else {
@@ -315,6 +315,7 @@ export default class OrderProductScreen extends LightningElement {
         this.products = JSON.parse(JSON.stringify(includedProducts));
         this.updateProduct = !this.updateProduct;
         this.createNewProduct = !this.createNewProduct;
+        this._verifyFieldsToSave();
         this.showToast('success', 'Sucesso!', 'Produto alterado.');
         console.log(JSON.stringify(this.products));
     }
@@ -332,7 +333,9 @@ export default class OrderProductScreen extends LightningElement {
     editProduct(position) {
         this.productPosition = position;
         let currentProduct = this.products.find(e => e.position == position);
+        console.log('currentProduct.orderItemId: ' + currentProduct.orderItemId);
         this.addProduct = {
+            orderItemId: currentProduct.orderItemId,
             name: currentProduct.name,
             entryId: currentProduct.entryId,
             productId: currentProduct.productId,
@@ -356,8 +359,11 @@ export default class OrderProductScreen extends LightningElement {
             invoicedQuantity: currentProduct.invoicedQuantity
         }
 
+        console.log('this.addProduct: ' + JSON.stringify(this.addProduct));
+
         this.createNewProduct = !this.createNewProduct;
         this.updateProduct = !this.updateProduct;
+        console.log('this.updateProduct: ' + this.updateProduct);
     }
 
     checkRequiredFields(prod) {
@@ -375,11 +381,8 @@ export default class OrderProductScreen extends LightningElement {
 
     @api
     _verifyFieldsToSave() {
-        if (this.verifyMandatoryFields()) {
-            this._setData();
-            return true;
-        }
-        return false;
+        this._setData();
+        return true;
     }
 
     @api

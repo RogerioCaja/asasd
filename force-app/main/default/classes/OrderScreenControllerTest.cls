@@ -1,8 +1,7 @@
 @isTest
-public class CustomLookupControllerTest {
-    
+public class OrderScreenControllerTest {
     @TestSetup
-    public static void makeData(){
+    public static void makeData() {
         List<Account> accountList = new List<Account>();
         Account parentAccount = new Account(
             Name = 'Parent Account',
@@ -80,21 +79,21 @@ public class CustomLookupControllerTest {
     }
 
     @isTest
-    public static void fetchRecordsTest(){
-
-        Account acc = [SELECT Id FROM Account LIMIT 1];
-
-        CustomLookupController.fetchRecords('Account', 'Name', 'Parent Account', null);
-        CustomLookupController.fetchRecords('Account', 'Name', 'Child Account', acc.Id);
+    public static void getOrderDataTest() {
+        Id orderId = [SELECT Id FROM Order LIMIT 1].Id;
+        String orderData = OrderScreenController.getOrder(orderId);
+        OrderScreenController.saveOrder(null, orderData);
     }
 
     @isTest
-    public static void fetchAccountRecordsTest(){
-        CustomLookupController.fetchAccountRecords('Child Account');
+    public static void getAccountDataTest() {
+        Id accountId = [SELECT Id FROM Account WHERE Name = 'Parent Account' LIMIT 1].Id;
+        OrderScreenController.getAccount(accountId);
     }
 
     @isTest
-    public static void fetchProductsRecordsTest(){
-        CustomLookupController.fetchProductsRecords('Milho', Test.getStandardPricebookId());
+    public static void getAccountDataChildTest() {
+        Id accountId = [SELECT Id FROM Account WHERE Name = 'Child Account' LIMIT 1].Id;
+        OrderScreenController.getAccountDataChild(accountId);
     }
 }

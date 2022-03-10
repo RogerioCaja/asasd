@@ -116,9 +116,19 @@ public without sharing class OrderScreenController {
             Account acc = [SELECT Id FROM Account WHERE Id =: orderData.accountData.Id LIMIT 1];
     
             Decimal orderTotalValue = 0;
+            Set<Id> setOrderItemsIds = new Set<Id>();
             for (ProductDeserialize orderProduct : orderData.productData) {
                 orderTotalValue += orderProduct.totalPrice;
+                if (orderProduct.orderItemId != null) {
+                    setOrderItemsIds.add(orderProduct.orderItemId);
+                }
             }
+            
+            Map<Id, OrderItem> orderItemsById = new Map<Id, OrderItem>([
+                SELECT Id
+                  FROM OrderItem
+                 WHERE Id IN: setOrderItemsIds
+            ]);
 
             order.AccountId = acc.Id;
             order.Status = 'Draft';
@@ -142,6 +152,7 @@ public without sharing class OrderScreenController {
 
             Database.UpsertResult insResults = Database.upsert(order, false);
             if (insResults.isSuccess()) {
+                System.debug('teste');
                 msg = 'Pedido ' + (newOrder ? 'criado' : 'atualizado') + ' com sucesso';
 
                 List<OrderItem> listOrderItems = new List<OrderItem>();
@@ -152,20 +163,20 @@ public without sharing class OrderScreenController {
                     'Cancelado' => 'X'
                 };
                 for (ProductDeserialize orderProduct : orderData.productData) {
-                    System.debug('orderProduct: ' + orderProduct);
+                    System.debug('orderProduct: ' + orderProduct.unitPrice);
                     OrderItem orderItem;
-                    if (newOrder) {
-                        orderItem = new OrderItem();
+                    if (!newOrder && orderItemsById.containsKey(orderProduct.orderItemId)) {
+                        orderItem = orderItemsById.get(orderProduct.orderItemId);
                     } else {
-                        orderItem.Id = orderProduct.orderItemId;
+                        orderItem = new OrderItem();
+                        orderItem.OrderId = order.Id;
+                        orderItem.PricebookEntryId = orderProduct.entryId;
+                        orderItem.Product2Id = orderProduct.productId;
+                        orderItem.ListPrice = orderProduct.listPrice;
                     }
 
-                    orderItem.OrderId = order.Id;
-                    orderItem.PricebookEntryId = orderProduct.entryId;
                     orderItem.ServiceDate = System.today();
-                    orderItem.Product2Id = orderProduct.productId;
                     orderItem.Quantity = orderProduct.quantity;
-                    orderItem.ListPrice = orderProduct.listPrice;
                     orderItem.UnitPrice = orderProduct.unitPrice;
                     orderItem.Status__c = orderProduct.sapStatus != null ? statusValueByLabel.get(orderProduct.sapStatus) : null;
                     orderItem.UnitMeasure__c = orderProduct.unity;
