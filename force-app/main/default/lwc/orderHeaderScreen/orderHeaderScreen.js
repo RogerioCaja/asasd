@@ -22,8 +22,8 @@ import CLIENTE_ENTREGA_NAME from '@salesforce/schema/Account.Name';
 import CLIENTE_FATURAMENTO_OBJECT from '@salesforce/schema/Account';
 import CLIENTE_FATURAMENTO_NAME from '@salesforce/schema/Account.Name';
 
-//import COND_PAGAMENTO_OBJECT from '@salesforce/schema/';
-//import COND_PAGAMENTO_NAME from '@salesforce/schema/';
+import COND_PAGAMENTO_OBJECT from '@salesforce/schema/CondicaoPagamento__c';
+import COND_PAGAMENTO_NAME from '@salesforce/schema/CondicaoPagamento__c.Name';
 
 import CULTURA_OBJECT from '@salesforce/schema/Cultura__c';
 import CULTURA_NAME from '@salesforce/schema/Cultura__c.Name';
@@ -232,10 +232,10 @@ export default class OrderHeaderScreen extends LightningElement {
     frete = "CIF";
 
     //Condicao Pagamento
-    /*@track redispatchCondicaoPagamentoObject = COND_PAGAMENTO_OBJECT;
+    @track redispatchCondicaoPagamentoObject = COND_PAGAMENTO_OBJECT;
     condicao_pagamento;
     @track redispatchCondicaoPagamentoSearchFields = [COND_PAGAMENTO_NAME];
-    @track redispatchCondicaoPagamentoListItemOptions = {title:'Name', description:'Name'};*/
+    @track redispatchCondicaoPagamentoListItemOptions = {title:'Name', description:'Name'};
 
     //Cultura
     @track redispatchCulturaObject = CULTURA_OBJECT;

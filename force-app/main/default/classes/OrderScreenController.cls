@@ -25,7 +25,7 @@ public without sharing class OrderScreenController {
     }
 
     public static HeaderSerialize getOrderData(Id orderId){
-        Order order = [SELECT Id, AccountId, Type, ShippingAccount__c, Pricebook2Id, PaymentDate__c, CustomerOrderNumber__c,
+        Order order = [SELECT Id, Description, AccountId, Type, ShippingAccount__c, Pricebook2Id, PaymentDate__c, CustomerOrderNumber__c,
         Crop__c, Culture__c, PaymentForm__c, StatusSF__c, SalesOrg__c, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, Incoterms__c
         FROM Order 
         WHERE Id = :orderId LIMIT 1];
@@ -105,7 +105,7 @@ public without sharing class OrderScreenController {
             
             if (orderId != NULL) {
                 newOrder = false;
-                order = [SELECT Id, AccountId, Type, ShippingAccount__c, Pricebook2Id, PaymentDate__c, CustomerOrderNumber__c,
+                order = [SELECT Id, Description, AccountId, Type, ShippingAccount__c, Pricebook2Id, PaymentDate__c, CustomerOrderNumber__c,
                 Crop__c, Culture__c, PaymentForm__c, StatusSF__c, SalesOrg__c, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c
                 FROM Order WHERE Id =: orderId LIMIT 1];
             } else {
@@ -148,6 +148,7 @@ public without sharing class OrderScreenController {
             order.SalesCTV__c = orderData.headerData.ctv_venda ;
             order.StatusSF__c = orderData.headerData.status_pedido;
             order.Incoterms__c = orderData.headerData.frete;
+            order.Description = orderData.summaryData.observation;
             order.FinalTotalValue__c = orderTotalValue;
 
             Database.UpsertResult insResults = Database.upsert(order, false);
@@ -232,6 +233,7 @@ public without sharing class OrderScreenController {
         public AccountDeserialize accountData;
         public HeaderDeserialize headerData;
         public List<ProductDeserialize> productData;
+        public SummaryDeserialize summaryData;
     }
 
     public class AccountDeserialize {
@@ -286,6 +288,10 @@ public without sharing class OrderScreenController {
         public Decimal financialDecreaseValue;
         public Decimal commercialMarginPercentage;
         public Decimal comissionValue;
+    }
+
+    public class SummaryDeserialize{
+        public String observation;
     }
 
 
@@ -356,6 +362,7 @@ public without sharing class OrderScreenController {
         public String moeda;
         public String frete;
         public String ctv_venda;
+        public String observation;
         //public String data_entrega;
         //public String cliente_faturamento;
         HeaderSerialize(){}
@@ -377,6 +384,7 @@ public without sharing class OrderScreenController {
             this.moeda = order.Currency__c;
             this.ctv_venda = order.SalesCTV__c;
             this.frete = order.Incoterms__c;
+            this.observation = order.Description;
         }
     }
     

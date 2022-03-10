@@ -76,7 +76,7 @@
                 <div>
                     <section>
                         <span>Condição de Pagto: </span>
-                        <span>Parcelado em 30x</span>
+                        <span if:true={hasData}>{headerDataTitle.condicao_pagamento}</span>
                     </section>
                     <section>
                         <span>Cultura: </span>
@@ -133,18 +133,20 @@
               <th>Preço Total</th>
               <th>Valor Desconto Comercial</th>
               <th>Grupo de Produtos</th>
+              <th>Margem do Item</th>
               <th>Remessas</th>
             </tr>
         
-            <template for:each={productData} for:item="product">
+            <template for:each={productDataLocale} for:item="product">
                 <tr key={product.name}>
                     <td>{product.name}</td>
                     <td>{product.unity}</td>
-                    <td>{product.unitPrice}</td>
                     <td>{product.quantity}</td>
-                    <td>R$ {product.totalPrice}</td>
-                    <td>R$ {product.commercialDiscountValue}</td>
-                    <td>{product.productGroup}</td>
+                    <td>{product.unitPrice}</td>
+                    <td>{product.totalPrice}</td>
+                    <td>{product.commercialDiscountValue}</td>
+                    <td>{product.productGroupName}</td>
+                    <td>{product.commercialMarginPercentage}</td>
                       <td>
                           <div class="tooltip">
                               <a href="TESTE.COM" label="picles">Remessa</a>
@@ -159,29 +161,6 @@
                       </td>
                   </tr>
             </template>
-            <!-- <tr>
-              <td>0001-Semente de Soja</td>
-              <td>Kg</td>
-              <td>R$ 4,12</td>
-              <td>3,00</td>
-              <td>R$ 3,00</td>
-              <td>3%</td>
-              <td>R$ 3,00</td>
-              <td>Sementes</td>
-              <td>R$ 102,67</td>
-                <td>
-                    <div class="tooltip">
-                        <a href="TESTE.COM" label="picles">Remessa</a>
-                        <div class="tooltiptext">
-                        <p>Data      Quantidade</p>
-                        <br>
-                        <p>02/08/2022    1500</p>
-                        <br>
-                        <p>28/08/2022    1500</p>
-                        </div> 
-                    </div>  
-                </td>
-            </tr> -->
           </table>
 
           <span class="titulo">Observações:
@@ -189,6 +168,6 @@
                   <div class="triangle"></div>
                 </button>
             </span>
-          <textarea data-id="observacao" rows="5" placeholder="Observações sobre o pedido"></textarea>
+          <textarea data-id="observacao" rows="5" placeholder="Observações sobre o pedido" onkeyup={changeObservation} value={summaryDataLocale.observation}></textarea>
     </div>
 </template>

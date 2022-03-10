@@ -156,12 +156,13 @@
                                 name="condicao_pagamento"
                                 input-label="Condição de Pagamento"
                                 object-icon-name="standard:action_list_component"
-                                target-object="" 
+                                target-object={redispatchCondicaoPagamentoObject} 
                                 record-id={headerData.condicao_pagamento}
-                                search-fields=""
+                                search-fields={redispatchCondicaoPagamentoSearchFields}
                                 standard-form-layout={booleanTrue}
-                                list-item-options="" 
-                                new-record-button="true" 
+                                list-item-options={redispatchCondicaoPagamentoListItemOptions} 
+                                onselectrecord={selectItemRegister}
+                                new-record-button={booleanTrue} 
                                 placeholder="Pesquisar Condições de Pagamento"
                                 style="width: 100%;" 
                                 required="true">

@@ -50,7 +50,9 @@ export default class OrderScreen extends LightningElement {
         pedido_mae:" "
     };
     @track productData;
-    @track summaryData;
+    @track summaryData = {
+        observation :""
+    };
 
     qtdItens = 0;
     valorTotal = 0;
@@ -161,11 +163,13 @@ export default class OrderScreen extends LightningElement {
             this.accountData = data.accountData;
             this.headerData = data.headerData;
             this.productData = data.productData;
+            this.summaryData.observation = this.headerData.observation;
             this.enableScreens([0, 1]);
             this.completeScreens([0, 1]);
             this.isLoading = false;
         })
         .catch((err)=>{
+            console.log(err);
             this.showNotification(err.message, 'Ocorreu algum erro');
             this.isLoading = false;
         })
@@ -202,7 +206,7 @@ export default class OrderScreen extends LightningElement {
     }*/
     async saveOrder(){
         await this.recordId;
-        const data = {accountData: this.accountData, headerData: this.headerData, productData: this.productData};
+        const data = {accountData: this.accountData, headerData: this.headerData, productData: this.productData, summaryData: this.summaryData};
         this.isLoading = true;
         //console.log(data);
         saveOrder({
