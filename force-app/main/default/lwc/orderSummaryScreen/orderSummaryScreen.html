@@ -15,7 +15,7 @@
         </section>
         <section>
             <span>Lista de Preços: </span>
-            <span>Lista numero 1</span>
+            <span>{ headerDataTitle.lista_precos}</span>
         </section>
         
     </span>
@@ -26,29 +26,30 @@
                 <div>
                     <section>
                         <span>Cliente Emissor:</span>
-                        <span> AGROGALAXY PARTICIPAÇÕES</span>
+                        <span if:true={accountData.Name}> {accountData.Name} </span>
                    </section>
    
                    <section>
                        <span>CNPJ:</span>
-                       <span> 21.240.146/0001-01</span>
+                       <span if:true={accountData.CPF__c}>{accountData.CPF__c}</span>
+                       <span if:true={accountData.CNPJ__c}>{accountData.CNPJ__c}</span>
                    </section>
 
                 </div>
                 <div class="dashed-style">
                     <section>
                         <span>Cliente de Entrega:</span>
-                        <span> Wharlen de Souza Pimentel Ferrari Santana</span>
+                        <span if:true={hasData}>{headerDataTitle.cliente_entrega.Name}</span>
                     </section>
 
                     <section>
                         <span>Endereço: </span>
-                        <span>Rua Alfredo Alves Pinto, 78, Casa 1 - São João Batista - MG 31520-030</span>
+                        <span if:true={hasData}>{headerDataTitle.cliente_entrega.City} - {headerDataTitle.cliente_entrega.UF}</span>
                     </section>
                     
                     <section>
                         <span>CPF:</span>
-                        <span> 088.073.526-05</span>
+                        <span if:true={hasData}> {headerDataTitle.cliente_entrega.CPF}</span>
                         <span>Código SAP: </span>
                         <span>466578</span>
                     </section>
@@ -62,11 +63,11 @@
                 <div>
                     <section>
                         <span>Tipo de Venda: </span>
-                        <span>Consignação</span>
+                        <span if:true={hasData}>{headerDataTitle.tipo_venda}</span>
                     </section>
                     <section>
                         <span>Safra: </span>
-                        <span>Safra 21/22</span>
+                        <span if:true={hasData}>{headerDataTitle.safra}</span>
                     </section>
 
                     
@@ -75,11 +76,11 @@
                 <div>
                     <section>
                         <span>Condição de Pagto: </span>
-                        <span>Parcelado em 30x</span>
+                        <span if:true={hasData}>{headerDataTitle.condicao_pagamento}</span>
                     </section>
                     <section>
                         <span>Cultura: </span>
-                        <span>Algodão</span>
+                        <span if:true={hasData}>{headerDataTitle.cultura}</span>
                     </section>
                     
                 </div>
@@ -87,12 +88,12 @@
                 <div>
                     <section>
                         <span>Data de Pagamento: </span>
-                        <span>10/02/2022</span>
+                        <span if:true={hasData}>{headerDataTitle.data_pagamento}</span>
                     </section>
 
                     <section>
                         <span>Data de Entrega: </span>
-                        <span>22/02/2022</span>
+                        <span if:true={hasData}>{headerDataTitle.data_entrega}</span>
                     </section>
                     
                 </div>
@@ -113,92 +114,53 @@
 
         </section>
       
+        <!-- Nome do Produto
+- Código SAP
+- Quantidade
+- Preço de Lista
+- Valor Total
+- Desconto em valor
+- Margem do Item
+- Porcentagem de desconto
+- Grupo de Produtos -->
         <!-- Aqui terá um template com um for que armazenará dados na tabela -->
         <table>
             <tr>
               <th>Produto(Código-Nome)</th>
               <th>U. M.</th>
-              <th>Preço Unitário</th>
               <th>Quantidade</th>
+              <th>Preço de Lista</th>
               <th>Preço Total</th>
-              <th>Percentual Desconto Comercial</th>
               <th>Valor Desconto Comercial</th>
               <th>Grupo de Produtos</th>
-              <th>Valor Acréscimo Financeiro</th>
+              <th>Margem do Item</th>
               <th>Remessas</th>
             </tr>
-            <tr>
-              <td>0001-Semente de Soja</td>
-              <td>Kg</td>
-              <td>R$ 4,12</td>
-              <td>3,00</td>
-              <td>R$ 3,00</td>
-              <td>3%</td>
-              <td>R$ 3,00</td>
-              <td>Sementes</td>
-              <td>R$ 102,67</td>
-                <td>
-                    <div class="tooltip">
-                        <a href="TESTE.COM" label="picles">Remessa</a>
-                        <div class="tooltiptext">
-                        <p>Data      Quantidade</p>
-                        <br>
-                        <p>02/08/2022    1500</p>
-                        <br>
-                        <p>28/08/2022    1500</p>
-                        </div> 
-                    </div>  
-                </td>
-            </tr>
-
-            <tr>
-                <td>0002-Semente de Algodão</td>
-                <td>Kg</td>
-                <td>R$ 10256214.12</td>
-                <td>1,50</td>
-                <td>R$ 4,00</td>
-                <td>3%</td>
-                <td>R$ 3,00</td>
-                <td>Sementes</td>
-                <td>R$ 102,67</td>
-                  <td>
-                      <div class="tooltip">
-                          <a href="TESTE.COM" label="picles">Remessa</a>
-                          <div class="tooltiptext">
-                          <p>Data      Quantidade</p>
-                          <br>
-                          <p>02/08/2022    1500</p>
-                          <br>
-                          <p>28/08/2022    1500</p>
-                          </div> 
-                      </div>  
-                  </td>
-              </tr>
-
-              <tr>
-                <td>0002-Semente de Algodão</td>
-                <td>Kg</td>
-                <td>R$ 10256214.12</td>
-                <td>1,50</td>
-                <td>R$ 4,00</td>
-                <td>0,05%</td>
-                <td>R$ 0,50</td>
-                <td>Sementes</td>
-                <td>R$ 36,00</td>
-                  <td>
-                      <div class="tooltip">
-                          <a href="TESTE.COM" label="picles">Remessa</a>
-                          <div class="tooltiptext">
-                          <p>Data      Quantidade</p>
-                          <br>
-                          <p>02/08/2022    1500</p>
-                          <br>
-                          <p>28/08/2022    1500</p>
-                          </div> 
-                      </div>  
-                  </td>
-              </tr>
-            
+        
+            <template for:each={productDataLocale} for:item="product">
+                <tr key={product.name}>
+                    <td>{product.name}</td>
+                    <td>{product.unity}</td>
+                    <td>{product.quantity}</td>
+                    <td>{product.unitPrice}</td>
+                    <td>{product.totalPrice}</td>
+                    <td>{product.commercialDiscountValue}</td>
+                    <td>{product.productGroupName}</td>
+                    <td>{product.commercialMarginPercentage}</td>
+                      <td>
+                          <div class="tooltip">
+                              <a href="TESTE.COM" label="picles">Remessa</a>
+                              <div class="tooltiptext">
+                              <p>Data      Quantidade</p>
+                              <br>
+                              <p>02/08/2022    1500</p>
+                              <br>
+                              <p>28/08/2022    1500</p>
+                              </div> 
+                          </div>  
+                      </td>
+                  </tr>
+            </template>
           </table>
 
           <span class="titulo">Observações:
@@ -206,6 +168,6 @@
                   <div class="triangle"></div>
                 </button>
             </span>
-          <textarea data-id="observacao" rows="5" placeholder="Observações sobre o pedido"></textarea>
+          <textarea data-id="observacao" rows="5" placeholder="Observações sobre o pedido" onkeyup={changeObservation} value={summaryDataLocale.observation}></textarea>
     </div>
 </template>
