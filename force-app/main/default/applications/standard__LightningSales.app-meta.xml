@@ -80,5 +80,12 @@
     <tabs>PotencialCompra__c</tabs>
     <tabs>Cultura__c</tabs>
     <tabs>Safra__c</tabs>
+    <tabs>ShippingDivison__c</tabs>
+    <tabs>Company__c</tabs>
+    <tabs>ProductFamily__c</tabs>
+    <tabs>ProductGroup__c</tabs>
+    <tabs>OrgVProduct__c</tabs>
+    <tabs>ActivitySector__c</tabs>
+    <tabs>ProductSubGroup__c</tabs>
     <uiType>Lightning</uiType>
 </CustomApplication>
