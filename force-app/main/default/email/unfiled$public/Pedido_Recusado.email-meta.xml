@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <description>Template de Email para notificar o propriétario sobre um pedido recusado</description>
+    <encodingKey>UTF-8</encodingKey>
+    <name>Pedido Recusado</name>
+    <style>none</style>
+    <subject>Olá, {!Approval_Requesting_User.Name}! Seu Pedido de Desconto foi recusado</subject>
+    <type>text</type>
+    <uiType>Aloha</uiType>
+</EmailTemplate>

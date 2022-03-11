@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Approver__c</fullName>
+    <externalId>false</externalId>
+    <label>Aprovador</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>GerenteFilial</fullName>
+                <default>false</default>
+                <label>Gerente Filial</label>
+            </value>
+            <value>
+                <fullName>GerenteRegional</fullName>
+                <default>false</default>
+                <label>Gerente Regional</label>
+            </value>
+            <value>
+                <fullName>Diretor</fullName>
+                <default>false</default>
+                <label>Diretor</label>
+            </value>
+            <value>
+                <fullName>ComiteMargem</fullName>
+                <default>false</default>
+                <label>Comitê Margem</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

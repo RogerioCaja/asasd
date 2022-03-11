@@ -1,0 +1,9 @@
+{!Order.OwnerFullName}
+
+O Pedido {!Workitem.ID} foi aprovado!
+
+Status do Processo de aprovação: {!ApprovalRequest.Status}
+
+--
+
+AgroGalaxy.
