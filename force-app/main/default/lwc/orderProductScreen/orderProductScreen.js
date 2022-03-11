@@ -58,6 +58,7 @@ export default class OrderProductScreen extends LightningElement {
 
         if (this.createNewProduct) {
             let currentProduct = this.baseProducts.find(e => e.Id == event.target.dataset.targetId);
+            console.log('currentProduct.sapProductCode: ' + currentProduct.sapProductCode);
             this.multiplicity = currentProduct.multiplicity;
             this.costPrice = currentProduct.costPrice;
             this.addProduct = {
@@ -82,7 +83,8 @@ export default class OrderProductScreen extends LightningElement {
                 activePrinciple: currentProduct.activePrinciple != null ? currentProduct.activePrinciple : '',
                 productGroupId: currentProduct.productGroupId != null ? currentProduct.productGroupId : '',
                 productGroupName: currentProduct.productGroupName != null ? currentProduct.productGroupName : '',
-                sapStatus: currentProduct.sapStatus != null ? currentProduct.sapStatus : ''
+                sapStatus: currentProduct.sapStatus != null ? currentProduct.sapStatus : '',
+                sapProductCode: currentProduct.sapProductCode != null ? currentProduct.sapProductCode : ''
             };
         }
     }
@@ -366,6 +368,7 @@ export default class OrderProductScreen extends LightningElement {
             productGroupId: currentProduct.productGroupId,
             productGroupName: currentProduct.productGroupName,
             sapStatus: currentProduct.sapStatus,
+            sapProductCode: currentProduct.sapProductCode,
             activePrinciple: currentProduct.activePrinciple,
             commercialDiscountPercentage: currentProduct.commercialDiscountPercentage,
             commercialAdditionPercentage: currentProduct.commercialAdditionPercentage,
