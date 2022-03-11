@@ -161,10 +161,11 @@
     <externalSharingModel>Private</externalSharingModel>
     <label>Potencial de Compra</label>
     <nameField>
+        <displayFormat>P-{0000}</displayFormat>
         <label>Potencial de Compra Name</label>
         <trackFeedHistory>false</trackFeedHistory>
         <trackHistory>false</trackHistory>
-        <type>Text</type>
+        <type>AutoNumber</type>
     </nameField>
     <pluralLabel>Potencial de Compras</pluralLabel>
     <searchLayouts/>
