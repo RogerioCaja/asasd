@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Culture__c</fullName>
-    <deleteConstraint>SetNull</deleteConstraint>
+    <deleteConstraint>Restrict</deleteConstraint>
     <externalId>false</externalId>
     <label>Cultura</label>
-    <referenceTo>Product2</referenceTo>
+    <referenceTo>Cultura__c</referenceTo>
     <relationshipLabel>Potencial de Compras</relationshipLabel>
     <relationshipName>Potencial_de_Compras</relationshipName>
-    <required>false</required>
+    <required>true</required>
     <trackFeedHistory>false</trackFeedHistory>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>
