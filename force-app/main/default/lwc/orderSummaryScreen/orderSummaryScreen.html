@@ -133,19 +133,21 @@
               <th>Preço Total</th>
               <th>Valor Desconto Comercial</th>
               <th>Grupo de Produtos</th>
+              <th>% de Desconto</th>
               <th>Margem do Item</th>
               <th>Remessas</th>
             </tr>
         
             <template for:each={productDataLocale} for:item="product">
                 <tr key={product.name}>
-                    <td>{product.name}</td>
+                    <td>{product.sapProductCode} - {product.name}  </td>
                     <td>{product.unity}</td>
                     <td>{product.quantity}</td>
                     <td>{product.unitPrice}</td>
                     <td>{product.totalPrice}</td>
                     <td>{product.commercialDiscountValue}</td>
                     <td>{product.productGroupName}</td>
+                    <td>{product.commercialDiscountPercentual}</td>
                     <td>{product.commercialMarginPercentage}</td>
                       <td>
                           <div class="tooltip">
