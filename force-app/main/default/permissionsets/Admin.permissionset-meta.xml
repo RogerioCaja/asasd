@@ -566,7 +566,7 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>OrderItem.FinalTotalValue__c</field>
+        <field>Order.FinalTotalValue__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
