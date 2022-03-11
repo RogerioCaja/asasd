@@ -36,7 +36,7 @@ th{
     width: 250px;
 }
 .information_monetary > div:first-child{
-    padding-bottom: 15px;
+    /* padding-bottom: 15px; */
     text-transform: uppercase;
     color: red;
     font-size: 10pt;
@@ -63,6 +63,10 @@ th{
 
 .information_order_item{
     text-align: center;
+    
+}
+.container-items{
+    min-height: 500px;
 }
 
 .information_order_item > tr > td {
@@ -70,10 +74,12 @@ th{
 }
 /* ---------------------- */
 
-body{
-    position: relative;
-    height: 900px;
-
+.observation{
+    border: 1px solid black;
+    font-size: 10pt;
+    text-transform: uppercase;
+    padding: 3px;
+    /* margin-top: 100px; */
 }
 
 .total_amount > tbody{
@@ -88,9 +94,50 @@ body{
     font-weight: bold;
 }
 
-.footer{
-    width: 98%;
-    position:absolute;
-    border: solid 1px black;
-    bottom: 0;
+
+.appointments{
+    border: 1px solid black;
+    font-size: 9pt;
+    padding: 3px;
+    margin-bottom: 5px;
 }
+
+.assign{
+    position: relative;
+    margin-top: 10px;
+    height: 60px;
+    border: 1px solid black;
+}
+
+.sales{
+    position: absolute;
+    left: 30px;
+    top: 20px;
+    padding: 5px;
+
+}
+.assigning{
+    width:300px;
+    text-align: center;
+    font-size: 8pt;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    padding-top: 10px;
+    
+}
+.line{
+    border-bottom: 1px solid black;
+    padding-bottom: 5px;
+    width: 300px;
+    
+}
+
+.buy{
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    padding: 5px;
+}
+
+
+

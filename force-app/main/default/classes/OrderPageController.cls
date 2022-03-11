@@ -23,6 +23,10 @@ public with sharing class OrderPageController {
             this.orderToPage.orderItemList.add(new OrderItemDAO(orderItem, this.orderToPage.culture));
         }
 
+       
+        String downloadingFileName = 'Pedido de Venda-' + this.orderToPage.codeSap + '.pdf';
+        Apexpages.currentPage().getHeaders().put( 'content-disposition', 'inline; filename=' + downloadingFileName );
+       
         return this.orderToPage;
 
     }
@@ -32,7 +36,7 @@ public with sharing class OrderPageController {
         Set<String> fieldSet = new Set<String>{
             'Id', 'Account.ExternalId__c', 'Account.Name', 'Account.BillingStreet',
             'ShippingAccount__r.Name','Account.BillingCity', 'Account.StateRegistration__c',
-            'Account.CPF__c', 'Account.CNPJ__c',
+            'Account.CPF__c', 'Account.CNPJ__c', 'TotalAmount', 'Description',
             'Account.BillingPostalCode', 'Crop__r.Name', 'PaymentForm__c', 'PaymentDate__c',
             'Currency__c', 'Culture__c', 'CodigoSap__c'
         };
@@ -85,6 +89,8 @@ public with sharing class OrderPageController {
         public String dueDate {get; set;}
         public String currencyOrder {get; set;}
         public String culture {get; set;}
+        public String totalAmount {get; set;}
+        public String observation {get; set;}
         public List<OrderItemDAO> orderItemList {get; set;}
 
         public OrderDAO(Order order){
@@ -102,6 +108,8 @@ public with sharing class OrderPageController {
             this.currencyOrder = order.Currency__c;
             this.culture = order.Culture__c;
             this.dueDate = String.valueOf(order.PaymentDate__c);
+            this.totalAmount = String.valueOf(order.TotalAmount);
+            this.observation = order.Description;
             this.orderItemList = new List<OrderItemDAO>();
         }
     }
