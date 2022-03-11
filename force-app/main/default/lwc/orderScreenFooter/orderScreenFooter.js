@@ -5,4 +5,9 @@ export default class OrderScreenFooter extends LightningElement {
     finalizar(event){
         console.log('finalizar');
     }
+
+    saveOrder(event){
+        const order = new CustomEvent('saveorder');
+        this.dispatchEvent(order);
+    }
 }

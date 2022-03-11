@@ -45,12 +45,20 @@
             <span>Valor:</span>
             {valorTotal}
           </div>
-          <div if:true={summary}>
-            <button onclick={finalizar} type="button">
-              <span>Finalizar</span>
-              <svg style="float:right;" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path fill-rule="evenodd" clip-rule="evenodd" d="M15.2607 13.9378L11.1377 9.84548C11.9684 8.67625 12.3992 7.19933 12.1838 5.6301C11.8146 2.98394 9.66075 0.891636 6.98383 0.645482C3.35306 0.276251 0.276134 3.35317 0.645365 7.01471C0.891519 9.66087 2.98383 11.8455 5.62998 12.2147C7.19921 12.4301 8.67613 11.9993 9.84536 11.1686L13.9377 15.2609C14.1223 15.4455 14.3992 15.4455 14.5838 15.2609L15.23 14.6147C15.4146 14.4301 15.4146 14.1224 15.2607 13.9378V13.9378ZM2.46075 6.4301C2.46075 4.24548 4.24537 2.46087 6.42998 2.46087C8.6146 2.46087 10.3992 4.24548 10.3992 6.4301C10.3992 8.61471 8.6146 10.3993 6.42998 10.3993C4.24537 10.3993 2.46075 8.64548 2.46075 6.4301V6.4301Z" fill="#F2F2F2"></path>
+          <div if:true={summary} class="finished_buttons">
+            <button onclick={saveOrder} type="button">
+              <span>Pré Pedido</span>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9.52495 17.657L4.57495 12.707L5.98895 11.293L9.52645 14.8265L9.52495 14.828L18.01 6.34302L19.424 7.75702L10.939 16.243L9.52595 17.656L9.52495 17.657Z"
+                     fill="white"></path>
               </svg>
+            </button>
+            <button onclick={saveOrder} type="button">
+                <span>Gerar pedido</span>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9.52495 17.657L4.57495 12.707L5.98895 11.293L9.52645 14.8265L9.52495 14.828L18.01 6.34302L19.424 7.75702L10.939 16.243L9.52595 17.656L9.52495 17.657Z"
+                    fill="white"></path>
+                </svg>
             </button>
           </div>
         </div>

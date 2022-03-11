@@ -24,24 +24,25 @@ export default class OrderScreen extends LightningElement {
     @track summary = false;
 
     @api accountData;
+    @api headerDataTitle = {};
     @api headerData = {
         Id: " ",
         AccountId: " ",
         tipo_venda: " ",
-        filial: " ",
+        filial: null,
         numero_pedido_cliente: " ",
         safra: " ",
         cultura: " ",
         lista_precos: " ",
-        condicao_pagamento: " ",
+        condicao_pagamento: null,
         data_pagamento: " ",
         data_entrega: " ",
         status_pedido: "Em digitação",
         cliente_faturamento: " ",
         cliente_entrega: " ",
         organizacao_vendas: " ",
-        canal_distribuicao: " ",
-        setor_atividade: " ",
+        canal_distribuicao: null,
+        setor_atividade: null,
         forma_pagamento: " ",
         moeda: " ",
         ctv_venda: " ",
@@ -49,7 +50,9 @@ export default class OrderScreen extends LightningElement {
         pedido_mae:" "
     };
     @track productData;
-    @track summaryData;
+    @track summaryData = {
+        observation :""
+    };
 
     qtdItens = 0;
     valorTotal = 0;
@@ -62,7 +65,7 @@ export default class OrderScreen extends LightningElement {
     tabs = [{
             name: 'account',
             current: true,
-            enable: false,
+            enable: true,
             completed:false,
             message: 'Necessário selecionar pelo menos uma conta',
             component: 'c-order-account-screen'
@@ -136,7 +139,7 @@ export default class OrderScreen extends LightningElement {
         this.isLoading = true;
         getAccount({recordId: this.recordId})
         .then((result) =>{
-            const account = JSON.parse(JSON.stringify(result));
+            const account = JSON.parse(result);
             this.accountData = account.accountData;
             this.enableNextScreen();
             this.completeCurrentScreen();
@@ -159,11 +162,14 @@ export default class OrderScreen extends LightningElement {
             const data = JSON.parse(result);
             this.accountData = data.accountData;
             this.headerData = data.headerData;
+            this.productData = data.productData;
+            this.summaryData.observation = this.headerData.observation;
             this.enableScreens([0, 1]);
             this.completeScreens([0, 1]);
             this.isLoading = false;
         })
         .catch((err)=>{
+            console.log(err);
             this.showNotification(err.message, 'Ocorreu algum erro');
             this.isLoading = false;
         })
@@ -200,14 +206,15 @@ export default class OrderScreen extends LightningElement {
     }*/
     async saveOrder(){
         await this.recordId;
-        const data = {accountData: this.accountData, headerData: this.headerData};
+        const data = {accountData: this.accountData, headerData: this.headerData, productData: this.productData, summaryData: this.summaryData};
         this.isLoading = true;
         //console.log(data);
-
-        saveOrder({orderId: (this.recordId && this.originScreen.includes('Order')) ? this.recordId : null, 
-                    data: JSON.stringify(data)})
+        saveOrder({
+            orderId: (this.recordId && this.originScreen.includes('Order')) ? this.recordId : null, 
+            data: JSON.stringify(data)
+        })
         .then((result) => {
-
+            console.log(JSON.stringify(result));
             result = JSON.parse(result);
             if(!result.hasError)
                 this.showNotification(result.message, 'Sucesso', 'success');
@@ -217,6 +224,7 @@ export default class OrderScreen extends LightningElement {
             this.isLoading = false;
         }).catch((err)=>{
             console.log(this.headerData);
+            console.log(JSON.stringify(err));
             this.showNotification(err.message, 'Aconteceram alguns erros', 'error');
             this.isLoading = false;
         });
@@ -235,13 +243,15 @@ export default class OrderScreen extends LightningElement {
 
     _setHeaderData(event) {
         this.headerData = event.data;
-        console.log('header data setted:', this.headerData);
+        this.headerDataTitle = event.dataTitles;
+        console.log('header data setted:', this.headerData, this.headerDataTitle);
         this.enableNextScreen();
         this.completeCurrentScreen();
     }
 
     _setProductData(event) {
         this.productData = event.data;
+        console.log('this.productData: ' + this.productData);
         console.log('acproductcount data setted:', this.productData, event.detail, event.data, event);
         this.enableNextScreen();
         this.completeCurrentScreen();

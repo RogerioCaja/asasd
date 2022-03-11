@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <applicationVisibilities>
+        <application>AgroGalaxy</application>
+        <visible>true</visible>
+    </applicationVisibilities>
     <fieldPermissions>
         <editable>true</editable>
         <field>Account.AccountNumber</field>
@@ -31,6 +35,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>false</editable>
+        <field>Account.ContagemVisita__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>true</editable>
         <field>Account.Description</field>
         <readable>true</readable>
@@ -45,11 +54,6 @@
         <field>Account.Industry</field>
         <readable>true</readable>
     </fieldPermissions>
-    <!-- <fieldPermissions>
-        <editable>true</editable>
-        <field>Account.IsExcludedFromRealign</field>
-        <readable>true</readable>
-    </fieldPermissions> -->
     <fieldPermissions>
         <editable>true</editable>
         <field>Account.Jigsaw</field>
@@ -160,11 +164,11 @@
         <field>Boletos__c.IssueDate__c</field>
         <readable>true</readable>
     </fieldPermissions>
-    <!-- <fieldPermissions>
-        <editable>true</editable>
-        <field>Cadastro_ClientedaVisita__c.Account__c</field>
-        <readable>true</readable>
-    </fieldPermissions> -->
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Boletos__c.SalesOrg__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
         <field>Cadastro_ClientedaVisita__c.ChekIn__c</field>
@@ -193,6 +197,56 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Cadastro_ClientedaVisita__c.Tipo_da_Visita__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Company__c.ActivitySector__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Company__c.Blocked__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Company__c.ClientGroup__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Company__c.DistributionChannel__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Company__c.FiscalDomicile__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Company__c.SalesOffice__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Company__c.SalesOrg__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Company__c.SalesSector__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Company__c.SalesTeam__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Company__c.Status__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -322,6 +376,26 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>JurosDescontoAntecipao__c.ConditionType__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>JurosDescontoAntecipao__c.Percentage__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>JurosDescontoAntecipao__c.PriorityLevel__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>JurosDescontoAntecipao__c.Product__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Lead.Address</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -442,6 +516,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>NotaFiscal__c.CFOPDescription__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>NotaFiscal__c.CNPJCode__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -459,6 +538,11 @@
         <editable>true</editable>
         <field>NotaFiscal__c.Invoice_TotalAmount__c</field>
         <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Order.ActivatedById</field>
+        <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
@@ -683,6 +767,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Order.Type</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>OrderItem.Client_OrderItem__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -977,6 +1066,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Pricebook2.Unit__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>PricebookEntry.Product2Id__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1162,31 +1256,36 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>User.SellerType__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>VisitPlanning__c.CTVvisit__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>VisitPlanning__c.Culture__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>VisitPlanning__c.EndDate__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>VisitPlanning__c.InitialDate__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>VisitPlanning__c.Safra__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>VisitPlanning__c.SellOrg__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1226,6 +1325,15 @@
         <allowRead>true</allowRead>
         <modifyAllRecords>true</modifyAllRecords>
         <object>Cadastro_ClientedaVisita__c</object>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>true</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>true</modifyAllRecords>
+        <object>Company__c</object>
         <viewAllRecords>true</viewAllRecords>
     </objectPermissions>
     <objectPermissions>
@@ -1280,6 +1388,15 @@
         <allowRead>true</allowRead>
         <modifyAllRecords>true</modifyAllRecords>
         <object>ItensNotaFiscal__c</object>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>true</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>true</modifyAllRecords>
+        <object>JurosDescontoAntecipao__c</object>
         <viewAllRecords>true</viewAllRecords>
     </objectPermissions>
     <objectPermissions>
@@ -1502,11 +1619,19 @@
         <visible>true</visible>
     </recordTypeVisibilities>
     <tabSettings>
+        <tab>ActivitySector__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
         <tab>Boletos__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
     <tabSettings>
         <tab>Cadastro_ClientedaVisita__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Company__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
     <tabSettings>
@@ -1530,6 +1655,10 @@
         <visibility>Visible</visibility>
     </tabSettings>
     <tabSettings>
+        <tab>JurosDescontoAntecipao__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
         <tab>LimiteCredito__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
@@ -1537,16 +1666,28 @@
         <tab>NotaFiscal__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
-    <!-- <tabSettings>
-        <tab>Pedido</tab>
-        <visibility>DefaultOff</visibility>
-    </tabSettings> -->
+    <tabSettings>
+        <tab>OrgVProduct__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
     <tabSettings>
         <tab>PlanejamentoVendas__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
     <tabSettings>
         <tab>PotencialCompra__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>ProductFamily__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>ProductGroup__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>ProductSubGroup__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
     <tabSettings>
@@ -1567,6 +1708,10 @@
     </tabSettings>
     <tabSettings>
         <tab>SalesTeam__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>ShippingDivison__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
     <tabSettings>
