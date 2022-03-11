@@ -931,11 +931,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>PotencialCompra__c.Culture__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
         <field>PotencialCompra__c.Key__c</field>
         <readable>true</readable>
     </fieldPermissions>
