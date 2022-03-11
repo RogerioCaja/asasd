@@ -39,6 +39,7 @@ public without sharing class OrderScreenController {
             SELECT Id,
                    Product2Id,
                    Product2.Name,
+                   Product2.ExternalId__c,
                    Product2.PrincipleActive__c,
                    Product2.Multiplicity__c,
                    Product2.ProductGroup__c,
@@ -266,6 +267,7 @@ public without sharing class OrderScreenController {
         public String productId;
         public String name;
         public String entryId;
+        public String sapProductCode;
         public String sapStatus;
         public String unity;
         public String activePrinciple;
@@ -393,6 +395,7 @@ public without sharing class OrderScreenController {
         public String orderItemId;
         public String productId;
         public String name;
+        public String sapProductCode;
         public String entryId;
         public String sapStatus;
         public String unity;
@@ -427,6 +430,7 @@ public without sharing class OrderScreenController {
             this.orderItemId = orderItem.Id;
             this.productId = orderItem.Product2Id;
             this.name = orderItem.Product2.Name;
+            this.sapProductCode = orderItem.Product2.ExternalId__c;
             this.multiplicity = orderItem.Product2.Multiplicity__c;
             this.activePrinciple = orderItem.Product2.PrincipleActive__c;
             this.productGroupId = orderItem.Product2.ProductGroup__c;
