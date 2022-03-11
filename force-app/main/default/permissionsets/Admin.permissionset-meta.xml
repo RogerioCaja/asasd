@@ -991,6 +991,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>PricebookEntry.CostPrice__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Product2.ActivityChannel__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1092,6 +1097,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Product2.Supplier__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Product2.PrincipleActive__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
