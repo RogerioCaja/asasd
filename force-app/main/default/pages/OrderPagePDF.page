@@ -78,6 +78,7 @@
 </table>
 
 <!-- TERCEIRA PARTE -->
+<div class="container-items">
 <table>
     <thead class="information_order_item_header">
         <tr style="height: 40px;">
@@ -92,7 +93,7 @@
     </thead>
     <tbody  class="information_order_item">
         <!-- Esperando para o pedido conseguir gerar produtos do pedido -->
-        <!-- <apex:repeat value="{! orderToPage.orderItemList }" var='oI'>
+        <apex:repeat value="{! orderToPage.orderItemList }" var='oI'>
             <tr>
                 <td>
                     {! oI.productCode}
@@ -116,8 +117,8 @@
                     {! oI.totalAmount}
                 </td>
             </tr>
-        </apex:repeat> -->
-        <tr>
+        </apex:repeat>
+        <!-- <tr>
             <td>
                 0215412
             </td>
@@ -139,10 +140,9 @@
             <td>
                 R$48,99
             </td>
-        </tr>
+        </tr> -->
     </tbody>
 </table>
-
 
 <table class="total_amount">
     <tbody>
@@ -151,20 +151,18 @@
                 Valor total do Pedido:
             </td>
             <td style="width: 120px;">
-                R$ 48,99
+                R$ {! orderToPage.totalAmount}
             </td>
         </tr>
     </tbody>
 </table>
+</div>
 
-</body>
-<footer>
-    <div class="observation">
+    <div class="observation footer">
         Obs:<br/>
-        testando o teste teste teste teste teste <br/>
-        testando o teste teste teste teste teste
+        {! orderToPage.observation}
     </div>
-    <div style="page-break-after:always;"/>
+    <p style="page-break-after:always;"></p>
     <div class="appointments" >
         Compromisso – O(A) Comprador(a) se compromete a utilizar os produtos deste pedido apenas para fins agrícolas, observadas as restrições existentes na legislação ambiental, abstendo-se de utilizá-los em áreas protegidas e/ou embargadas.<br/>  
 
@@ -204,7 +202,23 @@
 
 17– Caso o Comprador não realize a retirada dos produtos, após a confirmação do pedido, nem efetue o pagamento, este documento servirá como meio de prova para buscar a cobrança judicial dos prejuízos que porventura a não retirada/falta de pagamento venha a causar à Vendedora.<br/>
     </div>
-</footer>
+    <div class="assign">
+        <div class="sales">
+            <div class="line"></div>
+            <div class="assigning">Consultor de Vendas</div>
+        </div>
+        <div>
+            <div class="buy">
+                <div class="line"></div>
+                <div class="assigning">Comprador</div>
+            </div>
+        </div>
+    </div>
+</body>
+
+    
+   
+
 
 
 </apex:page>
