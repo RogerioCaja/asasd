@@ -14,10 +14,10 @@
                 <behavior>Edit</behavior>
                 <field>Amount__c</field>
             </layoutItems>
-            <layoutItems>
+            <!-- <layoutItems>
                 <behavior>Edit</behavior>
                 <field>ContractLineItem__c</field>
-            </layoutItems>
+            </layoutItems> -->
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>Product__c</field>
