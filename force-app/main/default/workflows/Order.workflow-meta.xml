@@ -21,6 +21,26 @@
         <template>unfiled$public/Pedido_Recusado</template>
     </alerts>
     <fieldUpdates>
+        <fullName>AtualizaStatus_AprovacaoMargem</fullName>
+        <field>StatusSF__c</field>
+        <literalValue>Em Aprovação - Comitê Margem</literalValue>
+        <name>Atualiza Status - Em aprovação Margem</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
+        <fullName>AtualizaStatus_Aprovado</fullName>
+        <field>StatusSF__c</field>
+        <literalValue>Aprovado</literalValue>
+        <name>Atualiza Status - Aprovado</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
         <fullName>UpdateStatus_EmAprovacao</fullName>
         <field>StatusSF__c</field>
         <literalValue>Em aprovação</literalValue>
@@ -31,10 +51,10 @@
         <reevaluateOnChange>false</reevaluateOnChange>
     </fieldUpdates>
     <fieldUpdates>
-        <fullName>UpdateStatus_Reenvio</fullName>
+        <fullName>UpdateStatus_Recusado</fullName>
         <field>StatusSF__c</field>
         <literalValue>Recusado</literalValue>
-        <name>Reenvio do pedido</name>
+        <name>Atualiza Status - Recusado</name>
         <notifyAssignee>false</notifyAssignee>
         <operation>Literal</operation>
         <protected>false</protected>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ApprovalProcess xmlns="http://soap.sforce.com/2006/04/metadata">
-    <active>false</active>
+    <active>true</active>
     <allowRecall>false</allowRecall>
     <allowedSubmitters>
         <type>owner</type>
@@ -86,10 +86,18 @@
     </approvalStep>
     <approvalStep>
         <allowDelegate>true</allowDelegate>
+        <approvalActions>
+            <action>
+                <name>AtualizaStatus_AprovacaoMargem</name>
+                <type>FieldUpdate</type>
+            </action>
+        </approvalActions>
         <assignedApprover>
             <approver>
-                <type>adhoc</type>
+                <name>Aprovador_ComiteMargem__c</name>
+                <type>relatedUserField</type>
             </approver>
+            <whenMultipleApprovers>FirstResponse</whenMultipleApprovers>
         </assignedApprover>
         <entryCriteria>
             <criteriaItems>
@@ -118,6 +126,10 @@
             <name>ApprovedDiscount</name>
             <type>Alert</type>
         </action>
+        <action>
+            <name>AtualizaStatus_Aprovado</name>
+            <type>FieldUpdate</type>
+        </action>
     </finalApprovalActions>
     <finalApprovalRecordLock>true</finalApprovalRecordLock>
     <finalRejectionActions>
@@ -126,7 +138,7 @@
             <type>Alert</type>
         </action>
         <action>
-            <name>UpdateStatus_Reenvio</name>
+            <name>UpdateStatus_Recusado</name>
             <type>FieldUpdate</type>
         </action>
     </finalRejectionActions>
@@ -138,7 +150,7 @@
         </action>
     </initialSubmissionActions>
     <label>Aprovação do pedido</label>
-    <processOrder>0</processOrder>
+    <processOrder>1</processOrder>
     <recordEditability>AdminOnly</recordEditability>
     <showApprovalHistory>true</showApprovalHistory>
 </ApprovalProcess>
