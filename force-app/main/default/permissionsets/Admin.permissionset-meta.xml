@@ -335,11 +335,6 @@
         <field>PotencialCompra__c.Client__c</field>
         <readable>false</readable>
     </fieldPermissions>
-    <!-- <fieldPermissions>
-        <editable>false</editable>
-        <field>PotencialCompra__c.Culture__c</field>
-        <readable>false</readable>
-    </fieldPermissions> -->
     <fieldPermissions>
         <editable>false</editable>
         <field>PotencialCompra__c.Key__c</field>
