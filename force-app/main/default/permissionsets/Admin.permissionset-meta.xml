@@ -361,11 +361,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Fotos__c.ClienteVisita__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
         <field>Fotos__c.Observation__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -932,11 +927,6 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>PotencialCompra__c.Client__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>PotencialCompra__c.Culture__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
