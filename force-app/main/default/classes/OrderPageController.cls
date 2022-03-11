@@ -23,6 +23,10 @@ public with sharing class OrderPageController {
             this.orderToPage.orderItemList.add(new OrderItemDAO(orderItem, this.orderToPage.culture));
         }
 
+       
+        String downloadingFileName = 'Pedido de Venda-' + this.orderToPage.codeSap + '.pdf';
+        Apexpages.currentPage().getHeaders().put( 'content-disposition', 'inline; filename=' + downloadingFileName );
+       
         return this.orderToPage;
 
     }
