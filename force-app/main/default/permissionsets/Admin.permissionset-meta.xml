@@ -646,6 +646,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Order.FinalTotalValue__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Order.FreightValue__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -811,7 +816,17 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>OrderItem.Dosage__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>OrderItem.EndDate</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>OrderItem.FinalTotalValue__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -1081,6 +1096,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>PricebookEntry.CostPrice__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Product2.ActivityChannel__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1182,6 +1202,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Product2.Supplier__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Product2.PrincipleActive__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
