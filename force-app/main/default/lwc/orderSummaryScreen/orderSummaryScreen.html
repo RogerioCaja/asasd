@@ -15,7 +15,7 @@
         </section>
         <section>
             <span>Lista de Preços: </span>
-            <span>{ headerDataTitle.lista_precos}</span>
+            <span>{ headerData.lista_precos.Name}</span>
         </section>
         
     </span>
@@ -39,17 +39,17 @@
                 <div class="dashed-style">
                     <section>
                         <span>Cliente de Entrega:</span>
-                        <span if:true={hasData}>{headerDataTitle.cliente_entrega.Name}</span>
+                        <span if:true={hasData}>{headerData.cliente_entrega.Name}</span>
                     </section>
 
                     <section>
                         <span>Endereço: </span>
-                        <span if:true={hasData}>{headerDataTitle.cliente_entrega.City} - {headerDataTitle.cliente_entrega.UF}</span>
+                        <span if:true={hasData}>{headerData.cliente_entrega.City} - {headerData.cliente_entrega.UF}</span>
                     </section>
                     
                     <section>
                         <span>CPF:</span>
-                        <span if:true={hasData}> {headerDataTitle.cliente_entrega.CPF}</span>
+                        <span if:true={hasData}> {headerData.cliente_entrega.CPF}</span>
                         <span>Código SAP: </span>
                         <span>466578</span>
                     </section>
@@ -63,11 +63,11 @@
                 <div>
                     <section>
                         <span>Tipo de Venda: </span>
-                        <span if:true={hasData}>{headerDataTitle.tipo_venda}</span>
+                        <span if:true={hasData}>{headerData.tipo_venda}</span>
                     </section>
                     <section>
                         <span>Safra: </span>
-                        <span if:true={hasData}>{headerDataTitle.safra}</span>
+                        <span if:true={hasData}>{headerData.safra.Name}</span>
                     </section>
 
                     
@@ -76,11 +76,11 @@
                 <div>
                     <section>
                         <span>Condição de Pagto: </span>
-                        <span if:true={hasData}>{headerDataTitle.condicao_pagamento}</span>
+                        <span if:true={hasData}>{headerData.condicao_pagamento.Name}</span>
                     </section>
                     <section>
                         <span>Cultura: </span>
-                        <span if:true={hasData}>{headerDataTitle.cultura}</span>
+                        <span if:true={hasData}>{headerData.cultura.Name}</span>
                     </section>
                     
                 </div>
@@ -88,12 +88,12 @@
                 <div>
                     <section>
                         <span>Data de Pagamento: </span>
-                        <span if:true={hasData}>{headerDataTitle.data_pagamento}</span>
+                        <span if:true={hasData}>{headerData.data_pagamento}</span>
                     </section>
 
                     <section>
                         <span>Data de Entrega: </span>
-                        <span if:true={hasData}>{headerDataTitle.data_entrega}</span>
+                        <span if:true={hasData}>{headerData.data_entrega}</span>
                     </section>
                     
                 </div>
@@ -101,7 +101,7 @@
                 <div>
                     <section>
                         <span>OrgV: </span>
-                        <span>AGROFERRARI</span>
+                        <span>{headerData.organizacao_vendas.Name}</span>
                     </section>
                     <section>
                         <span>Aprovação: </span>

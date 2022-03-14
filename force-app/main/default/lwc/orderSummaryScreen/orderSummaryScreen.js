@@ -48,7 +48,7 @@ export default class OrderSummaryScreen extends LightningElement {
         observation : ""
     };
     @api productDataLocale = [];
-    @api headerDataTitle = {};
+    @api headerData;
     @api _data = [{
         productName:'Semente de Soja',
         unitMeasure:'Kilogramas',
@@ -92,6 +92,10 @@ export default class OrderSummaryScreen extends LightningElement {
     },];
 
     connectedCallback(){
+        console.log('Header Data');
+        console.log(JSON.stringify(this.headerDataTitle));
+        console.log('Account Data');
+        console.log(JSON.stringify(this.accountData));
         this.summaryDataLocale = {... this.summaryData};
         this.loadData();
     }

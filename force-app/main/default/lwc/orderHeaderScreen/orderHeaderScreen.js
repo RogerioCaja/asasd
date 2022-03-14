@@ -43,9 +43,6 @@ export default class OrderHeaderScreen extends LightningElement {
     @api accountData;
     @api accountChildData;
 
-    @api headerDataTitle;
-    @api headerDataTitleLocale = {};
-
     @api headerData;
     @api headerDictLocale ={
         Id: " ",
@@ -53,23 +50,24 @@ export default class OrderHeaderScreen extends LightningElement {
         tipo_venda: " ",
         filial: null,
         numero_pedido_cliente: " ",
-        safra: " ",
-        cultura: " ",
-        lista_precos: " ",
-        condicao_pagamento: " ",
+        safra: {},
+        cultura: {},
+        lista_precos: {},
+        condicao_pagamento: null,
         data_pagamento: " ",
         data_entrega: " ",
         status_pedido: "Em digitação",
         cliente_faturamento: " ",
         cliente_entrega: " ",
-        organizacao_vendas: null,
+        organizacao_vendas: {},
         canal_distribuicao: null,
         setor_atividade: null,
         forma_pagamento: " ",
         moeda: " ",
         ctv_venda: " ",
         frete: "CIF",
-        pedido_mae:" "
+        org: {Name: " "},
+        aprovation: null
     };
 
     @api productData;
@@ -275,18 +273,24 @@ export default class OrderHeaderScreen extends LightningElement {
     }
 
     loadDataHeader(){
-        if(this.headerData.tipo_venda != " "){
-            this.headerDictLocale ={...this.headerData};
-            this.headerDataTitleLocale = {... this.headerDataTitle};
-            this.pass = false;
-            if(this.headerDataTitleLocale.tipo_venda != " "){
-                this.headerDataTitleLocale.tipo_venda = this.tiposVenda.find(element => element.value == this.headerData.tipo_venda).label;
-                this.headerDataTitleLocale.data_pagamento = this.headerData.data_pagamento;
-                this.headerDataTitleLocale.data_entrega = this.headerData.data_entrega ? this.headerData.data_entrega : null;
+
+        try{
+
+            if(this.headerData){
+                this.headerDictLocale =JSON.parse(JSON.stringify(this.headerData));
+                this.pass = false;
+                if(this.headerDictLocale.tipo_venda != " "){
+                    // this.headerDataTitleLocale.tipo_venda = this.tiposVenda.find(element => element.value == this.headerData.tipo_venda).label;
+                    this.headerDictLocale.data_pagamento = this.headerData.data_pagamento;
+                    this.headerDictLocale.data_entrega = this.headerData.data_entrega ? this.headerData.data_entrega : null;
+                }
+            }
+            else{
+                this.pass = true;
             }
         }
-        else{
-            this.pass = true;
+        catch(err){
+            console.log(err);
         }
         
     }
@@ -298,22 +302,18 @@ export default class OrderHeaderScreen extends LightningElement {
     @track registerDetails = ['cliente_entrega'];
 
     selectItemRegister(event){
-        
-        var field = event.target.name;
-        if(event.detail.value){
-            this.headerDictLocale[field] = event.detail.value;
-            this.headerDataTitleLocale[field] = (field == 'tipo_venda' ? this.tiposVenda.find(element => element.value == event.detail.value).label : event.detail.value);
+        try{
+            var field = event.target.name;
+            if(event.detail.value){
+                this.headerDictLocale[field] = event.detail.value;
+            }
+            else{
+                    const { record } = event.detail;
+                    this.headerDictLocale[field] = (this.registerDetails.includes(field) ? this.resolveRegister(record)  : {Id: record.Id, Name: record.Name});
+            }
         }
-        else{
-            const { record } = event.detail;
-            console.log(JSON.stringify(record));
-            this.headerDictLocale[field] = record.Id;
-            try{
-            this.headerDataTitleLocale[field] = (this.registerDetails.includes(field) ? this.resolveRegister(record)  : record.Name);
-            }
-            catch(e){
-                console.log(e);
-            }
+        catch(err){
+            console.log(err);
         }
         this._verifyFieldsToSave();
     }
@@ -321,6 +321,7 @@ export default class OrderHeaderScreen extends LightningElement {
     resolveRegister(record){
    
         return  {
+            Id: record.Id,
             Name:record.Name,
             CPF:record.CPF,
             CNPJ:record.CNPJ,
@@ -345,19 +346,23 @@ export default class OrderHeaderScreen extends LightningElement {
 
     @api
     verifyMandatoryFields() {
-        if ((this.headerDictLocale.tipo_venda !== undefined &&
-            this.headerDictLocale.safra !== undefined &&
-            this.headerDictLocale.cultura !== undefined &&
-            this.headerDictLocale.data_pagamento !== undefined &&
-            this.headerDictLocale.lista_precos !== undefined &&
-            this.headerDictLocale.moeda !== undefined &&
-            this.headerDictLocale.numero_pedido_cliente !== undefined &&
-            this.headerDictLocale.ctv_venda !==undefined &&
-            this.headerDictLocale.forma_pagamento !== undefined &&
-            this.headerDictLocale.hectares !== undefined) || this.pass
-            ) {
+        try{
+        // if ((this.headerDictLocale.tipo_venda !== undefined &&
+        //     this.headerDictLocale.safra.Id !== undefined &&
+        //     this.headerDictLocale.cultura.Id !== undefined &&
+        //     this.headerDictLocale.data_pagamento !== undefined &&
+        //     this.headerDictLocale.lista_precos.Id !== undefined &&
+        //     this.headerDictLocale.moeda !== undefined &&
+        //     this.headerDictLocale.numero_pedido_cliente !== undefined &&
+        //     this.headerDictLocale.ctv_venda !==undefined &&
+        //     this.headerDictLocale.forma_pagamento !== undefined) || this.pass
+        //     ) {
             return true;
-        }
+        // }
+    }
+    catch(err){
+        console.log(err);
+    }
         return false;
     }
 
@@ -365,7 +370,6 @@ export default class OrderHeaderScreen extends LightningElement {
        
         const setHeaderData = new CustomEvent('setheaderdata');
         setHeaderData.data = this.headerDictLocale;
-        setHeaderData.dataTitles = this.headerDataTitleLocale;
         this.dispatchEvent(setHeaderData);
        
     }

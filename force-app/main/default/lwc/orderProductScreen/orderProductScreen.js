@@ -46,7 +46,7 @@ export default class OrderProductScreen extends LightningElement {
     connectedCallback(event) {
         this.paymentDate = this.headerData.data_pagamento;
         this.hectares = this.headerData.hectares;
-        this.priceBookListId = this.headerData.lista_precos;
+        this.priceBookListId = this.headerData.lista_precos.Id;
 
         this.products = this.isFilled(this.productData) ? this.productData : [];
         this.showIncludedProducts = this.products.length > 0;
