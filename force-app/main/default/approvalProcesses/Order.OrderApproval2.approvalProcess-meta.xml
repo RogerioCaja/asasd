@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ApprovalProcess xmlns="http://soap.sforce.com/2006/04/metadata">
     <active>true</active>
-    <allowRecall>false</allowRecall>
+    <allowRecall>true</allowRecall>
     <allowedSubmitters>
         <type>owner</type>
     </allowedSubmitters>
@@ -22,10 +22,8 @@
         <allowDelegate>true</allowDelegate>
         <assignedApprover>
             <approver>
-                <name>ApprovalBranchManager__c</name>
-                <type>relatedUserField</type>
+                <type>userHierarchyField</type>
             </approver>
-            <whenMultipleApprovers>FirstResponse</whenMultipleApprovers>
         </assignedApprover>
         <entryCriteria>
             <criteriaItems>
@@ -42,10 +40,8 @@
         <allowDelegate>true</allowDelegate>
         <assignedApprover>
             <approver>
-                <name>ApprovalRegionalManager__c</name>
-                <type>relatedUserField</type>
+                <type>userHierarchyField</type>
             </approver>
-            <whenMultipleApprovers>FirstResponse</whenMultipleApprovers>
         </assignedApprover>
         <entryCriteria>
             <criteriaItems>
@@ -65,10 +61,8 @@
         <allowDelegate>true</allowDelegate>
         <assignedApprover>
             <approver>
-                <name>ApprovalDirector__c</name>
-                <type>relatedUserField</type>
+                <type>userHierarchyField</type>
             </approver>
-            <whenMultipleApprovers>FirstResponse</whenMultipleApprovers>
         </assignedApprover>
         <entryCriteria>
             <criteriaItems>
@@ -94,8 +88,8 @@
         </approvalActions>
         <assignedApprover>
             <approver>
-                <name>Aprovador_ComiteMargem__c</name>
-                <type>relatedUserField</type>
+                <name>Comite_de_Margem</name>
+                <type>queue</type>
             </approver>
             <whenMultipleApprovers>FirstResponse</whenMultipleApprovers>
         </assignedApprover>
@@ -118,7 +112,7 @@
         <criteriaItems>
             <field>Order.StatusSF__c</field>
             <operation>equals</operation>
-            <value>Em digitação,Em aprovação,Recusado,Em Aprovação - Comitê Margem</value>
+            <value>Em digitação,Recusado</value>
         </criteriaItems>
     </entryCriteria>
     <finalApprovalActions>
@@ -150,6 +144,10 @@
         </action>
     </initialSubmissionActions>
     <label>Aprovação do pedido</label>
+    <nextAutomatedApprover>
+        <useApproverFieldOfRecordOwner>false</useApproverFieldOfRecordOwner>
+        <userHierarchyField>Manager</userHierarchyField>
+    </nextAutomatedApprover>
     <processOrder>1</processOrder>
     <recordEditability>AdminOnly</recordEditability>
     <showApprovalHistory>true</showApprovalHistory>
