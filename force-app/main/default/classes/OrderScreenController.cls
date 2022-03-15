@@ -25,8 +25,10 @@ public without sharing class OrderScreenController {
     }
 
     public static HeaderSerialize getOrderData(Id orderId){
-        Order order = [SELECT Id, Description, AccountId, Type, ShippingAccount__c, Pricebook2Id, PaymentDate__c, CustomerOrderNumber__c,
-        Crop__c, Culture__c, PaymentForm__c, StatusSF__c, SalesOrg__c, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, Incoterms__c
+        Order order = [SELECT Id, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c , ShippingAccount__r.Phone,  ShippingAccount__r.Name, 
+        ShippingAccount__r.BillingCity, ShippingAccount__r.BillingState ,ShippingAccount__r.CPF__c, ShippingAccount__r.CNPJ__c , Pricebook2Id, Pricebook2.Name, PaymentDate__c,  CustomerOrderNumber__c,
+        Crop__c , Crop__r.Name, Culture__c , Culture__r.Name, PaymentForm__c, StatusSF__c, SalesOrg__c, SalesOrg__r.Name, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, SalesCTV__r.Name,
+        PaymentCondition__c, PaymentCondition__r.Name, ShippingDate__c, Incoterms__c
         FROM Order 
         WHERE Id = :orderId LIMIT 1];
         return new HeaderSerialize(order);
@@ -39,6 +41,7 @@ public without sharing class OrderScreenController {
             SELECT Id,
                    Product2Id,
                    Product2.Name,
+                   Product2.ExternalId__c,
                    Product2.PrincipleActive__c,
                    Product2.Multiplicity__c,
                    Product2.ProductGroup__c,
@@ -74,7 +77,7 @@ public without sharing class OrderScreenController {
     }
 
     public static AccountSerialize getOrderAccountData(Id accountId) {
-        Account account = [SELECT Id, Name, CNPJ__c, CPF__c, Phone, BillingCity, BillingState FROM Account WHERE Id =: accountId LIMIT 1];
+        Account account = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE Id =: accountId LIMIT 1];
         return new AccountSerialize(account);
     }
 
@@ -82,8 +85,8 @@ public without sharing class OrderScreenController {
     public static string getAccountDataChild(Id accountId){
         try {
             List<AccountSerialize> accountListSerialize = new List<AccountSerialize>();
-            Account accountMom = [SELECT Id, Name, CNPJ__c, CPF__c, Phone, BillingCity, BillingState FROM Account WHERE Id =: accountId LIMIT 1];
-            List<Account> accountList = [SELECT Id, Name, CNPJ__c, CPF__c, Phone, BillingCity, BillingState FROM Account WHERE ParentId =: accountId];
+            Account accountMom = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE Id =: accountId LIMIT 1];
+            List<Account> accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE ParentId =: accountId];
             accountList.add(accountMom);
             for(Account account : accountList)
                 accountListSerialize.add(new AccountSerialize(account));
@@ -105,7 +108,7 @@ public without sharing class OrderScreenController {
             
             if (orderId != NULL) {
                 newOrder = false;
-                order = [SELECT Id, Description, AccountId, Type, ShippingAccount__c, Pricebook2Id, PaymentDate__c, CustomerOrderNumber__c,
+                order = [SELECT Id, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c, Pricebook2Id, PaymentDate__c, ShippingDate__c, PaymentCondition__c, CustomerOrderNumber__c,
                 Crop__c, Culture__c, PaymentForm__c, StatusSF__c, SalesOrg__c, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c
                 FROM Order WHERE Id =: orderId LIMIT 1];
             } else {
@@ -132,23 +135,26 @@ public without sharing class OrderScreenController {
 
             order.AccountId = acc.Id;
             order.Status = 'Draft';
-            order.PriceBook2Id = orderData.headerData.lista_precos;
+            order.PriceBook2Id = orderData.headerData.lista_precos.Id;
             order.Type = orderData.headerData.tipo_venda ;
-            order.ShippingAccount__c = orderData.headerData.cliente_entrega ;
+            order.ShippingAccount__c = orderData.headerData.cliente_entrega.Id ;
             order.PaymentDate__c = Date.valueOf(orderData.headerData.data_pagamento) ;
             order.CustomerOrderNumber__c = orderData.headerData.numero_pedido_cliente ;
             order.EffectiveDate = Date.today();
-            order.Crop__c = orderData.headerData.safra ;
-            order.Culture__c = orderData.headerData.cultura ;
+            order.Crop__c = orderData.headerData.safra.Id ;
+            order.Culture__c = orderData.headerData.cultura.Id ;
             order.PaymentForm__c = orderData.headerData.forma_pagamento ;
-            order.SalesOrg__c = orderData.headerData.organizacao_vendas ;
+            order.SalesOrg__c = orderData.headerData.organizacao_vendas == ' ' ? null :  orderData.headerData.organizacao_vendas;
             order.DistributionChannel__c = orderData.headerData.canal_distribuicao ;
             order.ActivitySector__c = orderData.headerData.setor_atividade ;
             order.Currency__c = orderData.headerData.moeda ;
-            order.SalesCTV__c = orderData.headerData.ctv_venda ;
+            order.SalesCTV__c = orderData.headerData.ctv_venda.Id ;
             order.StatusSF__c = orderData.headerData.status_pedido;
             order.Incoterms__c = orderData.headerData.frete;
             order.Description = orderData.summaryData.observation;
+            order.PaymentCondition__c = orderData.headerData.condicao_pagamento.Id;
+            order.ShippingDate__c = Date.valueOf(orderData.headerData.data_entrega);
+            order.DescriptionBillingSale__c = orderData.summaryData.billing_sale_observation;
             order.FinalTotalValue__c = orderTotalValue;
 
             Database.UpsertResult insResults = Database.upsert(order, false);
@@ -242,22 +248,30 @@ public without sharing class OrderScreenController {
     }
 
     public class HeaderDeserialize {
+       
+
+        public String Id;
+        public String AccountId;
         public String tipo_venda;
-        public String cliente_entrega;
-        public String lista_precos;
-        public String data_pagamento;
+        //public InformationFields filial;
         public String numero_pedido_cliente;
-        public String safra;
-        public String cultura;
-        public String forma_pagamento;
+        public InformationFields safra;
+        public InformationFields cultura;
+        public InformationFields lista_precos;
+        public InformationFields condicao_pagamento;
+        public String data_pagamento;
+        public String data_entrega;
+        public String status_pedido;
+        public AccountSerialize cliente_entrega;
         public String organizacao_vendas;
         public String canal_distribuicao;
         public String setor_atividade;
+        public String forma_pagamento;
         public String moeda;
-        public String ctv_venda;
-        public String status_pedido;
         public String frete;
-        //public String data_entrega;
+        public InformationFields ctv_venda;
+        public String observation;
+        public String billing_sale_observation;
         //public String cliente_faturamento;
     }
 
@@ -266,6 +280,7 @@ public without sharing class OrderScreenController {
         public String productId;
         public String name;
         public String entryId;
+        public String sapProductCode;
         public String sapStatus;
         public String unity;
         public String activePrinciple;
@@ -292,6 +307,7 @@ public without sharing class OrderScreenController {
 
     public class SummaryDeserialize{
         public String observation;
+        public String billing_sale_observation;
     }
 
 
@@ -322,6 +338,8 @@ public without sharing class OrderScreenController {
         public String CPF;
         public String City;
         public String UF;
+        public String CodSap;
+        public String Company;
         
         public List<AccountSerialize> accountList;
         AccountSerialize(){}
@@ -333,6 +351,8 @@ public without sharing class OrderScreenController {
             this.CPF = account.CPF__c;
             this.City = account.BillingCity;
             this.UF = account.BillingState;
+            this.CodSap = account.ExternalId__c;
+            this.Company = account.Company__c;
         }
 
         AccountSerialize(List<AccountSerialize> accountList){
@@ -346,23 +366,24 @@ public without sharing class OrderScreenController {
         public String tipo_venda;
         public String filial;
         public String numero_pedido_cliente;
-        public String safra;
-        public String cultura;
-        public String lista_precos;
-        public String condicao_pagamento;
+        public InformationFields safra;
+        public InformationFields cultura;
+        public InformationFields lista_precos;
+        public InformationFields condicao_pagamento;
         public String data_pagamento;
         public String data_entrega;
         public String status_pedido;
         public String cliente_faturamento;
-        public String cliente_entrega;
-        public String organizacao_vendas;
+        public AccountSerialize cliente_entrega;
+        public InformationFields organizacao_vendas;
         public String canal_distribuicao;
         public String setor_atividade;
         public String forma_pagamento;
         public String moeda;
         public String frete;
-        public String ctv_venda;
+        public InformationFields ctv_venda;
         public String observation;
+        public String billing_sale_observation;
         //public String data_entrega;
         //public String cliente_faturamento;
         HeaderSerialize(){}
@@ -370,21 +391,43 @@ public without sharing class OrderScreenController {
             this.Id = order.Id;
             this.AccountId = order.AccountId;
             this.tipo_venda = order.Type;
-            this.cliente_entrega = order.ShippingAccount__c;
-            this.lista_precos = order.Pricebook2Id;
+
+            this.cliente_entrega = new AccountSerialize();
+            this.cliente_entrega.Id = order.ShippingAccount__c;
+            this.cliente_entrega.Name = order.ShippingAccount__r.Name;
+            this.cliente_entrega.CNPJ = order.ShippingAccount__r.CNPJ__c;
+            this.cliente_entrega.City = order.ShippingAccount__r.BillingCity;
+            this.cliente_entrega.UF = order.ShippingAccount__r.BillingState;
+            this.cliente_entrega.CPF = order.ShippingAccount__r.CPF__c;
+            this.cliente_entrega.Phone = order.ShippingAccount__r.Phone;
+
+            this.lista_precos = new InformationFields(order.Pricebook2Id, order.Pricebook2.Name);
             this.data_pagamento = String.valueOf(order.PaymentDate__c);
+            this.data_entrega = String.valueOf(order.ShippingDate__c);
             this.numero_pedido_cliente = order.CustomerOrderNumber__c;
-            this.safra = order.Crop__c;
-            this.cultura = order.Culture__c;
+            this.safra = new InformationFields(order.Crop__c, order.Crop__r.Name);
+            this.cultura = new InformationFields(order.Culture__c, order.Culture__r.Name);
             this.forma_pagamento = order.PaymentForm__c;
             this.status_pedido = order.StatusSF__c;
-            this.organizacao_vendas = order.SalesOrg__c;
+            this.organizacao_vendas = new InformationFields(order.SalesOrg__c, order.SalesOrg__r.Name);
             this.canal_distribuicao = order.DistributionChannel__c;
             this.setor_atividade = order.ActivitySector__c;
             this.moeda = order.Currency__c;
-            this.ctv_venda = order.SalesCTV__c;
+            this.ctv_venda = new InformationFields(order.SalesCTV__c,  order.SalesCTV__r.Name);
+            this.condicao_pagamento = new InformationFields(order.PaymentCondition__c, order.PaymentCondition__r.Name);
             this.frete = order.Incoterms__c;
             this.observation = order.Description;
+            this.billing_sale_observation = order.DescriptionBillingSale__c;
+        }
+    }
+
+    public class InformationFields{
+        public String Id;
+        public String Name;
+
+        public InformationFields(String id, String name){
+            this.Id = id;
+            this.Name = name;
         }
     }
     
@@ -393,6 +436,7 @@ public without sharing class OrderScreenController {
         public String orderItemId;
         public String productId;
         public String name;
+        public String sapProductCode;
         public String entryId;
         public String sapStatus;
         public String unity;
@@ -427,6 +471,7 @@ public without sharing class OrderScreenController {
             this.orderItemId = orderItem.Id;
             this.productId = orderItem.Product2Id;
             this.name = orderItem.Product2.Name;
+            this.sapProductCode = orderItem.Product2.ExternalId__c;
             this.multiplicity = orderItem.Product2.Multiplicity__c;
             this.activePrinciple = orderItem.Product2.PrincipleActive__c;
             this.productGroupId = orderItem.Product2.ProductGroup__c;

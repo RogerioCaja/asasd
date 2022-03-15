@@ -55,10 +55,24 @@ section{
    gap: 1em;
 }
 
-section > div{
-    display: flex;
-    justify-content: space-between;
+section > div:nth-child(1){
+    display: grid;
+    grid-template-columns: 2fr 2fr;
+    column-gap: 15px;
 }
+
+section > div:nth-child(2){
+    display: grid;
+    grid-template-columns: 1.5fr 1.5fr 1.5fr 1.5fr;
+    column-gap: 15px;
+}
+
+
+
+/* section > div:first-of-type{
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+} */
 
 
 
@@ -69,7 +83,7 @@ section > div > div{
 }
 .dashed-style{
     border-left: dashed 1px #989898;
-    margin-right: 25%;
+    /* margin-right: 10%; */
     padding-left: 1em;
     padding-right: 5em;
 }
@@ -128,7 +142,6 @@ th{
 .tooltip {
     position: relative;
     display: inline-block;
-    border-bottom: 1px dotted black;
 }
 
 .tooltip .tooltiptext {
@@ -187,8 +200,18 @@ button{
 textarea{
     border-radius: 5px;
     font-size: 10pt;
+    width: 100%;
     resize: none;
-    visibility: hidden;
+    visibility: visible;
+}
+
+.observation{
+    display: flex;
+    gap:10px;
+}
+
+.observation > div{
+    width: 50%;
 }
 
 textarea:hover{

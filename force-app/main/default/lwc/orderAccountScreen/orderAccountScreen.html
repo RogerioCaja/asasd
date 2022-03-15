@@ -22,23 +22,35 @@
                     </span>
                 </div>
                 <div class="dadosConta">
-                    <div class="texto">
-                        <span>Razão Social:</span> Nèscara Consultoria e Tecnologia Ltda
+                    <div class="texto" if:true={selectedAccount.Company__c}>
+                        <span>Razão Social:</span> {selectedAccount.Company__c}
                     </div>
-                    <div class="texto">
+                    <div class="texto" if:true={selectedAccount.Company}>
+                        <span>Razão Social:</span> {selectedAccount.Company}
+                    </div>
+                    <div class="texto" if:true={selectedAccount.CPNJ__c} >
                         <span>Tipo de Conta:</span> Jurídica
                     </div>
+                    <div class="texto" if:true={selectedAccount.CPNJ} >
+                        <span>Tipo de Conta:</span> Jurídica
+                    </div>
+                    <div class="texto" if:true={selectedAccount.CPF__c} >
+                        <span>Tipo de Conta:</span> Pessoa Física
+                    </div>
+                    <div class="texto" if:true={selectedAccount.CPF} >
+                        <span>Tipo de Conta:</span>  Pessoa Física
+                    </div>
                     <div class="texto" if:true={selectedAccount.CPNJ__c}>
-                        CNPJ: <span>{selectedAccount.CPNJ__c}</span>
+                        <span>CNPJ:</span> {selectedAccount.CPNJ__c}
                     </div>
                     <div class="texto" if:true={selectedAccount.CPF__c}>
-                        CPF: <span>{selectedAccount.CPF__c}</span>
+                        <span>CPF:</span>{selectedAccount.CPF__c}
                     </div>
                     <div class="texto" if:true={selectedAccount.CPNJ}>
-                        CNPJ: <span>{selectedAccount.CPNJ}</span>
+                        <span>CNPJ:</span> {selectedAccount.CPNJ}
                     </div>
                     <div class="texto" if:true={selectedAccount.CPF}>
-                        CPF: <span>{selectedAccount.CPF}</span>
+                        <span>CPF:</span> {selectedAccount.CPF}
                     </div>
                     <div class="texto" if:true={selectedAccount.City}>
                        {selectedAccount.City} - {selectedAccount.UF} - Brasil
@@ -46,8 +58,11 @@
                     <div class="texto" if:true={selectedAccount.BillingCity}>
                         {selectedAccount.BillingCity} - {selectedAccount.BillingState} - Brasil
                      </div>
-                    <div class="texto">
-                        <span>Código SAP:</span> NÃO INTEGRADO
+                    <div class="texto" if:true={selectedAccount.ExternalId__c}>
+                        <span>Código SAP:</span> {selectedAccount.ExternalId__c}
+                    </div>
+                    <div class="texto" if:true={selectedAccount.CodSap}>
+                        <span>Código SAP:</span> {selectedAccount.ExternalId__c}
                     </div>
                     <div class="texto">
                         <span>Telefone:</span> {selectedAccount.Phone}
