@@ -120,10 +120,6 @@
         <editHeading>true</editHeading>
         <label>Valores</label>
         <layoutColumns>
-            <layoutItems>
-                <behavior>Edit</behavior>
-                <field>PriceMultiplier__c</field>
-            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>
