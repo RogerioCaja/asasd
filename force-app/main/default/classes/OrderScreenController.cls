@@ -85,8 +85,8 @@ public without sharing class OrderScreenController {
     public static string getAccountDataChild(Id accountId){
         try {
             List<AccountSerialize> accountListSerialize = new List<AccountSerialize>();
-            Account accountMom = [SELECT Id, Name, CNPJ__c, CPF__c, Phone, BillingCity, BillingState FROM Account WHERE Id =: accountId LIMIT 1];
-            List<Account> accountList = [SELECT Id, Name, CNPJ__c, CPF__c, Phone, BillingCity, BillingState FROM Account WHERE ParentId =: accountId];
+            Account accountMom = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE Id =: accountId LIMIT 1];
+            List<Account> accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE ParentId =: accountId];
             accountList.add(accountMom);
             for(Account account : accountList)
                 accountListSerialize.add(new AccountSerialize(account));
