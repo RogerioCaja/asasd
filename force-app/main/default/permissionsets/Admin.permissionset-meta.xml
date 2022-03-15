@@ -1011,11 +1011,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Pricebook2.Product2Id__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
         <field>Pricebook2.ProductFamily__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1042,26 +1037,6 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Pricebook2.SalesTeam__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>Pricebook2.UnitPrice__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>Pricebook2.Unit__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>PricebookEntry.Product2Id__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>PricebookEntry.UnitPrice__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
