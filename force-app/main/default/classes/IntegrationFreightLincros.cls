@@ -6,8 +6,11 @@ public with sharing class IntegrationFreightLincros {
     public static String AuthLincros(){
         HttpRequest request = new HttpRequest();
 		request.setEndpoint('https://homolog.transpofrete.com.br/api/auth/login');
+        String payload = '{'+
+		'  "login": "",'+
+		'  "senha": ""'+
+		'}';
 		request.setMethod('POST');
-        String payload = 'jurema';
         request.setBody(payload);
 		Http sendRequest = new Http();
 	    HttpResponse response  =  sendRequest.send(request);
@@ -19,14 +22,16 @@ public with sharing class IntegrationFreightLincros {
         public String access_token;
     }
 
-    public class Login{
-        public String login;
-        public String password;
-    }
-
     @AuraEnabled
-    public static Decimal Response(String data){
+    public static Decimal getFreight(String data){
         HttpRequest request = new HttpRequest();
+      
+        data = '{'+
+		'  "destinatario": "36064352000158",'+
+		'  "remetente": "26143384000195",'+
+        '  "cepOrigem": "09981123",'+
+        '  "cepDestino": "69088254"'+
+		'}';
 
 		request.setEndpoint('https://homolog.transpofrete.com.br/api/calculo/calcularNota');
 		request.setMethod('POST');
@@ -34,7 +39,7 @@ public with sharing class IntegrationFreightLincros {
         String accessToken = AuthLincros();
         Map<String, String> headersMap = new Map<String, String>();
 		headersMap.put('Content-type', 'application/json');
-		headersMap.put('Authorization', 'Bearer ' + accessToken);
+		headersMap.put('Authorization', accessToken);
 
         if (headersMap != null && headersMap.size() > 0){
             for (String headerKey : headersMap.keySet()){
