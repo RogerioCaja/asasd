@@ -46,7 +46,7 @@ export default class OrderProductScreen extends LightningElement {
     connectedCallback(event) {
         this.paymentDate = this.headerData.data_pagamento;
         this.hectares = this.headerData.hectares;
-        this.priceBookListId = this.headerData.lista_precos;
+        this.priceBookListId = this.headerData.lista_precos.Id;
 
         this.products = this.isFilled(this.productData) ? this.productData : [];
         this.showIncludedProducts = this.products.length > 0;
@@ -58,7 +58,6 @@ export default class OrderProductScreen extends LightningElement {
 
         if (this.createNewProduct) {
             let currentProduct = this.baseProducts.find(e => e.Id == event.target.dataset.targetId);
-            console.log('currentProduct.sapProductCode: ' + currentProduct.sapProductCode);
             this.multiplicity = currentProduct.multiplicity;
             this.costPrice = currentProduct.costPrice;
             this.addProduct = {
@@ -95,7 +94,6 @@ export default class OrderProductScreen extends LightningElement {
     }
 
     applySelectedColumns(event) {
-        console.log('this.selectedColumns: ' + JSON.stringify(this.selectedColumns));
         let selectedColumns = [{label: 'Nome', fieldName: 'name'}];
         if (this.isSelected(this.selectedColumns.columnUnity)) selectedColumns.push({label: 'Unidade de Medida', fieldName: 'unity'})
         if (this.isSelected(this.selectedColumns.columnListPrice)) selectedColumns.push({label: 'Preço da Lista', fieldName: 'listPrice'})
@@ -302,9 +300,10 @@ export default class OrderProductScreen extends LightningElement {
         let prod = this.addProduct;
         if (this.checkRequiredFields(prod)) {
             let allProducts = JSON.parse(JSON.stringify(this.products));
-            let margin = this.isFilled(this.costPrice) ? ((prod.totalPrice / prod.quantity) / this.costPrice).toFixed(2) : null;
+            let margin = this.isFilled(this.costPrice) ? ((prod.totalPrice / prod.quantity) / this.costPrice).toFixed(2) : 0;
             
             prod.commercialMarginPercentage = margin;
+            prod.multiplicity = this.multiplicity;
             prod.position = this.isFilled(this.products) ? this.products.length : 0
             allProducts.push(prod);
 
@@ -330,6 +329,7 @@ export default class OrderProductScreen extends LightningElement {
                 if (this.checkRequiredFields(this.addProduct)) {
                     let margin = this.isFilled(this.costPrice) ? ((this.addProduct.totalPrice / this.addProduct.quantity) / this.costPrice).toFixed(2) : null;
                     this.addProduct.commercialMarginPercentage = margin;
+                    this.addProduct.multiplicity = this.multiplicity;
                     includedProducts[index] = JSON.parse(JSON.stringify(this.addProduct));
                     break;
                 } else {

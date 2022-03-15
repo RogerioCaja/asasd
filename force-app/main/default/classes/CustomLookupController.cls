@@ -34,7 +34,7 @@ public without sharing class CustomLookupController {
     public static List<SObject> fetchAccountRecords(String searchString) {
         try {
             List<SObject> recordsData = new List<SObject>();
-            String query = 'SELECT Id, Name, CNPJ__c, CPF__c, Phone, BillingCity, BillingState FROM Account WHERE Name LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' LIMIT 49999';
+            String query = 'SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE Name LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' OR CPF__c LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' OR Company__c LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' LIMIT 49999';
             
 	        for(SObject s : Database.query(query)) {
 	            recordsData.add(s);

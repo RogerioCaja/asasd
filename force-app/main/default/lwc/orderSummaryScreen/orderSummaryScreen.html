@@ -15,7 +15,7 @@
         </section>
         <section>
             <span>Lista de Preços: </span>
-            <span>{ headerDataTitle.lista_precos}</span>
+            <span>{ headerData.lista_precos.Name}</span>
         </section>
         
     </span>
@@ -30,28 +30,38 @@
                    </section>
    
                    <section>
-                       <span>CNPJ:</span>
+                       <span>CNPJ/CPF:</span>
                        <span if:true={accountData.CPF__c}>{accountData.CPF__c}</span>
                        <span if:true={accountData.CNPJ__c}>{accountData.CNPJ__c}</span>
+                       <span if:true={accountData.CPF}>{accountData.CPF}</span>
+                       <span if:true={accountData.CNPJ}>{accountData.CNPJ}</span>
                    </section>
+
+                   <section>
+                    <span>Razão Social:</span>
+                    <span if:true={accountData.Company__c}>{accountData.Company__c}</span>
+                    <span if:true={accountData.Company}>{accountData.Company}</span>
+                    
+                </section>
 
                 </div>
                 <div class="dashed-style">
                     <section>
                         <span>Cliente de Entrega:</span>
-                        <span if:true={hasData}>{headerDataTitle.cliente_entrega.Name}</span>
+                        <span if:true={hasData}>{headerData.cliente_entrega.Name}</span>
                     </section>
 
                     <section>
                         <span>Endereço: </span>
-                        <span if:true={hasData}>{headerDataTitle.cliente_entrega.City} - {headerDataTitle.cliente_entrega.UF}</span>
+                        <span if:true={hasData}>{headerData.cliente_entrega.City} - {headerData.cliente_entrega.UF}</span>
                     </section>
                     
                     <section>
-                        <span>CPF:</span>
-                        <span if:true={hasData}> {headerDataTitle.cliente_entrega.CPF}</span>
+                        <span>CNPJ/CPF:</span>
+                        <span if:true={hasData}> {headerData.cliente_entrega.CPF}</span>
+                        <span if:true={hasData}> {headerData.cliente_entrega.CNPJ}</span>
                         <span>Código SAP: </span>
-                        <span>466578</span>
+                        <span>{headerData.cliente_entrega.CodSap}</span>
                     </section>
                 </div>
                 
@@ -63,11 +73,11 @@
                 <div>
                     <section>
                         <span>Tipo de Venda: </span>
-                        <span if:true={hasData}>{headerDataTitle.tipo_venda}</span>
+                        <span if:true={hasData}>{headerData.tipo_venda}</span>
                     </section>
                     <section>
                         <span>Safra: </span>
-                        <span if:true={hasData}>{headerDataTitle.safra}</span>
+                        <span if:true={hasData}>{headerData.safra.Name}</span>
                     </section>
 
                     
@@ -76,11 +86,11 @@
                 <div>
                     <section>
                         <span>Condição de Pagto: </span>
-                        <span if:true={hasData}>{headerDataTitle.condicao_pagamento}</span>
+                        <span if:true={hasData}>{headerData.condicao_pagamento.Name}</span>
                     </section>
                     <section>
                         <span>Cultura: </span>
-                        <span if:true={hasData}>{headerDataTitle.cultura}</span>
+                        <span if:true={hasData}>{headerData.cultura.Name}</span>
                     </section>
                     
                 </div>
@@ -88,12 +98,12 @@
                 <div>
                     <section>
                         <span>Data de Pagamento: </span>
-                        <span if:true={hasData}>{headerDataTitle.data_pagamento}</span>
+                        <span if:true={hasData}>{headerData.data_pagamento}</span>
                     </section>
 
                     <section>
                         <span>Data de Entrega: </span>
-                        <span if:true={hasData}>{headerDataTitle.data_entrega}</span>
+                        <span if:true={hasData}>{headerData.data_entrega}</span>
                     </section>
                     
                 </div>
@@ -101,11 +111,15 @@
                 <div>
                     <section>
                         <span>OrgV: </span>
-                        <span>AGROFERRARI</span>
+                        <span>{headerData.organizacao_vendas.Name}</span>
                     </section>
                     <section>
                         <span>Aprovação: </span>
-                        <span>Diretor Comercial</span>
+                        <span></span>
+                    </section>
+                    <section>
+                        <span>Margem do Pedido: </span>
+                        <span>{orderMargin}</span>
                     </section>
                 </div>
 
@@ -113,17 +127,7 @@
 
 
         </section>
-      
-        <!-- Nome do Produto
-- Código SAP
-- Quantidade
-- Preço de Lista
-- Valor Total
-- Desconto em valor
-- Margem do Item
-- Porcentagem de desconto
-- Grupo de Produtos -->
-        <!-- Aqui terá um template com um for que armazenará dados na tabela -->
+
         <table>
             <tr>
               <th>Produto(Código-Nome)</th>
@@ -135,7 +139,7 @@
               <th>Grupo de Produtos</th>
               <th>% de Desconto</th>
               <th>Margem do Item</th>
-              <th>Remessas</th>
+              <th>Calenderização</th>
             </tr>
         
             <template for:each={productDataLocale} for:item="product">
@@ -147,11 +151,39 @@
                     <td>{product.totalPrice}</td>
                     <td>{product.commercialDiscountValue}</td>
                     <td>{product.productGroupName}</td>
-                    <td>{product.commercialDiscountPercentual}</td>
+                    <td>{product.commercialDiscountPercentage}</td>
                     <td>{product.commercialMarginPercentage}</td>
                       <td>
                           <div class="tooltip">
-                              <a href="TESTE.COM" label="picles">Remessa</a>
+                              <a>
+                                <svg viewBox="67.357 79.727 272.705 233.061" width="25" height="45">
+                                    <g>
+                                      <g style="" transform="matrix(0.751509, 0, 0, 0.771743, 16.737623, 34.880585)">
+                                        <path d="M 101.899 88.946 L 395.509 88.946 C 414.586 88.946 430.051 104.411 430.051 123.488 L 430.051 325.561 C 430.051 344.638 414.586 360.103 395.509 360.103 L 101.899 360.103 C 82.822 360.103 67.357 344.638 67.357 325.561 L 67.357 123.488 C 67.357 104.411 82.822 88.946 101.899 88.946 Z" style="fill: rgb(216, 216, 216);"></path>
+                                        <rect x="67.505" y="88.083" width="362.545" height="82.038" style="fill: rgb(255, 66, 66); stroke: rgba(0, 0, 0, 0);" rx="37.996" ry="37.996"></rect>
+                                      </g>
+                                      <rect x="67.662" y="128.827" width="272.4" height="37.997" style="fill-rule: evenodd; paint-order: fill; stroke-miterlimit: 1; stroke-dashoffset: -50px; fill: rgb(255, 66, 66);"></rect>
+                                    </g>
+                                    <g style="" transform="matrix(0.716688, 0, 0, 0.728371, 28.120481, 41.16283)">
+                                      <rect x="126.795" y="193.054" width="54.366" height="42.374" style="fill: rgba(53, 53, 53, 0.5); stroke: rgba(53, 53, 53, 0);"></rect>
+                                      <rect x="191.53" y="192.654" width="54.366" height="42.374" style="fill: rgba(53, 53, 53, 0.5); stroke: rgba(53, 53, 53, 0);"></rect>
+                                      <rect x="256.519" y="192.292" width="54.366" height="42.374" style="fill: rgba(53, 53, 53, 0.5); stroke: rgba(53, 53, 53, 0);"></rect>
+                                      <rect x="320.293" y="193.037" width="54.366" height="42.374" style="fill: rgba(53, 53, 53, 0.5); stroke: rgba(53, 53, 53, 0);"></rect>
+                                      <rect x="125.844" y="246.799" width="54.366" height="42.374" style="fill: rgba(53, 53, 53, 0.5); stroke: rgba(53, 53, 53, 0);"></rect>
+                                      <rect x="190.66" y="246.799" width="54.366" height="42.374" style="fill: rgba(53, 53, 53, 0.5); stroke: rgba(53, 53, 53, 0);"></rect>
+                                      <rect x="255.979" y="246.799" width="54.366" height="42.374" style="fill: rgba(53, 53, 53, 0.5); stroke: rgba(53, 53, 53, 0);"></rect>
+                                      <rect x="319.287" y="246.296" width="54.366" height="42.374" style="fill: rgba(53, 53, 53, 0.5); stroke: rgba(53, 53, 53, 0);"></rect>
+                                      <rect x="125.341" y="299.556" width="54.366" height="42.374" style="fill: rgba(53, 53, 53, 0.5); stroke: rgba(53, 53, 53, 0);"></rect>
+                                      <rect x="190.157" y="300.058" width="54.366" height="42.374" style="fill: rgba(53, 53, 53, 0.5); stroke: rgba(53, 53, 53, 0);"></rect>
+                                      <rect x="254.974" y="299.556" width="54.366" height="42.374" style="fill: rgba(53, 53, 53, 0.5); stroke: rgba(53, 53, 53, 0);"></rect>
+                                      <rect x="318.282" y="299.556" width="54.366" height="42.374" style="fill: rgba(53, 53, 53, 0.5); stroke: rgba(53, 53, 53, 0);"></rect>
+                                    </g>
+                                    <ellipse style="fill: rgb(216, 216, 216); stroke: rgb(122, 0, 0); stroke-width: 5px;" cx="138.596" cy="128.297" rx="17.369" ry="15.761"></ellipse>
+                                    <ellipse style="fill: rgb(216, 216, 216); stroke: rgb(122, 0, 0); stroke-width: 5px;" cx="277.549" cy="129.905" rx="17.369" ry="15.761"></ellipse>
+                                    <rect x="123.801" y="79.727" width="30.235" height="61.757" style="fill: rgb(216, 216, 216); stroke: rgba(0, 0, 0, 0);" rx="15.118" ry="15.118"></rect>
+                                    <rect x="262.596" y="81.088" width="30.235" height="61.757" style="fill: rgb(216, 216, 216); stroke: rgba(0, 0, 0, 0);" rx="15.118" ry="15.118"></rect>
+                                  </svg>
+                              </a>
                               <div class="tooltiptext">
                               <p>Data      Quantidade</p>
                               <br>
@@ -165,11 +197,24 @@
             </template>
           </table>
 
-          <span class="titulo">Observações:
-                <button type="button" onclick={showandHiddenTextArea}>
-                  <div class="triangle"></div>
-                </button>
-            </span>
-          <textarea data-id="observacao" rows="5" placeholder="Observações sobre o pedido" onkeyup={changeObservation} value={summaryDataLocale.observation}></textarea>
+          <div class="observation">
+            <div>
+                <span class="titulo">Observações:
+                    <!-- <button type="button" onclick={showandHiddenTextArea}>
+                    <div class="triangle"></div>
+                    </button> -->
+                </span>
+                <textarea data-id="observacao" rows="5" placeholder="Observações sobre o pedido" onkeyup={changeObservation} value={summaryDataLocale.observation}></textarea>
+            </div>
+            <div>
+                <span class="titulo">Observações de Nota:
+                    <!-- <button type="button" onclick={showandHiddenTextArea}>
+                    <div class="triangle"></div>
+                    </button> -->
+                </span>
+                <textarea data-id="observacao" rows="5" placeholder="Observações sobre a nota do pedido" onkeyup={changeObservation} value={summaryDataLocale.billing_sale_observation}></textarea>
+            </div>
+          </div>
+          
     </div>
 </template>

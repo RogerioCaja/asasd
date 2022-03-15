@@ -1,7 +1,8 @@
 import {
     LightningElement,
-    api, track
+    api, track, wire
 } from 'lwc';
+import { getObjectInfo } from 'lightning/uiObjectInfoApi';
 import NoHeader from '@salesforce/resourceUrl/NoHeader';
 import {
     loadStyle,
@@ -10,6 +11,7 @@ import {
 import {
     ShowToastEvent
 } from 'lightning/platformShowToastEvent';
+import Order from '@salesforce/schema/Order';
 import saveOrder from '@salesforce/apex/OrderScreenController.saveOrder';
 import getOrder from '@salesforce/apex/OrderScreenController.getOrder';
 import getAccount from '@salesforce/apex/OrderScreenController.getAccount';
@@ -17,7 +19,17 @@ import getAccount from '@salesforce/apex/OrderScreenController.getAccount';
 export default class OrderScreen extends LightningElement {
     @api recordId;
     @api originScreen;
+    @api recordTypeId;
 
+    @wire(getObjectInfo, {objectApiName: Order})
+    getObjectData({data, error}){
+        if(data){
+            if(this.recordTypeId != undefined){
+                var arrayType = data.recordTypeInfos[this.recordTypeId]
+                this.headerData.tipo_venda = arrayType.name;
+            }
+        }
+    }
     account = true;
     header = false;
     product = false;
@@ -29,25 +41,26 @@ export default class OrderScreen extends LightningElement {
         Id: " ",
         AccountId: " ",
         tipo_venda: " ",
-        filial: null,
+        filial: " ",
         numero_pedido_cliente: " ",
         safra: " ",
         cultura: " ",
         lista_precos: " ",
-        condicao_pagamento: null,
+        condicao_pagamento: " ",
         data_pagamento: " ",
         data_entrega: " ",
         status_pedido: "Em digitação",
         cliente_faturamento: " ",
         cliente_entrega: " ",
         organizacao_vendas: " ",
-        canal_distribuicao: null,
-        setor_atividade: null,
+        canal_distribuicao: " ",
+        setor_atividade: " ",
         forma_pagamento: " ",
         moeda: " ",
         ctv_venda: " ",
         frete: "CIF",
-        pedido_mae:" "
+        org: {Name: " "},
+        aprovation: " "
     };
     @track productData;
     @track summaryData = {
@@ -162,8 +175,10 @@ export default class OrderScreen extends LightningElement {
             const data = JSON.parse(result);
             this.accountData = data.accountData;
             this.headerData = data.headerData;
+            //this.loadHeaderDataTitle();
             this.productData = data.productData;
             this.summaryData.observation = this.headerData.observation;
+            this.summaryData.billing_sale_observation - this.headerData.billing_sale_observation;
             this.enableScreens([0, 1]);
             this.completeScreens([0, 1]);
             this.isLoading = false;
@@ -174,6 +189,14 @@ export default class OrderScreen extends LightningElement {
             this.isLoading = false;
         })
     }
+
+    // loadHeaderDataTitle(){
+    //     this.headerDataTitle = {... this.headerData};    
+    //     this.headerDataTitle.tipo_venda = this.tiposVenda.find(element => element.value == this.headerData.tipo_venda).label;
+    //     this.headerDataTitle.data_pagamento = this.headerData.data_pagamento;
+    //     this.headerDataTitle.data_entrega = this.headerData.data_entrega ? this.headerData.data_entrega : null;
+           
+    // }
 
     connectedCallback() {
         //Importando estilo para esconder header padrão de página
@@ -207,6 +230,7 @@ export default class OrderScreen extends LightningElement {
     async saveOrder(){
         await this.recordId;
         const data = {accountData: this.accountData, headerData: this.headerData, productData: this.productData, summaryData: this.summaryData};
+        console.log(JSON.stringify(data));
         this.isLoading = true;
         //console.log(data);
         saveOrder({
@@ -243,8 +267,7 @@ export default class OrderScreen extends LightningElement {
 
     _setHeaderData(event) {
         this.headerData = event.data;
-        this.headerDataTitle = event.dataTitles;
-        console.log('header data setted:', this.headerData, this.headerDataTitle);
+        console.log('header data setted:', this.headerData);
         this.enableNextScreen();
         this.completeCurrentScreen();
     }
