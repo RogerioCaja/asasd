@@ -46,7 +46,7 @@ export default class OrderProductScreen extends LightningElement {
     connectedCallback(event) {
         this.paymentDate = this.headerData.data_pagamento;
         this.hectares = this.headerData.hectares;
-        this.priceBookListId = this.headerData.lista_precos;
+        this.priceBookListId = this.headerData.lista_precos.Id;
 
         this.products = this.isFilled(this.productData) ? this.productData : [];
         this.showIncludedProducts = this.products.length > 0;
@@ -82,7 +82,8 @@ export default class OrderProductScreen extends LightningElement {
                 activePrinciple: currentProduct.activePrinciple != null ? currentProduct.activePrinciple : '',
                 productGroupId: currentProduct.productGroupId != null ? currentProduct.productGroupId : '',
                 productGroupName: currentProduct.productGroupName != null ? currentProduct.productGroupName : '',
-                sapStatus: currentProduct.sapStatus != null ? currentProduct.sapStatus : ''
+                sapStatus: currentProduct.sapStatus != null ? currentProduct.sapStatus : '',
+                sapProductCode: currentProduct.sapProductCode != null ? currentProduct.sapProductCode : ''
             };
         }
     }
@@ -94,24 +95,24 @@ export default class OrderProductScreen extends LightningElement {
 
     applySelectedColumns(event) {
         let selectedColumns = [{label: 'Nome', fieldName: 'name'}];
-        if (this.isFilled(this.selectedColumns.columnUnity)) selectedColumns.push({label: 'Unidade de Medida', fieldName: 'unity'})
-        if (this.isFilled(this.selectedColumns.columnListPrice)) selectedColumns.push({label: 'Preço da Lista', fieldName: 'listPrice'})
-        if (this.isFilled(this.selectedColumns.columnDosage)) selectedColumns.push({label: 'Dosagem', fieldName: 'dosage'})
-        if (this.isFilled(this.selectedColumns.columnQuantity)) selectedColumns.push({label: 'Quantidade', fieldName: 'quantity'})
-        if (this.isFilled(this.selectedColumns.columnUnitPrice)) selectedColumns.push({label: 'Preço Unitário', fieldName: 'unitPrice'})
-        if (this.isFilled(this.selectedColumns.columnTotalPrice)) selectedColumns.push({label: 'Preço Total', fieldName: 'totalPrice'})
-        if (this.isFilled(this.selectedColumns.columnCommercialDiscountPercentage)) selectedColumns.push({label: 'Percentual de Desconto Comercial', fieldName: 'commercialDiscountPercentage'})
-        if (this.isFilled(this.selectedColumns.columnCommercialDiscountValue)) selectedColumns.push({label: 'Valor de Desconto Comercial', fieldName: 'commercialDiscountValue'})
-        if (this.isFilled(this.selectedColumns.columnCommercialAdditionPercentage)) selectedColumns.push({label: 'Percentual de Acréscimo Comercial', fieldName: 'commercialAdditionPercentage'})
-        if (this.isFilled(this.selectedColumns.columnCommercialAdditionValue)) selectedColumns.push({label: 'Valor de Acréscimo Comercial', fieldName: 'commercialAdditionValue'})
-        if (this.isFilled(this.selectedColumns.columnFinancialAdditionPercentage)) selectedColumns.push({label: 'Percentual de Acréscimo Financeiro', fieldName: 'financialAdditionPercentage'})
-        if (this.isFilled(this.selectedColumns.columnFinancialAdditionValue)) selectedColumns.push({label: 'Valor de Acréscimo Financeiro', fieldName: 'financialAdditionValue'})
-        if (this.isFilled(this.selectedColumns.columnFinancialDecreasePercentage)) selectedColumns.push({label: 'Percentual de Decréscimo Financeiro', fieldName: 'financialDecreasePercentage'})
-        if (this.isFilled(this.selectedColumns.columnFinancialDecreaseValue)) selectedColumns.push({label: 'Valor de Decréscimo Financeiro', fieldName: 'financialDecreaseValue'})
-        if (this.isFilled(this.selectedColumns.columnInvoicedQuantity)) selectedColumns.push({label: 'Quantidade Faturada', fieldName: 'invoicedQuantity'})
-        if (this.isFilled(this.selectedColumns.columnActivePrinciple)) selectedColumns.push({label: 'Princípio Ativo', fieldName: 'activePrinciple'})
-        if (this.isFilled(this.selectedColumns.columnGroup)) selectedColumns.push({label: 'Grupo do Produto', fieldName: 'productGroupName'})
-        if (this.isFilled(this.selectedColumns.columnSapStatus)) selectedColumns.push({label: 'Status SAP', fieldName: 'sapStatus'})
+        if (this.isSelected(this.selectedColumns.columnUnity)) selectedColumns.push({label: 'Unidade de Medida', fieldName: 'unity'})
+        if (this.isSelected(this.selectedColumns.columnListPrice)) selectedColumns.push({label: 'Preço da Lista', fieldName: 'listPrice'})
+        if (this.isSelected(this.selectedColumns.columnDosage)) selectedColumns.push({label: 'Dosagem', fieldName: 'dosage'})
+        if (this.isSelected(this.selectedColumns.columnQuantity)) selectedColumns.push({label: 'Quantidade', fieldName: 'quantity'})
+        if (this.isSelected(this.selectedColumns.columnUnitPrice)) selectedColumns.push({label: 'Preço Unitário', fieldName: 'unitPrice'})
+        if (this.isSelected(this.selectedColumns.columnTotalPrice)) selectedColumns.push({label: 'Preço Total', fieldName: 'totalPrice'})
+        if (this.isSelected(this.selectedColumns.columnCommercialDiscountPercentage)) selectedColumns.push({label: 'Percentual de Desconto Comercial', fieldName: 'commercialDiscountPercentage'})
+        if (this.isSelected(this.selectedColumns.columnCommercialDiscountValue)) selectedColumns.push({label: 'Valor de Desconto Comercial', fieldName: 'commercialDiscountValue'})
+        if (this.isSelected(this.selectedColumns.columnCommercialAdditionPercentage)) selectedColumns.push({label: 'Percentual de Acréscimo Comercial', fieldName: 'commercialAdditionPercentage'})
+        if (this.isSelected(this.selectedColumns.columnCommercialAdditionValue)) selectedColumns.push({label: 'Valor de Acréscimo Comercial', fieldName: 'commercialAdditionValue'})
+        if (this.isSelected(this.selectedColumns.columnFinancialAdditionPercentage)) selectedColumns.push({label: 'Percentual de Acréscimo Financeiro', fieldName: 'financialAdditionPercentage'})
+        if (this.isSelected(this.selectedColumns.columnFinancialAdditionValue)) selectedColumns.push({label: 'Valor de Acréscimo Financeiro', fieldName: 'financialAdditionValue'})
+        if (this.isSelected(this.selectedColumns.columnFinancialDecreasePercentage)) selectedColumns.push({label: 'Percentual de Decréscimo Financeiro', fieldName: 'financialDecreasePercentage'})
+        if (this.isSelected(this.selectedColumns.columnFinancialDecreaseValue)) selectedColumns.push({label: 'Valor de Decréscimo Financeiro', fieldName: 'financialDecreaseValue'})
+        if (this.isSelected(this.selectedColumns.columnInvoicedQuantity)) selectedColumns.push({label: 'Quantidade Faturada', fieldName: 'invoicedQuantity'})
+        if (this.isSelected(this.selectedColumns.columnActivePrinciple)) selectedColumns.push({label: 'Princípio Ativo', fieldName: 'activePrinciple'})
+        if (this.isSelected(this.selectedColumns.columnGroup)) selectedColumns.push({label: 'Grupo do Produto', fieldName: 'productGroupName'})
+        if (this.isSelected(this.selectedColumns.columnSapStatus)) selectedColumns.push({label: 'Status SAP', fieldName: 'sapStatus'})
 
         if (selectedColumns.length >= 2) {
             selectedColumns.push({
@@ -216,12 +217,14 @@ export default class OrderProductScreen extends LightningElement {
                 
                 this.calculateTotalPrice();
             } else if (fieldId == 'dosage') {
-                this.addProduct.quantity = this.calculateMultiplicity(this.addProduct.dosage * this.hectares);
-                this.listTotalPrice = this.addProduct.listPrice * this.addProduct.quantity;
-                this.calculateTotalPrice();
-                this.calculateDiscountOrAddition();
+                if (this.isFilled(this.hectares)) {
+                    this.addProduct.quantity = this.calculateMultiplicity(this.addProduct.dosage * this.hectares);
+                    this.listTotalPrice = this.addProduct.listPrice * this.addProduct.quantity;
+                    this.calculateTotalPrice();
+                    this.calculateDiscountOrAddition();
+                }
             } else if (fieldId == 'quantity') {
-                this.calculateMultiplicity(this.addProduct.quantity);
+                this.addProduct.quantity = this.calculateMultiplicity(this.addProduct.quantity);
                 this.listTotalPrice = this.addProduct.listPrice * this.addProduct.quantity;
                 this.calculateTotalPrice();
                 this.calculateDiscountOrAddition();
@@ -289,13 +292,18 @@ export default class OrderProductScreen extends LightningElement {
         return ((field !== undefined && field != null && field != '') || field == 0);
     }
 
+    isSelected(field) {
+        return (field !== undefined && field != null && field != '' && field == true);
+    }
+
     includeProduct() {
         let prod = this.addProduct;
         if (this.checkRequiredFields(prod)) {
             let allProducts = JSON.parse(JSON.stringify(this.products));
-            let margin = this.isFilled(this.costPrice) ? ((prod.totalPrice / prod.quantity) / this.costPrice).toFixed(2) : null;
+            let margin = this.isFilled(this.costPrice) ? ((prod.totalPrice / prod.quantity) / this.costPrice).toFixed(2) : 0;
             
             prod.commercialMarginPercentage = margin;
+            prod.multiplicity = this.multiplicity;
             prod.position = this.isFilled(this.products) ? this.products.length : 0
             allProducts.push(prod);
 
@@ -321,6 +329,7 @@ export default class OrderProductScreen extends LightningElement {
                 if (this.checkRequiredFields(this.addProduct)) {
                     let margin = this.isFilled(this.costPrice) ? ((this.addProduct.totalPrice / this.addProduct.quantity) / this.costPrice).toFixed(2) : null;
                     this.addProduct.commercialMarginPercentage = margin;
+                    this.addProduct.multiplicity = this.multiplicity;
                     includedProducts[index] = JSON.parse(JSON.stringify(this.addProduct));
                     break;
                 } else {
@@ -361,6 +370,7 @@ export default class OrderProductScreen extends LightningElement {
             productGroupId: currentProduct.productGroupId,
             productGroupName: currentProduct.productGroupName,
             sapStatus: currentProduct.sapStatus,
+            sapProductCode: currentProduct.sapProductCode,
             activePrinciple: currentProduct.activePrinciple,
             commercialDiscountPercentage: currentProduct.commercialDiscountPercentage,
             commercialAdditionPercentage: currentProduct.commercialAdditionPercentage,

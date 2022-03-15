@@ -34,7 +34,7 @@ public without sharing class CustomLookupController {
     public static List<SObject> fetchAccountRecords(String searchString) {
         try {
             List<SObject> recordsData = new List<SObject>();
-            String query = 'SELECT Id, Name, CNPJ__c, CPF__c, Phone, BillingCity, BillingState FROM Account WHERE Name LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' LIMIT 49999';
+            String query = 'SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE Name LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' OR CPF__c LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' OR Company__c LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' LIMIT 49999';
             
 	        for(SObject s : Database.query(query)) {
 	            recordsData.add(s);
@@ -68,7 +68,7 @@ public without sharing class CustomLookupController {
 
             Set<Id> prodsId = productsPriceById.keySet();
             List<ProductData> recordsDataList = new List<ProductData>();
-            String productQuery = 'SELECT Id, Name, QuantityUnitOfMeasure, ProductGroup__c, ProductGroup__r.Name, PrincipleActive__c, Multiplicity__c' +
+            String productQuery = 'SELECT Id, Name, ExternalId__c, QuantityUnitOfMeasure, ProductGroup__c, ProductGroup__r.Name, PrincipleActive__c, Multiplicity__c' +
                                   '  FROM Product2' +
                                   ' WHERE Id IN:prodsId' +
                                   '   AND ('+
@@ -98,7 +98,7 @@ public without sharing class CustomLookupController {
                 if (productGroupId != null) {
                     productGroupName = productsGroupById.get(productGroupId) != null ? productsGroupById.get(productGroupId).Name : '';
                 }
-                recordsDataList.add(new ProductData((String)s.get('Id'), (String)s.get('Name'), (String)s.get('QuantityUnitOfMeasure'), (String)s.get('PrincipleActive__c'), (Decimal)s.get('Multiplicity__c'), productGroupId, productGroupName, pbe.Id, pbe.UnitPrice, pbe.CostPrice__c));
+                recordsDataList.add(new ProductData((String)s.get('Id'), (String)s.get('Name'), (String)s.get('ExternalId__c'), (String)s.get('QuantityUnitOfMeasure'), (String)s.get('PrincipleActive__c'), (Decimal)s.get('Multiplicity__c'), productGroupId, productGroupName, pbe.Id, pbe.UnitPrice, pbe.CostPrice__c));
 	        }
 
             return recordsDataList;
@@ -126,6 +126,7 @@ public without sharing class CustomLookupController {
     public class ProductData {
         @AuraEnabled public String Id;
         @AuraEnabled public String Name;
+        @AuraEnabled public String sapProductCode;
         @AuraEnabled public String unity;
         @AuraEnabled public String productGroupId;
         @AuraEnabled public String productGroupName;
@@ -135,9 +136,10 @@ public without sharing class CustomLookupController {
         @AuraEnabled public Decimal listPrice;
         @AuraEnabled public Decimal costPrice;
         
-        public ProductData(String Id, String Name, String unity, String activePrinciple, Decimal multiplicity, String productGroup, String productGroupName, String entryId, Decimal listPrice, Decimal costPrice) {
+        public ProductData(String Id, String Name, String sapProductCode, String unity, String activePrinciple, Decimal multiplicity, String productGroup, String productGroupName, String entryId, Decimal listPrice, Decimal costPrice) {
             this.Id = Id;
             this.Name = Name;
+            this.sapProductCode = sapProductCode != null ? sapProductCode : '';
             this.unity = unity != null ? unity : '';
             this.productGroupId = productGroup != null ? productGroup : '';
             this.productGroupName = productGroupName != null ? productGroupName : '';
