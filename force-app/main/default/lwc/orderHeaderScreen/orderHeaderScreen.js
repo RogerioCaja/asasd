@@ -301,16 +301,21 @@ export default class OrderHeaderScreen extends LightningElement {
     @track redispatchFilialListItemOptions = {title:'Name', description:'Name'};*/
     @track registerDetails = ['cliente_entrega'];
 
+    isFilled(field) {
+        return ((field !== undefined && field != null && field != '') || field == 0);
+    }
     selectItemRegister(event){
         try{
-            var field = event.target.name;
-            if(event.detail.value){
-                this.headerDictLocale[field] = event.detail.value;
-            }
-            else{
-                    const { record } = event.detail;
-                    this.headerDictLocale[field] = (this.registerDetails.includes(field) ? this.resolveRegister(record)  : {Id: record.Id, Name: record.Name});
-            }
+            if(this.isFilled(event)){
+                var field = event.target.name;
+                if(event.detail.value){
+                    this.headerDictLocale[field] = event.detail.value;
+                }
+                else{
+                        const { record } = event.detail;
+                        this.headerDictLocale[field] = (this.registerDetails.includes(field) ? this.resolveRegister(record)  : {Id: record.Id, Name: record.Name});
+                }
+            }  
         }
         catch(err){
             console.log(err);
@@ -326,6 +331,7 @@ export default class OrderHeaderScreen extends LightningElement {
             CPF:record.CPF,
             CNPJ:record.CNPJ,
             City:record.City,
+            CodSap: record.ExternalId__c,
             UF:record.UF
         }
     }

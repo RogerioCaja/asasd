@@ -178,6 +178,7 @@ export default class OrderScreen extends LightningElement {
             //this.loadHeaderDataTitle();
             this.productData = data.productData;
             this.summaryData.observation = this.headerData.observation;
+            this.summaryData.billing_sale_observation - this.headerData.billing_sale_observation;
             this.enableScreens([0, 1]);
             this.completeScreens([0, 1]);
             this.isLoading = false;

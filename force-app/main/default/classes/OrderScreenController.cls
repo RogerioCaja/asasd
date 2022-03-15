@@ -25,7 +25,7 @@ public without sharing class OrderScreenController {
     }
 
     public static HeaderSerialize getOrderData(Id orderId){
-        Order order = [SELECT Id, Description, AccountId, Type, ShippingAccount__c , ShippingAccount__r.Phone,  ShippingAccount__r.Name, 
+        Order order = [SELECT Id, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c , ShippingAccount__r.Phone,  ShippingAccount__r.Name, 
         ShippingAccount__r.BillingCity, ShippingAccount__r.BillingState ,ShippingAccount__r.CPF__c, ShippingAccount__r.CNPJ__c , Pricebook2Id, Pricebook2.Name, PaymentDate__c,  CustomerOrderNumber__c,
         Crop__c , Crop__r.Name, Culture__c , Culture__r.Name, PaymentForm__c, StatusSF__c, SalesOrg__c, SalesOrg__r.Name, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, SalesCTV__r.Name,
         PaymentCondition__c, PaymentCondition__r.Name, ShippingDate__c, Incoterms__c
@@ -77,7 +77,7 @@ public without sharing class OrderScreenController {
     }
 
     public static AccountSerialize getOrderAccountData(Id accountId) {
-        Account account = [SELECT Id, Name, CNPJ__c, CPF__c, Phone, BillingCity, BillingState FROM Account WHERE Id =: accountId LIMIT 1];
+        Account account = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE Id =: accountId LIMIT 1];
         return new AccountSerialize(account);
     }
 
@@ -108,7 +108,7 @@ public without sharing class OrderScreenController {
             
             if (orderId != NULL) {
                 newOrder = false;
-                order = [SELECT Id, Description, AccountId, Type, ShippingAccount__c, Pricebook2Id, PaymentDate__c, ShippingDate__c, PaymentCondition__c, CustomerOrderNumber__c,
+                order = [SELECT Id, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c, Pricebook2Id, PaymentDate__c, ShippingDate__c, PaymentCondition__c, CustomerOrderNumber__c,
                 Crop__c, Culture__c, PaymentForm__c, StatusSF__c, SalesOrg__c, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c
                 FROM Order WHERE Id =: orderId LIMIT 1];
             } else {
@@ -154,6 +154,7 @@ public without sharing class OrderScreenController {
             order.Description = orderData.summaryData.observation;
             order.PaymentCondition__c = orderData.headerData.condicao_pagamento.Id;
             order.ShippingDate__c = Date.valueOf(orderData.headerData.data_entrega);
+            order.DescriptionBillingSale__c = orderData.summaryData.billing_sale_observation;
             order.FinalTotalValue__c = orderTotalValue;
 
             Database.UpsertResult insResults = Database.upsert(order, false);
@@ -270,6 +271,7 @@ public without sharing class OrderScreenController {
         public String frete;
         public InformationFields ctv_venda;
         public String observation;
+        public String billing_sale_observation;
         //public String cliente_faturamento;
     }
 
@@ -305,6 +307,7 @@ public without sharing class OrderScreenController {
 
     public class SummaryDeserialize{
         public String observation;
+        public String billing_sale_observation;
     }
 
 
@@ -335,6 +338,8 @@ public without sharing class OrderScreenController {
         public String CPF;
         public String City;
         public String UF;
+        public String CodSap;
+        public String Company;
         
         public List<AccountSerialize> accountList;
         AccountSerialize(){}
@@ -346,6 +351,8 @@ public without sharing class OrderScreenController {
             this.CPF = account.CPF__c;
             this.City = account.BillingCity;
             this.UF = account.BillingState;
+            this.CodSap = account.ExternalId__c;
+            this.Company = account.Company__c;
         }
 
         AccountSerialize(List<AccountSerialize> accountList){
@@ -376,6 +383,7 @@ public without sharing class OrderScreenController {
         public String frete;
         public InformationFields ctv_venda;
         public String observation;
+        public String billing_sale_observation;
         //public String data_entrega;
         //public String cliente_faturamento;
         HeaderSerialize(){}
@@ -409,6 +417,7 @@ public without sharing class OrderScreenController {
             this.condicao_pagamento = new InformationFields(order.PaymentCondition__c, order.PaymentCondition__r.Name);
             this.frete = order.Incoterms__c;
             this.observation = order.Description;
+            this.billing_sale_observation = order.DescriptionBillingSale__c;
         }
     }
 
