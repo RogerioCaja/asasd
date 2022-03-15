@@ -65,10 +65,18 @@
                                 style="width: 100%;" 
                                 required="true">
                             </c-lookup> -->
-                            <c-lookup-account name="cliente_entrega" record-id={headerData.cliente_entrega} onclearselectedrecord={removeSelectClienteEntrega} onselectrecord={selectItemRegister} account-list={accountChildData}></c-lookup-account>
+                            <c-lookup-account name="cliente_entrega" record-id={headerData.cliente_entrega.Id} onclearselectedrecord={removeSelectClienteEntrega} onselectrecord={selectItemRegister} account-list={accountChildData}></c-lookup-account>
                         </div>
                         <div class="slds-form-element slds-size_1-of-4">
-                            <lightning-combobox 
+                            <lightning-input
+                                name="tipo_venda" 
+                                label="Tipo de Venda" 
+                                placeholder=""
+                                value={headerData.tipo_venda} 
+                                disabled="true"
+                                required="true">
+                            </lightning-input>
+                            <!-- <lightning-combobox 
                                 name="tipo_venda" 
                                 label="Tipo de Venda" 
                                 placeholder="Escolha um Tipo de Venda"
@@ -76,7 +84,7 @@
                                 onchange={selectItemRegister} 
                                 options={tiposVenda} 
                                 required="true">
-                            </lightning-combobox>
+                            </lightning-combobox> -->
                         </div>
                         
                         <div class="slds-form-element slds-size_1-of-4">
@@ -86,7 +94,7 @@
                                 object-icon-name="standard:action_list_component"
                                 target-object={redispatchCtvVendaObject}
                                 search-fields={redispatchCtvSearchFields} 
-                                record-id={headerData.ctv_venda}
+                                record-id={headerData.ctv_venda.Id}
                                 list-item-options={redispatchCtvVendaListItemOptions} 
                                 new-record-button="true"
                                 standard-form-layout={booleanTrue}
@@ -104,7 +112,7 @@
                                 input-label="Safras" 
                                 object-icon-name="standard:action_list_component"
                                 target-object={redispatchSafraObject} 
-                                record-id={headerData.safra}
+                                record-id={headerData.safra.Id}
                                 search-fields={redispatchSafraSearchFields}
                                 list-item-options={redispatchSafraListItemOptions} 
                                 new-record-button={booleanTrue}
@@ -121,7 +129,7 @@
                                 input-label="Culturas" 
                                 object-icon-name="standard:action_list_component"
                                 target-object={redispatchCulturaObject} 
-                                record-id={headerData.cultura}
+                                record-id={headerData.cultura.Id}
                                 search-fields={redispatchCulturaSearchFields}
                                 list-item-options={redispatchCulturaListItemOptions} 
                                 new-record-button={booleanTrue}
@@ -138,7 +146,7 @@
                                 input-label="Lista de Preços" 
                                 object-icon-name="standard:action_list_component"
                                 target-object={redispatchListaPrecoObject}
-                                record-id={headerData.lista_precos}
+                                record-id={headerData.lista_precos.Id}
                                 search-fields={redispatchListaPrecosSearchFields}
                                 list-item-options={redispatchListaPrecoListItemOptions} 
                                 standard-form-layout={booleanTrue}
@@ -157,7 +165,7 @@
                                 input-label="Condição de Pagamento"
                                 object-icon-name="standard:action_list_component"
                                 target-object={redispatchCondicaoPagamentoObject} 
-                                record-id={headerData.condicao_pagamento}
+                                record-id={headerData.condicao_pagamento.Id}
                                 search-fields={redispatchCondicaoPagamentoSearchFields}
                                 standard-form-layout={booleanTrue}
                                 list-item-options={redispatchCondicaoPagamentoListItemOptions} 
