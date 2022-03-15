@@ -996,11 +996,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Pricebook2.FinancialDecrese__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
         <field>Pricebook2.InitialDate__c</field>
         <readable>true</readable>
     </fieldPermissions>

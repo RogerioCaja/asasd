@@ -42,10 +42,6 @@
         <layoutColumns>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>Unit__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
                 <field>EffectiveDate__c</field>
             </layoutItems>
             <layoutItems>
