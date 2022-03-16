@@ -30,10 +30,6 @@
         <layoutColumns>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>Product2Id__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
                 <field>UnitPrice__c</field>
             </layoutItems>
             <layoutItems>
