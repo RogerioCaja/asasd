@@ -3,26 +3,27 @@ public with sharing class IntegrationFreightLincros {
 
     }
 
-    public static String AuthLincros(){
-        HttpRequest request = new HttpRequest();
-		request.setEndpoint('https://homolog.transpofrete.com.br/api/auth/login');
+    private static String authLincros(){
         String payload = '{'+
 		'  "login": "",'+
 		'  "senha": ""'+
 		'}';
+
+        HttpRequest request = new HttpRequest();
+		request.setEndpoint('https://homolog.transpofrete.com.br/api/auth/login');
 		request.setMethod('POST');
         request.setBody(payload);
-		Http sendRequest = new Http();
-	    HttpResponse response  =  sendRequest.send(request);
+
+	    HttpResponse response  =   (new Http()).send(request);
 		AuthResult authResult = (AuthResult)JSON.deserialize(response.getBody(), AuthResult.class);
-		return authResult.access_token;
+		return authResult.accessToken;
     }
 
     public class AuthResult{
-        public String access_token;
+        public String accessToken;
     }
 
-    private HttpRequest makeRequest(String data){
+    private static HttpRequest makeRequest(String data){
         //Instancia de um HTTP request
         HttpRequest request = new HttpRequest();
 
@@ -35,7 +36,7 @@ public with sharing class IntegrationFreightLincros {
 		request.setMethod('POST');
         request.setTimeout(110000);
         request.setBody(payload);
-        String accessToken = AuthLincros();
+        String accessToken = authLincros();
         
         Map<String, String> headersMap = new Map<String, String>();
 		headersMap.put('Content-type', 'application/json');
@@ -50,18 +51,31 @@ public with sharing class IntegrationFreightLincros {
         return request;
     }
 
-    private Response sendRequest(HttpRequest request){
-        response = (new Http()).send(request);
+    private static Response sendRequest(HttpRequest request){
+        //Envio do Request
+        HttpResponse response = (new Http()).send(request);
+
+        // Verificação do status, se vier status positivo, montará a Response com dados
+        // Senão retorna um Response vazio
+        if(isValidResponse(response)){
+            Response responseRequest = (Response) JSON.deserialize(response.getBody(), Response.class);
+            return responseRequest; 
+        }
+        else{
+            return new Response();
+        }
     }
 
-    private Boolean validateResponse(HttpResponse response){
-        
+    private static Boolean isValidResponse(HttpResponse response){
+        if(response.getStatus() == '200'){
+            return true;
+        }
+        return false;
     }
 
     @AuraEnabled
-    public static Decimal getFreight(String data){
+    public static String getFreight(String data){
         
-      
         data = '{'+
 		'  "destinatario": "36064352000158",'+
 		'  "remetente": "26143384000195",'+
@@ -70,21 +84,10 @@ public with sharing class IntegrationFreightLincros {
 		'}';
 
        
-       
-        HttpRequest request = makeRequest();
+        HttpRequest request = makeRequest(data);
+        Response response = sendRequest(request);
 
-        HttpResponse response;
-       
-
-
-        if(response.getStatus() == '200'){
-            System.debug(response.getBody());
-            Response responseRequest = (Response) JSON.deserialize(response.getBody(), Response.class);
-            return responseRequest; 
-        }
-
-        return 0.00;
-
+        return JSON.serializePretty(response);
     }
 
     public class ShippingCompany{
