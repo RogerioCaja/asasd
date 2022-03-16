@@ -22,21 +22,21 @@ public with sharing class IntegrationFreightLincros {
         public String access_token;
     }
 
-    @AuraEnabled
-    public static Decimal getFreight(String data){
+    private HttpRequest makeRequest(String data){
+        //Instancia de um HTTP request
         HttpRequest request = new HttpRequest();
-      
-        data = '{'+
-		'  "destinatario": "36064352000158",'+
-		'  "remetente": "26143384000195",'+
-        '  "cepOrigem": "09981123",'+
-        '  "cepDestino": "69088254"'+
-		'}';
 
+        //Conversão dos dados para JSON
+        RequestParameters conversion = (RequestParameters) JSON.deserialize(data, RequestParameters.class);
+        String payload = JSON.serialize(conversion);
+
+        //Parte efetiva de montagem na estrutura do request
 		request.setEndpoint('https://homolog.transpofrete.com.br/api/calculo/calcularNota');
 		request.setMethod('POST');
         request.setTimeout(110000);
+        request.setBody(payload);
         String accessToken = AuthLincros();
+        
         Map<String, String> headersMap = new Map<String, String>();
 		headersMap.put('Content-type', 'application/json');
 		headersMap.put('Authorization', accessToken);
@@ -46,16 +46,41 @@ public with sharing class IntegrationFreightLincros {
                 request.setHeader(headerKey, headersMap.get(headerKey));
             }
         }
-        RequestParameters payload = (RequestParameters) JSON.deserialize(data, RequestParameters.class);
-        System.debug(payload);
-        HttpResponse response;
+
+        return request;
+    }
+
+    private Response sendRequest(HttpRequest request){
         response = (new Http()).send(request);
+    }
+
+    private Boolean validateResponse(HttpResponse response){
+        
+    }
+
+    @AuraEnabled
+    public static Decimal getFreight(String data){
+        
+      
+        data = '{'+
+		'  "destinatario": "36064352000158",'+
+		'  "remetente": "26143384000195",'+
+        '  "cepOrigem": "09981123",'+
+        '  "cepDestino": "69088254"'+
+		'}';
+
+       
+       
+        HttpRequest request = makeRequest();
+
+        HttpResponse response;
+       
 
 
         if(response.getStatus() == '200'){
             System.debug(response.getBody());
             Response responseRequest = (Response) JSON.deserialize(response.getBody(), Response.class);
-            return responseRequest.transportadoras[0].valor; 
+            return responseRequest; 
         }
 
         return 0.00;
