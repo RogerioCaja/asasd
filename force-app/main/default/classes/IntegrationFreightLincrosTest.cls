@@ -1,8 +1,6 @@
 @isTest
 public with sharing class IntegrationFreightLincrosTest {
-    public IntegrationFreightLincrosTest() {
-
-    }
+    public IntegrationFreightLincrosTest() {}
 
     @isTest 
     static void testCalloutSuccess() {
@@ -18,10 +16,7 @@ public with sharing class IntegrationFreightLincrosTest {
 		'}';
    
         String res = IntegrationFreightLincros.getFreight(data);
-        
-      
-       
-        String actualValue = res;
+
         IntegrationFreightLincros.Response response = new IntegrationFreightLincros.Response();
         IntegrationFreightLincros.ShippingCompany shipping = new IntegrationFreightLincros.ShippingCompany();
         IntegrationFreightLincros.Table table = new IntegrationFreightLincros.Table();
@@ -44,9 +39,9 @@ public with sharing class IntegrationFreightLincrosTest {
         response.transportadoras = new List<IntegrationFreightLincros.ShippingCompany>{shipping};
         response.status = 'string';
 
+        String actualValue = res;
         String expectedValue = JSON.serializePretty(response);
         System.assertEquals(actualValue, expectedValue);
-      
     }
 
     @isTest 
@@ -67,6 +62,5 @@ public with sharing class IntegrationFreightLincrosTest {
         String actualValue = res;
         String expectedValue = JSON.serializePretty(new IntegrationFreightLincros.Response());
         System.assertEquals(actualValue, expectedValue);
-      
     }
 }

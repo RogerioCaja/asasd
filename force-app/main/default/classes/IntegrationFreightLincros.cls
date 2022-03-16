@@ -1,7 +1,5 @@
 public with sharing class IntegrationFreightLincros {
-    public IntegrationFreightLincros() {
-
-    }
+    public IntegrationFreightLincros() {}
 
     private static String authLincros(){
         String payload = '{'+
@@ -17,10 +15,6 @@ public with sharing class IntegrationFreightLincros {
 	    HttpResponse response  =   (new Http()).send(request);
 		AuthResult authResult = (AuthResult)JSON.deserialize(response.getBody(), AuthResult.class);
 		return authResult.accessToken;
-    }
-
-    public class AuthResult{
-        public String accessToken;
     }
 
     private static HttpRequest makeRequest(String data){
@@ -125,5 +119,9 @@ public with sharing class IntegrationFreightLincros {
 
         public List<ShippingCompany> transportadoras;
         public String status;
+    }
+
+    public class AuthResult{
+        public String accessToken;
     }
 }
