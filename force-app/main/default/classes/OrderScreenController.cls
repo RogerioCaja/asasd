@@ -85,8 +85,8 @@ public without sharing class OrderScreenController {
     public static string getAccountDataChild(Id accountId){
         try {
             List<AccountSerialize> accountListSerialize = new List<AccountSerialize>();
-            Account accountMom = [SELECT Id, Name, CNPJ__c, CPF__c, Phone, BillingCity, BillingState FROM Account WHERE Id =: accountId LIMIT 1];
-            List<Account> accountList = [SELECT Id, Name, CNPJ__c, CPF__c, Phone, BillingCity, BillingState FROM Account WHERE ParentId =: accountId];
+            Account accountMom = [SELECT Id, Name, CNPJ__c, CPF__c, Phone, BillingCity, BillingState, Company__c, ExternalId__c FROM Account WHERE Id =: accountId LIMIT 1];
+            List<Account> accountList = [SELECT Id, Name, CNPJ__c, CPF__c, Phone, BillingCity, BillingState, Company__c, ExternalId__c FROM Account WHERE ParentId =: accountId];
             accountList.add(accountMom);
             for(Account account : accountList)
                 accountListSerialize.add(new AccountSerialize(account));
@@ -120,10 +120,15 @@ public without sharing class OrderScreenController {
     
             Decimal orderTotalValue = 0;
             Set<Id> setOrderItemsIds = new Set<Id>();
+            Set<Id> setProductGroups = new Set<Id>();
             for (ProductDeserialize orderProduct : orderData.productData) {
                 orderTotalValue += orderProduct.totalPrice;
                 if (orderProduct.orderItemId != null) {
                     setOrderItemsIds.add(orderProduct.orderItemId);
+                }
+
+                if (orderProduct.productGroupId != null) {
+                    setProductGroups.add(orderProduct.productGroupId);
                 }
             }
             
@@ -132,6 +137,26 @@ public without sharing class OrderScreenController {
                   FROM OrderItem
                  WHERE Id IN: setOrderItemsIds
             ]);
+            
+            User user = [SELECT Id, SellerType__c FROM User WHERE Id =: UserInfo.getUserId()];
+            String sellerType = user.SellerType__c != null ? user.SellerType__c : '';
+
+            Map<Id, Comissao__c> commissionByGroup = new Map<Id, Comissao__c>();
+            if (sellerType != '') {
+                for (Comissao__c commission : [
+                    SELECT Id,
+                           ProductGroup__c,
+                           SellerType__c,
+                           CommissionPercentage__c 
+                    FROM Comissao__c
+                    WHERE ProductGroup__c IN: setProductGroups
+                    AND SellerType__c =: sellerType
+                ]) {
+                    if (!commissionByGroup.containsKey(commission.ProductGroup__c)) {
+                        commissionByGroup.put(commission.ProductGroup__c, commission);
+                    }
+                }
+            }
 
             order.AccountId = acc.Id;
             order.Status = 'Draft';
@@ -197,7 +222,13 @@ public without sharing class OrderScreenController {
                     orderItem.FinancialDiscountValue__c = orderProduct.financialDecreaseValue;
                     orderItem.ComissionValue__c = orderProduct.comissionValue;
                     orderItem.CommercialMargin__c = orderProduct.commercialMarginPercentage;
-                    System.debug('orderItem: ' + orderItem);
+                    orderItem.PercentComission__c = orderProduct.productGroupId != null ?
+                                                    (commissionByGroup.get(orderProduct.productGroupId) != null ?
+                                                        commissionByGroup.get(orderProduct.productGroupId).CommissionPercentage__c :
+                                                        0
+                                                    ) :
+                                                    0;
+                    orderItem.ComissionValue__c = orderItem.PercentComission__c != 0 ? (orderItem.FinalTotalValue__c * orderItem.PercentComission__c) / 100 : 0;
                     listOrderItems.add(orderItem);
                 }
 
