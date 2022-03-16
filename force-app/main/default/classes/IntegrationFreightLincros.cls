@@ -67,7 +67,7 @@ public with sharing class IntegrationFreightLincros {
     }
 
     private static Boolean isValidResponse(HttpResponse response){
-        if(response.getStatus() == '200'){
+        if(response.getStatusCode()  == 200){
             return true;
         }
         return false;
@@ -123,7 +123,7 @@ public with sharing class IntegrationFreightLincros {
 
     public class Response{
 
-        List<ShippingCompany> transportadoras;
+        public List<ShippingCompany> transportadoras;
         public String status;
     }
 }
