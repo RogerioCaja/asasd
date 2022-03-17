@@ -119,11 +119,19 @@ public without sharing class OrderScreenController {
             Account acc = [SELECT Id FROM Account WHERE Id =: orderData.accountData.Id LIMIT 1];
     
             Decimal orderTotalValue = 0;
+            Decimal biggerDiscount = 0;
+            Id productGroupId;
             Set<Id> setOrderItemsIds = new Set<Id>();
             for (ProductDeserialize orderProduct : orderData.productData) {
                 orderTotalValue += orderProduct.totalPrice;
                 if (orderProduct.orderItemId != null) {
                     setOrderItemsIds.add(orderProduct.orderItemId);
+                }
+
+                Decimal currentDiscount = 100 - ((orderData.productData * 100) / (orderProduct.quantity * orderProduct.listPrice));
+                if (biggerDiscount < currentDiscount) {
+                    biggerDiscount = currentDiscount;
+                    productGroupId = orderProduct.productGroupId;
                 }
             }
             
@@ -132,6 +140,44 @@ public without sharing class OrderScreenController {
                   FROM OrderItem
                  WHERE Id IN: setOrderItemsIds
             ]);
+
+            Id userTerritoryId;
+            for (UserTerritory2Association userAssociation : [
+                SELECT Id,
+                       User.Id,
+                       Territory2Id
+                  FROM UserTerritory2Association
+                 WHERE User.Id =: orderData.headerData.ctv_venda.Id
+                 LIMIT 1
+            ]) {
+                userTerritoryId = userAssociation.Territory2Id;
+            }
+
+            Map<Id, Territory2> territoryAndParents = new Map<Id, Territory2>();
+            for(Territory2 territory : [
+                SELECT Id,
+                       ParentTerritory2Id
+                  FROM Territory2
+            ]){
+                territoryAndParents.put(territory.Id, territory);
+            }
+
+            for (Discount__c discount : [
+                SELECT Id,
+                       Approver__c,
+                       ClientGroup__c,
+                       MinPercentage__c,
+                       MaxPercentage__c
+                  FROM Discount__c
+                 WHERE Status__c = 'Aprovado'
+                   AND ProductGroup__c =: productGroupId
+                   AND InitialDate__c >=: System.today()
+                   AND EndDate__c <=: System.today()
+                   AND MinPercentage__c <=: biggerDiscount
+                   AND MaxPercentage__c >=: biggerDiscount
+              ORDER BY MinPercentage__c, MaxPercentage__c
+            ]) {
+            }
 
             order.AccountId = acc.Id;
             order.Status = 'Draft';
