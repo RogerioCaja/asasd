@@ -26,15 +26,15 @@ public with sharing class IntegrationFreightLincros {
         String payload = JSON.serialize(conversion);
 
         //Parte efetiva de montagem na estrutura do request
-		request.setEndpoint('https://homolog.transpofrete.com.br/api/calculo/calcularNota');
+		request.setEndpoint('https://deployment.transpofrete.com.br/api/calculo/calcularNota');
 		request.setMethod('POST');
         request.setTimeout(110000);
         request.setBody(payload);
-        String accessToken = authLincros();
+        //String accessToken = authLincros();
         
         Map<String, String> headersMap = new Map<String, String>();
 		headersMap.put('Content-type', 'application/json');
-		headersMap.put('Authorization', accessToken);
+		headersMap.put('Authorization', 'Bearer' + 'BgSp7BppQqO0bCN9w2IQRDxHK3hjEjORU9qSqZCeWO');
 
         if (headersMap != null && headersMap.size() > 0){
             for (String headerKey : headersMap.keySet()){
@@ -42,6 +42,7 @@ public with sharing class IntegrationFreightLincros {
             }
         }
 
+        System.debug(request.getBody());
         return request;
     }
 
@@ -52,6 +53,7 @@ public with sharing class IntegrationFreightLincros {
         // Verificação do status, se vier status positivo, montará a Response com dados
         // Senão retorna um Response vazio
         if(isValidResponse(response)){
+            System.debug(response.getBody());
             Response responseRequest = (Response) JSON.deserialize(response.getBody(), Response.class);
             return responseRequest; 
         }
@@ -73,14 +75,15 @@ public with sharing class IntegrationFreightLincros {
         data = '{'+
 		'  "destinatario": "36064352000158",'+
 		'  "remetente": "26143384000195",'+
-        '  "cepOrigem": "09981123",'+
-        '  "cepDestino": "69088254"'+
+        '  "cepOrigem": 1030900,'+
+        '  "cepDestino": 20031000'+
 		'}';
 
        
         HttpRequest request = makeRequest(data);
         Response response = sendRequest(request);
 
+        System.debug(JSON.serializePretty(response));
         return JSON.serializePretty(response);
     }
 
@@ -111,8 +114,8 @@ public with sharing class IntegrationFreightLincros {
 
         public String destinatario;
         public String remetente;
-        public String cepOrigem;
-        public String cepDestino;
+        public Integer cepOrigem;
+        public Integer cepDestino;
     }
 
     public class Response{
