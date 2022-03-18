@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>ProductFamily__c</fullName>
+    <fullName>ProductGroup__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
     <externalId>false</externalId>
-    <label>Família de Produto</label>
-    <referenceTo>ProductFamily__c</referenceTo>
+    <label>Grupo do Produto</label>
+    <referenceTo>ProductGroup__c</referenceTo>
     <relationshipLabel>Descontos de Banda</relationshipLabel>
     <relationshipName>Descontos_de_Banda</relationshipName>
     <required>false</required>

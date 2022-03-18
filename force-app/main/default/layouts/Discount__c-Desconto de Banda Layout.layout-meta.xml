@@ -13,10 +13,6 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>ProductFamily__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
                 <field>MinPercentage__c</field>
             </layoutItems>
             <layoutItems>
@@ -26,6 +22,10 @@
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>InitialDate__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>ProductGroup__c</field>
             </layoutItems>
         </layoutColumns>
         <layoutColumns>
