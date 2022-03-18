@@ -30,11 +30,12 @@ public with sharing class IntegrationFreightLincros {
 		request.setMethod('POST');
         request.setTimeout(110000);
         request.setBody(payload);
-        //String accessToken = authLincros();
-        
+       
+        String ACCESS_TOKEN = AccessToken__c.getValues('token').Token__c;
+
         Map<String, String> headersMap = new Map<String, String>();
 		headersMap.put('Content-type', 'application/json');
-		headersMap.put('Authorization', 'Bearer' + 'BgSp7BppQqO0bCN9w2IQRDxHK3hjEjORU9qSqZCeWO');
+		headersMap.put('Authorization', 'Bearer' + ACCESS_TOKEN);
 
         if (headersMap != null && headersMap.size() > 0){
             for (String headerKey : headersMap.keySet()){
@@ -75,8 +76,8 @@ public with sharing class IntegrationFreightLincros {
         data = '{'+
 		'  "destinatario": "36064352000158",'+
 		'  "remetente": "26143384000195",'+
-        '  "cepOrigem": 1030900,'+
-        '  "cepDestino": 20031000'+
+        '  "cepOrigem": 75800093,'+
+        '  "cepDestino": 75800095'+
 		'}';
 
        
