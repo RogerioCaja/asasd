@@ -5,6 +5,7 @@ public class OrderScreenControllerTest {
         List<Account> accountList = new List<Account>();
         Account parentAccount = new Account(
             Name = 'Parent Account',
+            Company__c = 'Parent Account',
             Phone = '11111111111',
             ExternalId__c = '123456'
         );
@@ -12,27 +13,72 @@ public class OrderScreenControllerTest {
 
         Account childAccount = new Account(
             Name = 'Child Account',
+            Company__c = 'Child Account',
             Phone = '11111111111',
             ExternalId__c = '123456'
         );
         accountList.add(childAccount);
         insert accountList;
 
+        Company__c company = new Company__c(
+            Name = 'Company',
+            Blocked__c = false,
+            ClientGroup__c = 'A',
+            Conta__c = parentAccount.Id
+        );
+        insert company;
+
+        Safra__c crop = new Safra__c(
+            Name = 'Safra 01',
+            Code__c = '001',
+            BillingStartDate__c = System.today(),
+            StartDateOrderInsertion__c = System.today(),
+            EndDateBilling__c = System.today().addDays(90),
+            EndDateInsertionOrders__c = System.today().addDays(90),
+            NumberOfDaysAfterPayment__c = System.today().addDays(10),
+            ReleaseStatus__c = 'Ativo'
+        );
+        insert crop;
+
+        Cultura__c culture = new Cultura__c(
+            Name = 'Culture 01',
+            Name__c = 'Culture 01',
+            Codigo__c = '001'
+        );
+        insert culture;
+
+        CondicaoPagamento__c paymentCondition = new CondicaoPagamento__c(
+            Name = 'Boleto',
+            Code__c = '001'
+        );
+        insert paymentCondition;
+
         Order order = new Order(
             AccountId = parentAccount.Id,
             Status = 'Draft',
             PriceBook2Id = Test.getStandardPricebookId(),
-            Type = '1',
+            Type = 'Entrega Armazém Geral',
             ShippingAccount__c = parentAccount.Id,
-            PaymentDate__c = Date.valueOf('2022-03-30'),
+            PaymentDate__c = Date.today().addDays(-2),
             CustomerOrderNumber__c = '65465',
             EffectiveDate = Date.today(),
             PaymentForm__c = 'Bonificação',
             Currency__c = 'BRL',
             StatusSF__c = 'Em digitação',
-            Incoterms__c = 'CIF'
+            Incoterms__c = 'CIF',
+            Crop__c = crop.Id,
+            Culture__c = culture.Id,
+            SalesCTV__c = UserInfo.getUserId(),
+            PaymentCondition__c = paymentCondition.Id,
+            ShippingDate__c = Date.today().addDays(2)
         );
         insert order;
+
+        ProductGroup__c productGroup = new ProductGroup__c(
+            Name = 'Grãos',
+            ExternalId__c = '001'
+        );
+        insert productGroup;
 
         Product2 product = new Product2(
             Name = 'Milho',
@@ -40,7 +86,9 @@ public class OrderScreenControllerTest {
             ProductCode = '001',
             CurrencyIsoCode = 'BRL',
             IsActive = true,
-            PrincipleActive__c = 'Salicilina'
+            PrincipleActive__c = 'Salicilina',
+            ProductGroup__c = productGroup.Id,
+            Multiplicity__c = 5
         );
         insert product;
 
@@ -73,7 +121,9 @@ public class OrderScreenControllerTest {
             FinancialDiscountPercent__c = 0,
             FinancialDiscountValue__c = 0,
             ComissionValue__c = 0,
-            CommercialMargin__c = 2
+            CommercialMargin__c = 2,
+            Dosage__c = 5,
+            InvoicedQuantity__c = 0
         );
         insert orderItem;
     }
@@ -81,8 +131,20 @@ public class OrderScreenControllerTest {
     @isTest
     public static void getOrderDataTest() {
         Id orderId = [SELECT Id FROM Order LIMIT 1].Id;
-        String orderData = OrderScreenController.getOrder(orderId);
-        OrderScreenController.saveOrder(null, orderData);
+        OrderScreenController.getOrder(orderId);
+    }
+
+    @isTest
+    public static void saveOrderTest() {
+        Order ord = [SELECT Id, AccountId FROM Order LIMIT 1];
+
+        OrderScreenController.HeaderSerialize order = OrderScreenController.getOrderData(ord.Id);
+        OrderScreenController.AccountSerialize account = OrderScreenController.getOrderAccountData(ord.AccountId);
+        List<OrderScreenController.ProductSerialize> ordItemList = OrderScreenController.getOrderItemData(ord.Id);
+        OrderScreenController.SummarySerialize summary = new OrderScreenController.SummarySerialize('Observation', 'Observation Sales');
+
+        String data = JSON.serialize(new OrderScreenController.OrderSerializeAll(order, ordItemList, account, summary));
+        OrderScreenController.saveOrder(null, data);
     }
 
     @isTest
