@@ -92,23 +92,26 @@ public with sharing class IntegrationFreightLincros {
 
         public String prazoCliente;
         public String PrevisaoEntrega;
+        public Decimal pesoCubado;
         public Decimal peso;
         public Decimal valor;
         public String nome;
+        public List<Moviments> movimentos;//
         public String cnpj;
         public String valorCliente;
         public String status;
-        public Table tabela;
+        public String tabela;
         public Integer diasEntrega;
         public String possuiIntrucoesEntrega;
         public String modal;
         public Integer tipoConhecimento;
     }
 
-    public class Table{
-
-        public Integer codigo;
-        public String nome;
+    public class Moviments{
+        public String codigo;
+        public String observacao;
+        public Decimal valor;
+        public String descricao;
     }
 
     public class RequestParameters{
