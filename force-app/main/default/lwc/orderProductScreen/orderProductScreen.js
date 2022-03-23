@@ -8,6 +8,7 @@ import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
 const actions = [
     { label: 'Editar', name: 'edit' },
+    { label: 'Divisão de Remessas', name: 'shippingDivision' },
 ];
 export default class OrderProductScreen extends LightningElement {
     @track addProduct={};
@@ -36,11 +37,17 @@ export default class OrderProductScreen extends LightningElement {
     updateProduct = false;
     showList = false;
     changeColumns = false;
+    showProductDivision = false;
     selectedProducts;
     columns = [];
+    productName = '';
+    currentDivisionProduct = {};
+    divisionProducts = [];
+    allDivisionProducts = [];
     
     @track products = [];
     @api productData;
+    @api divisionData;
     @api headerData;
     
     connectedCallback(event) {
@@ -49,6 +56,8 @@ export default class OrderProductScreen extends LightningElement {
         this.priceBookListId = this.headerData.lista_precos.Id;
 
         this.products = this.isFilled(this.productData) ? this.productData : [];
+        console.log('this.divisionData: ' + JSON.stringify(this.divisionData))
+        this.allDivisionProducts = this.isFilled(this.divisionData) ? this.divisionData : [];
         this.showIncludedProducts = this.products.length > 0;
         this.applySelectedColumns(event);
     }
@@ -347,12 +356,27 @@ export default class OrderProductScreen extends LightningElement {
         console.log(JSON.stringify(this.products));
     }
 
+    showDivisionModal() {
+        this.showProductDivision = !this.showProductDivision;
+    }
+
+    confirmDivision() {
+        let key = this.currentDivisionProduct.position;
+        console.log('key: ' + key);
+        this.allDivisionProducts = JSON.parse(JSON.stringify(this.divisionProducts));
+        console.log('this.allDivisionProducts: ' + JSON.stringify(this.allDivisionProducts));
+        this.showDivisionModal();
+        this._setDivisionData();
+    }
+
     handleRowActions(event) {
         const actionName = event.detail.action.name;
         const row = event.detail.row;
         switch (actionName) {
             case 'edit':
                 this.editProduct(row.position);
+            case 'shippingDivision':
+                this.productDivision(row.position);
             break;
         }
     }
@@ -393,6 +417,65 @@ export default class OrderProductScreen extends LightningElement {
         this.updateProduct = !this.updateProduct;
     }
 
+    productDivision(position) {
+        this.divisionProducts = this.isFilled(this.allDivisionProducts) ? JSON.parse(JSON.stringify(this.allDivisionProducts)) : [];
+        for (let index = 0; index < this.divisionProducts.length; index++) {
+            console.log(this.divisionProducts[index].productPosition == position);
+            if (this.divisionProducts[index].productPosition == position) {
+                this.divisionProducts[index].showInfos = true;
+            } else {
+                this.divisionProducts[index].showInfos = false;
+            }
+        }
+
+        let currentProduct = this.products.find(e => e.position == position);
+        
+        this.productPosition = position;
+        this.multiplicity = currentProduct.multiplicity;
+        this.currentDivisionProduct = {
+            productId: currentProduct.productId,
+            unitPrice: currentProduct.unitPrice,
+            position: position,
+            name: currentProduct.name,
+            quantity: currentProduct.quantity
+        };
+
+        console.log('this.currentDivisionProduct: ' + JSON.stringify(this.currentDivisionProduct));
+        this.showDivisionModal();
+        this.newFields();
+    }
+
+    newFields() {
+        let allDivisions = JSON.parse(JSON.stringify(this.divisionProducts));
+        let divPosition = this.isFilled(allDivisions) ? allDivisions.length : 0;
+        let deliveryId = 'deliveryId-' + divPosition;
+        let quantityId = 'quantityId-' + divPosition;
+        let orderItemKey = this.currentDivisionProduct.productId + '-' + this.currentDivisionProduct.quantity.toFixed(2) + '-' + Number(this.currentDivisionProduct.unitPrice).toFixed(2);
+        
+        allDivisions.push({deliveryDate: null, quantity: null, position: divPosition, deliveryId: deliveryId, quantityId: quantityId, orderItemKey: orderItemKey, productPosition: this.productPosition, showInfos: true});
+        this.divisionProducts = JSON.parse(JSON.stringify(allDivisions));
+    }
+
+    divisionChange(event) {
+        let allDivisions = JSON.parse(JSON.stringify(this.divisionProducts));
+        let fieldId = event.target.dataset.targetId;
+        let fieldValue = event.target.value;
+        let currentProduct;
+
+        if (this.isFilled(fieldValue)) {
+            if (fieldId.includes('deliveryId-')) {
+                currentProduct = allDivisions.find(e => e.deliveryId == fieldId);
+                currentProduct.deliveryDate = fieldValue;
+            } else if (fieldId.includes('quantityId-')) {
+                currentProduct = allDivisions.find(e => e.quantityId == fieldId);
+                currentProduct.quantity = this.calculateMultiplicity(fieldValue);
+            }
+
+            this.divisionProducts = JSON.parse(JSON.stringify(allDivisions));
+            console.log('this.divisionProducts: ' + JSON.stringify(this.divisionProducts));
+        }
+    }
+
     checkRequiredFields(prod) {
         if (this.isFilled(prod.name) && this.isFilled(prod.listPrice) && this.isFilled(prod.unitPrice) &&
             this.isFilled(prod.totalPrice) && this.isFilled(prod.commercialDiscountPercentage) &&
@@ -422,6 +505,12 @@ export default class OrderProductScreen extends LightningElement {
     _setData() {
         const setHeaderData = new CustomEvent('setproductdata');
         setHeaderData.data = this.products;
+        this.dispatchEvent(setHeaderData);
+    }
+
+    _setDivisionData() {
+        const setHeaderData = new CustomEvent('setdivisiondata');
+        setHeaderData.data = this.allDivisionProducts;
         this.dispatchEvent(setHeaderData);
     }
 

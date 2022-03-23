@@ -63,6 +63,7 @@ export default class OrderScreen extends LightningElement {
         aprovation: " "
     };
     @track productData;
+    @track divisionData;
     @track summaryData = {
         observation :""
     };
@@ -177,6 +178,7 @@ export default class OrderScreen extends LightningElement {
             this.headerData = data.headerData;
             //this.loadHeaderDataTitle();
             this.productData = data.productData;
+            this.divisionData = data.divisionData;
             this.summaryData.observation = this.headerData.observation;
             this.summaryData.billing_sale_observation - this.headerData.billing_sale_observation;
             this.enableScreens([0, 1]);
@@ -229,7 +231,7 @@ export default class OrderScreen extends LightningElement {
     }*/
     async saveOrder(){
         await this.recordId;
-        const data = {accountData: this.accountData, headerData: this.headerData, productData: this.productData, summaryData: this.summaryData};
+        const data = {accountData: this.accountData, headerData: this.headerData, productData: this.productData, divisionData: this.divisionData, summaryData: this.summaryData};
         console.log(JSON.stringify(data));
         this.isLoading = true;
         //console.log(data);
@@ -278,6 +280,10 @@ export default class OrderScreen extends LightningElement {
         console.log('acproductcount data setted:', this.productData, event.detail, event.data, event);
         this.enableNextScreen();
         this.completeCurrentScreen();
+    }
+
+    _setDivisionData(event) {
+        this.divisionData = event.data;
     }
 
     _setSummaryData(event) {

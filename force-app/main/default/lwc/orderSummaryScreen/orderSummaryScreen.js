@@ -6,6 +6,7 @@ export default class OrderSummaryScreen extends LightningElement {
     @track orderMargin = 0;
     @api accountData;
     @api productData;
+    @api divisionData;
     @api summaryData ={
         observation : "",
         observationBillingSale : ""
