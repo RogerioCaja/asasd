@@ -337,9 +337,10 @@ export default class OrderHeaderScreen extends LightningElement {
         }
     }
   
-    removeSelectClienteEntrega(event){
-        this.headerDataTitleLocale.cliente_entrega = '';
-        this._verifyFieldsToSave();
+    removeItemRegister(event){
+        var field = event.target.name;
+        this.headerDictLocale[field] = null;
+        this._setData();
     }
 
     @api
@@ -354,18 +355,20 @@ export default class OrderHeaderScreen extends LightningElement {
     @api
     verifyMandatoryFields() {
         try{
-        // if ((this.headerDictLocale.tipo_venda !== undefined &&
-        //     this.headerDictLocale.safra.Id !== undefined &&
-        //     this.headerDictLocale.cultura.Id !== undefined &&
-        //     this.headerDictLocale.data_pagamento !== undefined &&
-        //     this.headerDictLocale.lista_precos.Id !== undefined &&
-        //     this.headerDictLocale.moeda !== undefined &&
-        //     this.headerDictLocale.numero_pedido_cliente !== undefined &&
-        //     this.headerDictLocale.ctv_venda !==undefined &&
-        //     this.headerDictLocale.forma_pagamento !== undefined) || this.pass
-        //     ) {
+        if ((this.headerDictLocale.tipo_venda !== undefined &&
+            this.headerDictLocale.safra.Id !== undefined &&
+            this.headerDictLocale.cultura.Id !== undefined &&
+            this.headerDictLocale.data_pagamento !== undefined &&
+            this.headerDictLocale.lista_precos.Id !== undefined &&
+            this.headerDictLocale.condicao_pagamento.Id !== undefined &&
+            this.headerDictLocale.moeda !== undefined &&
+            this.headerDictLocale.numero_pedido_cliente !== undefined &&
+            this.headerDictLocale.ctv_venda.Id !==undefined &&
+            this.headerDictLocale.forma_pagamento !== undefined &&
+            this.headerDictLocale.cliente_entrega.Id !== undefined) || this.pass
+            ) {
             return true;
-        // }
+        }
     }
     catch(err){
         console.log(err);

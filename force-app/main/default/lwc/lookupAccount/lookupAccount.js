@@ -6,6 +6,7 @@ import CLIENTE_CNPJ from '@salesforce/schema/Account.CNPJ__c';
 import CLIENTE_CPF from '@salesforce/schema/Account.CPF__c';
 import CLIENTE_UF from '@salesforce/schema/Account.BillingState';
 import CLIENTE_CITY from '@salesforce/schema/Account.BillingCity';
+import COD_SAP from '@salesforce/schema/Account.ExternalId__c';
 export default class LookupAccount extends LightningElement {
     @api recordId;
     @api selectedRecord = null;
@@ -13,7 +14,7 @@ export default class LookupAccount extends LightningElement {
     @track showData = false;
     
     // WIREs
-	@wire(getRecord, { recordId: '$recordId', fields: [CLIENTE_ENTREGA_NAME, CLIENTE_CNPJ, CLIENTE_CPF, CLIENTE_UF, CLIENTE_CITY] })
+	@wire(getRecord, { recordId: '$recordId', fields: [CLIENTE_ENTREGA_NAME, CLIENTE_CNPJ, CLIENTE_CPF, CLIENTE_UF, CLIENTE_CITY, COD_SAP] })
 	wiredGetRecord({ error, data }) {
 		this.isLoading = false;
 
@@ -48,7 +49,8 @@ export default class LookupAccount extends LightningElement {
 					CNPJ: fields['CNPJ__c'].value,
 					CPF: fields['CPF__c'].value,
 					City: fields['BillingCity'].value,
-					UF: fields['BillingState'].value
+					UF: fields['BillingState'].value,
+					ExternalId__c: fields['ExternalId__c'].value
 				};
 			}
 

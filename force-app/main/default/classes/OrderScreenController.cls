@@ -451,6 +451,71 @@ public without sharing class OrderScreenController {
 		}
     }
 
+    @AuraEnabled
+    public static String approvals(String data){
+        OrderDeserialize orderData = (OrderDeserialize) JSON.deserialize(data, OrderDeserialize.class);
+        Company__c company = new Company__c();
+
+        for (Company__c accountCompany : [
+            SELECT Id,
+                   ClientGroup__c
+              FROM Company__c
+             WHERE Conta__c =: orderData.accountData.Id
+        ]) {
+            company = accountCompany;
+        }
+
+        Decimal orderTotalValue = 0;
+        Decimal biggerDiscount = 0;
+        Id productGroupId;
+       
+        Set<Id> setProductGroups = new Set<Id>();
+        for (ProductDeserialize orderProduct : orderData.productData) {
+            orderTotalValue += orderProduct.totalPrice;
+
+            Decimal currentDiscount = 100 - ((orderProduct.totalPrice * 100) / (orderProduct.quantity * orderProduct.listPrice));
+            if (biggerDiscount < currentDiscount) {
+                biggerDiscount = currentDiscount;
+                productGroupId = orderProduct.productGroupId;
+            }
+        }
+        
+
+        User user = [SELECT Id, SellerType__c FROM User WHERE Id =: UserInfo.getUserId()];
+        String sellerType = user.SellerType__c != null ? user.SellerType__c : '';
+
+        String approval = '';
+        if (company != null) {
+            Discount__c orderDiscount = new Discount__c();
+            for (Discount__c discount : [
+                SELECT Id,
+                       Approver__c
+                  FROM Discount__c
+                 WHERE Status__c = 'Aprovado'
+                   AND ClientGroup__c =: company.ClientGroup__c
+                   AND ProductGroup__c =: productGroupId
+                   AND InitialDate__c <=: System.today()
+                   AND EndDate__c >=: System.today()
+                   AND MinPercentage__c <=: biggerDiscount
+                   AND MaxPercentage__c >=: biggerDiscount
+              ORDER BY MinPercentage__c, MaxPercentage__c
+            ]) {
+                orderDiscount = discount;
+            }
+
+            Map<String, String> approvalLevels = new Map<String, String>{
+                'GerenteFilial' => 'Gerente Filial',
+                'GerenteRegional' => 'Gerente Regional',
+                'Diretor' => 'Diretor',
+                'ComiteMargem' => 'Comitê de Margem'
+            };
+
+            approval = approvalLevels.get(orderDiscount.Approver__c);
+            
+        }
+        return approval;
+    }
+
     public static Decimal stringToDecimal(String value) {
         if (value.contains(',')) value = value.replaceAll(',', '.');
         if (value.contains('%')) value = value.replaceAll('%', '');

@@ -278,6 +278,7 @@ export default class OrderScreen extends LightningElement {
         this.productData = event.data;
         console.log('this.productData: ' + this.productData);
         console.log('acproductcount data setted:', this.productData, event.detail, event.data, event);
+        //this.qtdItens = this.productData.length;
         this.enableNextScreen();
         this.completeCurrentScreen();
     }

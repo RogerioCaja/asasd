@@ -19,28 +19,48 @@
                     <span>{accountData.Name}</span>
                 </div>
                 <div class="dadosConta">
-                    <div class="texto">
-                        <span>Razão Social:</span> {accountData.Name}
+                    <div class="texto" if:true={accountData.Company__c}>
+                        <span>Razão Social:</span> {accountData.Company__c}
                     </div>
-                    <div class="texto">
+                    <div class="texto" if:true={accountData.Company}>
+                        <span>Razão Social:</span> {accountData.Company}
+                    </div>
+                    <div class="texto" if:true={accountData.CPNJ__c} >
                         <span>Tipo de Conta:</span> Jurídica
                     </div>
-                    <template if:true={accountData.cnpj}>
-                        <div class="texto">
-                            <span>CNPJ:</span> {accountData.cnpj}
-                        </div>
-                    </template>
-                    <template if:true={accountData.cpf}>
-                        <div class="texto">
-                            <span>CPF:</span> {accountData.cpf}
-                        </div>
-                    </template>
-                    <div class="texto">
-                        São Bernardo do Campo - SP - Brasil
+                    <div class="texto" if:true={accountData.CPNJ} >
+                        <span>Tipo de Conta:</span> Jurídica
                     </div>
-                    <div class="texto">
-                        <span>Código SAP:</span> NÃO INTEGRADO
+                    <div class="texto" if:true={accountData.CPF__c} >
+                        <span>Tipo de Conta:</span> Pessoa Física
                     </div>
+                    <div class="texto" if:true={accountData.CPF} >
+                        <span>Tipo de Conta:</span>  Pessoa Física
+                    </div>
+                    <div class="texto" if:true={accountData.CPNJ__c}>
+                        <span>CNPJ:</span> {accountData.CPNJ__c}
+                    </div>
+                    <div class="texto" if:true={accountData.CPF__c}>
+                        <span>CPF:</span>{accountData.CPF__c}
+                    </div>
+                    <div class="texto" if:true={accountData.CPNJ}>
+                        <span>CNPJ:</span> {accountData.CPNJ}
+                    </div>
+                    <div class="texto" if:true={accountData.CPF}>
+                        <span>CPF:</span> {accountData.CPF}
+                    </div>
+                    <div class="texto" if:true={accountData.City}>
+                        {accountData.City} - {accountData.UF} - Brasil
+                     </div>
+                     <div class="texto" if:true={accountData.BillingCity}>
+                         {accountData.BillingCity} - {accountData.BillingState} - Brasil
+                      </div>
+                     <div class="texto" if:true={accountData.ExternalId__c}>
+                         <span>Código SAP:</span> {accountData.ExternalId__c}
+                     </div>
+                     <div class="texto" if:true={accountData.CodSap}>
+                         <span>Código SAP:</span> {accountData.CodSap}
+                     </div>
                     <div class="texto">
                         <span>Telefone:</span> {accountData.Phone}
                     </div>
@@ -65,7 +85,7 @@
                                 style="width: 100%;" 
                                 required="true">
                             </c-lookup> -->
-                            <c-lookup-account name="cliente_entrega" record-id={headerData.cliente_entrega.Id} onclearselectedrecord={removeSelectClienteEntrega} onselectrecord={selectItemRegister} account-list={accountChildData}></c-lookup-account>
+                            <c-lookup-account name="cliente_entrega" record-id={headerData.cliente_entrega.Id} onclearselectedrecord={removeItemRegister} onselectrecord={selectItemRegister} account-list={accountChildData}></c-lookup-account>
                         </div>
                         <div class="slds-form-element slds-size_1-of-4">
                             <lightning-input
@@ -98,6 +118,7 @@
                                 list-item-options={redispatchCtvVendaListItemOptions} 
                                 new-record-button="true"
                                 standard-form-layout={booleanTrue}
+                                onclearselectedrecord={removeItemRegister}
                                 onselectrecord={selectItemRegister} 
                                 placeholder="Pesquisar CTV da Venda"
                                 style="width: 100%;" 
@@ -117,6 +138,7 @@
                                 list-item-options={redispatchSafraListItemOptions} 
                                 new-record-button={booleanTrue}
                                 standard-form-layout={booleanTrue}
+                                onclearselectedrecord={removeItemRegister}
                                 onselectrecord={selectItemRegister} 
                                 placeholder="Pesquisar Safras" 
                                 style="width: 100%;"
@@ -133,6 +155,7 @@
                                 search-fields={redispatchCulturaSearchFields}
                                 list-item-options={redispatchCulturaListItemOptions} 
                                 new-record-button={booleanTrue}
+                                onclearselectedrecord={removeItemRegister}
                                 onselectrecord={selectItemRegister} 
                                 standard-form-layout={booleanTrue} 
                                 placeholder="Pesquisar Culturas" 
@@ -151,6 +174,7 @@
                                 list-item-options={redispatchListaPrecoListItemOptions} 
                                 standard-form-layout={booleanTrue}
                                 new-record-button={booleanTrue}
+                                onclearselectedrecord={removeItemRegister}
                                 onselectrecord={selectItemRegister} 
                                 placeholder="Pesquisar Lista de Preços"
                                 style="width: 100%;" 
@@ -169,6 +193,7 @@
                                 search-fields={redispatchCondicaoPagamentoSearchFields}
                                 standard-form-layout={booleanTrue}
                                 list-item-options={redispatchCondicaoPagamentoListItemOptions} 
+                                onclearselectedrecord={removeItemRegister}
                                 onselectrecord={selectItemRegister}
                                 new-record-button={booleanTrue} 
                                 placeholder="Pesquisar Condições de Pagamento"
