@@ -104,6 +104,7 @@ public without sharing class OrderScreenController {
             Order order;
             String msg;
             Boolean newOrder = true;
+            System.debug('data: ' + data);
             OrderDeserialize orderData = (OrderDeserialize) JSON.deserialize(data, OrderDeserialize.class);
             
             if (orderId != NULL) {
@@ -117,13 +118,31 @@ public without sharing class OrderScreenController {
             System.debug('order: ' + order);
 
             Account acc = [SELECT Id FROM Account WHERE Id =: orderData.accountData.Id LIMIT 1];
+            Company__c company = new Company__c();
+            for (Company__c accountCompany : [
+                SELECT Id,
+                       ClientGroup__c
+                  FROM Company__c
+                 WHERE Conta__c =: orderData.accountData.Id
+            ]) {
+                company = accountCompany;
+            }
     
             Decimal orderTotalValue = 0;
+            Decimal biggerDiscount = 0;
+            Id productGroupId;
             Set<Id> setOrderItemsIds = new Set<Id>();
+            Set<Id> setProductGroups = new Set<Id>();
             for (ProductDeserialize orderProduct : orderData.productData) {
                 orderTotalValue += orderProduct.totalPrice;
                 if (orderProduct.orderItemId != null) {
                     setOrderItemsIds.add(orderProduct.orderItemId);
+                }
+
+                Decimal currentDiscount = 100 - ((orderProduct.totalPrice * 100) / (orderProduct.quantity * orderProduct.listPrice));
+                if (biggerDiscount < currentDiscount) {
+                    biggerDiscount = currentDiscount;
+                    productGroupId = orderProduct.productGroupId;
                 }
             }
             
@@ -132,6 +151,106 @@ public without sharing class OrderScreenController {
                   FROM OrderItem
                  WHERE Id IN: setOrderItemsIds
             ]);
+            
+            User user = [SELECT Id, SellerType__c FROM User WHERE Id =: UserInfo.getUserId()];
+            String sellerType = user.SellerType__c != null ? user.SellerType__c : '';
+
+            Map<Id, Comissao__c> commissionByGroup = new Map<Id, Comissao__c>();
+            if (sellerType != '') {
+                for (Comissao__c commission : [
+                    SELECT Id,
+                           ProductGroup__c,
+                           SellerType__c,
+                           CommissionPercentage__c 
+                    FROM Comissao__c
+                    WHERE ProductGroup__c IN: setProductGroups
+                    AND SellerType__c =: sellerType
+                ]) {
+                    if (!commissionByGroup.containsKey(commission.ProductGroup__c)) {
+                        commissionByGroup.put(commission.ProductGroup__c, commission);
+                    }
+                }
+            }
+
+            if (company != null) {
+                Id userTerritoryId;
+                for (UserTerritory2Association userAssociation : [
+                    SELECT Id,
+                           UserId,
+                           Territory2Id
+                      FROM UserTerritory2Association
+                     WHERE UserId =: orderData.headerData.ctv_venda.Id
+                     LIMIT 1
+                ]) {
+                    userTerritoryId = userAssociation.Territory2Id;
+                }
+
+                Map<Id, Territory2> territoryAndParents = new Map<Id, Territory2>();
+                for(Territory2 territory : [
+                    SELECT Id,
+                           ParentTerritory2Id
+                      FROM Territory2
+                ]){
+                    territoryAndParents.put(territory.Id, territory);
+                }
+
+                Discount__c orderDiscount = new Discount__c();
+                for (Discount__c discount : [
+                    SELECT Id,
+                           Approver__c
+                      FROM Discount__c
+                     WHERE Status__c = 'Aprovado'
+                       AND ClientGroup__c =: company.ClientGroup__c
+                       AND ProductGroup__c =: productGroupId
+                       AND InitialDate__c <=: System.today()
+                       AND EndDate__c >=: System.today()
+                       AND MinPercentage__c <=: biggerDiscount
+                       AND MaxPercentage__c >=: biggerDiscount
+                  ORDER BY MinPercentage__c, MaxPercentage__c
+                ]) {
+                    orderDiscount = discount;
+                }
+
+                Map<String, Integer> approvalLevels = new Map<String, Integer>{
+                    'GerenteFilial' => 1,
+                    'GerenteRegional' => 2,
+                    'Diretor' => 3
+                };
+
+                Integer counter = 0;
+                Integer approvalNumber = approvalLevels.get(orderDiscount.Approver__c);
+                while (counter < approvalNumber) {
+                    Territory2 territory = territoryAndParents.containsKey(userTerritoryId) ? territoryAndParents.get(userTerritoryId) : new Territory2();
+                    System.debug('territory: ' + territory);
+                    if (territory != null && territory.ParentTerritory2Id != null) {
+                        userTerritoryId = territory.ParentTerritory2Id;
+                    }
+                    counter++;
+                }
+
+                Id approvalUser;
+                for (UserTerritory2Association userAssociation : [
+                    SELECT Id,
+                           UserId,
+                           Territory2Id
+                      FROM UserTerritory2Association
+                     WHERE Territory2Id =: userTerritoryId
+                     LIMIT 1
+                ]) {
+                    approvalUser = userAssociation.UserId;
+                }
+
+                if (approvalNumber == 1) {
+                    order.ApprovalBranchManager__c = approvalUser;
+                    order.Manager_BranchOffice__c = true;
+                } else if (approvalNumber == 2) {
+                    order.ApprovalRegionalManager__c = approvalUser;
+                    order.Gerente_Regional__c = true;
+                } else if (approvalNumber == 3) {
+                    order.ApprovalDirector__c = approvalUser;
+                    order.Director__c = true;
+                }
+            }
 
             order.AccountId = acc.Id;
             order.Status = 'Draft';
@@ -144,7 +263,7 @@ public without sharing class OrderScreenController {
             order.Crop__c = orderData.headerData.safra.Id ;
             order.Culture__c = orderData.headerData.cultura.Id ;
             order.PaymentForm__c = orderData.headerData.forma_pagamento ;
-            order.SalesOrg__c = orderData.headerData.organizacao_vendas == ' ' ? null :  orderData.headerData.organizacao_vendas;
+            // order.SalesOrg__c = orderData.headerData.organizacao_vendas.Id == ' ' ? null :  orderData.headerData.organizacao_vendas.Id;
             order.DistributionChannel__c = orderData.headerData.canal_distribuicao ;
             order.ActivitySector__c = orderData.headerData.setor_atividade ;
             order.Currency__c = orderData.headerData.moeda ;
@@ -197,7 +316,13 @@ public without sharing class OrderScreenController {
                     orderItem.FinancialDiscountValue__c = orderProduct.financialDecreaseValue;
                     orderItem.ComissionValue__c = orderProduct.comissionValue;
                     orderItem.CommercialMargin__c = orderProduct.commercialMarginPercentage;
-                    System.debug('orderItem: ' + orderItem);
+                    orderItem.PercentComission__c = orderProduct.productGroupId != null ?
+                                                    (commissionByGroup.get(orderProduct.productGroupId) != null ?
+                                                        commissionByGroup.get(orderProduct.productGroupId).CommissionPercentage__c :
+                                                        0
+                                                    ) :
+                                                    0;
+                    orderItem.ComissionValue__c = orderItem.PercentComission__c != 0 ? (orderItem.FinalTotalValue__c * orderItem.PercentComission__c) / 100 : 0;
                     listOrderItems.add(orderItem);
                 }
 
@@ -264,6 +389,7 @@ public without sharing class OrderScreenController {
         public String status_pedido;
         public AccountSerialize cliente_entrega;
         public String organizacao_vendas;
+        // public InformationFields organizacao_vendas;
         public String canal_distribuicao;
         public String setor_atividade;
         public String forma_pagamento;
@@ -287,7 +413,7 @@ public without sharing class OrderScreenController {
         public String productGroupId;
         public String productGroupName;
         public Integer position;
-        public Integer invoicedQuantity;
+        public Decimal invoicedQuantity;
         public Decimal quantity;
         public Decimal listPrice;
         public Decimal unitPrice;
@@ -310,6 +436,17 @@ public without sharing class OrderScreenController {
         public String billing_sale_observation;
     }
 
+    public class SummarySerialize{
+        public String observation;
+        public String billing_sale_observation;
+
+        public SummarySerialize(){}
+        public SummarySerialize(String observation, String billing_sale_observation){
+            this.observation = observation;
+            this.billing_sale_observation = billing_sale_observation;
+        }
+    }
+
 
     //Classe para serialização
     public class OrderSerialize{
@@ -327,6 +464,26 @@ public without sharing class OrderScreenController {
             this.headerData = order;
             this.productData = products;
             this.accountData = account;
+        }
+    }
+
+    public class OrderSerializeAll{
+        public HeaderSerialize headerData;
+        public List<ProductSerialize> productData;
+        public AccountSerialize accountData;
+        public SummarySerialize summaryData;
+
+        OrderSerializeAll(){}       
+
+        OrderSerializeAll(AccountSerialize account){
+            this.accountData = account;
+        }  
+
+        public OrderSerializeAll(HeaderSerialize order, List<ProductSerialize> products, AccountSerialize account, SummarySerialize summaryData){
+            this.headerData = order;
+            this.productData = products;
+            this.accountData = account;
+            this.summaryData = summaryData;
         }
     }
     
@@ -375,7 +532,8 @@ public without sharing class OrderScreenController {
         public String status_pedido;
         public String cliente_faturamento;
         public AccountSerialize cliente_entrega;
-        public InformationFields organizacao_vendas;
+        // public InformationFields organizacao_vendas;
+        public String organizacao_vendas;
         public String canal_distribuicao;
         public String setor_atividade;
         public String forma_pagamento;
@@ -409,7 +567,8 @@ public without sharing class OrderScreenController {
             this.cultura = new InformationFields(order.Culture__c, order.Culture__r.Name);
             this.forma_pagamento = order.PaymentForm__c;
             this.status_pedido = order.StatusSF__c;
-            this.organizacao_vendas = new InformationFields(order.SalesOrg__c, order.SalesOrg__r.Name);
+            // this.organizacao_vendas = new InformationFields(order.SalesOrg__c, order.SalesOrg__r.Name);
+            this.organizacao_vendas = ' ';
             this.canal_distribuicao = order.DistributionChannel__c;
             this.setor_atividade = order.ActivitySector__c;
             this.moeda = order.Currency__c;
@@ -443,7 +602,7 @@ public without sharing class OrderScreenController {
         public String activePrinciple;
         public String productGroupId;
         public String productGroupName;
-        public String productGroup;
+        // public String productGroup;
         public Date serviceDate;
         public Integer position;
         public Decimal multiplicity;
@@ -478,7 +637,7 @@ public without sharing class OrderScreenController {
             this.productGroupName = orderItem.Product2.ProductGroup__r.Name;
             this.entryId = orderItem.PricebookEntryId;
             this.orderId = OrderId;
-            this.serviceDate = ServiceDate;
+            this.serviceDate = orderItem.ServiceDate;
             this.quantity = orderItem.Quantity;
             this.invoicedQuantity = orderItem.InvoicedQuantity__c;
             this.listPrice = orderItem.ListPrice;

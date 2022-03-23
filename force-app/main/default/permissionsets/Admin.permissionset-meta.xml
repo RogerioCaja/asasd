@@ -486,7 +486,7 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Discount__c.ProductFamily__c</field>
+        <field>Discount__c.ProductGroup__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -1164,11 +1164,26 @@
         <field>Pricebook2.ExternalId__c</field>
         <readable>true</readable>
     </fieldPermissions>
+    <!-- <fieldPermissions>
+        <editable>true</editable>
+        <field>Pricebook2.FinancialAddition__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Pricebook2.FinancialDecrese__c</field>
+        <readable>true</readable>
+    </fieldPermissions> -->
     <fieldPermissions>
         <editable>true</editable>
         <field>Pricebook2.InitialDate__c</field>
         <readable>true</readable>
     </fieldPermissions>
+    <!-- <fieldPermissions>
+        <editable>true</editable>
+        <field>Pricebook2.InterestValue__c</field>
+        <readable>true</readable>
+    </fieldPermissions> -->
     <fieldPermissions>
         <editable>true</editable>
         <field>Pricebook2.PaymentDate__c</field>
@@ -1179,6 +1194,16 @@
         <field>Pricebook2.PriceList__c</field>
         <readable>true</readable>
     </fieldPermissions>
+    <!-- <fieldPermissions>
+        <editable>true</editable>
+        <field>Pricebook2.PriceMultiplier__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Pricebook2.Product2Id__c</field>
+        <readable>true</readable>
+    </fieldPermissions> -->
     <fieldPermissions>
         <editable>true</editable>
         <field>Pricebook2.ProductFamily__c</field>
@@ -1209,6 +1234,26 @@
         <field>Pricebook2.SalesTeam__c</field>
         <readable>true</readable>
     </fieldPermissions>
+    <!-- <fieldPermissions>
+        <editable>true</editable>
+        <field>Pricebook2.UnitPrice__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Pricebook2.Unit__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>PricebookEntry.Product2Id__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>PricebookEntry.UnitPrice__c</field>
+        <readable>true</readable>
+    </fieldPermissions> -->
     <fieldPermissions>
         <editable>true</editable>
         <field>PricebookEntry.CostPrice__c</field>
@@ -1427,6 +1472,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>ShippingDivison__c.ShippingValue__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>User.SellerType__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
