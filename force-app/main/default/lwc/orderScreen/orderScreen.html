@@ -49,13 +49,13 @@
             <c-order-account-screen if:true={account} message={message} onsetaccountdata={_setAccountData} selected-account={accountData}>
             </c-order-account-screen>
 
-            <c-order-header-screen if:true={header} tab="header" onsetheaderdata={_setHeaderData} account-data={accountData} header-data={headerData} header-data-title={headerDataTitle} product-data={productData}>
+            <c-order-header-screen if:true={header} tab="header" onsetheaderdata={_setHeaderData} account-data={accountData} header-data={headerData} header-data-title={headerDataTitle} product-data={productData} division-data={divisionData}>
             </c-order-header-screen>
 
-            <c-order-product-screen if:true={product} tab="product" onsetproductdata={_setProductData} header-data={headerData} product-data={productData}>
+            <c-order-product-screen if:true={product} tab="product" onsetproductdata={_setProductData} onsetdivisiondata={_setDivisionData} header-data={headerData} product-data={productData} division-data={divisionData}>
             </c-order-product-screen>
 
-            <c-order-summary-screen if:true={summary} tab="summary" onsetsummarydata={_setSummaryData} product-data={productData} header-data={headerData} account-data={accountData} summary-data={summaryData}>
+            <c-order-summary-screen if:true={summary} tab="summary" onsetsummarydata={_setSummaryData} product-data={productData} division-data={divisionData} header-data={headerData} account-data={accountData} summary-data={summaryData}>
             </c-order-summary-screen>
 
             <!--COMEÇO NAVBAR BOTTOM-->

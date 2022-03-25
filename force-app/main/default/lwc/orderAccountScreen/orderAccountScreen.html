@@ -62,7 +62,7 @@
                         <span>Código SAP:</span> {selectedAccount.ExternalId__c}
                     </div>
                     <div class="texto" if:true={selectedAccount.CodSap}>
-                        <span>Código SAP:</span> {selectedAccount.ExternalId__c}
+                        <span>Código SAP:</span> {selectedAccount.CodSap}
                     </div>
                     <div class="texto">
                         <span>Telefone:</span> {selectedAccount.Phone}
@@ -103,25 +103,51 @@
                       </span>
                   </div>
                   <div class="dadosConta">
-                      <div class="texto">
-                          <span>Razão Social:</span> Nèscara Consultoria e Tecnologia Ltda
-                      </div>
-                      <div class="texto">
-                          <span>Tipo de Conta:</span> Jurídica
-                      </div>
-                      <div class="texto">
-                        <span if:true={rec.CPNJ__c}>CNPJ: {rec.CPNJ__c}</span>
-                        <span if:true={rec.CPF__c}>CPF: {rec.CPF__c}</span>
-                      </div>
-                      <div class="texto">
+                    <div class="texto" if:true={rec.Company__c}>
+                        <span>Razão Social:</span> {rec.Company__c}
+                    </div>
+                    <div class="texto" if:true={rec.Company}>
+                        <span>Razão Social:</span> {rec.Company}
+                    </div>
+                    <div class="texto" if:true={rec.CPNJ__c} >
+                        <span>Tipo de Conta:</span> Jurídica
+                    </div>
+                    <div class="texto" if:true={rec.CPNJ} >
+                        <span>Tipo de Conta:</span> Jurídica
+                    </div>
+                    <div class="texto" if:true={rec.CPF__c} >
+                        <span>Tipo de Conta:</span> Pessoa Física
+                    </div>
+                    <div class="texto" if:true={rec.CPF} >
+                        <span>Tipo de Conta:</span>  Pessoa Física
+                    </div>
+                    <div class="texto" if:true={rec.CPNJ__c}>
+                        <span>CNPJ:</span> {rec.CPNJ__c}
+                    </div>
+                    <div class="texto" if:true={rec.CPF__c}>
+                        <span>CPF:</span>{rec.CPF__c}
+                    </div>
+                    <div class="texto" if:true={rec.CPNJ}>
+                        <span>CNPJ:</span> {rec.CPNJ}
+                    </div>
+                    <div class="texto" if:true={rec.CPF}>
+                        <span>CPF:</span> {rec.CPF}
+                    </div>
+                    <div class="texto" if:true={rec.City}>
+                       {rec.City} - {rec.UF} - Brasil
+                    </div>
+                    <div class="texto" if:true={rec.BillingCity}>
                         {rec.BillingCity} - {rec.BillingState} - Brasil
-                      </div>
-                      <div class="texto">
-                          <span>Código SAP:</span> NÃO INTEGRADO
-                      </div>
-                      <div class="texto">
-                          <span>Telefone:</span> {rec.Phone}
-                      </div>
+                     </div>
+                    <div class="texto" if:true={rec.ExternalId__c}>
+                        <span>Código SAP:</span> {rec.ExternalId__c}
+                    </div>
+                    <div class="texto" if:true={rec.CodSap}>
+                        <span>Código SAP:</span> {rec.ExternalId__c}
+                    </div>
+                    <div class="texto">
+                        <span>Telefone:</span> {rec.Phone}
+                    </div>
                   </div>
                   <div class="botaoConta">
                       <button data-key={rec.Id} onclick={selectAccountFromResults}>

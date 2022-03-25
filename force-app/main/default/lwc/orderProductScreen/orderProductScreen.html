@@ -291,6 +291,45 @@
         </div>
     </template>
 
+	<template if:true={showProductDivision}>
+		<div id="product-division-modal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick={showDivisionModal}>&times;</span>
+				<p class="new-product-title">Divisão de entrega: {currentDivisionProduct.name}</p>
+
+				<template for:each={divisionProducts} for:item="divProduct">
+					<div class="row" key={divProduct.position}>
+						<template if:true={divProduct.showInfos}>
+							<div class="column">
+								<label>Data de entrega</label><br>
+								<input class="input-design" type="date" value={divProduct.deliveryDate} onchange={divisionChange} data-target-id={divProduct.deliveryId}/>
+							</div>
+							<div class="column">
+								<label>Quantidade</label><br>
+								<input class="input-design" type="number" value={divProduct.quantity} onchange={divisionChange} data-target-id={divProduct.quantityId}/>
+							</div>
+						</template>
+					</div>
+				</template>
+
+				<div class="row">
+					<div class="back-button">
+						<a onclick={newFields}>Adicionar remessa</a>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="back-button">
+						<a onclick={showDivisionModal}>Fechar</a>
+					</div>
+					<div class="column">
+						<button class="confirm-button" onclick={confirmDivision}>Confirmar</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</template>
+
     <!--Modal-->
     <c-modal-remessa></c-modal-remessa>
 </template>
