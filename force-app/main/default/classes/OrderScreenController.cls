@@ -332,13 +332,13 @@ public without sharing class OrderScreenController {
                     orderItem.Status__c = orderProduct.sapStatus != null ? statusValueByLabel.get(orderProduct.sapStatus) : null;
                     orderItem.UnitMeasure__c = orderProduct.unity;
                     orderItem.FinalTotalValue__c = orderProduct.totalPrice;
-                    orderItem.DiscountPercent__c = stringToDecimal(orderProduct.commercialDiscountPercentage);
+                    orderItem.DiscountPercent__c = orderProduct.commercialDiscountPercentage != '' ? stringToDecimal(orderProduct.commercialDiscountPercentage) : 0;
                     orderItem.DiscountValue__c = orderProduct.commercialDiscountValue;
-                    orderItem.CommercialAdditionPercent__c = stringToDecimal(orderProduct.commercialAdditionPercentage);
+                    orderItem.CommercialAdditionPercent__c = orderProduct.commercialAdditionPercentage != '' ? stringToDecimal(orderProduct.commercialAdditionPercentage) : 0;
                     orderItem.CommercialAdditionValue__c = orderProduct.commercialAdditionValue;
-                    orderItem.FinancialAdditionPercent__c = stringToDecimal(orderProduct.financialAdditionPercentage);
+                    orderItem.FinancialAdditionPercent__c = orderProduct.financialAdditionPercentage != '' ? stringToDecimal(orderProduct.financialAdditionPercentage) : 0;
                     orderItem.FinancialAdditionValue__c = orderProduct.financialAdditionValue;
-                    orderItem.FinancialDiscountPercent__c = stringToDecimal(orderProduct.financialDecreasePercentage);
+                    orderItem.FinancialDiscountPercent__c = orderProduct.financialDecreasePercentage != '' ? stringToDecimal(orderProduct.financialDecreasePercentage) : 0;
                     orderItem.FinancialDiscountValue__c = orderProduct.financialDecreaseValue;
                     orderItem.ComissionValue__c = orderProduct.comissionValue;
                     orderItem.CommercialMargin__c = orderProduct.commercialMarginPercentage;
