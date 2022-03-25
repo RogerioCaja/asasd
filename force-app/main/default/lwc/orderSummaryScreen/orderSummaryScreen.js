@@ -1,26 +1,31 @@
 import { LightningElement, api, track } from 'lwc';
+import approval from '@salesforce/apex/OrderScreenController.approvals';
 
 export default class OrderSummaryScreen extends LightningElement {
     staticValue = 'hidden';
     hasData = true;
     @track orderMargin = 0;
+    @track approval = '';
     @api accountData;
     @api productData;
-    @api summaryData ={
-        observation : "",
-        observationBillingSale : ""
-    };
+    @api divisionData;
+    @api summaryData;
     
-    @api summaryDataLocale = {
-        observation : "",
-        observationBillingSale : ""
-    };
+    @api summaryDataLocale;
     @api productDataLocale = [];
     @api headerData;
 
     connectedCallback(){
         this.summaryDataLocale = {... this.summaryData};
         this.loadData();
+        const data = {accountData: this.accountData, headerData: this.headerData, productData: this.productData, divisionData: this.divisionData, summaryData: this.summaryData};
+        approval({
+            data: JSON.stringify(data)
+        }).then((result) => {
+            this.approval = result;
+        }).catch((err)=>{
+            console.log(JSON.stringify(err));
+        });
     }
 
     loadData(){
@@ -63,6 +68,14 @@ export default class OrderSummaryScreen extends LightningElement {
 
     changeObservation(event){
         this.summaryDataLocale.observation = event.target.value;
+        const setSummaryData = new CustomEvent('setsummarydata');
+        setSummaryData.data = this.summaryDataLocale;
+      
+        this.dispatchEvent(setSummaryData);
+    }
+
+    changeObservationSale(event){
+        this.summaryDataLocale.billing_sale_observation = event.target.value;
         const setSummaryData = new CustomEvent('setsummarydata');
         setSummaryData.data = this.summaryDataLocale;
       

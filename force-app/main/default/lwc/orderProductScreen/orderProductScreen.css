@@ -85,6 +85,7 @@ lightning-datatable.dt-outer-container {
 	width: 100%;
     overflow: hidden;
     clear: both;
+	padding: 0px;
 }
 
 .product-name {
