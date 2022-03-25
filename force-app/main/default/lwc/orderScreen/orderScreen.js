@@ -95,7 +95,7 @@ export default class OrderScreen extends LightningElement {
         {
             name: 'product',
             current: false,
-            enable: true,
+            enable: false,
             completed:false,
             message: 'Necessário selecionar pelo menos 1 produto',
             component: 'c-order-product-screen'
@@ -103,7 +103,7 @@ export default class OrderScreen extends LightningElement {
         {
             name: 'summary',
             current: false,
-            enable: true,
+            enable: false,
             completed:false,
             message: '',
             component: 'c-order-summary-screen'
@@ -181,8 +181,8 @@ export default class OrderScreen extends LightningElement {
             this.divisionData = data.divisionData;
             this.summaryData.observation = this.headerData.observation;
             this.summaryData.billing_sale_observation - this.headerData.billing_sale_observation;
-            this.enableScreens([0, 1]);
-            this.completeScreens([0, 1]);
+            this.enableScreens([0, 1, 2, 3]);
+            this.completeScreens([0, 1, 2, 3]);
             this.isLoading = false;
         })
         .catch((err)=>{
@@ -434,7 +434,7 @@ export default class OrderScreen extends LightningElement {
 
     enableNextScreen() {
         console.log('enableNextScreen');
-        if ((this.currentTab + 1) < 3) {
+        if ((this.currentTab + 1) <= 3) {
             if (this.tabs[this.currentTab + 1].enable == false) {
                 this.tabs[this.currentTab + 1].enable = true;
             }
