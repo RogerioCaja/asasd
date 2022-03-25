@@ -165,6 +165,10 @@ public without sharing class OrderScreenController {
                     setOrderItemsIds.add(orderProduct.orderItemId);
                 }
 
+                if (orderProduct.productGroupId != null) {
+                    setProductGroups.add(orderProduct.productGroupId);
+                }
+
                 Decimal currentDiscount = 100 - ((orderProduct.totalPrice * 100) / (orderProduct.quantity * orderProduct.listPrice));
                 if (biggerDiscount < currentDiscount) {
                     biggerDiscount = currentDiscount;

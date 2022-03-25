@@ -9,15 +9,9 @@ export default class OrderSummaryScreen extends LightningElement {
     @api accountData;
     @api productData;
     @api divisionData;
-    @api summaryData ={
-        observation : "",
-        billing_sale_observation : ""
-    };
+    @api summaryData;
     
-    @api summaryDataLocale = {
-        observation : "",
-        billing_sale_observation : ""
-    };
+    @api summaryDataLocale;
     @api productDataLocale = [];
     @api headerData;
 
