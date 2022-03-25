@@ -4,6 +4,7 @@ import {
     track
 } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import getSafraInfos from '@salesforce/apex/OrderScreenController.getSafraInfos';
 
 
 const actions = [
@@ -27,6 +28,7 @@ export default class OrderProductScreen extends LightningElement {
         columnSapStatus: true
     }
 
+    safraData={}
     paymentDate;hectares;priceBookListId;
 
     baseProducts = [];
@@ -56,10 +58,20 @@ export default class OrderProductScreen extends LightningElement {
         this.priceBookListId = this.headerData.lista_precos.Id;
 
         this.products = this.isFilled(this.productData) ? this.productData : [];
-        console.log('this.divisionData: ' + JSON.stringify(this.divisionData))
         this.allDivisionProducts = this.isFilled(this.divisionData) ? this.divisionData : [];
         this.showIncludedProducts = this.products.length > 0;
         this.applySelectedColumns(event);
+
+        if (this.isFilled(this.headerData.safra.Id)) {
+            getSafraInfos({safraId: this.headerData.safra.Id})
+            .then((result) => {
+                let safraResult = JSON.parse(result);
+                this.safraData = {
+                    initialDate: safraResult.initialDate,
+                    endDate: safraResult.endDate
+                };
+            })
+        }
     }
 
     showProductModal(event) {
@@ -316,7 +328,6 @@ export default class OrderProductScreen extends LightningElement {
             prod.position = this.isFilled(this.products) ? this.products.length : 0
             allProducts.push(prod);
 
-            // comissionValue
             console.log(JSON.stringify(allProducts));
             this.showIncludedProducts = true;
             this.addProduct = {};
@@ -351,22 +362,69 @@ export default class OrderProductScreen extends LightningElement {
         this.products = JSON.parse(JSON.stringify(includedProducts));
         this.updateProduct = !this.updateProduct;
         this.createNewProduct = !this.createNewProduct;
+
+        let allDivisions = JSON.parse(JSON.stringify(this.allDivisionProducts));
+        if (allDivisions.length > 0) {
+            let allDivisionQuantitys = 0;
+            for (let index = 0; index < allDivisions.length; index++) {
+                let existingProductDivision = allDivisions[index];
+                if (existingProductDivision.productPosition == this.productPosition) {
+                    allDivisionQuantitys += Number(existingProductDivision.quantity);
+                }
+            }
+
+            if (allDivisionQuantitys > Number(this.addProduct.quantity)) {
+                this.showToast('warning', 'Atenção!', 'A soma das quantidades não pode ultrapassar ' + this.addProduct.quantity + '.');
+                this.productDivision(this.productPosition);
+            } else {
+                this.showToast('success', 'Sucesso!', 'Produto alterado.');
+            }
+        } else {
+            this.showToast('success', 'Sucesso!', 'Produto alterado.');
+        }
+
         this._verifyFieldsToSave();
-        this.showToast('success', 'Sucesso!', 'Produto alterado.');
         console.log(JSON.stringify(this.products));
     }
 
     showDivisionModal() {
-        this.showProductDivision = !this.showProductDivision;
+        let quantityError = this.quantityExceed();
+        if (quantityError) {
+            this.showToast('warning', 'Atenção!', 'A soma das quantidades não pode ultrapassar ' + this.currentDivisionProduct.quantity + '.');
+        } else {
+            this.showProductDivision = !this.showProductDivision;
+        }
+    }
+
+    quantityExceed() {
+        let allDivisions = JSON.parse(JSON.stringify(this.divisionProducts));
+        if (allDivisions.length > 0) {
+            let allDivisionQuantitys = 0;
+            for (let index = 0; index < allDivisions.length; index++) {
+                let existingProductDivision = allDivisions[index];
+                if (existingProductDivision.productPosition == this.productPosition) {
+                    allDivisionQuantitys += Number(existingProductDivision.quantity);
+                }
+            }
+
+            if (allDivisionQuantitys > Number(this.currentDivisionProduct.quantity)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
     }
 
     confirmDivision() {
-        let key = this.currentDivisionProduct.position;
-        console.log('key: ' + key);
-        this.allDivisionProducts = JSON.parse(JSON.stringify(this.divisionProducts));
-        console.log('this.allDivisionProducts: ' + JSON.stringify(this.allDivisionProducts));
-        this.showDivisionModal();
-        this._setDivisionData();
+        let quantityError = this.quantityExceed();
+        if (quantityError) {
+            this.showToast('warning', 'Atenção!', 'A soma das quantidades não pode ultrapassar ' + this.currentDivisionProduct.quantity + '.');
+        } else {
+            this.allDivisionProducts = JSON.parse(JSON.stringify(this.divisionProducts));
+            this.showProductDivision = !this.showProductDivision;
+            this.showToast('success', 'Sucesso!', 'Remessas salvas.');
+            this._setDivisionData();
+        }
     }
 
     handleRowActions(event) {
@@ -375,6 +433,7 @@ export default class OrderProductScreen extends LightningElement {
         switch (actionName) {
             case 'edit':
                 this.editProduct(row.position);
+            break;
             case 'shippingDivision':
                 this.productDivision(row.position);
             break;
@@ -409,7 +468,8 @@ export default class OrderProductScreen extends LightningElement {
             totalPrice: currentProduct.totalPrice,
             dosage: currentProduct.dosage,
             quantity: currentProduct.quantity,
-            invoicedQuantity: currentProduct.invoicedQuantity
+            invoicedQuantity: currentProduct.invoicedQuantity,
+            position: currentProduct.position
         }
         console.log('this.addProduct: ' + JSON.stringify(this.addProduct));
 
@@ -420,7 +480,6 @@ export default class OrderProductScreen extends LightningElement {
     productDivision(position) {
         this.divisionProducts = this.isFilled(this.allDivisionProducts) ? JSON.parse(JSON.stringify(this.allDivisionProducts)) : [];
         for (let index = 0; index < this.divisionProducts.length; index++) {
-            console.log(this.divisionProducts[index].productPosition == position);
             if (this.divisionProducts[index].productPosition == position) {
                 this.divisionProducts[index].showInfos = true;
             } else {
@@ -429,7 +488,7 @@ export default class OrderProductScreen extends LightningElement {
         }
 
         let currentProduct = this.products.find(e => e.position == position);
-        
+
         this.productPosition = position;
         this.multiplicity = currentProduct.multiplicity;
         this.currentDivisionProduct = {
@@ -441,7 +500,7 @@ export default class OrderProductScreen extends LightningElement {
         };
 
         console.log('this.currentDivisionProduct: ' + JSON.stringify(this.currentDivisionProduct));
-        this.showDivisionModal();
+        this.showProductDivision = !this.showProductDivision;
         this.newFields();
     }
 
@@ -450,7 +509,7 @@ export default class OrderProductScreen extends LightningElement {
         let divPosition = this.isFilled(allDivisions) ? allDivisions.length : 0;
         let deliveryId = 'deliveryId-' + divPosition;
         let quantityId = 'quantityId-' + divPosition;
-        let orderItemKey = this.currentDivisionProduct.productId + '-' + this.currentDivisionProduct.quantity.toFixed(2) + '-' + Number(this.currentDivisionProduct.unitPrice).toFixed(2);
+        let orderItemKey = this.currentDivisionProduct.productId + '-' + Number(this.currentDivisionProduct.quantity).toFixed(2) + '-' + Number(this.currentDivisionProduct.unitPrice).toFixed(2);
         
         allDivisions.push({deliveryDate: null, quantity: null, position: divPosition, deliveryId: deliveryId, quantityId: quantityId, orderItemKey: orderItemKey, productPosition: this.productPosition, showInfos: true});
         this.divisionProducts = JSON.parse(JSON.stringify(allDivisions));
@@ -465,10 +524,29 @@ export default class OrderProductScreen extends LightningElement {
         if (this.isFilled(fieldValue)) {
             if (fieldId.includes('deliveryId-')) {
                 currentProduct = allDivisions.find(e => e.deliveryId == fieldId);
-                currentProduct.deliveryDate = fieldValue;
+                if (fieldValue > this.safraData.initialDate && fieldValue < this.safraData.endDate) {
+                    currentProduct.deliveryDate = fieldValue;
+                } else {
+                    currentProduct.deliveryDate = null;
+                    let formatInitialDate = this.safraData.initialDate.split('-')[2] + '/' + this.safraData.initialDate.split('-')[1] + '/' + this.safraData.initialDate.split('-')[0];
+                    let formatEndDate = this.safraData.endDate.split('-')[2] + '/' + this.safraData.endDate.split('-')[1] + '/' + this.safraData.endDate.split('-')[0];
+                    this.showToast('warning', 'Atenção!', 'A data tem que estar na vigêngia da safra(' + formatInitialDate + '-' + formatEndDate + ').');
+                }
             } else if (fieldId.includes('quantityId-')) {
+                let productQuantity = 0;
+                for (let index = 0; index < allDivisions.length; index++) {
+                    if (allDivisions[index].productPosition == this.currentDivisionProduct.position && allDivisions[index].quantityId != fieldId) {
+                        productQuantity = productQuantity + (Number(allDivisions[index].quantity));
+                    }
+                }
+
                 currentProduct = allDivisions.find(e => e.quantityId == fieldId);
-                currentProduct.quantity = this.calculateMultiplicity(fieldValue);
+                if ((Number(productQuantity) + Number(fieldValue)) <= this.currentDivisionProduct.quantity) {
+                    currentProduct.quantity = this.calculateMultiplicity(fieldValue);
+                } else {
+                    currentProduct.quantity = this.currentDivisionProduct.quantity - Number(productQuantity);
+                    this.showToast('warning', 'Atenção!', 'A quantidade foi arredondada para ' + currentProduct.quantity + ' para não exceder.');
+                }
             }
 
             this.divisionProducts = JSON.parse(JSON.stringify(allDivisions));

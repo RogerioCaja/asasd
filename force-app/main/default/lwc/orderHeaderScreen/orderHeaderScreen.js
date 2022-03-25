@@ -354,7 +354,7 @@ export default class OrderHeaderScreen extends LightningElement {
 
     @api
     verifyMandatoryFields() {
-        try{
+        /* try{
         if ((this.headerDictLocale.tipo_venda !== undefined &&
             this.headerDictLocale.safra.Id !== undefined &&
             this.headerDictLocale.cultura.Id !== undefined &&
@@ -373,7 +373,8 @@ export default class OrderHeaderScreen extends LightningElement {
     catch(err){
         console.log(err);
     }
-        return false;
+        return false; */
+        return true;
     }
 
     _setData() {

@@ -414,8 +414,6 @@ public without sharing class OrderScreenController {
                         shippingDivision.Quantity__c = division.quantity;
                         shippingDivision.ExternalId__c = division.externalId;
                         shippingDivision.ConfirmedQuantity__c = division.confirmedQuantity != null ? division.confirmedQuantity : 0;
-                        System.debug('division.orderItemId: ' + division.orderItemId);
-                        System.debug('division.orderItemKey: ' + division.orderItemKey);
                         shippingDivision.OrderItem__c = division.orderItemId != null ? division.orderItemId : mapOrderItems.get(division.orderItemKey);
                         listShippingDivision.add(shippingDivision);
                     }
@@ -449,6 +447,16 @@ public without sharing class OrderScreenController {
             System.debug('Erro: ' + ex.getMessage() + '   -   ' + ex.getStackTraceString());
 			throw new AuraHandledException('Exception occured:\r\n' + ex.getMessage() + '\r\n' + ex.getStackTraceString() + '\r\n');
 		}
+    }
+
+    @AuraEnabled
+    public static String getSafraInfos(String safraId){
+        Safra__c safra = [SELECT Id,
+                                 StartDateOrderInsertion__c,
+                                 EndDateInsertionOrders__c
+                            FROM Safra__c
+                           WHERE Id =: safraId];
+        return JSON.serialize(new SafraDataSerialize(safra));
     }
 
     @AuraEnabled
@@ -868,6 +876,23 @@ public without sharing class OrderScreenController {
             this.confirmedQuantity = shippingDivison.ConfirmedQuantity__c;
             this.productPosition = productPosition;
             this.showInfos = true;
+        }
+    }
+
+    public class SafraDataDeserialize {
+        public String initialDate;
+        public String endDate;
+    }
+
+    public class SafraDataSerialize {
+        public String initialDate;
+        public String endDate;
+
+        SafraDataSerialize() {}
+
+        SafraDataSerialize(Safra__c safra) {
+            this.initialDate = String.valueOf(safra.StartDateOrderInsertion__c);
+            this.endDate = String.valueOf(safra.EndDateInsertionOrders__c);
         }
     }
 }
