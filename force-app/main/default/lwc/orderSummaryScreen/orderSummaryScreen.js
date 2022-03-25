@@ -11,12 +11,12 @@ export default class OrderSummaryScreen extends LightningElement {
     @api divisionData;
     @api summaryData ={
         observation : "",
-        observationBillingSale : ""
+        billing_sale_observation : ""
     };
     
     @api summaryDataLocale = {
         observation : "",
-        observationBillingSale : ""
+        billing_sale_observation : ""
     };
     @api productDataLocale = [];
     @api headerData;
@@ -74,6 +74,14 @@ export default class OrderSummaryScreen extends LightningElement {
 
     changeObservation(event){
         this.summaryDataLocale.observation = event.target.value;
+        const setSummaryData = new CustomEvent('setsummarydata');
+        setSummaryData.data = this.summaryDataLocale;
+      
+        this.dispatchEvent(setSummaryData);
+    }
+
+    changeObservationSale(event){
+        this.summaryDataLocale.billing_sale_observation = event.target.value;
         const setSummaryData = new CustomEvent('setsummarydata');
         setSummaryData.data = this.summaryDataLocale;
       
