@@ -144,6 +144,7 @@ public without sharing class OrderScreenController {
             System.debug('order: ' + order);
 
             Account acc = [SELECT Id FROM Account WHERE Id =: orderData.accountData.Id LIMIT 1];
+            System.debug('orderData.accountData.Id: ' + orderData.accountData.Id);
             Company__c company = new Company__c();
             for (Company__c accountCompany : [
                 SELECT Id,
@@ -151,6 +152,7 @@ public without sharing class OrderScreenController {
                   FROM Company__c
                  WHERE Conta__c =: orderData.accountData.Id
             ]) {
+                System.debug('company: ' + company);
                 company = accountCompany;
             }
     
@@ -204,6 +206,7 @@ public without sharing class OrderScreenController {
 
             if (company != null) {
                 Id userTerritoryId;
+                System.debug('orderData.headerData.ctv_venda.Id: ' + orderData.headerData.ctv_venda.Id);
                 for (UserTerritory2Association userAssociation : [
                     SELECT Id,
                            UserId,
@@ -212,6 +215,7 @@ public without sharing class OrderScreenController {
                      WHERE UserId =: orderData.headerData.ctv_venda.Id
                      LIMIT 1
                 ]) {
+                    System.debug('userTerritoryId: ' + userTerritoryId);
                     userTerritoryId = userAssociation.Territory2Id;
                 }
 
@@ -225,6 +229,10 @@ public without sharing class OrderScreenController {
                 }
 
                 Discount__c orderDiscount = new Discount__c();
+                System.debug('company.ClientGroup__c: ' + company.ClientGroup__c);
+                System.debug('productGroupId: ' + productGroupId);
+                System.debug('System.today(): ' + System.today());
+                System.debug('biggerDiscount: ' + biggerDiscount);
                 for (Discount__c discount : [
                     SELECT Id,
                            Approver__c
@@ -239,6 +247,7 @@ public without sharing class OrderScreenController {
                   ORDER BY MinPercentage__c, MaxPercentage__c
                 ]) {
                     orderDiscount = discount;
+                    System.debug('orderDiscount: ' + orderDiscount);
                 }
 
                 Map<String, Integer> approvalLevels = new Map<String, Integer>{
@@ -248,7 +257,9 @@ public without sharing class OrderScreenController {
                 };
 
                 Integer counter = 0;
+                System.debug('orderDiscount.Approver__c: ' + orderDiscount.Approver__c);
                 Integer approvalNumber = approvalLevels.get(orderDiscount.Approver__c);
+                System.debug('approvalNumber: ' + approvalNumber);
                 while (counter < approvalNumber) {
                     Territory2 territory = territoryAndParents.containsKey(userTerritoryId) ? territoryAndParents.get(userTerritoryId) : new Territory2();
                     System.debug('territory: ' + territory);
@@ -268,15 +279,19 @@ public without sharing class OrderScreenController {
                      LIMIT 1
                 ]) {
                     approvalUser = userAssociation.UserId;
+                    System.debug('approvalUser: ' + approvalUser);
                 }
 
                 if (approvalNumber == 1) {
+                    System.debug('approvalNumber: ' + approvalNumber);
                     order.ApprovalBranchManager__c = approvalUser;
                     order.Manager_BranchOffice__c = true;
                 } else if (approvalNumber == 2) {
+                    System.debug('approvalNumber: ' + approvalNumber);
                     order.ApprovalRegionalManager__c = approvalUser;
                     order.Gerente_Regional__c = true;
                 } else if (approvalNumber == 3) {
+                    System.debug('approvalNumber: ' + approvalNumber);
                     order.ApprovalDirector__c = approvalUser;
                     order.Director__c = true;
                 }
