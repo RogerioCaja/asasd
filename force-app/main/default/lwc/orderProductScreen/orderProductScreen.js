@@ -420,7 +420,15 @@ export default class OrderProductScreen extends LightningElement {
         if (quantityError) {
             this.showToast('warning', 'Atenção!', 'A soma das quantidades não pode ultrapassar ' + this.currentDivisionProduct.quantity + '.');
         } else {
-            this.allDivisionProducts = JSON.parse(JSON.stringify(this.divisionProducts));
+            let filledDivisions = [];
+            for (let index = 0; index < this.divisionProducts.length; index++) {
+                let checkFields = this.divisionProducts[index];
+                if (this.isFilled(checkFields.quantity) && this.isFilled(checkFields.deliveryDate)) {
+                    filledDivisions.push(checkFields);
+                }
+            }
+
+            this.allDivisionProducts = JSON.parse(JSON.stringify(filledDivisions));
             this.showProductDivision = !this.showProductDivision;
             this.showToast('success', 'Sucesso!', 'Remessas salvas.');
             this._setDivisionData();
@@ -555,12 +563,18 @@ export default class OrderProductScreen extends LightningElement {
     }
 
     checkRequiredFields(prod) {
-        if (this.isFilled(prod.name) && this.isFilled(prod.listPrice) && this.isFilled(prod.unitPrice) &&
+        /* if (this.isFilled(prod.name) && this.isFilled(prod.listPrice) && this.isFilled(prod.unitPrice) &&
             this.isFilled(prod.totalPrice) && this.isFilled(prod.commercialDiscountPercentage) &&
             this.isFilled(prod.commercialDiscountValue) && this.isFilled(prod.commercialAdditionPercentage) &&
             this.isFilled(prod.commercialAdditionValue) && this.isFilled(prod.financialAdditionPercentage) &&
             this.isFilled(prod.financialAdditionValue) && this.isFilled(prod.financialDecreasePercentage) &&
             this.isFilled(prod.financialDecreaseValue) && this.isFilled(prod.dosage) && this.isFilled(prod.quantity)) {
+            return true;
+        } */
+        if (this.isFilled(prod.name) && this.isFilled(prod.listPrice) && this.isFilled(prod.unitPrice) &&
+            this.isFilled(prod.totalPrice) && this.isFilled(prod.commercialDiscountPercentage) &&
+            this.isFilled(prod.commercialDiscountValue) && this.isFilled(prod.commercialAdditionPercentage) &&
+            this.isFilled(prod.commercialAdditionValue) && this.isFilled(prod.dosage) && this.isFilled(prod.quantity)) {
             return true;
         }
         return false;

@@ -204,7 +204,7 @@
                     <div class="triangle"></div>
                     </button> -->
                 </span>
-                <textarea data-id="observacao" rows="5" placeholder="Observações sobre o pedido" onkeyup={changeObservation} value={summaryDataLocale.observation}></textarea>
+                <textarea data-id="observacao" rows="5" placeholder="Observações sobre o pedido" onkeyup={changeObservation}>{summaryDataLocale.observation}</textarea>
             </div>
             <div>
                 <span class="titulo">Observações de Nota:
@@ -212,7 +212,7 @@
                     <div class="triangle"></div>
                     </button> -->
                 </span>
-                <textarea data-id="observacao" rows="5" placeholder="Observações sobre a nota do pedido" onkeyup={changeObservation} value={summaryDataLocale.billing_sale_observation}></textarea>
+                <textarea data-id="observacao" rows="5" placeholder="Observações sobre a nota do pedido" onkeyup={changeObservationSale}>{summaryDataLocale.billing_sale_observation}</textarea>
             </div>
           </div>
           
