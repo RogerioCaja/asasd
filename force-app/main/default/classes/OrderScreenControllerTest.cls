@@ -126,6 +126,15 @@ public class OrderScreenControllerTest {
             InvoicedQuantity__c = 0
         );
         insert orderItem;
+
+        ShippingDivison__c shipping = new ShippingDivison__c(
+            DeliveryDate__c = System.today().addDays(30),
+            Quantity__c = 10,
+            ExternalId__c = '001',
+            ConfirmedQuantity__c = 0,
+            OrderItem__c = orderItem.Id
+        );
+        insert shipping;
     }
 
     @isTest
@@ -141,9 +150,10 @@ public class OrderScreenControllerTest {
         OrderScreenController.HeaderSerialize order = OrderScreenController.getOrderData(ord.Id);
         OrderScreenController.AccountSerialize account = OrderScreenController.getOrderAccountData(ord.AccountId);
         List<OrderScreenController.ProductSerialize> ordItemList = OrderScreenController.getOrderItemData(ord.Id);
+        List<OrderScreenController.DivisionSerialize> divisionList = OrderScreenController.getShippingDivison();
         OrderScreenController.SummarySerialize summary = new OrderScreenController.SummarySerialize('Observation', 'Observation Sales');
 
-        String data = JSON.serialize(new OrderScreenController.OrderSerializeAll(order, ordItemList, account, summary));
+        String data = JSON.serialize(new OrderScreenController.OrderSerializeAll(order, ordItemList, divisionList, account, summary));
         OrderScreenController.saveOrder(null, data);
     }
 
@@ -157,5 +167,11 @@ public class OrderScreenControllerTest {
     public static void getAccountDataChildTest() {
         Id accountId = [SELECT Id FROM Account WHERE Name = 'Child Account' LIMIT 1].Id;
         OrderScreenController.getAccountDataChild(accountId);
+    }
+
+    @isTest
+    public static void getSafraInfosTest() {
+        Id safraId = [SELECT Id FROM Safra__c LIMIT 1].Id;
+        OrderScreenController.getSafraInfos(safraId);
     }
 }

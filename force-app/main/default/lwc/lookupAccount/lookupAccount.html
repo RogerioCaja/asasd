@@ -31,7 +31,7 @@
 								<h1 data-value={account.Id} class="slds-truncate">{account.Name}</h1>
 								<div data-value={account.Id} class="slds-text-color_weak slds-truncate">
                                     <div class="dados">
-                                        <span>Código SAP:  </span>
+                                        <span>Código SAP:  {account.CodSap}</span>
                                         <span if:true={account.CNPJ}>CPF/CNPJ: {account.CNPJ}</span>
                                         <span if:true={account.CPF}>CPF/CNPJ: {account.CPF}</span>
                                         <span>Cidade: {account.City}</span>

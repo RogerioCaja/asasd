@@ -773,6 +773,10 @@
         <editable>true</editable>
         <field>Order.Description</field>
         <readable>true</readable>
+    </fieldPermissions><fieldPermissions>
+        <editable>true</editable>
+        <field>Order.DescriptionBillingSale__c</field>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
