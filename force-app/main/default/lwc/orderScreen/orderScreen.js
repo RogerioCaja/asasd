@@ -65,7 +65,8 @@ export default class OrderScreen extends LightningElement {
     @track productData;
     @track divisionData;
     @track summaryData = {
-        observation :""
+        'observation' : "",
+        'billing_sale_observation': ""
     };
 
     qtdItens = 0;
@@ -179,8 +180,8 @@ export default class OrderScreen extends LightningElement {
             //this.loadHeaderDataTitle();
             this.productData = data.productData;
             this.divisionData = data.divisionData;
-            this.summaryData.observation = this.headerData.observation;
-            this.summaryData.billing_sale_observation - this.headerData.billing_sale_observation;
+            this.summaryData['observation'] = this.headerData.observation;
+            this.summaryData['billing_sale_observation'] = this.headerData.billing_sale_observation;
             this.enableScreens([0, 1, 2, 3]);
             this.completeScreens([0, 1, 2, 3]);
             this.isLoading = false;
