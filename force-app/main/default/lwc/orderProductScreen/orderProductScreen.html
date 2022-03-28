@@ -297,6 +297,22 @@
                 <span class="close" onclick={showDivisionModal}>&times;</span>
 				<p class="new-product-title">Divisão de entrega: {currentDivisionProduct.name}</p>
 
+				<div class="quantities-div">
+					<div class="column">
+						Quantidade total do produto: <label class="quantities-bold">{currentDivisionProduct.quantity}</label><br>
+					</div>
+					<template if:true={currentDivisionProduct.showRed}>
+						<div class="column">
+							Quantidade a distribuir: <label class="quantities-red">{currentDivisionProduct.availableQuantity}</label><br>
+						</div>
+					</template>
+					<template if:false={currentDivisionProduct.showRed}>
+						<div class="column">
+							Quantidade a distribuir: <label class="quantities-bold">{currentDivisionProduct.availableQuantity}</label><br>
+						</div>
+					</template>
+				</div>
+
 				<template for:each={divisionProducts} for:item="divProduct">
 					<div class="row" key={divProduct.position}>
 						<template if:true={divProduct.showInfos}>
