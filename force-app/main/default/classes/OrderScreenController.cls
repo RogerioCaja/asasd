@@ -260,16 +260,51 @@ public without sharing class OrderScreenController {
                 System.debug('orderDiscount.Approver__c: ' + orderDiscount.Approver__c);
                 Integer approvalNumber = approvalLevels.get(orderDiscount.Approver__c);
                 System.debug('approvalNumber: ' + approvalNumber);
+                Map<Integer, Id> approvalByCounter = new Map<Integer, Id>();
                 while (counter < approvalNumber) {
                     Territory2 territory = territoryAndParents.containsKey(userTerritoryId) ? territoryAndParents.get(userTerritoryId) : new Territory2();
                     System.debug('territory: ' + territory);
                     if (territory != null && territory.ParentTerritory2Id != null) {
                         userTerritoryId = territory.ParentTerritory2Id;
+                        approvalByCounter.put(counter, userTerritoryId);
+                        System.debug('counter: ' + counter);
+                        System.debug('userTerritoryId: ' + userTerritoryId);
                     }
                     counter++;
                 }
 
-                Id approvalUser;
+                Map<Id, Id> approvalsByTerritory = new Map<Id, Id>();
+                for (UserTerritory2Association userAssociation : [
+                    SELECT Id,
+                           UserId,
+                           Territory2Id
+                      FROM UserTerritory2Association
+                     WHERE Territory2Id IN: approvalByCounter.values()
+                ]) {
+                    System.debug('userAssociation: ' + userAssociation);
+                    approvalsByTerritory.put(userAssociation.Territory2Id, userAssociation.UserId);
+                }
+
+                if (approvalNumber >= 1) {
+                    System.debug('approvalNumber: ' + approvalNumber);
+                    System.debug('approvalsByTerritory.get(approvalByCounter.get(0)): ' + approvalsByTerritory.get(approvalByCounter.get(0)));
+                    order.ApprovalBranchManager__c = approvalsByTerritory.get(approvalByCounter.get(0));
+                    order.Manager_BranchOffice__c = true;
+                }
+                if (approvalNumber >= 2) {
+                    System.debug('approvalNumber: ' + approvalNumber);
+                    System.debug('approvalsByTerritory.get(approvalByCounter.get(1)): ' + approvalsByTerritory.get(approvalByCounter.get(1)));
+                    order.ApprovalRegionalManager__c = approvalsByTerritory.get(approvalByCounter.get(1));
+                    order.Gerente_Regional__c = true;
+                }
+                if (approvalNumber >= 3) {
+                    System.debug('approvalNumber: ' + approvalNumber);
+                    System.debug('approvalsByTerritory.get(approvalByCounter.get(2)): ' + approvalsByTerritory.get(approvalByCounter.get(2)));
+                    order.ApprovalDirector__c = approvalsByTerritory.get(approvalByCounter.get(2));
+                    order.Director__c = true;
+                }
+
+                /* Id approvalUser;
                 for (UserTerritory2Association userAssociation : [
                     SELECT Id,
                            UserId,
@@ -294,7 +329,7 @@ public without sharing class OrderScreenController {
                     System.debug('approvalNumber: ' + approvalNumber);
                     order.ApprovalDirector__c = approvalUser;
                     order.Director__c = true;
-                }
+                } */
             }
 
             order.AccountId = acc.Id;
@@ -433,6 +468,7 @@ public without sharing class OrderScreenController {
                         shippingDivision.Quantity__c = division.quantity;
                         shippingDivision.ExternalId__c = division.externalId;
                         shippingDivision.ConfirmedQuantity__c = division.confirmedQuantity != null ? division.confirmedQuantity : 0;
+                        System.debug('division.orderItemKey: ' + division.orderItemKey);
                         shippingDivision.OrderItem__c = division.orderItemId != null ? division.orderItemId : mapOrderItems.get(division.orderItemKey);
                         listShippingDivision.add(shippingDivision);
                     }

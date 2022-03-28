@@ -321,7 +321,7 @@ export default class OrderProductScreen extends LightningElement {
         let prod = this.addProduct;
         if (this.checkRequiredFields(prod)) {
             let allProducts = JSON.parse(JSON.stringify(this.products));
-            let margin = this.isFilled(this.costPrice) ? ((prod.totalPrice / prod.quantity) / this.costPrice).toFixed(2) : 0;
+            let margin = this.isFilled(this.costPrice) ? (this.costPrice).toFixed(2) / (prod.totalPrice / prod.quantity) : 0;
             
             prod.commercialMarginPercentage = margin;
             prod.multiplicity = this.multiplicity;
@@ -347,7 +347,7 @@ export default class OrderProductScreen extends LightningElement {
         for (let index = 0; index < includedProducts.length; index++) {
             if (includedProducts[index].position == this.productPosition) {
                 if (this.checkRequiredFields(this.addProduct)) {
-                    let margin = this.isFilled(this.costPrice) ? ((this.addProduct.totalPrice / this.addProduct.quantity) / this.costPrice).toFixed(2) : null;
+                    let margin = this.isFilled(this.costPrice) ? (this.costPrice / (this.addProduct.totalPrice / this.addProduct.quantity)).toFixed(2) : null;
                     this.addProduct.commercialMarginPercentage = margin;
                     this.addProduct.multiplicity = this.multiplicity;
                     includedProducts[index] = JSON.parse(JSON.stringify(this.addProduct));
@@ -428,8 +428,15 @@ export default class OrderProductScreen extends LightningElement {
                 }
             }
 
+            for (let index = 0; index < filledDivisions.length; index++) {
+                if (filledDivisions[index].productPosition == this.productPosition) {
+                    filledDivisions[index].orderItemKey = this.currentDivisionProduct.productId + '-' + Number(this.currentDivisionProduct.quantity).toFixed(2) + '-' + Number(this.currentDivisionProduct.unitPrice).toFixed(2);
+                }
+            }
+
             this.allDivisionProducts = JSON.parse(JSON.stringify(filledDivisions));
             this.showProductDivision = !this.showProductDivision;
+            
             this.showToast('success', 'Sucesso!', 'Remessas salvas.');
             this._setDivisionData();
         }
@@ -486,16 +493,19 @@ export default class OrderProductScreen extends LightningElement {
     }
 
     productDivision(position) {
+        let distributedQuantity = 0;
         this.divisionProducts = this.isFilled(this.allDivisionProducts) ? JSON.parse(JSON.stringify(this.allDivisionProducts)) : [];
         for (let index = 0; index < this.divisionProducts.length; index++) {
             if (this.divisionProducts[index].productPosition == position) {
                 this.divisionProducts[index].showInfos = true;
+                distributedQuantity += Number(this.divisionProducts[index].quantity);
             } else {
                 this.divisionProducts[index].showInfos = false;
             }
         }
 
         let currentProduct = this.products.find(e => e.position == position);
+        let availableQuantity = currentProduct.quantity - distributedQuantity;
 
         this.productPosition = position;
         this.multiplicity = currentProduct.multiplicity;
@@ -504,7 +514,9 @@ export default class OrderProductScreen extends LightningElement {
             unitPrice: currentProduct.unitPrice,
             position: position,
             name: currentProduct.name,
-            quantity: currentProduct.quantity
+            quantity: currentProduct.quantity,
+            availableQuantity: availableQuantity,
+            showRed : availableQuantity < 0 ? true : false
         };
 
         console.log('this.currentDivisionProduct: ' + JSON.stringify(this.currentDivisionProduct));
@@ -532,7 +544,7 @@ export default class OrderProductScreen extends LightningElement {
         if (this.isFilled(fieldValue)) {
             if (fieldId.includes('deliveryId-')) {
                 currentProduct = allDivisions.find(e => e.deliveryId == fieldId);
-                if (fieldValue > this.safraData.initialDate && fieldValue < this.safraData.endDate) {
+                if (fieldValue >= this.safraData.initialDate && fieldValue <= this.safraData.endDate) {
                     currentProduct.deliveryDate = fieldValue;
                 } else {
                     currentProduct.deliveryDate = null;
@@ -554,6 +566,13 @@ export default class OrderProductScreen extends LightningElement {
                 } else {
                     currentProduct.quantity = this.currentDivisionProduct.quantity - Number(productQuantity);
                     this.showToast('warning', 'Atenção!', 'A quantidade foi arredondada para ' + currentProduct.quantity + ' para não exceder.');
+                }
+
+                this.currentDivisionProduct.availableQuantity = this.currentDivisionProduct.quantity - ((Number(productQuantity) + Number(currentProduct.quantity)));
+                if (this.currentDivisionProduct.availableQuantity < 0) {
+                    this.currentDivisionProduct.showRed = true;
+                } else {
+                    this.currentDivisionProduct.showRed = false;
                 }
             }
 
