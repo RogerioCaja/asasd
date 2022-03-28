@@ -250,6 +250,19 @@ lightning-datatable.dt-outer-container {
     float: right;
 }
 
+.quantities-div {
+	margin: 20px 0px 50px 0px;
+    font-size: 14px;
+}
+
+.quantities-bold {
+    font-weight: bold;
+}
+
+.quantities-red {
+    color: red;
+}
+
 .confirm-button:hover {
 	background-color: #2a9676;
 	color: #ffffff;
