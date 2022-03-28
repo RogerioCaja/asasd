@@ -267,6 +267,8 @@ public without sharing class OrderScreenController {
                     if (territory != null && territory.ParentTerritory2Id != null) {
                         userTerritoryId = territory.ParentTerritory2Id;
                         approvalByCounter.put(counter, userTerritoryId);
+                        System.debug('counter: ' + counter);
+                        System.debug('userTerritoryId: ' + userTerritoryId);
                     }
                     counter++;
                 }
@@ -278,8 +280,8 @@ public without sharing class OrderScreenController {
                            Territory2Id
                       FROM UserTerritory2Association
                      WHERE Territory2Id IN: approvalByCounter.values()
-                     LIMIT 1
                 ]) {
+                    System.debug('userAssociation: ' + userAssociation);
                     approvalsByTerritory.put(userAssociation.Territory2Id, userAssociation.UserId);
                 }
 
