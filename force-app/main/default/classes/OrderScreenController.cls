@@ -287,20 +287,20 @@ public without sharing class OrderScreenController {
 
                 if (approvalNumber >= 1) {
                     System.debug('approvalNumber: ' + approvalNumber);
-                    System.debug('approvalsByTerritory.get(approvalByCounter.get(1)): ' + approvalsByTerritory.get(approvalByCounter.get(0)));
-                    order.ApprovalBranchManager__c = approvalsByTerritory.get(approvalByCounter.get(1));
+                    System.debug('approvalsByTerritory.get(approvalByCounter.get(0)): ' + approvalsByTerritory.get(approvalByCounter.get(0)));
+                    order.ApprovalBranchManager__c = approvalsByTerritory.get(approvalByCounter.get(0));
                     order.Manager_BranchOffice__c = true;
                 }
                 if (approvalNumber >= 2) {
                     System.debug('approvalNumber: ' + approvalNumber);
-                    System.debug('approvalsByTerritory.get(approvalByCounter.get(2)): ' + approvalsByTerritory.get(approvalByCounter.get(1)));
-                    order.ApprovalRegionalManager__c = approvalsByTerritory.get(approvalByCounter.get(2));
+                    System.debug('approvalsByTerritory.get(approvalByCounter.get(1)): ' + approvalsByTerritory.get(approvalByCounter.get(1)));
+                    order.ApprovalRegionalManager__c = approvalsByTerritory.get(approvalByCounter.get(1));
                     order.Gerente_Regional__c = true;
                 }
                 if (approvalNumber >= 3) {
                     System.debug('approvalNumber: ' + approvalNumber);
-                    System.debug('approvalsByTerritory.get(approvalByCounter.get(3)): ' + approvalsByTerritory.get(approvalByCounter.get(2)));
-                    order.ApprovalDirector__c = approvalsByTerritory.get(approvalByCounter.get(3));
+                    System.debug('approvalsByTerritory.get(approvalByCounter.get(2)): ' + approvalsByTerritory.get(approvalByCounter.get(2)));
+                    order.ApprovalDirector__c = approvalsByTerritory.get(approvalByCounter.get(2));
                     order.Director__c = true;
                 }
 
