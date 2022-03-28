@@ -38,16 +38,20 @@
                 <behavior>Edit</behavior>
                 <field>Account__c</field>
             </layoutItems>
-        </layoutColumns>
-        <layoutColumns>
-            <!-- <layoutItems>
+            <layoutItems>
                 <behavior>Edit</behavior>
-                <field>Product2Id__c</field>
+                <field>Culture__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>Unit__c</field>
-            </layoutItems> -->
+                <field>SalesOrg__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>SalesSection__c</field>
+            </layoutItems>
+        </layoutColumns>
+        <layoutColumns>
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>EffectiveDate__c</field>
@@ -55,10 +59,6 @@
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>PaymentDate__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
-                <field>SalesOrg__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
@@ -87,10 +87,6 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>Culture__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
                 <field>Region__c</field>
             </layoutItems>
             <layoutItems>
@@ -115,10 +111,6 @@
                 <behavior>Edit</behavior>
                 <field>SalesTeam__c</field>
             </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
-                <field>SalesSection__c</field>
-            </layoutItems>
         </layoutColumns>
         <style>TwoColumnsLeftToRight</style>
     </layoutSections>
@@ -127,10 +119,8 @@
         <detailHeading>true</detailHeading>
         <editHeading>true</editHeading>
         <label>Valores</label>
-        <layoutColumns>
-        </layoutColumns>
-        <layoutColumns>
-        </layoutColumns>
+        <layoutColumns/>
+        <layoutColumns/>
         <style>TwoColumnsLeftToRight</style>
     </layoutSections>
     <layoutSections>
