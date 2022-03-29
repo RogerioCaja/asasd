@@ -14,53 +14,16 @@ global with sharing class TemplateDataIntegrationFields {
         String getParentKey();
     }
 
-    // {
-    //     "request": [
-    //                      {
-    //                          "codExternal": "",
-    //                          "typeCondition": "",
-    //                          "description": "",
-    //                          "orgVendas": "",
-    //                          "listPrice": "",
-    //                          "cropCode": "",
-    //                          "accountCode": "",
-    //                          "accountGroup": "",
-    //                          "salesOffice": "",
-    //                          "salesTeam": "",
-    //                  "salesSector": "",
-    //                          "initialDate": "",
-    //                          "endDate": "",
-    //                      "effectiveDate": "",
-    //                      "currency": "",
-    //                      "active": "",
-    //                      "productFamily": "",
-    //                          "pricebookentries": [
-    //                              {
-                                    
-    //                                  "productId": "XY123",
-    //                                  "unitPrice": 100.00,
-                               
-    //                              },
-    //                              {
-                                    
-    //                                  "productId": "XY123",
-    //                                  "unitPrice": 100.00,
-                               
-    //                              }
-    //                          ]
-    //                      }
-    //                  ]
-    //              }
-       
-       
-    //    }
+    
     global class Pricebook2INData implements FieldData{
         
         //JSON fields Example
+        public String name;
         public String codExternal;
         public String typeCondition;
         public String description;
         public String orgVendas;
+        public String cultureCode;
         public String listPrice;
         public String cropCode;
         public String accountCode;
@@ -80,12 +43,14 @@ global with sharing class TemplateDataIntegrationFields {
 
             //Returning Object with Fields.
             return new Pricebook2(
+                Name = this.name,
                 ExternalId__c = codExternal,
-                RecordTypeId = lookups.containsKey('RecordTypeId'+this.typeCondition) ? lookups.get('RecordTypeId'+this.typeCondition) : null,
+                RecordTypeId = 	'0127e0000003FkIAAU',
                 Description = description,
                 SalesOrg__c = lookups.containsKey('SalesOrg__c'+this.orgVendas) ? lookups.get('SalesOrg__c'+this.orgVendas) : null,
                 PriceList__c = listPrice,
                 Crop__c = lookups.containsKey('Crop__c'+this.cropCode) ? lookups.get('Crop__c'+this.cropCode) : null,
+                Culture__c = lookups.containsKey('Culture__c'+this.cultureCode) ? lookups.get('Culture__c'+this.cultureCode) : null,
                 Account__c = lookups.containsKey('Account__c'+this.accountCode) ? lookups.get('Account__c'+this.accountCode) : null,
                 AccountType__c = accountGroup,
                 SalesOffice__c = lookups.containsKey('SalesOffice__c'+this.salesOffice) ? lookups.get('SalesOffice__c'+this.salesOffice) : null,
@@ -104,7 +69,7 @@ global with sharing class TemplateDataIntegrationFields {
         public List<String> getRequiredFields(){
             return new List<String>{
                 'ExternalId__c',
-                'RecordTypeId',
+                // 'RecordTypeId',
                 'SalesOrg__c',
                 'PriceList__c',
                 'InitialDate__c',
@@ -126,7 +91,7 @@ global with sharing class TemplateDataIntegrationFields {
         }
     }
 
-    global class PricebookEntryINData implements FieldData{
+    global class PricebookEntryINData implements FieldDataChild{
         
         //JSON fields Example
         public String pricebook2Id;
@@ -139,7 +104,9 @@ global with sharing class TemplateDataIntegrationFields {
             return new PricebookEntry(
                 UnitPrice      = unitPrice,
                 CostPrice__c  =  unitPrice,
-                Pricebook2Id  = null,
+                IsActive = true,
+                Code__c = this.Pricebook2Id + '|' + this.ProductCode,
+                Pricebook2Id  = lookups.containsKey('Pricebook2'+this.pricebook2Id) ? lookups.get('Pricebook2'+this.pricebook2Id) : null,
                 Product2Id  = lookups.containsKey('Product2Id'+this.productCode) ? lookups.get('Product2Id'+this.productCode) : null
             );
         }
@@ -152,12 +119,15 @@ global with sharing class TemplateDataIntegrationFields {
 
         //ExternalId field
         public String getFieldKey(){
-            return 'Product2Id';
+            return 'Id';
+        }
+
+        public String getFieldExternal(){
+            return 'Code__c';
         }
         
-        //Id field
-        public String getFieldId() {
-            return 'Id';
+        public String getParentKey(){
+            return 'Pricebook2Id';
         }
     }
 
