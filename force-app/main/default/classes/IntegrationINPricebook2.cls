@@ -219,9 +219,6 @@ global with sharing class IntegrationINPricebook2 {
             }
         }
 
-        //Checking integration errors to log
-       
-
         for(TemplateDataIntegrationFields.ResponseParent responsePricebook : responseList){
             if(responsePricebook.status == false){
                 hasError = true;
