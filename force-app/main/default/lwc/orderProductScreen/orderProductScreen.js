@@ -51,14 +51,21 @@ export default class OrderProductScreen extends LightningElement {
     @api productData;
     @api divisionData;
     @api headerData;
+    @api cloneData;
     
     connectedCallback(event) {
         this.paymentDate = this.headerData.data_pagamento;
         this.hectares = this.headerData.hectares;
         this.priceBookListId = this.headerData.lista_precos.Id;
 
-        this.products = this.isFilled(this.productData) ? this.productData : [];
-        this.allDivisionProducts = this.isFilled(this.divisionData) ? this.divisionData : [];
+        if (this.cloneData.cloneOrder && this.cloneData.pricebookListId != this.priceBookListId) {
+            this.products = []
+            this.allDivisionProducts = [];
+        } else {
+            this.products = this.isFilled(this.productData) ? this.productData : [];
+            this.allDivisionProducts = this.isFilled(this.divisionData) ? this.divisionData : [];
+        }
+
         this.showIncludedProducts = this.products.length > 0;
         this.applySelectedColumns(event);
 
