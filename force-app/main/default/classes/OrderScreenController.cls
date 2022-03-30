@@ -2,16 +2,18 @@ public without sharing class OrderScreenController {
     public static Map<Id, Integer> orderItemsPosition;
 
     @AuraEnabled
-    public static String getOrder(String recordId) {
+    public static String getOrder(String recordId, Boolean cloneOrder) {
         System.debug('recordId: ' + recordId);
         HeaderSerialize order;
         AccountSerialize account;
-        List<ProductSerialize> ordItemList;
-        List<DivisionSerialize> divisionList;
+        List<ProductSerialize> ordItemList = new List<ProductSerialize>();
+        List<DivisionSerialize> divisionList = new List<DivisionSerialize>();
 
-        order = getOrderData(recordId);
-        ordItemList = getOrderItemData(order.Id);
-        divisionList = getShippingDivison();
+        order = getOrderData(recordId, cloneOrder);
+        if (order.lista_precos != null) {
+            ordItemList = getOrderItemData(order.Id);
+            divisionList = getShippingDivison();
+        }
         account = getOrderAccountData(order.AccountId);
 
         return JSON.serialize(new OrderSerialize(order, ordItemList, divisionList, account));
@@ -28,14 +30,15 @@ public without sharing class OrderScreenController {
         return JSON.serialize(new OrderSerialize(account));
     }
 
-    public static HeaderSerialize getOrderData(Id orderId){
+    public static HeaderSerialize getOrderData(Id orderId, Boolean cloneOrder){
         Order order = [SELECT Id, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c , ShippingAccount__r.Phone,  ShippingAccount__r.Name, 
-        ShippingAccount__r.BillingCity, ShippingAccount__r.BillingState ,ShippingAccount__r.CPF__c, ShippingAccount__r.CNPJ__c , Pricebook2Id, Pricebook2.Name, PaymentDate__c,  CustomerOrderNumber__c,
-        Crop__c , Crop__r.Name, Culture__c , Culture__r.Name, PaymentForm__c, StatusSF__c, SalesOrg__c, SalesOrg__r.Name, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, SalesCTV__r.Name,
+        ShippingAccount__r.BillingCity, ShippingAccount__r.BillingState ,ShippingAccount__r.CPF__c, ShippingAccount__r.CNPJ__c , Pricebook2Id, Pricebook2.Name, 
+        Pricebook2.InitialDate__c, Pricebook2.EndDate__c, PaymentDate__c,  CustomerOrderNumber__c, Crop__c , Crop__r.Name, Culture__c , Culture__r.Name,
+        PaymentForm__c, StatusSF__c, SalesOrg__c, SalesOrg__r.Name, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, SalesCTV__r.Name,
         PaymentCondition__c, PaymentCondition__r.Name, ShippingDate__c, Incoterms__c
         FROM Order 
         WHERE Id = :orderId LIMIT 1];
-        return new HeaderSerialize(order);
+        return new HeaderSerialize(order, cloneOrder);
     }
 
     public static List<ProductSerialize> getOrderItemData(Id orderId) {
@@ -88,6 +91,9 @@ public without sharing class OrderScreenController {
         for (ShippingDivison__c shippingDivison : [
             SELECT Id,
                    OrderItem__c,
+                   OrderItem__r.Product2Id,
+                   OrderItem__r.Quantity,
+                   OrderItem__r.UnitPrice,
                    Quantity__c,
                    DeliveryDate__c,
                    ExternalId__c,
@@ -124,7 +130,7 @@ public without sharing class OrderScreenController {
     }
 
     @AuraEnabled
-    public static String saveOrder(Id orderId, String data) {
+    public static String saveOrder(Id orderId, Boolean cloneOrder, String data) {
         Savepoint sp = Database.setSavepoint();
         try{
             Order order;
@@ -133,7 +139,7 @@ public without sharing class OrderScreenController {
             System.debug('data: ' + data);
             OrderDeserialize orderData = (OrderDeserialize) JSON.deserialize(data, OrderDeserialize.class);
             
-            if (orderId != NULL) {
+            if (orderId != null && !cloneOrder) {
                 newOrder = false;
                 order = [SELECT Id, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c, Pricebook2Id, PaymentDate__c, ShippingDate__c, PaymentCondition__c, CustomerOrderNumber__c,
                 Crop__c, Culture__c, PaymentForm__c, StatusSF__c, SalesOrg__c, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c
@@ -144,7 +150,6 @@ public without sharing class OrderScreenController {
             System.debug('order: ' + order);
 
             Account acc = [SELECT Id FROM Account WHERE Id =: orderData.accountData.Id LIMIT 1];
-            System.debug('orderData.accountData.Id: ' + orderData.accountData.Id);
             Company__c company = new Company__c();
             for (Company__c accountCompany : [
                 SELECT Id,
@@ -152,7 +157,6 @@ public without sharing class OrderScreenController {
                   FROM Company__c
                  WHERE Conta__c =: orderData.accountData.Id
             ]) {
-                System.debug('company: ' + company);
                 company = accountCompany;
             }
     
@@ -206,7 +210,6 @@ public without sharing class OrderScreenController {
 
             if (company != null) {
                 Id userTerritoryId;
-                System.debug('orderData.headerData.ctv_venda.Id: ' + orderData.headerData.ctv_venda.Id);
                 for (UserTerritory2Association userAssociation : [
                     SELECT Id,
                            UserId,
@@ -215,7 +218,6 @@ public without sharing class OrderScreenController {
                      WHERE UserId =: orderData.headerData.ctv_venda.Id
                      LIMIT 1
                 ]) {
-                    System.debug('userTerritoryId: ' + userTerritoryId);
                     userTerritoryId = userAssociation.Territory2Id;
                 }
 
@@ -229,10 +231,6 @@ public without sharing class OrderScreenController {
                 }
 
                 Discount__c orderDiscount = new Discount__c();
-                System.debug('company.ClientGroup__c: ' + company.ClientGroup__c);
-                System.debug('productGroupId: ' + productGroupId);
-                System.debug('System.today(): ' + System.today());
-                System.debug('biggerDiscount: ' + biggerDiscount);
                 for (Discount__c discount : [
                     SELECT Id,
                            Approver__c
@@ -247,7 +245,6 @@ public without sharing class OrderScreenController {
                   ORDER BY MinPercentage__c, MaxPercentage__c
                 ]) {
                     orderDiscount = discount;
-                    System.debug('orderDiscount: ' + orderDiscount);
                 }
 
                 Map<String, Integer> approvalLevels = new Map<String, Integer>{
@@ -257,18 +254,14 @@ public without sharing class OrderScreenController {
                 };
 
                 Integer counter = 0;
-                System.debug('orderDiscount.Approver__c: ' + orderDiscount.Approver__c);
                 Integer approvalNumber = approvalLevels.get(orderDiscount.Approver__c);
-                System.debug('approvalNumber: ' + approvalNumber);
                 Map<Integer, Id> approvalByCounter = new Map<Integer, Id>();
                 while (counter < approvalNumber) {
                     Territory2 territory = territoryAndParents.containsKey(userTerritoryId) ? territoryAndParents.get(userTerritoryId) : new Territory2();
-                    System.debug('territory: ' + territory);
+
                     if (territory != null && territory.ParentTerritory2Id != null) {
                         userTerritoryId = territory.ParentTerritory2Id;
                         approvalByCounter.put(counter, userTerritoryId);
-                        System.debug('counter: ' + counter);
-                        System.debug('userTerritoryId: ' + userTerritoryId);
                     }
                     counter++;
                 }
@@ -281,55 +274,21 @@ public without sharing class OrderScreenController {
                       FROM UserTerritory2Association
                      WHERE Territory2Id IN: approvalByCounter.values()
                 ]) {
-                    System.debug('userAssociation: ' + userAssociation);
                     approvalsByTerritory.put(userAssociation.Territory2Id, userAssociation.UserId);
                 }
 
                 if (approvalNumber >= 1) {
-                    System.debug('approvalNumber: ' + approvalNumber);
-                    System.debug('approvalsByTerritory.get(approvalByCounter.get(0)): ' + approvalsByTerritory.get(approvalByCounter.get(0)));
                     order.ApprovalBranchManager__c = approvalsByTerritory.get(approvalByCounter.get(0));
                     order.Manager_BranchOffice__c = true;
                 }
                 if (approvalNumber >= 2) {
-                    System.debug('approvalNumber: ' + approvalNumber);
-                    System.debug('approvalsByTerritory.get(approvalByCounter.get(1)): ' + approvalsByTerritory.get(approvalByCounter.get(1)));
                     order.ApprovalRegionalManager__c = approvalsByTerritory.get(approvalByCounter.get(1));
                     order.Gerente_Regional__c = true;
                 }
                 if (approvalNumber >= 3) {
-                    System.debug('approvalNumber: ' + approvalNumber);
-                    System.debug('approvalsByTerritory.get(approvalByCounter.get(2)): ' + approvalsByTerritory.get(approvalByCounter.get(2)));
                     order.ApprovalDirector__c = approvalsByTerritory.get(approvalByCounter.get(2));
                     order.Director__c = true;
                 }
-
-                /* Id approvalUser;
-                for (UserTerritory2Association userAssociation : [
-                    SELECT Id,
-                           UserId,
-                           Territory2Id
-                      FROM UserTerritory2Association
-                     WHERE Territory2Id =: userTerritoryId
-                     LIMIT 1
-                ]) {
-                    approvalUser = userAssociation.UserId;
-                    System.debug('approvalUser: ' + approvalUser);
-                }
-
-                if (approvalNumber == 1) {
-                    System.debug('approvalNumber: ' + approvalNumber);
-                    order.ApprovalBranchManager__c = approvalUser;
-                    order.Manager_BranchOffice__c = true;
-                } else if (approvalNumber == 2) {
-                    System.debug('approvalNumber: ' + approvalNumber);
-                    order.ApprovalRegionalManager__c = approvalUser;
-                    order.Gerente_Regional__c = true;
-                } else if (approvalNumber == 3) {
-                    System.debug('approvalNumber: ' + approvalNumber);
-                    order.ApprovalDirector__c = approvalUser;
-                    order.Director__c = true;
-                } */
             }
 
             order.AccountId = acc.Id;
@@ -450,16 +409,14 @@ public without sharing class OrderScreenController {
                           FROM ShippingDivison__c
                          WHERE Id IN: setDivisionIds
                     ]) {
-                        System.debug('shippingDivison: ' + shippingDivison);
                         divisionsById.put(shippingDivison.Id, shippingDivison);
                     }
 
                     List<ShippingDivison__c> listShippingDivision = new List<ShippingDivison__c>();
                     for (DivisionDeserialize division : orderData.divisionData) {
                         ShippingDivison__c shippingDivision;
-                        if (!newOrder && divisionsById.containsKey(division.divisionId)) {
+                        if (!newOrder && !cloneOrder && divisionsById.containsKey(division.divisionId)) {
                             shippingDivision = divisionsById.get(division.divisionId);
-                            System.debug('shippingDivision: ' + shippingDivision);
                         } else {
                             shippingDivision = new ShippingDivison__c();
                         }
@@ -468,8 +425,7 @@ public without sharing class OrderScreenController {
                         shippingDivision.Quantity__c = division.quantity;
                         shippingDivision.ExternalId__c = division.externalId;
                         shippingDivision.ConfirmedQuantity__c = division.confirmedQuantity != null ? division.confirmedQuantity : 0;
-                        System.debug('division.orderItemKey: ' + division.orderItemKey);
-                        shippingDivision.OrderItem__c = division.orderItemId != null ? division.orderItemId : mapOrderItems.get(division.orderItemKey);
+                        shippingDivision.OrderItem__c = !cloneOrder && division.orderItemId != null ? division.orderItemId : mapOrderItems.get(division.orderItemKey);
                         listShippingDivision.add(shippingDivision);
                     }
 
@@ -790,7 +746,7 @@ public without sharing class OrderScreenController {
         //public String data_entrega;
         //public String cliente_faturamento;
         HeaderSerialize(){}
-        HeaderSerialize(Order order){
+        HeaderSerialize(Order order, Boolean cloneOrder){
             this.Id = order.Id;
             this.AccountId = order.AccountId;
             this.tipo_venda = order.Type;
@@ -804,7 +760,8 @@ public without sharing class OrderScreenController {
             this.cliente_entrega.CPF = order.ShippingAccount__r.CPF__c;
             this.cliente_entrega.Phone = order.ShippingAccount__r.Phone;
 
-            this.lista_precos = new InformationFields(order.Pricebook2Id, order.Pricebook2.Name);
+            this.lista_precos = (!cloneOrder) || (cloneOrder && order.Pricebook2.InitialDate__c <= System.today() && order.Pricebook2.EndDate__c >= System.today()) ?
+                                new InformationFields(order.Pricebook2Id, order.Pricebook2.Name) : null;
             this.data_pagamento = String.valueOf(order.PaymentDate__c);
             this.data_entrega = String.valueOf(order.ShippingDate__c);
             this.numero_pedido_cliente = order.CustomerOrderNumber__c;
@@ -925,7 +882,7 @@ public without sharing class OrderScreenController {
             this.deliveryId = 'deliveryId-' + divisionPosition;
             this.quantityId = 'quantityId-' + divisionPosition;
             this.orderItemId = shippingDivison.OrderItem__c;
-            this.orderItemKey = '';
+            this.orderItemKey = shippingDivison.OrderItem__r.Product2Id + '-' + shippingDivison.OrderItem__r.Quantity + '-' + shippingDivison.OrderItem__r.UnitPrice;
             this.quantity = shippingDivison.Quantity__c;
             this.externalId = shippingDivison.ExternalId__c;
             this.confirmedQuantity = shippingDivison.ConfirmedQuantity__c;

@@ -6,6 +6,7 @@ export default class OrderAccountScreen extends LightningElement {
     records = [];
     message = false;
     @api selectedAccount = false;
+    @api cloneData;
 
     account;
 

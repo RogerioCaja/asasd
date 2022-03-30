@@ -140,21 +140,21 @@ public class OrderScreenControllerTest {
     @isTest
     public static void getOrderDataTest() {
         Id orderId = [SELECT Id FROM Order LIMIT 1].Id;
-        OrderScreenController.getOrder(orderId);
+        OrderScreenController.getOrder(orderId, false);
     }
 
     @isTest
     public static void saveOrderTest() {
         Order ord = [SELECT Id, AccountId FROM Order LIMIT 1];
 
-        OrderScreenController.HeaderSerialize order = OrderScreenController.getOrderData(ord.Id);
+        OrderScreenController.HeaderSerialize order = OrderScreenController.getOrderData(ord.Id, false);
         OrderScreenController.AccountSerialize account = OrderScreenController.getOrderAccountData(ord.AccountId);
         List<OrderScreenController.ProductSerialize> ordItemList = OrderScreenController.getOrderItemData(ord.Id);
         List<OrderScreenController.DivisionSerialize> divisionList = OrderScreenController.getShippingDivison();
         OrderScreenController.SummarySerialize summary = new OrderScreenController.SummarySerialize('Observation', 'Observation Sales');
 
         String data = JSON.serialize(new OrderScreenController.OrderSerializeAll(order, ordItemList, divisionList, account, summary));
-        OrderScreenController.saveOrder(null, data);
+        OrderScreenController.saveOrder(null, false, data);
     }
 
     @isTest
