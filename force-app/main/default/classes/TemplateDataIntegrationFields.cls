@@ -69,7 +69,6 @@ global with sharing class TemplateDataIntegrationFields {
         public List<String> getRequiredFields(){
             return new List<String>{
                 'ExternalId__c',
-                // 'RecordTypeId',
                 'SalesOrg__c',
                 'PriceList__c',
                 'InitialDate__c',
@@ -129,6 +128,105 @@ global with sharing class TemplateDataIntegrationFields {
         public String getParentKey(){
             return 'Pricebook2Id';
         }
+    }
+
+    global class JurosDescontoAntecipaoINData implements FieldData{
+        //JSON fields Example
+       
+        public String codExternal;
+        public String cropCode;
+        public String cultureCode;
+        public String orgVendas;
+        public String salesOffice;
+        public String salesTeam;
+        public String productGroup;
+        public String accountGroup;
+        public String initialDate;
+        public String endDate;
+        public String product;
+        public Integer percentage;
+        public String typeCondition;
+        public String priority;
+
+        public JurosDescontoAntecipao__c serialize(Map<String, Id> lookups){
+
+            //Returning Object with Fields.
+            return new JurosDescontoAntecipao__c(
+               
+                ExternalId__c = this.codExternal,
+                harvest__c = lookups.containsKey('Safra__c'+this.cropCode) ? lookups.get('Safra__c'+this.cropCode) : null,
+                Culture__c = lookups.containsKey('Cultura__c'+this.cultureCode) ? lookups.get('Cultura__c'+this.cultureCode) : null,
+                SalesOrg__c = lookups.containsKey('SalesOrg__c'+this.orgVendas) ? lookups.get('SalesOrg__c'+this.orgVendas) : null,
+                SalesOffice__c = lookups.containsKey('SalesOffice__c'+this.salesOffice) ? lookups.get('SalesOffice__c'+this.salesOffice) : null,
+                SalesTeam__c = lookups.containsKey('SalesTeam__c'+this.salesTeam) ? lookups.get('SalesTeam__c'+this.salesTeam) : null,
+                ProductGroup__c = lookups.containsKey('ProductGroup__c'+this.productGroup) ? lookups.get('ProductGroup__c'+this.productGroup) : null,
+                AccountType__c = this.accountGroup,
+                StartDate__c = Date.valueOf(initialDate),
+                EndDate__c = Date.valueOf(endDate),
+                Product__c = lookups.containsKey('Product2'+this.product) ? lookups.get('Product2'+this.product) : null,
+                Percentage__c = this.percentage,
+                ConditionType__c = typeCondition == 'ZD00' ? 'ZD00 - Desconto de antecipação' : 'ZJ01 - Juros',
+                PriorityLevel__c = this.priority
+               
+            );
+        }
+        
+        //Required fields for integration
+        public List<String> getRequiredFields(){
+            return new List<String>{
+                'ExternalId__c',
+                'harvest__c',
+                'Culture__c',
+                'SalesOrg__c',
+                'SalesOffice__c',
+                'SalesTeam__c',
+                'ProductGroup__c',
+                'AccountType__c',
+                'StartDate__c',
+                'EndDate__c',
+                'Product__c',
+                'Percentage__c',
+                'ConditionType__c',
+                'PriorityLevel__c'
+            };
+        }
+
+        //ExternalId field
+        public String getFieldKey(){
+            return 'ExternalId__c';
+        }
+        
+        //Id field
+        public String getFieldId() {
+            return 'Id';
+        }
+    }
+
+    global class GenericINData{
+        public String name;
+        public String codExternal;
+        public String typeCondition;
+        public String description;
+        public String orgVendas;
+        public String cultureCode;
+        public String listPrice;
+        public String cropCode;
+        public String accountCode;
+        public String accountGroup;
+        public String salesOffice;
+        public String salesTeam;
+        public String salesSector;
+        public String initialDate;
+        public String endDate;
+        public String effectiveDate;
+        public String typeCurrency;
+        public Boolean active;
+        public String productGroup;
+        public String priority;
+        public String productFamily;
+        public String percentage;
+        public String product;
+        public List<TemplateDataIntegrationFields.PricebookEntryINData> pricebookEntries;
     }
 
     global virtual class Response {

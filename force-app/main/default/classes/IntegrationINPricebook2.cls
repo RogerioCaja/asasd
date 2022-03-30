@@ -5,7 +5,7 @@ global with sharing class IntegrationINPricebook2 {
     //     "request": [
     //                      {
     //                          "codExternal": "",
-    //                          "typeCondition": "",
+    //                          "typeCondition": "PR00 pricebook,zd00 desconto,zj01 juros",
     //                          "description": "",
     //                          "orgVendas": "",
     //                          "listPrice": "",
@@ -42,10 +42,10 @@ global with sharing class IntegrationINPricebook2 {
     //    }
 
     @HttpPost
-    global static ResponseModel upsertPricebook2(List<TemplateDataIntegrationFields.Pricebook2INData> request){
+    global static ResponseModel upsertPricebook2(List<TemplateDataIntegrationFields.GenericINData> request){
+        
         Map<String, Id> lookups = new Map<String, Id>();
 
-        // Set<String> recordTypeLookups = new Set<String>();
         Set<String> salesOrgLookups = new Set<String>();
         Set<String> cropLookups = new Set<String>();
         Set<String> cultureLookups = new Set<String>();
@@ -54,67 +54,117 @@ global with sharing class IntegrationINPricebook2 {
         Set<String> salesTeamLookups = new Set<String>();
         Set<String> salesSectionLookups = new Set<String>();
         Set<String> productFamilyLookups = new Set<String>();
+        Set<String> productGroupLookups = new Set<String>();
+        Set<String> productLookups = new Set<String>();
 
         List<TemplateDataIntegrationFields.ResponseParent> responseList = new List<TemplateDataIntegrationFields.ResponseParent>();
         List<TemplateDataIntegrationFields.PricebookEntryINData> pricebookEntryListToUpsert = new List<TemplateDataIntegrationFields.PricebookEntryINData>();
 
         List<Pricebook2> pricebookListToUpsert = new List<Pricebook2>();
+        List<JurosDescontoAntecipao__c> interestDicountListToUpsert = new List<JurosDescontoAntecipao__c>();
 
-        for(TemplateDataIntegrationFields.Pricebook2INData pricebook : request){
 
-            // recordTypeLookups.add(pricebook.typeCondition);
-            salesOrgLookups.add(pricebook.orgVendas);
-            cropLookups.add(pricebook.cropCode);
-            cultureLookups.add(pricebook.cultureCode);
-            accountLookups.add(pricebook.accountCode);
-            salesOfficeLookups.add(pricebook.salesOffice);
-            salesTeamLookups.add(pricebook.salesTeam);
-            salesSectionLookups.add(pricebook.salesSector);
-            productFamilyLookups.add(pricebook.productFamily);
+        List<Object> requestNew = convertClass(request);
+        if(requestNew[0] instanceof TemplateDataIntegrationFields.Pricebook2INData){
+            List<TemplateDataIntegrationFields.Pricebook2INData> valueReal = new List<TemplateDataIntegrationFields.Pricebook2INData>((List<TemplateDataIntegrationFields.Pricebook2INData>)requestNew);
+            for(TemplateDataIntegrationFields.Pricebook2INData pricebook : valueReal){
 
-            if(pricebook.pricebookEntries != null){
-                for(TemplateDataIntegrationFields.PricebookEntryINData pricebookEntry : pricebook.pricebookEntries){
-                    pricebookEntry.pricebook2Id = pricebook.codExternal;
-                }
+                salesOrgLookups.add(pricebook.orgVendas);
+                cropLookups.add(pricebook.cropCode);
+                cultureLookups.add(pricebook.cultureCode);
+                accountLookups.add(pricebook.accountCode);
+                salesOfficeLookups.add(pricebook.salesOffice);
+                salesTeamLookups.add(pricebook.salesTeam);
+                salesSectionLookups.add(pricebook.salesSector);
+                productFamilyLookups.add(pricebook.productFamily);
 
-                pricebookEntryListToUpsert.addAll(pricebook.pricebookEntries);
-            } 
+                if(pricebook.pricebookEntries != null){
+                    for(TemplateDataIntegrationFields.PricebookEntryINData pricebookEntry : pricebook.pricebookEntries){
+                        pricebookEntry.pricebook2Id = pricebook.codExternal;
+                    }
 
+                    pricebookEntryListToUpsert.addAll(pricebook.pricebookEntries);
+                } 
+
+            }
+
+            setLookup(new Account(), new Set<String>{'Id', 'ExternalId__c'}, 'ExternalId__c', accountLookups, lookups);
+
+            setLookup(new Cultura__c(), new Set<String>{'Id', 'Codigo__c'}, 'Codigo__c', new List<String>(cultureLookups), lookups);
+
+            setLookup(new SalesOrg__c(), new Set<String>{'Id', 'SalesOrganizationCode__c'}, 'SalesOrganizationCode__c', new List<String>(salesOrgLookups), lookups);
+
+            setLookup(new Safra__c(), new Set<String>{'Id', 'Code__c'}, 'Code__c', new List<String>(cropLookups), lookups);
+
+            setLookup(new SalesOffice__c(), new Set<String>{'Id', 'Codigo__c'}, 'Codigo__c', new List<String>(salesOfficeLookups), lookups);
+
+            setLookup(new SalesTeam__c(), new Set<String>{'Id', 'ExternalId__c'}, 'ExternalId__c', new List<String>(salesTeamLookups), lookups);
+
+            setLookup(new ActivitySector__c(), new Set<String>{'Id', 'Codigo__c'}, 'Codigo__c', new List<String>(salesSectionLookups), lookups);
+
+            setLookup(new ProductFamily__c(), new Set<String>{'Id', 'ExternalId__c'}, 'ExternalId__c', new List<String>(productFamilyLookups), lookups);
+
+
+            FactoryDataIntegration.convertSObject(new Pricebook2(), 'IN', valueReal, responseList, pricebookListToUpsert, lookups);
+
+            IntegrationUtils.upsertRecords(
+                Database.upsert(pricebookListToUpsert, Pricebook2.ExternalId__c, false), 
+                responseList, 
+                pricebookListToUpsert, 
+                Pricebook2.ExternalId__c);
+
+            Boolean hasError = false;
+            setResponses(responseList, pricebookEntryListToUpsert, hasError);
+            
+            //Creating integration log
+            IntegrationLog.createLog('Pricebook IN', 'IN', JSON.serialize(valueReal), JSON.serialize(responseList), hasError);
+            
         }
+        else{
+            List<TemplateDataIntegrationFields.JurosDescontoAntecipaoINData> valueReal = new List<TemplateDataIntegrationFields.JurosDescontoAntecipaoINData>((List<TemplateDataIntegrationFields.JurosDescontoAntecipaoINData>)requestNew);
+            for(TemplateDataIntegrationFields.JurosDescontoAntecipaoINData interestDiscount : valueReal){
+
+                salesOrgLookups.add(interestDiscount.orgVendas);
+                cropLookups.add(interestDiscount.cropCode);
+                cultureLookups.add(interestDiscount.cultureCode);
+                salesOfficeLookups.add(interestDiscount.salesOffice);
+                salesTeamLookups.add(interestDiscount.salesTeam);
+                productGroupLookups.add(interestDiscount.productGroup);
+                productLookups.add(interestDiscount.product);
+            }
 
 
-        setLookup(new Account(), new Set<String>{'Id', 'ExternalId__c'}, 'ExternalId__c', accountLookups, lookups);
+            setLookup(new SalesOrg__c(), new Set<String>{'Id', 'SalesOrganizationCode__c'}, 'SalesOrganizationCode__c', new List<String>(salesOrgLookups), lookups);
+            
+            setLookup(new Safra__c(), new Set<String>{'Id', 'Code__c'}, 'Code__c', new List<String>(cropLookups), lookups);
+            
+            setLookup(new Cultura__c(), new Set<String>{'Id', 'Codigo__c'}, 'Codigo__c', new List<String>(cultureLookups), lookups);
 
-        setLookup(new Cultura__c(), new Set<String>{'Id', 'Codigo__c'}, 'Codigo__c', new List<String>(cultureLookups), lookups);
+            setLookup(new SalesOffice__c(), new Set<String>{'Id', 'Codigo__c'}, 'Codigo__c', new List<String>(salesOfficeLookups), lookups);
 
-        setLookup(new SalesOrg__c(), new Set<String>{'Id', 'SalesOrganizationCode__c'}, 'SalesOrganizationCode__c', new List<String>(salesOrgLookups), lookups);
+            setLookup(new SalesTeam__c(), new Set<String>{'Id', 'ExternalId__c'}, 'ExternalId__c', new List<String>(salesTeamLookups), lookups);
 
-        setLookup(new Safra__c(), new Set<String>{'Id', 'Code__c'}, 'Code__c', new List<String>(cropLookups), lookups);
+            setLookup(new ProductGroup__c(), new Set<String>{'Id', 'ExternalId__c'}, 'ExternalId__c', new List<String>(productGroupLookups), lookups);
 
-        setLookup(new SalesOffice__c(), new Set<String>{'Id', 'Codigo__c'}, 'Codigo__c', new List<String>(salesOfficeLookups), lookups);
-
-        setLookup(new SalesTeam__c(), new Set<String>{'Id', 'ExternalId__c'}, 'ExternalId__c', new List<String>(salesTeamLookups), lookups);
-
-        setLookup(new ActivitySector__c(), new Set<String>{'Id', 'Codigo__c'}, 'Codigo__c', new List<String>(salesSectionLookups), lookups);
-
-        setLookup(new ProductFamily__c(), new Set<String>{'Id', 'ExternalId__c'}, 'ExternalId__c', new List<String>(productFamilyLookups), lookups);
+            setLookup(new Product2(), new Set<String>{'Id', 'ExternalId__c'}, 'ExternalId__c', new List<String>(productLookups), lookups);
 
 
-        FactoryDataIntegration.convertSObject(new Pricebook2(), 'IN', request, responseList, pricebookListToUpsert, lookups);
+            FactoryDataIntegration.convertSObject(new JurosDescontoAntecipao__c(), 'IN', valueReal, responseList, interestDicountListToUpsert, lookups);
 
-        IntegrationUtils.upsertRecords(
-            Database.upsert(pricebookListToUpsert, Pricebook2.ExternalId__c, false), 
-            responseList, 
-            pricebookListToUpsert, 
-            Pricebook2.ExternalId__c);
+            IntegrationUtils.upsertRecords(
+                Database.upsert(interestDicountListToUpsert, JurosDescontoAntecipao__c.ExternalId__c, false), 
+                responseList, 
+                interestDicountListToUpsert, 
+                JurosDescontoAntecipao__c.ExternalId__c);
 
-        Boolean hasError = false;
-        setResponses(responseList, pricebookEntryListToUpsert, hasError);
+            Boolean hasError = false;
+            setResponses(responseList, pricebookEntryListToUpsert, hasError);
+            
+            //Creating integration log
+            IntegrationLog.createLog('Juros e Descontos de Antecipação IN', 'IN', JSON.serialize(valueReal), JSON.serialize(responseList), hasError);
+        }
         
-        //Creating integration log
-        IntegrationLog.createLog('Pricebook IN', 'IN', JSON.serialize(request), JSON.serialize(responseList), hasError);
         
-
         ResponseModel modelo = new ResponseModel();
         modelo.response = responseList;
         return modelo;
@@ -233,6 +283,19 @@ global with sharing class IntegrationINPricebook2 {
             }
         }
     }
+
+   
+    global static List<Object> convertClass(List<Object> requestGeneric){
+        String requestNew = JSON.serialize(requestGeneric);
+        if(requestNew.contains('PR00')){
+            List<TemplateDataIntegrationFields.Pricebook2INData> pricebook = (List<TemplateDataIntegrationFields.Pricebook2INData>) JSON.deserialize(requestNew, List<TemplateDataIntegrationFields.Pricebook2INData>.class);
+            return pricebook;
+        }
+        
+        List<TemplateDataIntegrationFields.JurosDescontoAntecipaoINData> interestValue = (List<TemplateDataIntegrationFields.JurosDescontoAntecipaoINData>) JSON.deserialize(requestNew, List<TemplateDataIntegrationFields.JurosDescontoAntecipaoINData>.class);
+        return interestValue; 
+    }
+
 
     global class ResponseModel {
 
