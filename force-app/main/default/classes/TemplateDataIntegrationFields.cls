@@ -106,7 +106,7 @@ global with sharing class TemplateDataIntegrationFields {
                 IsActive = true,
                 Code__c = this.Pricebook2Id + '|' + this.ProductCode,
                 Pricebook2Id  = lookups.containsKey('Pricebook2'+this.pricebook2Id) ? lookups.get('Pricebook2'+this.pricebook2Id) : null,
-                Product2Id  = lookups.containsKey('Product2Id'+this.productCode) ? lookups.get('Product2Id'+this.productCode) : null
+                Product2Id  = lookups.containsKey('Product2'+this.productCode) ? lookups.get('Product2'+this.productCode) : null
             );
         }
         
