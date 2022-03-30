@@ -72,6 +72,7 @@ export default class OrderHeaderScreen extends LightningElement {
 
     @api productData;
     @api divisionData;
+    @api cloneData;
 
     @track pass = false;
 
@@ -355,33 +356,31 @@ export default class OrderHeaderScreen extends LightningElement {
     @api
     verifyMandatoryFields() {
         try{
-        if ((this.headerDictLocale.tipo_venda !== undefined &&
-            this.headerDictLocale.safra.Id !== undefined &&
-            this.headerDictLocale.cultura.Id !== undefined &&
-            this.headerDictLocale.data_pagamento !== undefined &&
-            this.headerDictLocale.lista_precos.Id !== undefined &&
-            this.headerDictLocale.condicao_pagamento.Id !== undefined &&
-            this.headerDictLocale.moeda !== undefined &&
-            this.headerDictLocale.numero_pedido_cliente !== undefined &&
-            this.headerDictLocale.ctv_venda.Id !==undefined &&
-            this.headerDictLocale.forma_pagamento !== undefined &&
-            this.headerDictLocale.cliente_entrega.Id !== undefined) || this.pass
+            if ((this.headerDictLocale.tipo_venda !== undefined &&
+                this.headerDictLocale.safra.Id !== undefined &&
+                this.headerDictLocale.cultura.Id !== undefined &&
+                this.headerDictLocale.data_pagamento !== undefined &&
+                this.headerDictLocale.lista_precos != ' ' &&
+                this.headerDictLocale.lista_precos.Id !== undefined &&
+                this.headerDictLocale.condicao_pagamento.Id !== undefined &&
+                this.headerDictLocale.moeda !== undefined &&
+                this.headerDictLocale.numero_pedido_cliente !== undefined &&
+                this.headerDictLocale.ctv_venda.Id !==undefined &&
+                this.headerDictLocale.forma_pagamento !== undefined &&
+                this.headerDictLocale.cliente_entrega.Id !== undefined) || this.pass
             ) {
-            return true;
+                return true;
+            }
+        } catch(err){
+            console.log(err);
         }
-    }
-    catch(err){
-        console.log(err);
-    }
+
         return false; 
-        
     }
 
     _setData() {
-       
         const setHeaderData = new CustomEvent('setheaderdata');
         setHeaderData.data = this.headerDictLocale;
         this.dispatchEvent(setHeaderData);
-       
     }
 }

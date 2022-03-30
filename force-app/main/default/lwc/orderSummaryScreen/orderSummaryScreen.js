@@ -14,6 +14,7 @@ export default class OrderSummaryScreen extends LightningElement {
     @api summaryDataLocale;
     @api productDataLocale = [];
     @api headerData;
+    @api cloneData;
 
     connectedCallback(){
         this.summaryDataLocale = {... this.summaryData};

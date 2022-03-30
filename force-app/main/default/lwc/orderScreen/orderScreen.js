@@ -20,11 +20,16 @@ export default class OrderScreen extends LightningElement {
     @api recordId;
     @api originScreen;
     @api recordTypeId;
+    @api clone;
+    @track cloneData = {
+        cloneOrder: false,
+        pricebookListId: ''
+    };
 
     @wire(getObjectInfo, {objectApiName: Order})
     getObjectData({data, error}){
         if(data){
-            if(this.recordTypeId != undefined){
+            if(this.recordTypeId != undefined && this.recordTypeId != ''){
                 var arrayType = data.recordTypeInfos[this.recordTypeId]
                 this.headerData.tipo_venda = arrayType.name;
             }
@@ -172,7 +177,7 @@ export default class OrderScreen extends LightningElement {
             return;
 
         this.isLoading = true;
-        getOrder({recordId: this.recordId})
+        getOrder({recordId: this.recordId, cloneOrder: this.clone.cloneOrder})
         .then((result) =>{
             const data = JSON.parse(result);
             this.accountData = data.accountData;
@@ -185,6 +190,9 @@ export default class OrderScreen extends LightningElement {
             this.enableScreens([0, 1, 2, 3]);
             this.completeScreens([0, 1, 2, 3]);
             this.isLoading = false;
+            this.cloneData.cloneOrder = this.clone.cloneOrder;
+            this.headerData.lista_precos = this.headerData.lista_precos != null ? this.headerData.lista_precos : ' ';
+            this.cloneData.pricebookListId = this.headerData.lista_precos != ' ' ?  this.headerData.lista_precos.Id : '';
         })
         .catch((err)=>{
             console.log(err);
@@ -237,7 +245,8 @@ export default class OrderScreen extends LightningElement {
         this.isLoading = true;
         //console.log(data);
         saveOrder({
-            orderId: (this.recordId && this.originScreen.includes('Order')) ? this.recordId : null, 
+            orderId: (this.recordId && this.originScreen.includes('Order')) ? this.recordId : null,
+            cloneOrder: this.cloneData.cloneOrder,
             data: JSON.stringify(data)
         })
         .then((result) => {
