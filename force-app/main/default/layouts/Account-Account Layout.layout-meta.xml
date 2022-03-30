@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Layout xmlns="http://soap.sforce.com/2006/04/metadata">
+<Layout xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <excludeButtons>DataDotComAccountInsights</excludeButtons>
     <excludeButtons>DataDotComClean</excludeButtons>
     <excludeButtons>DataDotComCompanyHierarchy</excludeButtons>
@@ -10,6 +10,10 @@
         <editHeading>true</editHeading>
         <label>Account Information</label>
         <layoutColumns>
+            <layoutItems>
+                <behavior>Required</behavior>
+                <field>Company__c</field>
+            </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>OwnerId</field>
@@ -135,6 +139,9 @@
         <layoutColumns/>
         <style>CustomLinks</style>
     </layoutSections>
+    <miniLayout>
+        <fields>Company__c</fields>
+    </miniLayout>
     <platformActionList>
         <actionListContext>Record</actionListContext>
         <platformActionListItems>
@@ -366,6 +373,9 @@
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
+        <fields>ProductsGroup__c</fields>
+        <fields>harvest__c</fields>
+        <fields>PotentialPurchaseValue__c</fields>
         <relatedList>PotencialCompra__c.Client__c</relatedList>
     </relatedLists>
     <relatedObjects>ParentId</relatedObjects>
@@ -378,6 +388,6 @@
         <masterLabel>00h8D000000iWqU</masterLabel>
         <sizeX>4</sizeX>
         <sizeY>0</sizeY>
-        <!-- <summaryLayoutStyle>Default</summaryLayoutStyle> -->
+        <summaryLayoutStyle xsi:nil="true"/>
     </summaryLayout>
 </Layout>
