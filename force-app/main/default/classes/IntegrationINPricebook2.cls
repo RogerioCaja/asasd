@@ -172,7 +172,6 @@ global with sharing class IntegrationINPricebook2 {
 
         for(TemplateDataIntegrationFields.ResponseParent responsePricebook : responseList){
             if(responsePricebook.status == false){
-                hasError = true;
                 hasError[0] = true;
                 break;
             } else {
