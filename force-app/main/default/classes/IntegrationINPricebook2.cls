@@ -106,11 +106,11 @@ global with sharing class IntegrationINPricebook2 {
             parentMapKeys.put(pricebookEntry.pricebook2Id + '|' + pricebookEntry.productCode, lookups.containsKey('Pricebook2' + pricebookEntry.pricebook2Id) ? lookups.get('Pricebook2' + pricebookEntry.pricebook2Id) : null);
             
             PricebookEntry standardPBE = new PricebookEntry(Pricebook2Id = standardPB.Id, Product2Id = lookups.get('Product2' + pricebookEntry.productCode), UnitPrice = pricebookEntry.unitPrice, IsActive = true);
-            if(!isStandardPricebook(standardPBE.Product2Id, standardValuesExists))
+            if(!isStandardPricebook(standardPBE.Product2Id, standardValuesExists) && (lookups.get('Product2' + pricebookEntry.productCode) != null))
                 standardValuesList.add(standardPBE);
         }
-        INSERT standardValuesList;
-
+        if (standardValuesList.size() != 0) INSERT standardValuesList;
+        
         FactoryDataIntegration.convertSObjectChild(
             new PricebookEntry(), 
             'IN', 
@@ -167,8 +167,7 @@ global with sharing class IntegrationINPricebook2 {
             if(pricebookEntriesResponse.size() != 0 && pricebookEntriesResponse.containsKey(response.idSalesforce)){
                 response.items.addAll(pricebookEntriesResponse.get(response.idSalesforce));
             } 
-            else if(pricebookEntriesResponse.size() != 0 && pricebookEntriesResponse.containsKey(response.externalCode)){
-                response.items.addAll(pricebookEntriesResponse.get(response.externalCode));
+            else if(pricebookEntriesResponse.size() != 0 && pricebookEntriesResponse.containsKey(response.externalCode)){ response.items.addAll(pricebookEntriesResponse.get(response.externalCode));
             }
         }
 
@@ -338,7 +337,7 @@ global with sharing class IntegrationINPricebook2 {
     //? class to JSON responses 
     global class ResponseModel {
 
-        List<TemplateDataIntegrationFields.ResponseParent> response;
+        global List<TemplateDataIntegrationFields.ResponseParent> response;
 
         public ResponseModel(List<TemplateDataIntegrationFields.ResponseParent> response) {
 

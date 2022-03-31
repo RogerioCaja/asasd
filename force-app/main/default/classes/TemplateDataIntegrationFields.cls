@@ -114,6 +114,8 @@ global with sharing class TemplateDataIntegrationFields {
         //Required fields for integration
         public List<String> getRequiredFields(){
             return new List<String>{
+                'Product2Id',
+                'UnitPrice'
             };
         }
 

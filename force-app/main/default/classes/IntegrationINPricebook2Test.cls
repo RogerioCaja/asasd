@@ -52,6 +52,12 @@ public class IntegrationINPricebook2Test {
             Family = 'Hardware',
             ExternalId__c = '0001'
         );
+
+        Product2 prod2 = new Product2(
+            Name = 'Laptop X200', 
+            Family = 'Hardware',
+            ExternalId__c = '0002'
+        );
         
         SalesOffice__c salesOffice = new SalesOffice__c(
             Name = 'Escritório Teste',
@@ -77,16 +83,27 @@ public class IntegrationINPricebook2Test {
             ExternalId__c = '1'
         );
 
+        
+
       INSERT account;
       INSERT safra;
       INSERT cultura;
       INSERT so;
       INSERT prod;
+      INSERT prod2;
       INSERT salesOffice;
       INSERT salesTeam;
       INSERT activitySector;
       INSERT productFamily;
       INSERT productGroup; 
+
+      PricebookEntry standardPBE = new PricebookEntry(
+            Pricebook2Id = Test.getStandardPricebookId(), 
+            Product2Id = prod.Id, 
+            UnitPrice = 100.00,
+             IsActive = true);
+
+    INSERT standardPBE;
     }
 
     @isTest
@@ -122,7 +139,14 @@ public class IntegrationINPricebook2Test {
         genericData.pricebookEntries = pricebookEntryList;
         genericDataList.add(genericData);
         
-        IntegrationINPricebook2.upsertPricebook2(genericDataList);
+        
+        IntegrationINPricebook2.ResponseModel model = IntegrationINPricebook2.upsertPricebook2(genericDataList);
+        IntegrationINPricebook2.ResponseModel toPass = new IntegrationINPricebook2.ResponseModel(model.response);
+        System.assertEquals(true, model.response[0].status, 'O status nesta situação deveria vir verdadeiro');
+        System.assertEquals('Pricebook2', model.response[0].sObjectType, 'O objeto nesta situação deveria vir Pricebook2');
+        System.assertEquals(null, model.response[0].errorMessage, 'O erro nesta situação deveria vir nulo');
+        System.assertNotEquals(null, model.response[0].idSalesforce, 'O idSalesforce nesta situação deveria vir um Id');
+        System.assertNotEquals('null', model.response[0].externalCode, 'O externalCode nesta situação deveria vir codExternal');
     } 
 
     @isTest
@@ -156,7 +180,12 @@ public class IntegrationINPricebook2Test {
         genericData.product = '0001';
         genericDataList.add(genericData);
         
-        IntegrationINPricebook2.upsertPricebook2(genericDataList);
+        IntegrationINPricebook2.ResponseModel model = IntegrationINPricebook2.upsertPricebook2(genericDataList);
+        System.assertEquals(true, model.response[0].status, 'O status nesta situação deveria vir verdadeiro');
+        System.assertEquals('JurosDescontoAntecipao__c', model.response[0].sObjectType, 'O objeto nesta situação deveria vir JurosDescontoAntecipao__c');
+        System.assertEquals(null, model.response[0].errorMessage, 'O erro nesta situação deveria vir nulo');
+        System.assertNotEquals(null, model.response[0].idSalesforce, 'O idSalesforce nesta situação deveria vir um Id');
+        System.assertNotEquals('null', model.response[0].externalCode, 'O externalCode nesta situação deveria vir codExternal');
     }
 
     @isTest 
@@ -191,6 +220,101 @@ public class IntegrationINPricebook2Test {
         genericData.pricebookEntries = pricebookEntryList;
         genericDataList.add(genericData);
         
+        IntegrationINPricebook2.ResponseModel model = IntegrationINPricebook2.upsertPricebook2(genericDataList);
+        System.assertEquals(false, model.response[0].status, 'O status nesta situação deveria vir falso');
+        System.assertEquals('Valor inválido para o campo obrigatório: ExternalId__c', model.response[0].errorMessage, 'O erro nesta situação deveria notar a falta do campo');
+        System.assertEquals(null, model.response[0].idSalesforce, 'O idSalesforce nesta situação deveria vir um nulo');
+        System.assertEquals('null', model.response[0].externalCode, 'O externalCode nesta situação deveria vir nulo');
+    }
+
+    @isTest
+    static void verifyIntegrationWithErrorPricebookEntry(){
+        List<TemplateDataIntegrationFields.GenericINData> genericDataList = new List<TemplateDataIntegrationFields.GenericINData>();
+        TemplateDataIntegrationFields.GenericINData genericData = new TemplateDataIntegrationFields.GenericINData();
+        List<TemplateDataIntegrationFields.PricebookEntryINData> pricebookEntryList = new  List<TemplateDataIntegrationFields.PricebookEntryINData>();
+        TemplateDataIntegrationFields.PricebookEntryINData pricebookEntry = new TemplateDataIntegrationFields.PricebookEntryINData();
+        pricebookEntry.productCode = '';
+        pricebookEntry.unitPrice = 100.00;
+
+        pricebookEntryList.add(pricebookEntry);
+        genericData.name = 'Teste';
+        genericData.codExternal = '112';
+        genericData.typeCondition = 'PR00';
+        genericData.description = 'Na classe de Teste';
+        genericData.orgVendas = '1111';
+        genericData.listPrice = 'Não sei por que isso existe';
+        genericData.cropCode = '1223';
+        genericData.cultureCode = '1234';
+        genericData.accountCode = '11111';
+        genericData.accountGroup = 'A';
+        genericData.salesOffice = '1';
+        genericData.salesTeam = '1';
+        genericData.salesSector = '1';
+        genericData.initialDate = '2022-03-30';
+        genericData.endDate = '2022-04-30';
+        genericData.effectiveDate = '2022-03-30';
+        genericData.typeCurrency = 'BRL';
+        genericData.active = true;
+        genericData.productFamily = '1';
+        genericData.pricebookEntries = pricebookEntryList;
+        genericDataList.add(genericData);
+        
+        
+        IntegrationINPricebook2.ResponseModel model = IntegrationINPricebook2.upsertPricebook2(genericDataList);
+       
+        System.assertEquals(true, model.response[0].status, 'O status nesta situação deveria vir verdadeiro');
+        System.assertEquals('Pricebook2', model.response[0].sObjectType, 'O objeto nesta situação deveria vir Pricebook2');
+        System.assertEquals(null, model.response[0].errorMessage, 'O erro nesta situação deveria vir nulo');
+        System.assertNotEquals(null, model.response[0].idSalesforce, 'O idSalesforce nesta situação deveria vir um Id');
+        System.assertNotEquals('null', model.response[0].externalCode, 'O externalCode nesta situação deveria vir codExternal');
+    }
+
+    @isTest 
+    static void verifyIntegrationWithPricebookStandard(){
+        List<TemplateDataIntegrationFields.GenericINData> genericDataList = new List<TemplateDataIntegrationFields.GenericINData>();
+        TemplateDataIntegrationFields.GenericINData genericData = new TemplateDataIntegrationFields.GenericINData();
+        List<TemplateDataIntegrationFields.PricebookEntryINData> pricebookEntryList = new  List<TemplateDataIntegrationFields.PricebookEntryINData>();
+        TemplateDataIntegrationFields.PricebookEntryINData pricebookEntry = new TemplateDataIntegrationFields.PricebookEntryINData();
+        TemplateDataIntegrationFields.PricebookEntryINData pricebookEntry2 = new TemplateDataIntegrationFields.PricebookEntryINData();
+        pricebookEntry.productCode = '0001';
+        pricebookEntry.unitPrice = 100.00;
+
+        pricebookEntry2.productCode = '0002';
+        pricebookEntry2.unitPrice = 100.00;
+
+        pricebookEntryList.add(pricebookEntry);
+        pricebookEntryList.add(pricebookEntry2);
+        genericData.name = 'Teste';
+        genericData.codExternal = '112';
+        genericData.typeCondition = 'PR00';
+        genericData.description = 'Na classe de Teste';
+        genericData.orgVendas = '1111';
+        genericData.listPrice = 'Não sei por que isso existe';
+        genericData.cropCode = '1223';
+        genericData.cultureCode = '1234';
+        genericData.accountCode = '11111';
+        genericData.accountGroup = 'A';
+        genericData.salesOffice = '1';
+        genericData.salesTeam = '1';
+        genericData.salesSector = '1';
+        genericData.initialDate = '2022-03-30';
+        genericData.endDate = '2022-04-30';
+        genericData.effectiveDate = '2022-03-30';
+        genericData.typeCurrency = 'BRL';
+        genericData.active = true;
+        genericData.productFamily = '1';
+        genericData.pricebookEntries = pricebookEntryList;
+        genericDataList.add(genericData);
+        
+        
+        IntegrationINPricebook2.ResponseModel model = IntegrationINPricebook2.upsertPricebook2(genericDataList);
+        IntegrationINPricebook2.ResponseModel toPass = new IntegrationINPricebook2.ResponseModel(model.response);
+        System.assertEquals(true, model.response[0].status, 'O status nesta situação deveria vir verdadeiro');
+        System.assertEquals('Pricebook2', model.response[0].sObjectType, 'O objeto nesta situação deveria vir Pricebook2');
+        System.assertEquals(null, model.response[0].errorMessage, 'O erro nesta situação deveria vir nulo');
+        System.assertNotEquals(null, model.response[0].idSalesforce, 'O idSalesforce nesta situação deveria vir um Id');
+        System.assertNotEquals('null', model.response[0].externalCode, 'O externalCode nesta situação deveria vir codExternal');
         IntegrationINPricebook2.upsertPricebook2(genericDataList);
+    
     }
 }
