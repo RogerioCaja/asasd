@@ -150,7 +150,7 @@ global with sharing class IntegrationINPricebook2 {
         }
     }
 
-    global static void setResponses(List<TemplateDataIntegrationFields.ResponseParent> responseList, List<TemplateDataIntegrationFields.PricebookEntryINData> pricebookEntryListToUpsert, Boolean hasError){
+    global static void setResponses(List<TemplateDataIntegrationFields.ResponseParent> responseList, List<TemplateDataIntegrationFields.PricebookEntryINData> pricebookEntryListToUpsert, List<Boolean> hasError){
 
         Map<String, List<TemplateDataIntegrationFields.Response>> pricebookEntriesResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
         if(pricebookEntryListToUpsert.size() != 0){
@@ -173,11 +173,12 @@ global with sharing class IntegrationINPricebook2 {
         for(TemplateDataIntegrationFields.ResponseParent responsePricebook : responseList){
             if(responsePricebook.status == false){
                 hasError = true;
+                hasError[0] = true;
                 break;
             } else {
                 for(TemplateDataIntegrationFields.Response response : responsePricebook.items){
                     if(response.status == false){
-                        hasError = true;
+                        hasError[0] = true;
                         break;
                     }
                 }
@@ -277,11 +278,11 @@ global with sharing class IntegrationINPricebook2 {
             pricebookListToUpsert, 
             Pricebook2.ExternalId__c);
 
-        Boolean hasError = false;
+        List<Boolean> hasError = new List<Boolean>();
+        hasError.add(false);
         setResponses(responseList, pricebookEntryListToUpsert, hasError);
-        
         //Creating integration log
-        IntegrationLog.createLog('Pricebook IN', 'IN', JSON.serialize(request), JSON.serialize(responseList), hasError);
+        IntegrationLog.createLog('Pricebook IN', 'IN', JSON.serialize(request), JSON.serialize(responseList), hasError[0]);
     }
 
     global static void upsertInterestDiscount(Map<String, List<String>> lookupMap, Map<String, Id> lookups, List<Object> objList, List<TemplateDataIntegrationFields.ResponseParent> responseList, 
@@ -323,11 +324,13 @@ global with sharing class IntegrationINPricebook2 {
             interestDicountListToUpsert, 
             JurosDescontoAntecipao__c.ExternalId__c);
 
-        Boolean hasError = false;
+        List<Boolean> hasError = new List<Boolean>();
+        hasError.add(false);
         setResponses(responseList, pricebookEntryListToUpsert, hasError);
+            
         
         //Creating integration log
-        IntegrationLog.createLog('Juros e Descontos de Antecipação IN', 'IN', JSON.serialize(request), JSON.serialize(responseList), hasError);
+        IntegrationLog.createLog('Juros e Descontos de Antecipação IN', 'IN', JSON.serialize(request), JSON.serialize(responseList), hasError[0]);
     }
 
     //? class to JSON responses 
