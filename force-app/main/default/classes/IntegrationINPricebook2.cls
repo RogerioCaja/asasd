@@ -101,7 +101,7 @@ global with sharing class IntegrationINPricebook2 {
 
         Map<String, String> parentMapKeys = new Map<String, String>();
         for(TemplateDataIntegrationFields.PricebookEntryINData pricebookEntry : request) {
-            parentMapKeys.put(pricebookEntry.pricebook2Id + '|' + pricebookEntry.productCode, lookups.containsKey('Pricebook2' + pricebookEntry.pricebook2Id) ? lookups.get('Pricebook2' + pricebookEntry.pricebook2Id) : pricebookEntry.pricebook2Id);
+            parentMapKeys.put(pricebookEntry.pricebook2Id + '|' + pricebookEntry.productCode, lookups.containsKey('Pricebook2' + pricebookEntry.pricebook2Id) ? lookups.get('Pricebook2' + pricebookEntry.pricebook2Id) : null);
             
             PricebookEntry standardPBE = new PricebookEntry(Pricebook2Id = standardPB.Id, Product2Id = lookups.get('Product2' + pricebookEntry.productCode), UnitPrice = pricebookEntry.unitPrice, IsActive = true);
             if(!isStandardPricebook(standardPBE.Product2Id, standardValuesExists))

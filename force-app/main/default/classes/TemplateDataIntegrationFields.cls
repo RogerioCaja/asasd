@@ -41,10 +41,11 @@ global with sharing class TemplateDataIntegrationFields {
 
         public Pricebook2 serialize(Map<String, Id> lookups){
 
+            
             //Returning Object with Fields.
             return new Pricebook2(
                 Name = this.name,
-                ExternalId__c = codExternal,
+                ExternalId__c =  (String.isEmpty(this.codExternal) || String.isBlank(this.codExternal)) ? null : this.codExternal,
                 RecordTypeId = 	'0127e0000003FkIAAU',
                 Description = description,
                 SalesOrg__c = lookups.containsKey('SalesOrg__c'+this.orgVendas) ? lookups.get('SalesOrg__c'+this.orgVendas) : null,
