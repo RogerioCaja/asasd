@@ -5,6 +5,7 @@ import {
 } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getSafraInfos from '@salesforce/apex/OrderScreenController.getSafraInfos';
+import getFinancialInfos from '@salesforce/apex/OrderScreenController.getFinancialInfos';
 
 
 const actions = [
@@ -28,6 +29,8 @@ export default class OrderProductScreen extends LightningElement {
         columnSapStatus: true
     }
 
+    salesOrg = 'a0P7e000006xFQBEA2';
+    salesOffice = 'a0O7e00000AL5MPEA1';
     safraData={}
     paymentDate;hectares;priceBookListId;
 
@@ -46,10 +49,12 @@ export default class OrderProductScreen extends LightningElement {
     currentDivisionProduct = {};
     divisionProducts = [];
     allDivisionProducts = [];
+    financialInfos = {};
     
     @track products = [];
     @api productData;
     @api divisionData;
+    @api accountData;
     @api headerData;
     @api cloneData;
     
@@ -77,6 +82,22 @@ export default class OrderProductScreen extends LightningElement {
                     initialDate: safraResult.initialDate,
                     endDate: safraResult.endDate
                 };
+
+                let orderData = {
+                    paymentDate: this.headerData.data_pagamento != null ? this.headerData.data_pagamento : '',
+                    accountId: this.accountData.Id != null ? this.accountData.Id : '',
+                    salesOrg: this.headerData.salesOrg != null ? this.headerData.salesOrg : '',
+                    pricebookId: this.headerData.lista_precos.Id != null ? this.headerData.lista_precos.Id : '',
+                    safra: this.headerData.safra.Id != null ? this.headerData.safra.Id : '',
+                    ctv: this.headerData.ctv_venda.Id != null ? this.headerData.ctv_venda.Id : '',
+                    culture: this.headerData.cultura.Id != null ? this.headerData.cultura.Id : ''
+                };
+
+                getFinancialInfos({data: JSON.stringify(orderData)})
+                .then((result) => {
+                    this.financialInfos = JSON.parse(result);
+                    console.log('this.financialInfos: ' + JSON.stringify(this.financialInfos));
+                })
             })
         }
     }
@@ -216,7 +237,7 @@ export default class OrderProductScreen extends LightningElement {
                     this.addProduct.commercialAdditionPercentage;
                 
                 this.calculateTotalPrice();
-            } else if (fieldId == 'financialAdditionPercentage') {
+            } /* else if (fieldId == 'financialAdditionPercentage') {
                 this.addProduct.financialAdditionValue = 
                     this.isFilled(this.listTotalPrice) ?
                     this.calculateValue(this.addProduct.financialAdditionPercentage, this.listTotalPrice) :
@@ -244,7 +265,7 @@ export default class OrderProductScreen extends LightningElement {
                     this.addProduct.financialDecreasePercentage;
                 
                 this.calculateTotalPrice();
-            } else if (fieldId == 'dosage') {
+            } */ else if (fieldId == 'dosage') {
                 if (this.isFilled(this.hectares)) {
                     this.addProduct.quantity = this.calculateMultiplicity(this.addProduct.dosage * this.hectares);
                     this.listTotalPrice = this.addProduct.listPrice * this.addProduct.quantity;
@@ -280,8 +301,12 @@ export default class OrderProductScreen extends LightningElement {
             this.addProduct.totalPrice = this.addProduct.quantity * this.addProduct.listPrice;
             this.addProduct.totalPrice = this.isFilled(this.addProduct.commercialAdditionValue) ? (this.addProduct.totalPrice + Number(this.addProduct.commercialAdditionValue)) : this.addProduct.totalPrice;
             this.addProduct.totalPrice = this.isFilled(this.addProduct.commercialDiscountValue) ? (this.addProduct.totalPrice - Number(this.addProduct.commercialDiscountValue)) : this.addProduct.totalPrice;
+
+            this.calculateFinancialInfos();
             this.addProduct.totalPrice = this.isFilled(this.addProduct.financialAdditionValue) ? (this.addProduct.totalPrice + Number(this.addProduct.financialAdditionValue)) : this.addProduct.totalPrice;
             this.addProduct.totalPrice = this.isFilled(this.addProduct.financialDecreaseValue) ? (this.addProduct.totalPrice - Number(this.addProduct.financialDecreaseValue)) : this.addProduct.totalPrice;
+
+            this.addProduct.unitPrice = (this.addProduct.totalPrice / this.addProduct.quantity).toFixed(4);
         }
     }
 
@@ -314,6 +339,37 @@ export default class OrderProductScreen extends LightningElement {
         percentage = percentage.includes(',') ? percentage.replace(',', '.').replace('%', '') : percentage.replace('%', '');
         let value = ((parseFloat(percentage) / 100) * total).toFixed(4);
         return value;
+    }
+
+    calculateFinancialInfos() {
+        if (this.isFilled(this.addProduct.totalPrice)) {
+            let defaultKey = this.financialInfos.salesOrg + '-' + this.headerData.safra.Id;
+            let key1 = defaultKey + '-' + this.headerData.cultura.Id + '-' + this.addProduct.productId;
+            let key2 = defaultKey + '-' + this.financialInfos.salesOffice + '-' + this.addProduct.productId;
+            let key3 = defaultKey + '-' + this.financialInfos.salesOffice;
+            let key4 = defaultKey + '-' + this.addProduct.productGroupId;
+            
+            let currentDiscountOrAddition;
+            let financialValues = this.financialInfos.financialValues;
+            console.log('key1: ' + key1);
+            if (this.isFilled(financialValues[key1])) {
+                currentDiscountOrAddition = financialValues[key1]
+                console.log('currentDiscountOrAddition: ' + currentDiscountOrAddition);
+            } else if (this.isFilled(financialValues[key2])) {
+                currentDiscountOrAddition = financialValues[key2]
+            } else if (this.isFilled(financialValues[key3])) {
+                currentDiscountOrAddition = financialValues[key3]
+            } else if (this.isFilled(financialValues[key4])) {
+                currentDiscountOrAddition = financialValues[key4]
+            } else if (this.isFilled(financialValues[defaultKey])) {
+                currentDiscountOrAddition = financialValues[defaultKey]
+            }
+
+            this.addProduct.financialAdditionPercentage = (this.financialInfos.isDiscount ? 0 : currentDiscountOrAddition) + '%';
+            this.addProduct.financialDecreasePercentage = (this.financialInfos.isDiscount ? currentDiscountOrAddition : 0) + '%';
+            this.addProduct.financialAdditionValue = this.calculateValue(this.addProduct.financialAdditionPercentage, this.addProduct.totalPrice);
+            this.addProduct.financialDecreaseValue = this.calculateValue(this.addProduct.financialDecreasePercentage, this.addProduct.totalPrice);
+        }
     }
 
     isFilled(field) {

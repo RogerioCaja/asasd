@@ -111,22 +111,22 @@
 				<div class="row">
 					<div class="column">
 						<label>Percentual de Acréscimo Financeiro</label><br>
-						<input class="input-design" type="text" value={addProduct.financialAdditionPercentage} maxlength="8" onkeypress={changeToPercentage} onchange={changeValue} data-target-id="financialAdditionPercentage"/>
+						<input class="input-design" type="text" value={addProduct.financialAdditionPercentage} maxlength="8" data-target-id="financialAdditionPercentage" disabled/>
 					</div>
 					<div class="column">
 						<label>Valor de Acréscimo Financeiro</label><br>
-						<input class="input-design" type="number" value={addProduct.financialAdditionValue} onchange={changeValue} data-target-id="financialAdditionValue"/>
+						<input class="input-design" type="number" value={addProduct.financialAdditionValue} data-target-id="financialAdditionValue" disabled/>
 					</div>
 				</div>
 
 				<div class="row">
 					<div class="column">
 						<label>Percentual de Decréscimo Financeiro</label><br>
-						<input class="input-design" type="text" value={addProduct.financialDecreasePercentage} maxlength="8" onkeypress={changeToPercentage} onchange={changeValue} data-target-id="financialDecreasePercentage"/>
+						<input class="input-design" type="text" value={addProduct.financialDecreasePercentage} maxlength="8" data-target-id="financialDecreasePercentage" disabled/>
 					</div>
 					<div class="column">
 						<label>Valor de Decréscimo Financeiro</label><br>
-						<input class="input-design" type="number" value={addProduct.financialDecreaseValue} onchange={changeValue} data-target-id="financialDecreaseValue"/>
+						<input class="input-design" type="number" value={addProduct.financialDecreaseValue} data-target-id="financialDecreaseValue" disabled/>
 					</div>
 				</div>
 
