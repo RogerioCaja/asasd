@@ -134,9 +134,9 @@ public without sharing class OrderScreenController {
         try 
         {
             Map<String, String> orders = new Map<String, String>();
-            Q subQuery = new Q(OrderItem.SObjectType)
+            Q subQuery = new Q(OrderItems.getSObjectType())
                                 .selectFields(new Set<String>{'AmountUsed__c', 'Quantity'})
-                                .add(Q.condition('AmountUsed__c').isLessThan(OrderItem.Quantity));
+                                .add(Q.condition('AmountUsed__c').isLessThan('Quantity'));
 
             String query = new Q(Order.SObjectType)
                             .addSubquery(subQuery)

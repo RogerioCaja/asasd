@@ -270,6 +270,7 @@ export default class OrderHeaderScreen extends LightningElement {
         this.loadDataHeader();
         getAccountDataChild({accountId: this.accountData.Id})
         .then((result) =>{
+            console.log(result);
             const accountsChild = JSON.parse(result);
             this.accountChildData = accountsChild.accountList;
         })
@@ -277,11 +278,13 @@ export default class OrderHeaderScreen extends LightningElement {
         });
         console.log('orelhao');
         getOrderMothers().then((result) =>{
+            console.log(result);
             const orderData = JSON.parse(result);
             this.orderMother = orderData;
             console.log(this.orderMother);
         })
         .catch((err)=>{
+            console.log(err);
         });
     
     }
