@@ -50,6 +50,10 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
+                <field>SalesOrg__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
                 <field>EndDate__c</field>
             </layoutItems>
             <layoutItems>
@@ -72,6 +76,10 @@
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>Crop__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Culture__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
@@ -98,6 +106,10 @@
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>SalesTeam__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>SalesSection__c</field>
             </layoutItems>
         </layoutColumns>
         <style>TwoColumnsLeftToRight</style>
