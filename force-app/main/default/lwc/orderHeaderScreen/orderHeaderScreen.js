@@ -32,6 +32,7 @@ import SAFRA_OBJECT from '@salesforce/schema/Safra__c';
 import SAFRA_NAME from '@salesforce/schema/Safra__c.Name';
 
 import getAccountDataChild from '@salesforce/apex/OrderScreenController.getAccountDataChild';
+import getOrderMothers from '@salesforce/apex/OrderScreenController.getOrderMothers';
 
 //import FILIAL_OBJECT from '@salesforce/schema/';
 //import FILIAL_NAME from '@salesforce/schema/';
@@ -42,6 +43,7 @@ export default class OrderHeaderScreen extends LightningElement {
 
     @api accountData;
     @api accountChildData;
+    @api orderMother;
 
     @api headerData;
     @api headerDictLocale ={
@@ -65,6 +67,8 @@ export default class OrderHeaderScreen extends LightningElement {
         forma_pagamento: " ",
         moeda: " ",
         ctv_venda: " ",
+        pedido_mae: {},
+        pedido_mae_check : false,
         frete: "CIF",
         org: {Name: " "},
         aprovation: null
@@ -271,6 +275,14 @@ export default class OrderHeaderScreen extends LightningElement {
         })
         .catch((err)=>{
         });
+        console.log('orelhao');
+        getOrderMothers().then((result) =>{
+            const orderData = JSON.parse(result);
+            this.orderMother = orderData;
+            console.log(this.orderMother);
+        })
+        .catch((err)=>{
+        });
     
     }
 
@@ -310,8 +322,8 @@ export default class OrderHeaderScreen extends LightningElement {
         try{
             if(this.isFilled(event)){
                 var field = event.target.name;
-                if(event.detail.value){
-                    this.headerDictLocale[field] = event.detail.value;
+                if(event.target.value || event.target.checked){
+                    this.headerDictLocale[field] = field != 'pedido_mae_check' ? event.detail.value : event.target.checked;
                 }
                 else{
                         const { record } = event.detail;

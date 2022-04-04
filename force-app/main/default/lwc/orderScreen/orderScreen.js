@@ -63,6 +63,8 @@ export default class OrderScreen extends LightningElement {
         forma_pagamento: " ",
         moeda: " ",
         ctv_venda: " ",
+        pedido_mae: {},
+        pedido_mae_check : false,
         frete: "CIF",
         org: {Name: " "},
         aprovation: " "

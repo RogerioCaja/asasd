@@ -35,7 +35,7 @@ public without sharing class OrderScreenController {
         ShippingAccount__r.BillingCity, ShippingAccount__r.BillingState ,ShippingAccount__r.CPF__c, ShippingAccount__r.CNPJ__c , Pricebook2Id, Pricebook2.Name, 
         Pricebook2.InitialDate__c, Pricebook2.EndDate__c, PaymentDate__c,  CustomerOrderNumber__c, Crop__c , Crop__r.Name, Culture__c , Culture__r.Name,
         PaymentForm__c, StatusSF__c, SalesOrg__c, SalesOrg__r.Name, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, SalesCTV__r.Name,
-        PaymentCondition__c, PaymentCondition__r.Name, ShippingDate__c, Incoterms__c
+        PaymentCondition__c, PaymentCondition__r.Name, ShippingDate__c, Incoterms__c, OrderReference__c, OrderReference__r.Name, IsOrderMother__c
         FROM Order 
         WHERE Id = :orderId LIMIT 1];
         return new HeaderSerialize(order, cloneOrder);
@@ -123,6 +123,38 @@ public without sharing class OrderScreenController {
             for(Account account : accountList)
                 accountListSerialize.add(new AccountSerialize(account));
             return JSON.serialize(new AccountSerialize(accountListSerialize));
+            
+        } catch (Exception e) {
+            throw new AuraHandledException(e.getMessage());
+        }
+    }
+
+    @AuraEnabled
+    public static string getOrderMothers(){
+        try 
+        {
+            Map<String, String> orders = new Map<String, String>();
+            Q subQuery = new Q(OrderItem.SObjectType)
+                                .selectFields(new Set<String>{'AmountUsed__c', 'Quantity'})
+                                .add(Q.condition('AmountUsed__c').isLessThan(OrderItem.Quantity));
+
+            String query = new Q(Order.SObjectType)
+                            .addSubquery(subQuery)
+                           .selectFields(new Set<String>{'Id', 'CustomerOrderNumber__c'})
+                           .add(Q.conditionGroup(
+                            new List<Qcondition>{
+                            Q.condition('SalesCTV__c').equalsTo(UserInfo.getUserId()), 
+                            Q.condition('IsOrderMother__c').equalsTo(true)})
+                            .setLogicalOperatorAsAnd()).build();
+
+            List<Order> orderList = Database.query(query);
+
+            for(Order order : orderList){
+                orders.put(order.Id, order.CustomerOrderNumber__c);
+            }
+
+            return JSON.serialize(orders);
+
             
         } catch (Exception e) {
             throw new AuraHandledException(e.getMessage());
@@ -313,6 +345,8 @@ public without sharing class OrderScreenController {
             order.PaymentCondition__c = orderData.headerData.condicao_pagamento.Id;
             order.ShippingDate__c = Date.valueOf(orderData.headerData.data_entrega);
             order.DescriptionBillingSale__c = orderData.summaryData.billing_sale_observation;
+            order.OrderReference__c = orderData.headerData.pedido_mae.Id;
+            order.IsOrderMother__c = Boolean.valueOf(orderData.headerData.pedido_mae_check);
             order.FinalTotalValue__c = orderTotalValue;
 
             Database.UpsertResult insResults = Database.upsert(order, false);
@@ -579,6 +613,8 @@ public without sharing class OrderScreenController {
         public String moeda;
         public String frete;
         public InformationFields ctv_venda;
+        public InformationFields pedido_mae;
+        public Boolean pedido_mae_check;
         public String observation;
         public String billing_sale_observation;
         //public String cliente_faturamento;
@@ -741,6 +777,8 @@ public without sharing class OrderScreenController {
         public String moeda;
         public String frete;
         public InformationFields ctv_venda;
+        public InformationFields pedido_mae;
+        public Boolean pedido_mae_check;
         public String observation;
         public String billing_sale_observation;
         //public String data_entrega;
@@ -775,6 +813,8 @@ public without sharing class OrderScreenController {
             this.setor_atividade = order.ActivitySector__c;
             this.moeda = order.Currency__c;
             this.ctv_venda = new InformationFields(order.SalesCTV__c,  order.SalesCTV__r.Name);
+            this.pedido_mae = new InformationFields(order.OrderReference__c, order.OrderReference__r.Name);
+            this.pedido_mae_check = order.IsOrderMother__c;
             this.condicao_pagamento = new InformationFields(order.PaymentCondition__c, order.PaymentCondition__r.Name);
             this.frete = order.Incoterms__c;
             this.observation = order.Description;
