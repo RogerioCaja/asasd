@@ -28,9 +28,9 @@
 								class="slds-var-m-right_small">
 							</lightning-icon>
 							<div class="slds-truncate">
-								<h1 data-value={record.Id} class="slds-truncate">{record.OrderNumber}</h1>
+								<h1 data-value={record.Id} class="slds-truncate">{record.Name}</h1>
 								<div data-value={record.Id} class="slds-text-color_weak slds-truncate">
-									{record.OrderNumber}
+									{record.Name}
 								</div>
 							</div>
 					</li>
@@ -54,7 +54,7 @@
 					class="slds-var-m-right_small">
 				</lightning-icon>
 
-				{selectedRecord.OrderNumber}
+				{selectedRecord.Name}
 			</div>
 			<template if:false={disabled}>
 				<div class="slds-var-p-bottom_xx-small">

@@ -71,7 +71,8 @@ export default class OrderHeaderScreen extends LightningElement {
         pedido_mae_check : false,
         frete: "CIF",
         org: {Name: " "},
-        aprovation: null
+        aprovation: null,
+        IsOrderChild : false
     };
 
     @api productData;
@@ -329,8 +330,13 @@ export default class OrderHeaderScreen extends LightningElement {
                     this.headerDictLocale[field] = field != 'pedido_mae_check' ? event.detail.value : event.target.checked;
                 }
                 else{
-                        const { record } = event.detail;
-                        this.headerDictLocale[field] = (this.registerDetails.includes(field) ? this.resolveRegister(record)  : {Id: record.Id, Name: record.Name});
+                    const { record } = event.detail;
+                    this.headerDictLocale[field] = (this.registerDetails.includes(field) ? this.resolveRegister(record)  : {Id: record.Id, Name: record.Name});
+                    if(field == 'pedido_mae') { 
+                        this.headerDictLocale.IsOrderChild = true; 
+                        this.pass = true; 
+                        this._setData();
+                    }
                 }
             }  
         }
@@ -396,6 +402,7 @@ export default class OrderHeaderScreen extends LightningElement {
     _setData() {
         const setHeaderData = new CustomEvent('setheaderdata');
         setHeaderData.data = this.headerDictLocale;
+        // this.headerDictLocale.IsOrderChild = false;
         this.dispatchEvent(setHeaderData);
     }
 }

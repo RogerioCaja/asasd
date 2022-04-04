@@ -203,6 +203,37 @@ export default class OrderScreen extends LightningElement {
         })
     }
 
+    getOrderMother(id, name){
+        console.log('getOrder');
+        if(this.headerData.Id != " ")
+            return;
+
+        this.isLoading = true;
+        getOrder({recordId: id, cloneOrder: this.clone.cloneOrder})
+        .then((result) =>{
+            const data = JSON.parse(result);
+            this.accountData = data.accountData;
+            this.headerData = data.headerData;
+            this.headerData.pedido_mae_check = false;
+            this.headerData.pedido_mae = {Id: id, Name: name};
+            this.productData = data.productData;
+            this.divisionData = data.divisionData;
+            this.summaryData['observation'] = this.headerData.observation;
+            this.summaryData['billing_sale_observation'] = this.headerData.billing_sale_observation;
+            this.enableScreens([0, 1, 2, 3]);
+            this.completeScreens([0, 1, 2, 3]);
+            this.isLoading = false;
+            this.cloneData.cloneOrder = this.clone.cloneOrder;
+            this.headerData.lista_precos = this.headerData.lista_precos != null ? this.headerData.lista_precos : ' ';
+            this.cloneData.pricebookListId = this.headerData.lista_precos != ' ' ?  this.headerData.lista_precos.Id : '';
+        })
+        .catch((err)=>{
+            console.log(err);
+            this.showNotification(err.message, 'Ocorreu algum erro');
+            this.isLoading = false;
+        })
+    }
+
     // loadHeaderDataTitle(){
     //     this.headerDataTitle = {... this.headerData};    
     //     this.headerDataTitle.tipo_venda = this.tiposVenda.find(element => element.value == this.headerData.tipo_venda).label;
@@ -281,6 +312,7 @@ export default class OrderScreen extends LightningElement {
 
     _setHeaderData(event) {
         this.headerData = event.data;
+        if(this.headerData.IsOrderChild) this.getOrderMother(this.headerData.pedido_mae.Id, this.headerData.pedido_mae.Name);
         console.log('header data setted:', this.headerData);
         this.enableNextScreen();
         this.completeCurrentScreen();

@@ -133,10 +133,9 @@ public without sharing class OrderScreenController {
     public static string getOrderMothers(){
         try 
         {
-            Map<String, String> orders = new Map<String, String>();
-            Q subQuery = new Q(OrderItems.getSObjectType())
-                                .selectFields(new Set<String>{'AmountUsed__c', 'Quantity'})
-                                .add(Q.condition('AmountUsed__c').isLessThan('Quantity'));
+            List<InformationFields> orders = new  List<InformationFields> ();
+            Q subQuery = new Q('OrderItems')
+                                .selectFields(new Set<String>{'AmountUsed__c', 'Quantity'});
 
             String query = new Q(Order.SObjectType)
                             .addSubquery(subQuery)
@@ -149,8 +148,11 @@ public without sharing class OrderScreenController {
 
             List<Order> orderList = Database.query(query);
 
+           
             for(Order order : orderList){
-                orders.put(order.Id, order.CustomerOrderNumber__c);
+                for(OrderItem orderItem : order.OrderItems){
+                    if(orderItem.AmountUsed__c < orderItem.Quantity) orders.add(new InformationFields(order.Id, order.CustomerOrderNumber__c));
+                }
             }
 
             return JSON.serialize(orders);
@@ -370,6 +372,7 @@ public without sharing class OrderScreenController {
                         orderItem.PricebookEntryId = orderProduct.entryId;
                         orderItem.Product2Id = orderProduct.productId;
                         orderItem.ListPrice = orderProduct.listPrice;
+                        orderItem.AmountUsed__c = 0;
                     }
 
                     orderItem.ServiceDate = System.today();
