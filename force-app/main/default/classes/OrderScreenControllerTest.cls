@@ -20,11 +20,31 @@ public class OrderScreenControllerTest {
         accountList.add(childAccount);
         insert accountList;
 
+        SalesOrg__c salesOrg = new SalesOrg__c(
+            Name = 'Sales Organization',
+            SalesOrganizationCode__c = '001'
+        );
+        insert salesOrg;
+
+        SalesOffice__c salesOffice = new SalesOffice__c(
+            Name = 'Sales Office',
+            Codigo__c = '001'
+        );
+        insert salesOffice;
+
+        SalesTeam__c salesTeam = new SalesTeam__c(
+            Name = 'Sales team'
+        );
+        insert salesTeam;
+
         Company__c company = new Company__c(
             Name = 'Company',
             Blocked__c = false,
             ClientGroup__c = 'A',
-            Conta__c = parentAccount.Id
+            Conta__c = parentAccount.Id,
+            SalesOrg__c = salesOrg.Id,
+            SalesOffice__c = salesOffice.Id,
+            SalesTeam__c = salesTeam.Id
         );
         insert company;
 
@@ -135,6 +155,23 @@ public class OrderScreenControllerTest {
             OrderItem__c = orderItem.Id
         );
         insert shipping;
+
+        JurosDescontoAntecipao__c financialDiscount = new JurosDescontoAntecipao__c(
+            Percentage__c = 1,
+            PriorityLevel__c = '1',
+            Product__c = product.Id,
+            ProductGroup__c = productGroup.Id,
+            SalesOrg__c = salesOrg.Id,
+            SalesOffice__c = salesOffice.Id,
+            SalesTeam__c = salesTeam.Id,
+            Culture__c = culture.Id,
+            harvest__c = crop.Id,
+            StartDate__c = System.today().addDays(-5),
+            EndDate__c = System.today().addDays(5),
+            AccountType__c = 'A',
+            ConditionType__c = 'Desconto'
+        );
+        insert financialDiscount;
     }
 
     @isTest
@@ -173,5 +210,20 @@ public class OrderScreenControllerTest {
     public static void getSafraInfosTest() {
         Id safraId = [SELECT Id FROM Safra__c LIMIT 1].Id;
         OrderScreenController.getSafraInfos(safraId);
+    }
+
+    @isTest
+    public static void getFinancialInfosTest() {
+        OrderScreenController.OrderDataDeserialize orderData = new OrderScreenController.OrderDataDeserialize();
+        orderData.paymentDate = String.valueOf(System.today());
+        orderData.accountId = [SELECT Id FROM Account LIMIT 1].Id;
+        orderData.salesOrg = '';
+        orderData.pricebookId = Test.getStandardPricebookId();
+        orderData.safra = [SELECT Id FROM Safra__c LIMIT 1].Id;
+        orderData.ctv = UserInfo.getUserId();
+        orderData.culture = [SELECT Id FROM Cultura__c LIMIT 1].Id;
+
+        String data = JSON.serialize(orderData);
+        OrderScreenController.getFinancialInfos(data);
     }
 }

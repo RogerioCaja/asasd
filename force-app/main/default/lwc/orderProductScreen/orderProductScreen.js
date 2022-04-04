@@ -29,8 +29,6 @@ export default class OrderProductScreen extends LightningElement {
         columnSapStatus: true
     }
 
-    salesOrg = 'a0P7e000006xFQBEA2';
-    salesOffice = 'a0O7e00000AL5MPEA1';
     safraData={}
     paymentDate;hectares;priceBookListId;
 

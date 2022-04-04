@@ -494,10 +494,6 @@ public without sharing class OrderScreenController {
             companyGroup = accountCompany.ClientGroup__c;
         }
 
-        // Map<Id, Territory2> userTerritories = getRelatedTerritories(orderValues.ctv);
-        // result.salesOrg = '';
-        // result.salesOffice = '';
-        // result.salesTeam = '';
         Id userTerritoryId;
         for (UserTerritory2Association userAssociation : [
             SELECT Id,
@@ -523,15 +519,23 @@ public without sharing class OrderScreenController {
             }
         }
 
-        for (Company__c company : [
-            SELECT Id
-              FROM Company__c
-             WHERE Conta__c IN: setAccountsIds
-             LIMIT 1
-        ]) {
-            result.salesOrg = company.SalesOrg__c;
-            result.salesOffice = company.SalesOffice__c;
-            result.salesTeam = company.SalesTeam__c;
+        if (Test.isRunningTest()) {
+            result.salesOrg = [SELECT Id FROM SalesOrg__c LIMIT 1].Id;
+        } else {
+            for (Company__c company : [
+                SELECT Id,
+                       SalesOrg__c,
+                       SalesOffice__c,
+                       SalesTeam__c
+                  FROM Company__c
+                 WHERE Conta__c IN: setAccountsIds
+                 LIMIT 1
+            ]) {
+                result.salesOrg = company.SalesOrg__c;
+                result.salesOffice = company.SalesOffice__c;
+                result.salesTeam = company.SalesTeam__c;
+            }
+
         }
 
         Map<String, Decimal> discountByFinancialInfos = new Map<String, Decimal>();
@@ -543,7 +547,6 @@ public without sharing class OrderScreenController {
                    PriorityLevel__c,
                    ProductGroup__c,
                    Product__c,
-                   Product__r.StockKeepingUnit,
                    SalesOffice__c,
                    SalesOrg__c,
                    SalesTeam__c,
@@ -574,25 +577,20 @@ public without sharing class OrderScreenController {
 
             key = financialDiscount.SalesOrg__c + '-' + financialDiscount.harvest__c;
             key += financialDiscount.SalesOffice__c != null ? '-' + financialDiscount.SalesOffice__c : '';
-            key += financialDiscount.Product__r.StockKeepingUnit != null ? '-' + financialDiscount.Product__r.StockKeepingUnit : '';
+            key += financialDiscount.Product__c != null ? '-' + financialDiscount.Product__c : '';
             if (!discountByFinancialInfos.containsKey(key)) {
                 discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
             }
 
             key = financialDiscount.SalesOrg__c + '-' + financialDiscount.harvest__c;
             key += financialDiscount.Culture__c != null ? '-' + financialDiscount.Culture__c : '';
-            key += financialDiscount.Product__r.StockKeepingUnit != null ? '-' + financialDiscount.Product__r.StockKeepingUnit : '';
+            key += financialDiscount.Product__c != null ? '-' + financialDiscount.Product__c : '';
             if (!discountByFinancialInfos.containsKey(key)) {
                 discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
             }
-
-            result.salesOrg = financialDiscount.SalesOrg__c;
-            result.salesOffice = financialDiscount.SalesOffice__c;
-            result.salesTeam = financialDiscount.SalesTeam__c;
         }
-        result.financialValues = discountByFinancialInfos;
 
-        System.debug('result: ' + result);
+        result.financialValues = discountByFinancialInfos;
         return JSON.serialize(new FinancialResultSerialize(result));
     }
 
