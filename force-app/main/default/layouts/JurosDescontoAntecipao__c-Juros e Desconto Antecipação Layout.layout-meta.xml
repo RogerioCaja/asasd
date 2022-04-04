@@ -8,7 +8,7 @@
         <label>Information</label>
         <layoutColumns>
             <layoutItems>
-                <behavior>Readonly</behavior>
+                <behavior>Required</behavior>
                 <field>Name</field>
             </layoutItems>
             <layoutItems>
@@ -34,10 +34,6 @@
             <layoutItems>
                 <behavior>Required</behavior>
                 <field>ProductGroup__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Required</behavior>
-                <field>ExternalId__c</field>
             </layoutItems>
         </layoutColumns>
         <layoutColumns>

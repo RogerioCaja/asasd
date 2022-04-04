@@ -161,11 +161,10 @@
     <externalSharingModel>Private</externalSharingModel>
     <label>Juros e Desconto Antecipação</label>
     <nameField>
-        <displayFormat>JD-{00000000}</displayFormat>
         <label>Condição</label>
         <trackFeedHistory>false</trackFeedHistory>
         <trackHistory>false</trackHistory>
-        <type>AutoNumber</type>
+        <type>Text</type>
     </nameField>
     <pluralLabel>Juros e Descontos Antecipação</pluralLabel>
     <searchLayouts/>
