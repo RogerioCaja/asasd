@@ -13,6 +13,7 @@ export default class Lookup extends LightningElement {
 	@api newRecordButton = false;
 	@api noRepeats = 'Id';
 	@api required;
+	@api disabled;
 
 	@api parentRecordList; // Valor do WHERE =
 	@api parentRelationFieldList; // Campo do WHERE =

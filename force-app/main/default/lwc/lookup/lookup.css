@@ -22,10 +22,12 @@
 }
 
 .container .selected-record {
-	background-color: #FFF;
+	background-color: #F3F3F3;
 	border: 1px solid rgb(221, 219, 218);
 	border-radius: 0.25rem;
 }
+
+
 
 .container .myCustomInput {
 	z-index: 20;
@@ -50,3 +52,4 @@
 	left: 0px;
 	z-index: 15;
 }
+

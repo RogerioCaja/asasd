@@ -8,7 +8,9 @@
 			autocomplete="off"
             onfocusin={showDataMethod}
 			label="Cliente de Entrega"
-			name="searchInput">
+			name="searchInput"
+			required="true"
+			disabled={disabled}>
 		</lightning-input>
 
 		<template if:true={showData}>

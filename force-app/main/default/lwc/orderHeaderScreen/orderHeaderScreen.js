@@ -40,6 +40,7 @@ import getOrderMothers from '@salesforce/apex/OrderScreenController.getOrderMoth
 export default class OrderHeaderScreen extends LightningElement {
     readonly = false;
     booleanTrue = true;
+    disabled = false;
 
     @api accountData;
     @api accountChildData;
@@ -323,7 +324,7 @@ export default class OrderHeaderScreen extends LightningElement {
         return ((field !== undefined && field != null && field != '') || field == 0);
     }
     selectItemRegister(event){
-        try{
+        try{ 
             if(this.isFilled(event)){
                 var field = event.target.name;
                 if(event.target.value || event.target.checked){
@@ -335,6 +336,7 @@ export default class OrderHeaderScreen extends LightningElement {
                     if(field == 'pedido_mae') { 
                         this.headerDictLocale.IsOrderChild = true; 
                         this.pass = true; 
+                        this.disabled = true;
                         this._setData();
                     }
                 }
@@ -360,9 +362,14 @@ export default class OrderHeaderScreen extends LightningElement {
     }
   
     removeItemRegister(event){
-        var field = event.target.name;
-        this.headerDictLocale[field] = null;
-        this._setData();
+        try{
+            var field = event.target.name;
+            this.headerDictLocale[field] = null;
+            this.headerDictLocale.IsOrderChild = field == 'pedido_mae' ? false : null;
+            this._setData();
+        }catch(err){
+            console.log(err);
+        }
     }
 
     @api

@@ -7,6 +7,7 @@ export default class LookupOrderMother extends LightningElement {
     @api recordId;
     @api selectedRecord = null;
     @api orderList;
+	@api disabled = false;
     @track showData = false;
     
     // WIREs

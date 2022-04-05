@@ -11,6 +11,7 @@ export default class LookupAccount extends LightningElement {
     @api recordId;
     @api selectedRecord = null;
     @api accountList;
+	@api disabled = false;
     @track showData = false;
     
     // WIREs
