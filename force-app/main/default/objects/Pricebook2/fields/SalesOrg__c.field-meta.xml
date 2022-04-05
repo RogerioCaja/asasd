@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>SalesOrg__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
     <externalId>false</externalId>
-    <label>Organização de Vendas</label>
+    <label>Organização de Venda</label>
+    <referenceTo>SalesOrg__c</referenceTo>
+    <relationshipLabel>Price Books</relationshipLabel>
+    <relationshipName>PriceBookSalesOrg</relationshipName>
     <required>false</required>
     <trackHistory>false</trackHistory>
-    <type>TextArea</type>
+    <type>Lookup</type>
 </CustomField>
