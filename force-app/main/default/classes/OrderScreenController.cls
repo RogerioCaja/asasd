@@ -461,6 +461,140 @@ public without sharing class OrderScreenController {
     }
 
     @AuraEnabled
+    public static String getFinancialInfos(String data) {
+        FinancialResult result = new FinancialResult();
+        OrderDataDeserialize orderValues = (OrderDataDeserialize) JSON.deserialize(data, OrderDataDeserialize.class);
+        Set<String> pricebookProducts = new Set<String>();
+        Date pricebookPaymentDate;
+        
+        for (PricebookEntry pricebookEntry : [
+            SELECT Id,
+                   Product2Id,
+                   Product2.StockKeepingUnit,
+                   Pricebook2.PaymentDate__c
+              FROM PricebookEntry
+             WHERE Pricebook2Id =: orderValues.pricebookId
+               AND IsActive = true
+        ]) {
+            pricebookProducts.add(pricebookEntry.Product2.StockKeepingUnit);
+            pricebookPaymentDate = pricebookEntry.Pricebook2.PaymentDate__c;
+        }
+
+        result.isDiscount = Date.valueOf(orderValues.paymentDate) >= pricebookPaymentDate ? false : true;
+        String discountOrAddition = result.isDiscount ? 'Desconto' : 'Juros';
+        
+        String companyGroup = '';
+        for (Company__c accountCompany : [
+            SELECT Id,
+                   ClientGroup__c
+              FROM Company__c
+             WHERE Conta__c =: orderValues.accountId
+             LIMIT 1
+        ]) {
+            companyGroup = accountCompany.ClientGroup__c;
+        }
+
+        Id userTerritoryId;
+        for (UserTerritory2Association userAssociation : [
+            SELECT Id,
+                   UserId,
+                   Territory2Id
+              FROM UserTerritory2Association
+             WHERE UserId =: orderValues.ctv
+             LIMIT 1
+        ]) {
+            userTerritoryId = userAssociation.Territory2Id;
+        }
+        
+        Set<Id> setAccountsIds = new Set<Id>();
+        for (ObjectTerritory2Association objAssociation : [
+            SELECT Id,
+                   SobjectType,
+                   ObjectId
+              FROM ObjectTerritory2Association
+             WHERE Territory2Id =: userTerritoryId
+        ]) {
+            if (objAssociation.SobjectType == 'Account') {
+                setAccountsIds.add(objAssociation.ObjectId);
+            }
+        }
+
+        if (Test.isRunningTest()) {
+            result.salesOrg = [SELECT Id FROM SalesOrg__c LIMIT 1].Id;
+        } else {
+            for (Company__c company : [
+                SELECT Id,
+                       SalesOrg__c,
+                       SalesOffice__c,
+                       SalesTeam__c
+                  FROM Company__c
+                 WHERE Conta__c IN: setAccountsIds
+                 LIMIT 1
+            ]) {
+                result.salesOrg = company.SalesOrg__c;
+                result.salesOffice = company.SalesOffice__c;
+                result.salesTeam = company.SalesTeam__c;
+            }
+
+        }
+
+        Map<String, Decimal> discountByFinancialInfos = new Map<String, Decimal>();
+        for (JurosDescontoAntecipao__c financialDiscount : [
+            SELECT Id,
+                   ConditionType__c,
+                   Culture__c,
+                   Percentage__c,
+                   PriorityLevel__c,
+                   ProductGroup__c,
+                   Product__c,
+                   SalesOffice__c,
+                   SalesOrg__c,
+                   SalesTeam__c,
+                   harvest__c
+              FROM JurosDescontoAntecipao__c
+             WHERE ConditionType__c =: discountOrAddition
+               AND StartDate__c <=: System.today()
+               AND EndDate__c >=: System.today()
+               AND SalesOrg__c =: result.salesOrg
+               AND harvest__c =: orderValues.safra
+               AND AccountType__c =: companyGroup
+        ]) {
+            System.debug('financialDiscount: ' + financialDiscount);
+            String key = financialDiscount.SalesOrg__c + '-' + financialDiscount.harvest__c;
+            if (!discountByFinancialInfos.containsKey(key)) {
+                discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
+            }
+
+            key += financialDiscount.ProductGroup__c != null ? '-' + financialDiscount.ProductGroup__c : '';
+            if (!discountByFinancialInfos.containsKey(key)) {
+                discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
+            }
+
+            key += financialDiscount.SalesOffice__c != null ? '-' + financialDiscount.SalesOffice__c : '';
+            if (!discountByFinancialInfos.containsKey(key)) {
+                discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
+            }
+
+            key = financialDiscount.SalesOrg__c + '-' + financialDiscount.harvest__c;
+            key += financialDiscount.SalesOffice__c != null ? '-' + financialDiscount.SalesOffice__c : '';
+            key += financialDiscount.Product__c != null ? '-' + financialDiscount.Product__c : '';
+            if (!discountByFinancialInfos.containsKey(key)) {
+                discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
+            }
+
+            key = financialDiscount.SalesOrg__c + '-' + financialDiscount.harvest__c;
+            key += financialDiscount.Culture__c != null ? '-' + financialDiscount.Culture__c : '';
+            key += financialDiscount.Product__c != null ? '-' + financialDiscount.Product__c : '';
+            if (!discountByFinancialInfos.containsKey(key)) {
+                discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
+            }
+        }
+
+        result.financialValues = discountByFinancialInfos;
+        return JSON.serialize(new FinancialResultSerialize(result));
+    }
+
+    @AuraEnabled
     public static String getSafraInfos(String safraId){
         Safra__c safra = [SELECT Id,
                                  StartDateOrderInsertion__c,
@@ -905,6 +1039,42 @@ public without sharing class OrderScreenController {
         SafraDataSerialize(Safra__c safra) {
             this.initialDate = String.valueOf(safra.StartDateOrderInsertion__c);
             this.endDate = String.valueOf(safra.EndDateInsertionOrders__c);
+        }
+    }
+
+    public class OrderDataDeserialize {
+        public String paymentDate;
+        public String accountId;
+        public String salesOrg;
+        public String pricebookId;
+        public String safra;
+        public String ctv;
+        public String culture;
+    }
+
+    public class FinancialResult {
+        public Boolean isDiscount;
+        public String salesOrg;
+        public String salesOffice;
+        public String salesTeam;
+        public Map<String, Decimal> financialValues;
+    }
+
+    public class FinancialResultSerialize {
+        public Boolean isDiscount;
+        public String salesOrg;
+        public String salesOffice;
+        public String salesTeam;
+        public Map<String, Decimal> financialValues;
+
+        FinancialResultSerialize() {}
+
+        FinancialResultSerialize(FinancialResult financialResult) {
+            this.isDiscount = financialResult.isDiscount;
+            this.salesOrg = financialResult.salesOrg;
+            this.salesOffice = financialResult.salesOffice;
+            this.salesTeam = financialResult.salesTeam;
+            this.financialValues = financialResult.financialValues;
         }
     }
 }
