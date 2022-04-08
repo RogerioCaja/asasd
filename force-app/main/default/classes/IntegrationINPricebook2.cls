@@ -207,7 +207,6 @@ global with sharing class IntegrationINPricebook2 {
         List<String> salesOfficeLookups   = new List<String>();
         List<String> salesTeamLookups     = new List<String>();
         List<String> salesSectionLookups  = new List<String>();
-        List<String> productFamilyLookups = new List<String>();
         List<String> productGroupLookups  = new List<String>();
         List<String> productLookups       = new List<String>();
 
@@ -219,7 +218,6 @@ global with sharing class IntegrationINPricebook2 {
         response.put('salesOfficeLookups', salesOfficeLookups);
         response.put('salesTeamLookups', salesTeamLookups);
         response.put('salesSectionLookups', salesSectionLookups);
-        response.put('productFamilyLookups', productFamilyLookups);
         response.put('productGroupLookups', productGroupLookups);
         response.put('productLookups', productLookups);
 
@@ -241,7 +239,7 @@ global with sharing class IntegrationINPricebook2 {
             lookupMap.get('salesOfficeLookups').add(pricebook.salesOffice);
             lookupMap.get('salesTeamLookups').add(pricebook.salesTeam);
             lookupMap.get('salesSectionLookups').add(pricebook.salesSector);
-            lookupMap.get('productFamilyLookups').add(pricebook.productFamily);
+            lookupMap.get('productGroupLookups').add(pricebook.productGroup);
 
             if(pricebook.pricebookEntries != null){
                 for(TemplateDataIntegrationFields.PricebookEntryINData pricebookEntry : pricebook.pricebookEntries){
@@ -267,7 +265,7 @@ global with sharing class IntegrationINPricebook2 {
 
         setLookup(new ActivitySector__c(), new Set<String>{'Id', 'Codigo__c'}, 'Codigo__c', lookupMap.get('salesSectionLookups'), lookups);
 
-        setLookup(new ProductFamily__c(), new Set<String>{'Id', 'ExternalId__c'}, 'ExternalId__c', lookupMap.get('productFamilyLookups'), lookups);
+        setLookup(new ProductGroup__c(), new Set<String>{'Id', 'ExternalId__c'}, 'ExternalId__c', lookupMap.get('productGroupLookups'), lookups);
 
 
         FactoryDataIntegration.convertSObject(new Pricebook2(), 'IN', request, responseList, pricebookListToUpsert, lookups);

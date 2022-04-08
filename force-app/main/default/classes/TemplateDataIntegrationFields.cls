@@ -35,8 +35,9 @@ global with sharing class TemplateDataIntegrationFields {
         public String endDate;
         public String effectiveDate;
         public String typeCurrency;
+        public String numRegisterCondition;
         public Boolean active;
-        public String productFamily;
+        public String productGroup;
         public List<TemplateDataIntegrationFields.PricebookEntryINData> pricebookEntries;
 
         public Pricebook2 serialize(Map<String, Id> lookups){
@@ -46,7 +47,7 @@ global with sharing class TemplateDataIntegrationFields {
             return new Pricebook2(
                 Name = this.name,
                 ExternalId__c =  (String.isEmpty(this.codExternal) || String.isBlank(this.codExternal)) ? null : this.codExternal,
-                RecordTypeId = 	'0127e0000003FkIAAU',
+                RecordTypeId = Schema.SObjectType.Pricebook2.getRecordTypeInfosByName().get('RecordTypeId').getRecordTypeId(),
                 Description = description,
                 SalesOrg__c = lookups.containsKey('SalesOrg__c'+this.orgVendas) ? lookups.get('SalesOrg__c'+this.orgVendas) : null,
                 PriceList__c = listPrice,
@@ -61,8 +62,9 @@ global with sharing class TemplateDataIntegrationFields {
                 EndDate__c = Date.valueOf(endDate),
                 EffectiveDate__c = Date.valueOf(effectiveDate),
                 Currency__c = typeCurrency,
+                ConditionNumberRegister__c = this.numRegisterCondition,
                 IsActive = active,
-                ProductFamily__c = lookups.containsKey('ProductFamily__c'+this.productFamily) ? lookups.get('ProductFamily__c'+this.productFamily) : null
+                ProductGroup__c = lookups.containsKey('ProductGroup__c'+this.productGroup) ? lookups.get('ProductGroup__c'+this.productGroup) : null
             );
         }
         
@@ -76,7 +78,7 @@ global with sharing class TemplateDataIntegrationFields {
                 'EndDate__c',
                 'Currency__c',
                 'EffectiveDate__c',
-                'ProductFamily__c'
+                'ProductGroup__c'
             };
         }
 
@@ -147,6 +149,8 @@ global with sharing class TemplateDataIntegrationFields {
         public String initialDate;
         public String endDate;
         public String product;
+        public String center;
+        public String numRegisterCondition;
         public Integer percentage;
         public String typeCondition;
         public String priority;
@@ -169,7 +173,9 @@ global with sharing class TemplateDataIntegrationFields {
                 Product__c = lookups.containsKey('Product2'+this.product) ? lookups.get('Product2'+this.product) : null,
                 Percentage__c = this.percentage,
                 ConditionType__c = typeCondition == 'ZD00' ? 'ZD00 - Desconto de antecipação' : 'ZJ01 - Juros',
-                PriorityLevel__c = this.priority
+                PriorityLevel__c = this.priority,
+                DistributionCenter__c = lookups.containsKey('DistributionCenter__c'+this.center) ? lookups.get('DistributionCenter__c'+this.center) : null,
+                ConditionNumberRegister__c = this.numRegisterCondition
                
             );
         }
@@ -226,7 +232,8 @@ global with sharing class TemplateDataIntegrationFields {
         public Boolean active;
         public String productGroup;
         public String priority;
-        public String productFamily;
+        public String center;
+        public String numRegisterCondition;
         public String percentage;
         public String product;
         public List<TemplateDataIntegrationFields.PricebookEntryINData> pricebookEntries;
