@@ -268,14 +268,14 @@ export default class OrderProductScreen extends LightningElement {
                 if (this.isFilled(this.hectares)) {
                     this.addProduct.quantity = this.calculateMultiplicity(this.addProduct.dosage * this.hectares);
                     this.listTotalPrice = this.addProduct.listPrice * this.addProduct.quantity;
-                    this.calculateTotalPrice();
                     this.calculateDiscountOrAddition();
+                    this.calculateTotalPrice();
                 }
             } else if (fieldId == 'quantity') {
                 this.addProduct.quantity = this.calculateMultiplicity(this.addProduct.quantity);
                 this.listTotalPrice = this.addProduct.listPrice * this.addProduct.quantity;
-                this.calculateTotalPrice();
                 this.calculateDiscountOrAddition();
+                this.calculateTotalPrice();
             }
         }
     }
@@ -353,7 +353,7 @@ export default class OrderProductScreen extends LightningElement {
             let key3 = defaultKey + '-' + this.financialInfos.salesOffice;
             let key4 = defaultKey + '-' + this.addProduct.productGroupId;
             
-            let currentDiscountOrAddition = 0;
+            let currentDiscountOrAddition = 2;
             let financialValues = this.financialInfos.financialValues;
             if (this.isFilled(financialValues[key1])) {
                 currentDiscountOrAddition = financialValues[key1]
@@ -368,9 +368,7 @@ export default class OrderProductScreen extends LightningElement {
             }
 
             this.addProduct.financialAdditionPercentage = (this.financialInfos.isDiscount ? 0 : currentDiscountOrAddition) + '%';
-            console.log('this.addProduct.financialAdditionPercentage: ' + this.addProduct.financialAdditionPercentage);
             this.addProduct.financialDecreasePercentage = (this.financialInfos.isDiscount ? currentDiscountOrAddition : 0) + '%';
-            console.log('this.addProduct.financialDecreasePercentage: ' + this.addProduct.financialDecreasePercentage);
             this.addProduct.financialAdditionValue = this.calculateValue(this.addProduct.financialAdditionPercentage, this.addProduct.totalPrice);
             this.addProduct.financialDecreaseValue = this.calculateValue(this.addProduct.financialDecreasePercentage, this.addProduct.totalPrice);
         }
