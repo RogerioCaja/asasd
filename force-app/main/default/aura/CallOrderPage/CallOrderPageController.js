@@ -6,7 +6,8 @@
             componentAttributes: {
                 recordId: component.get("v.recordId"),
                 originScreen: window.location.pathname,
-                recordTypeId: component.get("v.pageReference").state.recordTypeId
+                recordTypeId: component.get("v.pageReference").state.recordTypeId,
+                clone: {cloneOrder: false, pricebookListId: ''}
             }
         });
         evt.fire();

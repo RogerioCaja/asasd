@@ -13,7 +13,9 @@ export default class OrderSummaryScreen extends LightningElement {
     
     @api summaryDataLocale;
     @api productDataLocale = [];
+    @api divisionDataLocale;
     @api headerData;
+    @api cloneData;
 
     connectedCallback(){
         this.summaryDataLocale = {... this.summaryData};
@@ -22,16 +24,19 @@ export default class OrderSummaryScreen extends LightningElement {
         approval({
             data: JSON.stringify(data)
         }).then((result) => {
-            this.approval = result;
+            if(result)
+                this.approval = result;
+            else
+                this.approval = 'Não precisa de aprovação'
         }).catch((err)=>{
             console.log(JSON.stringify(err));
         });
     }
 
     loadData(){
+       
         if(this.productData){
             this.productDataLocale = JSON.parse(JSON.stringify(this.productData));
-            console.log(JSON.stringify(this.productDataLocale));
             for(var i= 0; i< this.productDataLocale.length; i++){
                 this.productDataLocale[i]['unitPrice'] = this.formatCurrency(this.productDataLocale[i].unitPrice);
                 this.productDataLocale[i]['totalPrice']  = this.formatCurrency(this.productDataLocale[i].totalPrice);
@@ -39,6 +44,13 @@ export default class OrderSummaryScreen extends LightningElement {
                 this.productDataLocale[i]['commercialDiscountPercentage']  =  this.formatPercent(this.productDataLocale[i].commercialDiscountPercentage);
                 this.orderMargin += this.productDataLocale[i].commercialMarginPercentage;
                 this.productDataLocale[i]['commercialMarginPercentage']  = this.formatPercent( this.productDataLocale[i].commercialMarginPercentage);
+                this.productDataLocale[i]['divisionData'] = [];
+                if(this.divisionData){
+                    for(var j=0; j< this.divisionData.length; j++){
+                        if(this.divisionData[j].productPosition == i)
+                            this.productDataLocale[i]['divisionData'].push(this.divisionData[j])
+                    }
+                }
             }
             this.orderMargin = this.formatPercent(this.orderMargin);
         }
@@ -57,7 +69,7 @@ export default class OrderSummaryScreen extends LightningElement {
         try{
             if(num.toString().indexOf('%') != -1)
                 num = num.toString().split('%')[0];
-            return Number(num/100).toLocaleString(undefined,{style: 'percent', minimumFractionDigits:2});
+            return (parseFloat(num)/100).toLocaleString(undefined,{style: 'percent', minimumFractionDigits:2});
         }
         catch(err){
             console.log(err);

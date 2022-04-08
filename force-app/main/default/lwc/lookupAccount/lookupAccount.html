@@ -8,7 +8,9 @@
 			autocomplete="off"
             onfocusin={showDataMethod}
 			label="Cliente de Entrega"
-			name="searchInput">
+			name="searchInput"
+			required="true"
+			disabled={disabled}>
 		</lightning-input>
 
 		<template if:true={showData}>
@@ -42,12 +44,6 @@
 					</li>
 				  </template>
 
-				  <!-- <template if:true={noRecords}>
-					<li onclick={handleCreateRecord}
-						class="slds-var-p-vertical_small slds-var-p-horizontal_medium slds-list_horizontal slds-media_center new-record-container">
-							<h1>Nenhum registro encontrado.</h1>
-					</li>
-				  </template> -->
 				</ul>
 			</div>
 		</template>

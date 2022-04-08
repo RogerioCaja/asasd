@@ -20,11 +20,16 @@ export default class OrderScreen extends LightningElement {
     @api recordId;
     @api originScreen;
     @api recordTypeId;
+    @api clone;
+    @track cloneData = {
+        cloneOrder: false,
+        pricebookListId: ''
+    };
 
     @wire(getObjectInfo, {objectApiName: Order})
     getObjectData({data, error}){
         if(data){
-            if(this.recordTypeId != undefined){
+            if(this.recordTypeId != undefined && this.recordTypeId != ''){
                 var arrayType = data.recordTypeInfos[this.recordTypeId]
                 this.headerData.tipo_venda = arrayType.name;
             }
@@ -58,6 +63,8 @@ export default class OrderScreen extends LightningElement {
         forma_pagamento: " ",
         moeda: " ",
         ctv_venda: " ",
+        pedido_mae: {},
+        pedido_mae_check : false,
         frete: "CIF",
         org: {Name: " "},
         aprovation: " "
@@ -172,7 +179,7 @@ export default class OrderScreen extends LightningElement {
             return;
 
         this.isLoading = true;
-        getOrder({recordId: this.recordId})
+        getOrder({recordId: this.recordId, cloneOrder: this.clone.cloneOrder})
         .then((result) =>{
             const data = JSON.parse(result);
             this.accountData = data.accountData;
@@ -185,6 +192,40 @@ export default class OrderScreen extends LightningElement {
             this.enableScreens([0, 1, 2, 3]);
             this.completeScreens([0, 1, 2, 3]);
             this.isLoading = false;
+            this.cloneData.cloneOrder = this.clone.cloneOrder;
+            this.headerData.lista_precos = this.headerData.lista_precos != null ? this.headerData.lista_precos : ' ';
+            this.cloneData.pricebookListId = this.headerData.lista_precos != ' ' ?  this.headerData.lista_precos.Id : '';
+        })
+        .catch((err)=>{
+            console.log(err);
+            this.showNotification(err.message, 'Ocorreu algum erro');
+            this.isLoading = false;
+        })
+    }
+
+    getOrderMother(id, name){
+        console.log('getOrder');
+        if(this.headerData.Id != " ")
+            return;
+
+        this.isLoading = true;
+        getOrder({recordId: id, cloneOrder: this.clone.cloneOrder})
+        .then((result) =>{
+            const data = JSON.parse(result);
+            this.accountData = data.accountData;
+            this.headerData = data.headerData;
+            this.headerData.pedido_mae_check = false;
+            this.headerData.pedido_mae = {Id: id, Name: name};
+            this.productData = data.productData;
+            this.divisionData = data.divisionData;
+            this.summaryData['observation'] = this.headerData.observation;
+            this.summaryData['billing_sale_observation'] = this.headerData.billing_sale_observation;
+            this.enableScreens([0, 1, 2, 3]);
+            this.completeScreens([0, 1, 2, 3]);
+            this.isLoading = false;
+            this.cloneData.cloneOrder = this.clone.cloneOrder;
+            this.headerData.lista_precos = this.headerData.lista_precos != null ? this.headerData.lista_precos : ' ';
+            this.cloneData.pricebookListId = this.headerData.lista_precos != ' ' ?  this.headerData.lista_precos.Id : '';
         })
         .catch((err)=>{
             console.log(err);
@@ -237,7 +278,8 @@ export default class OrderScreen extends LightningElement {
         this.isLoading = true;
         //console.log(data);
         saveOrder({
-            orderId: (this.recordId && this.originScreen.includes('Order')) ? this.recordId : null, 
+            orderId: (this.recordId && this.originScreen.includes('Order')) ? this.recordId : null,
+            cloneOrder: this.cloneData.cloneOrder,
             data: JSON.stringify(data)
         })
         .then((result) => {
@@ -270,6 +312,7 @@ export default class OrderScreen extends LightningElement {
 
     _setHeaderData(event) {
         this.headerData = event.data;
+        if(this.headerData.IsOrderChild) this.getOrderMother(this.headerData.pedido_mae.Id, this.headerData.pedido_mae.Name);
         console.log('header data setted:', this.headerData);
         this.enableNextScreen();
         this.completeCurrentScreen();

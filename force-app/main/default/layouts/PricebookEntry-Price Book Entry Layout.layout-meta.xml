@@ -26,16 +26,12 @@
                 <behavior>Edit</behavior>
                 <field>CostPrice__c</field>
             </layoutItems>
-        </layoutColumns>
-        <layoutColumns>
-            <!-- <layoutItems>
-                <behavior>Edit</behavior>
-                <field>Product2Id__c</field>
-            </layoutItems
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>UnitPrice__c</field>
-            </layoutItems>> -->
+                <field>Code__c</field>
+            </layoutItems>
+        </layoutColumns>
+        <layoutColumns>
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>IsActive</field>

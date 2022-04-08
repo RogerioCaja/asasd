@@ -32,6 +32,7 @@ import SAFRA_OBJECT from '@salesforce/schema/Safra__c';
 import SAFRA_NAME from '@salesforce/schema/Safra__c.Name';
 
 import getAccountDataChild from '@salesforce/apex/OrderScreenController.getAccountDataChild';
+import getOrderMothers from '@salesforce/apex/OrderScreenController.getOrderMothers';
 
 //import FILIAL_OBJECT from '@salesforce/schema/';
 //import FILIAL_NAME from '@salesforce/schema/';
@@ -39,9 +40,12 @@ import getAccountDataChild from '@salesforce/apex/OrderScreenController.getAccou
 export default class OrderHeaderScreen extends LightningElement {
     readonly = false;
     booleanTrue = true;
+    disabled = false;
+    currentDate;
 
     @api accountData;
     @api accountChildData;
+    @api orderMother;
 
     @api headerData;
     @api headerDictLocale ={
@@ -65,13 +69,17 @@ export default class OrderHeaderScreen extends LightningElement {
         forma_pagamento: " ",
         moeda: " ",
         ctv_venda: " ",
+        pedido_mae: {},
+        pedido_mae_check : false,
         frete: "CIF",
         org: {Name: " "},
-        aprovation: null
+        aprovation: null,
+        IsOrderChild : false
     };
 
     @api productData;
     @api divisionData;
+    @api cloneData;
 
     @track pass = false;
 
@@ -261,14 +269,31 @@ export default class OrderHeaderScreen extends LightningElement {
 
     
     connectedCallback(){
+        let today = new Date();
+        let dd = String(today.getDate()).padStart(2, '0');
+        let mm = String(today.getMonth() + 1).padStart(2, '0');
+        let yyyy = today.getFullYear();
+
+        this.currentDate = yyyy + '-' + mm + '-' + dd;
 
         this.loadDataHeader();
         getAccountDataChild({accountId: this.accountData.Id})
         .then((result) =>{
+            console.log(result);
             const accountsChild = JSON.parse(result);
             this.accountChildData = accountsChild.accountList;
         })
         .catch((err)=>{
+        });
+        console.log('orelhao');
+        getOrderMothers().then((result) =>{
+            console.log(result);
+            const orderData = JSON.parse(result);
+            this.orderMother = orderData;
+            console.log(this.orderMother);
+        })
+        .catch((err)=>{
+            console.log(err);
         });
     
     }
@@ -306,15 +331,30 @@ export default class OrderHeaderScreen extends LightningElement {
         return ((field !== undefined && field != null && field != '') || field == 0);
     }
     selectItemRegister(event){
-        try{
+        try{ 
             if(this.isFilled(event)){
                 var field = event.target.name;
-                if(event.detail.value){
-                    this.headerDictLocale[field] = event.detail.value;
+                if(event.target.value || event.target.checked){
+                    if ((field == 'data_pagamento' || field == 'data_entrega') && this.currentDate > event.detail.value) {
+                        this.headerDictLocale[field] = null;
+                        let headerValues = JSON.parse(JSON.stringify(this.headerData));
+                        headerValues[field] = null;
+                        this.headerData = JSON.parse(JSON.stringify(headerValues));
+                        console.log('this.headerData: ' + JSON.stringify(this.headerData));
+                        this.showToast('warning', 'Atenção!', 'Só é possível selecionar uma data maior ou igual a data atual.');
+                    } else {
+                        this.headerDictLocale[field] = field != 'pedido_mae_check' ? event.detail.value : event.target.checked;
+                    }
                 }
                 else{
-                        const { record } = event.detail;
-                        this.headerDictLocale[field] = (this.registerDetails.includes(field) ? this.resolveRegister(record)  : {Id: record.Id, Name: record.Name});
+                    const { record } = event.detail;
+                    this.headerDictLocale[field] = (this.registerDetails.includes(field) ? this.resolveRegister(record)  : {Id: record.Id, Name: record.Name});
+                    if(field == 'pedido_mae') { 
+                        this.headerDictLocale.IsOrderChild = true; 
+                        this.pass = true; 
+                        this.disabled = true;
+                        this._setData();
+                    }
                 }
             }  
         }
@@ -338,9 +378,14 @@ export default class OrderHeaderScreen extends LightningElement {
     }
   
     removeItemRegister(event){
-        var field = event.target.name;
-        this.headerDictLocale[field] = null;
-        this._setData();
+        try{
+            var field = event.target.name;
+            this.headerDictLocale[field] = null;
+            this.headerDictLocale.IsOrderChild = field == 'pedido_mae' ? false : null;
+            this._setData();
+        }catch(err){
+            console.log(err);
+        }
     }
 
     @api
@@ -355,33 +400,41 @@ export default class OrderHeaderScreen extends LightningElement {
     @api
     verifyMandatoryFields() {
         try{
-        if ((this.headerDictLocale.tipo_venda !== undefined &&
-            this.headerDictLocale.safra.Id !== undefined &&
-            this.headerDictLocale.cultura.Id !== undefined &&
-            this.headerDictLocale.data_pagamento !== undefined &&
-            this.headerDictLocale.lista_precos.Id !== undefined &&
-            this.headerDictLocale.condicao_pagamento.Id !== undefined &&
-            this.headerDictLocale.moeda !== undefined &&
-            this.headerDictLocale.numero_pedido_cliente !== undefined &&
-            this.headerDictLocale.ctv_venda.Id !==undefined &&
-            this.headerDictLocale.forma_pagamento !== undefined &&
-            this.headerDictLocale.cliente_entrega.Id !== undefined) || this.pass
+            if ((this.headerDictLocale.tipo_venda !== undefined &&
+                this.headerDictLocale.safra.Id !== undefined &&
+                this.headerDictLocale.cultura.Id !== undefined &&
+                this.headerDictLocale.data_pagamento !== undefined &&
+                this.headerDictLocale.lista_precos != ' ' &&
+                this.headerDictLocale.lista_precos.Id !== undefined &&
+                this.headerDictLocale.condicao_pagamento.Id !== undefined &&
+                this.headerDictLocale.moeda !== undefined &&
+                this.headerDictLocale.numero_pedido_cliente !== undefined &&
+                this.headerDictLocale.ctv_venda.Id !==undefined &&
+                this.headerDictLocale.forma_pagamento !== undefined &&
+                this.headerDictLocale.cliente_entrega.Id !== undefined) || this.pass
             ) {
-            return true;
+                return true;
+            }
+        } catch(err){
+            console.log(err);
         }
-    }
-    catch(err){
-        console.log(err);
-    }
+
         return false; 
-        
     }
 
     _setData() {
-       
         const setHeaderData = new CustomEvent('setheaderdata');
         setHeaderData.data = this.headerDictLocale;
+        // this.headerDictLocale.IsOrderChild = false;
         this.dispatchEvent(setHeaderData);
-       
+    }
+
+    showToast(type, title, message) {
+        let event = new ShowToastEvent({
+            variant: type,
+            title: title,
+            message: message,
+        });
+        this.dispatchEvent(event);
     }
 }
