@@ -3,8 +3,8 @@
     <fullName>ProductGroup__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
     <externalId>false</externalId>
-    <label>Grupo de Produtos</label>
-    <referenceTo>ProductFamily__c</referenceTo>
+    <label>Grupo de Produto</label>
+    <referenceTo>ProductGroup__c</referenceTo>
     <relationshipLabel>Price Books</relationshipLabel>
     <relationshipName>Price_Books</relationshipName>
     <required>false</required>
