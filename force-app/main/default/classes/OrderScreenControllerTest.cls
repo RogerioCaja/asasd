@@ -226,4 +226,9 @@ public class OrderScreenControllerTest {
         String data = JSON.serialize(orderData);
         OrderScreenController.getFinancialInfos(data);
     }
+
+    @isTest
+    public static void getOrderMothersTest() {
+        OrderScreenController.getOrderMothers();
+    }
 }

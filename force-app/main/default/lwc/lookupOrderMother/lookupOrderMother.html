@@ -4,12 +4,11 @@
 		<lightning-input
 			type="search"
 			class="slds-container_fluid"
-			placeholder="Selecione uma conta"
+			placeholder="Selecione um Pedido Mãe"
 			autocomplete="off"
             onfocusin={showDataMethod}
-			label="Cliente de Entrega"
+			label="Pedido Mãe"
 			name="searchInput"
-			required="true"
 			disabled={disabled}>
 		</lightning-input>
 
@@ -17,28 +16,22 @@
 			<div class="bg-list-full" onclick={handleCloseList}></div>
 			<div class="container-records-list slds-container_fluid slds-is-absolute">
 				<ul>
-				  <template for:each={accountList} for:item="account">
-					<li key={account.Id}
-						data-value={account.Id}
-						onclick={selectAccountChild}
+				  <template for:each={orderList} for:item="record">
+					<li key={record.Id}
+						data-value={record.Id}
+						onclick={selectOrderMother}
 						class="slds-var-p-vertical_small slds-var-p-horizontal_medium slds-list_horizontal slds-media_center slds-truncate list-item">
 							<lightning-icon
-								data-value={account.Id}
+								data-value={record.Id}
 								icon-name="standard:avatar"
-								title="Account"
+								title="Order"
 								size="small"
 								class="slds-var-m-right_small">
 							</lightning-icon>
 							<div class="slds-truncate">
-								<h1 data-value={account.Id} class="slds-truncate">{account.Name}</h1>
-								<div data-value={account.Id} class="slds-text-color_weak slds-truncate">
-                                    <div class="dados">
-                                        <span>Código SAP:  {account.CodSap}</span>
-                                        <span if:true={account.CNPJ}>CPF/CNPJ: {account.CNPJ}</span>
-                                        <span if:true={account.CPF}>CPF/CNPJ: {account.CPF}</span>
-                                        <span>Cidade: {account.City}</span>
-                                        <span>UF: {account.UF}</span>
-                                    </div>
+								<h1 data-value={record.Id} class="slds-truncate">{record.Name}</h1>
+								<div data-value={record.Id} class="slds-text-color_weak slds-truncate">
+									{record.Name}
 								</div>
 							</div>
 					</li>
@@ -51,7 +44,7 @@
 
 	  <template if:true={selectedRecord}>
 		<div>
-		  <label class="slds-form-element__label">Conta</label>
+		  <label class="slds-form-element__label">Pedido Mãe</label>
 
 		  <div class="slds-var-p-vertical_xx-small slds-var-p-horizontal_small selected-record slds-list_horizontal slds-media_center slds-grid_align-spread">
 			<div class="slds-list_horizontal slds-media_center slds-truncate">

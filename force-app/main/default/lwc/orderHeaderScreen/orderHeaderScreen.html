@@ -71,21 +71,8 @@
                 <div class="slds-form-element__control">
                     <div class="slds-form-element__row">
                         <div class="slds-form-element slds-size_1-of-4">
-                            <!-- <c-lookup 
-                                input-label="Cliente de Entrega" 
-                                object-icon-name="standard:action_list_component"
-                                target-object={redispatchClienteEntregaObject}
-                                search-fields={redispatchClienteEntregaSearchFields}
-                                record-id={headerData.cliente_entrega} 
-                                standard-form-layout={booleanTrue}
-                                list-item-options={redispatchClienteEntregaListItemOptions} 
-                                new-record-button="true"
-                                onselectrecord={selectClienteEntrega} 
-                                placeholder="Pesquisar Cliente de Entrega"
-                                style="width: 100%;" 
-                                required="true">
-                            </c-lookup> -->
-                            <c-lookup-account name="cliente_entrega" record-id={headerData.cliente_entrega.Id} onclearselectedrecord={removeItemRegister} onselectrecord={selectItemRegister} account-list={accountChildData}></c-lookup-account>
+                           
+                            <c-lookup-account name="cliente_entrega" record-id={headerData.cliente_entrega.Id} onclearselectedrecord={removeItemRegister} onselectrecord={selectItemRegister} account-list={accountChildData} disabled={disabled}></c-lookup-account>
                         </div>
                         <div class="slds-form-element slds-size_1-of-4">
                             <lightning-input
@@ -122,7 +109,8 @@
                                 onselectrecord={selectItemRegister} 
                                 placeholder="Pesquisar CTV da Venda"
                                 style="width: 100%;" 
-                                required="true">
+                                required="true"
+                                disabled={disabled}>
                             </c-lookup>
                         </div>  
                     </div>
@@ -142,7 +130,8 @@
                                 onselectrecord={selectItemRegister} 
                                 placeholder="Pesquisar Safras" 
                                 style="width: 100%;"
-                                required="true">
+                                required="true"
+                                disabled={disabled}>
                             </c-lookup>
                         </div>
                         <div class="slds-form-element slds-size_1-of-4">
@@ -160,7 +149,8 @@
                                 standard-form-layout={booleanTrue} 
                                 placeholder="Pesquisar Culturas" 
                                 style="width: 100%;"
-                                required="true">
+                                required="true"
+                                disabled={disabled}>
                             </c-lookup>
                         </div>
                         <div class="slds-form-element slds-size_1-of-4">
@@ -178,7 +168,8 @@
                                 onselectrecord={selectItemRegister} 
                                 placeholder="Pesquisar Lista de Preços"
                                 style="width: 100%;" 
-                                required="true">
+                                required="true"
+                                disabled={disabled}>
                             </c-lookup>
                         </div>
                     </div>
@@ -222,7 +213,8 @@
                                 type="date" 
                                 date-style="short" 
                                 onchange={selectItemRegister} 
-                                required="true">
+                                required="true"
+                                disabled={disabled}>
                             </lightning-input>
                         </div>
                         <div class="slds-size_1-of-4">
@@ -257,7 +249,8 @@
                                 value={headerData.moeda} 
                                 onchange={selectItemRegister} 
                                 options={moedas} 
-                                required="true">
+                                required="true"
+                                disabled={disabled}>
                             </lightning-combobox>
                         </div>
                         <div class="slds-size_1-of-4">
@@ -286,15 +279,7 @@
                             
                         </div>
                         <div class="slds-size_1-of-4">
-                            <lightning-input 
-                            name="pedido_mae"
-                            label="Pedido Mãe" 
-                            field-name="pedido_mae"
-                            value={headerData.pedido_mae} 
-                            type="text" 
-                            disabled="true"
-                            required="true">
-                            </lightning-input>
+                            <c-lookup-order-mother name="pedido_mae" record-id={headerData.pedido_mae.Id} onclearselectedrecord={removeItemRegister} onselectrecord={selectItemRegister} order-list={orderMother} disabled={disabled}></c-lookup-order-mother>
                         </div>
                         <div class="slds-size_1-of-4">
                             <lightning-input 
@@ -304,8 +289,17 @@
                             value={headerData.hectares}
                             onchange={selectItemRegister}
                             type="text" 
-                            required="true">
+                            required="true"
+                            disabled={disabled}>
                             </lightning-input>
+                        </div>
+                    </div>
+                    <div class="slds-form-element__row">
+                        <div class="slds-size_1-of-4">
+                            Pedido Mãe: 
+                            <input  if:true={headerData.pedido_mae_check} type="checkbox" id="check0" name="pedido_mae_check" value="yes" onchange={selectItemRegister} checked>
+                            <input  if:false={headerData.pedido_mae_check} type="checkbox" id="check1" name="pedido_mae_check" value="no" onchange={selectItemRegister} disabled={headerDictLocale.IsOrderChild}>
+                            
                         </div>
                     </div>
                     
