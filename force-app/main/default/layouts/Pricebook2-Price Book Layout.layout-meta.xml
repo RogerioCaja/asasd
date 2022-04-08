@@ -50,6 +50,14 @@
                 <behavior>Edit</behavior>
                 <field>SalesSection__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>ConditionNumberRegister__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>ProductGroup__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>
@@ -63,10 +71,6 @@
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>EndDate__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
-                <field>ProductFamily__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>

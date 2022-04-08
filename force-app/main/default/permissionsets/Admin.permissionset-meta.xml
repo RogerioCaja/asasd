@@ -1164,26 +1164,26 @@
         <field>Pricebook2.Account__c</field>
         <readable>true</readable>
     </fieldPermissions>
-    <!-- <fieldPermissions>
-        <editable>false</editable>
-        <field>Pricebook2.ActivitySector__c</field>
-        <readable>false</readable>
-    </fieldPermissions> -->
     <fieldPermissions>
         <editable>true</editable>
         <field>Pricebook2.Center__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>false</editable>
+        <field>Pricebook2.ConditionNumberRegister__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>true</editable>
         <field>Pricebook2.Crop__c</field>
         <readable>true</readable>
     </fieldPermissions>
-    <!-- <fieldPermissions>
+    <fieldPermissions>
         <editable>false</editable>
         <field>Pricebook2.Culture__c</field>
         <readable>false</readable>
-    </fieldPermissions> -->
+    </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
         <field>Pricebook2.Currency__c</field>
@@ -1225,9 +1225,9 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
-        <field>Pricebook2.ProductFamily__c</field>
-        <readable>true</readable>
+        <editable>false</editable>
+        <field>Pricebook2.ProductGroup__c</field>
+        <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
@@ -1239,11 +1239,16 @@
         <field>Pricebook2.SalesOffice__c</field>
         <readable>true</readable>
     </fieldPermissions>
-    <!-- <fieldPermissions>
+    <fieldPermissions>
         <editable>false</editable>
         <field>Pricebook2.SalesOrg__c</field>
         <readable>false</readable>
-    </fieldPermissions> -->
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Pricebook2.SalesSection__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
         <field>Pricebook2.SalesTeam__c</field>
