@@ -185,11 +185,18 @@
                                   </svg>
                               </a>
                               <div class="tooltiptext">
-                              <p>Data      Quantidade</p>
-                              <br>
-                              <p>02/08/2022    1500</p>
-                              <br>
-                              <p>28/08/2022    1500</p>
+                                  <table>
+                                      <tr>
+                                          <th>Data</th>
+                                          <th>Quantidade</th>
+                                      </tr>
+                                      <template for:each={product.divisionData} for:item="division">
+                                        <tr key={division.deliveryId}>
+                                            <td>{division.deliveryDate}</td>
+                                            <td>{division.quantity}</td>
+                                        </tr>
+                                     </template>
+                                  </table>
                               </div> 
                           </div>  
                       </td>
@@ -204,7 +211,7 @@
                     <div class="triangle"></div>
                     </button> -->
                 </span>
-                <textarea data-id="observacao" rows="5" placeholder="Observações sobre o pedido" onkeyup={changeObservation}>{summaryDataLocale.observation}</textarea>
+                <textarea data-id="observacao" rows="5" placeholder="Observações sobre o pedido" onkeyup={changeObservation} disabled={headerData.IsOrderChild}>{summaryDataLocale.observation}</textarea>
             </div>
             <div>
                 <span class="titulo">Observações de Nota:

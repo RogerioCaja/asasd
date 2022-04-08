@@ -32,6 +32,7 @@ import SAFRA_OBJECT from '@salesforce/schema/Safra__c';
 import SAFRA_NAME from '@salesforce/schema/Safra__c.Name';
 
 import getAccountDataChild from '@salesforce/apex/OrderScreenController.getAccountDataChild';
+import getOrderMothers from '@salesforce/apex/OrderScreenController.getOrderMothers';
 
 //import FILIAL_OBJECT from '@salesforce/schema/';
 //import FILIAL_NAME from '@salesforce/schema/';
@@ -39,9 +40,11 @@ import getAccountDataChild from '@salesforce/apex/OrderScreenController.getAccou
 export default class OrderHeaderScreen extends LightningElement {
     readonly = false;
     booleanTrue = true;
+    disabled = false;
 
     @api accountData;
     @api accountChildData;
+    @api orderMother;
 
     @api headerData;
     @api headerDictLocale ={
@@ -65,9 +68,12 @@ export default class OrderHeaderScreen extends LightningElement {
         forma_pagamento: " ",
         moeda: " ",
         ctv_venda: " ",
+        pedido_mae: {},
+        pedido_mae_check : false,
         frete: "CIF",
         org: {Name: " "},
-        aprovation: null
+        aprovation: null,
+        IsOrderChild : false
     };
 
     @api productData;
@@ -266,10 +272,21 @@ export default class OrderHeaderScreen extends LightningElement {
         this.loadDataHeader();
         getAccountDataChild({accountId: this.accountData.Id})
         .then((result) =>{
+            console.log(result);
             const accountsChild = JSON.parse(result);
             this.accountChildData = accountsChild.accountList;
         })
         .catch((err)=>{
+        });
+        console.log('orelhao');
+        getOrderMothers().then((result) =>{
+            console.log(result);
+            const orderData = JSON.parse(result);
+            this.orderMother = orderData;
+            console.log(this.orderMother);
+        })
+        .catch((err)=>{
+            console.log(err);
         });
     
     }
@@ -307,15 +324,21 @@ export default class OrderHeaderScreen extends LightningElement {
         return ((field !== undefined && field != null && field != '') || field == 0);
     }
     selectItemRegister(event){
-        try{
+        try{ 
             if(this.isFilled(event)){
                 var field = event.target.name;
-                if(event.detail.value){
-                    this.headerDictLocale[field] = event.detail.value;
+                if(event.target.value || event.target.checked){
+                    this.headerDictLocale[field] = field != 'pedido_mae_check' ? event.detail.value : event.target.checked;
                 }
                 else{
-                        const { record } = event.detail;
-                        this.headerDictLocale[field] = (this.registerDetails.includes(field) ? this.resolveRegister(record)  : {Id: record.Id, Name: record.Name});
+                    const { record } = event.detail;
+                    this.headerDictLocale[field] = (this.registerDetails.includes(field) ? this.resolveRegister(record)  : {Id: record.Id, Name: record.Name});
+                    if(field == 'pedido_mae') { 
+                        this.headerDictLocale.IsOrderChild = true; 
+                        this.pass = true; 
+                        this.disabled = true;
+                        this._setData();
+                    }
                 }
             }  
         }
@@ -339,9 +362,14 @@ export default class OrderHeaderScreen extends LightningElement {
     }
   
     removeItemRegister(event){
-        var field = event.target.name;
-        this.headerDictLocale[field] = null;
-        this._setData();
+        try{
+            var field = event.target.name;
+            this.headerDictLocale[field] = null;
+            this.headerDictLocale.IsOrderChild = field == 'pedido_mae' ? false : null;
+            this._setData();
+        }catch(err){
+            console.log(err);
+        }
     }
 
     @api
@@ -381,6 +409,7 @@ export default class OrderHeaderScreen extends LightningElement {
     _setData() {
         const setHeaderData = new CustomEvent('setheaderdata');
         setHeaderData.data = this.headerDictLocale;
+        // this.headerDictLocale.IsOrderChild = false;
         this.dispatchEvent(setHeaderData);
     }
 }
