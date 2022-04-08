@@ -7,10 +7,7 @@ import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getSafraInfos from '@salesforce/apex/OrderScreenController.getSafraInfos';
 
 
-const actions = [
-    { label: 'Editar', name: 'edit' },
-    { label: 'Divisão de Remessas', name: 'shippingDivision' },
-];
+let actions = [];
 export default class OrderProductScreen extends LightningElement {
     @track addProduct={};
     costPrice;
@@ -66,6 +63,9 @@ export default class OrderProductScreen extends LightningElement {
             this.allDivisionProducts = this.isFilled(this.divisionData) ? this.divisionData : [];
         }
 
+        if (this.headerData.pedido_mae_check) actions.push({ label: 'Editar', name: 'edit' });
+        else actions.push({ label: 'Editar', name: 'edit' },{ label: 'Divisão de Remessas', name: 'shippingDivision' });
+
         this.showIncludedProducts = this.products.length > 0;
         this.applySelectedColumns(event);
 
@@ -107,6 +107,7 @@ export default class OrderProductScreen extends LightningElement {
                 financialDecreasePercentage: '',
                 financialDecreaseValue: null,
                 invoicedQuantity: currentProduct.invoicedQuantity,
+                motherAvailableQuantity: currentProduct.motherAvailableQuantity,
                 activePrinciple: currentProduct.activePrinciple != null ? currentProduct.activePrinciple : '',
                 productGroupId: currentProduct.productGroupId != null ? currentProduct.productGroupId : '',
                 productGroupName: currentProduct.productGroupName != null ? currentProduct.productGroupName : '',
@@ -263,6 +264,11 @@ export default class OrderProductScreen extends LightningElement {
     calculateMultiplicity(quantity) {
         if (this.isFilled(this.multiplicity)) {
             let remainder = quantity % this.multiplicity;
+            if (this.addProduct.motherAvailableQuantity != null &&  quantity > this.addProduct.motherAvailableQuantity) {
+                this.showToast('warning', 'Atenção!', 'A quantidade não pode ultrapassar ' + this.addProduct.motherAvailableQuantity + '.');
+                return this.addProduct.motherAvailableQuantity;
+            }
+
             if (remainder == 0) {
                 return quantity;
             } else {
@@ -490,6 +496,7 @@ export default class OrderProductScreen extends LightningElement {
             totalPrice: currentProduct.totalPrice,
             dosage: currentProduct.dosage,
             quantity: currentProduct.quantity,
+            motherAvailableQuantity: currentProduct.motherAvailableQuantity,
             invoicedQuantity: currentProduct.invoicedQuantity,
             position: currentProduct.position
         }

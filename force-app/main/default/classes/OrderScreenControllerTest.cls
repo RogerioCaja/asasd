@@ -174,4 +174,9 @@ public class OrderScreenControllerTest {
         Id safraId = [SELECT Id FROM Safra__c LIMIT 1].Id;
         OrderScreenController.getSafraInfos(safraId);
     }
+
+    @isTest
+    public static void getOrderMothersTest() {
+        OrderScreenController.getOrderMothers();
+    }
 }

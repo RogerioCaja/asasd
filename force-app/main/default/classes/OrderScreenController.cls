@@ -74,7 +74,8 @@ public without sharing class OrderScreenController {
                    FinancialDiscountPercent__c,
                    FinancialDiscountValue__c,
                    ComissionValue__c,
-                   CommercialMargin__c
+                   CommercialMargin__c,
+                   AmountUsed__c
               FROM OrderItem
              WHERE OrderId =: orderId
         ]){
@@ -82,6 +83,7 @@ public without sharing class OrderScreenController {
             orderItemsPosition.put(item.Id, counter);
             counter++;
         }
+
         return prods;
     }
 
@@ -133,31 +135,32 @@ public without sharing class OrderScreenController {
     public static string getOrderMothers(){
         try 
         {
-            List<InformationFields> orders = new  List<InformationFields> ();
+            List<InformationFields> orders = new List<InformationFields>();
             Q subQuery = new Q('OrderItems')
                                 .selectFields(new Set<String>{'AmountUsed__c', 'Quantity'});
 
             String query = new Q(Order.SObjectType)
                             .addSubquery(subQuery)
-                           .selectFields(new Set<String>{'Id', 'CustomerOrderNumber__c'})
-                           .add(Q.conditionGroup(
+                            .selectFields(new Set<String>{'Id', 'CustomerOrderNumber__c'})
+                            .add(Q.conditionGroup(
                             new List<Qcondition>{
                             Q.condition('SalesCTV__c').equalsTo(UserInfo.getUserId()), 
+                            Q.condition('Crop__r.StartDateOrderInsertion__c').isLessOrEquals(System.today()), 
+                            Q.condition('Crop__r.EndDateInsertionOrders__c').isGreaterThan(System.today()), 
                             Q.condition('IsOrderMother__c').equalsTo(true)})
                             .setLogicalOperatorAsAnd()).build();
-
             List<Order> orderList = Database.query(query);
 
-           
-            for(Order order : orderList){
-                for(OrderItem orderItem : order.OrderItems){
-                    if(orderItem.AmountUsed__c < orderItem.Quantity) orders.add(new InformationFields(order.Id, order.CustomerOrderNumber__c));
+            for (Order order : orderList) {
+                Boolean isAvalaible = false;
+                for (OrderItem orderItem : order.OrderItems) {
+                    if (orderItem.AmountUsed__c < orderItem.Quantity) isAvalaible = true;
                 }
+
+                if (isAvalaible) orders.add(new InformationFields(order.Id, order.CustomerOrderNumber__c));
             }
 
             return JSON.serialize(orders);
-
-            
         } catch (Exception e) {
             throw new AuraHandledException(e.getMessage());
         }
@@ -351,6 +354,23 @@ public without sharing class OrderScreenController {
             order.IsOrderMother__c = Boolean.valueOf(orderData.headerData.pedido_mae_check);
             order.FinalTotalValue__c = orderTotalValue;
 
+            Map<Id, OrderItem> motherItems = new Map<Id, OrderItem>();
+            Boolean newDivision = false;
+            if (order.OrderReference__c != null) {
+                for (OrderItem item : [
+                    SELECT Id,
+                           Quantity,
+                           AmountUsed__c
+                      FROM OrderItem
+                     WHERE OrderId =: order.OrderReference__c
+                ]) {
+                    motherItems.put(item.Id, item);
+                }
+
+                newDivision = newOrder ? true : false;
+            }
+            System.debug('newDivision: ' + newDivision);
+
             Database.UpsertResult insResults = Database.upsert(order, false);
             if (insResults.isSuccess()) {
                 msg = 'Pedido ' + (newOrder ? 'criado' : 'atualizado') + ' com sucesso';
@@ -362,6 +382,7 @@ public without sharing class OrderScreenController {
                     'Crédito Liberado' => '3',
                     'Cancelado' => 'X'
                 };
+
                 for (ProductDeserialize orderProduct : orderData.productData) {
                     OrderItem orderItem;
                     if (!newOrder && orderItemsById.containsKey(orderProduct.orderItemId)) {
@@ -372,7 +393,13 @@ public without sharing class OrderScreenController {
                         orderItem.PricebookEntryId = orderProduct.entryId;
                         orderItem.Product2Id = orderProduct.productId;
                         orderItem.ListPrice = orderProduct.listPrice;
-                        orderItem.AmountUsed__c = 0;
+                        orderItem.AmountUsed__c = order.IsOrderMother__c ? 0 : null;
+                    }
+                    
+                    if (motherItems.containsKey(orderProduct.orderItemId)) {
+                        OrderItem motherItem = motherItems.get(orderProduct.orderItemId);
+                        motherItem.AmountUsed__c = motherItem.AmountUsed__c != null ? motherItem.AmountUsed__c + orderProduct.quantity : 0;
+                        motherItems.put(orderProduct.orderItemId, motherItem);
                     }
 
                     orderItem.ServiceDate = System.today();
@@ -401,6 +428,7 @@ public without sharing class OrderScreenController {
                     orderItem.ComissionValue__c = orderItem.PercentComission__c != 0 ? (orderItem.FinalTotalValue__c * orderItem.PercentComission__c) / 100 : 0;
                     listOrderItems.add(orderItem);
                 }
+                update motherItems.values();
 
                 String orderItemErrors = '';
                 Set<Id> itemsIds = new Set<Id>();
@@ -462,7 +490,8 @@ public without sharing class OrderScreenController {
                         shippingDivision.Quantity__c = division.quantity;
                         shippingDivision.ExternalId__c = division.externalId;
                         shippingDivision.ConfirmedQuantity__c = division.confirmedQuantity != null ? division.confirmedQuantity : 0;
-                        shippingDivision.OrderItem__c = !cloneOrder && division.orderItemId != null ? division.orderItemId : mapOrderItems.get(division.orderItemKey);
+                        shippingDivision.OrderItem__c = !cloneOrder && !newDivision && division.orderItemId != null ?
+                                                        division.orderItemId : mapOrderItems.get(division.orderItemKey);
                         listShippingDivision.add(shippingDivision);
                     }
 
@@ -636,6 +665,7 @@ public without sharing class OrderScreenController {
         public String productGroupName;
         public Integer position;
         public Decimal invoicedQuantity;
+        public Decimal motherAvailableQuantity;
         public Decimal quantity;
         public Decimal listPrice;
         public Decimal unitPrice;
@@ -853,6 +883,7 @@ public without sharing class OrderScreenController {
         public Decimal multiplicity;
         public Decimal invoicedQuantity;
         public Decimal quantity;
+        public Decimal motherAvailableQuantity;
         public Decimal listPrice;
         public Decimal unitPrice;
         public Decimal totalPrice;
@@ -883,8 +914,9 @@ public without sharing class OrderScreenController {
             this.entryId = orderItem.PricebookEntryId;
             this.orderId = OrderId;
             this.serviceDate = orderItem.ServiceDate;
-            this.quantity = orderItem.Quantity;
+            this.quantity = orderItem.AmountUsed__c != 0 && orderItem.AmountUsed__c != null ? orderItem.Quantity - orderItem.AmountUsed__c : orderItem.Quantity;
             this.invoicedQuantity = orderItem.InvoicedQuantity__c;
+            this.motherAvailableQuantity = orderItem.AmountUsed__c != null ? orderItem.Quantity - orderItem.AmountUsed__c : null;
             this.listPrice = orderItem.ListPrice;
             this.unitPrice = orderItem.UnitPrice;
             this.totalPrice = orderItem.FinalTotalValue__c;
