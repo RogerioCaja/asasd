@@ -353,7 +353,7 @@ export default class OrderProductScreen extends LightningElement {
             let key3 = defaultKey + '-' + this.financialInfos.salesOffice;
             let key4 = defaultKey + '-' + this.addProduct.productGroupId;
             
-            let currentDiscountOrAddition = 2;
+            let currentDiscountOrAddition = 0;
             let financialValues = this.financialInfos.financialValues;
             if (this.isFilled(financialValues[key1])) {
                 currentDiscountOrAddition = financialValues[key1]
