@@ -41,6 +41,7 @@ export default class OrderHeaderScreen extends LightningElement {
     readonly = false;
     booleanTrue = true;
     disabled = false;
+    currentDate;
 
     @api accountData;
     @api accountChildData;
@@ -268,6 +269,12 @@ export default class OrderHeaderScreen extends LightningElement {
 
     
     connectedCallback(){
+        let today = new Date();
+        let dd = String(today.getDate()).padStart(2, '0');
+        let mm = String(today.getMonth() + 1).padStart(2, '0');
+        let yyyy = today.getFullYear();
+
+        this.currentDate = yyyy + '-' + mm + '-' + dd;
 
         this.loadDataHeader();
         getAccountDataChild({accountId: this.accountData.Id})
@@ -328,7 +335,16 @@ export default class OrderHeaderScreen extends LightningElement {
             if(this.isFilled(event)){
                 var field = event.target.name;
                 if(event.target.value || event.target.checked){
-                    this.headerDictLocale[field] = field != 'pedido_mae_check' ? event.detail.value : event.target.checked;
+                    if ((field == 'data_pagamento' || field == 'data_entrega') && this.currentDate > event.detail.value) {
+                        this.headerDictLocale[field] = null;
+                        let headerValues = JSON.parse(JSON.stringify(this.headerData));
+                        headerValues[field] = null;
+                        this.headerData = JSON.parse(JSON.stringify(headerValues));
+                        console.log('this.headerData: ' + JSON.stringify(this.headerData));
+                        this.showToast('warning', 'Atenção!', 'Só é possível selecionar uma data maior ou igual a data atual.');
+                    } else {
+                        this.headerDictLocale[field] = field != 'pedido_mae_check' ? event.detail.value : event.target.checked;
+                    }
                 }
                 else{
                     const { record } = event.detail;
@@ -411,5 +427,14 @@ export default class OrderHeaderScreen extends LightningElement {
         setHeaderData.data = this.headerDictLocale;
         // this.headerDictLocale.IsOrderChild = false;
         this.dispatchEvent(setHeaderData);
+    }
+
+    showToast(type, title, message) {
+        let event = new ShowToastEvent({
+            variant: type,
+            title: title,
+            message: message,
+        });
+        this.dispatchEvent(event);
     }
 }

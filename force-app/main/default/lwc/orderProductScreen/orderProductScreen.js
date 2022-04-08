@@ -115,7 +115,7 @@ export default class OrderProductScreen extends LightningElement {
                 listPrice: currentProduct.listPrice,
                 dosage: currentProduct.dosage,
                 quantity: null,
-                unitPrice: null,
+                unitPrice: currentProduct.listPrice,
                 totalPrice: null,
                 commercialDiscountPercentage: '',
                 commercialDiscountValue: null,
@@ -268,14 +268,14 @@ export default class OrderProductScreen extends LightningElement {
                 if (this.isFilled(this.hectares)) {
                     this.addProduct.quantity = this.calculateMultiplicity(this.addProduct.dosage * this.hectares);
                     this.listTotalPrice = this.addProduct.listPrice * this.addProduct.quantity;
-                    this.calculateTotalPrice();
                     this.calculateDiscountOrAddition();
+                    this.calculateTotalPrice();
                 }
             } else if (fieldId == 'quantity') {
                 this.addProduct.quantity = this.calculateMultiplicity(this.addProduct.quantity);
                 this.listTotalPrice = this.addProduct.listPrice * this.addProduct.quantity;
-                this.calculateTotalPrice();
                 this.calculateDiscountOrAddition();
+                this.calculateTotalPrice();
             }
         }
     }
@@ -353,12 +353,10 @@ export default class OrderProductScreen extends LightningElement {
             let key3 = defaultKey + '-' + this.financialInfos.salesOffice;
             let key4 = defaultKey + '-' + this.addProduct.productGroupId;
             
-            let currentDiscountOrAddition;
+            let currentDiscountOrAddition = 2;
             let financialValues = this.financialInfos.financialValues;
-            console.log('key1: ' + key1);
             if (this.isFilled(financialValues[key1])) {
                 currentDiscountOrAddition = financialValues[key1]
-                console.log('currentDiscountOrAddition: ' + currentDiscountOrAddition);
             } else if (this.isFilled(financialValues[key2])) {
                 currentDiscountOrAddition = financialValues[key2]
             } else if (this.isFilled(financialValues[key3])) {

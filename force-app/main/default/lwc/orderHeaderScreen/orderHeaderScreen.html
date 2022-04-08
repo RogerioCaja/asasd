@@ -201,7 +201,8 @@
                                 date-style="short" 
                                 onchange={selectItemRegister} 
                                 type="date" 
-                                required="true">
+                                required="true"
+                                min={currentDate}>
                             </lightning-input>
                         </div>
                         <div class="slds-size_1-of-8">
@@ -214,7 +215,8 @@
                                 date-style="short" 
                                 onchange={selectItemRegister} 
                                 required="true"
-                                disabled={disabled}>
+                                disabled={disabled}
+                                min={currentDate}>
                             </lightning-input>
                         </div>
                         <div class="slds-size_1-of-4">
