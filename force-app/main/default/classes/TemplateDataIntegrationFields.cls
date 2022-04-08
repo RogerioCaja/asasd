@@ -47,7 +47,7 @@ global with sharing class TemplateDataIntegrationFields {
             return new Pricebook2(
                 Name = this.name,
                 ExternalId__c =  (String.isEmpty(this.codExternal) || String.isBlank(this.codExternal)) ? null : this.codExternal,
-                RecordTypeId = 	'0127e0000003FkIAAU',
+                RecordTypeId = Schema.SObjectType.Pricebook2.getRecordTypeInfosByName().get('RecordTypeId').getRecordTypeId(),
                 Description = description,
                 SalesOrg__c = lookups.containsKey('SalesOrg__c'+this.orgVendas) ? lookups.get('SalesOrg__c'+this.orgVendas) : null,
                 PriceList__c = listPrice,
@@ -78,7 +78,7 @@ global with sharing class TemplateDataIntegrationFields {
                 'EndDate__c',
                 'Currency__c',
                 'EffectiveDate__c',
-                'ProductFamily__c'
+                'ProductGroup__c'
             };
         }
 
