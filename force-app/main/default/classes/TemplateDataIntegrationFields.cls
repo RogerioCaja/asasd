@@ -47,7 +47,7 @@ global with sharing class TemplateDataIntegrationFields {
             return new Pricebook2(
                 Name = this.name,
                 ExternalId__c =  (String.isEmpty(this.codExternal) || String.isBlank(this.codExternal)) ? null : this.codExternal,
-                RecordTypeId = Schema.SObjectType.Pricebook2.getRecordTypeInfosByName().get('RecordTypeId').getRecordTypeId(),
+                // RecordTypeId = [select Id from RecordType where sObjectType='Pricebook2' AND Name='Tipo de Condição'][0].Id,
                 Description = description,
                 SalesOrg__c = lookups.containsKey('SalesOrg__c'+this.orgVendas) ? lookups.get('SalesOrg__c'+this.orgVendas) : null,
                 PriceList__c = listPrice,

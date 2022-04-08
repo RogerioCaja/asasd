@@ -118,8 +118,8 @@ public class IntegrationINPricebook2Test {
 
         pricebookEntryList.add(pricebookEntry);
         genericData.name = 'Teste';
-        genericData.codExternal = '112';
-        genericData.typeCondition = 'PR00';
+        genericData.codExternal = '113';
+        genericData.typeCondition = 'ZPR0';
         genericData.description = 'Na classe de Teste';
         genericData.orgVendas = '1111';
         genericData.listPrice = 'Não sei por que isso existe';
@@ -142,6 +142,7 @@ public class IntegrationINPricebook2Test {
         
         IntegrationINPricebook2.ResponseModel model = IntegrationINPricebook2.upsertPricebook2(genericDataList);
         IntegrationINPricebook2.ResponseModel toPass = new IntegrationINPricebook2.ResponseModel(model.response);
+        System.debug(model);
         System.assertEquals(true, model.response[0].status, 'O status nesta situação deveria vir verdadeiro');
         System.assertEquals('Pricebook2', model.response[0].sObjectType, 'O objeto nesta situação deveria vir Pricebook2');
         System.assertEquals(null, model.response[0].errorMessage, 'O erro nesta situação deveria vir nulo');
@@ -156,7 +157,7 @@ public class IntegrationINPricebook2Test {
    
 
         genericData.name = 'Teste';
-        genericData.codExternal = '111';
+        genericData.codExternal = '113';
         genericData.typeCondition = 'ZJ01';
         genericData.description = 'Na classe de Teste';
         genericData.orgVendas = '1111';
@@ -199,7 +200,7 @@ public class IntegrationINPricebook2Test {
         pricebookEntryList.add(pricebookEntry);
         genericData.name = 'Teste';
         genericData.codExternal = '';
-        genericData.typeCondition = 'PR00';
+        genericData.typeCondition = 'ZPR0';
         genericData.description = 'Na classe de Teste';
         genericData.orgVendas = '1111';
         genericData.listPrice = 'Não sei por que isso existe';
@@ -237,8 +238,8 @@ public class IntegrationINPricebook2Test {
 
         pricebookEntryList.add(pricebookEntry);
         genericData.name = 'Teste';
-        genericData.codExternal = '112';
-        genericData.typeCondition = 'PR00';
+        genericData.codExternal = '113';
+        genericData.typeCondition = 'ZPR0';
         genericData.description = 'Na classe de Teste';
         genericData.orgVendas = '1111';
         genericData.listPrice = 'Não sei por que isso existe';
@@ -284,8 +285,8 @@ public class IntegrationINPricebook2Test {
         pricebookEntryList.add(pricebookEntry);
         pricebookEntryList.add(pricebookEntry2);
         genericData.name = 'Teste';
-        genericData.codExternal = '112';
-        genericData.typeCondition = 'PR00';
+        genericData.codExternal = '114';
+        genericData.typeCondition = 'ZPR0';
         genericData.description = 'Na classe de Teste';
         genericData.orgVendas = '1111';
         genericData.listPrice = 'Não sei por que isso existe';
