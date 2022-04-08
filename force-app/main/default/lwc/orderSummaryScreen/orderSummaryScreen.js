@@ -47,8 +47,8 @@ export default class OrderSummaryScreen extends LightningElement {
                 this.productDataLocale[i]['divisionData'] = [];
                 if(this.divisionData){
                     for(var j=0; j< this.divisionData.length; j++){
-                        if(this.divisionData[i].productPosition == i)
-                            this.productDataLocale[i]['divisionData'].push(this.divisionData[i])
+                        if(this.divisionData[j].productPosition == i)
+                            this.productDataLocale[i]['divisionData'].push(this.divisionData[j])
                     }
                 }
             }
