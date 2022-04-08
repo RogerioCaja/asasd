@@ -115,7 +115,7 @@ export default class OrderProductScreen extends LightningElement {
                 listPrice: currentProduct.listPrice,
                 dosage: currentProduct.dosage,
                 quantity: null,
-                unitPrice: null,
+                unitPrice: currentProduct.listPrice,
                 totalPrice: null,
                 commercialDiscountPercentage: '',
                 commercialDiscountValue: null,
@@ -353,12 +353,10 @@ export default class OrderProductScreen extends LightningElement {
             let key3 = defaultKey + '-' + this.financialInfos.salesOffice;
             let key4 = defaultKey + '-' + this.addProduct.productGroupId;
             
-            let currentDiscountOrAddition;
+            let currentDiscountOrAddition = 0;
             let financialValues = this.financialInfos.financialValues;
-            console.log('key1: ' + key1);
             if (this.isFilled(financialValues[key1])) {
                 currentDiscountOrAddition = financialValues[key1]
-                console.log('currentDiscountOrAddition: ' + currentDiscountOrAddition);
             } else if (this.isFilled(financialValues[key2])) {
                 currentDiscountOrAddition = financialValues[key2]
             } else if (this.isFilled(financialValues[key3])) {
@@ -370,7 +368,9 @@ export default class OrderProductScreen extends LightningElement {
             }
 
             this.addProduct.financialAdditionPercentage = (this.financialInfos.isDiscount ? 0 : currentDiscountOrAddition) + '%';
+            console.log('this.addProduct.financialAdditionPercentage: ' + this.addProduct.financialAdditionPercentage);
             this.addProduct.financialDecreasePercentage = (this.financialInfos.isDiscount ? currentDiscountOrAddition : 0) + '%';
+            console.log('this.addProduct.financialDecreasePercentage: ' + this.addProduct.financialDecreasePercentage);
             this.addProduct.financialAdditionValue = this.calculateValue(this.addProduct.financialAdditionPercentage, this.addProduct.totalPrice);
             this.addProduct.financialDecreaseValue = this.calculateValue(this.addProduct.financialDecreasePercentage, this.addProduct.totalPrice);
         }
