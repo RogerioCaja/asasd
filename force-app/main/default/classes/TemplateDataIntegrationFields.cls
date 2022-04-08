@@ -172,7 +172,7 @@ global with sharing class TemplateDataIntegrationFields {
                 EndDate__c = Date.valueOf(endDate),
                 Product__c = lookups.containsKey('Product2'+this.product) ? lookups.get('Product2'+this.product) : null,
                 Percentage__c = this.percentage,
-                ConditionType__c = typeCondition == 'ZD00' ? 'ZD00 - Desconto de antecipação' : 'ZJ01 - Juros',
+                ConditionType__c = typeCondition == 'ZJUR' ? 'ZJUR - Juros' : 'ZDAN - Desconto de antecipação' ,
                 PriorityLevel__c = this.priority,
                 DistributionCenter__c = lookups.containsKey('DistributionCenter__c'+this.center) ? lookups.get('DistributionCenter__c'+this.center) : null,
                 ConditionNumberRegister__c = this.numRegisterCondition

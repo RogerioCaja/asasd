@@ -190,7 +190,7 @@ global with sharing class IntegrationINPricebook2 {
     //? Methods to preparing integration
     global static List<Object> convertClass(List<Object> requestGeneric){
         String requestNew = JSON.serialize(requestGeneric);
-        if(requestNew.contains('PR00')){
+        if(requestNew.contains('ZPR0')){
             List<TemplateDataIntegrationFields.Pricebook2INData> pricebook = (List<TemplateDataIntegrationFields.Pricebook2INData>) JSON.deserialize(requestNew, List<TemplateDataIntegrationFields.Pricebook2INData>.class);
             return pricebook;
         }
