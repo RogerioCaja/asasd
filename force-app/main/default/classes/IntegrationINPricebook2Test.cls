@@ -135,7 +135,7 @@ public class IntegrationINPricebook2Test {
         genericData.effectiveDate = '2022-03-30';
         genericData.typeCurrency = 'BRL';
         genericData.active = true;
-        genericData.productFamily = '1';
+        genericData.productGroup = '1';
         genericData.pricebookEntries = pricebookEntryList;
         genericDataList.add(genericData);
         
@@ -173,7 +173,6 @@ public class IntegrationINPricebook2Test {
         genericData.effectiveDate = '2022-03-30';
         genericData.typeCurrency = 'BRL';
         genericData.active = true;
-        genericData.productFamily = '1';
         genericData.productGroup = '1';
         genericData.percentage = '30';
         genericData.priority = '30';
@@ -216,7 +215,7 @@ public class IntegrationINPricebook2Test {
         genericData.effectiveDate = '2022-03-30';
         genericData.typeCurrency = 'BRL';
         genericData.active = true;
-        genericData.productFamily = '1';
+        genericData.productGroup = '1';
         genericData.pricebookEntries = pricebookEntryList;
         genericDataList.add(genericData);
         
@@ -255,7 +254,7 @@ public class IntegrationINPricebook2Test {
         genericData.effectiveDate = '2022-03-30';
         genericData.typeCurrency = 'BRL';
         genericData.active = true;
-        genericData.productFamily = '1';
+        genericData.productGroup = '1';
         genericData.pricebookEntries = pricebookEntryList;
         genericDataList.add(genericData);
         
@@ -302,7 +301,7 @@ public class IntegrationINPricebook2Test {
         genericData.effectiveDate = '2022-03-30';
         genericData.typeCurrency = 'BRL';
         genericData.active = true;
-        genericData.productFamily = '1';
+        genericData.productGroup = '1';
         genericData.pricebookEntries = pricebookEntryList;
         genericDataList.add(genericData);
         
