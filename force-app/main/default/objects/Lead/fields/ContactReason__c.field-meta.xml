@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ContactReason__c</fullName>
+    <externalId>false</externalId>
+    <label>Motivo do Contato</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Negócios</fullName>
+                <default>false</default>
+                <label>Negócios</label>
+            </value>
+            <value>
+                <fullName>Informações sobre a AG</fullName>
+                <default>false</default>
+                <label>Informações sobre a AG</label>
+            </value>
+            <value>
+                <fullName>Informações de Marketing</fullName>
+                <default>false</default>
+                <label>Informações de Marketing</label>
+            </value>
+            <value>
+                <fullName>Outros</fullName>
+                <default>false</default>
+                <label>Outros</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>
