@@ -86,10 +86,8 @@
     </actionOverrides>
     <actionOverrides>
         <actionName>Edit</actionName>
-        <content>CallOrderPage</content>
-        <formFactor>Large</formFactor>
-        <skipRecordTypeSelect>false</skipRecordTypeSelect>
-        <type>LightningComponent</type>
+        <formFactor>Small</formFactor>
+        <type>Default</type>
     </actionOverrides>
     <actionOverrides>
         <actionName>Edit</actionName>
@@ -116,7 +114,7 @@
     </actionOverrides>
     <actionOverrides>
         <actionName>New</actionName>
-        <formFactor>Small</formFact>
+        <formFactor>Small</formFactor>
         <type>Default</type>
     </actionOverrides>
     <actionOverrides>
