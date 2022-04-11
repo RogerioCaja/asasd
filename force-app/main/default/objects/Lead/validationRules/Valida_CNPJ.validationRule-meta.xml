@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Valida_CNPJ</fullName>
+    <active>true</active>
+    <description>Verifica se o CNPJ é válido</description>
+    <errorConditionFormula>AND(NOT(ISBLANK(CNPJ__c) ) ) &amp;&amp; 
+IF(
+AND(
+IF(MOD((
+VALUE(LEFT(CNPJ__c,1))*5+
+VALUE(MID(CNPJ__c,2,1))*4+
+VALUE(MID(CNPJ__c,3,1))*3+
+VALUE(MID(CNPJ__c,4,1))*2+
+VALUE(MID(CNPJ__c,5,1))*9+
+VALUE(MID(CNPJ__c,6,1))*8+
+VALUE(MID(CNPJ__c,7,1))*7+
+VALUE(MID(CNPJ__c,8,1))*6+
+VALUE(MID(CNPJ__c,9,1))*5+
+VALUE(MID(CNPJ__c,10,1))*4+
+VALUE(MID(CNPJ__c,11,1))*3+
+VALUE(MID(CNPJ__c,12,1))*2
+),11) &lt; 2,
+VALUE(MID(CNPJ__c,13,1)) == 0,
+11 - MOD((
+VALUE(LEFT(CNPJ__c,1))*5+
+VALUE(MID(CNPJ__c,2,1))*4+
+VALUE(MID(CNPJ__c,3,1))*3+
+VALUE(MID(CNPJ__c,4,1))*2+
+VALUE(MID(CNPJ__c,5,1))*9+
+VALUE(MID(CNPJ__c,6,1))*8+
+VALUE(MID(CNPJ__c,7,1))*7+
+VALUE(MID(CNPJ__c,8,1))*6+
+VALUE(MID(CNPJ__c,9,1))*5+
+VALUE(MID(CNPJ__c,10,1))*4+
+VALUE(MID(CNPJ__c,11,1))*3+
+VALUE(MID(CNPJ__c,12,1))*2
+),11) == VALUE(MID(CNPJ__c,13,1))),
+IF(MOD((
+VALUE(LEFT(CNPJ__c,1))*6+
+VALUE(MID(CNPJ__c,2,1))*5+
+VALUE(MID(CNPJ__c,3,1))*4+
+VALUE(MID(CNPJ__c,4,1))*3+
+VALUE(MID(CNPJ__c,5,1))*2+
+VALUE(MID(CNPJ__c,6,1))*9+
+VALUE(MID(CNPJ__c,7,1))*8+
+VALUE(MID(CNPJ__c,8,1))*7+
+VALUE(MID(CNPJ__c,9,1))*6+
+VALUE(MID(CNPJ__c,10,1))*5+
+VALUE(MID(CNPJ__c,11,1))*4+
+VALUE(MID(CNPJ__c,12,1))*3+
+VALUE(MID(CNPJ__c,13,1))*2
+),11) &lt; 2,
+VALUE(MID(CNPJ__c,14,1)) == 0,
+11 - MOD((
+VALUE(LEFT(CNPJ__c,1))*6+
+VALUE(MID(CNPJ__c,2,1))*5+
+VALUE(MID(CNPJ__c,3,1))*4+
+VALUE(MID(CNPJ__c,4,1))*3+
+VALUE(MID(CNPJ__c,5,1))*2+
+VALUE(MID(CNPJ__c,6,1))*9+
+VALUE(MID(CNPJ__c,7,1))*8+
+VALUE(MID(CNPJ__c,8,1))*7+
+VALUE(MID(CNPJ__c,9,1))*6+
+VALUE(MID(CNPJ__c,10,1))*5+
+VALUE(MID(CNPJ__c,11,1))*4+
+VALUE(MID(CNPJ__c,12,1))*3+
+VALUE(MID(CNPJ__c,13,1))*2
+),11) == VALUE(MID(CNPJ__c,14,1)))
+),
+FALSE,TRUE
+)</errorConditionFormula>
+    <errorMessage>O CNPJ informado é inválido.</errorMessage>
+</ValidationRule>
