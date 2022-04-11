@@ -45,6 +45,7 @@ $RECYCLE.BIN/
 force-app/main/default/lwc/jsconfig.json
 force-app/main/default/lwc/.eslintrc.json
 force-app/main/default/customindex/*
+force-app/main/default/appMenus/*
 
 manifest/package.xml
 

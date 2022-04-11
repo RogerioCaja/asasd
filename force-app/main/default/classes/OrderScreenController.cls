@@ -546,7 +546,8 @@ public without sharing class OrderScreenController {
             pricebookPaymentDate = pricebookEntry.Pricebook2.PaymentDate__c;
         }
 
-        result.isDiscount = Date.valueOf(orderValues.paymentDate) >= pricebookPaymentDate ? false : true;
+        result.correctPayment = Date.valueOf(orderValues.paymentDate) == pricebookPaymentDate ? true : false;
+        result.isDiscount = Date.valueOf(orderValues.paymentDate) > pricebookPaymentDate ? false : true;
         String discountOrAddition = result.isDiscount ? 'Desconto' : 'Juros';
         
         String companyGroup = '';
@@ -1129,6 +1130,7 @@ public without sharing class OrderScreenController {
 
     public class FinancialResult {
         public Boolean isDiscount;
+        public Boolean correctPayment;
         public String salesOrg;
         public String salesOffice;
         public String salesTeam;
@@ -1137,6 +1139,7 @@ public without sharing class OrderScreenController {
 
     public class FinancialResultSerialize {
         public Boolean isDiscount;
+        public Boolean correctPayment;
         public String salesOrg;
         public String salesOffice;
         public String salesTeam;
@@ -1146,6 +1149,7 @@ public without sharing class OrderScreenController {
 
         FinancialResultSerialize(FinancialResult financialResult) {
             this.isDiscount = financialResult.isDiscount;
+            this.correctPayment = financialResult.correctPayment;
             this.salesOrg = financialResult.salesOrg;
             this.salesOffice = financialResult.salesOffice;
             this.salesTeam = financialResult.salesTeam;
