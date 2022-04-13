@@ -5,7 +5,11 @@ public with sharing class CalloutOrder {
 
     public static IntegrationUtils.CalloutResponse processIntegration(Id orderId){
 
-		Order parentOrder = [SELECT Id, (SELECT Id FROM OrderItems) FROM Order WHERE Id = :orderId];
+		Order parentOrder = [SELECT Id, CodigoSap__c, Type, SalesOrg__r.SalesOrganizationCode__c, DistributionChannel__c, 
+                            ActivitySector__c, Incoterms__c, Incoterms2__c, PaymentCondition__c, OrderReason__c , 
+                            OrderNumber, Crop__r.Code__c, Culture__r.Codigo__c, EndDate, TotalAmount, 
+                            Currency__c, (SELECT Id FROM OrderItems) 
+                            FROM Order WHERE Id = :orderId];
 		
 		List<Order> allOrders = new List<Order>{parentOrder};
 		
@@ -24,17 +28,13 @@ public with sharing class CalloutOrder {
 			List<Order> orderList = new List<Order>();
 
 			for (ResponseParametersWrapper respWrapper : resp.responses) {
-				if (orderMap.containsKey(respWrapper.SalesforceCode)) {
+				if (orderMap.containsKey(respWrapper.OrderNumber)) {
 
-					Order ord = orderMap.get(respWrapper.SalesforceCode);
-                    ord.CodigoSap__c = respWrapper.ERPCode; 
-
-					if (respWrapper.Error == 'TRUE') {
-						//Error Treatments
-					} else {
-						//Success Treatments
-					}
-					
+					Order ord = orderMap.get(respWrapper.OrderNumber);
+                    ord.CodigoSap__c = respWrapper.DetalhesPedido[0].NumeroOrdemVenda; 
+                    ord.StatusSAP__c = respWrapper.DetalhesPedido[0].StatusSap;
+                    // ord.TypeMessage__c = respWrapper.Mensagens[0].Tipo;
+                    // ord.Message__c = respWrapper.Mensagens[0].Mensagem;
 					orderList.add(ord);
 				}
 			}
@@ -58,7 +58,7 @@ public with sharing class CalloutOrder {
 		String payload = JSON.serialize(request);
 
 		//Metodo para busca de Access Token, depende de cada projeto, podendo estar presente dentro de uma custom settings ou relacionado com outra requisição.
-		String accessToken = '';
+		String accessToken = '';//! FALTA SABER A RESPOSTA DO SAP QUANTO A AUTENTICAÇÃO! F
 		
 		//Path geralmente cadastrado dentro de ua customSettings
 		String endpoint = (!Test.isRunningTest() ? 'callout:HANA_Oncoprod/PrePedido_SFOut' : 'http://callout.My_Named_Credential.com/some/path');
@@ -91,6 +91,7 @@ public with sharing class CalloutOrder {
 		}
     }
 
+    //! Preparing data to Callout
     public class RequestParameters{
         public Object header;
         public List<CalloutOrder.PartnerParameters> partner;
@@ -101,11 +102,11 @@ public with sharing class CalloutOrder {
         public RequestParameters(Order order){
 
             partner = new List<CalloutOrder.PartnerParameters>();
-            partner.add(new CalloutOrder.PartnerParameters(order.AccountId, 'EO'));
-            partner.add(new CalloutOrder.PartnerParameters(order.ShippingAccount__c, 'RM'));
             schedule = new List<CalloutOrder.ScheduleParameters>();
             orderItems = new List<CalloutOrder.OrderItemParameters>();
             condition = new List<CalloutOrder.ConditionParameters>();
+            partner.add(new CalloutOrder.PartnerParameters(order.AccountId, 'EO'));
+            partner.add(new CalloutOrder.PartnerParameters(order.ShippingAccount__c, 'RM'));
 
             Set<Id> orderItemIds = new Set<Id>();
 
@@ -153,21 +154,19 @@ public with sharing class CalloutOrder {
                 divisionMap.get(sd.OrderItem__c).add(sd);
             }
 
-            Map<Id, List<ShippingDivison__c>> orderItemToDivisonList = new Map<Id, List<ShippingDivison__c>>();
-
+            List<Integer> shippingCodesList = new List<Integer>();
             for(OrderItem orderItem : orderItemMap.values()){
 
-                List<Integer> ShippingCodes = new List<Integer>();
+                shippingCodesList.clear();
                 for(ShippingDivison__c sd : divisionMap.get(orderItem.Id)){
-                    ShippingCodes.add(Integer.valueOf(sd.Name));
+                    shippingCodesList.add(Integer.valueOf(sd.Name));
                     schedule.add(new CalloutOrder.ScheduleParameters(Integer.valueOf(sd.Name), sd.Quantity__c, sd.DeliveryDate__c));
                 }
-                orderItems.add(new CalloutOrder.OrderItemParameters(orderItem, ShippingCodes));
+                orderItems.add(new CalloutOrder.OrderItemParameters(orderItem, shippingCodesList));
             }
 
             condition.add(new CalloutOrder.ConditionParameters(Integer.valueOf(order.Culture__r.Codigo__c), 'PR00', order.TotalAmount, order.Currency__c)); 
         }
-
     }
 
     public class HeaderInsert{
@@ -233,19 +232,19 @@ public with sharing class CalloutOrder {
         }
     }
 
-   public class OrderItemParameters{
-       public List<Integer> incrementItem;
-       public String material;
-       public String center;
-       public Decimal quantityItem;
+    public class OrderItemParameters{
+        public List<Integer> incrementItem;
+        public String material;
+        public String center;
+        public Decimal quantityItem;
 
-       public OrderItemParameters(OrderItem orderItem, List<Integer> shippingDivison){
-           this.incrementItem = new List<Integer>(shippingDivison);
-           this.material = orderItem.Product2.ExternalId__c;
-           this.center = orderItem.Product2.DistributionCenter__r.Code__c;
-           this.quantityItem = orderItem.Quantity;
-       }
-   }
+        public OrderItemParameters(OrderItem orderItem, List<Integer> shippingDivison){
+            this.incrementItem = new List<Integer>(shippingDivison);
+            this.material = orderItem.Product2.ExternalId__c;
+            this.center = orderItem.Product2.DistributionCenter__r.Code__c;
+            this.quantityItem = orderItem.Quantity;
+        }
+    }
 
     public class ResponseParameters {
         public List<ResponseParametersWrapper> responses;
@@ -255,10 +254,21 @@ public with sharing class CalloutOrder {
         }
     }
 
+
+    //! Response part
     public class ResponseParametersWrapper {
-        public String Status;
-        public String Error;
-        public String SalesforceCode;
-        public String ERPCode;
+        public String OrderNumber; 
+        public List<OrderDetails> DetalhesPedido;
+        public List<Messages> Mensagens; 
+    }
+
+    public class Messages{
+        public String Tipo;
+        public String Mensagem;
+    }
+
+    public class OrderDetails{
+        public String StatusSap;
+        public String NumeroOrdemVenda;
     }
 }
