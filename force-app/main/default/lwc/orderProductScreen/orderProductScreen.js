@@ -168,7 +168,7 @@ export default class OrderProductScreen extends LightningElement {
                 type: 'action',
                 typeAttributes: {
                     rowActions: actions,
-                    menuAlignment: 'right'
+                    menuAlignment: 'auto'
                 }
             });
             this.columns = selectedColumns;
