@@ -3,9 +3,14 @@ public with sharing class CalloutOrder {
         
     }
 
+    @future(callout = true)
+    public static void callIntegration(Id orderId){
+        processIntegration(orderId);
+    }
+
     public static IntegrationUtils.CalloutResponse processIntegration(Id orderId){
 
-		Order parentOrder = [SELECT Id, CodigoSap__c, Type, SalesOrg__r.SalesOrganizationCode__c, DistributionChannel__c, 
+		Order parentOrder = [SELECT Id, CodigoSap__c, ShippingAccount__r.ExternalId__c, Account.ExternalId__c, Type, SalesOrg__r.SalesOrganizationCode__c, DistributionChannel__c, 
                             ActivitySector__c, Incoterms__c, Incoterms2__c, PaymentCondition__c, OrderReason__c , 
                             OrderNumber, Crop__r.Code__c, Culture__r.Codigo__c, EndDate, TotalAmount, 
                             Currency__c, (SELECT Id FROM OrderItems) 
@@ -18,7 +23,6 @@ public with sharing class CalloutOrder {
 		if (calloutResponse.success) {
 			
 			ResponseParameters resp = (ResponseParameters) calloutResponse.parsedResponse;
-			
 			Map<String, Order> orderMap = new Map<String, Order>();
 
 			for (Order ord : allOrders) {
@@ -61,10 +65,10 @@ public with sharing class CalloutOrder {
 		String accessToken = '';//! FALTA SABER A RESPOSTA DO SAP QUANTO A AUTENTICAÇÃO! F
 		
 		//Path geralmente cadastrado dentro de ua customSettings
-		String endpoint = (!Test.isRunningTest() ? 'callout:HANA_Oncoprod/PrePedido_SFOut' : 'http://callout.My_Named_Credential.com/some/path');
+		String endpoint = (!Test.isRunningTest() ? 'https://e2d5f427-4632-4314-aac5-4801fbbe25db.mock.pstmn.io//OrderUpsert' : 'http://callout.My_Named_Credential.com/some/path');
 		Map<String, String> headersMap = new Map<String, String>();
 		headersMap.put('Content-type', 'application/json');
-		headersMap.put('Authorization', 'Bearer '+ accessToken);
+		// headersMap.put('Authorization', 'Bearer '+ accessToken);
 		
 		IntegrationUtils.RequestResponseObject responseObject = IntegrationUtils.executeCallout(endpoint, payload, headersMap);
 
@@ -105,8 +109,8 @@ public with sharing class CalloutOrder {
             schedule = new List<CalloutOrder.ScheduleParameters>();
             orderItems = new List<CalloutOrder.OrderItemParameters>();
             condition = new List<CalloutOrder.ConditionParameters>();
-            partner.add(new CalloutOrder.PartnerParameters(order.AccountId, 'EO'));
-            partner.add(new CalloutOrder.PartnerParameters(order.ShippingAccount__c, 'RM'));
+            partner.add(new CalloutOrder.PartnerParameters(order.Account.ExternalId__c, 'EO'));
+            partner.add(new CalloutOrder.PartnerParameters(order.ShippingAccount__r.ExternalId__c, 'RM'));
 
             Set<Id> orderItemIds = new Set<Id>();
 
@@ -158,9 +162,12 @@ public with sharing class CalloutOrder {
             for(OrderItem orderItem : orderItemMap.values()){
 
                 shippingCodesList.clear();
-                for(ShippingDivison__c sd : divisionMap.get(orderItem.Id)){
-                    shippingCodesList.add(Integer.valueOf(sd.Name));
-                    schedule.add(new CalloutOrder.ScheduleParameters(Integer.valueOf(sd.Name), sd.Quantity__c, sd.DeliveryDate__c));
+                if(!divisionMap.isEmpty())
+                {
+                    for(ShippingDivison__c sd : divisionMap.get(orderItem.Id)){
+                        shippingCodesList.add(Integer.valueOf(sd.Name));
+                        schedule.add(new CalloutOrder.ScheduleParameters(Integer.valueOf(sd.Name), sd.Quantity__c, sd.DeliveryDate__c));
+                    }
                 }
                 orderItems.add(new CalloutOrder.OrderItemParameters(orderItem, shippingCodesList));
             }
