@@ -383,17 +383,22 @@ public without sharing class OrderScreenController {
                     'Cancelado' => 'X'
                 };
 
+                Integer itemCounter = 1;
                 for (ProductDeserialize orderProduct : orderData.productData) {
                     OrderItem orderItem;
                     if (!newOrder && orderItemsById.containsKey(orderProduct.orderItemId)) {
                         orderItem = orderItemsById.get(orderProduct.orderItemId);
                     } else {
                         orderItem = new OrderItem();
+                        orderItem.NumeroSap__c = String.valueOf(itemCounter * 10);
+                        orderItem.ExternalId__c = order.Id + '|' + orderItem.NumeroSap__c;
                         orderItem.OrderId = order.Id;
                         orderItem.PricebookEntryId = orderProduct.entryId;
                         orderItem.Product2Id = orderProduct.productId;
                         orderItem.ListPrice = orderProduct.listPrice;
                         orderItem.AmountUsed__c = order.IsOrderMother__c ? 0 : null;
+
+                        itemCounter++;
                     }
                     
                     if (motherItems.containsKey(orderProduct.orderItemId)) {
