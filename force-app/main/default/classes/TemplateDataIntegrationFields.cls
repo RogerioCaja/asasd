@@ -239,6 +239,185 @@ global with sharing class TemplateDataIntegrationFields {
         public List<TemplateDataIntegrationFields.PricebookEntryINData> pricebookEntries;
     }
 
+
+    // novas implantações, qualquer erro é daqui pra baixo 
+    global class OrderINData implements FieldData{
+        
+        public String account;
+        public String shippingAccount;
+        public String codPricebook;
+        public String type;
+        public Date   paymentDate;
+        public String codOrder;
+        public Date   effectiveDate;
+        public String codCrop;
+        public String codCulture;
+        public String paymentForm;
+        public String codSalesOrg;
+        public String codSalesActivity;
+        public String codSalesCTV;
+        public String codCurrency;
+        public String statusSAP;
+        public String incoterms1;
+        public String incoterms2;
+        public String observation;
+        public String observationBillingSale;
+        public String orderMother;
+        public String totalAmount;
+        // public List<TemplateDataIntegrationFields.PartnerParameters> partner;
+        public List<TemplateDataIntegrationFields.OrderItemINData> orderItems;
+
+        public Order serialize(Map<String, Id> lookups){
+
+            //Returning Object with Fields.
+            return new order(
+                AccountId                 = null,
+                ShippingAccount__c        = null,
+                Pricebook2Id              = null,
+                Type                      = null,
+                PaymentDate__c            = null,
+                CustomerOrderNumber__c    = null,
+                CodigoSap__c              = null,
+                EffectiveDate             = null,
+                Crop__c                   = null,
+                Culture__c                = null,
+                PaymentForm__c            = null,
+                SalesOrg__c               = null,
+                ActivitySector__c         = null,
+                SalesCTV__c               = null,
+                Currency__c               = null,
+                StatusSAP__c              = null,
+                StatusSF__c               = null,
+                Incoterms__c              = null,
+                Incoterms2__c             = null,
+                Description               = null,
+                DescriptionBillingSale__c = null,
+                OrderReference__c         = null,
+                FinalTotalValue__c        = null
+            );
+        }
+        
+        //Required fields for integration
+        public List<String> getRequiredFields(){
+            //Example
+            return new List<String>{
+                'AccountId',
+                'EXTERNALID__c'
+            };
+        }
+
+        //ExternalId field
+        public String getFieldKey(){
+            return 'EXTERNALID__c';
+        }
+        
+        //Id field
+        public String getFieldId() {
+            return 'Id';
+        }
+    }
+
+    //OrderItem input structure -> Implementing FieldDataChild
+    global class OrderItemINData implements FieldDataChild{
+        
+        public String  codExternalOrder;
+        public String  itemCode;
+        public String  material;
+        public Decimal quantity;
+        public String  codCenter;
+        public String  billedQuantity;
+        public String  status;
+        public String  unitMeasure;
+        public String  reasonRefuse;
+        public String  percentageComission;
+        public String  percentageDiscount;
+        public String  comissionValue;
+        public String  comercialValue;
+        public String  discountValue;
+        public List<TemplateDataIntegrationFields.ScheduleParameters> schedules;
+
+        public OrderItem serialize(Map<String, Id> lookups){
+
+            //Returning Object with Fields.
+            return new OrderItem(
+                OrderId                      = null,
+                Product2Id                   = null,
+                Quantity                     = 0,
+                AmountUsed__c                = 0,
+                Status__c                    = null,
+                UnitMeasure__c               = null,
+                ReasonRefuse__c              = null,
+                DiscountPercent__c           = 0,
+                PercentComission__c          = 0,
+                ComissionValue__c            = 0,
+                CommercialAdditionPercent__c = 0,
+                DiscountValue__c             = 0,
+                PricebookEntryId             = null
+            );
+        }
+        
+        //Required fields for integration
+        public List<String> getRequiredFields(){
+            //Example
+            return new List<String>{
+                'OrderId',
+                'Product2Id',
+                'Quantity'
+            };
+        }
+
+        //Key field
+        public String getFieldKey(){
+            return 'Id';
+        }
+
+        //ExternalId field
+        public String getFieldExternal(){
+            return 'EXTERNALID__c';
+        }
+        
+        //Parent ExternalId field
+        public String getParentKey(){
+            return 'OrderId';
+        }
+    }
+
+    global class PartnerParameters{
+        public String partnerFunc;
+        public String partnerCode;
+
+        public PartnerParameters(String partnerFunc, String partnerCode){
+            this.partnerFunc = partnerFunc;
+            this.partnerCode = partnerCode;
+        }
+    }
+    
+    global class ScheduleParameters{
+        public Date deliveryDate;
+        public String codSchedule;
+        public Decimal quantity;
+        public Decimal confirmedQuantity;
+        public String itemCode;
+
+        public ScheduleParameters(Date deliveryDate, String codSchedule, Decimal quantity, Decimal confirmedQuantity, String itemCode){
+            this.deliveryDate = deliveryDate;
+            this.codSchedule = codSchedule;
+            this.quantity = quantity;
+            this.confirmedQuantity = confirmedQuantity;
+            this.itemCode = itemCode;
+        }
+        
+        public ShippingDivison__c serialize(ScheduleParameters sP, Id orderItem){
+            return new ShippingDivison__c(
+                DeliveryDate__c      = sP.deliveryDate,
+                ExternalId__c        = sP.codSchedule,
+                OrderItem__c         = orderItem,
+                Quantity__c          = sP.quantity,
+                ConfirmedQuantity__c = sP.confirmedQuantity
+            );
+        }
+    }
+
     global virtual class Response {
         public String  idSalesforce;
         public String  externalCode;
