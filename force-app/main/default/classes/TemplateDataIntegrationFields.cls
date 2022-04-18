@@ -273,4 +273,23 @@ global with sharing class TemplateDataIntegrationFields {
     global class ResponseParent extends Response {
         public List<TemplateDataIntegrationFields.Response> items;
     }
+
+    global class CommodityPriceINData {
+        public Date     maturityKeyDate;
+        public Date     priceQuotationDate;
+        public Time     priceQuotationTime;
+        public String   derivativeContrSpecification;
+        public String   marketIdentifierCode;
+        public String   priceQuotationType;
+        public String   timeToMaturity;
+        public String   unitOfMeasure;
+        public String   priceCurrency;
+        public String   createdByUser;
+        public Decimal  priceQuotation;
+        public Datetime validityStartUtcDatetime;
+    }
+
+    global class CommodityPriceResponseModel {
+        public String message = '';
+    }
 }

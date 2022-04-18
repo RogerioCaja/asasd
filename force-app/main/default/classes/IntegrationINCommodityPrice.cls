@@ -1,12 +1,13 @@
-@RestResource(urlMapping='/commodityPrice/*')
+@RestResource(urlMapping='/upsertCommodityPrice/*')
 global with sharing class IntegrationINCommodityPrice {
 
     @HttpPost
-    global static CommodityPriceResponseModel upsertCommodityPrice(List<CommodityPriceINData> request) {
-        CommodityPriceResponseModel response = new CommodityPriceResponseModel();
+    global static TemplateDataIntegrationFields.CommodityPriceResponseModel upsertCommodityPrice(String request) {
+        TemplateDataIntegrationFields.CommodityPriceResponseModel response = new TemplateDataIntegrationFields.CommodityPriceResponseModel();
         try {
+            List<TemplateDataIntegrationFields.CommodityPriceINData> commodityPriceINData = (List<TemplateDataIntegrationFields.CommodityPriceINData>) JSON.deserialize(request, List<TemplateDataIntegrationFields.CommodityPriceINData>.class);
             Set<String> commoditiesExternalId = new Set<String>();
-            for (CommodityPriceINData commodityPrice : request) {
+            for (TemplateDataIntegrationFields.CommodityPriceINData commodityPrice : commodityPriceINData) {
                 commoditiesExternalId.add(commodityPrice.derivativeContrSpecification);
             }
 
@@ -21,7 +22,7 @@ global with sharing class IntegrationINCommodityPrice {
             }
 
             List<CommodityPrice__c> commodityPriceList = new List<CommodityPrice__c>();
-            for (CommodityPriceINData commodityPrice : request) {
+            for (TemplateDataIntegrationFields.CommodityPriceINData commodityPrice : commodityPriceINData) {
                 Id commodityId = commoditiesByExternalId.get(commodityPrice.derivativeContrSpecification).Id;
                 commodityPriceList.add(new CommodityPrice__c(
                     Commodity__c = commodityId,
@@ -36,12 +37,12 @@ global with sharing class IntegrationINCommodityPrice {
                     TimeToMaturity__c = commodityPrice.timeToMaturity,
                     UnitOfMeasure__c = commodityPrice.unitOfMeasure,
                     ValidityStart_DateTime__c = commodityPrice.validityStartUtcDatetime,
-                    ExternalId__c = commodityPrice.priceQuotationDate + '-' + commodityId + '-' + commodityPrice.marketIdentifierCode
+                    ExternalId__c = commodityPrice.priceQuotationDate + '-' + commodityPrice.derivativeContrSpecification + '-' + commodityPrice.marketIdentifierCode
                 ));
             }
 
             Boolean hasErrors = false;
-            List<Database.UpsertResult> upsertRecords = Database.upsert(commodityPriceList, false);
+            List<Database.UpsertResult> upsertRecords = Database.upsert(commodityPriceList, CommodityPrice__c.Fields.ExternalId__c, false);
             for (Database.UpsertResult result : upsertRecords){
                 if(!result.isSuccess()){
                     hasErrors = true;
@@ -52,6 +53,7 @@ global with sharing class IntegrationINCommodityPrice {
             }
 
             if (hasErrors) {
+                System.debug('Erro: ' + JSON.serialize(response));
                 IntegrationLog.createLog('Preço Commodities IN', 'IN', JSON.serialize(request), JSON.serialize(response), true);
             } else {
                 response.message = 'Sucesso!';
@@ -64,24 +66,5 @@ global with sharing class IntegrationINCommodityPrice {
         }
 
         return response;
-    }
-
-    global class CommodityPriceINData {
-        public Date     maturityKeyDate;
-        public Date     priceQuotationDate;
-        public Time     priceQuotationTime;
-        public String   derivativeContrSpecification;
-        public String   marketIdentifierCode;
-        public String   priceQuotationType;
-        public String   timeToMaturity;
-        public String   unitOfMeasure;
-        public String   priceCurrency;
-        public String   createdByUser;
-        public Decimal  priceQuotation;
-        public Datetime validityStartUtcDatetime;
-    }
-
-    global class CommodityPriceResponseModel {
-        public String message = '';
     }
 }
