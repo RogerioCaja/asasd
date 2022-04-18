@@ -38,6 +38,7 @@ export default class OrderProductScreen extends LightningElement {
     showList = false;
     changeColumns = false;
     showProductDivision = false;
+    barterSale = false;
     selectedProducts;
     columns = [];
     productName = '';
@@ -57,6 +58,7 @@ export default class OrderProductScreen extends LightningElement {
         this.paymentDate = this.headerData.data_pagamento;
         this.hectares = this.headerData.hectares;
         this.priceBookListId = this.headerData.lista_precos.Id;
+        this.barterSale = this.headerData.tipo_venda == 'Venda Barter' ? true : false;
 
         if (this.cloneData.cloneOrder && this.cloneData.pricebookListId != this.priceBookListId) {
             this.products = []
@@ -66,6 +68,7 @@ export default class OrderProductScreen extends LightningElement {
             this.allDivisionProducts = this.isFilled(this.divisionData) ? this.divisionData : [];
         }
 
+        actions = [];
         if (this.headerData.pedido_mae_check) actions.push({ label: 'Editar', name: 'edit' });
         else actions.push({ label: 'Editar', name: 'edit' },{ label: 'Divisão de Remessas', name: 'shippingDivision' });
 
