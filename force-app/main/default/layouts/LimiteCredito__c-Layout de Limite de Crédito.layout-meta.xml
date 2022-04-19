@@ -21,11 +21,7 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Required</behavior>
-                <field>AvailableCredit__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Required</behavior>
-                <field>UsedCredit__c</field>
+                <field>LimitBalance__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Required</behavior>
@@ -37,31 +33,27 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>Cultura__c</field>
+                <field>Culture__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>DataConcessao__c</field>
+                <field>ConcessionDate__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>DataManutencao__c</field>
+                <field>MaintenanceDate__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>DataVencimento__c</field>
+                <field>EndDate__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>Garantia__c</field>
+                <field>Guarantee__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>CreditoDisponivel__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
-                <field>Credito__c</field>
+                <field>LimitValue__c</field>
             </layoutItems>
         </layoutColumns>
         <layoutColumns/>
