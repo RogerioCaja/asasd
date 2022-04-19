@@ -27,6 +27,7 @@ global with sharing class IntegrationINOrderItem {
     
         IntegrationUtils.setLookup(new Product2(),new Set<String>{'Id', 'ProductCode'}, 'ProductCode', lookupMap.get('productLookups'), lookups);
         IntegrationUtils.setLookup(new PricebookEntry(),new Set<String>{'Id', 'ProductCode'}, 'ProductCode', lookupMap.get('productLookups'), lookups);
+        IntegrationUtils.setLookup(new Order(),new Set<String>{'Id', 'CodigoSap__c'}, 'CodigoSap__c', lookupMap.get('productLookups'), lookups);
 
         //OrderItem ExternalId Map to Order ExternalId for association of responses
         Map<String, String> parentMapKeys = new Map<String, String>();
@@ -55,13 +56,13 @@ global with sharing class IntegrationINOrderItem {
             }
         }
 
-        for(OrderItem orderItem : [SELECT Id, ExternalId__c FROM OrderItem WHERE Id IN: orderItemIds]){
-            for(TemplateDataIntegrationFields.ScheduleParameters schedule : scheduleListToOrderItem){
-                scheduleListToUpsert.serialize(schedule, orderItem.Id);
-            }
-        }
+        // for(OrderItem orderItem : [SELECT Id, ExternalId__c FROM OrderItem WHERE Id IN: orderItemIds]){
+        //     for(TemplateDataIntegrationFields.ScheduleParameters schedule : scheduleListToOrderItem){
+        //         scheduleListToUpsert.add(schedule.serialize(schedule, orderItem.Id));
+        //     }
+        // }
 
-        List<Database.UpsertResult> upsResultsSchedule = Database.upsert(scheduleListToUpsert, ShippingDivison__c.ExternalId__c, false);
+        // List<Database.UpsertResult> upsResultsSchedule = Database.upsert(scheduleListToUpsert, ShippingDivison__c.ExternalId__c, false);
 
         IntegrationUtils.upsertChildRecords(upsResults, responseMap, orderItemListToUpsert, OrderItem.ExternalId__c); 
         
@@ -71,9 +72,11 @@ global with sharing class IntegrationINOrderItem {
 
     global static Map<String, List<String>> prepareData(){
         List<String> productLookups = new List<String>();
+        List<String> orderLookups = new List<String>();
 
         Map<String, List<String>> response = new Map<String, List<String>>();
         response.put('productLookups', productLookups);
+        response.put('orderLookups', orderLookups);
         return response;
     }
 }

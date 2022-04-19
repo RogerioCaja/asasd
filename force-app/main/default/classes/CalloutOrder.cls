@@ -111,6 +111,7 @@ public with sharing class CalloutOrder {
             condition = new List<CalloutOrder.ConditionParameters>();
             partner.add(new CalloutOrder.PartnerParameters(order.Account.ExternalId__c, 'EO'));
             partner.add(new CalloutOrder.PartnerParameters(order.ShippingAccount__r.ExternalId__c, 'RM'));
+            partner.add(new CalloutOrder.PartnerParameters(order.SalesCTV__c, 'ZV'))
 
             Set<Id> orderItemIds = new Set<Id>();
 
