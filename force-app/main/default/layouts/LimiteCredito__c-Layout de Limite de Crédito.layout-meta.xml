@@ -21,15 +21,39 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Required</behavior>
-                <field>AvailableCredit__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Required</behavior>
-                <field>UsedCredit__c</field>
+                <field>LimitBalance__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Required</behavior>
                 <field>ExternalId__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>OrganizacaoVendas__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Culture__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>ConcessionDate__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>MaintenanceDate__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>EndDate__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Guarantee__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>LimitValue__c</field>
             </layoutItems>
         </layoutColumns>
         <layoutColumns/>
