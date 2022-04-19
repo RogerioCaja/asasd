@@ -66,6 +66,7 @@ export default class OrderProductScreen extends LightningElement {
             this.allDivisionProducts = this.isFilled(this.divisionData) ? this.divisionData : [];
         }
 
+        actions = [];
         if (this.headerData.pedido_mae_check) actions.push({ label: 'Editar', name: 'edit' });
         else actions.push({ label: 'Editar', name: 'edit' },{ label: 'Divisão de Remessas', name: 'shippingDivision' });
 
