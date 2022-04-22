@@ -13,31 +13,33 @@ global with sharing class TemplateDataIntegrationFields {
         SObject serialize(Map<String, String> lookups);
         String getParentKey();
     }
-
     
-    global class Pricebook2INData implements FieldData{
-        
-        //JSON fields Example
-        public String name;
+    public abstract class ConditionsPrices implements FieldData{
         public String codExternal;
         public String typeCondition;
-        public String description;
-        public String orgVendas;
         public String cultureCode;
-        public String listPrice;
-        public String cropCode;
-        public String accountCode;
-        public String accountGroup;
+        public String orgVendas;
         public String salesOffice;
         public String salesTeam;
-        public String salesSector;
+        public String productGroup;
+        public String accountGroup;
         public String initialDate;
         public String endDate;
-        public String effectiveDate;
-        public String typeCurrency;
         public String numRegisterCondition;
+    }
+
+    global class Pricebook2INData extends ConditionsPrices{
+        
+        //JSON fields Example
+        public String  name;
+        public String  description;
+        public String  listPrice;
+        public String  cropCode;
+        public String  accountCode;
+        public String  salesSector;
+        public String  effectiveDate;
+        public String  typeCurrency;
         public Boolean active;
-        public String productGroup;
         public List<TemplateDataIntegrationFields.PricebookEntryINData> pricebookEntries;
 
         public Pricebook2 serialize(Map<String, Id> lookups){
@@ -89,7 +91,6 @@ global with sharing class TemplateDataIntegrationFields {
 
     global class PricebookEntryINData implements FieldDataChild{
         
-        //JSON fields Example
         public String pricebook2Id;
         public String productCode;
         public Decimal unitPrice;
@@ -129,25 +130,13 @@ global with sharing class TemplateDataIntegrationFields {
         }
     }
 
-    global class JurosDescontoAntecipaoINData implements FieldData{
-        //JSON fields Example
+    global class JurosDescontoAntecipaoINData extends ConditionsPrices{
        
-        public String codExternal;
-        public String cropCode;
-        public String cultureCode;
-        public String orgVendas;
-        public String salesOffice;
-        public String salesTeam;
-        public String productGroup;
-        public String accountGroup;
-        public String initialDate;
-        public String endDate;
-        public String product;
-        public String center;
-        public String numRegisterCondition;
+        public String  cropCode;
+        public String  product;
+        public String  center;
         public Integer percentage;
-        public String typeCondition;
-        public String priority;
+        public String  priority;
 
         public JurosDescontoAntecipao__c serialize(Map<String, Id> lookups){
 
@@ -205,31 +194,20 @@ global with sharing class TemplateDataIntegrationFields {
         }
     }
 
-    global class GenericINData{
-        public String name;
-        public String codExternal;
-        public String typeCondition;
-        public String description;
-        public String orgVendas;
-        public String cultureCode;
-        public String listPrice;
-        public String cropCode;
-        public String accountCode;
-        public String accountGroup;
-        public String salesOffice;
-        public String salesTeam;
-        public String salesSector;
-        public String initialDate;
-        public String endDate;
-        public String effectiveDate;
-        public String typeCurrency;
+    global class GenericINData extends ConditionsPrices{
+        public String  name;
+        public String  description;
+        public String  listPrice;
+        public String  cropCode;
+        public String  accountCode;
+        public String  salesSector;
+        public String  effectiveDate;
+        public String  typeCurrency;
         public Boolean active;
-        public String productGroup;
-        public String priority;
-        public String center;
-        public String numRegisterCondition;
-        public String percentage;
-        public String product;
+        public String  priority;
+        public String  center;
+        public String  percentage;
+        public String  product;
         public List<TemplateDataIntegrationFields.PricebookEntryINData> pricebookEntries;
     }
 
