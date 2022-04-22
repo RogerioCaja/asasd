@@ -118,8 +118,9 @@ global with sharing class IntegrationINAccount {
                 lookups.put('Account' + account.ExternalId__c, account.Id);
             }
         }
+        companyINToInsert(requestCompanyList, responseList, lookups);
+        creditoINToInsert(requestCreditoList, responseList, lookups);
 
-        
         //Checking integration errors to log
         Boolean hasError = false;
 
@@ -138,7 +139,7 @@ global with sharing class IntegrationINAccount {
         return modelo;
     }
     
-    public void companyINToInsert(List<TemplateDataIntegrationFields.CompanyINData> request, List<TemplateDataIntegrationFields.Response> responseList, Map<String, Id> lookups){  
+    public static companyINToInsert(List<TemplateDataIntegrationFields.CompanyINData> request, List<TemplateDataIntegrationFields.Response> responseList, Map<String, Id> lookups){  
         List<Company__c> companyList = new List<Company__c>();
         FactoryDataIntegration.convertSObject(new Company__c(), 'IN', request, responseList, companyList, lookups);
 
@@ -154,7 +155,7 @@ global with sharing class IntegrationINAccount {
         );
     }
 
-    public void creditoINToInsert(List<TemplateDataIntegrationFields.LimiteCreditoINData> request, List<TemplateDataIntegrationFields.Response> responseList, Map<String, Id> lookups){  
+    public static creditoINToInsert(List<TemplateDataIntegrationFields.LimiteCreditoINData> request, List<TemplateDataIntegrationFields.Response> responseList, Map<String, Id> lookups){  
         List<LimiteCredito__c> creditoList = new List<LimiteCredito__c>();
         FactoryDataIntegration.convertSObject(new LimiteCredito__c(), 'IN', request, responseList, creditoList, lookups);
 
