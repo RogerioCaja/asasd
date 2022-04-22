@@ -305,6 +305,7 @@ global with sharing class TemplateDataIntegrationFields {
                 Culture__c = lookups.containsKey('Culture__c'+this.Cultura) ? lookups.get('Culture__c'+this.Cultura) : null,
                 Guarantee__c = this.Garantia,
                 AvailableCredit__c = this.Valor,
+                BlockedCredit__c = this.Bloqueado,
                 UsedCredit__c = this.Saldo,
                 ConcessionDate__c = this.DataConcessao,
                 EndDate__c = this.DataVencimento,
