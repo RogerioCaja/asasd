@@ -164,7 +164,7 @@ global with sharing class IntegrationINAccount {
         creditoMap = getMapCreditoToInsert(creditoList);
                
         //Upserting records (Account)
-        IntegrationUtils.upsertChildRecords(
+        IntegrationUtils.upsertChildRecords(//codigo do conta com o do credito concatenado para codigo do conta
             Database.upsert(creditoMap.values(), LimiteCredito__c.ExternalId__c, false), 
             creditoList, 
             creditoMap.values(), 
