@@ -209,6 +209,22 @@ global with sharing class TemplateDataIntegrationFields {
         public String  percentage;
         public String  product;
         public List<TemplateDataIntegrationFields.PricebookEntryINData> pricebookEntries;
+
+         //Required fields for integration
+         public List<String> getRequiredFields(){
+            return new List<String>{
+            };
+        }
+
+        //ExternalId field
+        public String getFieldKey(){
+            return '';
+        }
+        
+        //Id field
+        public String getFieldId() {
+            return '';
+        }
     }
 
     global virtual class Response {
