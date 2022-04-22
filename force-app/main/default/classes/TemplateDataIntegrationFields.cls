@@ -71,14 +71,8 @@ global with sharing class TemplateDataIntegrationFields {
         //Required fields for integration
         public List<String> getRequiredFields(){
             return new List<String>{
-                'ExternalId__c',
-                'SalesOrg__c',
-                'PriceList__c',
-                'InitialDate__c',
-                'EndDate__c',
-                'Currency__c',
-                'EffectiveDate__c',
-                'ProductGroup__c'
+                'Name',
+                'ExternalId__c'
             };
         }
 
