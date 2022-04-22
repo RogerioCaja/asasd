@@ -210,6 +210,12 @@ global with sharing class TemplateDataIntegrationFields {
         public String  product;
         public List<TemplateDataIntegrationFields.PricebookEntryINData> pricebookEntries;
 
+        public PricebookEntry serialize(Map<String, Id> lookups){
+            //Returning Object with Fields.
+            return new PricebookEntry(
+            );
+        }
+
          //Required fields for integration
          public List<String> getRequiredFields(){
             return new List<String>{
