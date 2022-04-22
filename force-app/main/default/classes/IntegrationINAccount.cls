@@ -154,20 +154,28 @@ global with sharing class IntegrationINAccount {
         );
     }
 
-    public void creditoINToInsert(List<TemplateDataIntegrationFields.CompanyINData> request, List<TemplateDataIntegrationFields.Response> responseList, Map<String, Id> lookups){  
-        List<Company__c> creditoList = new List<Company__c>();
-        FactoryDataIntegration.convertSObject(new Company__c(), 'IN', request, responseList, creditoList, lookups);
+    public void creditoINToInsert(List<TemplateDataIntegrationFields.LimiteCreditoINData> request, List<TemplateDataIntegrationFields.Response> responseList, Map<String, Id> lookups){  
+        List<LimiteCredito__c> creditoList = new List<LimiteCredito__c>();
+        FactoryDataIntegration.convertSObject(new LimiteCredito__c(), 'IN', request, responseList, creditoList, lookups);
 
-        Map<String, Company__c> companyMap = new Map<String, Company__c>();
-        creditoMap = getMapCompanyToInsert(creditoList);
+        Map<String, LimiteCredito__c> creditoMap = new Map<String, LimiteCredito__c>();
+        creditoMap = getMapCreditoToInsert(creditoList);
                
         //Upserting records (Account)
         IntegrationUtils.upsertChildRecords(
-            Database.upsert(creditoMap.values(), Company__c.ExternalId__c, false), 
+            Database.upsert(creditoMap.values(), LimiteCredito__c.ExternalId__c, false), 
             creditoList, 
             creditoMap.values(), 
-            Company__c.ExternalId__c
+            LimiteCredito__c.ExternalId__c
         );
+    }
+
+    public static Map<String, LimiteCredito__c> getMapCreditoToInsert(LimiteCredito__c[] creditoList){  
+        Map<String, LimiteCredito__c> visionMap = new Map<String, LimiteCredito__c>();
+        for(LimiteCredito__c credito : creditoList){
+            visionMap.put(credito.ExternalId__c, credito);
+        }
+        return visionMap;
     }
 
     public static Map<String, Company__c> getMapCompanyToInsert(Company__c[] companyList){  
