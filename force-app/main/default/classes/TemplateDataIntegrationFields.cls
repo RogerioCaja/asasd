@@ -351,7 +351,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String EscritorioVendas;
         public String EquipeVendas;
         public String GrupoClientes;
-        public String Bloqueado;
+        public Boolean Bloqueado;
         public String Status;
         public String SetorVendas;
         public Company__c serialize(Map<String, Id> lookups){

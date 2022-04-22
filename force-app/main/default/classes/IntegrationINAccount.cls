@@ -82,7 +82,7 @@ global with sharing class IntegrationINAccount {
 
         //sales Team Lookup
         if(cultureIdList != null){
-            List<Cultura__c> cultureList = new List<Cultura__c>([SELECT Id, ExternalId__c FROM Cultura__c WHERE ExternalId__c =: cultureIdList]);
+            List<Cultura__c> cultureList = new List<Cultura__c>([SELECT Id, Codigo__c FROM Cultura__c WHERE Codigo__c =: cultureIdList]);
             for (Cultura__c cult : cultureList) {
                 lookups.put('Cultura__c' + cult.Codigo__c, cult.Id);
             }
