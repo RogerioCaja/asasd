@@ -232,26 +232,8 @@ global with sharing class TemplateDataIntegrationFields {
         
         public Account serialize(Map<String, Id> lookups){
 
-            
-            
-            ShippingAddress shipAdress;
-            shipAdress.street = this.RuaEntrega;
-            shipAdress.city = this.CidadeEntrega;
-            shipAdress.state = this.EstadoEntrega;
-            shipAdress.country = this.PaisEntrega;
-            shipAdress.postalCode = this.CEPEntrega;
-            BillingAddress biliAdress;
-            biliAdress.street = this.RuaCobranca;
-            biliAdress.city = this.CidadeCobranca;
-            biliAdress.state = this.EstadoCobranca;
-            biliAdress.country = this.PaisCobranca;
-            biliAdress.postalCode = this.CEPCobranca;
-
-            //Returning Object with Fields.
-            return new Account(
+            Account ac = new Account(
                 ExternalId__c = this.CodigoExterno,
-                ShippingAddress = shipAdress,
-                BillingAddress = biliAdress,
                 ParentId = lookups.containsKey('Account__c'+this.ContaPai) ? lookups.get('Account__c'+this.ContaPai) : null,
                 CNPJ__c = this.CNPJ,
                 CPF__c = this.CPF,
@@ -261,6 +243,20 @@ global with sharing class TemplateDataIntegrationFields {
                 Phone = this.Telefone,
                 Status__c = this.Status
             );
+            
+            ac.ShippingStreet = this.RuaEntrega;
+            ac.ShippingCity = this.CidadeEntrega;
+            ac.ShippingState = this.EstadoEntrega;
+            ac.ShippingCountry = this.PaisEntrega;
+            ac.ShippingPostalCode = this.CEPEntrega;
+            ac.BillingStreet = this.RuaCobranca;
+            ac.BillingCity = this.CidadeCobranca;
+            ac.BillingState = this.EstadoCobranca;
+            ac.BillingCountry = this.PaisCobranca;
+            ac.BillingPostalCode = this.CEPCobranca;
+
+            //Returning Object with Fields.
+            return ac;
         }
         
         //Required fields for integration
