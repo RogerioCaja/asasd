@@ -24,7 +24,6 @@ global with sharing class IntegrationINAccount {
         for(TemplateDataIntegrationFields.AccountINData req : request){
             for(TemplateDataIntegrationFields.CompanyINData comp : req.companyEntries){
                 comp.accountId = req.CodigoExterno;
-
                 salesOrganizationIdList.add(comp.OrganizacaoVendas);
                 activitySectorIdList.add(comp.SetorAtividade);
                 distributionChannelIdList.add(comp.CanalDistribuicao);
@@ -89,7 +88,7 @@ global with sharing class IntegrationINAccount {
         }
         //sales Team Lookup
         if(safraIdList != null){
-            List<Safra__c> safraList = new List<Safra__c>([SELECT Id, Code__c FROM Safra__c WHERE ExternalId__c =: safraIdList]);
+            List<Safra__c> safraList = new List<Safra__c>([SELECT Id, Code__c FROM Safra__c WHERE Code__c =: safraIdList]);
             for (Safra__c safra : safraList) {
                 lookups.put('Safra__c' + safra.Code__c, safra.Id);
             }
@@ -97,6 +96,8 @@ global with sharing class IntegrationINAccount {
 
         //colocar num map os tipos de record e os usar num for igual o primeiro e desta vez preenchendo o 
         FactoryDataIntegration.convertSObject(new Account(), 'IN', request, responseList, ListAccountToUpsert, lookups);
+
+        
 
         Map<String, Account> accountMap = new Map<String, Account>();
         accountMap = getMapAccountToInsert(ListAccountToUpsert);
@@ -118,6 +119,7 @@ global with sharing class IntegrationINAccount {
             }
         }
 
+        
         //Checking integration errors to log
         Boolean hasError = false;
 
@@ -136,7 +138,7 @@ global with sharing class IntegrationINAccount {
         return modelo;
     }
     
-    public void companyINToInsert(List<Object> request, List<TemplateDataIntegrationFields.CompanyINData> request, List<TemplateDataIntegrationFields.Response> responseList, Map<String, Id> lookups){  
+    public void companyINToInsert(List<TemplateDataIntegrationFields.CompanyINData> request, List<TemplateDataIntegrationFields.Response> responseList, Map<String, Id> lookups){  
         List<Company__c> companyList = new List<Company__c>();
         FactoryDataIntegration.convertSObject(new Company__c(), 'IN', request, responseList, companyList, lookups);
 
@@ -144,17 +146,34 @@ global with sharing class IntegrationINAccount {
         companyMap = getMapCompanyToInsert(companyList);
                
         //Upserting records (Account)
-        IntegrationUtils.upsertRecords(
-            Database.upsert(companyMap.values(), Company__c.accountId, false), 
-            responseCompanyList, 
+        IntegrationUtils.upsertChildRecords(
+            Database.upsert(companyMap.values(), Company__c.ExternalId__c, false), 
+            companyList, 
             companyMap.values(), 
-            Company__c.accountId
+            Company__c.ExternalId__c
         );
     }
+
+    public void creditoINToInsert(List<TemplateDataIntegrationFields.CompanyINData> request, List<TemplateDataIntegrationFields.Response> responseList, Map<String, Id> lookups){  
+        List<Company__c> creditoList = new List<Company__c>();
+        FactoryDataIntegration.convertSObject(new Company__c(), 'IN', request, responseList, creditoList, lookups);
+
+        Map<String, Company__c> companyMap = new Map<String, Company__c>();
+        creditoMap = getMapCompanyToInsert(creditoList);
+               
+        //Upserting records (Account)
+        IntegrationUtils.upsertChildRecords(
+            Database.upsert(creditoMap.values(), Company__c.ExternalId__c, false), 
+            creditoList, 
+            creditoMap.values(), 
+            Company__c.ExternalId__c
+        );
+    }
+
     public static Map<String, Company__c> getMapCompanyToInsert(Company__c[] companyList){  
         Map<String, Company__c> visionMap = new Map<String, Company__c>();
         for(Company__c company : companyList){
-            visionMap.put(company.Conta__c, company);//trocar
+            visionMap.put(company.ExternalId__c, company);
         }
         return visionMap;
     }

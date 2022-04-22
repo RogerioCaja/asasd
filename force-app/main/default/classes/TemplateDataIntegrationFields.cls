@@ -338,6 +338,7 @@ global with sharing class TemplateDataIntegrationFields {
         
         //JSON fields Example
         public String accountId;
+        public String accountSap;
         public String OrganizacaoVendas;
         public String SetorAtividade;
         public String CanalDistribuicao;
@@ -363,7 +364,7 @@ global with sharing class TemplateDataIntegrationFields {
                 Blocked__c = this.Bloqueado,
                 Status__c = this.Status,
                 SalesSector__c = this.SetorVendas,
-                //ExternalId__c = 
+                ExternalId__c = this.accountId + this.OrganizacaoVendas + this.SetorAtividade + this.CanalDistribuicao + this.EscritorioVendas + this.EquipeVendas
             );
         }
         
