@@ -306,7 +306,7 @@ global with sharing class TemplateDataIntegrationFields {
                 ConcessionDate__c = this.DataConcessao,
                 EndDate__c = this.DataVencimento,
                 MaintenanceDate__c = this.DataManutencao,
-                Safra__c = lookups.containsKey('Safra__c'+this.Safra) ? lookups.get('Safra__c'+this.Safra) : null
+                Safra__c = lookups.containsKey('Safra__c'+String.valueOf(this.Safra)) ? lookups.get('Safra__c'+String.valueOf(this.Safra)) : null
             );
         }
         

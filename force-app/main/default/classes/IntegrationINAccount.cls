@@ -19,7 +19,7 @@ global with sharing class IntegrationINAccount {
         Set<String> salesTeamIdList = new Set<String>();
         //Credito Lists
         Set<String> cultureIdList = new Set<String>();
-        Set<Decimal> safraIdList = new Set<Decimal>();
+        Set<String> safraIdList = new Set<String>();
         System.debug(request);
         for(TemplateDataIntegrationFields.AccountINData req : request){
             for(TemplateDataIntegrationFields.CompanyINData comp : req.companyEntries){
@@ -35,7 +35,7 @@ global with sharing class IntegrationINAccount {
                 cred.accountId = req.CodigoExterno;
                 salesOrganizationIdList.add(cred.OrganizacaoVendas);
                 cultureIdList.add(cred.Cultura);
-                safraIdList.add(cred.Safra);
+                safraIdList.add(String.valueOf(cred.Safra));
                 requestCreditoList.add(cred);
             }
             accountIdList.add(req.CodigoExterno);
@@ -118,8 +118,9 @@ global with sharing class IntegrationINAccount {
                 lookups.put('Account' + account.ExternalId__c, account.Id);
             }
         }
-        companyINToInsert(requestCompanyList, responseList, lookups);
-        creditoINToInsert(requestCreditoList, responseList, lookups);
+        Map<String, List<TemplateDataIntegrationFields.Response>> responseMap = new Map<String, List<TemplateDataIntegrationFields.Response>>();
+        companyINToInsert(requestCompanyList, responseMap, lookups);
+        creditoINToInsert(requestCreditoList, responseMap, lookups);
 
         //Checking integration errors to log
         Boolean hasError = false;
@@ -139,9 +140,9 @@ global with sharing class IntegrationINAccount {
         return modelo;
     }
     
-    public static companyINToInsert(List<TemplateDataIntegrationFields.CompanyINData> request, List<TemplateDataIntegrationFields.Response> responseList, Map<String, Id> lookups){  
+    public static void companyINToInsert(List<TemplateDataIntegrationFields.CompanyINData> request, Map<String, List<TemplateDataIntegrationFields.Response>> responseMap, Map<String, Id> lookups){  
         List<Company__c> companyList = new List<Company__c>();
-        FactoryDataIntegration.convertSObject(new Company__c(), 'IN', request, responseList, companyList, lookups);
+        FactoryDataIntegration.convertSObject(new Company__c(), 'IN', request, responseMap, companyList, lookups);
 
         Map<String, Company__c> companyMap = new Map<String, Company__c>();
         companyMap = getMapCompanyToInsert(companyList);
@@ -155,9 +156,9 @@ global with sharing class IntegrationINAccount {
         );
     }
 
-    public static creditoINToInsert(List<TemplateDataIntegrationFields.LimiteCreditoINData> request, List<TemplateDataIntegrationFields.Response> responseList, Map<String, Id> lookups){  
+    public static void creditoINToInsert(List<TemplateDataIntegrationFields.LimiteCreditoINData> request, Map<String, List<TemplateDataIntegrationFields.Response>> responseMap, Map<String, Id> lookups){  
         List<LimiteCredito__c> creditoList = new List<LimiteCredito__c>();
-        FactoryDataIntegration.convertSObject(new LimiteCredito__c(), 'IN', request, responseList, creditoList, lookups);
+        FactoryDataIntegration.convertSObject(new LimiteCredito__c(), 'IN', request, responseMap, creditoList, lookups);
 
         Map<String, LimiteCredito__c> creditoMap = new Map<String, LimiteCredito__c>();
         creditoMap = getMapCreditoToInsert(creditoList);
