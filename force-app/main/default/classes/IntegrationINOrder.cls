@@ -9,16 +9,13 @@ global with sharing class IntegrationINOrder {
 
         Set<String> accountLookups = new Set<String>();
         Set<String> orderLookups = new Set<String>();
-        //Set<String> addressLookups = new Set<String>();
         Set<String> shippingAccountLookups = new Set<String>();
         Set<String> cropLookups = new Set<String>();
         Set<String> cultureLookups = new Set<String>();
         Set<String> salesOrgLookups = new Set<String>();
         Set<String> salesCTVLookups = new Set<String>();
-        Set<String> conditionLookups = new Set<String>();
-        
-
-        Set<String> pricebook2Lookups = new Set<String>();
+        Set<String> pricebook2IdLookups = new Set<String>();
+        Set<String> paymentConditionLookups = new Set<String>(); 
 
         // Guarda uma lista de respostas
         List<TemplateDataIntegrationFields.ResponseParent> responseList = new List<TemplateDataIntegrationFields.ResponseParent>();
@@ -31,10 +28,15 @@ global with sharing class IntegrationINOrder {
         for (TemplateDataIntegrationFields.OrderINData order : request){
             // Pega a relação da conta com o pedido
             //Getting account parameters to search
-            //accountLookups.add(order.clienteCode);
-            //addressLookups.add(order.addressCode);
-            conditionLookups.add(order.paymentCondition);
-            pricebook2Lookups.add(order.pricebook2Id);
+            orderLookups.add(order.order);
+            accountIdLookus.add(order.accountId);
+            shippingAccountLookups.add(order.shippingAccount);
+            cropLookups.add(order.crop);
+            cultureLookups.add(order.culture);
+            salesOrgLookups.add(order.salesOrg);
+            salesCTVLookups.add(order.salesCTV);
+            pricebook2IdLookups.add(order.pricebook2Id);
+            paymentConditionLookups.add(order.paymentCondition);
             
             if(order.orderItems != null) {
                 // Adiciona todos os External Id e o catalogo de preço de order nos orderItem
@@ -47,28 +49,44 @@ global with sharing class IntegrationINOrder {
                 orderItemListToUpsert.addAll(order.orderItems);
             }
         }
-        // Pega o Id da conta com base no CNPJ da conta
-        //Account search based on CNPJ field sent
-        for (Account account : [SELECT Id, CNPJ__c FROM Account WHERE CNPJ__c IN : accountLookups]) {
-            //Map structure for the model -> object name + parameter to record id
-            //Example
-            lookups.put('Account' + account.CNPJ__c, account.Id);
+
+        for (Pricebook2 pricebook2Id : [SELECT Id, ExternalId__c FROM Pricebook2 WHERE ExternalId__c IN : pricebookIdLookups ]){
+            lookups.put('Pricebook' + pricebook2Id.ExternalId__c, pricebook2Id.Id);
         }
 
-        for (AccountAddress__c accountAddress : [SELECT Id, Name, Bairro__c, CEP__c, City__c, Account__c, Code__c, Account__r.CNPJ__c FROM AccountAddress__c WHERE Account__r.CNPJ__c IN : accountLookups]){
-            lookups.put('Address' + accountAddress.Code__c, accountAddress.Id);
-            
-        }
-       
-
-        for (PaymentCondition__c conditionCode : [SELECT Id, Name, Code__c FROM PaymentCondition__c]){
-            lookups.put('Condition' + conditionCode.Code__c, conditionCode.Id);
+        for (Order order : [SELECT Id, CodigoSap__c FROM Order WHERE CodigoSap__c IN : orderLookups]) {
+            lookups.put('Order' + order.CodigoSap__c, order.Id);
         }
 
-        for (DistribuitionCenter__c distributionCenter : [SELECT Id, Name, 	Code__c from DistribuitionCenter__c]){
-            lookups.put('Distribution' + distributionCenter.Code__c, distributionCenter.Id);
+        for (Account account : [SELECT Id, shippingAccount__c FROM Account WHERE shippingAccount__c IN : shippingAccountLookups]) {
+            lookups.put('Account' + account.ShippingAccount__c, account.Id);
         }
-        
+
+        for (Account account : [SELECT Id, accountId FROM Account WHERE accountId IN : accountIdLookups]) {
+            lookups.put('Account' + account.ShippingAccount__c, account.Id);
+        }
+
+        for (Safra__c crop : [SELECT Id, Code__c FROM Safra__c WHERE Code__c IN : cropLookups]) {
+            lookups.put('Safra' + crop.Code__c, crop.Id);
+        }
+
+        for (Cultura__c culture : [SELECT Id, Codigo__c FROM Cultura__c WHERE Codigo__c IN : cultureLookups]) {
+            lookups.put('Cultura' + culture.Codigo__c, culture.Id);
+        }
+
+        for (SalesOrg__c salesOrg : [SELECT Id, SalesOrganizationCode__c FROM SalesOrg__c WHERE SalesOrganizationCode__c IN : salesOrgLookups]) {
+            lookups.put('SalesOrg' + salesOrg.SalesOrganizationCode__c, salesOrg.Id);
+        }
+
+        for (User salesCTV : [SELECT Id, CodigoSap__c FROM User WHERE CodigoSap__c IN : salesCTVLookups]) {
+            lookups.put('User' + salesCTV.CodigoSap__c, salesCTV.Id);
+        }
+
+        for (CondicaoPagamento__c paymentCondition : [SELECT Id, Code__c FROM CondicaoPagamento__c WHERE Code__c IN : paymentConditionLookups]) {
+            lookups.put('CondicaoPagamento' + paymentCondition.Code__c, paymentCondition.Id);
+        }
+
+
         //Converting template to object list and validating required fields
         // Valida e adiciona objeto na lista para upsert
         FactoryDataIntegration.convertSObject(new Order(), 'IN', request, responseList, orderListToUpsert, lookups);

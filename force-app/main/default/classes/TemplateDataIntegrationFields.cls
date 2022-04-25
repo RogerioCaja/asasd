@@ -273,4 +273,80 @@ global with sharing class TemplateDataIntegrationFields {
     global class ResponseParent extends Response {
         public List<TemplateDataIntegrationFields.Response> items;
     }
+
+    global class IntegrationINOrder implements FieldData{
+
+        public String status;
+        public String pricebook2Id;
+        public String Type;
+        public String ShippingAccount;
+        public String PaymentAccount;
+        public Date PaymentDate;
+        public String CustomerOrderNumber;
+        public Date EffectiveDate;
+        public String Crop;
+        public String Culture;
+        public String PaymentForm;
+        public String SalesOrg;
+        public String DistributionChannel;
+        public String ActivitySector;
+        public String Currency;
+        public String SalesCTV;
+        public String Incoterms;
+        public String Incoterms2;
+        public String Description;
+        public String PaymentCondition;
+        public Date ShippingDate;
+        public String DescriptionBillingSale;
+        public String OrderReference;
+
+        public Order serialize(Map<String, Id> lookups){
+
+            return new Order(
+
+                ExternalId__c = this.codExternal,
+                Pricebook2Id = lookups.containsKey('Pricebook2Id'+this.pricebook2Id) ? lookups.get('Pricebook2Id'+this.pricebook2Id) : null,
+                ShippingAccount__c = lookups.containsKey('ShippingAccount__c'+this.shippingAccount) ? lookups.get('ShippingAccount__c'+this.shippingAccount) : null,
+                AccountId = lookups.containsKey('AccountId'+this.paymentAccount) ? lookups.get('AccountId'+this.paymentAccount) : null,
+                Crop__c = lookups.containsKey('Crop__c'+this.cropCode) ? lookups.get('Crop__c'+this.cropCode) : null,
+                Culture__c = lookups.containsKey('Culture__c'+this.cultureCode) ? lookups.get('Culture__c'+this.cultureCode) : null,
+                SalesOrg__c = lookups.containsKey('SalesOrg__c'+this.salesOrg) ? lookups.get('SalesOrg__c'+this.salesOrg) : null,
+                SalesCTV__c = lookups.containsKey('SalesCTV__c'+this.salesCTV) ? lookups.get('SalesCTV__c'+this.salesCTV) : null,
+                PaymentCondition__c = lookups.containsKey('PaymentCondition__c'+this.paymentCondition) ? lookups.get('PaymentCondition__c'+this.paymentCondition) : null,
+                PaymentDate__c = Date.valueOf(paymentDate),
+                EffectiveDate = Date.valueOf(effectiveDate),
+                ShippingDate__c = Date.valueOf(ShippingDate),
+                Status = this.status,
+                Type = this.type,
+                CustomerOrderNumber__c = this.orderNumber,
+                PaymentForm__c = this.paymentForm,
+                DistributionChannel__c = this.distributionChannel,
+                ActivitySector__c = this.activitySector,
+                Currency__c = this.currency,
+                Incoterms__c = this.incoterms,
+                Incoterms2__c = this.incoterms,
+                Description = this.description,
+                DescriptionBillingSale__c = this.descriptionBillingSale,
+                OrderReference__c = this.OrderReference
+            );
+        }
+
+        public List<String> getRequiredFields(){
+            return new List<String>{
+                'ExternalId__c',
+                'Currency__c',
+                'PaymentCondition__c',
+                'PaymentDate__c',
+                'PaymentForm__c',
+                'CustomerOrderNumber__c'
+     
+            };
+        }
+        public String getFieldKey(){
+            return 'ExternalId__c';
+        }
+        public String getFieldId() {
+            return 'Id';
+        }
+    }
 }
