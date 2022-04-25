@@ -13,6 +13,7 @@ import {
 } from 'lightning/platformShowToastEvent';
 import Order from '@salesforce/schema/Order';
 import saveOrder from '@salesforce/apex/OrderScreenController.saveOrder';
+import calloutOrder from '@salesforce/apex/OrderScreenController.callout';
 import getOrder from '@salesforce/apex/OrderScreenController.getOrder';
 import getAccount from '@salesforce/apex/OrderScreenController.getAccount';
 
@@ -285,8 +286,10 @@ export default class OrderScreen extends LightningElement {
         .then((result) => {
             console.log(JSON.stringify(result));
             result = JSON.parse(result);
-            if(!result.hasError)
+            if(!result.hasError){
                 this.showNotification(result.message, 'Sucesso', 'success');
+                calloutOrder({orderId: result.orderId});
+            }
             else
                 this.showNotification(result.message, 'Algo de errado aconteceu','erro');
 
