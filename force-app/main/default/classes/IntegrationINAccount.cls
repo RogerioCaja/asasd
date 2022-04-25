@@ -24,6 +24,7 @@ global with sharing class IntegrationINAccount {
         for(TemplateDataIntegrationFields.AccountINData req : request){
             for(TemplateDataIntegrationFields.CompanyINData comp : req.companyEntries){
                 comp.accountId = req.CodigoExterno;
+                comp.ExternalId = req.CodigoExterno + comp.OrganizacaoVendas + comp.SetorAtividade + comp.CanalDistribuicao + comp.EscritorioVendas + comp.EquipeVendas;
                 salesOrganizationIdList.add(comp.OrganizacaoVendas);
                 activitySectorIdList.add(comp.SetorAtividade);
                 distributionChannelIdList.add(comp.CanalDistribuicao);
@@ -32,6 +33,7 @@ global with sharing class IntegrationINAccount {
                 requestCompanyList.add(comp);
             }
             for(TemplateDataIntegrationFields.LimiteCreditoINData  cred : req.creditoEntries){
+                cred.ExternalId = req.CodigoExterno + cred.Safra + cred.Cultura + cred.Garantia;
                 cred.accountId = req.CodigoExterno;
                 salesOrganizationIdList.add(cred.OrganizacaoVendas);
                 cultureIdList.add(cred.Cultura);
@@ -141,16 +143,21 @@ global with sharing class IntegrationINAccount {
     }
     
     public static void companyINToInsert(List<TemplateDataIntegrationFields.CompanyINData> request, Map<String, List<TemplateDataIntegrationFields.Response>> responseMap, Map<String, Id> lookups){  
+        Map<String, String> parentMapKeys = new Map<String, String>();
+        for(TemplateDataIntegrationFields.CompanyINData company : request) {
+            parentMapKeys.put(company.accountId + '|' + company.ExternalId, lookups.containsKey('Account' + company.accountId) ? lookups.get('Account' + company.accountId) : null);
+            
+        }
+        
         List<Company__c> companyList = new List<Company__c>();
-        FactoryDataIntegration.convertSObject(new Company__c(), 'IN', request, responseMap, companyList, lookups);
-
+        FactoryDataIntegration.convertSObjectChild(new Company__c(), 'IN', request, responseMap, companyList, lookups, parentMapKeys);
         Map<String, Company__c> companyMap = new Map<String, Company__c>();
         companyMap = getMapCompanyToInsert(companyList);
                
         //Upserting records (Account)
         IntegrationUtils.upsertChildRecords(
             Database.upsert(companyMap.values(), Company__c.ExternalId__c, false), 
-            companyList, 
+            responseMap, 
             companyMap.values(), 
             Company__c.ExternalId__c
         );
@@ -158,7 +165,12 @@ global with sharing class IntegrationINAccount {
 
     public static void creditoINToInsert(List<TemplateDataIntegrationFields.LimiteCreditoINData> request, Map<String, List<TemplateDataIntegrationFields.Response>> responseMap, Map<String, Id> lookups){  
         List<LimiteCredito__c> creditoList = new List<LimiteCredito__c>();
-        FactoryDataIntegration.convertSObject(new LimiteCredito__c(), 'IN', request, responseMap, creditoList, lookups);
+        Map<String, String> parentMapKeys = new Map<String, String>();
+        for(TemplateDataIntegrationFields.LimiteCreditoINData credito : request) {
+            parentMapKeys.put(credito.accountId + '|' + credito.ExternalId, lookups.containsKey('Account' + credito.accountId) ? lookups.get('Account' + credito.accountId) : null);  
+        }
+
+        FactoryDataIntegration.convertSObjectChild(new LimiteCredito__c(), 'IN', request, responseMap, creditoList, lookups, parentMapKeys);
 
         Map<String, LimiteCredito__c> creditoMap = new Map<String, LimiteCredito__c>();
         creditoMap = getMapCreditoToInsert(creditoList);
@@ -166,7 +178,7 @@ global with sharing class IntegrationINAccount {
         //Upserting records (Account)
         IntegrationUtils.upsertChildRecords(//codigo do conta com o do credito concatenado para codigo do conta
             Database.upsert(creditoMap.values(), LimiteCredito__c.ExternalId__c, false), 
-            creditoList, 
+            responseMap, 
             creditoMap.values(), 
             LimiteCredito__c.ExternalId__c
         );

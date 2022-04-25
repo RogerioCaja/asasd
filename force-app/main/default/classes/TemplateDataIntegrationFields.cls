@@ -270,6 +270,7 @@ global class LimiteCreditoINData implements FieldDataChild{
     
     //JSON fields Example
     public String accountId;
+    public String ExternalId;
     public String OrganizacaoVendas;
     public Decimal Valor;
     public String Bloqueado;
@@ -295,7 +296,8 @@ global class LimiteCreditoINData implements FieldDataChild{
             ConcessionDate__c = this.DataConcessao,
             EndDate__c = this.DataVencimento,
             MaintenanceDate__c = this.DataManutencao,
-            Safra__c = lookups.containsKey('Safra__c'+String.valueOf(this.Safra)) ? lookups.get('Safra__c'+String.valueOf(this.Safra)) : null
+            Safra__c = lookups.containsKey('Safra__c'+String.valueOf(this.Safra)) ? lookups.get('Safra__c'+String.valueOf(this.Safra)) : null,
+            ExternalId__c = this.accountId + this.Safra + this.Cultura + this.Garantia 
         );
     }
     
@@ -312,7 +314,7 @@ global class LimiteCreditoINData implements FieldDataChild{
     }
 
     public String getFieldExternal(){
-        return 'accountId';
+        return 'ExternalId__c';
     }
     
     public String getParentKey(){
@@ -324,7 +326,7 @@ global class CompanyINData implements FieldDataChild{
     
     //JSON fields Example
     public String accountId;
-    public String accountSap;
+    public String ExternalId;
     public String OrganizacaoVendas;
     public String SetorAtividade;
     public String CanalDistribuicao;
