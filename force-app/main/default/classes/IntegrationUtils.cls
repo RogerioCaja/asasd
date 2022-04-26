@@ -129,6 +129,30 @@ public class IntegrationUtils {
             this.parsedResponse = response;
         }
     }
+    // CALLOUT STANDARD RESPONSE OUTTER CLASS
+    public class CalloutCTVResponse{
+        public CalloutCTVCarteira.ResponseParameters parsedResponse;
+        public Boolean success;
+        public String errorMessage;
+
+        public CalloutCTVResponse(CalloutCTVCarteira.ResponseParameters response){
+            this.success = true;
+            this.errorMessage = '';
+            this.parsedResponse = response;
+        }
+
+        public CalloutCTVResponse(String errorMessage){
+            this.success = false;
+            this.errorMessage = errorMessage;
+            this.parsedResponse = null;
+        }
+
+        public CalloutCTVResponse(String errorMessage, CalloutCTVCarteira.ResponseParameters response){
+            this.success = false;
+            this.errorMessage = errorMessage;
+            this.parsedResponse = response;
+        }
+    }
     // CALLOUT PARSING INNER INTERFACE
     public interface CalloutResponseParsedData{}
 

@@ -1,13 +1,11 @@
 public with sharing class CalloutCTVCarteira {
 
-    public static IntegrationUtils.CalloutResponse processIntegration(){
+    public static IntegrationUtils.CalloutCTVResponse processIntegration(){
 
         List<Territory2> territoryList = new List<Territory2>([SELECT id, DeveloperName, lastmodifieddate, ParentTerritory2.DeveloperName, name, Territory2Type.DeveloperName FROM territory2]);
 
         
-        List<Territory2> allTerritory = new List<Territory2>{territoryList};
-        
-        IntegrationUtils.CalloutResponse calloutResponse = sendOrder(allTerritory);
+        IntegrationUtils.CalloutCTVResponse calloutResponse = sendOrder(territoryList);
 
         if (calloutResponse.success) {
             
@@ -18,7 +16,7 @@ public with sharing class CalloutCTVCarteira {
         return calloutResponse;
     }
 
-    public static IntegrationUtils.CalloutResponse sendOrder(List<Territory2> territoryList) {
+    public static IntegrationUtils.CalloutCTVResponse sendOrder(List<Territory2> territoryList) {
             
         List<RequestParameters> request = new List<RequestParameters>();
 
@@ -27,7 +25,7 @@ public with sharing class CalloutCTVCarteira {
         }
 
         String payload = JSON.serialize(request);
-        System.debug('PayloadCheck: ', request);
+        System.debug('PayloadCheck: '+ payload);
         //Metodo para busca de Access Token, depende de cada projeto, podendo estar presente dentro de uma custom settings ou relacionado com outra requisição.
         String accessToken = '';//! FALTA SABER A RESPOSTA DO SAP QUANTO A AUTENTICAÇÃO! F
         
@@ -48,17 +46,17 @@ public with sharing class CalloutCTVCarteira {
             try {
 
                 List<ResponseParametersWrapper> responses = (List<ResponseParametersWrapper>) JSON.deserialize(response.getBody(), List<ResponseParametersWrapper>.class);
-                return new IntegrationUtils.CalloutResponse(new ResponseParameters(responses));
+                return new IntegrationUtils.CalloutCTVResponse(new ResponseParameters(responses));
             } catch (Exception e) {
                 
                 String defaultErrorMessage = 'Malformatted HTTP Response Exception: ' + e.getMessage();
 
-                return new IntegrationUtils.CalloutResponse(defaultErrorMessage);
+                return new IntegrationUtils.CalloutCTVResponse(defaultErrorMessage);
             }
         } else {
 
             IntegrationLog.createLog('Pedido OUT', 'OUT', responseObject.exceptionObject.getMessage(), payload, true);
-            return new IntegrationUtils.CalloutResponse(responseObject.exceptionObject.getMessage());
+            return new IntegrationUtils.CalloutCTVResponse(responseObject.exceptionObject.getMessage());
         }
     }
 
@@ -66,7 +64,7 @@ public with sharing class CalloutCTVCarteira {
     public class RequestParameters{
         public Object header;
 
-        public List<CalloutOrder.ClienteParameters> Clientes;
+        public List<CalloutCTVCarteira.ClienteParameters> Clientes;
 
         public RequestParameters(Territory2 territory){
             List<String> accountIds = new List<String>();
@@ -81,7 +79,7 @@ public with sharing class CalloutCTVCarteira {
 
             List<Account> accountList = new List<Account>([SELECT Id, ExternalId__c  FROM Account WHERE Id =: accountIds]);
 
-            CalloutOrder.HeaderInsert header = new CalloutOrder.HeaderInsert();
+            CalloutCTVCarteira.HeaderInsert header = new CalloutCTVCarteira.HeaderInsert();
             header.IdTerritorio = territory.DeveloperName;
             header.VendedorSAP = territoryAsso.User.CodigoSAP__c;
             header.DataHoraAtualizacao = territory.LastModifiedDate;
@@ -91,7 +89,7 @@ public with sharing class CalloutCTVCarteira {
             this.header = header; 
     
             for(Account acc : accountList){
-                Clientes.add(new CalloutOrder.ClienteParameters(acc.ExternalId__c));
+                Clientes.add(new CalloutCTVCarteira.ClienteParameters(acc.ExternalId__c));
             }
         }
     }
