@@ -273,7 +273,7 @@ global class LimiteCreditoINData implements FieldDataChild{
     public String ExternalId;
     public String OrganizacaoVendas;
     public Decimal Valor;
-    public String Bloqueado;
+    public Boolean Bloqueado;
     public String Cultura;
     public String Garantia;
     public Decimal Saldo;
