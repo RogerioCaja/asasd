@@ -175,8 +175,8 @@
     <relatedLists>
         <fields>NAME</fields>
         <fields>Safra__c</fields>
-        <fields>LimitValue__c</fields>
-        <fields>LimitBalance__c</fields>
+        <fields>AvailableCredit__c</fields>
+        <fields>UsedCredit__c</fields>
         <relatedList>LimiteCredito__c.Account__c</relatedList>
     </relatedLists>
     <relatedLists>

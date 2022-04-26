@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>LimitBalance__c</fullName>
+    <fullName>UsedCredit__c</fullName>
     <externalId>false</externalId>
-    <label>Saldo Limite</label>
+    <label>Crédito Utilizado</label>
     <precision>18</precision>
     <required>true</required>
     <scale>0</scale>

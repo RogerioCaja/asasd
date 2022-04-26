@@ -112,8 +112,4 @@
         <name>Salesforce_Chatterbox</name>
         <type>ConnectedApp</type>
     </appMenuItems>
-    <appMenuItems>
-        <name>IntegrationIN</name>
-        <type>ConnectedApp</type>
-    </appMenuItems>
 </AppMenu>

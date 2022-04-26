@@ -11,7 +11,7 @@ public with sharing class CalloutOrder {
     public static IntegrationUtils.CalloutResponse processIntegration(Id orderId){
 
 		Order parentOrder = [SELECT Id, CodigoSap__c, ShippingAccount__r.ExternalId__c, Account.ExternalId__c, Type, SalesOrg__r.SalesOrganizationCode__c, DistributionChannel__c, 
-                            ActivitySector__c, Incoterms__c, Incoterms2__c, PaymentCondition__r.Code__c, OrderReason__c , SalesCTV__r.CodigoSap__c, 
+                            ActivitySector__c, Incoterms__c, Incoterms2__c, PaymentCondition__c, OrderReason__c , SalesCTV__r.CodigoSap__c, 
                             OrderNumber, Crop__r.Code__c, Culture__r.Codigo__c, EndDate, TotalAmount, 
                             Currency__c, (SELECT Id FROM OrderItems) 
                             FROM Order WHERE Id = :orderId];
@@ -128,7 +128,7 @@ public with sharing class CalloutOrder {
                 header.activitySector = order.ActivitySector__c;
                 header.incoterms1 = order.Incoterms__c;
                 header.incoterms2 = order.Incoterms2__c;
-                header.paymentCondition = order.PaymentCondition__r.Code__c;
+                header.paymentCondition = order.PaymentCondition__c;
                 header.orderReason = order.OrderReason__c;
                 header.codSap = order.OrderNumber;
                 header.crop = order.Crop__r.Code__c;
@@ -136,7 +136,6 @@ public with sharing class CalloutOrder {
                 header.orderType = order.Type;
                 header.codSalesforce = order.OrderNumber;
                 header.expiredDate = order.EndDate;
-                this.header = header;
             }
             else {
                 CalloutOrder.HeaderUpdate header = new CalloutOrder.HeaderUpdate();
