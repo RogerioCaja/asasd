@@ -11,7 +11,7 @@ public class IntegrationUtils {
         Boolean hasError = false;
         for (TemplateDataIntegrationFields.Response response : responseList) {
             if(response.status == false)
-				hasError = true;                
+                hasError = true;                
         }
 
         for(Integer i = 0; i < upsResults.size(); i++){
@@ -107,28 +107,28 @@ public class IntegrationUtils {
     
     // CALLOUT STANDARD RESPONSE OUTTER CLASS
     public class CalloutResponse{
-		public CalloutOrder.ResponseParameters parsedResponse;
-		public Boolean success;
-		public String errorMessage;
+        public CalloutOrder.ResponseParameters parsedResponse;
+        public Boolean success;
+        public String errorMessage;
 
-		public CalloutResponse(CalloutOrder.ResponseParameters response){
-			this.success = true;
-			this.errorMessage = '';
-			this.parsedResponse = response;
-		}
+        public CalloutResponse(CalloutOrder.ResponseParameters response){
+            this.success = true;
+            this.errorMessage = '';
+            this.parsedResponse = response;
+        }
 
-		public CalloutResponse(String errorMessage){
-			this.success = false;
-			this.errorMessage = errorMessage;
-			this.parsedResponse = null;
-		}
+        public CalloutResponse(String errorMessage){
+            this.success = false;
+            this.errorMessage = errorMessage;
+            this.parsedResponse = null;
+        }
 
         public CalloutResponse(String errorMessage, CalloutOrder.ResponseParameters response){
-			this.success = false;
-			this.errorMessage = errorMessage;
-			this.parsedResponse = response;
-		}
-	}
+            this.success = false;
+            this.errorMessage = errorMessage;
+            this.parsedResponse = response;
+        }
+    }
     // CALLOUT PARSING INNER INTERFACE
     public interface CalloutResponseParsedData{}
 
