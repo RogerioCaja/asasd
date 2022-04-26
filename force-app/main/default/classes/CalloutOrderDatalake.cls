@@ -21,7 +21,7 @@ public with sharing class CalloutOrderDatalake {
 
 		if (calloutResponse.success) {
 			
-			ResponseParameters resp = (ResponseParameters) calloutResponse.parsedResponse;
+			ResponseParameters resp = (ResponseParameters) calloutResponse.parsedResponseDatalake;
 			Map<String, Order> orderMap = new Map<String, Order>();
 
 			for (Order ord : allOrders) {
@@ -98,44 +98,44 @@ public with sharing class CalloutOrderDatalake {
     public class RequestParameters{
         public Object orders;
         //public List<CalloutOrderDatalake.PartnerParameters> partner;
-        public List<CalloutOrder.ScheduleParameters> schedule;
-        public List<CalloutOrder.ConditionParameters> condition;
-        public List<CalloutOrder.OrderItemParameters> orderItems;
+        List<CalloutOrderDatalake.ShippingParameters> Shipping;
+        public List<CalloutOrderDatalake.ConditionParameters> condition;
+        public List<CalloutOrderDatalake.OrderItemParameters> orderItems;
 
         public RequestParameters(Order order){
 
             //partner = new List<CalloutOrder.PartnerParameters>();
-            schedule = new List<CalloutOrder.ScheduleParameters>();
-            orderItems = new List<CalloutOrder.OrderItemParameters>();
-            condition = new List<CalloutOrder.ConditionParameters>();
+            Shipping = new List<CalloutOrderDatalake.ShippingParameters>();
+            orderItems = new List<CalloutOrderDatalake.OrderItemParameters>();
+            condition = new List<CalloutOrderDatalake.ConditionParameters>();
             //partner.add(new CalloutOrder.PartnerParameters(order.Account.ExternalId__c, 'EO'));
             //partner.add(new CalloutOrder.PartnerParameters(order.ShippingAccount__r.ExternalId__c, 'RM'));
 
             Set<Id> orderItemIds = new Set<Id>();
 
             if(order.CodigoSap__c == null){
-                CalloutOrder.OrderInsert order = new CalloutOrder.OrderInsert();
-                order.orderSalesType = order.Type; // Não esquecer de mudar isso
-                order.salesOrg = order.SalesOrg__r.SalesOrganizationCode__c;
-                order.distributionChannel = order.DistributionChannel__c;
-                order.activitySector = order.ActivitySector__c;
-                order.incoterms1 = order.Incoterms__c;
-                order.incoterms2 = order.Incoterms2__c;
-                order.paymentCondition = order.PaymentCondition__c;
-                order.orderReason = order.OrderReason__c;
-                order.codSap = order.OrderNumber;
-                order.crop = order.Crop__r.Code__c;
-                order.culture = Integer.valueOf(order.Culture__r.Codigo__c);
-                order.orderType = order.Type;
-                order.codSalesforce = order.OrderNumber;
-                order.expiredDate = order.EndDate;
-                order.salesCTV = AccountId.ShippingAccount__c.SalesCTV__c;
+                CalloutOrderDatalake.OrderInsert orderDatalake = new CalloutOrderDatalake.OrderInsert();
+                orderDatalake.orderSalesType = order.Type; // Não esquecer de mudar isso
+                orderDatalake.salesOrg = order.SalesOrg__r.SalesOrganizationCode__c;
+                orderDatalake.distributionChannel = order.DistributionChannel__c;
+                orderDatalake.activitySector = order.ActivitySector__c;
+                orderDatalake.incoterms1 = order.Incoterms__c;
+                orderDatalake.incoterms2 = order.Incoterms2__c;
+                orderDatalake.paymentCondition = order.PaymentCondition__c;
+                orderDatalake.orderReason = order.OrderReason__c;
+                orderDatalake.codSap = order.OrderNumber;
+                orderDatalake.crop = order.Crop__r.Code__c;
+                orderDatalake.culture = Integer.valueOf(order.Culture__r.Codigo__c);
+                orderDatalake.orderType = order.Type;
+                orderDatalake.codSalesforce = order.OrderNumber;
+                orderDatalake.expiredDate = order.EndDate;
+                //orderDatalake.salesCTV = AccountId.ShippingAccount__c.SalesCTV__c; --> Verificar CTV
             }
             else {
-                CalloutOrderDatalake.orderUpdate order = new CalloutOrderDatalake.orderUpdate();
-                order.codSap = order.CodigoSap__c;
-                order.codSalesforce = order.OrderNumber;
-                order.expiredDate = order.EndDate;
+                CalloutOrderDatalake.orderUpdate orderDatalake = new CalloutOrderDatalake.orderUpdate();
+                orderDatalake.codSap = order.CodigoSap__c;
+                orderDatalake.codSalesforce = order.OrderNumber;
+                orderDatalake.expiredDate = order.EndDate;
             }
 
             for(OrderItem orderItem : order.OrderItems){
@@ -166,13 +166,13 @@ public with sharing class CalloutOrderDatalake {
                 {
                     for(ShippingDivison__c sd : divisionMap.get(orderItem.Id)){
                         shippingCodesList.add(Integer.valueOf(sd.Name));
-                        schedule.add(new CalloutOrder.ScheduleParameters(Integer.valueOf(sd.Name), sd.Quantity__c, sd.DeliveryDate__c));
+                        Shipping.add(new CalloutOrderDatalake.ShippingParameters(Integer.valueOf(sd.Name), sd.Quantity__c, sd.DeliveryDate__c));
                     }
                 }
-                orderItems.add(new CalloutOrder.OrderItemParameters(orderItem, shippingCodesList));
+                orderItems.add(new CalloutOrderDatalake.OrderItemParameters(orderItem, shippingCodesList));
             }
 
-            condition.add(new CalloutOrder.ConditionParameters(Integer.valueOf(order.Culture__r.Codigo__c), 'PR00', order.TotalAmount, order.Currency__c)); 
+            condition.add(new CalloutOrderDatalake.ConditionParameters(Integer.valueOf(order.Culture__r.Codigo__c), 'PR00', order.TotalAmount, order.Currency__c)); 
         }
     }
 
