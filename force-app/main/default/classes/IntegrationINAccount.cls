@@ -142,7 +142,13 @@ global with sharing class IntegrationINAccount {
     
     public static void companyINToInsert(List<TemplateDataIntegrationFields.CompanyINData> request, Map<String, List<TemplateDataIntegrationFields.Response>> responseMap, Map<String, Id> lookups){  
         List<Company__c> companyList = new List<Company__c>();
-        FactoryDataIntegration.convertSObject(new Company__c(), 'IN', request, responseMap, companyList, lookups);
+
+        Map<String, String> parentMapKeys = new Map<String, String>();
+        for(TemplateDataIntegrationFields.CompanyINData company : request) {
+            parentMapKeys.put(company.accountId + company.OrganizacaoVendas + company.SetorAtividade + company.CanalDistribuicao + company.EscritorioVendas + company.EquipeVendas, lookups.containsKey('Account' + company.accountId) ? lookups.get('Account' + company.accountId) : null);
+        }
+
+        FactoryDataIntegration.convertSObjectChild(new Company__c(), 'IN', request, responseMap, companyList, lookups, parentMapKeys);
 
         Map<String, Company__c> companyMap = new Map<String, Company__c>();
         companyMap = getMapCompanyToInsert(companyList);
@@ -150,7 +156,7 @@ global with sharing class IntegrationINAccount {
         //Upserting records (Account)
         IntegrationUtils.upsertChildRecords(
             Database.upsert(companyMap.values(), Company__c.ExternalID__c, false), 
-            companyList, 
+            responseMap, 
             companyMap.values(), 
             Company__c.ExternalID__c
         );
@@ -158,7 +164,13 @@ global with sharing class IntegrationINAccount {
 
     public static void creditoINToInsert(List<TemplateDataIntegrationFields.LimiteCreditoINData> request, Map<String, List<TemplateDataIntegrationFields.Response>> responseMap, Map<String, Id> lookups){  
         List<LimiteCredito__c> creditoList = new List<LimiteCredito__c>();
-        FactoryDataIntegration.convertSObject(new LimiteCredito__c(), 'IN', request, responseMap, creditoList, lookups);
+
+        Map<String, String> parentMapKeys = new Map<String, String>();
+        for(TemplateDataIntegrationFields.LimiteCreditoINData cred : request) {
+            parentMapKeys.put(cred.accountId + cred.Safra + cred.Cultura + cred.Garantia, lookups.containsKey('Account' + cred.accountId) ? lookups.get('Account' + cred.accountId) : null);
+
+        }
+        FactoryDataIntegration.convertSObjectChild(new LimiteCredito__c(), 'IN', request, responseMap, creditoList, lookups, parentMapKeys);
 
         Map<String, LimiteCredito__c> creditoMap = new Map<String, LimiteCredito__c>();
         creditoMap = getMapCreditoToInsert(creditoList);
@@ -166,7 +178,7 @@ global with sharing class IntegrationINAccount {
         //Upserting records (Account)
         IntegrationUtils.upsertChildRecords(//codigo do conta com o do credito concatenado para codigo do conta
             Database.upsert(creditoMap.values(), LimiteCredito__c.ExternalId__c, false), 
-            creditoList, 
+            responseMap, 
             creditoMap.values(), 
             LimiteCredito__c.ExternalId__c
         );
