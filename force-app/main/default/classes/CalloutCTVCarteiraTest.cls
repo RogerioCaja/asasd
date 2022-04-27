@@ -22,36 +22,35 @@ public with sharing class CalloutCTVCarteiraTest {
         User u = new User(Alias = 'standt', Email='standarduser@testorg.com', 
         EmailEncodingKey='UTF-8', LastName='Testing', LanguageLocaleKey='en_US', 
         LocaleSidKey='en_US', ProfileId = p.Id, 
-        TimeZoneSidKey='America/Los_Angeles', UserName='tetedogas@testorg.com');
+        TimeZoneSidKey='America/Los_Angeles', UserName='testes@testes.com');
 
         insert u;
-
-        Territory2 objTerr = [SELECT Id FROM Territory2];
         
-        UserTerritory2Association userTerrAssociation = new UserTerritory2Association(Territory2Id= objTerr.Id, UserId= u.Id, RoleInTerritory2='Sales / Marketing Manager');
-        insert userTerrAssociation;
-
-        ObjectTerritory2Association objObjectTerritory2Association = new ObjectTerritory2Association(ObjectId = account.Id, Territory2Id =objTerr.Id, AssociationCause='Territory2Manual' );
-        insert objObjectTerritory2Association;
     }
     @isTest
     static void calloutCTVSuccess(){
+        Account account = [SELECT Id FROM Account LIMIT 1];
+        User u = [SELECT Id FROM User WHERE UserName='testes@testes.com' LIMIT 1];
+        Territory2Type terrModel = [SELECT Id FROM Territory2Type LIMIT 1];
+        Territory2Model model = [SELECT Id FROM Territory2Model LIMIT 1];
+        Territory2 objTerr = new Territory2(); 
+            objTerr.Description = 'Description__c';
+            objTerr.Name = 'Name';
+            objTerr.DeveloperName = 'Name';
+            objTerr.Territory2TypeId = terrModel.Id;
+            objTerr.Territory2ModelId = model.Id;
+        insert objTerr;
+
+        UserTerritory2Association userTerrAssociation = new UserTerritory2Association(Territory2Id= objTerr.Id, UserId= u.Id, RoleInTerritory2='Sales / Marketing Manager');
+        insert userTerrAssociation;
+        //ObjectTerritory2Association objObjectTerritory2Association = new ObjectTerritory2Association(ObjectId = account.Id, Territory2Id =objTerr.Id, AssociationCause='Territory2Manual' );
+        //insert objObjectTerritory2Association;
+
         CalloutOrder calloutTest = new CalloutOrder();
-        Order ord = [SELECT Id, OrderNumber, StatusSF__c FROM Order LIMIT 1][0];
-        Test.setMock(HttpCalloutMock.class, new CalloutOrderMock(true, String.valueOf(ord.OrderNumber)));
+        Test.setMock(HttpCalloutMock.class, new CalloutOrderMock(true, '2'));
         Test.startTest();
         IntegrationUtils.CalloutCTVResponse response = CalloutCTVCarteira.processIntegration();
         Test.stopTest();
         System.debug(response);
     } 
-
-    @isTest 
-    static void calloutCTVFail(){
-        Order ord = [SELECT Id, OrderNumber, StatusSF__c FROM Order LIMIT 1][0];
-        Test.setMock(HttpCalloutMock.class,new CalloutOrderMock(false, String.valueOf(ord.OrderNumber)));
-        Test.startTest();
-        IntegrationUtils.CalloutCTVResponse response = CalloutCTVCarteira.processIntegration();
-        Test.stopTest();
-        System.debug(response);
-    }
 }

@@ -8,7 +8,7 @@ public with sharing class CalloutCTVCarteira {
         IntegrationUtils.CalloutCTVResponse calloutResponse = sendOrder(territoryList);
 
         if (calloutResponse.success) {
-            
+            System.debug('integração foi um sucesso');
             //ResponseParameters resp = (ResponseParameters) calloutResponse.parsedResponse;
 
         }
@@ -23,7 +23,18 @@ public with sharing class CalloutCTVCarteira {
         for (Territory2 territory : territoryList) {
             request.add(new RequestParameters(territory));
         }
-
+        /*
+        String payloadAcess = '"grant_type=client_credentials" -H "Authorization: Basic dEQxV2M0bWtXdnRWNWVtRXZSOHlVRF9iUFZvYTpmZmVJQUs5SmdPNXNsbXI1UzVMUXNNcTBOME1h"';
+        HttpRequest req = new HttpRequest();
+        req.setMethod('POST');
+        req.setEndpoint('https://apim.agrogalaxy.com.br/identityserver/oauth2/token');
+        req.setHeader('Content-Type','application/x-www-form-urlencoded');
+        req.setHeader('Content-Length',String.valueOf(payloadAcess.length()));
+        req.setBody(payloadAcess);
+        Http binding = new Http();
+        HttpResponse res = binding.send(req);
+        System.debug('res: '+ res);
+            */
         String payload = JSON.serialize(request);
         System.debug('PayloadCheck: '+ payload);
         //Metodo para busca de Access Token, depende de cada projeto, podendo estar presente dentro de uma custom settings ou relacionado com outra requisição.
@@ -62,8 +73,12 @@ public with sharing class CalloutCTVCarteira {
 
     //! Preparing data to Callout
     public class RequestParameters{
-        public Object header;
-
+        public String IdTerritorio;
+        public String TerritorioPai;
+        public Datetime DataHoraAtualizacao;
+        public String NamePosition;
+        public String VendedorSAP;
+        public String TipoTerritorio;
         public List<CalloutCTVCarteira.ClienteParameters> Clientes;
 
         public RequestParameters(Territory2 territory){
@@ -79,38 +94,18 @@ public with sharing class CalloutCTVCarteira {
 
             List<Account> accountList = new List<Account>([SELECT Id, ExternalId__c  FROM Account WHERE Id =: accountIds]);
 
-            CalloutCTVCarteira.HeaderInsert header = new CalloutCTVCarteira.HeaderInsert();
-            header.IdTerritorio = territory.DeveloperName;
-            header.VendedorSAP = territoryAsso.User.CodigoSAP__c;
-            header.DataHoraAtualizacao = territory.LastModifiedDate;
-            header.TerritorioPai = territory.ParentTerritory2Id;
-            header.NamePosition = territory.Name;
-            header.TipoTerritorio = territory.Territory2Type.DeveloperName;
-            this.header = header; 
-    
+            this.IdTerritorio = territory.DeveloperName;
+            this.VendedorSAP = territoryAsso.User.CodigoSAP__c;
+            this.DataHoraAtualizacao = territory.LastModifiedDate;
+            this.TerritorioPai = territory.ParentTerritory2Id;
+            this.NamePosition = territory.Name;
+            this.TipoTerritorio = territory.Territory2Type.DeveloperName;
+            List<CalloutCTVCarteira.ClienteParameters> clientList= new List<CalloutCTVCarteira.ClienteParameters>();
             for(Account acc : accountList){
-                Clientes.add(new CalloutCTVCarteira.ClienteParameters(acc.ExternalId__c));
+                clientList.add(new CalloutCTVCarteira.ClienteParameters(acc.ExternalId__c));
             }
+            this.Clientes = clientList;
         }
-    }
-
-    public class HeaderInsert{
-        public String IdTerritorio;
-        public String TerritorioPai;
-        public Datetime DataHoraAtualizacao;
-        public String NamePosition;
-        public String VendedorSAP;
-        public String TipoTerritorio;
-
-        public HeaderInsert(){}
-    }
-
-    public class HeaderUpdate{
-        public String codSap;
-        public String codSalesforce;
-        public Date  expiredDate;
-
-        // public HeaderUpdate(){}
     }
 
 
