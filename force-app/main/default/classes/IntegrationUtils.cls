@@ -176,4 +176,15 @@ public class IntegrationUtils {
             return new RequestResponseObject(ex);
         }
     }
+
+    public static void setLookup(SObject obj, Set<String> fieldSet, String fieldKey, List<String> objLookups,  Map<String, Id> lookups){
+
+        String query = new Q(obj.getSObjectType()).selectFields(fieldSet).add(Q.condition(fieldKey).isIn(objLookups)).build();
+
+        List<SObject> objectList = Database.query(query);
+
+        for(Integer i = 0; i < objectList.size(); i++){
+            lookups.put(objectList[i].getSObjectType().getDescribe().getName() + objectList[i].get(fieldKey), objectList[i].Id);
+        }
+    }
 }

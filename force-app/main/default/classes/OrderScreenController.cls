@@ -382,18 +382,22 @@ public without sharing class OrderScreenController {
                     'Crédito Liberado' => '3',
                     'Cancelado' => 'X'
                 };
-
+                Integer itemCounter = 1;
                 for (ProductDeserialize orderProduct : orderData.productData) {
                     OrderItem orderItem;
                     if (!newOrder && orderItemsById.containsKey(orderProduct.orderItemId)) {
                         orderItem = orderItemsById.get(orderProduct.orderItemId);
                     } else {
                         orderItem = new OrderItem();
+                        orderItem.NumeroSap__c = String.valueOf(itemCounter * 10);
+                        orderItem.ExternalId__c = order.Id + '|' + orderItem.NumeroSap__c;
                         orderItem.OrderId = order.Id;
                         orderItem.PricebookEntryId = orderProduct.entryId;
                         orderItem.Product2Id = orderProduct.productId;
                         orderItem.ListPrice = orderProduct.listPrice;
                         orderItem.AmountUsed__c = order.IsOrderMother__c ? 0 : null;
+
+                        itemCounter++;
                     }
                     
                     if (motherItems.containsKey(orderProduct.orderItemId)) {
@@ -509,8 +513,8 @@ public without sharing class OrderScreenController {
                         }
                     }
                 }
-
-                return JSON.serializePretty(new AGRO_RemotingResult(false, '200', msg));
+                
+                return JSON.serializePretty(new AGRO_RemotingResult(false, '200', msg, String.valueOf(order.Id)));
             }
 
             String errors = '';
@@ -524,6 +528,16 @@ public without sharing class OrderScreenController {
             System.debug('Erro: ' + ex.getMessage() + '   -   ' + ex.getStackTraceString());
 			throw new AuraHandledException('Exception occured:\r\n' + ex.getMessage() + '\r\n' + ex.getStackTraceString() + '\r\n');
 		}
+    }
+
+    @AuraEnabled
+    public static void callout(String orderId){
+        try {
+            CalloutOrder.processIntegration(Id.valueOf(orderId));
+        } catch (Exception ex) {
+            System.debug('Erro: ' + ex.getMessage() + '   -   ' + ex.getStackTraceString());
+            throw new AuraHandledException(ex.getMessage());
+        }
     }
 
     @AuraEnabled

@@ -11,6 +11,8 @@ public virtual class AGRO_RemotingResult {
     public String description;
     @AuraEnabled
     public String stackTrace;
+    @AuraEnabled
+    public String orderId;
 
     /*public AGRO_RemotingResult() {
         this.hasError   = false;
@@ -33,6 +35,13 @@ public virtual class AGRO_RemotingResult {
         this.sessionExpired = UserInfo.getSessionId() == null;
         this.code       = code;
         this.message    = message;
+    }
+    public AGRO_RemotingResult(Boolean hasError, String code, String message, String Id) {
+        this.hasError   = hasError;
+        this.sessionExpired = UserInfo.getSessionId() == null;
+        this.code       = code;
+        this.message    = message;
+        this.orderId = Id;
     }
 
     /*public AGRO_RemotingResult(Boolean hasError, String code, String message, String description) {

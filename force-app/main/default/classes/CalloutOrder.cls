@@ -3,15 +3,15 @@ public with sharing class CalloutOrder {
         
     }
 
-    @future(callout = true)
-    public static void callIntegration(Id orderId){
-        processIntegration(orderId);
-    }
+    // @future(callout = true)
+    // public static void callIntegration(Id orderId){
+    //     processIntegration(orderId);
+    // }
 
     public static IntegrationUtils.CalloutResponse processIntegration(Id orderId){
 
 		Order parentOrder = [SELECT Id, CodigoSap__c, ShippingAccount__r.ExternalId__c, Account.ExternalId__c, Type, SalesOrg__r.SalesOrganizationCode__c, DistributionChannel__c, 
-                            ActivitySector__c, Incoterms__c, Incoterms2__c, PaymentCondition__c, OrderReason__c , 
+                            ActivitySector__c, Incoterms__c, Incoterms2__c, PaymentCondition__r.Code__c, OrderReason__c , SalesCTV__r.CodigoSap__c, 
                             OrderNumber, Crop__r.Code__c, Culture__r.Codigo__c, EndDate, TotalAmount, 
                             Currency__c, (SELECT Id FROM OrderItems) 
                             FROM Order WHERE Id = :orderId];
@@ -36,7 +36,7 @@ public with sharing class CalloutOrder {
 
 					Order ord = orderMap.get(respWrapper.OrderNumber);
                     ord.CodigoSap__c = respWrapper.DetalhesPedido[0].NumeroOrdemVenda; 
-                    ord.StatusSAP__c = respWrapper.DetalhesPedido[0].StatusSap;
+                    // ord.StatusSAP__c = respWrapper.DetalhesPedido[0].StatusSap;
                     // ord.TypeMessage__c = respWrapper.Mensagens[0].Tipo;
                     // ord.Message__c = respWrapper.Mensagens[0].Mensagem;
 					orderList.add(ord);
@@ -98,19 +98,25 @@ public with sharing class CalloutOrder {
     //! Preparing data to Callout
     public class RequestParameters{
         public Object header;
-        public List<CalloutOrder.PartnerParameters> partner;
-        public List<CalloutOrder.ScheduleParameters> schedule;
-        public List<CalloutOrder.ConditionParameters> condition;
-        public List<CalloutOrder.OrderItemParameters> orderItems;
+        public List<CalloutOrder.PartnerParameters> partnerList;
+        public List<CalloutOrder.ScheduleParameters> scheduleList;
+        public List<CalloutOrder.ConditionParameters> conditionList;
+        public List<CalloutOrder.OrderItemParameters> orderItemList;
 
         public RequestParameters(Order order){
 
-            partner = new List<CalloutOrder.PartnerParameters>();
-            schedule = new List<CalloutOrder.ScheduleParameters>();
-            orderItems = new List<CalloutOrder.OrderItemParameters>();
-            condition = new List<CalloutOrder.ConditionParameters>();
-            partner.add(new CalloutOrder.PartnerParameters(order.Account.ExternalId__c, 'EO'));
-            partner.add(new CalloutOrder.PartnerParameters(order.ShippingAccount__r.ExternalId__c, 'RM'));
+            Decimal valueAmount = 0;
+            Decimal valueDiscount = 0;
+            Decimal valueInterest = 0;
+
+            partnerList = new List<CalloutOrder.PartnerParameters>();
+            scheduleList = new List<CalloutOrder.ScheduleParameters>();
+            orderItemList = new List<CalloutOrder.OrderItemParameters>();
+            conditionList = new List<CalloutOrder.ConditionParameters>();
+
+            partnerList.add(new CalloutOrder.PartnerParameters(order.Account.ExternalId__c, 'EO'));
+            partnerList.add(new CalloutOrder.PartnerParameters(order.ShippingAccount__r.ExternalId__c, 'RM'));
+            partnerList.add(new CalloutOrder.PartnerParameters(order.SalesCTV__r.CodigoSap__c, 'ZV'));
 
             Set<Id> orderItemIds = new Set<Id>();
 
@@ -122,7 +128,7 @@ public with sharing class CalloutOrder {
                 header.activitySector = order.ActivitySector__c;
                 header.incoterms1 = order.Incoterms__c;
                 header.incoterms2 = order.Incoterms2__c;
-                header.paymentCondition = order.PaymentCondition__c;
+                header.paymentCondition = order.PaymentCondition__r.Code__c;
                 header.orderReason = order.OrderReason__c;
                 header.codSap = order.OrderNumber;
                 header.crop = order.Crop__r.Code__c;
@@ -130,23 +136,31 @@ public with sharing class CalloutOrder {
                 header.orderType = order.Type;
                 header.codSalesforce = order.OrderNumber;
                 header.expiredDate = order.EndDate;
+                this.header = header;
             }
-            else {
-                CalloutOrder.HeaderUpdate header = new CalloutOrder.HeaderUpdate();
-                header.codSap = order.CodigoSap__c;
-                header.codSalesforce = order.OrderNumber;
-                header.expiredDate = order.EndDate;
-            }
+            // else {
+            //     CalloutOrder.HeaderUpdate header = new CalloutOrder.HeaderUpdate();
+            //     header.codSap = order.CodigoSap__c;
+            //     header.codSalesforce = order.OrderNumber;
+            //     header.expiredDate = order.EndDate;
+            // }
 
             for(OrderItem orderItem : order.OrderItems){
                 orderItemIds.add(orderItem.Id);
             }
 
             Map<Id, OrderItem> orderItemMap = new Map<Id, OrderItem>([
-                SELECT Id, Product2.ExternalId__c, Product2.DistributionCenter__r.Code__c, Quantity
+                SELECT Id, NumeroSap__c, Product2.ExternalId__c, Product2.DistributionCenter__r.Code__c, Quantity
                 FROM OrderItem
                 WHERE Id IN: orderItemIds
             ]);
+
+            AggregateResult orderItemSummary = [SELECT SUM(TotalPrice)totalPrice, SUM(FinancialAdditionValue__c)totalInterest, SUM(FinancialDiscountValue__c)totalDiscount
+                        FROM OrderItem WHERE OrderId =: order.Id][0];
+
+            valueAmount = (Decimal)orderItemSummary.get('totalPrice');
+            valueInterest = (Decimal)orderItemSummary.get('totalInterest');
+            valueDiscount = (Decimal)orderItemSummary.get('totalDiscount');
 
             List<ShippingDivison__c> divisonList = [SELECT Id,Name, DeliveryDate__c, Quantity__c, OrderItem__c FROM ShippingDivison__c WHERE OrderItem__c IN: orderItemIds];
             Map<Id, List<ShippingDivison__c>> divisionMap = new  Map<Id, List<ShippingDivison__c>>();
@@ -161,18 +175,21 @@ public with sharing class CalloutOrder {
             List<Integer> shippingCodesList = new List<Integer>();
             for(OrderItem orderItem : orderItemMap.values()){
 
-                shippingCodesList.clear();
+                // shippingCodesList.clear();
                 if(!divisionMap.isEmpty())
                 {
                     for(ShippingDivison__c sd : divisionMap.get(orderItem.Id)){
-                        shippingCodesList.add(Integer.valueOf(sd.Name));
-                        schedule.add(new CalloutOrder.ScheduleParameters(Integer.valueOf(sd.Name), sd.Quantity__c, sd.DeliveryDate__c));
+                        // shippingCodesList.add(Integer.valueOf(sd.Name));
+                        scheduleList.add(new CalloutOrder.ScheduleParameters(Integer.valueOf(orderItem.NumeroSap__c), sd.Quantity__c, sd.DeliveryDate__c));
                     }
                 }
-                orderItems.add(new CalloutOrder.OrderItemParameters(orderItem, shippingCodesList));
+                
+                orderItemList.add(new CalloutOrder.OrderItemParameters(orderItem));
             }
 
-            condition.add(new CalloutOrder.ConditionParameters(Integer.valueOf(order.Culture__r.Codigo__c), 'PR00', order.TotalAmount, order.Currency__c)); 
+            conditionList.add(new CalloutOrder.ConditionParameters(Integer.valueOf(order.Culture__r.Codigo__c), 'ZPR0', valueAmount, order.Currency__c));
+            conditionList.add(new CalloutOrder.ConditionParameters(Integer.valueOf(order.Culture__r.Codigo__c), 'ZJUR ', valueInterest, order.Currency__c)); 
+            conditionList.add(new CalloutOrder.ConditionParameters(Integer.valueOf(order.Culture__r.Codigo__c), 'ZDAN', valueDiscount, order.Currency__c));
         }
     }
 
@@ -200,7 +217,7 @@ public with sharing class CalloutOrder {
         public String codSalesforce;
         public Date  expiredDate;
 
-        public HeaderUpdate(){}
+        // public HeaderUpdate(){}
     }
 
     public class PartnerParameters{
@@ -240,19 +257,20 @@ public with sharing class CalloutOrder {
     }
 
     public class OrderItemParameters{
-        public List<Integer> incrementItem;
+        public Integer incrementItem;
         public String material;
         public String center;
         public Decimal quantityItem;
 
-        public OrderItemParameters(OrderItem orderItem, List<Integer> shippingDivison){
-            this.incrementItem = new List<Integer>(shippingDivison);
+        public OrderItemParameters(OrderItem orderItem){
+            this.incrementItem = Integer.valueOf(orderItem.NumeroSap__c);
             this.material = orderItem.Product2.ExternalId__c;
             this.center = orderItem.Product2.DistributionCenter__r.Code__c;
             this.quantityItem = orderItem.Quantity;
         }
     }
 
+    //! Response part
     public class ResponseParameters {
         public List<ResponseParametersWrapper> responses;
 
@@ -261,8 +279,6 @@ public with sharing class CalloutOrder {
         }
     }
 
-
-    //! Response part
     public class ResponseParametersWrapper {
         public String OrderNumber; 
         public List<OrderDetails> DetalhesPedido;
