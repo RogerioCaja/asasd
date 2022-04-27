@@ -193,7 +193,123 @@ global with sharing class TemplateDataIntegrationFields {
             return 'Id';
         }
     }
+    global class ProductINData implements FieldData {
+        public String TextoBreveMaterial;
+        public String UnidadeMedida;
+        public String UnidadeMedidaRemessa;
+        public String Status;
+        public String TipoMaterial;
+        public String GrupoMercadoria;
+        public String SubgrupoMercadoria;
+        public String MercadoEliminacao;
+        public String UnidadePeso;
+        public String CodigoControle;
+        public String ClasseAvaliacao;
+        public String OrigemMaterial;
+        public String Marca;
+        public String NCM;
+        public String GrupoQuimico;
+        public String IngredienteAtivo;
+        public String NumeroRegistro;
+        public Decimal PesoBruto;
+        public List<TemplateDataIntegrationFields.ProductINData> product2Entries;
 
+        public Product2 serialize(Map<String, Id> lookups){
+
+
+            //Returning Object with Fields
+            return new Product2(
+                Description = this.TextoBreveMaterial,
+                UnidadeMedida__c = this.UnidadeMedida,
+                GrossWeightUnitOfMeasure__c = this.UnidadeMedidaRemessa,
+                SalesOrgStatus__c = this.Status,
+                ProductType__c = this.TipoMaterial,
+                ProductGroup__c = lookups.containsKey('ProductGroup__c'+this.GrupoMercadoria) ? lookups.get('ProductGroup__c'+this.GrupoMercadoria) : null,
+                ProductSubgroup__c = lookups.containsKey('ProductSubgroup__c'+this.SubgrupoMercadoria) ? lookups.get('ProductSubgroup__c'+this.SubgrupoMercadoria) : null,
+                MercadoEliminacao__c = this.MercadoEliminacao,
+                QuantityUnitOfMeasure = this.UnidadePeso,
+                ExternalId__c = this.CodigoControle,
+                ClasseAvaliacao__c = this.ClasseAvaliacao,
+                OrigemMaterial__c = this.OrigemMaterial,
+                Brand__c = this.Marca,
+                NCM__c = this.NCM,
+                GrupoQuimico__c = this.GrupoQuimico,
+                PrincipleActive__c = this.IngredienteAtivo, 
+                NumeroRegistro__c = this.NumeroRegistro,
+                GrossWeight__c = this.PesoBruto
+
+            );
+        }
+        //Required fields for integration
+        public List<String> getRequiredFields(){
+            return new List<String>{
+                'ExternalId__c'
+            };
+        }
+
+        //ExternalId field
+        public String getFieldKey(){
+            return 'ExternalId__c';
+        }
+        
+        //Id field
+        public String getFieldId() {
+            return 'Id';
+        }
+    }
+
+    global class OrderItemINData implements FieldDataChild{
+        //JSON fields Example
+        public String ;
+        public String ;
+        public String ;
+        public String ;
+        public String ;
+        public String ;
+        public String ;
+        public String ;
+        public String ;
+        public String ;
+        public String ;
+        public String ;
+
+        public OrderItem serialize(Map<String, Id> lookups){
+
+            return new OrderItem(
+
+            );
+        }
+        public List<String> getRequiredFields(){
+            //Example
+            return new List<String>{
+                'OrderId',
+                'Product2Id',
+                'EXTERNALID__c',
+                'TotvsItem__c', // Colocar o campo ID Externo do Order e OrderItem
+                'DeliveryDate__c',
+                'UnitPrice',
+                'MotorPrice__c',
+                'Quantity',
+                'PricebookEntryId',
+                'Status__c'
+            };
+        }
+
+        //Key field
+        public String getFieldKey(){
+            return 'Id';
+        }
+
+        //ExternalId field
+        public String getFieldExternal(){
+            return 'EXTERNALID__c';
+        }
+        
+        //Parent ExternalId field
+        public String getParentKey(){
+            return 'OrderId';
+        }
+    }
     global class GenericINData extends ConditionsPrices{
         public String  name;
         public String  description;
