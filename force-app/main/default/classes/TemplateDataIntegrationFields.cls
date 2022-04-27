@@ -258,6 +258,58 @@ global with sharing class TemplateDataIntegrationFields {
         }
     }
 
+    global class OrderItemINData implements FieldDataChild{
+        //JSON fields Example
+        public String ;
+        public String ;
+        public String ;
+        public String ;
+        public String ;
+        public String ;
+        public String ;
+        public String ;
+        public String ;
+        public String ;
+        public String ;
+        public String ;
+
+        public OrderItem serialize(Map<String, Id> lookups){
+
+            return new OrderItem(
+
+            );
+        }
+        public List<String> getRequiredFields(){
+            //Example
+            return new List<String>{
+                'OrderId',
+                'Product2Id',
+                'EXTERNALID__c',
+                'TotvsItem__c', // Colocar o campo ID Externo do Order e OrderItem
+                'DeliveryDate__c',
+                'UnitPrice',
+                'MotorPrice__c',
+                'Quantity',
+                'PricebookEntryId',
+                'Status__c'
+            };
+        }
+
+        //Key field
+        public String getFieldKey(){
+            return 'Id';
+        }
+
+        //ExternalId field
+        public String getFieldExternal(){
+            return 'EXTERNALID__c';
+        }
+        
+        //Parent ExternalId field
+        public String getParentKey(){
+            return 'OrderId';
+        }
+    }
     global class GenericINData extends ConditionsPrices{
         public String  name;
         public String  description;
