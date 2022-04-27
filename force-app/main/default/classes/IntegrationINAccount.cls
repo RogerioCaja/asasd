@@ -149,10 +149,10 @@ global with sharing class IntegrationINAccount {
                
         //Upserting records (Account)
         IntegrationUtils.upsertChildRecords(
-            Database.upsert(companyMap.values(), Company__c.ExternalId__c, false), 
+            Database.upsert(companyMap.values(), Company__c.ExternalID__c, false), 
             companyList, 
             companyMap.values(), 
-            Company__c.ExternalId__c
+            Company__c.ExternalID__c
         );
     }
 
