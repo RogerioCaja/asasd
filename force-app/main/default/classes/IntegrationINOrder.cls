@@ -1,9 +1,9 @@
+@RestResource(urlMapping='/upsertINOrder/*')
 global with sharing class IntegrationINOrder {
     public IntegrationINOrder() {
 
     }
-
-    global static ResponseModel upsertOrder(List<TemplateDataIntegrationFields.OrderINData> request) {
+    global static ResponseModel upsertOrder(List<TemplateDataIntegrationFields.IntegrationOrderINData> request) {
         // Guarda a relação da conta com o pedido
         Map<String, Id> lookups = new Map<String, Id>();
 
@@ -20,16 +20,15 @@ global with sharing class IntegrationINOrder {
         // Guarda uma lista de respostas
         List<TemplateDataIntegrationFields.ResponseParent> responseList = new List<TemplateDataIntegrationFields.ResponseParent>();
         // Guarda uma lista de orderItem para fazer o upsert
-        List<TemplateDataIntegrationFields.OrderItemINData> orderItemListToUpsert = new List<TemplateDataIntegrationFields.OrderItemINData>();
+        List<TemplateDataIntegrationFields.IntegrationOrderINData> orderItemListToUpsert = new List<TemplateDataIntegrationFields.IntegrationOrderINData>();
         // Guarda uma lista de pedidos para fazer o upsert
         List<Order> orderListToUpsert = new List<Order>();
 
         //Application of business rules
-        for (TemplateDataIntegrationFields.OrderINData order : request){
+        for (TemplateDataIntegrationFields.IntegrationOrderINData order : request){
             // Pega a relação da conta com o pedido
             //Getting account parameters to search
-            orderLookups.add(order.order);
-            accountIdLookus.add(order.accountId);
+            accountLookups.add(order.paymentAccount);
             shippingAccountLookups.add(order.shippingAccount);
             cropLookups.add(order.crop);
             cultureLookups.add(order.culture);
@@ -38,19 +37,19 @@ global with sharing class IntegrationINOrder {
             pricebook2IdLookups.add(order.pricebook2Id);
             paymentConditionLookups.add(order.paymentCondition);
             
-            if(order.orderItems != null) {
+            if(order != null) {
                 // Adiciona todos os External Id e o catalogo de preço de order nos orderItem
                 //Putting the Order's ExternalId parameter in the OrderItem
-                for (TemplateDataIntegrationFields.OrderItemINData orderItem : order.orderItems){
-                    orderItem.orderExternalId = order.orderNumber;
+                //for (TemplateDataIntegrationFields.IntegrationOrderINData order : order){
+                 //   orderItem.orderExternalId = order.orderNumber;
                 }
                 // Adiciona os orderItem na lista para upsert
                 //Getting list of order items
-                orderItemListToUpsert.addAll(order.orderItems);
-            }
+                //orderItemListToUpsert.addAll(order.orderItems);
+            //}
         }
 
-        for (Pricebook2 pricebook2Id : [SELECT Id, ExternalId__c FROM Pricebook2 WHERE ExternalId__c IN : pricebookIdLookups ]){
+        for (Pricebook2 pricebook2Id : [SELECT Id, ExternalId__c FROM Pricebook2 WHERE ExternalId__c IN : pricebook2IdLookups ]){
             lookups.put('Pricebook' + pricebook2Id.ExternalId__c, pricebook2Id.Id);
         }
 
@@ -58,12 +57,12 @@ global with sharing class IntegrationINOrder {
             lookups.put('Order' + order.CodigoSap__c, order.Id);
         }
 
-        for (Account account : [SELECT Id, shippingAccount__c FROM Account WHERE shippingAccount__c IN : shippingAccountLookups]) {
-            lookups.put('Account' + account.ShippingAccount__c, account.Id);
+        for (Account account : [SELECT Id, Name FROM Account WHERE Name IN : shippingAccountLookups]) {
+            lookups.put('Account' + account.Name, account.Id);
         }
 
-        for (Account account : [SELECT Id, accountId FROM Account WHERE accountId IN : accountIdLookups]) {
-            lookups.put('Account' + account.ShippingAccount__c, account.Id);
+        for (Account account : [SELECT Id, Name FROM Account WHERE Name IN : accountLookups]) {
+            lookups.put('Account' + account.Name, account.Id);
         }
 
         for (Safra__c crop : [SELECT Id, Code__c FROM Safra__c WHERE Code__c IN : cropLookups]) {
@@ -93,10 +92,10 @@ global with sharing class IntegrationINOrder {
           
         //Upserting records (Order)
 		IntegrationUtils.upsertRecords(
-            Database.upsert(orderListToUpsert, Order.EXTERNALID__c, false), 
+            Database.upsert(orderListToUpsert, Order.CodigoSap__c, false), 
             responseList, 
             orderListToUpsert, 
-            Order.EXTERNALID__c
+            Order.CodigoSap__c
         );
         
         //Upserting records (OrderItem)
