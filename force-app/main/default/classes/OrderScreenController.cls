@@ -382,7 +382,6 @@ public without sharing class OrderScreenController {
                     'Crédito Liberado' => '3',
                     'Cancelado' => 'X'
                 };
-
                 Integer itemCounter = 1;
                 for (ProductDeserialize orderProduct : orderData.productData) {
                     OrderItem orderItem;
@@ -514,8 +513,8 @@ public without sharing class OrderScreenController {
                         }
                     }
                 }
-
-                return JSON.serializePretty(new AGRO_RemotingResult(false, '200', msg));
+                
+                return JSON.serializePretty(new AGRO_RemotingResult(false, '200', msg, String.valueOf(order.Id)));
             }
 
             String errors = '';
@@ -529,6 +528,16 @@ public without sharing class OrderScreenController {
             System.debug('Erro: ' + ex.getMessage() + '   -   ' + ex.getStackTraceString());
 			throw new AuraHandledException('Exception occured:\r\n' + ex.getMessage() + '\r\n' + ex.getStackTraceString() + '\r\n');
 		}
+    }
+
+    @AuraEnabled
+    public static void callout(String orderId){
+        try {
+            CalloutOrder.processIntegration(Id.valueOf(orderId));
+        } catch (Exception ex) {
+            System.debug('Erro: ' + ex.getMessage() + '   -   ' + ex.getStackTraceString());
+            throw new AuraHandledException(ex.getMessage());
+        }
     }
 
     @AuraEnabled
