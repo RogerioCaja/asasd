@@ -257,41 +257,133 @@ global with sharing class TemplateDataIntegrationFields {
             return 'Id';
         }
     }
+    global class IntegrationOrderINData implements FieldData{
+
+        public String status;
+        public String pricebook2Id;
+        public String CodigoSap;
+        public String codOrder;
+        public String Type;
+        public String ShippingAccount;
+        public String PaymentAccount;
+        public Date PaymentDate;
+        public String CustomerOrderNumber;
+        public Date EffectiveDate;
+        public String Crop;
+        public String Culture;
+        public String PaymentForm;
+        public String SalesOrg;
+        public String DistributionChannel;
+        public String ActivitySector;
+        public String CurrencyOrder;
+        public String SalesCTV;
+        public String Incoterms;
+        public String Incoterms2;
+        public String Description;
+        public String PaymentCondition;
+        public Date ShippingDate;
+        public String DescriptionBillingSale;
+        public String OrderReference;
+        public String orderMother;
+        public List<TemplateDataIntegrationFields.OrderItemINData> orderItems;
+        public Order serialize(Map<String, Id> lookups){
+
+            return new Order(
+
+                CodigoSap__c = this.CodigoSap,
+                Pricebook2Id = lookups.containsKey('Pricebook2Id'+this.pricebook2Id) ? lookups.get('Pricebook2Id'+this.pricebook2Id) : null,
+                ShippingAccount__c = lookups.containsKey('ShippingAccount__c'+this.shippingAccount) ? lookups.get('ShippingAccount__c'+this.shippingAccount) : null,
+                AccountId = lookups.containsKey('AccountId'+this.paymentAccount) ? lookups.get('AccountId'+this.paymentAccount) : null,
+                Crop__c = lookups.containsKey('Crop__c'+this.crop) ? lookups.get('Crop__c'+this.crop) : null,
+                Culture__c = lookups.containsKey('Culture__c'+this.culture) ? lookups.get('Culture__c'+this.culture) : null,
+                SalesOrg__c = lookups.containsKey('SalesOrg__c'+this.salesOrg) ? lookups.get('SalesOrg__c'+this.salesOrg) : null,
+                SalesCTV__c = lookups.containsKey('SalesCTV__c'+this.salesCTV) ? lookups.get('SalesCTV__c'+this.salesCTV) : null,
+                PaymentCondition__c = lookups.containsKey('PaymentCondition__c'+this.paymentCondition) ? lookups.get('PaymentCondition__c'+this.paymentCondition) : null,
+                PaymentDate__c = Date.valueOf(paymentDate),
+                EffectiveDate = Date.valueOf(effectiveDate),
+                ShippingDate__c = Date.valueOf(ShippingDate),
+                Status = this.status,
+                Type = this.type,
+                CustomerOrderNumber__c = this.customerOrderNumber,
+                PaymentForm__c = this.paymentForm,
+                DistributionChannel__c = this.distributionChannel,
+                ActivitySector__c = this.activitySector,
+                Currency__c = this.CurrencyOrder,
+                Incoterms__c = this.incoterms,
+                Incoterms2__c = this.incoterms,
+                Description = this.description,
+                DescriptionBillingSale__c = this.descriptionBillingSale,
+                OrderReference__c = this.OrderReference
+            );
+        }
+
+        public List<String> getRequiredFields(){
+            return new List<String>{
+                'ExternalId__c',
+                'Currency__c',
+                'PaymentCondition__c',
+                'PaymentDate__c',
+                'PaymentForm__c',
+                'CustomerOrderNumber__c'
+     
+            };
+        }
+        public String getFieldKey(){
+            return 'ExternalId__c';
+        }
+        public String getFieldId() {
+            return 'Id';
+        }
+    }
 
     global class OrderItemINData implements FieldDataChild{
         //JSON fields Example
-        public String ;
-        public String ;
-        public String ;
-        public String ;
-        public String ;
-        public String ;
-        public String ;
-        public String ;
-        public String ;
-        public String ;
-        public String ;
-        public String ;
+        public String orderItemCode;
+        public String orderExternalId;
+        public String material;
+        public Decimal quantidade;
+        //public String centro;
+        public String unidadeMedida;
+        public Decimal listaPreco;
+        public Decimal porcentagemComissao;
+        public Decimal porcentagemDesconto;
+        public Decimal comissaoValor;
+        public Decimal margemComercial;
+        public Decimal descontoValor;
+        public Decimal valorTotal;
+        public Decimal porcentagemDescontoFin;
+        public Decimal valorDescontoFin;
+        public Decimal porcentagemAcrescFin;
+        public Decimal valorAcrescFin;
 
         public OrderItem serialize(Map<String, Id> lookups){
 
             return new OrderItem(
-
+                ExternalId__c = this.orderExternalId + '|' + this.orderItemCode,
+                OrderId = lookups.containsKey('Order'+this.orderExternalId) ? lookups.get('Order'+this.orderExternalId) : null,
+                Product2Id = this.material,
+                Quantity = this.quantidade,
+                //CentroDistribuicao__c = this.centro,
+                UnitMeasure__c = this.unidadeMedida,
+                ListPrice = this.listaPreco,
+                PercentComission__c = this.porcentagemComissao,
+                DiscountPercent__c = this.porcentagemDesconto,
+                ComissionValue__c = this.comissaoValor,
+                CommercialMargin__c = this.margemComercial,
+                DiscountValue__c = this.descontoValor,
+                FinalTotalValue__c = this.valorTotal,
+                FinancialDiscountPercent__c = this.porcentagemDescontoFin,
+                FinancialDiscountValue__c = this.valorDescontoFin,
+                FinancialAdditionPercent__c = this.porcentagemAcrescFin,
+                FinancialAdditionValue__c = this.valorAcrescFin, 
+                PricebookEntryId = lookups.containsKey('PricebookEntry'+ this.material) ? lookups.get('PricebookEntry' + this.material) : null 
             );
         }
         public List<String> getRequiredFields(){
             //Example
             return new List<String>{
-                'OrderId',
-                'Product2Id',
-                'EXTERNALID__c',
-                'TotvsItem__c', // Colocar o campo ID Externo do Order e OrderItem
-                'DeliveryDate__c',
-                'UnitPrice',
-                'MotorPrice__c',
-                'Quantity',
-                'PricebookEntryId',
-                'Status__c'
+                'Product2Id'
+    
             };
         }
 
@@ -382,82 +474,5 @@ global with sharing class TemplateDataIntegrationFields {
     //Response structure for integration of parent and child objects
     global class ResponseParent extends Response {
         public List<TemplateDataIntegrationFields.Response> items;
-    }
-
-    global class IntegrationOrderINData implements FieldData{
-
-        public String status;
-        public String pricebook2Id;
-        public String CodigoSap;
-        public String Type;
-        public String ShippingAccount;
-        public String PaymentAccount;
-        public Date PaymentDate;
-        public String CustomerOrderNumber;
-        public Date EffectiveDate;
-        public String Crop;
-        public String Culture;
-        public String PaymentForm;
-        public String SalesOrg;
-        public String DistributionChannel;
-        public String ActivitySector;
-        public String CurrencyOrder;
-        public String SalesCTV;
-        public String Incoterms;
-        public String Incoterms2;
-        public String Description;
-        public String PaymentCondition;
-        public Date ShippingDate;
-        public String DescriptionBillingSale;
-        public String OrderReference;
-
-        public Order serialize(Map<String, Id> lookups){
-
-            return new Order(
-
-                CodigoSap__c = this.CodigoSap,
-                Pricebook2Id = lookups.containsKey('Pricebook2Id'+this.pricebook2Id) ? lookups.get('Pricebook2Id'+this.pricebook2Id) : null,
-                ShippingAccount__c = lookups.containsKey('ShippingAccount__c'+this.shippingAccount) ? lookups.get('ShippingAccount__c'+this.shippingAccount) : null,
-                AccountId = lookups.containsKey('AccountId'+this.paymentAccount) ? lookups.get('AccountId'+this.paymentAccount) : null,
-                Crop__c = lookups.containsKey('Crop__c'+this.crop) ? lookups.get('Crop__c'+this.crop) : null,
-                Culture__c = lookups.containsKey('Culture__c'+this.culture) ? lookups.get('Culture__c'+this.culture) : null,
-                SalesOrg__c = lookups.containsKey('SalesOrg__c'+this.salesOrg) ? lookups.get('SalesOrg__c'+this.salesOrg) : null,
-                SalesCTV__c = lookups.containsKey('SalesCTV__c'+this.salesCTV) ? lookups.get('SalesCTV__c'+this.salesCTV) : null,
-                PaymentCondition__c = lookups.containsKey('PaymentCondition__c'+this.paymentCondition) ? lookups.get('PaymentCondition__c'+this.paymentCondition) : null,
-                PaymentDate__c = Date.valueOf(paymentDate),
-                EffectiveDate = Date.valueOf(effectiveDate),
-                ShippingDate__c = Date.valueOf(ShippingDate),
-                Status = this.status,
-                Type = this.type,
-                CustomerOrderNumber__c = this.customerOrderNumber,
-                PaymentForm__c = this.paymentForm,
-                DistributionChannel__c = this.distributionChannel,
-                ActivitySector__c = this.activitySector,
-                Currency__c = this.CurrencyOrder,
-                Incoterms__c = this.incoterms,
-                Incoterms2__c = this.incoterms,
-                Description = this.description,
-                DescriptionBillingSale__c = this.descriptionBillingSale,
-                OrderReference__c = this.OrderReference
-            );
-        }
-
-        public List<String> getRequiredFields(){
-            return new List<String>{
-                'ExternalId__c',
-                'Currency__c',
-                'PaymentCondition__c',
-                'PaymentDate__c',
-                'PaymentForm__c',
-                'CustomerOrderNumber__c'
-     
-            };
-        }
-        public String getFieldKey(){
-            return 'ExternalId__c';
-        }
-        public String getFieldId() {
-            return 'Id';
-        }
     }
 }
