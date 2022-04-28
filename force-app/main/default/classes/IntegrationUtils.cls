@@ -108,6 +108,7 @@ public class IntegrationUtils {
     // CALLOUT STANDARD RESPONSE OUTTER CLASS
     public class CalloutResponse{
 		public CalloutOrder.ResponseParameters parsedResponse;
+        public CalloutOrderDatalake.ResponseParameters parsedResponseDatalake;
 		public Boolean success;
 		public String errorMessage;
 
@@ -117,13 +118,19 @@ public class IntegrationUtils {
 			this.parsedResponse = response;
 		}
 
+        public CalloutResponse(CalloutOrderDatalake.ResponseParameters responseDatalake){
+            this.success = true;
+            this.errorMessage = '';
+            this.parsedResponseDatalake = responseDatalake;
+        }
+
 		public CalloutResponse(String errorMessage){
 			this.success = false;
 			this.errorMessage = errorMessage;
 			this.parsedResponse = null;
 		}
 
-        public CalloutResponse(String errorMessage, CalloutOrder.ResponseParameters response){
+        public CalloutResponse(String errorMessage, CalloutOrder.ResponseParameters response, CalloutOrderDatalake.ResponseParameters responseDatalake){
 			this.success = false;
 			this.errorMessage = errorMessage;
 			this.parsedResponse = response;
