@@ -22,7 +22,7 @@ public with sharing class CalloutCTVCarteira {
         for (Territory2 territory : territoryList) {
             request.add(new RequestParameters(territory));
         }
-        String code = getAcessCode();
+        String code = (!Test.isRunningTest() ? getAcessCode() : 'acessToken');
         System.debug('AcessCode: '+ code);
         String payload = JSON.serialize(request);
         System.debug('PayloadCheck: '+ payload);
@@ -43,8 +43,9 @@ public with sharing class CalloutCTVCarteira {
 
             IntegrationLog.createLog('Pedido OUT', 'OUT', response.getBody(), payload, false);
             // .WSLog('Pedido', 'OUTBOUND', response.getBody(), payload, false);
+            System.debug('response.getBody(): '+ response.getBody());
             try {
-                System.debug('response.getBody(): '+ response.getBody());
+                
                 List<ResponseParametersWrapper> responses = (List<ResponseParametersWrapper>) JSON.deserialize(response.getBody(), List<ResponseParametersWrapper>.class);
                 return new IntegrationUtils.CalloutCTVResponse(new ResponseParameters(responses));
             } catch (Exception e) {
