@@ -1,4 +1,4 @@
-@RestResource(urlMapping='/upsertOrder/*')
+@RestResource(urlMapping='/upsertOrderAppdigital/*')
 global with sharing class IntegrationINOrderAppdigital {
     public IntegrationINOrderAppdigital() {
 

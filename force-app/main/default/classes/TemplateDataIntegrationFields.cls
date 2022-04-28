@@ -404,43 +404,31 @@ global with sharing class TemplateDataIntegrationFields {
         }
     }
 
-    global class ShippingDivison implements FieldDataChild{
+    global class ShippingDivisonData implements FieldDataChild{
         //JSON fields Example
+        public String orderExternalId;
         public String DivisaoRemessa;
         public String NumeroDivisaoRemessa;
-        public String DataDivisao;
+        public Date DataDivisao;
         public Decimal Quantidade;
-        //public String centro;
-        public String QuantidadeConfirmada;
-
+        public Decimal QuantidadeConfirmada;
+        public String ExternalId;
 
         public ShippingDivison__c serialize(Map<String, Id> lookups){
 
             return new ShippingDivison__c(
-                ExternalId__c = this.orderExternalId + '|' + this.orderItemCode, //Perguntar para o  Helder
-                OrderId = lookups.containsKey('Order'+this.orderExternalId) ? lookups.get('Order'+this.orderExternalId) : null,
-                Product2Id = this.material,
-                Quantity = this.quantidade,
-                //CentroDistribuicao__c = this.centro,
-                UnitMeasure__c = this.unidadeMedida,
-                ListPrice = this.listaPreco,
-                PercentComission__c = this.porcentagemComissao,
-                DiscountPercent__c = this.porcentagemDesconto,
-                ComissionValue__c = this.comissaoValor,
-                CommercialMargin__c = this.margemComercial,
-                DiscountValue__c = this.descontoValor,
-                FinalTotalValue__c = this.valorTotal,
-                FinancialDiscountPercent__c = this.porcentagemDescontoFin,
-                FinancialDiscountValue__c = this.valorDescontoFin,
-                FinancialAdditionPercent__c = this.porcentagemAcrescFin,
-                FinancialAdditionValue__c = this.valorAcrescFin, 
-                PricebookEntryId = lookups.containsKey('PricebookEntry'+ this.material) ? lookups.get('PricebookEntry' + this.material) : null 
+                //ExternalId__c = this.NumeroDivisaoRemessa + '---'+ this.orderNumber,
+                //Name = this.DivisaoRemessa,
+                //OrderItem__c = this.NumeroDivisaoRemessa,
+                DeliveryDate__c = this.DataDivisao,
+                Quantity__c = this.Quantidade,
+                ConfirmedQuantity__c = this.QuantidadeConfirmada
             );
         }
         public List<String> getRequiredFields(){
             //Example
             return new List<String>{
-                'Product2Id'
+                'OrderItem__c'
     
             };
         }
