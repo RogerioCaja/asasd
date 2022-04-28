@@ -153,6 +153,30 @@ public class IntegrationUtils {
             this.parsedResponse = response;
         }
     }
+
+    public class CalloutDatalakeResponse{
+        public CalloutOrderDatalake.ResponseParameters parsedResponse;
+        public Boolean success;
+        public String errorMessage;
+
+        public CalloutDatalakeResponse(CalloutOrderDatalake.ResponseParameters response){
+            this.success = true;
+            this.errorMessage = errorMessage;
+            this.parsedResponse = response;
+        }
+        
+        public CalloutDatalakeResponse(String errorMessage){
+            this.success = false;
+            this.errorMessage = errorMessage;
+            this.parsedResponse = null;
+        }
+
+        public CalloutDatalakeResponse(String errorMessage, CalloutOrderDatalake.ResponseParameters response){
+            this.success = false;
+            this.errorMessage = errorMessage;
+            this.parsedResponse = response;
+        }
+    }
     // CALLOUT PARSING INNER INTERFACE
     public interface CalloutResponseParsedData{}
 
