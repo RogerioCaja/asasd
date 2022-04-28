@@ -124,11 +124,59 @@ public class IntegrationUtils {
 		}
 
         public CalloutResponse(String errorMessage, CalloutOrder.ResponseParameters response){
-			this.success = false;
-			this.errorMessage = errorMessage;
-			this.parsedResponse = response;
-		}
-	}
+            this.success = false;
+            this.errorMessage = errorMessage;
+            this.parsedResponse = response;
+        }
+    }
+    // CALLOUT STANDARD RESPONSE OUTTER CLASS
+    public class CalloutCTVResponse{
+        public CalloutCTVCarteira.ResponseParameters parsedResponse;
+        public Boolean success;
+        public String errorMessage;
+
+        public CalloutCTVResponse(CalloutCTVCarteira.ResponseParameters response){
+            this.success = true;
+            this.errorMessage = '';
+            this.parsedResponse = response;
+        }
+
+        public CalloutCTVResponse(String errorMessage){
+            this.success = false;
+            this.errorMessage = errorMessage;
+            this.parsedResponse = null;
+        }
+
+        public CalloutCTVResponse(String errorMessage, CalloutCTVCarteira.ResponseParameters response){
+            this.success = false;
+            this.errorMessage = errorMessage;
+            this.parsedResponse = response;
+        }
+    }
+
+    public class CalloutDatalakeResponse{
+        public CalloutDatalake.ResponseParameters parsedResponse;
+        public Boolean succes;
+        public String errorMessage;
+
+        public CalloutDatalakeResponse(CalloutOrderDatalake.ResponseParameters response){
+            this.succes = false;
+            this.errorMessage = errorMessage;
+            this.parsedResponse = null;
+        }
+        
+        public CalloutDatalakeResponse(String errorMessage){
+            this.success = false;
+            this.errorMessage = errorMessage;
+            this.parsedResponse = null;
+        }
+
+        public CalloutDatalakeResponse(String errorMessage, CalloutOrderDatalake.ResponseParameters response){
+            this.sucess = false;
+            this.errorMessage = errorMessage;
+            this.parsedResponse = response;
+        }
+    }
     // CALLOUT PARSING INNER INTERFACE
     public interface CalloutResponseParsedData{}
 
