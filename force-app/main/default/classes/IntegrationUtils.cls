@@ -155,14 +155,14 @@ public class IntegrationUtils {
     }
 
     public class CalloutDatalakeResponse{
-        public CalloutDatalake.ResponseParameters parsedResponse;
-        public Boolean succes;
+        public CalloutOrderDatalake.ResponseParameters parsedResponse;
+        public Boolean success;
         public String errorMessage;
 
         public CalloutDatalakeResponse(CalloutOrderDatalake.ResponseParameters response){
-            this.succes = false;
+            this.success = true;
             this.errorMessage = errorMessage;
-            this.parsedResponse = null;
+            this.parsedResponse = response;
         }
         
         public CalloutDatalakeResponse(String errorMessage){
@@ -172,7 +172,7 @@ public class IntegrationUtils {
         }
 
         public CalloutDatalakeResponse(String errorMessage, CalloutOrderDatalake.ResponseParameters response){
-            this.sucess = false;
+            this.success = false;
             this.errorMessage = errorMessage;
             this.parsedResponse = response;
         }
