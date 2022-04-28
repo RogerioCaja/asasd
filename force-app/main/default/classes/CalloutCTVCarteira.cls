@@ -9,7 +9,6 @@ public with sharing class CalloutCTVCarteira {
 
         if (calloutResponse.success) {
             System.debug('integração foi um sucesso');
-            //ResponseParameters resp = (ResponseParameters) calloutResponse.parsedResponse;
 
         }
         
