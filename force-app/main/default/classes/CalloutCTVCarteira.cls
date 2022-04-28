@@ -101,7 +101,7 @@ public with sharing class CalloutCTVCarteira {
             List<Account> accountList = new List<Account>([SELECT Id, ExternalId__c  FROM Account WHERE Id =: accountIds]);
 
             this.IdTerritorio = territory.DeveloperName;
-            this.VendedorSAP = territoryAsso.User.CodigoSAP__c;
+            this.VendedorSAP = territoryAsso != null ? territoryAsso.User.CodigoSAP__c : null;
             this.DataHoraAtualizacao = territory.LastModifiedDate;
             this.TerritorioPai = territory.ParentTerritory2Id;
             this.NamePosition = territory.Name;
