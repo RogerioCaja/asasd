@@ -4,7 +4,7 @@ global with sharing class IntegrationINProduct {
 
     }
     @HttpPost
-    global static ResponseModel upsertProduct(List<TemplateDataIntegrationFields.ProductINData> request) {
+    global static ResponseModel upsertProduct(List<TemplateDataIntegrationFields.Product2INData> request) {
         // Guarda a relação da conta com o pedido
         Map<String, Id> lookups = new Map<String, Id>();
 
@@ -12,32 +12,19 @@ global with sharing class IntegrationINProduct {
         Set<String> productSubGroupLookups = new Set<String>();
         
 
-        // Guarda uma lista de respostas
+    
         List<TemplateDataIntegrationFields.ResponseParent> responseList = new List<TemplateDataIntegrationFields.ResponseParent>();
-        // Guarda uma lista de orderItem para fazer o upsert
-        //List<TemplateDataIntegrationFields.OrderItemINData> orderItemListToUpsert = new List<TemplateDataIntegrationFields.OrderItemINData>();
-        // Guarda uma lista de pedidos para fazer o upsert
-        List<Order> productListToUpsert = new List<Order>();
+        //List<TemplateDataINtegrationFields.Product2INData> productListToUpsert = new List<TemplateDataINtegrationFields.Product2INData>();
+        List<Product2> productListToUpsert = new List<Product2>();
+        
 
         //Application of business rules
-        for (TemplateDataIntegrationFields.ProductINData product : request){
+        for (TemplateDataIntegrationFields.Product2INData product : request){
             // Pega a relação da conta com o pedido
             //Getting account parameters to search
             productGroupLookups.add(product.GrupoMercadoria);
             productSubGroupLookups.add(product.SubgrupoMercadoria);
-
- /*           
-            if(order.orderItems != null) {
-                // Adiciona todos os External Id e o catalogo de preço de order nos orderItem
-                //Putting the Order's ExternalId parameter in the OrderItem
-                for (TemplateDataIntegrationFields.OrderItemINData orderItem : order.orderItems){
-                    orderItem.orderExternalId = order.orderNumber;
-                }
-                // Adiciona os orderItem na lista para upsert
-                //Getting list of order items
-                orderItemListToUpsert.addAll(order.orderItems);
-            }
-            */
+           
         }
         // Pega o Id da conta com base no CNPJ da conta
         //Account search based on CNPJ field sent
@@ -60,7 +47,7 @@ global with sharing class IntegrationINProduct {
           
         //Upserting records (Product)
 		IntegrationUtils.upsertRecords(
-            Database.upsert(productListToUpsert, /*Product2.ExternalId__c,*/ false), 
+            Database.upsert(productListToUpsert, Product2.ExternalId__c, false), 
             responseList, 
             productListToUpsert, 
             Product2.ExternalId__c
@@ -92,18 +79,19 @@ global with sharing class IntegrationINProduct {
         // Verifica erros de integração para o log
         Boolean hasError = false;
 
-        for(TemplateDataIntegrationFields.ResponseParent responseOrder : responseList){
-            if(responseOrder.status == false){
+        for(TemplateDataIntegrationFields.ResponseParent responseProduct : responseList){
+            if(responseProduct.status == false){
                 hasError = true;
                 break;
-            } else {
-                for(TemplateDataIntegrationFields.Response response : responseOrder.items){
+            } /*else {
+                for(TemplateDataIntegrationFields.Response response : responseProduct.items){
                     if(response.status == false){
                         hasError = true;
                         break;
                     }
                 }
             }
+            */
         }
 		
         //Creating integration log
