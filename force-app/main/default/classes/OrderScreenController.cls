@@ -335,16 +335,18 @@ public without sharing class OrderScreenController {
 
             Id companyId;
             Id salesOrgId;
-            String salesTeamDevName = salesTeamTerritory.DeveloperName.substring(1, salesTeamTerritory.DeveloperName.length());
-            for (Company__c salesTeamCompany : [
-                SELECT Id,
-                       SalesOrg__c
-                  FROM Company__c
-                 WHERE Conta__c =: orderData.accountData.Id
-                   AND SalesTeam__r.ExternalId__c =: salesTeamDevName
-            ]) {
-                companyId = salesTeamCompany.Id;
-                salesOrgId = salesTeamCompany.SalesOrg__c;
+            if (salesTeamTerritory.DeveloperName != null) {
+                String salesTeamDevName = salesTeamTerritory.DeveloperName.substring(1, salesTeamTerritory.DeveloperName.length());
+                for (Company__c salesTeamCompany : [
+                    SELECT Id,
+                           SalesOrg__c
+                      FROM Company__c
+                     WHERE Conta__c =: orderData.accountData.Id
+                       AND SalesTeam__r.ExternalId__c =: salesTeamDevName
+                ]) {
+                    companyId = salesTeamCompany.Id;
+                    salesOrgId = salesTeamCompany.SalesOrg__c;
+                }
             }
 
             order.AccountId = acc.Id;
