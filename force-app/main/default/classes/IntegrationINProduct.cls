@@ -3,7 +3,7 @@ global with sharing class IntegrationINProduct {
     public IntegrationINProduct() {
 
     }
-    //@HttpPost
+    @HttpPost
     global static ResponseModel upsertProduct(List<TemplateDataIntegrationFields.ProductINData> request) {
         // Guarda a relação da conta com o pedido
         Map<String, Id> lookups = new Map<String, Id>();
