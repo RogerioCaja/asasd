@@ -91,20 +91,23 @@ public with sharing class CalloutCTVCarteira {
         public RequestParameters(Territory2 territory){
             List<String> accountIds = new List<String>();
             System.debug('Primeira');
-            UserTerritory2Association territoryAsso = [SELECT id, User.CodigoSAP__c FROM UserTerritory2Association WHERE Territory2Id =: territory.Id];
-            System.debug('Segundo: '+ territoryAsso);
-
+            UserTerritory2Association territoryAsso;
+            Try{
+                territoryAsso = [SELECT id, User.CodigoSAP__c FROM UserTerritory2Association WHERE Territory2Id =: territory.Id];
+             } 
+             Catch(System.QueryException e){
+                territoryAsso = null;
+            }
+            System.debug('Segunda: '+ territoryAsso);
             List<ObjectTerritory2Association> terrytoryObject = new List<ObjectTerritory2Association>([SELECT Id, ObjectId  FROM ObjectTerritory2Association WHERE Territory2Id =: territory.Id]);
             System.debug('Terceiro: '+ terrytoryObject);
             for(ObjectTerritory2Association terrytory : terrytoryObject){
-                
                 accountIds.add(terrytory.ObjectId);
             }
 
             List<Account> accountList = new List<Account>([SELECT Id, ExternalId__c  FROM Account WHERE Id =: accountIds]);
-            //
             this.IdTerritorio = territory.DeveloperName;
-            this.VendedorSAP = territoryAsso != null ? territoryAsso.User.CodigoSAP__c : null;
+            this.VendedorSAP = territoryAsso != null ?  territoryAsso.User.CodigoSAP__c : null;
             this.DataHoraAtualizacao = territory.LastModifiedDate;
             this.TerritorioPai = territory.ParentTerritory2Id;
             this.NamePosition = territory.Name;
