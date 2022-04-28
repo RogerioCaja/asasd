@@ -17,28 +17,18 @@ public with sharing class CalloutCTVCarteira {
     }
 
     public static IntegrationUtils.CalloutCTVResponse sendOrder(List<Territory2> territoryList) {
-            
-        List<RequestParameters> request = new List<RequestParameters>();
 
+        List<RequestParameters> request = new List<RequestParameters>();
+        
         for (Territory2 territory : territoryList) {
             request.add(new RequestParameters(territory));
         }
-        /*
-        String payloadAcess = '"grant_type=client_credentials" -H "Authorization: Basic dEQxV2M0bWtXdnRWNWVtRXZSOHlVRF9iUFZvYTpmZmVJQUs5SmdPNXNsbXI1UzVMUXNNcTBOME1h"';
-        HttpRequest req = new HttpRequest();
-        req.setMethod('POST');
-        req.setEndpoint('https://apim.agrogalaxy.com.br/identityserver/oauth2/token');
-        req.setHeader('Content-Type','application/x-www-form-urlencoded');
-        req.setHeader('Content-Length',String.valueOf(payloadAcess.length()));
-        req.setBody(payloadAcess);
-        Http binding = new Http();
-        HttpResponse res = binding.send(req);
-        System.debug('res: '+ res);
-            */
+        String code = getAcessCode();
+        System.debug('AcessCode: '+ code);
         String payload = JSON.serialize(request);
         System.debug('PayloadCheck: '+ payload);
         //Metodo para busca de Access Token, depende de cada projeto, podendo estar presente dentro de uma custom settings ou relacionado com outra requisição.
-        String accessToken = '';//! FALTA SABER A RESPOSTA DO SAP QUANTO A AUTENTICAÇÃO! F
+        String accessToken = code;//! FALTA SABER A RESPOSTA DO SAP QUANTO A AUTENTICAÇÃO! F
         
         //Path geralmente cadastrado dentro de ua customSettings
         String endpoint = (!Test.isRunningTest() ? 'https://apim.agrogalaxy.com.br/gtw/sales-territory/v1/webhook/_notify' : 'http://callout.My_Named_Credential.com/some/path');
@@ -68,6 +58,22 @@ public with sharing class CalloutCTVCarteira {
 
             IntegrationLog.createLog('Pedido OUT', 'OUT', responseObject.exceptionObject.getMessage(), payload, true);
             return new IntegrationUtils.CalloutCTVResponse(responseObject.exceptionObject.getMessage());
+        }
+    }
+    public static String getAcessCode(){
+        String payloadToken = 'grant_type=client_credentials';
+        String endpointToken = (!Test.isRunningTest() ? 'https://apim.agrogalaxy.com.br/identityserver/oauth2/token' : 'http://callout.My_Named_Credential.com/some/path');
+        Map<String, String> headersMapToken = new Map<String, String>();
+        headersMapToken.put('Content-type', 'application/x-www-form-urlencoded');
+        headersMapToken.put('Authorization', 'Basic '+ 'ZVBwb0ZlUm1XZGtUNk9tRnlMQl9Ma2pBUUVrYTpsV3diUVBpa2dNeTRyTnQ5UkNSWmRpS3luMmdh');
+        IntegrationUtils.RequestResponseObject responseObject2 = IntegrationUtils.executeCallout(endpointToken, payloadToken, headersMapToken);
+        
+        if (responseObject2.success) {
+            HttpResponse response = responseObject2.response;
+            ResponseParametersToken responses = (ResponseParametersToken) JSON.deserialize(response.getBody(), ResponseParametersToken.class);
+            return responses.access_token;
+        } else {
+            return null;
         }
     }
 
@@ -131,6 +137,13 @@ public with sharing class CalloutCTVCarteira {
         public String OrderNumber; 
         public List<OrderDetails> DetalhesPedido;
         public List<Messages> Mensagens; 
+    }
+
+    public class ResponseParametersToken {
+        public String access_token; 
+        public String scope; 
+        public String token_type; 
+        public Decimal expires_in; 
     }
 
     public class Messages{
