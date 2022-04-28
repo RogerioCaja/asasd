@@ -57,7 +57,7 @@ export default class OrderScreen extends LightningElement {
         status_pedido: "Em digitação",
         cliente_faturamento: " ",
         cliente_entrega: " ",
-        organizacao_vendas: " ",
+        organizacao_vendas: {},
         canal_distribuicao: " ",
         setor_atividade: " ",
         forma_pagamento: " ",
