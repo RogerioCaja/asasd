@@ -22,14 +22,14 @@ public with sharing class CalloutCTVCarteira {
         for (Territory2 territory : territoryList) {
             request.add(new RequestParameters(territory));
         }
-        String code = getAcessCode();
+        String code = (!Test.isRunningTest() ? getAcessCode() : 'acessToken');
         System.debug('AcessCode: '+ code);
         String payload = JSON.serialize(request);
         System.debug('PayloadCheck: '+ payload);
         //Metodo para busca de Access Token, depende de cada projeto, podendo estar presente dentro de uma custom settings ou relacionado com outra requisição.
         String accessToken = code;//! FALTA SABER A RESPOSTA DO SAP QUANTO A AUTENTICAÇÃO! F
-        
-        //Path geralmente cadastrado dentro de ua customSettings
+        //Url mock: https://aabb2740-69b0-4737-925c-2c40367a3737.mock.pstmn.io//CalloutCTVCarteira
+        //Path geralmente cadastrado dentro de ua customSettings 
         String endpoint = (!Test.isRunningTest() ? 'https://apim.agrogalaxy.com.br/gtw/sales-territory/v1/webhook/_notify' : 'http://callout.My_Named_Credential.com/some/path');
         Map<String, String> headersMap = new Map<String, String>();
         headersMap.put('Content-type', 'application/json');
@@ -43,8 +43,9 @@ public with sharing class CalloutCTVCarteira {
 
             IntegrationLog.createLog('Pedido OUT', 'OUT', response.getBody(), payload, false);
             // .WSLog('Pedido', 'OUTBOUND', response.getBody(), payload, false);
+            System.debug('response.getBody(): '+ response.getBody());
             try {
-
+                
                 List<ResponseParametersWrapper> responses = (List<ResponseParametersWrapper>) JSON.deserialize(response.getBody(), List<ResponseParametersWrapper>.class);
                 return new IntegrationUtils.CalloutCTVResponse(new ResponseParameters(responses));
             } catch (Exception e) {
@@ -133,7 +134,7 @@ public with sharing class CalloutCTVCarteira {
     }
 
     public class ResponseParametersWrapper {
-        public String OrderNumber; 
+        public Boolean Status; 
         public List<OrderDetails> DetalhesPedido;
         public List<Messages> Mensagens; 
     }
