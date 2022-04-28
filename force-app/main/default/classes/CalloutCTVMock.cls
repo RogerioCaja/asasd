@@ -3,14 +3,14 @@ public with sharing class CalloutCTVMock implements HttpCalloutMock {
     private final String body;
     private final Integer status;
 
-    public CalloutCTVMock(Boolean isSuccess, String orderNumber) {
+    public CalloutCTVMock(Boolean isSuccess) {
         if(isSuccess){
             status = 200;
-            body = '[{ "OrderNumber":' + '"' +orderNumber+ '"' + ',"DetalhesPedido":[{"StatusSap": "Integrado","NumeroOrdemVenda" : "0001" }],"Mensagens":[{"Tipo": "S","Mensagem": "Teste" }] }]';
+            body = '[{ "Status": true, "DetalhesPedido":[{"StatusSap": "Integrado","NumeroOrdemVenda" : "0001" }],"Mensagens":[{"Tipo": "S","Mensagem": "Teste" }] }]';
         }
         else{
             status = 400;
-            body = '{ "OrderNumber":' +orderNumber+ ',"DetalhesPedido":[{"StatusSap": "Integrado","NumeroOrdemVenda" : "0001" }],"Mensagens":[{"Tipo": "S","Mensagem": "Teste" }] }';
+            body = '{[{ "Status": true, "DetalhesPedido":[{"StatusSap": "Integrado","NumeroOrdemVenda" : "0001" }],"Mensagens":[{"Tipo": "S","Mensagem": "Teste" }] }]}';
         }
     }
     

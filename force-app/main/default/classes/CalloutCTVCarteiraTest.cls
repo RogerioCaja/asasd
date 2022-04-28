@@ -47,7 +47,7 @@ public with sharing class CalloutCTVCarteiraTest {
         //insert objObjectTerritory2Association;
 
         CalloutOrder calloutTest = new CalloutOrder();
-        Test.setMock(HttpCalloutMock.class, new CalloutOrderMock(true, '2'));
+        Test.setMock(HttpCalloutMock.class, new CalloutCTVMock(true));
         Test.startTest();
         IntegrationUtils.CalloutCTVResponse response = CalloutCTVCarteira.processIntegration();
         Test.stopTest();
