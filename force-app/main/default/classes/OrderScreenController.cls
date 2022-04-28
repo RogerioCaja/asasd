@@ -245,6 +245,7 @@ public without sharing class OrderScreenController {
                 }
             }
 
+            Territory2 salesTeamTerritory = new Territory2();
             if (company != null) {
                 Id userTerritoryId;
                 for (UserTerritory2Association userAssociation : [
@@ -300,6 +301,10 @@ public without sharing class OrderScreenController {
                         userTerritoryId = territory.ParentTerritory2Id;
                         approvalByCounter.put(counter, userTerritoryId);
                     }
+
+                    if (counter == 1) {
+                        salesTeamTerritory = territory;
+                    }
                     counter++;
                 }
 
@@ -328,6 +333,19 @@ public without sharing class OrderScreenController {
                 }
             }
 
+            Id companyId;
+            Id salesOrgId;
+            for (Company__c salesTeamCompany : [
+                SELECT Id,
+                       SalesOrg__c
+                  FROM Company__c
+                 WHERE Conta__c =: orderData.accountData.Id
+                   AND SalesTeam__c =: salesTeamTerritory.DeveloperName
+            ]) {
+                companyId = salesTeamCompany.Id;
+                salesOrgId = salesTeamCompany.SalesOrg__c;
+            }
+
             order.AccountId = acc.Id;
             order.Status = 'Draft';
             order.PriceBook2Id = orderData.headerData.lista_precos.Id;
@@ -339,7 +357,7 @@ public without sharing class OrderScreenController {
             order.Crop__c = orderData.headerData.safra.Id ;
             order.Culture__c = orderData.headerData.cultura.Id ;
             order.PaymentForm__c = orderData.headerData.forma_pagamento ;
-            // order.SalesOrg__c = orderData.headerData.organizacao_vendas.Id == ' ' ? null :  orderData.headerData.organizacao_vendas.Id;
+            order.SalesOrg__c = salesOrgId;
             order.DistributionChannel__c = orderData.headerData.canal_distribuicao ;
             order.ActivitySector__c = orderData.headerData.setor_atividade ;
             order.Currency__c = orderData.headerData.moeda ;
@@ -772,8 +790,7 @@ public without sharing class OrderScreenController {
         public String data_entrega;
         public String status_pedido;
         public AccountSerialize cliente_entrega;
-        public String organizacao_vendas;
-        // public InformationFields organizacao_vendas;
+        public InformationFields organizacao_vendas;
         public String canal_distribuicao;
         public String setor_atividade;
         public String forma_pagamento;
@@ -937,8 +954,7 @@ public without sharing class OrderScreenController {
         public String status_pedido;
         public String cliente_faturamento;
         public AccountSerialize cliente_entrega;
-        // public InformationFields organizacao_vendas;
-        public String organizacao_vendas;
+        public InformationFields organizacao_vendas;
         public String canal_distribuicao;
         public String setor_atividade;
         public String forma_pagamento;
@@ -975,8 +991,7 @@ public without sharing class OrderScreenController {
             this.cultura = new InformationFields(order.Culture__c, order.Culture__r.Name);
             this.forma_pagamento = order.PaymentForm__c;
             this.status_pedido = order.StatusSF__c;
-            // this.organizacao_vendas = new InformationFields(order.SalesOrg__c, order.SalesOrg__r.Name);
-            this.organizacao_vendas = ' ';
+            this.organizacao_vendas = new InformationFields(order.SalesOrg__c, order.SalesOrg__r.Name);
             this.canal_distribuicao = order.DistributionChannel__c;
             this.setor_atividade = order.ActivitySector__c;
             this.moeda = order.Currency__c;
