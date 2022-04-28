@@ -28,9 +28,9 @@ public with sharing class CalloutCTVCarteira {
         System.debug('PayloadCheck: '+ payload);
         //Metodo para busca de Access Token, depende de cada projeto, podendo estar presente dentro de uma custom settings ou relacionado com outra requisição.
         String accessToken = code;//! FALTA SABER A RESPOSTA DO SAP QUANTO A AUTENTICAÇÃO! F
-        
-        //Path geralmente cadastrado dentro de ua customSettings //https://apim.agrogalaxy.com.br/gtw/sales-territory/v1/webhook/_notify
-        String endpoint = (!Test.isRunningTest() ? 'https://aabb2740-69b0-4737-925c-2c40367a3737.mock.pstmn.io//CalloutCTVCarteira' : 'http://callout.My_Named_Credential.com/some/path');
+        //Url mock: https://aabb2740-69b0-4737-925c-2c40367a3737.mock.pstmn.io//CalloutCTVCarteira
+        //Path geralmente cadastrado dentro de ua customSettings 
+        String endpoint = (!Test.isRunningTest() ? 'https://apim.agrogalaxy.com.br/gtw/sales-territory/v1/webhook/_notify' : 'http://callout.My_Named_Credential.com/some/path');
         Map<String, String> headersMap = new Map<String, String>();
         headersMap.put('Content-type', 'application/json');
         headersMap.put('Authorization', 'Bearer '+ accessToken);
