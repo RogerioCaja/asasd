@@ -201,7 +201,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String TipoMaterial;
         public String GrupoMercadoria;
         public String SubgrupoMercadoria;
-        public String MercadoEliminacao;
+        public String MarcadoEliminacao;
         public String UnidadePeso;
         public String CodigoControle;
         public String ClasseAvaliacao;
@@ -226,7 +226,7 @@ global with sharing class TemplateDataIntegrationFields {
                 ProductType__c = this.TipoMaterial,
                 ProductGroup__c = lookups.containsKey('ProductGroup__c'+this.GrupoMercadoria) ? lookups.get('ProductGroup__c'+this.GrupoMercadoria) : null,
                 ProductSubgroup__c = lookups.containsKey('ProductSubgroup__c'+this.SubgrupoMercadoria) ? lookups.get('ProductSubgroup__c'+this.SubgrupoMercadoria) : null,
-                MercadoEliminacao__c = this.MercadoEliminacao,
+                MarcadoEliminacao__c = this.MarcadoEliminacao,
                 QuantityUnitOfMeasure = this.UnidadePeso,
                 ExternalId__c = this.CodigoControle,
                 ClasseAvaliacao__c = this.ClasseAvaliacao,
@@ -286,6 +286,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String OrderReference;
         public String orderMother;
         public List<TemplateDataIntegrationFields.OrderItemINData> orderItems;
+        public List<TemplateDataIntegrationFields.ShippingDivisonData> shippingDivison;
         public Order serialize(Map<String, Id> lookups){
 
             return new Order(
@@ -359,7 +360,64 @@ global with sharing class TemplateDataIntegrationFields {
         public OrderItem serialize(Map<String, Id> lookups){
 
             return new OrderItem(
-                ExternalId__c = this.orderExternalId + '|' + this.orderItemCode,
+                ExternalId__c = this.orderExternalId + '|' + this.orderItemCode, //Perguntar para o  Helder
+                OrderId = lookups.containsKey('Order'+this.orderExternalId) ? lookups.get('Order'+this.orderExternalId) : null,
+                Product2Id = this.material,
+                Quantity = this.quantidade,
+                //CentroDistribuicao__c = this.centro,
+                UnitMeasure__c = this.unidadeMedida,
+                ListPrice = this.listaPreco,
+                PercentComission__c = this.porcentagemComissao,
+                DiscountPercent__c = this.porcentagemDesconto,
+                ComissionValue__c = this.comissaoValor,
+                CommercialMargin__c = this.margemComercial,
+                DiscountValue__c = this.descontoValor,
+                FinalTotalValue__c = this.valorTotal,
+                FinancialDiscountPercent__c = this.porcentagemDescontoFin,
+                FinancialDiscountValue__c = this.valorDescontoFin,
+                FinancialAdditionPercent__c = this.porcentagemAcrescFin,
+                FinancialAdditionValue__c = this.valorAcrescFin, 
+                PricebookEntryId = lookups.containsKey('PricebookEntry'+ this.material) ? lookups.get('PricebookEntry' + this.material) : null 
+            );
+        }
+        public List<String> getRequiredFields(){
+            //Example
+            return new List<String>{
+                'Product2Id'
+    
+            };
+        }
+
+        //Key field
+        public String getFieldKey(){
+            return 'Id';
+        }
+
+        //ExternalId field
+        public String getFieldExternal(){
+            return 'EXTERNALID__c';
+        }
+        
+        //Parent ExternalId field
+        public String getParentKey(){
+            return 'OrderId';
+        }
+    }
+
+    global class ShippingDivison implements FieldDataChild{
+        //JSON fields Example
+        public String DivisaoRemessa;
+        public String NumeroDivisaoRemessa;
+        public String DataDivisao;
+        public Decimal Quantidade;
+        //public String centro;
+        public String QuantidadeConfirmada;
+
+
+        public ShippingDivison__c serialize(Map<String, Id> lookups){
+
+            return new ShippingDivison__c(
+                ExternalId__c = this.orderExternalId + '|' + this.orderItemCode, //Perguntar para o  Helder
                 OrderId = lookups.containsKey('Order'+this.orderExternalId) ? lookups.get('Order'+this.orderExternalId) : null,
                 Product2Id = this.material,
                 Quantity = this.quantidade,
