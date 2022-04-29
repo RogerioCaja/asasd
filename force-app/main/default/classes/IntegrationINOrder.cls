@@ -4,7 +4,7 @@ global with sharing class IntegrationINOrder {
 
     }
     @HttpPost
-    global static ResponseModel upsertOrder(List<TemplateDataIntegrationFields.IntegrationOrderINData> request) { 
+    global static ResponseModel upsertOrder(List<TemplateDataIntegrationFields.OrderINData> request) { 
         // Guarda a relação da conta com o pedido
         Map<String, Id> lookups = new Map<String, Id>();
 
@@ -21,14 +21,14 @@ global with sharing class IntegrationINOrder {
         // Guarda uma lista de respostas
         List<TemplateDataIntegrationFields.ResponseParent> responseList = new List<TemplateDataIntegrationFields.ResponseParent>();
         // Guarda uma lista de orderItem para fazer o upsert
-        List<TemplateDataIntegrationFields.IntegrationOrderINData> orderItemListToUpsert = new List<TemplateDataIntegrationFields.IntegrationOrderINData>();
+        List<TemplateDataIntegrationFields.OrderINData> orderItemListToUpsert = new List<TemplateDataIntegrationFields.OrderINData>();
         // Guarda uma lista de pedidos para fazer o upsert
         List<Order> orderListToUpsert = new List<Order>();
 
         List<TemplateDataIntegrationFields.OrderItemINData> orderItemINData = new List<TemplateDataIntegrationFields.OrderItemINData>();
 
         //Application of business rules
-        for (TemplateDataIntegrationFields.IntegrationOrderINData order : request){
+        for (TemplateDataIntegrationFields.OrderINData order : request){
             // Pega a relação da conta com o pedido
             //Getting account parameters to search
             accountLookups.add(order.paymentAccount);
@@ -47,7 +47,7 @@ global with sharing class IntegrationINOrder {
             if(order != null) {
                 // Adiciona todos os External Id e o catalogo de preço de order nos orderItem
                 //Putting the Order's ExternalId parameter in the OrderItem
-                //for (TemplateDataIntegrationFields.IntegrationOrderINData order : order){
+                //for (TemplateDataIntegrationFields.OrderINData order : order){
                  //   orderItem.orderExternalId = order.orderNumber;
                 }
                 // Adiciona os orderItem na lista para upsert

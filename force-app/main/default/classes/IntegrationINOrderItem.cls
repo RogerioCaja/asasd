@@ -13,17 +13,17 @@ global with sharing class IntegrationINOrderItem {
         // Guarda uma lista com os OrderItem para fazer o upsert
         List<OrderItem> orderItemListToUpsert = new List<OrderItem>();
         //Application of business rules
-        for(TemplateDataIntegrationFields.IntegrationINOrderItem orderItemINData : request) {
+        for(TemplateDataIntegrationFields.OrderItemINData OrderItemINData : request) {
             // Pega a relação do OrderItem com Order
             //Getting order parameters to search
-            orderLookups.add(IntegrationINOrderItem.orderExternalId);
+            orderLookups.add(OrderItemINData.orderExternalId);
             // Pega a relação do Product com o OrderItem
             //Getting product parameters to search
-            productLookups.add(IntegrationINOrderItem.productCode);
+            productLookups.add(OrderItemINData.productCode);
         }
         // Pega o produto com base no ExternalID recebido
         //Product2 search based on ExternalId__c field sent
-        for (Product2 product : [SELECT Id,ProductCode__c,ProductCode FROM Product2 WHERE ProductCode__c IN: productLookups ]) {
+        for (Product2 product : [SELECT Id, productCode FROM Product2 WHERE productCode IN: productLookups ]) {
             //Map structure for the model -> object name + parameter to record id
             lookups.put('Product2' + product.ProductCode, product.Id);
         }
@@ -34,9 +34,9 @@ global with sharing class IntegrationINOrderItem {
             lookups.put('Order' + order.CodigoSap__c, order.Id);
         }
         
-        for (PricebookEntry pricebookEntry : [SELECT Id, Product2Id, ProductCode__c, Pricebook2.isStandard FROM PricebookEntry ]){
-            lookups.put('Product2' + pricebookEntry.ProductCode__c, pricebookEntry.Product2Id);
-            lookups.put('PricebookEntry' + pricebookEntry.ProductCode__c, pricebookEntry.Id);
+        for (PricebookEntry pricebookEntry : [SELECT Id, Product2Id, productCode, Pricebook2.isStandard FROM PricebookEntry ]){
+            lookups.put('Product2' + pricebookEntry.productCode, pricebookEntry.Product2Id);
+            lookups.put('PricebookEntry' + pricebookEntry.productCode, pricebookEntry.Id);
         }
         
         // Associa as respostas do OrderItem com Order

@@ -257,7 +257,7 @@ global with sharing class TemplateDataIntegrationFields {
             return 'Id';
         }
     }
-    global class IntegrationOrderINData implements FieldData{
+    global class OrderINData implements FieldData{
 
         public String status;
         public String pricebook2Id;
@@ -342,6 +342,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String orderItemCode;
         public String orderExternalId;
         public String material;
+        public String productCode;
         public Decimal quantidade;
         //public String centro;
         public String unidadeMedida;
