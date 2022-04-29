@@ -193,7 +193,8 @@ global with sharing class TemplateDataIntegrationFields {
             return 'Id';
         }
     }
-    global class ProductINData implements FieldData {
+    global class Product2INData implements FieldData {
+        public String ProductName;
         public String TextoBreveMaterial;
         public String UnidadeMedida;
         public String UnidadeMedidaRemessa;
@@ -212,13 +213,14 @@ global with sharing class TemplateDataIntegrationFields {
         public String IngredienteAtivo;
         public String NumeroRegistro;
         public Decimal PesoBruto;
-        public List<TemplateDataIntegrationFields.ProductINData> product2Entries;
+        //public List<TemplateDataIntegrationFields.ProductINData> product2Entries;
 
         public Product2 serialize(Map<String, Id> lookups){
 
 
             //Returning Object with Fields
             return new Product2(
+                Name = this.ProductName,
                 Description = this.TextoBreveMaterial,
                 UnidadeMedida__c = this.UnidadeMedida,
                 GrossWeightUnitOfMeasure__c = this.UnidadeMedidaRemessa,
@@ -243,7 +245,7 @@ global with sharing class TemplateDataIntegrationFields {
         //Required fields for integration
         public List<String> getRequiredFields(){
             return new List<String>{
-                'ExternalId__c'
+                //'ExternalId__c'
             };
         }
 

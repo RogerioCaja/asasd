@@ -7,7 +7,7 @@ public with sharing class CalloutOrderDatalake {
         processIntegration(orderId);
     }
 
-    public static IntegrationUtils.CalloutResponse processIntegration(Id orderId){
+    public static IntegrationUtils.CalloutDatalakeResponse processIntegration(Id orderId){
 
 		Order parentOrder = [SELECT Id, CodigoSap__c, ShippingAccount__r.ExternalId__c, Account.ExternalId__c, Type, SalesOrg__r.SalesOrganizationCode__c, DistributionChannel__c, 
                             ActivitySector__c, Incoterms__c, Incoterms2__c, PaymentCondition__c, OrderReason__c , 
@@ -17,11 +17,11 @@ public with sharing class CalloutOrderDatalake {
 		
 		List<Order> allOrders = new List<Order>{parentOrder};
 		
-		IntegrationUtils.CalloutResponse calloutResponse = sendOrder(allOrders);
+		IntegrationUtils.CalloutDatalakeResponse calloutResponse = sendOrder(allOrders);
 
 		if (calloutResponse.success) {
 			
-			ResponseParameters resp = (ResponseParameters) calloutResponse.parsedResponseDatalake;
+			ResponseParameters resp = (ResponseParameters) calloutResponse.parsedResponse;
 			Map<String, Order> orderMap = new Map<String, Order>();
 
 			for (Order ord : allOrders) {
@@ -50,7 +50,7 @@ public with sharing class CalloutOrderDatalake {
 		return calloutResponse;
 	}
 
-	public static IntegrationUtils.CalloutResponse sendOrder(List<Order> orders) {
+	public static IntegrationUtils.CalloutDatalakeResponse sendOrder(List<Order> orders) {
 			
 		List<RequestParameters> request = new List<RequestParameters>();
 
@@ -61,7 +61,7 @@ public with sharing class CalloutOrderDatalake {
 		String payload = JSON.serialize(request);
 
 		//Metodo para busca de Access Token, depende de cada projeto, podendo estar presente dentro de uma custom settings ou relacionado com outra requisição.
-		String accessToken = '';//! FALTA SABER A RESPOSTA DO SAP QUANTO A AUTENTICAÇÃO! F
+		String accessToken = '';//! FALTA SABER A RESPOSTA DO DATALAKE QUANTO A AUTENTICAÇÃO! F
 		
 		//Path geralmente cadastrado dentro de ua customSettings
 		String endpoint = (!Test.isRunningTest() ? 'https://e2d5f427-4632-4314-aac5-4801fbbe25db.mock.pstmn.io//OrderUpsert' : 'http://callout.My_Named_Credential.com/some/path');
@@ -80,23 +80,23 @@ public with sharing class CalloutOrderDatalake {
 			try {
 
 				List<ResponseParametersWrapper> responses = (List<ResponseParametersWrapper>) JSON.deserialize(response.getBody(), List<ResponseParametersWrapper>.class);
-				return new IntegrationUtils.CalloutResponse(new ResponseParameters(responses));
+				return new IntegrationUtils.CalloutDatalakeResponse(new ResponseParameters(responses));
 			} catch (Exception e) {
 				
 				String defaultErrorMessage = 'Malformatted HTTP Response Exception: ' + e.getMessage();
 
-				return new IntegrationUtils.CalloutResponse(defaultErrorMessage);
+				return new IntegrationUtils.CalloutDatalakeResponse(defaultErrorMessage);
 			}
 		} else {
 
             IntegrationLog.createLog('Pedido OUT', 'OUT', responseObject.exceptionObject.getMessage(), payload, true);
-			return new IntegrationUtils.CalloutResponse(responseObject.exceptionObject.getMessage());
+			return new IntegrationUtils.CalloutDatalakeResponse(responseObject.exceptionObject.getMessage());
 		}
     }
 
     //! Preparing data to Callout
     public class RequestParameters{
-        public Object orders;
+        public Object orders; // criar public list
         //public List<CalloutOrderDatalake.PartnerParameters> partner;
         List<CalloutOrderDatalake.ShippingParameters> Shipping;
         public List<CalloutOrderDatalake.ConditionParameters> condition;
