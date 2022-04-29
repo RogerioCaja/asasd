@@ -38,7 +38,6 @@ export default class Lookup extends LightningElement {
 	@track searchFieldsApiNames = null;
 	@track moreFieldsApiNames = null;
 	@track searchValue = null;
-	@api accountId;
 	@track isLoading = true;
 
 	@track records = null;
@@ -189,8 +188,7 @@ export default class Lookup extends LightningElement {
 			targetObject: this.targetObject.objectApiName,
 			searchFields: this.searchFieldsApiNames,
 			searchValue: this.searchValue,
-			moreFields: this.moreFieldsApiNames || null,
-			accountId: this.accountId
+			moreFields: this.moreFieldsApiNames || null
 		};
 
 		//console.log('this.parentRelationFieldList =>', this.parentRelationFieldList ? JSON.parse(JSON.stringify(this.parentRelationFieldList)) : this.parentRelationFieldList);

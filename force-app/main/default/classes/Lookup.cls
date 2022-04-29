@@ -7,46 +7,6 @@ public with sharing class Lookup {
 
         String query = getQueryBase(requestData);
 
-        Set<Id> availableCtvs = new Set<Id>();
-        if (requestData.targetObject == 'User') {
-            Boolean userRelatedToTerritory = false;
-            for (UserTerritory2Association userAssociation : [
-                SELECT Id
-                  FROM UserTerritory2Association
-                 WHERE UserId =: UserInfo.getUserId()
-                 LIMIT 1
-            ]) {
-                userRelatedToTerritory = true;
-            }
-
-            Set<Id> relatedUsers = new Set<Id>();
-            if (userRelatedToTerritory) {
-                relatedUsers.add(UserInfo.getUserId());
-            } else {
-                Set<Id> relatedTerritories = new Set<Id>();
-                for (ObjectTerritory2Association objAssociation : [
-                    SELECT Id,
-                           Territory2Id
-                      FROM ObjectTerritory2Association
-                     WHERE ObjectId =: requestData.accountId
-                ]) {
-                    relatedTerritories.add(objAssociation.Territory2Id);
-                }
-    
-                for (UserTerritory2Association userAssociation : [
-                    SELECT Id,
-                           UserId
-                      FROM UserTerritory2Association
-                     WHERE Territory2Id IN: relatedTerritories
-                ]) {
-                    relatedUsers.add(userAssociation.UserId);
-                }
-            }
-
-            System.debug('relatedUsers: ' + relatedUsers);
-            query += ' AND Id IN: relatedUsers';
-        }
-
         System.debug(query);
         query += ' LIMIT 25';
         return Database.query(query);
@@ -134,7 +94,6 @@ public with sharing class Lookup {
 
     public class RequestDTO {
         public String targetObject;
-        public String accountId;
         public List<String> searchFields;
         public List<String> moreFields;
 
