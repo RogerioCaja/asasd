@@ -3,7 +3,8 @@ global with sharing class IntegrationINOrder {
     public IntegrationINOrder() {
 
     }
-    global static ResponseModel upsertOrder(List<TemplateDataIntegrationFields.IntegrationOrderINData> request) {
+    @HttpPost
+    global static ResponseModel upsertOrder(List<TemplateDataIntegrationFields.IntegrationOrderINData> request) { 
         // Guarda a relação da conta com o pedido
         Map<String, Id> lookups = new Map<String, Id>();
 
@@ -24,6 +25,8 @@ global with sharing class IntegrationINOrder {
         // Guarda uma lista de pedidos para fazer o upsert
         List<Order> orderListToUpsert = new List<Order>();
 
+        List<TemplateDataIntegrationFields.OrderItemINData> orderItemINData = new List<TemplateDataIntegrationFields.OrderItemINData>();
+
         //Application of business rules
         for (TemplateDataIntegrationFields.IntegrationOrderINData order : request){
             // Pega a relação da conta com o pedido
@@ -36,6 +39,10 @@ global with sharing class IntegrationINOrder {
             salesCTVLookups.add(order.salesCTV);
             pricebook2IdLookups.add(order.pricebook2Id);
             paymentConditionLookups.add(order.paymentCondition);
+            
+            for (TemplateDataIntegrationFields.OrderItemINData orderItem : order.orderItems) {
+                orderItemINData.add(orderItem);
+            }
             
             if(order != null) {
                 // Adiciona todos os External Id e o catalogo de preço de order nos orderItem
@@ -103,8 +110,9 @@ global with sharing class IntegrationINOrder {
         Map<String, List<TemplateDataIntegrationFields.Response>> orderItemsResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
         if(orderItemListToUpsert.size() != 0){
             orderItemsResponse.putAll(
-                IntegrationInboundOrderItem.upsertOrderItem(orderItemListToUpsert)
+                IntegrationINOrderItem.upsertOrderItem(orderItemINData)
             );
+
         }
 
         //Associating child object's response with object response
@@ -138,7 +146,7 @@ global with sharing class IntegrationINOrder {
         }
 		
         //Creating integration log
-        TemplateIntegrationLogs.createLog('Order', 'Inbound', JSON.serialize(request), JSON.serialize(responseList), hasError);
+        IntegrationLog.createLog('Order', 'Inbound', JSON.serialize(request), JSON.serialize(responseList), hasError);
         
         //Returning response
          // Retorna a resposta Outbound
