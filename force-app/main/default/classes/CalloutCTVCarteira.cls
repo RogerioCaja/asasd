@@ -80,17 +80,12 @@ public with sharing class CalloutCTVCarteira {
 
     //! Preparing data to Callout
     public class RequestParameters{
-        public String IdTerritorio;
-        public String TerritorioPai;
-        public Datetime DataHoraAtualizacao;
-        public String NamePosition;
-        public String VendedorSAP;
-        public String TipoTerritorio;
-        public List<CalloutCTVCarteira.ClienteParameters> Clientes;
+        public Object header;
+        //public List<CalloutCTVCarteira.ClienteParameters> Clientes;
 
         public RequestParameters(Territory2 territory){
             List<String> accountIds = new List<String>();
-            System.debug('Primeira');
+            CalloutCTVCarteira.HeaderInsert header = new CalloutCTVCarteira.HeaderInsert();
             UserTerritory2Association territoryAsso;
             Try{
                 territoryAsso = [SELECT id, User.CodigoSAP__c FROM UserTerritory2Association WHERE Territory2Id =: territory.Id];
@@ -98,28 +93,36 @@ public with sharing class CalloutCTVCarteira {
              Catch(System.QueryException e){
                 territoryAsso = null;
             }
-            System.debug('Segunda: '+ territoryAsso);
             List<ObjectTerritory2Association> terrytoryObject = new List<ObjectTerritory2Association>([SELECT Id, ObjectId  FROM ObjectTerritory2Association WHERE Territory2Id =: territory.Id]);
-            System.debug('Terceiro: '+ terrytoryObject);
             for(ObjectTerritory2Association terrytory : terrytoryObject){
                 accountIds.add(terrytory.ObjectId);
             }
 
             List<Account> accountList = new List<Account>([SELECT Id, ExternalId__c  FROM Account WHERE Id =: accountIds]);
-            this.IdTerritorio = territory.DeveloperName;
-            this.VendedorSAP = territoryAsso != null ?  territoryAsso.User.CodigoSAP__c : null;
-            this.DataHoraAtualizacao = territory.LastModifiedDate;
-            this.TerritorioPai = territory.ParentTerritory2Id;
-            this.NamePosition = territory.Name;
-            this.TipoTerritorio = territory.Territory2Type.DeveloperName;
+            header.IdTerritorio = territory.DeveloperName;
+            header.VendedorSAP = territoryAsso != null ?  territoryAsso.User.CodigoSAP__c : null;
+            header.DataHoraAtualizacao = territory.LastModifiedDate;
+            header.TerritorioPai = territory.ParentTerritory2Id;
+            header.NamePosition = territory.Name;
+            header.TipoTerritorio = territory.Territory2Type.DeveloperName;
             List<CalloutCTVCarteira.ClienteParameters> clientList= new List<CalloutCTVCarteira.ClienteParameters>();
             for(Account acc : accountList){
                 clientList.add(new CalloutCTVCarteira.ClienteParameters(acc.ExternalId__c));
             }
-            this.Clientes = clientList;
+            header.Clientes = clientList;
+            this.header = header;
         }
     }
-
+    public class HeaderInsert{
+        public String IdTerritorio;
+        public String TerritorioPai;
+        public Datetime DataHoraAtualizacao;
+        public String NamePosition;
+        public String VendedorSAP;
+        public String TipoTerritorio;
+        public List<CalloutCTVCarteira.ClienteParameters> Clientes;
+        public HeaderInsert(){}
+    }
 
 
     public class ClienteParameters{
