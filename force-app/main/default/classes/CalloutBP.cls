@@ -193,8 +193,13 @@ public with sharing class CalloutBP {
     public static IntegrationUtils.CalloutBpResponse sendOrder() {
 
         List<RequestParameters> request = new List<RequestParameters>();
-        
-        request.add(new RequestParameters());
+        Datetime UTC = System.now().addHours(-1); 
+        Organization orgDetails = [SELECT Id, TimeZoneSidKey FROM Organization WHERE Id = :UserInfo.getOrganizationId()]; 
+        Timezone tz = Timezone.getTimeZone(orgDetails.TimeZoneSidKey);
+        Datetime orgTime = UTC.addSeconds((tz.getOffset(UTC)/1000)); 
+        System.debug('orgTime: '+ orgTime);
+
+        request.add(new RequestParameters(orgTime));
         System.debug('request: '+ request);
         
         String code = (!Test.isRunningTest() ? getAcessCode() : 'acessToken');
@@ -242,10 +247,12 @@ public with sharing class CalloutBP {
         headersMapToken.put('Content-type', 'application/x-www-form-urlencoded');
         headersMapToken.put('Authorization', 'Basic SWFOUmpqbkFMd2xLZEVhdW1VR3pfZDdV4S0lmVmZOQmY1WXZKY1o2YThh');
         IntegrationUtils.RequestResponseObject responseObject2 = IntegrationUtils.executeCallout(endpointToken, payloadToken, headersMapToken);
-        
+        System.debug('responseObject2: '+ responseObject2);
         if (responseObject2.success) {
             HttpResponse response = responseObject2.response;
+            System.debug('response.getBody(): '+ response.getBody());
             ResponseParametersToken responses = (ResponseParametersToken) JSON.deserialize(response.getBody(), ResponseParametersToken.class);
+            System.debug('responses: '+ responses);
             return responses.access_token;
         } else {
             return null;
@@ -256,8 +263,8 @@ public with sharing class CalloutBP {
     public class RequestParameters{
         public Datetime Tempo;
 
-        public RequestParameters(){
-            DateTime now = DateTime.now()-1;
+        public RequestParameters(Datetime orgTime){
+            Datetime now = orgTime;
             this.Tempo = now;
         }
     }
