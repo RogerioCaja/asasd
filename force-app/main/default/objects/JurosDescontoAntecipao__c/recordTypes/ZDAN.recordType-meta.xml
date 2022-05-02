@@ -3,4 +3,19 @@
     <fullName>ZDAN</fullName>
     <active>true</active>
     <label>Desconto</label>
+    <picklistValues>
+        <picklist>Currency__c</picklist>
+        <values>
+            <fullName>%25</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>BRL</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>USD</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
 </RecordType>

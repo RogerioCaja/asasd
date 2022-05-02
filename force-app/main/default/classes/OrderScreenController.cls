@@ -245,7 +245,7 @@ public without sharing class OrderScreenController {
                 }
             }
 
-            Territory2 salesTeamTerritory = new Territory2();
+            Territory2 salesTeamTerritory;
             if (company != null) {
                 Id userTerritoryId;
                 for (UserTerritory2Association userAssociation : [
@@ -262,6 +262,7 @@ public without sharing class OrderScreenController {
                 Map<Id, Territory2> territoryAndParents = new Map<Id, Territory2>();
                 for(Territory2 territory : [
                     SELECT Id,
+                           DeveloperName,
                            ParentTerritory2Id
                       FROM Territory2
                 ]){
@@ -306,6 +307,10 @@ public without sharing class OrderScreenController {
                         salesTeamTerritory = territory;
                     }
                     counter++;
+                }
+
+                if (salesTeamTerritory == null) {
+                    salesTeamTerritory = territoryAndParents.get(territoryAndParents.get(userTerritoryId).ParentTerritory2Id);
                 }
 
                 Map<Id, Id> approvalsByTerritory = new Map<Id, Id>();
