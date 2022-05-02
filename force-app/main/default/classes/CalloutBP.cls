@@ -6,6 +6,7 @@ public with sharing class CalloutBP {
         
         List<Account> accountList = new List<Account>();
         List<LimiteCreditoINData> creditoList = new List<LimiteCreditoINData>();
+        List<CompanyINData> companyList = new List<CompanyINData>();
         if (calloutBpResponse.success) {
             ResponseParameters resp = (ResponseParameters) calloutBpResponse.parsedResponse;
             
@@ -29,6 +30,10 @@ public with sharing class CalloutBP {
                 for(LimiteCreditoINData cred : valor.creditoEntries){
                     cred.CodigoExternoAccount = valor.CodigoExterno;
                     creditoList.add(cred);
+                }
+                for(CompanyINData company : valor.companyEntries){
+                    company.CodigoExternoAccount = valor.CodigoExterno;
+                    companyList.add(company);
                 }
                 Account ac = new Account(
                 ExternalId__c = valor.CodigoExterno,
@@ -58,15 +63,132 @@ public with sharing class CalloutBP {
             if (!accountList.isEmpty()) {
 				upsert accountList ExternalId__c;
 			}
+            Map<String, Id> Newlookups = creatyNewLookup(creditoList,companyList, lookups);
             creatyCredit(creditoList);
-            creatyCompany(creditoList);
+            creatyCompany(companyList);
             System.debug('integração foi um sucesso');
 
         }
         
         return calloutBpResponse;
     }
+    public static Map<String, Id> creatyNewLookup(List<CompanyINData> companyList, List<LimiteCreditoINData> creditoList, Map<String, Id> lookups){
+        Set<String> accountIdList = new Set<String>();
+        Set<String> salesOrganizationIdList = new Set<String>();
+        Set<String> activitySectorIdList = new Set<String>();
+        Set<String> distributionChannelIdList = new Set<String>();
+        Set<String> salesOfficeIdList = new Set<String>();
+        Set<String> salesTeamIdList = new Set<String>();
+        for(CompanyINData valor : companyList){
+            accountIdList.add(valor.CodigoExternoAccount);
+            salesOrganizationIdList.add(valor.OrganizacaoVendas);
+            activitySectorIdList.add(valor.SetorAtividade);
+            distributionChannelIdList.add(valor.CanalDistribuicao);
+            salesOfficeIdList.add(valor.EscritorioVendas);
+            salesTeamIdList.add(valor.EquipeVendas);
+        }
+        //Get Account
+        List<Account> accountListExternalId = new List<Account>([SELECT Id FROM Account WHERE ExternalId__c =: accountIdList]);
+        for(Account acc : accountListExternalId){
+            lookups.put('Account' + acc.ExternalId__c, acc.Id);
+        }
+        //Get SalesOrg
+        List<SalesOrg__c> salesList = new List<SalesOrg__c>([SELECT Id, SalesOrganizationCode__c FROM SalesOrg__c WHERE SalesOrganizationCode__c =: salesOrganizationIdList]);
+        for (SalesOrg__c sales : salesList) {
+            lookups.put('SalesOrg__c' + sales.SalesOrganizationCode__c, sales.Id);
+        }
+        //Get ActivitySector
+        List<ActivitySector__c> activyList = new List<ActivitySector__c>([SELECT Id, Codigo__c FROM ActivitySector__c WHERE Codigo__c =: activitySectorIdList]);
+        for (ActivitySector__c sector : activyList) {
+            lookups.put('ActivitySector__c' + sector.Codigo__c, sector.Id);
+        }
+        //Get DistributionChannel
+        List<DistributionChannel__c> distributionList = new List<DistributionChannel__c>([SELECT Id, Codigo__c FROM DistributionChannel__c WHERE Codigo__c =: distributionChannelIdList]);
+        for (DistributionChannel__c distribution : distributionList) {
+            lookups.put('DistributionChannel__c' + distribution.Codigo__c, distribution.Id);
+        }
+        //Get SalesOffice
+        List<SalesOffice__c> salesOfficeList = new List<SalesOffice__c>([SELECT Id, Codigo__c FROM SalesOffice__c WHERE Codigo__c =: salesOfficeIdList]);
+        for (SalesOffice__c office : salesOfficeList) {
+            lookups.put('SalesOffice__c' + office.Codigo__c, office.Id);
+        }
+        //Get salesTeam
+        List<SalesTeam__c> salesTeamList = new List<SalesTeam__c>([SELECT Id, ExternalId__c FROM SalesTeam__c WHERE ExternalId__c =: salesTeamIdList]);
+        for (SalesTeam__c team : salesTeamList) {
+            lookups.put('SalesTeam__c' + team.ExternalId__c, team.Id);
+        }
+        return lookups;
+    }
+    public static void creatyCompany(List<CompanyINData> companyList){
+        Map<String, Id> lookups = new Map<String, Id>();
 
+        Set<String> accountIdList = new Set<String>();
+        Set<String> salesOrganizationIdList = new Set<String>();
+        Set<String> activitySectorIdList = new Set<String>();
+        Set<String> distributionChannelIdList = new Set<String>();
+        Set<String> salesOfficeIdList = new Set<String>();
+        Set<String> salesTeamIdList = new Set<String>();
+        for(CompanyINData valor : companyList){
+            accountIdList.add(valor.CodigoExternoAccount);
+            salesOrganizationIdList.add(valor.OrganizacaoVendas);
+            activitySectorIdList.add(valor.SetorAtividade);
+            distributionChannelIdList.add(valor.CanalDistribuicao);
+            salesOfficeIdList.add(valor.EscritorioVendas);
+            salesTeamIdList.add(valor.EquipeVendas);
+        }
+        //Get Account
+        List<Account> accountListExternalId = new List<Account>([SELECT Id FROM Account WHERE ExternalId__c =: accountIdList]);
+        for(Account acc : accountListExternalId){
+            lookups.put('Account' + acc.ExternalId__c, acc.Id);
+        }
+        //Get SalesOrg
+        List<SalesOrg__c> salesList = new List<SalesOrg__c>([SELECT Id, SalesOrganizationCode__c FROM SalesOrg__c WHERE SalesOrganizationCode__c =: salesOrganizationIdList]);
+        for (SalesOrg__c sales : salesList) {
+            lookups.put('SalesOrg__c' + sales.SalesOrganizationCode__c, sales.Id);
+        }
+        //Get ActivitySector
+        List<ActivitySector__c> activyList = new List<ActivitySector__c>([SELECT Id, Codigo__c FROM ActivitySector__c WHERE Codigo__c =: activitySectorIdList]);
+        for (ActivitySector__c sector : activyList) {
+            lookups.put('ActivitySector__c' + sector.Codigo__c, sector.Id);
+        }
+        //Get DistributionChannel
+        List<DistributionChannel__c> distributionList = new List<DistributionChannel__c>([SELECT Id, Codigo__c FROM DistributionChannel__c WHERE Codigo__c =: distributionChannelIdList]);
+        for (DistributionChannel__c distribution : distributionList) {
+            lookups.put('DistributionChannel__c' + distribution.Codigo__c, distribution.Id);
+        }
+        //Get SalesOffice
+        List<SalesOffice__c> salesOfficeList = new List<SalesOffice__c>([SELECT Id, Codigo__c FROM SalesOffice__c WHERE Codigo__c =: salesOfficeIdList]);
+        for (SalesOffice__c office : salesOfficeList) {
+            lookups.put('SalesOffice__c' + office.Codigo__c, office.Id);
+        }
+        //Get salesTeam
+        List<SalesTeam__c> salesTeamList = new List<SalesTeam__c>([SELECT Id, ExternalId__c FROM SalesTeam__c WHERE ExternalId__c =: salesTeamIdList]);
+        for (SalesTeam__c team : salesTeamList) {
+            lookups.put('SalesTeam__c' + team.ExternalId__c, team.Id);
+        }
+        List<Company__c> companyListToUpsert = new List<Company__c>();
+        for(CompanyINData valor : companyList){
+            Company__c company = new Company__c(
+            Conta__c = lookups.containsKey('Account__c'+valor.CodigoExternoAccount) ? lookups.get('Account__c'+valor.CodigoExternoAccount) : null,
+            SalesOrg__c = lookups.containsKey('SalesOrg__c'+valor.OrganizacaoVendas) ? lookups.get('SalesOrg__c'+valor.OrganizacaoVendas) : null,
+            ActivitySector__c = lookups.containsKey('ActivitySector__c'+valor.SetorAtividade) ? lookups.get('ActivitySector__c'+valor.SetorAtividade) : null,
+            DistributionChannel__c = lookups.containsKey('DistributionChannel__c'+valor.CanalDistribuicao) ? lookups.get('DistributionChannel__c'+valor.CanalDistribuicao) : null,
+            FiscalDomicile__c = valor.DomicilioFiscal,
+            SalesOffice__c = lookups.containsKey('SalesOffice__c'+valor.EscritorioVendas) ? lookups.get('SalesOffice__c'+valor.EscritorioVendas) : null,
+            SalesTeam__c = lookups.containsKey('SalesTeam__c'+valor.EquipeVendas) ? lookups.get('SalesTeam__c'+valor.EquipeVendas) : null,
+            ClientGroup__c = valor.GrupoClientes,
+            Blocked__c = valor.Bloqueado,
+            Status__c = valor.Status,
+            SalesSector__c = valor.SetorVendas,
+            ExternalId__c = valor.accountId + valor.OrganizacaoVendas + valor.SetorAtividade + valor.CanalDistribuicao + valor.EscritorioVendas + valor.EquipeVendas
+            );
+            companyListToUpsert.add(company);
+        }
+        if (!companyListToUpsert.isEmpty()) {
+            upsert companyListToUpsert ExternalId__c;
+        }
+
+    }
     public static void creatyCredit(List<LimiteCreditoINData> creditoList){
         Map<String, Id> lookups = new Map<String, Id>();
         List<String> accountIdsList = new List<String>();
@@ -238,6 +360,7 @@ public with sharing class CalloutBP {
     }
 
     public class CompanyINData{
+    public String CodigoExternoAccount;    
     public String OrganizacaoVendas;
     public String SetorAtividade;
     public String CanalDistribuicao;
