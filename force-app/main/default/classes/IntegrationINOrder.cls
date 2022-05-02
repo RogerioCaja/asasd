@@ -21,11 +21,11 @@ global with sharing class IntegrationINOrder {
         // Guarda uma lista de respostas
         List<TemplateDataIntegrationFields.ResponseParent> responseList = new List<TemplateDataIntegrationFields.ResponseParent>();
         // Guarda uma lista de orderItem para fazer o upsert
-        List<TemplateDataIntegrationFields.OrderINData> orderItemListToUpsert = new List<TemplateDataIntegrationFields.OrderINData>();
+        List<TemplateDataIntegrationFields.OrderItemINData> orderItemListToUpsert = new List<TemplateDataIntegrationFields.OrderItemINData>();
+
+        List<TemplateDataIntegrationFields.ShippingDivisonINData> shippingDivisonListToUpsert = new List<TemplateDataIntegrationFields.ShippingDivisonINData>();
         // Guarda uma lista de pedidos para fazer o upsert
         List<Order> orderListToUpsert = new List<Order>();
-
-        List<TemplateDataIntegrationFields.OrderItemINData> orderItemINData = new List<TemplateDataIntegrationFields.OrderItemINData>();
 
         //Application of business rules
         for (TemplateDataIntegrationFields.OrderINData order : request){
@@ -41,8 +41,16 @@ global with sharing class IntegrationINOrder {
             paymentConditionLookups.add(order.paymentCondition);
             
             for (TemplateDataIntegrationFields.OrderItemINData orderItem : order.orderItems) {
-                orderItemINData.add(orderItem);
+                orderItem.orderExternalId = order.CodigoSap;
             }
+
+            orderItemListToUpsert.addAll(order.orderItems);
+
+            for (TemplateDataIntegrationFields.ShippingDivisonINData shippingDivisonItem : order.shippingDivison) {
+                shippingDivisonItem.orderExternalId = order.CodigoSap;
+            }
+
+            shippingDivisonListToUpsert.addAll(order.shippingDivison);
             
             if(order != null) {
                 // Adiciona todos os External Id e o catalogo de preço de order nos orderItem
@@ -57,19 +65,19 @@ global with sharing class IntegrationINOrder {
         }
 
         for (Pricebook2 pricebook2Id : [SELECT Id, ExternalId__c FROM Pricebook2 WHERE ExternalId__c IN : pricebook2IdLookups ]){
-            lookups.put('Pricebook' + pricebook2Id.ExternalId__c, pricebook2Id.Id);
+            lookups.put('Pricebook2Id' + pricebook2Id.ExternalId__c, pricebook2Id.Id);
         }
 
         for (Order order : [SELECT Id, CodigoSap__c FROM Order WHERE CodigoSap__c IN : orderLookups]) {
             lookups.put('Order' + order.CodigoSap__c, order.Id);
         }
 
-        for (Account account : [SELECT Id, Name FROM Account WHERE Name IN : shippingAccountLookups]) {
-            lookups.put('Account' + account.Name, account.Id);
+        for (Account account : [SELECT Id, ExternalId__c FROM Account WHERE ExternalId__c IN : shippingAccountLookups]) {
+            lookups.put('Account' + account.ExternalId__c, account.Id);
         }
 
-        for (Account account : [SELECT Id, Name FROM Account WHERE Name IN : accountLookups]) {
-            lookups.put('Account' + account.Name, account.Id);
+        for (Account account : [SELECT Id, ExternalId__c FROM Account WHERE ExternalId__c IN : accountLookups]) {
+            lookups.put('Account' + account.ExternalId__c, account.Id);
         }
 
         for (Safra__c crop : [SELECT Id, Code__c FROM Safra__c WHERE Code__c IN : cropLookups]) {
@@ -89,7 +97,7 @@ global with sharing class IntegrationINOrder {
         }
 
         for (CondicaoPagamento__c paymentCondition : [SELECT Id, Code__c FROM CondicaoPagamento__c WHERE Code__c IN : paymentConditionLookups]) {
-            lookups.put('CondicaoPagamento' + paymentCondition.Code__c, paymentCondition.Id);
+            lookups.put('PaymentCondition__c' + paymentCondition.Code__c, paymentCondition.Id);
         }
 
 
@@ -110,20 +118,39 @@ global with sharing class IntegrationINOrder {
         Map<String, List<TemplateDataIntegrationFields.Response>> orderItemsResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
         if(orderItemListToUpsert.size() != 0){
             orderItemsResponse.putAll(
-                IntegrationINOrderItem.upsertOrderItem(orderItemINData)
+                IntegrationINOrderItem.upsertOrderItem(orderItemListToUpsert)
             );
 
+        }
+
+        Map<String, List<TemplateDataIntegrationFields.Response>> shippingDivisonResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
+        if(shippingDivisonListToUpsert.size() != 0){
+            shippingDivisonResponse.putAll(
+                IntegrationINShippingDivison.upsertShippingDivison(shippingDivisonListToUpsert)
+            );
         }
 
         //Associating child object's response with object response
         // Pega todas as respostas dos OrderItem
         for(TemplateDataIntegrationFields.ResponseParent response : responseList){
             response.items = new List<TemplateDataIntegrationFields.Response>();
+
+            
+            System.debug('shippingDivisonResponse=>'+shippingDivisonResponse);
+            System.debug('orderItemResponse=>'+orderItemsResponse);
+            System.debug('responseList=>'+responseList);
+            
             if(orderItemsResponse.size() != 0 && orderItemsResponse.containsKey(response.idSalesforce)){
                 response.items.addAll(orderItemsResponse.get(response.idSalesforce));
+                for(TemplatedataIntegrationFields.Response orderItem : orderItemsResponse.get(response.idSalesforce)){
+                    response.items.addAll(shippingDivisonResponse.get(orderItem.idSalesforce)); 
+                }
             } 
             else if(orderItemsResponse.size() != 0 && orderItemsResponse.containsKey(response.externalCode)){
                 response.items.addAll(orderItemsResponse.get(response.externalCode));
+                for(TemplatedataIntegrationFields.Response orderItem : orderItemsResponse.get(response.externalCode)){
+                    response.items.addAll(shippingDivisonResponse.get(orderItem.externalCode)); 
+                }
             }
         }
 
@@ -146,7 +173,7 @@ global with sharing class IntegrationINOrder {
         }
 		
         //Creating integration log
-        IntegrationLog.createLog('Order', 'Inbound', JSON.serialize(request), JSON.serialize(responseList), hasError);
+        //IntegrationLog.createLog('Order', 'Inbound', JSON.serialize(request), JSON.serialize(responseList), hasError);
         
         //Returning response
          // Retorna a resposta Outbound

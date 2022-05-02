@@ -19,11 +19,11 @@ global with sharing class IntegrationINOrderItem {
             orderLookups.add(OrderItemINData.orderExternalId);
             // Pega a relação do Product com o OrderItem
             //Getting product parameters to search
-            productLookups.add(OrderItemINData.productCode);
+            productLookups.add(OrderItemINData.material);
         }
         // Pega o produto com base no ExternalID recebido
         //Product2 search based on ExternalId__c field sent
-        for (Product2 product : [SELECT Id, productCode FROM Product2 WHERE productCode IN: productLookups ]) {
+        for (Product2 product : [SELECT Id, ProductCode FROM Product2 WHERE ProductCode IN: productLookups ]) {
             //Map structure for the model -> object name + parameter to record id
             lookups.put('Product2' + product.ProductCode, product.Id);
         }
@@ -35,7 +35,6 @@ global with sharing class IntegrationINOrderItem {
         }
         
         for (PricebookEntry pricebookEntry : [SELECT Id, Product2Id, productCode, Pricebook2.isStandard FROM PricebookEntry ]){
-            lookups.put('Product2' + pricebookEntry.productCode, pricebookEntry.Product2Id);
             lookups.put('PricebookEntry' + pricebookEntry.productCode, pricebookEntry.Id);
         }
         
@@ -57,6 +56,8 @@ global with sharing class IntegrationINOrderItem {
             lookups, 
             parentMapKeys
         );
+
+
         //Upserting records
         List<Database.UpsertResult> upsResults = Database.upsert(orderItemListToUpsert, OrderItem.ExternalId__c, false);
         IntegrationUtils.upsertChildRecords(upsResults, responseMap, orderItemListToUpsert, OrderItem.ExternalId__c); 
