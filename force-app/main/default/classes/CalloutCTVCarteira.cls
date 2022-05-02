@@ -20,6 +20,7 @@ public with sharing class CalloutCTVCarteira {
         List<RequestParameters> request = new List<RequestParameters>();
         
         for (Territory2 territory : territoryList) {
+            System.debug('territory: '+ territory);
             request.add(new RequestParameters(territory));
         }
         String code = (!Test.isRunningTest() ? getAcessCode() : 'acessToken');
@@ -65,7 +66,7 @@ public with sharing class CalloutCTVCarteira {
         String endpointToken = (!Test.isRunningTest() ? 'https://apim.agrogalaxy.com.br/identityserver/oauth2/token' : 'http://callout.My_Named_Credential.com/some/path');
         Map<String, String> headersMapToken = new Map<String, String>();
         headersMapToken.put('Content-type', 'application/x-www-form-urlencoded');
-        headersMapToken.put('Authorization', 'Basic '+ 'ZVBwb0ZlUm1XZGtUNk9tRnlMQl9Ma2pBUUVrYTpsV3diUVBpa2dNeTRyTnQ5UkNSWmRpS3luMmdh');
+        headersMapToken.put('Authorization', 'Basic dEQxV2M0bWtXdnRWNWVtRXZSOHlVRF9iUFZvYTpmZmVJQUs5SmdPNXNsbXI1UzVMUXNNcTBOME1h');
         IntegrationUtils.RequestResponseObject responseObject2 = IntegrationUtils.executeCallout(endpointToken, payloadToken, headersMapToken);
         
         if (responseObject2.success) {
@@ -79,6 +80,40 @@ public with sharing class CalloutCTVCarteira {
 
     //! Preparing data to Callout
     public class RequestParameters{
+        public Object header;
+        //public List<CalloutCTVCarteira.ClienteParameters> Clientes;
+
+        public RequestParameters(Territory2 territory){
+            List<String> accountIds = new List<String>();
+            CalloutCTVCarteira.HeaderInsert header = new CalloutCTVCarteira.HeaderInsert();
+            UserTerritory2Association territoryAsso;
+            Try{
+                territoryAsso = [SELECT id, User.CodigoSAP__c FROM UserTerritory2Association WHERE Territory2Id =: territory.Id];
+             } 
+             Catch(System.QueryException e){
+                territoryAsso = null;
+            }
+            List<ObjectTerritory2Association> terrytoryObject = new List<ObjectTerritory2Association>([SELECT Id, ObjectId  FROM ObjectTerritory2Association WHERE Territory2Id =: territory.Id]);
+            for(ObjectTerritory2Association terrytory : terrytoryObject){
+                accountIds.add(terrytory.ObjectId);
+            }
+
+            List<Account> accountList = new List<Account>([SELECT Id, ExternalId__c  FROM Account WHERE Id =: accountIds]);
+            header.IdTerritorio = territory.DeveloperName;
+            header.VendedorSAP = territoryAsso != null ?  territoryAsso.User.CodigoSAP__c : null;
+            header.DataHoraAtualizacao = territory.LastModifiedDate;
+            header.TerritorioPai = territory.ParentTerritory2Id;
+            header.NamePosition = territory.Name;
+            header.TipoTerritorio = territory.Territory2Type.DeveloperName;
+            List<CalloutCTVCarteira.ClienteParameters> clientList= new List<CalloutCTVCarteira.ClienteParameters>();
+            for(Account acc : accountList){
+                clientList.add(new CalloutCTVCarteira.ClienteParameters(acc.ExternalId__c));
+            }
+            header.Clientes = clientList;
+            this.header = header;
+        }
+    }
+    public class HeaderInsert{
         public String IdTerritorio;
         public String TerritorioPai;
         public Datetime DataHoraAtualizacao;
@@ -86,34 +121,8 @@ public with sharing class CalloutCTVCarteira {
         public String VendedorSAP;
         public String TipoTerritorio;
         public List<CalloutCTVCarteira.ClienteParameters> Clientes;
-
-        public RequestParameters(Territory2 territory){
-            List<String> accountIds = new List<String>();
-            
-            UserTerritory2Association territoryAsso = [SELECT id, User.CodigoSAP__c FROM UserTerritory2Association WHERE Territory2Id =: territory.Id];
-            List<ObjectTerritory2Association> terrytoryObject = new List<ObjectTerritory2Association>([SELECT Id, ObjectId  FROM ObjectTerritory2Association WHERE Territory2Id =: territory.Id]);
-            
-            for(ObjectTerritory2Association terrytory : terrytoryObject){
-                
-                accountIds.add(terrytory.ObjectId);
-            }
-
-            List<Account> accountList = new List<Account>([SELECT Id, ExternalId__c  FROM Account WHERE Id =: accountIds]);
-
-            this.IdTerritorio = territory.DeveloperName;
-            this.VendedorSAP = territoryAsso.User.CodigoSAP__c;
-            this.DataHoraAtualizacao = territory.LastModifiedDate;
-            this.TerritorioPai = territory.ParentTerritory2Id;
-            this.NamePosition = territory.Name;
-            this.TipoTerritorio = territory.Territory2Type.DeveloperName;
-            List<CalloutCTVCarteira.ClienteParameters> clientList= new List<CalloutCTVCarteira.ClienteParameters>();
-            for(Account acc : accountList){
-                clientList.add(new CalloutCTVCarteira.ClienteParameters(acc.ExternalId__c));
-            }
-            this.Clientes = clientList;
-        }
+        public HeaderInsert(){}
     }
-
 
 
     public class ClienteParameters{

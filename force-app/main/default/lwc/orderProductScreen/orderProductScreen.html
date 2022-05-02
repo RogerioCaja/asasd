@@ -24,6 +24,7 @@
 
 	<div class="products-result" if:true={showIncludedProducts}>
         <template if:false={message}>
+			<!-- <button if:true={barterSale} class="barter-sale" onclick={openCommodities}>Escolher commodities</button> -->
 			<button class="change-columns" onclick={showTableColumns}>Alterar colunas</button>
             <h2>Resultados de <b>PRODUTOS</b>:</h2>
 
@@ -290,6 +291,144 @@
             </div>
         </div>
     </template>
+
+	<!-- <template if:true={chooseCommodities}>
+		<c-custom-order-search object-name="Commodity__c" field-name="Name" onshowresults={showCommodityResults} label="Pesquisar COMMODITY:" placeholder="Digite o nome da Commodity" required="true" onchild={getFieldsValueCommodity}></c-custom-order-search>
+	</template> -->
+
+	<div style="width: 100%;" if:true={showCommodities}>
+		<div id="commodity-modal" class="modal">
+			<div class="modal-content" style="width: 900px;">
+                <span class="close" onclick={closeCommodityModal}>&times;</span>
+				
+				<div if:true={selectCommodityScreen}>
+					<p class="new-product-title">Escolha de Commodities</p>
+
+					<template for:each={commodities} for:item="commodity">
+						<div key={commodity.Id} class="card" style="width: 50%;">
+							<div class="container">
+								<div class="card-01">
+									<p class="product-name">{commodity.name}</p>
+									<p><b>Preço:</b> {commodity.currency}{commodity.cotation}</p>
+								</div>
+								<div class="card-02">
+									<button class="include-button" data-target-id={commodity.id} onclick={selectCommodity}>Escolher</button>
+								</div>
+							</div>
+						</div>
+					</template>
+				</div>
+
+				<div if:true={commoditySelected}>
+					<p class="new-product-title">Escolha de Commodities</p>
+					<div class="row">
+						<div class="column">
+							<label>Commodity</label><br>
+							<input class="input-design" type="text" value={selectedCommodity.name} disabled/> 
+						</div>
+						<div class="column">
+							<label>Valor</label><br>
+							<input class="input-design" type="number" value={selectedCommodity.cotation} data-target-id="cotation" onchange={commodityChange}/>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="column">
+							<label>Data de Início da Entrega</label><br>
+							<input class="input-design" type="date" value={selectedCommodity.startDate} data-target-id="startDate" onchange={commodityChange}/> 
+						</div>
+						<div class="column">
+							<label>Data de Fim da Entrega</label><br>
+							<input class="input-design" type="date" value={selectedCommodity.endDate} data-target-id="endDate" onchange={commodityChange}/> 
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="column">
+							<label>Quantidade a Entregar</label><br>
+							<input class="input-design" type="text" value={selectedCommodity.deliveryQuantity} disabled/> 
+						</div>
+						<div class="column">
+							<label>Valor PTAX Pós-Fixado</label><br>
+							<input class="input-design" type="text" value={selectedCommodity.ptax} disabled/> 
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="column">
+							<label>Local de Entrega</label><br>
+							<input class="input-design" type="text" value={selectedCommodity.deliveryAddress} data-target-id="deliveryAddress" onchange={commodityChange}/> 
+						</div>
+
+						<div class="column"></div>
+					</div>
+				</div>
+
+				<div if:true={summaryScreen}>
+					<p class="new-product-title">Detalhes da Negociação</p>
+					<lightning-datatable class="slds-is-relative"
+										 data={commoditiesData}
+										 columns={commodityColumns}
+										 key-field="id"
+					>
+					</lightning-datatable>
+
+					<div class="row" style="margin-top: 20px;">
+						<div class="column">
+							<label>Local de Faturamento</label><br>
+							<input class="input-design" type="text" value={accountData.Name} disabled/> 
+						</div>
+						<div class="column">
+							<label>Local de Entrega</label><br>
+							<input class="input-design" type="text" value={selectedCommodity.deliveryAddress} disabled/> 
+						</div>
+					</div>
+
+					<div class="row" style="margin-top: 20px;">
+						<div class="column">
+							<div class="column">
+								<label>Comissão Total</label><br>
+								<input class="input-design" type="text" value={selectedCommodity.commission} disabled/>
+							</div>
+							<div class="column">
+								<p class="approval">Valor sujeito a aprovação</p><br>
+							</div>
+						</div>
+
+						<div class="column-25">
+							<label>Margem Total (%)</label><br>
+							<input class="input-design" type="text" value={selectedCommodity.totalMarginPercent} disabled/> 
+						</div>
+						<div class="column-25">
+							<label>Margem Total</label><br>
+							<input class="input-design" type="text" value={selectedCommodity.totalMarginValue} disabled/> 
+						</div>
+					</div>
+				</div>
+
+				<div if:true={haScreen}>
+					<p class="new-product-title">Custo por HA</p>
+					<lightning-datatable class="slds-is-relative"
+										 data={haData}
+										 columns={haColumns}
+										 key-field="id"
+					>
+					</lightning-datatable>
+				</div>
+
+				<div class="row">
+					<div class="back-button">
+						<a if:false={selectCommodityScreen} onclick={backScreen}>Voltar</a>
+						<a if:true={selectCommodityScreen} onclick={closeCommodityModal}>Fechar</a>
+					</div>
+					<div class="column" if:false={selectCommodityScreen}>
+						<button if:false={haScreen} class="confirm-button" onclick={nextScreen}>Próximo></button>
+						<button if:true={haScreen} class="confirm-button" onclick={closeCommodityModal}>Salvar</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 
 	<template if:true={showProductDivision}>
 		<div id="product-division-modal" class="modal">
