@@ -3,11 +3,29 @@
     <fullName>Currency__c</fullName>
     <externalId>false</externalId>
     <label>Moeda</label>
-    <precision>18</precision>
     <required>false</required>
-    <scale>2</scale>
     <trackFeedHistory>false</trackFeedHistory>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>
-    <type>Currency</type>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>BRL</fullName>
+                <default>false</default>
+                <label>BRL</label>
+            </value>
+            <value>
+                <fullName>USD</fullName>
+                <default>false</default>
+                <label>USD</label>
+            </value>
+            <value>
+                <fullName>%</fullName>
+                <default>false</default>
+                <label>%</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
 </CustomField>
