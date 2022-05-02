@@ -201,6 +201,51 @@ public class IntegrationUtils {
         }
     }
 
+    public static RequestResponseObject executeCalloutGet(String namedCredential, String payload, Map<String, String> requestHeaders){
+        HttpRequest request = new HttpRequest();
+        request.setMethod('GET');
+        // Timeout reduced in 10000 miliseconds in order to avoid timeouts in invoke actions through javascript.
+        request.setTimeout(110000);
+        request.setEndpoint(namedCredential);
+        request.setBody(payload);
+
+        
+        if (requestHeaders != null && requestHeaders.size() > 0){
+            for (String headerKey : requestHeaders.keySet()){
+                request.setHeader(headerKey, requestHeaders.get(headerKey));
+            }
+        }
+
+        Long microtime = (Datetime.now()).getTime();
+        if (SYSTEM_DEBUG_ENABLED){
+            System.debug('EXECUTING WITH NAMED CREDENTIAL: '+namedCredential);
+            System.debug('METHOD USED: '+request.getMethod());
+            System.debug('SENT PAYLOAD: '+payload);
+            System.debug('SENT HEADERS: '+JSON.serializePretty(requestHeaders));
+        }
+
+        HttpResponse response;
+        try {
+            response = (new Http()).send(request);
+
+            if (SYSTEM_DEBUG_ENABLED){
+                System.debug('RESPONSE IN '+((Datetime.now()).getTime() - microtime));
+                System.debug('RESPONSE STATUS: '+response.getStatus()+' - '+String.valueOf(response.getStatusCode()));
+                for (String headerKey : response.getHeaderKeys()){
+                    if (String.isNotBlank(headerKey)) System.debug('HEADER KEY: '+headerKey+' | VALUE: '+response.getHeader(headerKey));
+                }
+
+                System.debug('RESPONSE BODY: '+response.getBody());
+            }
+
+            return new RequestResponseObject(response);
+        } catch (Exception ex) {
+            if (SYSTEM_DEBUG_ENABLED) System.debug('CALLOUT EXCEPTION: '+ex.getMessage());
+
+            return new RequestResponseObject(ex);
+        }
+    }
+
     public static void setLookup(SObject obj, Set<String> fieldSet, String fieldKey, List<String> objLookups,  Map<String, Id> lookups){
 
         String query = new Q(obj.getSObjectType()).selectFields(fieldSet).add(Q.condition(fieldKey).isIn(objLookups)).build();
