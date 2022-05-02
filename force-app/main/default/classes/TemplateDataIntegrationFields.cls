@@ -58,7 +58,7 @@ global with sharing class TemplateDataIntegrationFields {
                 SalesTeam__c = lookups.containsKey('SalesTeam__c'+this.salesTeam) ? lookups.get('SalesTeam__c'+this.salesTeam) : null,
                 StartDate__c = this.initialDate != null ? Date.valueOf(this.initialDate) : null,
                 Account__c = lookups.containsKey('Account'+this.accountCode) ? lookups.get('Account'+this.accountCode) : null,
-                CurrencyIsoCode = this.typeCurrency,
+                Currency__c = this.typeCurrency,
                 SalesCondition__c = lookups.containsKey('SalesCondition__c'+this.salesCondition) ? lookups.get('SalesCondition__c'+this.salesCondition) : null, 
                 ProductMultiplier__c = 1,
                 UnitMeasurement__c = this.unitMeasurement != null ? this.unitMeasurement : null,
