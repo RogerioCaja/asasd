@@ -236,7 +236,20 @@ public with sharing class CalloutBP {
         }
     }
     public static String getAcessCode(){
-        return null;
+        String payloadToken = 'grant_type=client_credentials';
+        String endpointToken = (!Test.isRunningTest() ? 'https://apim.agrogalaxy.com.br/identityserver/oauth2/token' : 'http://callout.My_Named_Credential.com/some/path');
+        Map<String, String> headersMapToken = new Map<String, String>();
+        headersMapToken.put('Content-type', 'application/x-www-form-urlencoded');
+        headersMapToken.put('Authorization', 'Basic SWFOUmpqbkFMd2xLZEVhdW1VR3pfZDdV4S0lmVmZOQmY1WXZKY1o2YThh');
+        IntegrationUtils.RequestResponseObject responseObject2 = IntegrationUtils.executeCallout(endpointToken, payloadToken, headersMapToken);
+        
+        if (responseObject2.success) {
+            HttpResponse response = responseObject2.response;
+            ResponseParametersToken responses = (ResponseParametersToken) JSON.deserialize(response.getBody(), ResponseParametersToken.class);
+            return responses.access_token;
+        } else {
+            return null;
+        }
     }
 
     //! Preparing data to Callout
