@@ -63,11 +63,13 @@ public with sharing class CalloutBP {
             if (!accountList.isEmpty()) {
 				upsert accountList ExternalId__c;
 			}
-            Map<String, Id> Newlookups = creatyNewLookup(creditoList,companyList, lookups);
-            creatyCredit(creditoList);
-            creatyCompany(companyList);
+            Map<String, Id> newLookups = creatyNewLookup(companyList, creditoList, lookups);
+            System.debug('creditoList: '+ creditoList);
+            System.debug('companyList: '+ companyList);
+            System.debug('newLookups: '+ newLookups);
+            creatyCredit(creditoList, newLookups);
+            creatyCompany(companyList, newLookups);
             System.debug('integração foi um sucesso');
-
         }
         
         return calloutBpResponse;
@@ -79,6 +81,16 @@ public with sharing class CalloutBP {
         Set<String> distributionChannelIdList = new Set<String>();
         Set<String> salesOfficeIdList = new Set<String>();
         Set<String> salesTeamIdList = new Set<String>();
+        
+        List<String> cultureIdsList = new List<String>();
+        List<String> safraIdsList = new List<String>();
+
+        for(LimiteCreditoINData valor : creditoList){
+            accountIdList.add(valor.CodigoExternoAccount);
+            salesOrganizationIdList.add(valor.OrganizacaoVendas);
+            cultureIdsList.add(valor.Cultura);
+            safraIdsList.add(String.valueOf(valor.Safra));
+        }
         for(CompanyINData valor : companyList){
             accountIdList.add(valor.CodigoExternoAccount);
             salesOrganizationIdList.add(valor.OrganizacaoVendas);
@@ -116,56 +128,21 @@ public with sharing class CalloutBP {
         List<SalesTeam__c> salesTeamList = new List<SalesTeam__c>([SELECT Id, ExternalId__c FROM SalesTeam__c WHERE ExternalId__c =: salesTeamIdList]);
         for (SalesTeam__c team : salesTeamList) {
             lookups.put('SalesTeam__c' + team.ExternalId__c, team.Id);
+        }
+        //Get Culture
+        List<Cultura__c> cultureList = new List<Cultura__c>([SELECT Id, Codigo__c FROM Cultura__c WHERE Codigo__c =: cultureIdsList]);
+        for (Cultura__c cult : cultureList) {
+            lookups.put('Cultura__c' + cult.Codigo__c, cult.Id);
+        }
+        //Get Safra
+        List<Safra__c> safraList = new List<Safra__c>([SELECT Id, Code__c FROM Safra__c WHERE Code__c =: safraIdsList]);
+            for (Safra__c safra : safraList) {
+            lookups.put('Safra__c' + safra.Code__c, safra.Id);
         }
         return lookups;
     }
-    public static void creatyCompany(List<CompanyINData> companyList){
-        Map<String, Id> lookups = new Map<String, Id>();
-
-        Set<String> accountIdList = new Set<String>();
-        Set<String> salesOrganizationIdList = new Set<String>();
-        Set<String> activitySectorIdList = new Set<String>();
-        Set<String> distributionChannelIdList = new Set<String>();
-        Set<String> salesOfficeIdList = new Set<String>();
-        Set<String> salesTeamIdList = new Set<String>();
-        for(CompanyINData valor : companyList){
-            accountIdList.add(valor.CodigoExternoAccount);
-            salesOrganizationIdList.add(valor.OrganizacaoVendas);
-            activitySectorIdList.add(valor.SetorAtividade);
-            distributionChannelIdList.add(valor.CanalDistribuicao);
-            salesOfficeIdList.add(valor.EscritorioVendas);
-            salesTeamIdList.add(valor.EquipeVendas);
-        }
-        //Get Account
-        List<Account> accountListExternalId = new List<Account>([SELECT Id FROM Account WHERE ExternalId__c =: accountIdList]);
-        for(Account acc : accountListExternalId){
-            lookups.put('Account' + acc.ExternalId__c, acc.Id);
-        }
-        //Get SalesOrg
-        List<SalesOrg__c> salesList = new List<SalesOrg__c>([SELECT Id, SalesOrganizationCode__c FROM SalesOrg__c WHERE SalesOrganizationCode__c =: salesOrganizationIdList]);
-        for (SalesOrg__c sales : salesList) {
-            lookups.put('SalesOrg__c' + sales.SalesOrganizationCode__c, sales.Id);
-        }
-        //Get ActivitySector
-        List<ActivitySector__c> activyList = new List<ActivitySector__c>([SELECT Id, Codigo__c FROM ActivitySector__c WHERE Codigo__c =: activitySectorIdList]);
-        for (ActivitySector__c sector : activyList) {
-            lookups.put('ActivitySector__c' + sector.Codigo__c, sector.Id);
-        }
-        //Get DistributionChannel
-        List<DistributionChannel__c> distributionList = new List<DistributionChannel__c>([SELECT Id, Codigo__c FROM DistributionChannel__c WHERE Codigo__c =: distributionChannelIdList]);
-        for (DistributionChannel__c distribution : distributionList) {
-            lookups.put('DistributionChannel__c' + distribution.Codigo__c, distribution.Id);
-        }
-        //Get SalesOffice
-        List<SalesOffice__c> salesOfficeList = new List<SalesOffice__c>([SELECT Id, Codigo__c FROM SalesOffice__c WHERE Codigo__c =: salesOfficeIdList]);
-        for (SalesOffice__c office : salesOfficeList) {
-            lookups.put('SalesOffice__c' + office.Codigo__c, office.Id);
-        }
-        //Get salesTeam
-        List<SalesTeam__c> salesTeamList = new List<SalesTeam__c>([SELECT Id, ExternalId__c FROM SalesTeam__c WHERE ExternalId__c =: salesTeamIdList]);
-        for (SalesTeam__c team : salesTeamList) {
-            lookups.put('SalesTeam__c' + team.ExternalId__c, team.Id);
-        }
+    public static void creatyCompany(List<CompanyINData> companyList, Map<String, Id> lookups){
+        
         List<Company__c> companyListToUpsert = new List<Company__c>();
         for(CompanyINData valor : companyList){
             Company__c company = new Company__c(
@@ -180,7 +157,7 @@ public with sharing class CalloutBP {
             Blocked__c = valor.Bloqueado,
             Status__c = valor.Status,
             SalesSector__c = valor.SetorVendas,
-            ExternalId__c = valor.accountId + valor.OrganizacaoVendas + valor.SetorAtividade + valor.CanalDistribuicao + valor.EscritorioVendas + valor.EquipeVendas
+            ExternalId__c = valor.CodigoExternoAccount + valor.OrganizacaoVendas + valor.SetorAtividade + valor.CanalDistribuicao + valor.EscritorioVendas + valor.EquipeVendas
             );
             companyListToUpsert.add(company);
         }
@@ -189,38 +166,8 @@ public with sharing class CalloutBP {
         }
 
     }
-    public static void creatyCredit(List<LimiteCreditoINData> creditoList){
-        Map<String, Id> lookups = new Map<String, Id>();
-        List<String> accountIdsList = new List<String>();
-        List<String> salesOrgIdsList = new List<String>();
-        List<String> cultureIdsList = new List<String>();
-        List<String> safraIdsList = new List<String>();
-        for(LimiteCreditoINData valor : creditoList){
-            accountIdsList.add(valor.CodigoExternoAccount);
-            salesOrgIdsList.add(valor.OrganizacaoVendas);
-            cultureIdsList.add(valor.Cultura);
-            safraIdsList.add(String.valueOf(valor.Safra));
-        }
-        //Get Account
-        List<Account> accountListExternalId = new List<Account>([SELECT Id FROM Account WHERE ExternalId__c =: accountIdsList]);
-        for(Account acc : accountListExternalId){
-            lookups.put('Account' + acc.ExternalId__c, acc.Id);
-        }
-        //Get SalesOrg
-        List<SalesOrg__c> salesList = new List<SalesOrg__c>([SELECT Id, SalesOrganizationCode__c FROM SalesOrg__c WHERE SalesOrganizationCode__c =: salesOrgIdsList]);
-        for (SalesOrg__c sales : salesList) {
-            lookups.put('SalesOrg__c' + sales.SalesOrganizationCode__c, sales.Id);
-        }
-        //Get Culture
-        List<Cultura__c> cultureList = new List<Cultura__c>([SELECT Id, Codigo__c FROM Cultura__c WHERE Codigo__c =: cultureIdsList]);
-        for (Cultura__c cult : cultureList) {
-            lookups.put('Cultura__c' + cult.Codigo__c, cult.Id);
-        }
-        //Get Safra
-        List<Safra__c> safraList = new List<Safra__c>([SELECT Id, Code__c FROM Safra__c WHERE Code__c =: safraIdsList]);
-            for (Safra__c safra : safraList) {
-            lookups.put('Safra__c' + safra.Code__c, safra.Id);
-        }
+    public static void creatyCredit(List<LimiteCreditoINData> creditoList, Map<String, Id> lookups){
+
         List<LimiteCredito__c> creditListToUpsert = new List<LimiteCredito__c>();
         for(LimiteCreditoINData valor : creditoList){
             LimiteCredito__c credit = new LimiteCredito__c(
@@ -235,7 +182,7 @@ public with sharing class CalloutBP {
             EndDate__c = valor.DataVencimento,
             MaintenanceDate__c = valor.DataManutencao,
             Safra__c = lookups.containsKey('Safra__c'+String.valueOf(valor.Safra)) ? lookups.get('Safra__c'+String.valueOf(valor.Safra)) : null,
-            ExternalId__c = valor.accountId + valor.Safra + valor.Cultura + valor.Garantia);
+            ExternalId__c = valor.CodigoExternoAccount + valor.Safra + valor.Cultura + valor.Garantia);
             creditListToUpsert.add(credit);
         }
         if (!creditListToUpsert.isEmpty()) {
@@ -297,7 +244,7 @@ public with sharing class CalloutBP {
         public Datetime Tempo;
 
         public RequestParameters(){
-            DateTime now = DateTime.now();
+            DateTime now = DateTime.now()-1;
             this.Tempo = now;
         }
     }
@@ -346,7 +293,7 @@ public with sharing class CalloutBP {
         public Decimal expires_in; 
     }
     public class LimiteCreditoINData{
-        public String CodigoExternoAccount;//eu vou preencher
+        public String CodigoExternoAccount;
         public String OrganizacaoVendas;
         public Decimal Valor;
         public Boolean Bloqueado;
