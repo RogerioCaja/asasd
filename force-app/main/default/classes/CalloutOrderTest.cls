@@ -13,7 +13,8 @@ public with sharing class CalloutOrderTest {
             BillingLongitude = 000000,
             BillingLatitude = 00000,
             BillingPostalCode = '',
-            ExternalId__c = '11111'
+            ExternalId__c = '11111',
+            Company__c = 'Empresa 01'
         );
 
         Safra__c safra = new Safra__c(
@@ -106,28 +107,59 @@ public with sharing class CalloutOrderTest {
         OrderItem orderItem = new OrderItem(
             OrderId = order.Id,
             Product2Id = prod.Id,
+            NumeroSap__c = '123',
             UnitMeasure__c = 'L',
             UnitPrice = 10000,
             Quantity = 1,
+            ExternalId__c = 'texto',
             PricebookEntryId = standardPrice.Id
         );
 
         INSERT orderItem;
+
+        ShippingDivison__c shipping = new ShippingDivison__c(
+            DeliveryDate__c = System.today().addDays(30),
+            Quantity__c = 10,
+            ExternalId__c = '001',
+            ConfirmedQuantity__c = 0,
+            OrderItem__c = orderItem.Id
+        );
+        insert shipping;
     }
     public CalloutOrderTest() {}
 
     @isTest
-    static void CalloutOrderSuccess(){
-
+    static void calloutOrderSuccess(){
+        CalloutOrder calloutTest = new CalloutOrder();
+        Order ord = [SELECT Id, OrderNumber, StatusSF__c FROM Order LIMIT 1][0];
+        Test.setMock(HttpCalloutMock.class, new CalloutOrderMock(true, String.valueOf(ord.OrderNumber)));
+        Test.startTest();
+        IntegrationUtils.CalloutResponse response = CalloutOrder.processIntegration(ord.Id);
+        Test.stopTest();
+        System.debug(response);
+        System.assertEquals(true, response.success, 'O status era para vir Verdadeiro');
+        System.assertEquals('', response.errorMessage, 'A mensagem de Erro deveria vir vazia');
+        
     } 
 
     @isTest 
-    static void CalloutOrderFail(){
-
+    static void calloutOrderFail(){
+        Order ord = [SELECT Id, OrderNumber, StatusSF__c FROM Order LIMIT 1][0];
+        Test.setMock(HttpCalloutMock.class,new CalloutOrderMock(false, String.valueOf(ord.OrderNumber)));
+        Test.startTest();
+        IntegrationUtils.CalloutResponse response = CalloutOrder.processIntegration(ord.Id);
+        Test.stopTest();
+        System.debug(response);
+        System.assertEquals(false, response.success, 'O status era para vir falso');
     }
 
     @isTest 
-    static void CalloutOrderTimeout(){
-
+    static void calloutOrderException(){
+        Order ord = [SELECT Id, OrderNumber, StatusSF__c FROM Order LIMIT 1][0];
+        Test.setMock(HttpCalloutMock.class, new ExceptionCallouts());
+        Test.startTest();
+        IntegrationUtils.CalloutResponse response = CalloutOrder.processIntegration(ord.Id);
+        Test.stopTest();
+        System.assertEquals('Error', response.errorMessage, 'Deveria ter falhado');
     }
 }

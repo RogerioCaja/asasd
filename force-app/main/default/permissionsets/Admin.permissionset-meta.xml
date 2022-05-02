@@ -611,7 +611,52 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>JurosDescontoAntecipao__c.Account__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>JurosDescontoAntecipao__c.ActivitySector__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>JurosDescontoAntecipao__c.ConditionNumberRegister__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>JurosDescontoAntecipao__c.ConditionType__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>JurosDescontoAntecipao__c.Cost__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>JurosDescontoAntecipao__c.Currency__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>JurosDescontoAntecipao__c.DistributionCenter__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>JurosDescontoAntecipao__c.EffectiveDate__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>JurosDescontoAntecipao__c.IsActive__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>JurosDescontoAntecipao__c.PaymentDate__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -626,7 +671,27 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>JurosDescontoAntecipao__c.ProductMultiplier__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>JurosDescontoAntecipao__c.Product__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>JurosDescontoAntecipao__c.SalesCondition__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>JurosDescontoAntecipao__c.UnitMeasurement__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>JurosDescontoAntecipao__c.UnitPrice__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -1131,12 +1196,12 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>OrderItem.NumeroSap__c</field>
+        <field>OrderItem.ListPrice</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>OrderItem.ListPrice</field>
+        <field>OrderItem.NumeroSap__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -1288,11 +1353,6 @@
         <editable>true</editable>
         <field>Pricebook2.PriceList__c</field>
         <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Pricebook2.ProductGroup__c</field>
-        <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
@@ -1491,6 +1551,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>SalesCondition__c.ExternalId__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>SalesOffice__c.Codigo__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1527,6 +1592,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>ShippingDivison__c.ShippingValue__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>User.CodigoSap__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -1878,6 +1948,15 @@
         <allowEdit>true</allowEdit>
         <allowRead>true</allowRead>
         <modifyAllRecords>true</modifyAllRecords>
+        <object>SalesCondition__c</object>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>true</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>true</modifyAllRecords>
         <object>SalesOffice__c</object>
         <viewAllRecords>true</viewAllRecords>
     </objectPermissions>
@@ -1927,6 +2006,18 @@
     </recordTypeVisibilities>
     <recordTypeVisibilities>
         <recordType>Account.Propriedade</recordType>
+        <visible>true</visible>
+    </recordTypeVisibilities>
+    <recordTypeVisibilities>
+        <recordType>JurosDescontoAntecipao__c.ZDAN</recordType>
+        <visible>true</visible>
+    </recordTypeVisibilities>
+    <recordTypeVisibilities>
+        <recordType>JurosDescontoAntecipao__c.ZJUR</recordType>
+        <visible>true</visible>
+    </recordTypeVisibilities>
+    <recordTypeVisibilities>
+        <recordType>JurosDescontoAntecipao__c.ZPR0</recordType>
         <visible>true</visible>
     </recordTypeVisibilities>
     <recordTypeVisibilities>
@@ -2071,6 +2162,10 @@
     </tabSettings>
     <tabSettings>
         <tab>Safra__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>SalesCondition__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
     <tabSettings>
