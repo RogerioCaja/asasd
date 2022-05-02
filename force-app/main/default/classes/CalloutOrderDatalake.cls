@@ -12,7 +12,7 @@ public with sharing class CalloutOrderDatalake {
 		Order parentOrder = [SELECT Id, CodigoSap__c, ShippingAccount__r.ExternalId__c, Account.ExternalId__c, Type, SalesOrg__r.SalesOrganizationCode__c, DistributionChannel__c, 
                             ActivitySector__c, Incoterms__c, Incoterms2__c, PaymentCondition__c, OrderReason__c , 
                             OrderNumber, Crop__r.Code__c, Culture__r.Codigo__c, EndDate, TotalAmount, 
-                            Currency__c, (SELECT Id FROM OrderItems) 
+                            Currency__c, StatusSAP__c, (SELECT Id FROM OrderItems) 
                             FROM Order WHERE Id = :orderId];
 		
 		List<Order> allOrders = new List<Order>{parentOrder};
@@ -35,7 +35,7 @@ public with sharing class CalloutOrderDatalake {
 
 					Order ord = orderMap.get(respWrapper.OrderNumber);
                     ord.CodigoSap__c = respWrapper.DetalhesPedido[0].NumeroOrdemVenda; 
-                    ord.StatusSAP__c = respWrapper.DetalhesPedido[0].StatusSap;
+                    //ord.StatusSAP__c = respWrapper.DetalhesPedido[0].StatusSap;
                     // ord.TypeMessage__c = respWrapper.Mensagens[0].Tipo;
                     // ord.Message__c = respWrapper.Mensagens[0].Mensagem;
 					orderList.add(ord);
@@ -276,7 +276,7 @@ public with sharing class CalloutOrderDatalake {
     }
 
     public class OrderDetails{
-        public String StatusSap;
+        //public String StatusSap;
         public String NumeroOrdemVenda;
     }
 }
