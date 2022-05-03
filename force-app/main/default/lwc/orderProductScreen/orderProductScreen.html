@@ -24,7 +24,7 @@
 
 	<div class="products-result" if:true={showIncludedProducts}>
         <template if:false={message}>
-			<!-- <button if:true={barterSale} class="barter-sale" onclick={openCommodities}>Escolher commodities</button> -->
+			<button if:true={barterSale} class="barter-sale" onclick={openCommodities}>Escolher commodities</button>
 			<button class="change-columns" onclick={showTableColumns}>Alterar colunas</button>
             <h2>Resultados de <b>PRODUTOS</b>:</h2>
 
@@ -292,9 +292,9 @@
         </div>
     </template>
 
-	<!-- <template if:true={chooseCommodities}>
-		<c-custom-order-search object-name="Commodity__c" field-name="Name" onshowresults={showCommodityResults} label="Pesquisar COMMODITY:" placeholder="Digite o nome da Commodity" required="true" onchild={getFieldsValueCommodity}></c-custom-order-search>
-	</template> -->
+	<template if:true={chooseCommodities}>
+		<c-custom-order-search object-name="Product2" field-name="Name" account-id={accountData.Id} ctv-id={headerData.ctv_venda.Id} onshowresults={showCommodityResults} label="Pesquisar COMMODITY:" placeholder="Digite o nome da Commodity" required="true" onchild={getFieldsValueCommodity}></c-custom-order-search>
+	</template>
 
 	<div style="width: 100%;" if:true={showCommodities}>
 		<div id="commodity-modal" class="modal">

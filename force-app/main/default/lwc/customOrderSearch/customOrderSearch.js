@@ -20,6 +20,8 @@ export default class CustomOrderSearch extends LightningElement {
     @api placeholder;
     @api className;
     @api pricebookListId;
+    @api accountId;
+    @api ctvId;
     @api required = false;
     @track searchString;
     @track selectedRecord;
@@ -103,7 +105,9 @@ export default class CustomOrderSearch extends LightningElement {
         }else if (this.objectName == 'Product2') {
             fetchOrderRecords({
                     searchString: this.searchString,
-                    pricebookListId: this.pricebookListId
+                    pricebookListId: this.pricebookListId,
+                    accountId: this.accountId,
+                    ctvId: this.ctvId
                 })
                 .then(result => {
                     const tabEvent = new CustomEvent("showresults");
