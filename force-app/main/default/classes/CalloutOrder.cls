@@ -3,10 +3,10 @@ public with sharing class CalloutOrder {
         
     }
 
-    @future(callout = true)
-    public static void callIntegration(Id orderId){
-        processIntegration(orderId);
-    }
+    // @future(callout = true)
+    // public static void callIntegration(Id orderId){
+    //     processIntegration(orderId);
+    // }
 
     public static IntegrationUtils.CalloutResponse processIntegration(Id orderId){
 
@@ -36,7 +36,7 @@ public with sharing class CalloutOrder {
 
 					Order ord = orderMap.get(respWrapper.OrderNumber);
                     ord.CodigoSap__c = respWrapper.DetalhesPedido[0].NumeroOrdemVenda; 
-                    ord.StatusSAP__c = respWrapper.DetalhesPedido[0].StatusSap;
+                    // ord.StatusSAP__c = respWrapper.DetalhesPedido[0].StatusSap;
                     // ord.TypeMessage__c = respWrapper.Mensagens[0].Tipo;
                     // ord.Message__c = respWrapper.Mensagens[0].Mensagem;
 					orderList.add(ord);
@@ -138,12 +138,12 @@ public with sharing class CalloutOrder {
                 header.expiredDate = order.EndDate;
                 this.header = header;
             }
-            else {
-                CalloutOrder.HeaderUpdate header = new CalloutOrder.HeaderUpdate();
-                header.codSap = order.CodigoSap__c;
-                header.codSalesforce = order.OrderNumber;
-                header.expiredDate = order.EndDate;
-            }
+            // else {
+            //     CalloutOrder.HeaderUpdate header = new CalloutOrder.HeaderUpdate();
+            //     header.codSap = order.CodigoSap__c;
+            //     header.codSalesforce = order.OrderNumber;
+            //     header.expiredDate = order.EndDate;
+            // }
 
             for(OrderItem orderItem : order.OrderItems){
                 orderItemIds.add(orderItem.Id);
@@ -217,7 +217,7 @@ public with sharing class CalloutOrder {
         public String codSalesforce;
         public Date  expiredDate;
 
-        public HeaderUpdate(){}
+        // public HeaderUpdate(){}
     }
 
     public class PartnerParameters{

@@ -5,7 +5,6 @@
     <externalId>false</externalId>
     <label>Safra</label>
     <referenceTo>Safra__c</referenceTo>
-    <relationshipLabel>Juros e Descontos Antecipação</relationshipLabel>
     <relationshipName>Juros_e_Descontos_Antecipa_o</relationshipName>
     <required>true</required>
     <trackFeedHistory>false</trackFeedHistory>
