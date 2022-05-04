@@ -141,6 +141,7 @@ public class IntegrationINPricebook2Test {
         listPrice.initialDate = '2022-03-30';
         listPrice.endDate = '2022-03-30';
         listPrice.typeCurrency = 'BRL';
+        listPrice.externalId = 'Jurema';
         listPrice.unitMeasurement = 'LT';
         listPriceList.add(listPrice);
 
