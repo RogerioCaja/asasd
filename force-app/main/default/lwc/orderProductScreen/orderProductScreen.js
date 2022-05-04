@@ -607,12 +607,16 @@ export default class OrderProductScreen extends LightningElement {
             name: currentProduct.name,
             quantity: currentProduct.quantity,
             availableQuantity: availableQuantity,
-            showRed : availableQuantity < 0 ? true : false
+            showRed : availableQuantity < 0 ? true : false,
+            dontAllowChange : this.isFilled(this.headerData.codigo_sap) ? true : false
         };
 
         console.log('this.currentDivisionProduct: ' + JSON.stringify(this.currentDivisionProduct));
         this.showProductDivision = !this.showProductDivision;
-        this.newFields();
+
+        if (!this.currentDivisionProduct.dontAllowChange) {
+            this.newFields();
+        }
     }
 
     newFields() {
