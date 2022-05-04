@@ -34,7 +34,7 @@ public without sharing class OrderScreenController {
         Order order = [SELECT Id, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c , ShippingAccount__r.Phone,  ShippingAccount__r.Name, 
         ShippingAccount__r.BillingCity, ShippingAccount__r.BillingState ,ShippingAccount__r.CPF__c, ShippingAccount__r.CNPJ__c , Pricebook2Id, Pricebook2.Name, 
         Pricebook2.InitialDate__c, Pricebook2.EndDate__c, PaymentDate__c,  CustomerOrderNumber__c, Crop__c , Crop__r.Name, Culture__c , Culture__r.Name,
-        PaymentForm__c, StatusSF__c, SalesOrg__c, SalesOrg__r.Name, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, SalesCTV__r.Name,
+        PaymentForm__c, StatusSF__c, CodigoSAP__c, SalesOrg__c, SalesOrg__r.Name, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, SalesCTV__r.Name,
         PaymentCondition__c, PaymentCondition__r.Name, ShippingDate__c, Incoterms__c, OrderReference__c, OrderReference__r.Name, IsOrderMother__c
         FROM Order 
         WHERE Id = :orderId LIMIT 1];
@@ -491,10 +491,20 @@ public without sharing class OrderScreenController {
                         mapOrderItems.put(key, orderItem.Id);
                     }
 
+                    Map<String, DivisionDeserialize> divisionsByKey = new Map<String, DivisionDeserialize>();
                     for (DivisionDeserialize division : orderData.divisionData) {
                         System.debug('division.divisionId: ' + division.divisionId);
                         if (division.divisionId != null) {
                             setDivisionIds.add(division.divisionId);
+                        }
+
+                        String key = division.deliveryDate + '-' + division.orderItemId;
+                        if (divisionsByKey.containsKey(key)) {
+                            DivisionDeserialize existingDivision = divisionsByKey.get(key);
+                            existingDivision.quantity += division.quantity;
+                            divisionsByKey.put(key, existingDivision);
+                        } else {
+                            divisionsByKey.put(key, division);
                         }
                     }
 
@@ -509,7 +519,8 @@ public without sharing class OrderScreenController {
 
                     List<ShippingDivison__c> listShippingDivision = new List<ShippingDivison__c>();
                     Map<Id, Decimal> quantityDistributedByItem = new Map<Id, Decimal>();
-                    for (DivisionDeserialize division : orderData.divisionData) {
+                    // for (DivisionDeserialize division : orderData.divisionData) {
+                    for (DivisionDeserialize division : divisionsByKey.values()) {
                         ShippingDivison__c shippingDivision;
                         if (!newOrder && !cloneOrder && divisionsById.containsKey(division.divisionId)) {
                             shippingDivision = divisionsById.get(division.divisionId);
@@ -831,6 +842,7 @@ public without sharing class OrderScreenController {
         public String data_pagamento;
         public String data_entrega;
         public String status_pedido;
+        public String codigo_sap;
         public AccountSerialize cliente_entrega;
         public InformationFields organizacao_vendas;
         public String canal_distribuicao;
@@ -994,6 +1006,7 @@ public without sharing class OrderScreenController {
         public String data_pagamento;
         public String data_entrega;
         public String status_pedido;
+        public String codigo_sap;
         public String cliente_faturamento;
         public AccountSerialize cliente_entrega;
         public InformationFields organizacao_vendas;
@@ -1033,6 +1046,7 @@ public without sharing class OrderScreenController {
             this.cultura = new InformationFields(order.Culture__c, order.Culture__r.Name);
             this.forma_pagamento = order.PaymentForm__c;
             this.status_pedido = order.StatusSF__c;
+            this.codigo_sap = order.CodigoSAP__c;
             this.organizacao_vendas = new InformationFields(order.SalesOrg__c, order.SalesOrg__r.Name);
             this.canal_distribuicao = order.DistributionChannel__c;
             this.setor_atividade = order.ActivitySector__c;
