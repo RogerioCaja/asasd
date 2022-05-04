@@ -12,8 +12,8 @@ public with sharing class CalloutOrder {
 
 		Order parentOrder = [SELECT Id, CodigoSap__c, ShippingAccount__r.ExternalId__c, Account.ExternalId__c, Type, SalesOrg__r.SalesOrganizationCode__c, DistributionChannel__c, 
                             ActivitySector__c, Incoterms__c, Incoterms2__c, PaymentCondition__r.Code__c, OrderReason__c , SalesCTV__r.CodigoSap__c, 
-                            OrderNumber, Crop__r.Code__c, Culture__r.Codigo__c, EndDate, TotalAmount, 
-                            Currency__c, (SELECT Id FROM OrderItems) 
+                            OrderNumber, Crop__r.Code__c, Culture__r.Codigo__c, EndDate, TotalAmount, PaymentForm__c, OrderReference__c, CustomerOrderNumber__c,
+                            Currency__c, RecordTypeId, (SELECT Id FROM OrderItems) 
                             FROM Order WHERE Id = :orderId];
 		
 		List<Order> allOrders = new List<Order>{parentOrder};
@@ -32,15 +32,10 @@ public with sharing class CalloutOrder {
 			List<Order> orderList = new List<Order>();
 
 			for (ResponseParametersWrapper respWrapper : resp.responses) {
-				if (orderMap.containsKey(respWrapper.OrderNumber)) {
-
-					Order ord = orderMap.get(respWrapper.OrderNumber);
-                    ord.CodigoSap__c = respWrapper.DetalhesPedido[0].NumeroOrdemVenda; 
-                    // ord.StatusSAP__c = respWrapper.DetalhesPedido[0].StatusSap;
-                    // ord.TypeMessage__c = respWrapper.Mensagens[0].Tipo;
-                    // ord.Message__c = respWrapper.Mensagens[0].Mensagem;
-					orderList.add(ord);
-				}
+                allOrders[0].CodigoSap__c = respWrapper.EV_SALES_DOC;
+				
+				orderList.add(allOrders[0]);
+				
 			}
 
 			if (!orderList.isEmpty()) {
@@ -50,6 +45,22 @@ public with sharing class CalloutOrder {
 		
 		return calloutResponse;
 	}
+
+    public static String getAccessToken(){
+        
+        String payload = 'grant_type=client_credentials';
+        String endpoint = 'callout:TokenSap';
+        Map<String, String> headersMap = new Map<String, String>();
+
+        IntegrationUtils.RequestResponseObject responseObject = IntegrationUtils.executeCallout(endpoint, payload, headersMap);
+        AuthToken auth = (AuthToken)JSON.deserialize(responseObject.response.getBody(), AuthToken.class);
+        
+        return auth.access_token;
+    }
+
+    public class AuthToken{
+        public String access_token;
+    }
 
 	public static IntegrationUtils.CalloutResponse sendOrder(List<Order> orders) {
 			
@@ -62,13 +73,13 @@ public with sharing class CalloutOrder {
 		String payload = JSON.serialize(request);
 
 		//Metodo para busca de Access Token, depende de cada projeto, podendo estar presente dentro de uma custom settings ou relacionado com outra requisição.
-		String accessToken = '';//! FALTA SABER A RESPOSTA DO SAP QUANTO A AUTENTICAÇÃO! F
+		String accessToken = !Test.isRunningTest() ? getAccessToken() : 'testeToken';
 		
 		//Path geralmente cadastrado dentro de ua customSettings
-		String endpoint = (!Test.isRunningTest() ? 'https://e2d5f427-4632-4314-aac5-4801fbbe25db.mock.pstmn.io//OrderUpsert' : 'http://callout.My_Named_Credential.com/some/path');
+		String endpoint = (!Test.isRunningTest() ? 'https://agrogalaxy-qas-01.it-cpi008-rt.cfapps.br10.hana.ondemand.com/http/SI_CRIA_OV_OUT' : 'http://callout.My_Named_Credential.com/some/path');
 		Map<String, String> headersMap = new Map<String, String>();
 		headersMap.put('Content-type', 'application/json');
-		// headersMap.put('Authorization', 'Bearer '+ accessToken);
+		headersMap.put('Authorization', 'Bearer '+ accessToken);
 		
 		IntegrationUtils.RequestResponseObject responseObject = IntegrationUtils.executeCallout(endpoint, payload, headersMap);
 
@@ -97,11 +108,12 @@ public with sharing class CalloutOrder {
 
     //! Preparing data to Callout
     public class RequestParameters{
-        public Object header;
-        public List<CalloutOrder.PartnerParameters> partnerList;
-        public List<CalloutOrder.ScheduleParameters> scheduleList;
-        public List<CalloutOrder.ConditionParameters> conditionList;
-        public List<CalloutOrder.OrderItemParameters> orderItemList;
+        public String IV_TYPE;
+        public Object IS_HEADER_IN;
+        public List<CalloutOrder.PartnerParameters> IT_PARTNERS;
+        public List<CalloutOrder.ScheduleParameters> IT_ORDER_SCHEDULES_IN;
+        public List<CalloutOrder.ConditionParameters> IT_CONDITIONS_IN;
+        public List<CalloutOrder.OrderItemParameters> IT_ITEMS_IN;
 
         public RequestParameters(Order order){
 
@@ -109,34 +121,42 @@ public with sharing class CalloutOrder {
             Decimal valueDiscount = 0;
             Decimal valueInterest = 0;
 
-            partnerList = new List<CalloutOrder.PartnerParameters>();
-            scheduleList = new List<CalloutOrder.ScheduleParameters>();
-            orderItemList = new List<CalloutOrder.OrderItemParameters>();
-            conditionList = new List<CalloutOrder.ConditionParameters>();
+            IT_PARTNERS = new List<CalloutOrder.PartnerParameters>();
+            IT_ORDER_SCHEDULES_IN = new List<CalloutOrder.ScheduleParameters>();
+            IT_ITEMS_IN = new List<CalloutOrder.OrderItemParameters>();
+            IT_CONDITIONS_IN = new List<CalloutOrder.ConditionParameters>();
 
-            partnerList.add(new CalloutOrder.PartnerParameters(order.Account.ExternalId__c, 'EO'));
-            partnerList.add(new CalloutOrder.PartnerParameters(order.ShippingAccount__r.ExternalId__c, 'RM'));
-            partnerList.add(new CalloutOrder.PartnerParameters(order.SalesCTV__r.CodigoSap__c, 'ZV'));
+            IT_PARTNERS.add(new CalloutOrder.PartnerParameters(order.Account.ExternalId__c, 'AG'));
+            IT_PARTNERS.add(new CalloutOrder.PartnerParameters(order.ShippingAccount__r.ExternalId__c, 'RM'));
+            IT_PARTNERS.add(new CalloutOrder.PartnerParameters(order.SalesCTV__r.CodigoSap__c, 'ZC'));
 
             Set<Id> orderItemIds = new Set<Id>();
 
             if(order.CodigoSap__c == null){
                 CalloutOrder.HeaderInsert header = new CalloutOrder.HeaderInsert();
-                header.orderSalesType = order.Type; // Não esquecer de mudar isso
-                header.salesOrg = order.SalesOrg__r.SalesOrganizationCode__c;
-                header.distributionChannel = order.DistributionChannel__c;
-                header.activitySector = order.ActivitySector__c;
-                header.incoterms1 = order.Incoterms__c;
-                header.incoterms2 = order.Incoterms2__c;
-                header.paymentCondition = order.PaymentCondition__r.Code__c;
-                header.orderReason = order.OrderReason__c;
-                header.codSap = order.OrderNumber;
-                header.crop = order.Crop__r.Code__c;
-                header.culture = Integer.valueOf(order.Culture__r.Codigo__c);
-                header.orderType = order.Type;
-                header.codSalesforce = order.OrderNumber;
-                header.expiredDate = order.EndDate;
-                this.header = header;
+                
+                IV_TYPE = order.OrderReference__c != null ? 'G' : 'C';
+               
+                header.DOC_TYPE = String.valueOf([SELECT DeveloperName FROM RecordType WHERE Id =: order.RecordTypeId][0]); // Não esquecer de mudar isso
+                header.SALES_ORG = order.SalesOrg__r.SalesOrganizationCode__c;
+                header.DISTR_CHAN = order.DistributionChannel__c;
+                header.DIVISION = order.ActivitySector__c;
+                header.INCOTERMS1 = order.Incoterms__c;
+                header.INCOTERMS2 = order.Incoterms2__c;
+                header.PMNTTRMS = order.PaymentCondition__r.Code__c;
+                header.PYMT_METH = order.PaymentForm__c;
+                
+                header.CT_VALID_F = '';
+                header.CT_VALID_T = '';
+
+                header.PURCH_NO_C = order.CustomerOrderNumber__c;
+                header.ORD_REASON = order.OrderReason__c;
+                header.ZZSAFRA = order.Crop__r.Code__c;
+                header.ZZCOD_CULTURA = order.Culture__r.Codigo__c;
+                header.ZZPED_CRM = order.OrderNumber;
+                header.ZZDATA_CARENCIA = '';
+                header.ZZDATA_VENCTO = String.valueOf(order.EndDate).replace('-', '');
+                this.IS_HEADER_IN = header;
             }
             // else {
             //     CalloutOrder.HeaderUpdate header = new CalloutOrder.HeaderUpdate();
@@ -150,17 +170,12 @@ public with sharing class CalloutOrder {
             }
 
             Map<Id, OrderItem> orderItemMap = new Map<Id, OrderItem>([
-                SELECT Id, NumeroSap__c, Product2.ExternalId__c, Product2.DistributionCenter__r.Code__c, Quantity
+                SELECT Id, NumeroSap__c, Product2.ExternalId__c, Product2.DistributionCenter__r.Code__c, Quantity, UnitPrice, FinancialAdditionValue__c, FinancialDiscountValue__c
                 FROM OrderItem
                 WHERE Id IN: orderItemIds
             ]);
 
-            AggregateResult orderItemSummary = [SELECT SUM(TotalPrice)totalPrice, SUM(FinancialAdditionValue__c)totalInterest, SUM(FinancialDiscountValue__c)totalDiscount
-                        FROM OrderItem WHERE OrderId =: order.Id][0];
-
-            valueAmount = (Decimal)orderItemSummary.get('totalPrice');
-            valueInterest = (Decimal)orderItemSummary.get('totalInterest');
-            valueDiscount = (Decimal)orderItemSummary.get('totalDiscount');
+      
 
             List<ShippingDivison__c> divisonList = [SELECT Id,Name, DeliveryDate__c, Quantity__c, OrderItem__c FROM ShippingDivison__c WHERE OrderItem__c IN: orderItemIds];
             Map<Id, List<ShippingDivison__c>> divisionMap = new  Map<Id, List<ShippingDivison__c>>();
@@ -180,34 +195,37 @@ public with sharing class CalloutOrder {
                 {
                     for(ShippingDivison__c sd : divisionMap.get(orderItem.Id)){
                         // shippingCodesList.add(Integer.valueOf(sd.Name));
-                        scheduleList.add(new CalloutOrder.ScheduleParameters(Integer.valueOf(orderItem.NumeroSap__c), sd.Quantity__c, sd.DeliveryDate__c));
+                        IT_ORDER_SCHEDULES_IN.add(new CalloutOrder.ScheduleParameters(String.valueOf(orderItem.NumeroSap__c), String.valueOf(sd.Quantity__c), String.valueOf(sd.DeliveryDate__c)));
                     }
                 }
                 
-                orderItemList.add(new CalloutOrder.OrderItemParameters(orderItem));
+                IT_ITEMS_IN.add(new CalloutOrder.OrderItemParameters(orderItem));
+                IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c, 'ZPRO', String.valueOf(orderItem.Quantity * orderItem.UnitPrice), order.Currency__c));
+                IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c, 'ZJUR', String.valueOf(orderItem.FinancialAdditionValue__c), order.Currency__c));
+                IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c, 'ZDAN', String.valueOf(orderItem.FinancialDiscountValue__c), order.Currency__c));
             }
-
-            conditionList.add(new CalloutOrder.ConditionParameters(Integer.valueOf(order.Culture__r.Codigo__c), 'ZPR0', valueAmount, order.Currency__c));
-            conditionList.add(new CalloutOrder.ConditionParameters(Integer.valueOf(order.Culture__r.Codigo__c), 'ZJUR ', valueInterest, order.Currency__c)); 
-            conditionList.add(new CalloutOrder.ConditionParameters(Integer.valueOf(order.Culture__r.Codigo__c), 'ZDAN', valueDiscount, order.Currency__c));
         }
     }
 
     public class HeaderInsert{
-        public String orderSalesType;
-        public String salesOrg;
-        public String distributionChannel;
-        public String activitySector;
-        public String incoterms1;
-        public String incoterms2;
-        public String paymentCondition;
-        public String orderReason;
-        public String codSap;
-        public String crop;
-        public Integer culture;
-        public String orderType;
-        public String codSalesforce;
-        public Date  expiredDate;
+        
+        public String DOC_TYPE; // orderSalesType;
+        public String SALES_ORG; //salesOrg;
+        public String DISTR_CHAN;// distributionChannel;
+        public String DIVISION; // activitySector;
+        public String INCOTERMS1;
+        public String INCOTERMS2;
+        public String PMNTTRMS; // paymentCondition;
+        public String PYMT_METH; //forma de pagamento
+        public String CT_VALID_F; // Data inicio(Pedido Mãe)
+        public String CT_VALID_T; // Data inicio(Pedido Mãe)
+        public String ORD_REASON; //orderReason;
+        public String PURCH_NO_C; // Customer;
+        public String ZZSAFRA; //crop;
+        public String ZZCOD_CULTURA; //culture;
+        public String ZZPED_CRM; //orderType;
+        public String ZZDATA_CARENCIA;
+        public String ZZDATA_VENCTO;
 
         public HeaderInsert(){}
     }
@@ -221,52 +239,52 @@ public with sharing class CalloutOrder {
     }
 
     public class PartnerParameters{
-        public String partnerFunc;
-        public String partnerCode;
+        public String PARTN_ROLE;
+        public String PARTN_NUMB;
 
         public PartnerParameters(String partnerCode, String partnerFunc){
-            this.partnerCode = partnerCode;
-            this.partnerFunc = partnerFunc;
+            this.PARTN_ROLE = partnerCode;
+            this.PARTN_NUMB = partnerFunc;
         }
     } 
 
     public class ScheduleParameters{
-        public Integer incrementItem;
-        public Decimal quantityItem;
-        public Date deliveryDate;
+        public String ITM_NUMBER;
+        public String REQ_QTY;
+        public String REQ_DATE;
 
-        public ScheduleParameters(Integer incrementItem, Decimal quantityItem, Date deliveryDate){
-            this.incrementItem = incrementItem;
-            this.quantityItem = quantityItem;
-            this.deliveryDate = deliveryDate;
+        public ScheduleParameters(String incrementItem, String quantityItem, String deliveryDate){
+            this.ITM_NUMBER = incrementItem;
+            this.REQ_QTY = quantityItem;
+            this.REQ_DATE = deliveryDate.replace('-', '');
         }
     }
 
     public class ConditionParameters{
-        public Integer incrementItem;
-        public String conditionType;
-        public Decimal conditionValue;
-        public String conditionCurrency;
+        public String ITM_NUMBER;
+        public String COND_TYPE;
+        public String COND_VALUE;
+        public String TYPE_CURRENCY;
 
-        public ConditionParameters(Integer incrementItem, String conditionType, Decimal conditionValue, String conditionCurrency){
-            this.incrementItem = incrementItem;
-            this.conditionType = conditionType;
-            this.conditionValue = conditionValue;
-            this.conditionCurrency = conditionCurrency;
+        public ConditionParameters(String incrementItem, String conditionType, String conditionValue, String conditionCurrency){
+            this.ITM_NUMBER = incrementItem;
+            this.COND_TYPE = conditionType;
+            this.COND_VALUE = conditionValue;
+            this.TYPE_CURRENCY = conditionCurrency;
         }
     }
 
     public class OrderItemParameters{
-        public Integer incrementItem;
-        public String material;
-        public String center;
-        public Decimal quantityItem;
+        public String ITM_NUMBER;
+        public String MATERIAL;
+        public String PLANT;
+        public String TARGET_QTY;
 
         public OrderItemParameters(OrderItem orderItem){
-            this.incrementItem = Integer.valueOf(orderItem.NumeroSap__c);
-            this.material = orderItem.Product2.ExternalId__c;
-            this.center = orderItem.Product2.DistributionCenter__r.Code__c;
-            this.quantityItem = orderItem.Quantity;
+            this.ITM_NUMBER = String.valueOf(orderItem.NumeroSap__c);
+            this.MATERIAL = orderItem.Product2.ExternalId__c;
+            this.PLANT = orderItem.Product2.DistributionCenter__r.Code__c;
+            this.TARGET_QTY =  String.valueOf(orderItem.Quantity);
         }
     }
 
@@ -280,18 +298,23 @@ public with sharing class CalloutOrder {
     }
 
     public class ResponseParametersWrapper {
-        public String OrderNumber; 
-        public List<OrderDetails> DetalhesPedido;
-        public List<Messages> Mensagens; 
+        public List<OrderDetails> ET_RETURN;
+        public String EV_SALES_DOC;
     }
 
     public class Messages{
-        public String Tipo;
-        public String Mensagem;
+        public String TYPE;
+        public String CODE;
+        public String MESSAGE;
+        public String LOG_NO;
+        public String LOG_MSG_NO;
+        public String MESSAGE_V1;
+        public String MESSAGE_V2;
+        public String MESSAGE_V3;
+        public String MESSAGE_V4;
     }
 
     public class OrderDetails{
-        public String StatusSap;
-        public String NumeroOrdemVenda;
+        public List<Messages> item;
     }
 }
