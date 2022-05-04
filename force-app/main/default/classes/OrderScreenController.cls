@@ -202,6 +202,7 @@ public without sharing class OrderScreenController {
             Id productGroupId;
             Set<Id> setOrderItemsIds = new Set<Id>();
             Set<Id> setProductGroups = new Set<Id>();
+            Set<Id> setProductsIds = new Set<Id>();
             for (ProductDeserialize orderProduct : orderData.productData) {
                 orderTotalValue += orderProduct.totalPrice;
                 if (orderProduct.orderItemId != null) {
@@ -212,11 +213,26 @@ public without sharing class OrderScreenController {
                     setProductGroups.add(orderProduct.productGroupId);
                 }
 
+                if (orderProduct.productId != null) {
+                    setProductsIds.add(orderProduct.productId);
+                }
+
                 Decimal currentDiscount = 100 - ((orderProduct.totalPrice * 100) / (orderProduct.quantity * orderProduct.listPrice));
                 if (biggerDiscount < currentDiscount) {
                     biggerDiscount = currentDiscount;
                     productGroupId = orderProduct.productGroupId;
                 }
+            }
+
+            Map<Id, Id> entriesIds = new Map<Id, Id>();
+            for (PricebookEntry entry : [
+                SELECT Id,
+                       Product2Id
+                  FROM PricebookEntry
+                 WHERE Pricebook2.IsStandard = true
+                   AND Product2Id IN: setProductsIds
+            ]) {
+                entriesIds.put(entry.Product2Id, entry.Id);
             }
             
             Map<Id, OrderItem> orderItemsById = new Map<Id, OrderItem>([
@@ -309,7 +325,7 @@ public without sharing class OrderScreenController {
                     counter++;
                 }
 
-                if (salesTeamTerritory == null) {
+                if (salesTeamTerritory == null && territoryAndParents.get(userTerritoryId) != null && territoryAndParents.get(territoryAndParents.get(userTerritoryId).ParentTerritory2Id) != null) {
                     salesTeamTerritory = territoryAndParents.get(territoryAndParents.get(userTerritoryId).ParentTerritory2Id);
                 }
 
@@ -409,6 +425,7 @@ public without sharing class OrderScreenController {
                     'Cancelado' => 'X'
                 };
                 Integer itemCounter = 1;
+                System.debug('orderData.productData: ' + orderData.productData);
                 for (ProductDeserialize orderProduct : orderData.productData) {
                     OrderItem orderItem;
                     if (!newOrder && orderItemsById.containsKey(orderProduct.orderItemId)) {
@@ -418,7 +435,7 @@ public without sharing class OrderScreenController {
                         orderItem.NumeroSap__c = String.valueOf(itemCounter * 10);
                         orderItem.ExternalId__c = order.Id + '|' + orderItem.NumeroSap__c;
                         orderItem.OrderId = order.Id;
-                        orderItem.PricebookEntryId = orderProduct.entryId;
+                        orderItem.PricebookEntryId = entriesIds.get(orderProduct.productId);
                         orderItem.Product2Id = orderProduct.productId;
                         orderItem.ListPrice = orderProduct.listPrice;
                         orderItem.AmountUsed__c = order.IsOrderMother__c ? 0 : null;
@@ -457,15 +474,20 @@ public without sharing class OrderScreenController {
                                                     0;
                     orderItem.ComissionValue__c = orderItem.PercentComission__c != 0 ? (orderItem.FinalTotalValue__c * orderItem.PercentComission__c) / 100 : 0;
                     listOrderItems.add(orderItem);
+                    System.debug('orderItem: ' + orderItem);
                 }
                 update motherItems.values();
 
                 String orderItemErrors = '';
                 Set<Id> itemsIds = new Set<Id>();
+                System.debug('listOrderItems.size(): ' + listOrderItems.size());
                 List<Database.UpsertResult> insOrderItemResults = Database.upsert(listOrderItems, false);
+                System.debug('insOrderItemResults.size(): ' + insOrderItemResults.size());
                 for (Database.UpsertResult result : insOrderItemResults){
+                    System.debug('result.isSuccess(): ' + result);
                     if(!result.isSuccess()){
                         for (Database.error error: insResults.getErrors()){
+                            System.debug('error.getMessage(): ' + error.getMessage());
                             orderItemErrors += '\n' + error.getMessage();
                             msg = 'Pedido não pôde ser ' + (newOrder ? 'criado' : 'atualizado');
                             return JSON.serializePretty(new AGRO_RemotingResult(false, '200', msg + orderItemErrors));

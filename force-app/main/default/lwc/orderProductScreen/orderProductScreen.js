@@ -726,16 +726,17 @@ export default class OrderProductScreen extends LightningElement {
         this.showCommodities = true;
         this.selectCommodityScreen = true;
         this.currentScreen = 'chooseCommodity';
-        this.commodities = [{id: '01', name: 'Trigo', currency: 'USD', cotation: '50'}, {id: '02', name: 'Milho', currency: 'BRL', cotation: '78'}];
-        // this.chooseCommodities = !this.chooseCommodities;
+        // this.commodities = [{id: '01', name: 'Trigo', currency: 'USD', cotation: '50'}, {id: '02', name: 'Milho', currency: 'BRL', cotation: '78'}];
+        this.chooseCommodities = !this.chooseCommodities;
+        console.log('this.chooseCommodities: ' + this.chooseCommodities);
     }
 
     showCommodityResults(event){
         // this.showCommodities = event.showResults;
-        // this.commodities = event.results;
-        this.showCommodities = true;
-        this.commodities = [{name: 'Trigo', currency: 'USD', cotation: '50'}]
-        // this.message = event.message;
+        this.commodities = event.results;
+        // this.showCommodities = true;
+        // this.commodities = [{name: 'Trigo', currency: 'USD', cotation: '50'}]
+        this.message = event.message;
     }
 
     selectCommodity(event) {
@@ -783,12 +784,13 @@ export default class OrderProductScreen extends LightningElement {
 
     nextScreen(event) {
         this.selectCommodityScreen = false;
+        this.chooseCommodities = false;
         this.commoditySelected = false;
         this.summaryScreen = false;
         this.haScreen = false;
 
         this.currentScreen = this.commodityScreens[this.commodityScreens.indexOf(this.currentScreen) + 1];
-        if (this.currentScreen == 'chooseCommodity') this.selectCommodityScreen = true;
+        if (this.currentScreen == 'chooseCommodity') this.selectCommodityScreen = true;this.chooseCommodities = true;
         if (this.currentScreen == 'fillCommodity') this.commoditySelected = true;
         if (this.currentScreen == 'negotiationDetails') this.fillCommodity();
         if (this.currentScreen == 'haScreen') this.haScreen = true;

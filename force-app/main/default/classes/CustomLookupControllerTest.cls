@@ -95,6 +95,6 @@ public class CustomLookupControllerTest {
 
     @isTest
     public static void fetchProductsRecordsTest(){
-        CustomLookupController.fetchProductsRecords('Milho', Test.getStandardPricebookId());
+        CustomLookupController.fetchProductsRecords('Milho', Test.getStandardPricebookId(), null, null);
     }
 }

@@ -104,18 +104,21 @@ public without sharing class CustomLookupController {
                                 .build();
 
             for(SObject jda : Database.query(priceQuery)) {
+                System.debug('jda: ' + jda);
                 productsPriceById.put((Id)jda.get('Product__c'), (JurosDescontoAntecipao__c)jda);
             }
 
             Set<Id> prodsId = new Set<Id>();
-            Id orgV = getSalesOrgId(accountId, ctvId) != null ? getSalesOrgId(accountId, ctvId) : 'a0T8A000003MhfPUAS';
+            Id orgV = getSalesOrgId(accountId, ctvId) != null ? getSalesOrgId(accountId, ctvId) : 'a0U8D000000QS7CUAW';
+            System.debug('orgV: ' + orgV);
             for (OrgVProduct__c orgVProduct : [
                 SELECT Id,
                        Product__c
                   FROM OrgVProduct__c
                  WHERE Product__c IN: productsPriceById.keySet()
-                  AND SalesOrg__c =: orgV
+                   AND SalesOrg__c =: orgV
             ]) {
+                System.debug('orgVProduct: ' + orgVProduct);
                 prodsId.add(orgVProduct.Product__c);
             }
 
@@ -133,6 +136,7 @@ public without sharing class CustomLookupController {
             List<SObject> queryResult = Database.query(productQuery);
             Set<Id> prodGroupIds = new Set<Id>();
             for (SObject product : queryResult) {
+                System.debug('product: ' + product);
                 prodGroupIds.add((String)product.get('ProductGroup__c'));
             }
 
@@ -143,7 +147,9 @@ public without sharing class CustomLookupController {
             ]);
 
             for(SObject s : queryResult) {
+                System.debug('s: ' + s);
                 JurosDescontoAntecipao__c jda = productsPriceById.get((Id) s.get('Id'));
+                System.debug('jda: ' + jda);
                 String productGroupId = (String)s.get('ProductGroup__c');
                 String productGroupName = '';
                 
@@ -240,7 +246,7 @@ public without sharing class CustomLookupController {
             this.productGroupId = productGroup != null ? productGroup : '';
             this.productGroupName = productGroupName != null ? productGroupName : '';
             this.activePrinciple = activePrinciple != null ? activePrinciple : '';
-            this.multiplicity = multiplicity;
+            this.multiplicity = multiplicity != null ? multiplicity : 1;
             this.entryId = entryId;
             this.listPrice = listPrice != null ? listPrice : 0;
             this.costPrice = costPrice != null ? costPrice : 0;

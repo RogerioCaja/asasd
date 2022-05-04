@@ -103,6 +103,8 @@ export default class CustomOrderSearch extends LightningElement {
                     this.showSpinner = false;
                 });
         }else if (this.objectName == 'Product2') {
+            console.log(this.accountId);
+            console.log(this.ctvId);
             fetchOrderRecords({
                     searchString: this.searchString,
                     pricebookListId: this.pricebookListId,
