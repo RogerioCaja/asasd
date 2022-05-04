@@ -13,6 +13,69 @@ global with sharing class TemplateDataIntegrationFields {
         SObject serialize(Map<String, String> lookups);
         String getParentKey();
     }
+
+    // ! Atualizações Pendentes de confirmação
+    // public class Jurosporenquanto{
+    //     public String typeCondition;
+    //     public String product;
+    //     public String productGroup;
+    //     public String unitPrice;
+    //     public String percentage;
+    //     public String cost;
+
+    //     public String salesCondition;
+
+    //     public String cropCode;
+    //     public String cultureCode;
+    //     public String accountCode;
+    //     public String accountGroup;
+
+    //     public String orgVendas;
+    //     public String salesOffice;
+    //     public String salesTeam;
+
+    //     public String initialDate;
+    //     public String endDate;
+    //     public String effectiveDate;
+
+    //     public String typeCurrency;
+    //     public String active;
+    //     public String priority;
+    //     public String paymentDate;
+    //     public String productMultiplier;
+    //     public String unitMeasurement;
+
+    //     public JurosDescontoAntecipao__c serialize(Map<String, Id> lookups){
+    //         return new JurosDescontoAntecipao__c(
+    //             AccountType__c = this.productMultiplier != null ? this.productMultiplier : null,
+    //             RecordTypeId = this.productMultiplier != null ? this.productMultiplier : null,
+    //             Culture__c = lookups.containsKey('Cultura__c'+this.cropCode) ? lookups.get('Safra__c'+this.cropCode) : null,
+    //             DistributionCenter__c =lookups.containsKey('DistributionCenter__c'+this.cropCode) ? lookups.get('Safra__c'+this.cropCode) : null,
+    //             EndDate__c = this.productMultiplier != null ? this.productMultiplier : null,
+    //             ExternalId__c = null, // Nós iremos montar
+    //             harvest__c = lookups.containsKey('Safra__c'+this.cropCode) ? lookups.get('Safra__c'+this.cropCode) : null,
+    //             Name = null,
+    //             PriorityLevel__c = null,
+    //             Product__c = lookups.containsKey('Product2'+this.cropCode) ? lookups.get('Safra__c'+this.cropCode) : null,
+    //             ProductGroup__c = lookups.containsKey('ProductGroup__c'+this.cropCode) ? lookups.get('Safra__c'+this.cropCode) : null,
+    //             SalesOffice__c = lookups.containsKey('SalesOffice__c'+this.cropCode) ? lookups.get('Safra__c'+this.cropCode) : null,
+    //             SalesOrg__c = lookups.containsKey('SalesOrg__c'+this.cropCode) ? lookups.get('Safra__c'+this.cropCode) : null,
+    //             SalesTeam__c = lookups.containsKey('SalesTeam__c'+this.cropCode) ? lookups.get('Safra__c'+this.cropCode) : null,
+    //             StartDate__c = null,
+    //             Account__c = lookups.containsKey('Account'+this.accountCode) ? lookups.get('Safra__c'+this.accountCode) : null,
+    //             Currency__c = this.typeCurrency != null ? this.typeCurrency : null,
+    //             EffectiveDate__c = this.effectiveDate != null ? this.effectiveDate : null,
+    //             PaymentDate__c = this.paymentDate != null ? this.paymentDate : null,
+    //             SalesCondition = lookups.containsKey('Safra__c'+this.cropCode) ? lookups.get('Safra__c'+this.cropCode) : null, //Finge que funciona
+    //             Cost__c = null,
+    //             IsActive__c = null,
+    //             ProductMultiplier__c = this.productMultiplier != null ? this.productMultiplier : null,
+    //             UnitMeasurement__c = this.unitMeasurement != null ? this.unitMeasurement : null,
+    //             UnitPrice__c = this.unitPrice != null ? this.unitPrice : null
+    //         );
+            
+    //     }
+    // }
     
 
      // ! Atualizações Pendentes de confirmação
@@ -39,7 +102,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String endDate;
 
         public String typeCurrency;
-        public String productMultiplier;
+        public String externalId;
         public String unitMeasurement;
         // Chave(ExternalId__c): (orgVendas) | (safra) | (moeda) | (Material)(Lista de preço) | (Grupo de produtos)(Escritório de vendas)(Equipe de Vendas)(Cultura)(Segmento do Cliente)(Cliente) | (Material)(Equipe de vendas) | (Material)
         public JurosDescontoAntecipao__c serialize(Map<String, Id> lookups){
@@ -49,7 +112,8 @@ global with sharing class TemplateDataIntegrationFields {
                 Culture__c = lookups.containsKey('Cultura__c'+this.cultureCode) ? lookups.get('Cultura__c'+this.cultureCode) : null,
                 DistributionCenter__c =lookups.containsKey('DistributionCenter__c'+this.center) ? lookups.get('DistributionCenter__c'+this.center) : null,
                 EndDate__c = this.endDate != null ? Date.valueOf(this.endDate) : null,
-                ExternalId__c = this.orgVendas + this.cropCode  + this.typeCurrency +  this.product + this.salesCondition  + this.productGroup + this.salesOffice  + this.cultureCode + this.accountGroup +  this.accountCode  + this.product + this.salesTeam  + this.product, // A estrutura está acima ^^^^
+                // ExternalId__c = this.orgVendas + this.cropCode  + this.typeCurrency +  this.product + this.salesCondition  + this.productGroup + this.salesOffice  + this.cultureCode + this.accountGroup +  this.accountCode  + this.product + this.salesTeam  + this.product, // A estrutura está acima ^^^^
+                ExternalId__c = this.externalId,
                 harvest__c = lookups.containsKey('Safra__c'+this.cropCode) ? lookups.get('Safra__c'+this.cropCode) : null,
                 Product__c = lookups.containsKey('Product2'+this.product) ? lookups.get('Product2'+this.product) : null,
                 ProductGroup__c = lookups.containsKey('ProductGroup__c'+this.productGroup) ? lookups.get('ProductGroup__c'+this.productGroup) : null,
