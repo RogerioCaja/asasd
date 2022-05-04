@@ -27,7 +27,9 @@ export default class OrderProductScreen extends LightningElement {
     }
 
     safraData={}
-    paymentDate;hectares;priceBookListId;
+    paymentDate;
+    hectares;
+    priceBookListId;
 
     baseProducts = [];
     showBaseProducts = false;
@@ -38,6 +40,7 @@ export default class OrderProductScreen extends LightningElement {
     showList = false;
     changeColumns = false;
     showProductDivision = false;
+    barterSale = false;
     selectedProducts;
     columns = [];
     productName = '';
@@ -45,6 +48,42 @@ export default class OrderProductScreen extends LightningElement {
     divisionProducts = [];
     allDivisionProducts = [];
     financialInfos = {};
+    
+    selectCommodityScreen = false;
+    commodityScreens = ['chooseCommodity', 'fillCommodity', 'negotiationDetails', 'haScreen'];
+    currentScreen = 'chooseCommodity';
+    
+    commodities = [];
+    commoditiesData = [];
+    chooseCommodities = false;
+    showCommodities = false;
+    commoditySelected = false;
+    summaryScreen = false;
+    commodityColumns = [
+        {label: 'Produto', fieldName: 'product'},
+        {label: 'Dose', fieldName: 'desage'},
+        {label: 'Área', fieldName: 'area'},
+        {label: 'Quantidade', fieldName: 'quantity'},
+        {label: 'Desconto', fieldName: 'discount'},
+        {label: 'Margem', fieldName: 'margin'},
+        {label: 'Entrega Total', fieldName: 'totalDelivery'}
+    ];
+
+    haScreen = false;
+    haData = [{
+        productSubGroup: 'productSubGroup',
+        totalQuantity: 'totalQuantity',
+        haCost: 'haCost',
+        haPotential: 'haPotential',
+        customerShare: 'customerShare'
+    }];
+    haColumns = [
+        {label: 'Sub Grupo de Produto', fieldName: 'productSubGroup'},
+        {label: 'Quantidade Total', fieldName: 'totalQuantity'},
+        {label: 'Custo/HA', fieldName: 'haCost'},
+        {label: 'Potencial/HA', fieldName: 'haPotential'},
+        {label: 'Customer Share', fieldName: 'customerShare'}
+    ];
     
     @track products = [];
     @api productData;
@@ -57,6 +96,7 @@ export default class OrderProductScreen extends LightningElement {
         this.paymentDate = this.headerData.data_pagamento;
         this.hectares = this.headerData.hectares;
         this.priceBookListId = this.headerData.lista_precos.Id;
+        this.barterSale = this.headerData.tipo_venda == 'Venda Barter' ? true : false;
 
         if (this.cloneData.cloneOrder && this.cloneData.pricebookListId != this.priceBookListId) {
             this.products = []
@@ -66,6 +106,7 @@ export default class OrderProductScreen extends LightningElement {
             this.allDivisionProducts = this.isFilled(this.divisionData) ? this.divisionData : [];
         }
 
+        actions = [];
         if (this.headerData.pedido_mae_check) actions.push({ label: 'Editar', name: 'edit' });
         else actions.push({ label: 'Editar', name: 'edit' },{ label: 'Divisão de Remessas', name: 'shippingDivision' });
 
@@ -678,9 +719,96 @@ export default class OrderProductScreen extends LightningElement {
     showResults(event){
         this.showBaseProducts = event.showResults;
         this.baseProducts = event.results;
-        console.log('this.baseProducts: ' + JSON.stringify(this.baseProducts));
         this.message = event.message;
     }
+
+    openCommodities(event) {
+        this.showCommodities = true;
+        this.selectCommodityScreen = true;
+        this.currentScreen = 'chooseCommodity';
+        this.commodities = [{id: '01', name: 'Trigo', currency: 'USD', cotation: '50'}, {id: '02', name: 'Milho', currency: 'BRL', cotation: '78'}];
+        // this.chooseCommodities = !this.chooseCommodities;
+    }
+
+    showCommodityResults(event){
+        // this.showCommodities = event.showResults;
+        // this.commodities = event.results;
+        this.showCommodities = true;
+        this.commodities = [{name: 'Trigo', currency: 'USD', cotation: '50'}]
+        // this.message = event.message;
+    }
+
+    selectCommodity(event) {
+        this.nextScreen();
+        let chooseCommodity = this.commodities.find(e => e.id == event.target.dataset.targetId);
+        console.log('chooseCommodity: ' + JSON.stringify(chooseCommodity));
+        this.selectedCommodity = {
+            name: chooseCommodity.name,
+            cotation: chooseCommodity.cotation,
+            startDate: null,
+            endDate: null,
+            deliveryQuantity: '10 sacas',
+            ptax: 'U$4,67',
+            deliveryAddress: '',
+            commission: 'R$140',
+            totalMarginPercent: '12%',
+            totalMarginValue: 'R$140'
+        };
+    }
+
+    fillCommodity(event) {
+        this.summaryScreen = true;
+        this.commoditiesData.push({
+            product: this.selectedCommodity.name,
+            desage: this.products[0].dosage,
+            area: this.headerData.hectares,
+            quantity: this.selectedCommodity.deliveryQuantity,
+            discount: 'R$' + this.products[0].commercialDiscountValue,
+            margin: this.products[0].commercialMarginPercentage.toFixed(4),
+            totalDelivery: 50
+        });
+    }
+
+    closeCommodityModal(event) {
+        this.commoditySelected = false;
+        this.summaryScreen = false;
+        this.showCommodities = false;
+    }
+
+    commodityChange(event) {
+        if (this.isFilled(event.target.value)) {
+            this.selectedCommodity[event.target.dataset.targetId] = event.target.value;
+        }
+    }
+
+    nextScreen(event) {
+        this.selectCommodityScreen = false;
+        this.commoditySelected = false;
+        this.summaryScreen = false;
+        this.haScreen = false;
+
+        this.currentScreen = this.commodityScreens[this.commodityScreens.indexOf(this.currentScreen) + 1];
+        if (this.currentScreen == 'chooseCommodity') this.selectCommodityScreen = true;
+        if (this.currentScreen == 'fillCommodity') this.commoditySelected = true;
+        if (this.currentScreen == 'negotiationDetails') this.fillCommodity();
+        if (this.currentScreen == 'haScreen') this.haScreen = true;
+    }
+
+    backScreen(event) {
+        this.selectCommodityScreen = false;
+        this.commoditySelected = false;
+        this.summaryScreen = false;
+        this.haScreen = false;
+
+        this.currentScreen = this.commodityScreens[this.commodityScreens.indexOf(this.currentScreen) - 1];
+        if (this.currentScreen == 'chooseCommodity') this.selectCommodityScreen = true;
+        if (this.currentScreen == 'fillCommodity') this.commoditySelected = true;
+        if (this.currentScreen == 'negotiationDetails') this.summaryScreen = true;
+        if (this.currentScreen == 'haScreen') this.haScreen = true;
+    }
+
+    // commodityScreens = ['chooseCommodity', 'fillCommodity', 'negotiationDetails', 'haScreen'];
+    // currentScreen = 'chooseCommodity';
 
     showToast(type, title, message) {
         let event = new ShowToastEvent({

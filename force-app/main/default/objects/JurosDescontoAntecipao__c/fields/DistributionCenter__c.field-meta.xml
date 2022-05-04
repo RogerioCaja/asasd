@@ -5,7 +5,6 @@
     <externalId>false</externalId>
     <label>Centro de Distribuição</label>
     <referenceTo>DistributionCenter__c</referenceTo>
-    <relationshipLabel>Juros e Descontos Antecipação</relationshipLabel>
     <relationshipName>Juros_e_Descontos_Antecipa_o</relationshipName>
     <required>false</required>
     <trackFeedHistory>false</trackFeedHistory>
