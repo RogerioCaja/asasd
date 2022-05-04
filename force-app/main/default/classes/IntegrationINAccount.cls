@@ -106,12 +106,12 @@ global with sharing class IntegrationINAccount {
                
         System.debug(accountMap);
         //Upserting records (Account)
-        IntegrationUtils.upsertRecords(
-            Database.upsert(accountMap.values(), Account.ExternalId__c, false), 
-            responseList, 
-            accountMap.values(), 
-            Account.ExternalId__c
-        );
+        //IntegrationUtils.upsertRecords(
+        //    Database.upsert(accountMap.values(), Account.ExternalId__c, false), 
+        //    responseList, 
+        //    accountMap.values(), 
+        //    Account.ExternalId__c
+        //);
 
         //sales Team Lookup
         if(accountIdList != null){

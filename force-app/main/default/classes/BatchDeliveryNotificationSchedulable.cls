@@ -3,7 +3,7 @@ global class BatchDeliveryNotificationSchedulable implements Schedulable{
         try {
             CalloutBP.processIntegration();
             //String sch = '0 0 * * * ?';
-            //system.schedule('Delivery Notification Schedule Job', sch, new BatchDeliveryNotificationSchedulable());
+            //system.schedule('Integration BP', sch, new BatchDeliveryNotificationSchedulable());
         } catch(Exception e){
             system.debug('Error: ' + e);
         }

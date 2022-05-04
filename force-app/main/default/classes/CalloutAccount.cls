@@ -1,8 +1,6 @@
 public with sharing class CalloutAccount {
-    public CalloutOrder() {
-        
-    }
 
+    /*
     public static IntegrationUtils.CalloutResponse processIntegration(Id accId){
 
         Account parentOrder = [SELECT Id,  OrderReason__c , SalesCTV__r.CodigoSap__c, 
@@ -287,5 +285,6 @@ public with sharing class CalloutAccount {
         public String StatusSap;
         public String NumeroOrdemVenda;
     }
+    */
 }
 
