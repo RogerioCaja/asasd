@@ -309,7 +309,7 @@ public without sharing class OrderScreenController {
                     counter++;
                 }
 
-                if (salesTeamTerritory == null) {
+                if (salesTeamTerritory == null && territoryAndParents.get(userTerritoryId) != null && territoryAndParents.get(territoryAndParents.get(userTerritoryId).ParentTerritory2Id) != null) {
                     salesTeamTerritory = territoryAndParents.get(territoryAndParents.get(userTerritoryId).ParentTerritory2Id);
                 }
 
@@ -340,7 +340,7 @@ public without sharing class OrderScreenController {
 
             Id companyId;
             Id salesOrgId;
-            if (salesTeamTerritory.DeveloperName != null) {
+            if (salesTeamTerritory != null && salesTeamTerritory.DeveloperName != null) {
                 String salesTeamDevName = salesTeamTerritory.DeveloperName.substring(1, salesTeamTerritory.DeveloperName.length());
                 for (Company__c salesTeamCompany : [
                     SELECT Id,
@@ -508,6 +508,7 @@ public without sharing class OrderScreenController {
                     }
 
                     List<ShippingDivison__c> listShippingDivision = new List<ShippingDivison__c>();
+                    Map<Id, Decimal> quantityDistributedByItem = new Map<Id, Decimal>();
                     for (DivisionDeserialize division : orderData.divisionData) {
                         ShippingDivison__c shippingDivision;
                         if (!newOrder && !cloneOrder && divisionsById.containsKey(division.divisionId)) {
@@ -523,6 +524,24 @@ public without sharing class OrderScreenController {
                         shippingDivision.OrderItem__c = !cloneOrder && !newDivision && division.orderItemId != null ?
                                                         division.orderItemId : mapOrderItems.get(division.orderItemKey);
                         listShippingDivision.add(shippingDivision);
+
+                        if (quantityDistributedByItem.containsKey(shippingDivision.OrderItem__c)) {
+                            Decimal quantityDistributed = quantityDistributedByItem.get(shippingDivision.OrderItem__c) + shippingDivision.Quantity__c;
+                            quantityDistributedByItem.put(shippingDivision.OrderItem__c, quantityDistributed);
+                        } else {
+                            quantityDistributedByItem.put(shippingDivision.OrderItem__c, shippingDivision.Quantity__c);
+                        }
+                    }
+
+                    for (OrderItem item : listOrderItems) {
+                        Decimal quantityUsed = quantityDistributedByItem.get(item.Id);
+                        if (item.Quantity > quantityUsed) {
+                            ShippingDivison__c shippingDivision = new ShippingDivison__c();
+                            shippingDivision.DeliveryDate__c = order.ShippingDate__c;
+                            shippingDivision.Quantity__c = item.Quantity - quantityUsed;
+                            shippingDivision.OrderItem__c = item.Id;
+                            listShippingDivision.add(shippingDivision);
+                        }
                     }
 
                     String divisionErrors = '';
@@ -588,7 +607,8 @@ public without sharing class OrderScreenController {
 
         result.correctPayment = Date.valueOf(orderValues.paymentDate) == pricebookPaymentDate ? true : false;
         result.isDiscount = Date.valueOf(orderValues.paymentDate) > pricebookPaymentDate ? false : true;
-        String discountOrAddition = result.isDiscount ? 'Desconto' : 'Juros';
+        Id discountOrAdditionRecType = result.isDiscount ? Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get('ZDAN').getRecordTypeId()
+                                                         : Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get('ZJUR').getRecordTypeId();
         
         String companyGroup = '';
         for (Company__c accountCompany : [
@@ -659,7 +679,7 @@ public without sharing class OrderScreenController {
                    SalesTeam__c,
                    harvest__c
               FROM JurosDescontoAntecipao__c
-             WHERE ConditionType__c =: discountOrAddition
+             WHERE RecordTypeId =: discountOrAdditionRecType
                AND StartDate__c <=: System.today()
                AND EndDate__c >=: System.today()
                AND SalesOrg__c =: result.salesOrg
