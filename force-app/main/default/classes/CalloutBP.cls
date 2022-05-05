@@ -1,6 +1,6 @@
 public with sharing class CalloutBP {
-    
-    public static IntegrationUtils.CalloutBpResponse processIntegration(){
+    @future(callout = true)
+    public static void processIntegration(){
 
         IntegrationUtils.CalloutBpResponse calloutBpResponse = sendOrder();
         
@@ -9,14 +9,10 @@ public with sharing class CalloutBP {
         List<CompanyINData> companyList = new List<CompanyINData>();
         if (calloutBpResponse.success) {
             ResponseParameters resp = (ResponseParameters) calloutBpResponse.parsedResponse;
-            
+            System.debug('resp: '+ resp);
             Map<String, Id> lookups = new Map<String, Id>();
             List<String> accountIdsList = new List<String>();
-            List<AccountINData> accountInDataList = new List<AccountINData>();
             for(ResponseParametersWrapper valor : resp.responses){
-                accountInDataList.addALL(valor.AccountINData);
-            }
-            for(AccountINData valor : accountInDataList){
                 
                 accountIdsList.add(valor.CodigoExterno);
             }
@@ -26,12 +22,12 @@ public with sharing class CalloutBP {
                 lookups.put('Account' + acc.ExternalId__c, acc.Id);
             }
 
-            for(AccountINData valor : accountInDataList){
-                for(LimiteCreditoINData cred : valor.creditoEntries){
+            for(ResponseParametersWrapper valor : resp.responses){
+                for(LimiteCreditoINData cred : valor.Credito){
                     cred.CodigoExternoAccount = valor.CodigoExterno;
                     creditoList.add(cred);
                 }
-                for(CompanyINData company : valor.companyEntries){
+                for(CompanyINData company : valor.EstruturaOrganizacional){
                     company.CodigoExternoAccount = valor.CodigoExterno;
                     companyList.add(company);
                 }
@@ -72,7 +68,6 @@ public with sharing class CalloutBP {
             System.debug('integração foi um sucesso');
         }
         
-        return calloutBpResponse;
     }
     public static Map<String, Id> creatyNewLookup(List<CompanyINData> companyList, List<LimiteCreditoINData> creditoList, Map<String, Id> lookups){
         Set<String> accountIdList = new Set<String>();
@@ -145,6 +140,13 @@ public with sharing class CalloutBP {
         
         List<Company__c> companyListToUpsert = new List<Company__c>();
         for(CompanyINData valor : companyList){
+            Boolean blocked = false;
+            if(valor.Bloqueado == null){
+                blocked = false;
+            }
+            if(valor.Bloqueado == 'true'){
+                blocked = true;
+            }
             Company__c company = new Company__c(
             Conta__c = lookups.containsKey('Account__c'+valor.CodigoExternoAccount) ? lookups.get('Account__c'+valor.CodigoExternoAccount) : null,
             SalesOrg__c = lookups.containsKey('SalesOrg__c'+valor.OrganizacaoVendas) ? lookups.get('SalesOrg__c'+valor.OrganizacaoVendas) : null,
@@ -154,7 +156,7 @@ public with sharing class CalloutBP {
             SalesOffice__c = lookups.containsKey('SalesOffice__c'+valor.EscritorioVendas) ? lookups.get('SalesOffice__c'+valor.EscritorioVendas) : null,
             SalesTeam__c = lookups.containsKey('SalesTeam__c'+valor.EquipeVendas) ? lookups.get('SalesTeam__c'+valor.EquipeVendas) : null,
             ClientGroup__c = valor.GrupoClientes,
-            Blocked__c = valor.Bloqueado,
+            Blocked__c = blocked,
             Status__c = valor.Status,
             SalesSector__c = valor.SetorVendas,
             ExternalId__c = valor.CodigoExternoAccount + valor.OrganizacaoVendas + valor.SetorAtividade + valor.CanalDistribuicao + valor.EscritorioVendas + valor.EquipeVendas
@@ -170,13 +172,21 @@ public with sharing class CalloutBP {
 
         List<LimiteCredito__c> creditListToUpsert = new List<LimiteCredito__c>();
         for(LimiteCreditoINData valor : creditoList){
+            Boolean blocked = false;
+            if(valor.Bloqueado == null){
+                blocked = false;
+            }
+            if(valor.Bloqueado == 'true'){
+                blocked = true;
+            }
+            
             LimiteCredito__c credit = new LimiteCredito__c(
             Account__c = lookups.containsKey('Account__c'+valor.CodigoExternoAccount) ? lookups.get('Account__c'+valor.CodigoExternoAccount) : null,
             OrganizacaoVendas__c = lookups.containsKey('SalesOrg__c'+valor.OrganizacaoVendas) ? lookups.get('SalesOrg__c'+valor.OrganizacaoVendas) : null,
             Culture__c = lookups.containsKey('Culture__c'+valor.Cultura) ? lookups.get('Culture__c'+valor.Cultura) : null,
             Guarantee__c = valor.Garantia,
             LimitValue__c = valor.Valor,
-            BlockedCredit__c = valor.Bloqueado,
+            BlockedCredit__c = blocked,
             LimitBalance__c = valor.Saldo,
             ConcessionDate__c = valor.DataConcessao,
             EndDate__c = valor.DataVencimento,
@@ -210,12 +220,12 @@ public with sharing class CalloutBP {
         String accessToken = code;//! FALTA SABER A RESPOSTA DO SAP QUANTO A AUTENTICAÇÃO! F
         //Url mock: https://aabb2740-69b0-4737-925c-2c40367a3737.mock.pstmn.io//CalloutBP
         //Path geralmente cadastrado dentro de ua customSettings 
-        String endpoint = (!Test.isRunningTest() ? 'https://apim.agrogalaxy.com.br/gtw/sf-bp-out/v1' : 'http://callout.My_Named_Credential.com/some/path');
+        String endpoint = (!Test.isRunningTest() ? 'https://apim.agrogalaxy.com.br/gtw/sf-bp-out/v1/sf-bp-out' : 'http://callout.My_Named_Credential.com/some/path');
         Map<String, String> headersMap = new Map<String, String>();
         headersMap.put('Content-type', 'application/json');
         headersMap.put('Authorization', 'Bearer '+ accessToken);
         
-        IntegrationUtils.RequestResponseObject responseObject = IntegrationUtils.executeCallout(endpoint, payload, headersMap);
+        IntegrationUtils.RequestResponseObject responseObject = IntegrationUtils.executeCalloutGet(endpoint, payload, headersMap);
 
         if (responseObject.success) {
 
@@ -227,6 +237,7 @@ public with sharing class CalloutBP {
             try {
                 
                 List<ResponseParametersWrapper> responses = (List<ResponseParametersWrapper>) JSON.deserialize(response.getBody(), List<ResponseParametersWrapper>.class);
+                System.debug('responses2: '+ responses);
                 return new IntegrationUtils.CalloutBpResponse(new ResponseParameters(responses));
             } catch (Exception e) {
                 
@@ -273,14 +284,34 @@ public with sharing class CalloutBP {
         public List<ResponseParametersWrapper> responses;
 
         public ResponseParameters(List<ResponseParametersWrapper> responses) {
+            System.debug('responses: '+ responses);
             this.responses = responses;
         }
     }
     public class ResponseParametersWrapper {
-        public Boolean succeeded;
-        public String errorMessage;
-        public List<AccountINData> AccountINData;
+        public String CodigoExterno;
+        public String RuaEntrega;
+        public String CidadeEntrega;
+        public String EstadoEntrega;
+        public String PaisEntrega;
+        public String CEPEntrega;
+        public String RuaCobranca;
+        public String CidadeCobranca;
+        public String EstadoCobranca;
+        public String PaisCobranca;
+        public String CEPCobranca;
+        public String ContaPai;
+        public String CNPJ;
+        public String CPF;
+        public String InscricaoMunicipal;
+        public String InscricaoEstadual;
+        public String Email;
+        public String Telefone;
+        public String Status;
+        public List<LimiteCreditoINData> Credito;
+        public List<CompanyINData> EstruturaOrganizacional;
     }
+    /*
     public class AccountINData {
         public String CodigoExterno;
         public String RuaEntrega;
@@ -301,9 +332,9 @@ public with sharing class CalloutBP {
         public String Email;
         public String Telefone;
         public String Status;
-        public List<LimiteCreditoINData> creditoEntries;
-        public List<CompanyINData> companyEntries;
-    }
+        public List<LimiteCreditoINData> Credito;
+        public List<CompanyINData> EstruturaOrganizacional;
+    }*/
 
     public class ResponseParametersToken {
         public String access_token; 
@@ -315,7 +346,7 @@ public with sharing class CalloutBP {
         public String CodigoExternoAccount;
         public String OrganizacaoVendas;
         public Decimal Valor;
-        public Boolean Bloqueado;
+        public String Bloqueado;
         public String Cultura;
         public String Garantia;
         public Decimal Saldo;
@@ -334,7 +365,7 @@ public with sharing class CalloutBP {
     public String EscritorioVendas;
     public String EquipeVendas;
     public String GrupoClientes;
-    public Boolean Bloqueado;
+    public String Bloqueado;
     public String Status;
     public String SetorVendas;
     }
