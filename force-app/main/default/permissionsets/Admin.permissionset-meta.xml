@@ -1595,7 +1595,7 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>User.CodigoSap__c</field>
         <readable>true</readable>
     </fieldPermissions>
