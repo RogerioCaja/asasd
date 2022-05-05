@@ -47,6 +47,10 @@
                 <behavior>Edit</behavior>
                 <field>DistributionCenter__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Readonly</behavior>
+                <field>DescriptionExternalId__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>
