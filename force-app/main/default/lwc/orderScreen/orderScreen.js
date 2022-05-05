@@ -272,7 +272,7 @@ export default class OrderScreen extends LightningElement {
             }
         })
     }*/
-    async saveOrder(){
+    async saveOrder(event){
         await this.recordId;
         const data = {accountData: this.accountData, headerData: this.headerData, productData: this.productData, divisionData: this.divisionData, summaryData: this.summaryData};
         console.log(JSON.stringify(data));
@@ -286,9 +286,18 @@ export default class OrderScreen extends LightningElement {
         .then((result) => {
             console.log(JSON.stringify(result));
             result = JSON.parse(result);
+
             if(!result.hasError){
+
                 this.showNotification(result.message, 'Sucesso', 'success');
-                calloutOrder({orderId: result.orderId});
+                if( event.detail == "gerarpedido" ){
+
+                    calloutOrder({orderId: result.orderId}).then((resultCallout)=>{
+                        resultCallout = JSON.parse(resultCallout);
+                        this.showNotification('Observe o Log de Integrações', resultCallout.message, 'info');
+                    });
+                }
+               
             }
             else
                 this.showNotification(result.message, 'Algo de errado aconteceu','erro');
