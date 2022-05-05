@@ -24,6 +24,7 @@ global with sharing class IntegrationINOrderAppdigital {
         // Guarda uma lista de orderItem para fazer o upsert
         List<TemplateDataIntegrationFields.OrderItemINData> orderItemListToUpsert = new List<TemplateDataIntegrationFields.OrderItemINData>();
         // Guarda uma lista de pedidos para fazer o upsert
+        List<TemplateDataINtegrationFields.ShippingDivisonINData> shippingDivisonListToUpsert = new List<TemplateDataIntegrationFields.ShippingDivisonINData>();
         List<Order> orderListToUpsert = new List<Order>();
 
         //Application of business rules
@@ -47,9 +48,17 @@ global with sharing class IntegrationINOrderAppdigital {
                 // Adiciona os orderItem na lista para upsert
                 //Getting list of order items
                 orderItemListToUpsert.addAll(order.orderItems);
-                System.debug('orderItemListToUpsert' + orderItemListToUpsert);
+                System.debug('orderItemListToUpsert' + orderItemListToUpsert); 
             }
-        }
+            for(TemplateDataIntegrationFields.ShippingDivisonINData shippingDivision : order.shippingDivison){
+                shippingDivision.orderExternalId = order.CodigoSap;
+            }
+            shippingDivisonListToUpsert.addAll(order.shippingDivison);
+            System.debug('shippingDivisonListToUpsert' + shippingDivisonListToUpsert);
+            
+            }
+
+            
         // Pega o Id da conta com base no CNPJ da conta
         //Account search based on CNPJ field sent
         for (Account account : [SELECT Id, CNPJ__c FROM Account WHERE CNPJ__c IN : accountLookups]) {
@@ -79,7 +88,9 @@ global with sharing class IntegrationINOrderAppdigital {
         for (CondicaoPagamento__c paymentCondition : [SELECT Id, Name from CondicaoPagamento__c WHERE Name IN: paymentConditionLookups]){
             lookups.put('CondicaoPagamento__c' + paymentCondition.Code__c, paymentCondition.Id);
         }
-        
+        for (Pricebook2 pricebook2Id : [SELECT Id, ExternalId__c FROM Pricebook2 WHERE ExternalId__c IN : pricebookLookups ]){
+            lookups.put('Pricebook2Id' + pricebook2Id.ExternalId__c, pricebook2Id.Id);
+        }
         //Converting template to object list and validating required fields
         // Valida e adiciona objeto na lista para upsert
         FactoryDataIntegration.convertSObject(new Order(), 'IN', request, responseList, orderListToUpsert, lookups);
@@ -101,15 +112,34 @@ global with sharing class IntegrationINOrderAppdigital {
             );
         }
 
+        Map<String, List<TemplateDataIntegrationFields.Response>> shippingDivisonResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
+        if(shippingDivisonListToUpsert.size() != 0){
+            shippingDivisonResponse.putAll(
+                IntegrationINShippingDivisonAppdigital.upsertShippingDivison(shippingDivisonListToUpsert)
+            );
+        }
+
         //Associating child object's response with object response
         // Pega todas as respostas dos OrderItem
         for(TemplateDataIntegrationFields.ResponseParent response : responseList){
             response.items = new List<TemplateDataIntegrationFields.Response>();
+
+            
+            System.debug('shippingDivisonResponse=>'+shippingDivisonResponse);
+            System.debug('orderItemResponse=>'+orderItemsResponse);
+            System.debug('responseList=>'+responseList);
+            
             if(orderItemsResponse.size() != 0 && orderItemsResponse.containsKey(response.idSalesforce)){
                 response.items.addAll(orderItemsResponse.get(response.idSalesforce));
+                for(TemplatedataIntegrationFields.Response orderItem : orderItemsResponse.get(response.idSalesforce)){
+                    response.items.addAll(shippingDivisonResponse.get(orderItem.idSalesforce)); 
+                }
             } 
             else if(orderItemsResponse.size() != 0 && orderItemsResponse.containsKey(response.externalCode)){
                 response.items.addAll(orderItemsResponse.get(response.externalCode));
+                for(TemplatedataIntegrationFields.Response orderItem : orderItemsResponse.get(response.externalCode)){
+                    response.items.addAll(shippingDivisonResponse.get(orderItem.externalCode)); 
+                }
             }
         }
 

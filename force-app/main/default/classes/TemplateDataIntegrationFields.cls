@@ -266,7 +266,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String CodigoSap;
         public String Type;
         public String ShippingAccount;
-        //public String PaymentAccount;
+        public String PaymentAccount;
         public Date PaymentDate;
         public String CustomerOrderNumber;
         public Date EffectiveDate;
@@ -285,6 +285,7 @@ global with sharing class TemplateDataIntegrationFields {
         public Date ShippingDate;
         public String DescriptionBillingSale;
         public String OrderReference;
+        public String clienteCode;
         public List<TemplateDataIntegrationFields.OrderItemINData> orderItems;
         public List<TemplateDataIntegrationFields.ShippingDivisonINData> shippingDivison;
         public Order serialize(Map<String, Id> lookups){
@@ -445,6 +446,108 @@ global with sharing class TemplateDataIntegrationFields {
             return 'OrderId';
         }
     }
+
+    global class NotaFiscalINData implements FieldData{
+        //JSON fields Example
+       
+        public String numeroNotaFiscal;
+        public String serie;
+        public String localNegocios;
+        public String codigoStatus;
+        public String chaveAcesso;
+        public Date dataCriacao;
+        public String horaCriacao;
+        public String codigoEmpresa;
+        public String cliente;
+        public String propriedade;
+        public String cpfCnpjCliente;
+        public String cpfCnpjVendedor;
+        public Decimal valorTotalNf;
+        public String naturezaOperacao;
+        public List<TemplateDataIntegrationFields.ItensNotaFiscalINData> itensNotaFiscal; 
+        public NotaFiscal__c serialize(Map<String, Id> lookups){
+
+            //Returning Object with Fields.
+            return new NotaFiscal__c(
+               
+                //ExternalId__c = this.codExternal,
+                invoiceNumber__c = this.numeroNotaFiscal,
+                Serie__c = this.serie,
+                BranchOffice__c = this.localNegocios,
+                InvoiceStatus__c = this.codigoStatus,
+                AccessKey__c = this.chaveAcesso,
+                Invoice_CreationDate__c = this.dataCriacao,
+                Company__c = this.codigoEmpresa,
+                AccountCode__c = this.cliente,
+                CNPJCode__c = this.cpfCnpjVendedor,
+                Invoice_TotalAmount__c = this.valorTotalNf,
+                CFOP__c = this.naturezaOperacao
+               
+            );
+        }
+        
+        //Required fields for integration
+        public List<String> getRequiredFields(){
+            return new List<String>{
+                'ExternalId__c'
+       
+            };
+        }
+
+        //ExternalId field
+        public String getFieldKey(){
+            return 'ExternalId__c';
+        }
+        
+        //Id field
+        public String getFieldId() {
+            return 'Id';
+        }
+    }
+
+    global class ItensNotaFiscalINData implements FieldDataChild{
+        
+        //JSON fields Example
+        public String nfExternalId;
+        public String codigoMaterial;
+        public Decimal quantidade;
+        public Decimal valorTotalItem;
+        public String lote;
+        public Decimal unidadeMedida;
+        public String naturezaOperacao;
+
+        public ItensNotaFiscal__c serialize(Map<String, Id> lookups){
+
+            //Returning Object with Fields.
+            return new ItensNotaFiscal__c(
+                Productcode__c = this.codigoMaterial,
+                Theamount__c = this.quantidade,
+                Amount__c = this.valorTotalItem,
+                Batch__c = this.lote
+            );
+        }
+        
+        //Required fields for integration
+        public List<String> getRequiredFields(){
+            return new List<String>{
+                //'Product2Id'
+            };
+        }
+
+        //ExternalId field
+        public String getFieldKey(){
+            return 'Id';
+        }
+
+        public String getFieldExternal(){
+            return 'Code__c';
+        }
+        
+        public String getParentKey(){
+            return 'Pricebook2Id';
+        }
+    }
+
     global class GenericINData extends ConditionsPrices{
         public String  name;
         public String  description;
