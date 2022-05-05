@@ -1,5 +1,5 @@
-global with sharing class IntegrationINShippingDivisonAppdigital {
-    public IntegrationINShippingDivisonAppdigital() {
+global with sharing class IntegrationINShippingDivison {
+    public IntegrationINShippingDivison() {
 
     }
     global static Map<String, List<TemplateDataIntegrationFields.Response>> upsertShippingDivison(List<TemplateDataIntegrationFields.ShippingDivisonINData> request) {
@@ -14,12 +14,12 @@ global with sharing class IntegrationINShippingDivisonAppdigital {
         List<ShippingDivison__c> ShippingDivisonListToUpsert = new List<ShippingDivison__c>();
 
         //Application of business rules
-        for(TemplateDataIntegrationFields.ShippingDivisonINData ShippingDivisonINData : request){
+        for(TemplateDataIntegrationFields.ShippingDivisonINData ShippingDivisonData : request){
 
             // Pega a relação do OrderItem com Order
             //Getting order parameters to search
-            orderLookups.add(ShippingDivisonINData.NumeroDivisaoRemessa);
-            orderItemLookups.add(ShippingDivisonINData.orderExternalId+'|'+ ShippingDivisonINData.OrderItemCode);
+            orderLookups.add(ShippingDivisonData.orderExternalId);
+            orderItemLookups.add(ShippingDivisonData.orderExternalId+'|'+ ShippingDivisonData.OrderItemCode);
 
             // Pega a relação do Product com o OrderItem
             //Getting product parameters to search
@@ -32,11 +32,11 @@ global with sharing class IntegrationINShippingDivisonAppdigital {
             //Map structure for the model -> object name + parameter to record id
             lookups.put('Order' + order.CodigoSap__c, order.Id);
         }
+
         for (OrderItem OrderItem : [SELECT Id, ExternalId__c, Product2.ProductCode FROM OrderItem WHERE ExternalId__c IN : orderItemLookups]) {
             //Map structure for the model -> object name + parameter to record id
             lookups.put('OrderItem__c' + orderItem.Product2.ProductCode, orderItem.Id);
         }
-       
         
         // Associa as respostas do OrderItem com Order
         //OrderItem ExternalId Map to Order ExternalId for association of responses

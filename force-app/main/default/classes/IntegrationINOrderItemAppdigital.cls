@@ -67,7 +67,9 @@ global with sharing class IntegrationINOrderItemAppdigital {
         List<Database.UpsertResult> upsResults = Database.upsert(orderItemListToUpsert, OrderItem.ExternalId__c, false);
 
         IntegrationUtils.upsertChildRecords(upsResults, responseMap, orderItemListToUpsert, OrderItem.ExternalId__c); 
-        
+        System.debug('upsResults' + upsResults);
+        System.debug('orderItemListToUpsert' + orderItemListToUpsert);
+        System.debug(' OrderItem.ExternalId__c' +  OrderItem.ExternalId__c);
         //Returning response
         return responseMap;
     }
