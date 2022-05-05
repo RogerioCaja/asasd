@@ -82,6 +82,10 @@
                 <behavior>Edit</behavior>
                 <field>UnitPrice__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Readonly</behavior>
+                <field>DescriptionExternalId__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>

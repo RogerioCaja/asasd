@@ -153,24 +153,24 @@ public with sharing class CalloutOrderTest {
         
     } 
 
-    // @isTest 
-    // static void calloutOrderFail(){
-    //     Order ord = [SELECT Id, OrderNumber, StatusSF__c FROM Order LIMIT 1][0];
-    //     Test.setMock(HttpCalloutMock.class,new CalloutOrderMock(false, String.valueOf(ord.OrderNumber)));
-    //     Test.startTest();
-    //     IntegrationUtils.CalloutResponse response = CalloutOrder.processIntegration(ord.Id);
-    //     Test.stopTest();
-    //     System.debug(response);
-    //     System.assertEquals(false, response.success, 'O status era para vir falso');
-    // }
+    @isTest 
+    static void calloutOrderFail(){
+        Order ord = [SELECT Id, OrderNumber, StatusSF__c FROM Order LIMIT 1][0];
+        Test.setMock(HttpCalloutMock.class,new CalloutOrderMock(false, String.valueOf(ord.OrderNumber)));
+        Test.startTest();
+        IntegrationUtils.CalloutResponse response = CalloutOrder.processIntegration(ord.Id);
+        Test.stopTest();
+        System.debug(response);
+        System.assertEquals(false, response.success, 'O status era para vir falso');
+    }
 
-    // @isTest 
-    // static void calloutOrderException(){
-    //     Order ord = [SELECT Id, OrderNumber, StatusSF__c FROM Order LIMIT 1][0];
-    //     Test.setMock(HttpCalloutMock.class, new ExceptionCallouts());
-    //     Test.startTest();
-    //     IntegrationUtils.CalloutResponse response = CalloutOrder.processIntegration(ord.Id);
-    //     Test.stopTest();
-    //     System.assertEquals('Error', response.errorMessage, 'Deveria ter falhado');
-    // }
+    @isTest 
+    static void calloutOrderException(){
+        Order ord = [SELECT Id, OrderNumber, StatusSF__c FROM Order LIMIT 1][0];
+        Test.setMock(HttpCalloutMock.class, new ExceptionCallouts());
+        Test.startTest();
+        IntegrationUtils.CalloutResponse response = CalloutOrder.processIntegration(ord.Id);
+        Test.stopTest();
+        System.assertEquals('Error', response.errorMessage, 'Deveria ter falhado');
+    }
 }

@@ -11,7 +11,7 @@ public with sharing class CalloutOrder {
     public static IntegrationUtils.CalloutResponse processIntegration(Id orderId){
 
 		Order parentOrder = [SELECT Id, CodigoSap__c, ShippingAccount__r.ExternalId__c, Account.ExternalId__c, Type, SalesOrg__r.SalesOrganizationCode__c, DistributionChannel__c, 
-                            ActivitySector__c, Incoterms__c, Incoterms2__c, PaymentCondition__r.Code__c, OrderReason__c , SalesCTV__r.CodigoSap__c, 
+                            ActivitySector__c, Incoterms__c, Incoterms2__c, PaymentCondition__r.Code__c, OrderReason__c , SalesCTV__r.CodigoSap__c, PaymentDate__c,
                             OrderNumber, Crop__r.Code__c, Culture__r.Codigo__c, EndDate, TotalAmount, PaymentForm__c, OrderReference__c, CustomerOrderNumber__c,
                             Currency__c, RecordTypeId, (SELECT Id FROM OrderItems) 
                             FROM Order WHERE Id = :orderId];
@@ -31,12 +31,19 @@ public with sharing class CalloutOrder {
 
 			List<Order> orderList = new List<Order>();
 
-			for (ResponseParametersWrapper respWrapper : resp.responses) {
-                allOrders[0].CodigoSap__c = respWrapper.EV_SALES_DOC;
+			
+            for(Messages message : resp.responses.ET_RETURN.item){
+                if(message.TYPE != 'S'){
+                    calloutResponse.success = false;
+                    calloutResponse.errorMessage = message.MESSAGE;
+                }
+            }
+            if(calloutResponse.success){
+                allOrders[0].CodigoSap__c = resp.responses.EV_SALES_DOC;
+                orderList.add(allOrders[0]);
+            }
 				
-				orderList.add(allOrders[0]);
-				
-			}
+			
 
 			if (!orderList.isEmpty()) {
 				update orderList;
@@ -49,12 +56,12 @@ public with sharing class CalloutOrder {
     public static String getAccessToken(){
         
         String payload = 'grant_type=client_credentials';
-        String endpoint = 'callout:TokenSap';
+        String endpoint = 'callout:TokenSap/oauth/token';
         Map<String, String> headersMap = new Map<String, String>();
 
         IntegrationUtils.RequestResponseObject responseObject = IntegrationUtils.executeCallout(endpoint, payload, headersMap);
         AuthToken auth = (AuthToken)JSON.deserialize(responseObject.response.getBody(), AuthToken.class);
-        
+        System.debug(responseObject);
         return auth.access_token;
     }
 
@@ -64,13 +71,14 @@ public with sharing class CalloutOrder {
 
 	public static IntegrationUtils.CalloutResponse sendOrder(List<Order> orders) {
 			
-		List<RequestParameters> request = new List<RequestParameters>();
+		RequestParameters request = new RequestParameters(orders[0]);
 
-		for (Order ord : orders) {
-			request.add(new RequestParameters(ord));
-		}
+		// for (Order ord : orders) {
+		// 	request.add(new RequestParameters(ord));
+		// }
 
 		String payload = JSON.serialize(request);
+        System.debug(JSON.serializePretty(request));
 
 		//Metodo para busca de Access Token, depende de cada projeto, podendo estar presente dentro de uma custom settings ou relacionado com outra requisição.
 		String accessToken = !Test.isRunningTest() ? getAccessToken() : 'testeToken';
@@ -91,7 +99,7 @@ public with sharing class CalloutOrder {
 			// .WSLog('Pedido', 'OUTBOUND', response.getBody(), payload, false);
 			try {
 
-				List<ResponseParametersWrapper> responses = (List<ResponseParametersWrapper>) JSON.deserialize(response.getBody(), List<ResponseParametersWrapper>.class);
+				ResponseParametersWrapper responses = (ResponseParametersWrapper) JSON.deserialize(response.getBody(), ResponseParametersWrapper.class);
 				return new IntegrationUtils.CalloutResponse(new ResponseParameters(responses));
 			} catch (Exception e) {
 				
@@ -137,7 +145,7 @@ public with sharing class CalloutOrder {
                 
                 IV_TYPE = order.OrderReference__c != null ? 'G' : 'C';
                
-                header.DOC_TYPE = String.valueOf([SELECT DeveloperName FROM RecordType WHERE Id =: order.RecordTypeId][0]); // Não esquecer de mudar isso
+                header.DOC_TYPE = String.valueOf([SELECT DeveloperName FROM RecordType WHERE Name =: order.Type][0].DeveloperName); // Não esquecer de mudar isso
                 header.SALES_ORG = order.SalesOrg__r.SalesOrganizationCode__c;
                 header.DISTR_CHAN = order.DistributionChannel__c;
                 header.DIVISION = order.ActivitySector__c;
@@ -155,7 +163,7 @@ public with sharing class CalloutOrder {
                 header.ZZCOD_CULTURA = order.Culture__r.Codigo__c;
                 header.ZZPED_CRM = order.OrderNumber;
                 header.ZZDATA_CARENCIA = '';
-                header.ZZDATA_VENCTO = String.valueOf(order.EndDate).replace('-', '');
+                header.ZZDATA_VENCTO = String.valueOf(order.PaymentDate__c).replace('-', '');
                 this.IS_HEADER_IN = header;
             }
             // else {
@@ -290,15 +298,15 @@ public with sharing class CalloutOrder {
 
     //! Response part
     public class ResponseParameters {
-        public List<ResponseParametersWrapper> responses;
+        public ResponseParametersWrapper responses;
 
-        public ResponseParameters(List<ResponseParametersWrapper> responses) {
+        public ResponseParameters(ResponseParametersWrapper responses) {
             this.responses = responses;
         }
     }
 
     public class ResponseParametersWrapper {
-        public List<OrderDetails> ET_RETURN;
+        public OrderDetails ET_RETURN;
         public String EV_SALES_DOC;
     }
 
