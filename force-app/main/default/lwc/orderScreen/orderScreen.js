@@ -290,8 +290,9 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
             if(!result.hasError){
 
+                console.log(JSON.stringify(event));
                 this.showNotification(result.message, 'Sucesso', 'success');
-                if( event.detail == "gerarpedido" ){
+                if( event.data == "gerarpedido" ){
 
                     calloutOrder({orderId: result.orderId}).then((resultCallout)=>{
                         resultCallout = JSON.parse(resultCallout);
