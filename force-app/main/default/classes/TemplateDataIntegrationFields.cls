@@ -109,7 +109,44 @@ global with sharing class TemplateDataIntegrationFields {
         public Decimal PesoBruto;
         //public List<TemplateDataIntegrationFields.ProductINData> product2Entries;
 
-global class AccountINData implements FieldData{
+        public Product2 serialize(Map<String, Id> lookups){
+
+
+            //Returning Object with Fields
+            return new Product2(
+                Name = this.ProductName,
+                Description = this.TextoBreveMaterial,
+                UnidadeMedida__c = this.UnidadeMedida,
+                GrossWeightUnitOfMeasure__c = this.UnidadeMedidaRemessa,
+                SalesOrgStatus__c = this.Status,
+                ProductType__c = this.TipoMaterial,
+                ProductGroup__c = lookups.containsKey('ProductGroup__c'+this.GrupoMercadoria) ? lookups.get('ProductGroup__c'+this.GrupoMercadoria) : null,
+                ProductSubgroup__c = lookups.containsKey('ProductSubgroup__c'+this.SubgrupoMercadoria) ? lookups.get('ProductSubgroup__c'+this.SubgrupoMercadoria) : null,
+                MarcadoEliminacao__c = this.MarcadoEliminacao,
+                QuantityUnitOfMeasure = this.UnidadePeso,
+                ExternalId__c = this.CodigoControle,
+                ClasseAvaliacao__c = this.ClasseAvaliacao,
+                OrigemMaterial__c = this.OrigemMaterial,
+                Brand__c = this.Marca,
+                NCM__c = this.NCM,
+                GrupoQuimico__c = this.GrupoQuimico,
+                PrincipleActive__c = this.IngredienteAtivo, 
+                NumeroRegistro__c = this.NumeroRegistro,
+                GrossWeight__c = this.PesoBruto
+
+            );
+        }
+        //Required fields for integration
+        public List<String> getRequiredFields(){
+            return new List<String>{
+                //'ExternalId__c'
+            };
+        }
+
+        //ExternalId field
+        public String getFieldKey(){
+            return 'ExternalId__c';
+        }
         
         //Id field
         public String getFieldId() {
@@ -239,6 +276,24 @@ global class AccountINData implements FieldData{
             return new List<String>{
                // 'Product2Id'
     
+            };
+        }
+
+        //Key field
+        public String getFieldKey(){
+            return 'Id';
+        }
+
+        //ExternalId field
+        public String getFieldExternal(){
+            return 'ExternalId__c';
+        }
+        
+        //Parent ExternalId field
+        public String getParentKey(){
+            return 'OrderId';
+        }
+    }
 
     global class ShippingDivisonINData implements FieldDataChild{
         //JSON fields Example
