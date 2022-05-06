@@ -188,9 +188,9 @@ public with sharing class CalloutBP {
             LimitValue__c = valor.Valor,
             BlockedCredit__c = blocked,
             LimitBalance__c = valor.Saldo,
-            ConcessionDate__c = valor.DataConcessao != null ? Date.valueOf(valor.DataConcessao) : null,
-            EndDate__c = valor.DataVencimento != null ? Date.valueOf(valor.DataVencimento) : null,
-            MaintenanceDate__c = valor.DataManutencao != null ? Date.valueOf(valor.DataManutencao) : null,
+            ConcessionDate__c = valor.DataConcessao != '' ? Date.valueOf(valor.DataConcessao) : null,
+            EndDate__c = valor.DataVencimento != '' ? Date.valueOf(valor.DataVencimento) : null,
+            MaintenanceDate__c = valor.DataManutencao != '' ? Date.valueOf(valor.DataManutencao) : null,
             Safra__c = lookups.containsKey('Safra__c'+String.valueOf(valor.Safra)) ? lookups.get('Safra__c'+String.valueOf(valor.Safra)) : null,
             ExternalId__c = valor.CodigoExternoAccount + valor.Safra + valor.Cultura + valor.Garantia);
             creditListToUpsert.add(credit);
