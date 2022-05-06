@@ -17,7 +17,8 @@ global with sharing class IntegrationINOrderAppdigital {
         Set<String> salesCTVLookups = new Set<String>();
         Set<String> pricebookLookups = new Set<String>();
         Set<String> paymentConditionLookups = new Set<String>();
-
+        Set<String> shippingAccountLookups = new Set<String>();
+        Set<String> orderReferenceLookups = new Set<String>();
         //Set<String> pricebookLookups = new Set<String>();
         // Guarda uma lista de respostas
         List<TemplateDataIntegrationFields.ResponseParent> responseList = new List<TemplateDataIntegrationFields.ResponseParent>();
@@ -31,7 +32,7 @@ global with sharing class IntegrationINOrderAppdigital {
         for (TemplateDataIntegrationFields.OrderINData order : request){
             // Pega a relação da conta com o pedido
             //Getting account parameters to search
-            accountLookups.add(order.clienteCode);
+            accountLookups.add(order.PaymentAccount);
             salesOrgLookups.add(order.SalesOrg);
             cropLookups.add(order.Crop);
             cultureLookups.add(order.Culture);
@@ -39,7 +40,8 @@ global with sharing class IntegrationINOrderAppdigital {
             salesCTVLookups.add(order.SalesCTV);
             paymentConditionLookups.add(order.PaymentCondition);
             pricebookLookups.add(order.pricebook2Id);
-           
+            shippingAccountLookups.add(order.ShippingAccount);
+            orderReferenceLookups.add(order.orderReference);
             if(order.orderItems != null) {
                 // Adiciona todos os External Id e o catalogo de preço de order nos orderItem
                 //Putting the Order's ExternalId parameter in the OrderItem
@@ -62,10 +64,14 @@ global with sharing class IntegrationINOrderAppdigital {
             
         // Pega o Id da conta com base no CNPJ da conta
         //Account search based on CNPJ field sent
-        for (Account account : [SELECT Id, CNPJ__c FROM Account WHERE CNPJ__c IN : accountLookups]) {
+        for (Account account : [SELECT Id, ExternalId__c FROM Account WHERE ExternalId__c IN : accountLookups]) {
             //Map structure for the model -> object name + parameter to record id
             //Example
-            lookups.put('Account' + account.CNPJ__c, account.Id);
+            lookups.put('Account' + account.ExternalId__c, account.Id);
+        }
+
+        for (Account account : [SELECT Id, ExternalId__c FROM Account WHERE ExternalId__c IN : shippingAccountLookups]) {
+            lookups.put('Account' + account.ExternalId__c, account.Id);
         }
 
         for (Safra__c crop : [SELECT Id, Name, 	Code__c FROM Safra__c WHERE Code__c IN : cropLookups]){
@@ -82,15 +88,19 @@ global with sharing class IntegrationINOrderAppdigital {
             lookups.put('SalesOrg__c' + salesOrg.SalesOrganizationCode__c, salesOrg.Id);
         }
 
-        //for (SalesCTV__c salesCTV : [SELECT Id, Name, 	Code__c from SalesCTV__c]){
-        //    lookups.put('SalesCTV' + distributionCenter.Code__c, distributionCenter.Id);
-       // }
+        for (User salesCTV : [SELECT Id, CodigoSap__c FROM User WHERE CodigoSap__c IN: salesCTVLookups]){
+            lookups.put('User' + salesCTV.CodigoSap__c, salesCTV.Id);
+       }
 
         for (CondicaoPagamento__c paymentCondition : [SELECT Id, Name from CondicaoPagamento__c WHERE Name IN: paymentConditionLookups]){
             lookups.put('CondicaoPagamento__c' + paymentCondition.Code__c, paymentCondition.Id);
         }
         for (Pricebook2 pricebook2Id : [SELECT Id, ExternalId__c, Name FROM Pricebook2 WHERE Name IN : pricebookLookups ]){
             lookups.put('Pricebook2Id' + pricebook2Id.Name, pricebook2Id.Id);
+        }
+
+        for (Order orderReference: [SELECT Id, CodigoSap__c FROM Order WHERE CodigoSap__c IN : orderReferenceLookups]){
+            lookups.put('Order' + orderReference.CodigoSap__c, orderReference.Id);
         }
         //Converting template to object list and validating required fields
         // Valida e adiciona objeto na lista para upsert
