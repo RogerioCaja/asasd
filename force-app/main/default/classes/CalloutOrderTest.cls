@@ -65,12 +65,14 @@ public with sharing class CalloutOrderTest {
         INSERT so;
         INSERT distributionChannel;
         INSERT u;
+        Map <String,Schema.RecordTypeInfo> recordTypeMap = Order.sObjectType.getDescribe().getRecordTypeInfosByName();
 
         Order order = new Order(
             AccountId =  account.Id,
             Status = 'Draft',
             PriceBook2Id = Test.getStandardPricebookId(),
             Type =  'Venda Normal',
+            RecordTypeId = recordTypeMap.get('Venda Sucata').getRecordTypeId(),
             ShippingAccount__c =   account.Id,
             PaymentDate__c =  Date.today(),
             CustomerOrderNumber__c = '0001',
@@ -84,6 +86,7 @@ public with sharing class CalloutOrderTest {
             Currency__c =  'BRL',
             SalesCTV__c =  u.Id,
             StatusSF__c = 'Em digitação',
+            EndDate = Date.today(),
             Incoterms__c = 'CIF'
         );
 
@@ -92,8 +95,16 @@ public with sharing class CalloutOrderTest {
         Product2 prod = new Product2(
             Name = 'Laptop X200', 
             Family = 'Hardware',
-            ExternalId__c = '0001'
+            ExternalId__c = '0001',
+            ClasseAvaliacao__c = 'chucrute',
+            GrupoQuimico__c = 'Só o quimico',
+            MarcadoEliminacao__c = 'S',
+            NCM__c = 'S',
+            NumeroRegistro__c = '0001',
+            OrigemMaterial__c = 'Himalaia',
+            UnidadeMedida__c = 'KG'
         );
+
         INSERT prod;
 
         PricebookEntry standardPrice = new PricebookEntry(
