@@ -259,12 +259,11 @@ global with sharing class TemplateDataIntegrationFields {
             return 'Id';
         }
     }
-    global class IntegrationOrderINData implements FieldData{
+    global class OrderINData implements FieldData{
 
-        public String status;
-        public String pricebook2Id;
+        public String Status;
+        public String Pricebook2Id;
         public String CodigoSap;
-        public String codOrder;
         public String Type;
         public String ShippingAccount;
         public String PaymentAccount;
@@ -286,22 +285,22 @@ global with sharing class TemplateDataIntegrationFields {
         public Date ShippingDate;
         public String DescriptionBillingSale;
         public String OrderReference;
-        public String orderMother;
         public List<TemplateDataIntegrationFields.OrderItemINData> orderItems;
-        public List<TemplateDataIntegrationFields.ShippingDivisonData> shippingDivison;
+        public List<TemplateDataIntegrationFields.ShippingDivisonINData> shippingDivison;
         public Order serialize(Map<String, Id> lookups){
 
             return new Order(
 
                 CodigoSap__c = this.CodigoSap,
                 Pricebook2Id = lookups.containsKey('Pricebook2Id'+this.pricebook2Id) ? lookups.get('Pricebook2Id'+this.pricebook2Id) : null,
-                ShippingAccount__c = lookups.containsKey('ShippingAccount__c'+this.shippingAccount) ? lookups.get('ShippingAccount__c'+this.shippingAccount) : null,
-                AccountId = lookups.containsKey('AccountId'+this.paymentAccount) ? lookups.get('AccountId'+this.paymentAccount) : null,
+                ShippingAccount__c = lookups.containsKey('Account'+this.shippingAccount) ? lookups.get('Account'+this.shippingAccount) : null,
+                AccountId = lookups.containsKey('Account'+this.paymentAccount) ? lookups.get('Account'+this.paymentAccount) : null,
                 Crop__c = lookups.containsKey('Crop__c'+this.crop) ? lookups.get('Crop__c'+this.crop) : null,
                 Culture__c = lookups.containsKey('Culture__c'+this.culture) ? lookups.get('Culture__c'+this.culture) : null,
                 SalesOrg__c = lookups.containsKey('SalesOrg__c'+this.salesOrg) ? lookups.get('SalesOrg__c'+this.salesOrg) : null,
                 SalesCTV__c = lookups.containsKey('SalesCTV__c'+this.salesCTV) ? lookups.get('SalesCTV__c'+this.salesCTV) : null,
                 PaymentCondition__c = lookups.containsKey('PaymentCondition__c'+this.paymentCondition) ? lookups.get('PaymentCondition__c'+this.paymentCondition) : null,
+                OrderReference__c = lookups.containsKey('OrderReference__c'+this.orderReference) ? lookups.get('OrderReference__c'+this.orderReference) : null,
                 PaymentDate__c = Date.valueOf(paymentDate),
                 EffectiveDate = Date.valueOf(effectiveDate),
                 ShippingDate__c = Date.valueOf(ShippingDate),
@@ -315,14 +314,13 @@ global with sharing class TemplateDataIntegrationFields {
                 Incoterms__c = this.incoterms,
                 Incoterms2__c = this.incoterms,
                 Description = this.description,
-                DescriptionBillingSale__c = this.descriptionBillingSale,
-                OrderReference__c = this.OrderReference
+                DescriptionBillingSale__c = this.descriptionBillingSale
             );
         }
 
         public List<String> getRequiredFields(){
             return new List<String>{
-                'ExternalId__c',
+                'CodigoSap__c',
                 'Currency__c',
                 'PaymentCondition__c',
                 'PaymentDate__c',
@@ -332,7 +330,7 @@ global with sharing class TemplateDataIntegrationFields {
             };
         }
         public String getFieldKey(){
-            return 'ExternalId__c';
+            return 'CodigoSap__c';
         }
         public String getFieldId() {
             return 'Id';
@@ -344,6 +342,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String orderItemCode;
         public String orderExternalId;
         public String material;
+        public String productCode;
         public Decimal quantidade;
         //public String centro;
         public String unidadeMedida;
@@ -362,13 +361,13 @@ global with sharing class TemplateDataIntegrationFields {
         public OrderItem serialize(Map<String, Id> lookups){
 
             return new OrderItem(
-                ExternalId__c = this.orderExternalId + '|' + this.orderItemCode, //Perguntar para o  Helder
                 OrderId = lookups.containsKey('Order'+this.orderExternalId) ? lookups.get('Order'+this.orderExternalId) : null,
-                Product2Id = this.material,
+                Product2Id = lookups.containsKey('Product2'+this.material) ? lookups.get('Product2'+this.material) : null,
+                PricebookEntryId = lookups.containsKey('PricebookEntry'+ this.material) ? lookups.get('PricebookEntry' + this.material) : null,
+                ExternalId__c = this.orderExternalId + '|' + this.orderItemCode,
                 Quantity = this.quantidade,
-                //CentroDistribuicao__c = this.centro,
                 UnitMeasure__c = this.unidadeMedida,
-                ListPrice = this.listaPreco,
+                UnitPrice = this.listaPreco,
                 PercentComission__c = this.porcentagemComissao,
                 DiscountPercent__c = this.porcentagemDesconto,
                 ComissionValue__c = this.comissaoValor,
@@ -378,8 +377,8 @@ global with sharing class TemplateDataIntegrationFields {
                 FinancialDiscountPercent__c = this.porcentagemDescontoFin,
                 FinancialDiscountValue__c = this.valorDescontoFin,
                 FinancialAdditionPercent__c = this.porcentagemAcrescFin,
-                FinancialAdditionValue__c = this.valorAcrescFin, 
-                PricebookEntryId = lookups.containsKey('PricebookEntry'+ this.material) ? lookups.get('PricebookEntry' + this.material) : null 
+                FinancialAdditionValue__c = this.valorAcrescFin 
+                 
             );
         }
         public List<String> getRequiredFields(){
@@ -397,7 +396,7 @@ global with sharing class TemplateDataIntegrationFields {
 
         //ExternalId field
         public String getFieldExternal(){
-            return 'EXTERNALID__c';
+            return 'ExternalId__c';
         }
         
         //Parent ExternalId field
@@ -406,8 +405,9 @@ global with sharing class TemplateDataIntegrationFields {
         }
     }
 
-    global class ShippingDivisonData implements FieldDataChild{
+    global class ShippingDivisonINData implements FieldDataChild{
         //JSON fields Example
+        public String OrderItemCode;
         public String orderExternalId;
         public String DivisaoRemessa;
         public String NumeroDivisaoRemessa;
@@ -419,9 +419,9 @@ global with sharing class TemplateDataIntegrationFields {
         public ShippingDivison__c serialize(Map<String, Id> lookups){
 
             return new ShippingDivison__c(
-                //ExternalId__c = this.NumeroDivisaoRemessa + '---'+ this.orderNumber,
+                ExternalId__c = this.orderExternalId + '|'+ this.OrderItemCode,
                 //Name = this.DivisaoRemessa,
-                //OrderItem__c = this.NumeroDivisaoRemessa,
+                OrderItem__c = lookups.containsKey('OrderItem__c'+this.OrderItemCode) ? lookups.get('OrderItem__c'+this.OrderItemCode) : null,
                 DeliveryDate__c = this.DataDivisao,
                 Quantity__c = this.Quantidade,
                 ConfirmedQuantity__c = this.QuantidadeConfirmada
@@ -442,7 +442,7 @@ global with sharing class TemplateDataIntegrationFields {
 
         //ExternalId field
         public String getFieldExternal(){
-            return 'EXTERNALID__c';
+            return 'ExternalId__c';
         }
         
         //Parent ExternalId field
