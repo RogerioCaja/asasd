@@ -179,7 +179,7 @@ public without sharing class OrderScreenController {
             if (orderId != null && !cloneOrder) {
                 newOrder = false;
                 order = [SELECT Id, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c, Pricebook2Id, PaymentDate__c, ShippingDate__c, PaymentCondition__c, CustomerOrderNumber__c,
-                Crop__c, Culture__c, PaymentForm__c, StatusSF__c, SalesOrg__c, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c
+                Crop__c, Culture__c, PaymentForm__c, StatusSF__c, SalesOrg__c, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, EffectiveDate
                 FROM Order WHERE Id =: orderId LIMIT 1];
             } else {
                 order = new Order();
@@ -361,7 +361,7 @@ public without sharing class OrderScreenController {
             order.ShippingAccount__c = orderData.headerData.cliente_entrega.Id ;
             order.PaymentDate__c = Date.valueOf(orderData.headerData.data_pagamento) ;
             order.CustomerOrderNumber__c = orderData.headerData.numero_pedido_cliente ;
-            order.EffectiveDate = Date.today();
+            order.EffectiveDate = newOrder ? Date.today() : order.EffectiveDate;
             order.Crop__c = orderData.headerData.safra.Id ;
             order.Culture__c = orderData.headerData.cultura.Id ;
             order.PaymentForm__c = orderData.headerData.forma_pagamento ;
@@ -422,7 +422,7 @@ public without sharing class OrderScreenController {
                         orderItem.Product2Id = orderProduct.productId;
                         orderItem.ListPrice = orderProduct.listPrice;
                         orderItem.AmountUsed__c = order.IsOrderMother__c ? 0 : null;
-
+                        orderItem.ServiceDate = System.today();
                         itemCounter++;
                     }
                     
@@ -432,7 +432,7 @@ public without sharing class OrderScreenController {
                         motherItems.put(orderProduct.orderItemId, motherItem);
                     }
 
-                    orderItem.ServiceDate = System.today();
+                    
                     orderItem.Quantity = orderProduct.quantity;
                     orderItem.UnitPrice = orderProduct.unitPrice;
                     orderItem.Dosage__c = orderProduct.dosage;
