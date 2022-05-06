@@ -16,8 +16,9 @@ import saveOrder from '@salesforce/apex/OrderScreenController.saveOrder';
 import calloutOrder from '@salesforce/apex/OrderScreenController.callout';
 import getOrder from '@salesforce/apex/OrderScreenController.getOrder';
 import getAccount from '@salesforce/apex/OrderScreenController.getAccount';
+import { NavigationMixin } from 'lightning/navigation';
 
-export default class OrderScreen extends LightningElement {
+export default class OrderScreen extends NavigationMixin(LightningElement) {
     @api recordId;
     @api originScreen;
     @api recordTypeId;
@@ -297,6 +298,14 @@ export default class OrderScreen extends LightningElement {
                         this.showNotification('Observe o Log de Integrações', resultCallout.message, 'info');
                     });
                 }
+                this[NavigationMixin.Navigate]({
+                    type: 'standard__recordPage',
+                    attributes: {
+                        recordId: result.orderId,
+                        objectApiName: 'Order',
+                        actionName: 'view'
+                    }
+                });
                
             }
             else

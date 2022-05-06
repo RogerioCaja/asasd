@@ -11,7 +11,7 @@ global with sharing class IntegrationINShippingDivisonAppdigital {
         // Guarda um mapa com uma lista de respostas
         Map<String, List<TemplateDataIntegrationFields.Response>> responseMap = new Map<String, List<TemplateDataIntegrationFields.Response>>();
         // Guarda uma lista com os OrderItem para fazer o upsert
-        List<ShippingDivison__c> ShippingDivisonListToUpsert = new List<ShippingDivison__c>();
+        List<ShippingDivison__c> shippingDivisonListToUpsert = new List<ShippingDivison__c>();
 
         //Application of business rules
         for(TemplateDataIntegrationFields.ShippingDivisonINData ShippingDivisonINData : request){
@@ -52,15 +52,15 @@ global with sharing class IntegrationINShippingDivisonAppdigital {
             'IN', 
             request, 
             responseMap, 
-            ShippingDivisonListToUpsert, 
+            shippingDivisonListToUpsert, 
             lookups, 
             parentMapKeys
         );
 
         //Upserting records
-        List<Database.UpsertResult> upsResults = Database.upsert(ShippingDivisonListToUpsert, ShippingDivison__c.ExternalId__c, false);
+        List<Database.UpsertResult> upsResults = Database.upsert(shippingDivisonListToUpsert, ShippingDivison__c.ExternalId__c, false);
 
-        IntegrationUtils.upsertChildRecords(upsResults, responseMap, ShippingDivisonListToUpsert, ShippingDivison__c.ExternalId__c); 
+        IntegrationUtils.upsertChildRecords(upsResults, responseMap, shippingDivisonListToUpsert, ShippingDivison__c.ExternalId__c); 
         
         //Returning response
         return responseMap;
