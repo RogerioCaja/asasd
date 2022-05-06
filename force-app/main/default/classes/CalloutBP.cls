@@ -95,7 +95,7 @@ public with sharing class CalloutBP {
             salesTeamIdList.add(valor.EquipeVendas);
         }
         //Get Account
-        List<Account> accountListExternalId = new List<Account>([SELECT Id FROM Account WHERE ExternalId__c =: accountIdList]);
+        List<Account> accountListExternalId = new List<Account>([SELECT Id, ExternalId__c FROM Account WHERE ExternalId__c =: accountIdList]);
         for(Account acc : accountListExternalId){
             lookups.put('Account' + acc.ExternalId__c, acc.Id);
         }
