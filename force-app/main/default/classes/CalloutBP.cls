@@ -17,7 +17,7 @@ public with sharing class CalloutBP {
                 accountIdsList.add(valor.CodigoExterno);
             }
             System.debug('accountIdsList: '+ accountIdsList);
-            List<Account> accountListExternalId = new List<Account>([SELECT Id FROM Account WHERE ExternalId__c =: accountIdsList]);
+            List<Account> accountListExternalId = new List<Account>([SELECT Id, ExternalId__c FROM Account WHERE ExternalId__c =: accountIdsList]);
             for(Account acc : accountListExternalId){
                 lookups.put('Account' + acc.ExternalId__c, acc.Id);
             }
@@ -44,7 +44,7 @@ public with sharing class CalloutBP {
                 
                 ac.ShippingStreet = valor.RuaEntrega;
                 ac.ShippingCity = valor.CidadeEntrega;
-                ac.ShippingState = valor.EstadoEntrega;
+                ac.ShippingState = valor.Estado;
                 ac.ShippingCountry = valor.PaisEntrega;
                 ac.ShippingPostalCode = valor.CEPEntrega;
                 ac.BillingStreet = valor.RuaCobranca;
@@ -188,9 +188,9 @@ public with sharing class CalloutBP {
             LimitValue__c = valor.Valor,
             BlockedCredit__c = blocked,
             LimitBalance__c = valor.Saldo,
-            ConcessionDate__c = valor.DataConcessao,
-            EndDate__c = valor.DataVencimento,
-            MaintenanceDate__c = valor.DataManutencao,
+            ConcessionDate__c = Date.valueOf(valor.DataConcessao),
+            EndDate__c = Date.valueOf(valor.DataVencimento),
+            MaintenanceDate__c = Date.valueOf(valor.DataManutencao),
             Safra__c = lookups.containsKey('Safra__c'+String.valueOf(valor.Safra)) ? lookups.get('Safra__c'+String.valueOf(valor.Safra)) : null,
             ExternalId__c = valor.CodigoExternoAccount + valor.Safra + valor.Cultura + valor.Garantia);
             creditListToUpsert.add(credit);
@@ -292,7 +292,7 @@ public with sharing class CalloutBP {
         public String CodigoExterno;
         public String RuaEntrega;
         public String CidadeEntrega;
-        public String EstadoEntrega;
+        public String Estado;
         public String PaisEntrega;
         public String CEPEntrega;
         public String RuaCobranca;
@@ -316,7 +316,7 @@ public with sharing class CalloutBP {
         public String CodigoExterno;
         public String RuaEntrega;
         public String CidadeEntrega;
-        public String EstadoEntrega;
+        public String Estado;
         public String PaisEntrega;
         public String CEPEntrega;
         public String RuaCobranca;
@@ -350,9 +350,9 @@ public with sharing class CalloutBP {
         public String Cultura;
         public String Garantia;
         public Decimal Saldo;
-        public Date DataConcessao;
-        public Date DataVencimento;
-        public Date DataManutencao;
+        public String DataConcessao;
+        public String DataVencimento;
+        public String DataManutencao;
         public Decimal Safra;
     }
 
