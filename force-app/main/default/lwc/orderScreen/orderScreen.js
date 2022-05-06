@@ -274,6 +274,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         })
     }*/
     async saveOrder(event){
+        const mode = event.detail;
         await this.recordId;
         const data = {accountData: this.accountData, headerData: this.headerData, productData: this.productData, divisionData: this.divisionData, summaryData: this.summaryData};
         console.log(JSON.stringify(data));
@@ -289,11 +290,9 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             result = JSON.parse(result);
 
             if(!result.hasError){
-
-                console.log(JSON.stringify(event));
+                console.log(JSON.stringify(mode));
                 this.showNotification(result.message, 'Sucesso', 'success');
-                if( event.data == "gerarpedido" ){
-
+                if( mode == "gerarpedido" ){
                     calloutOrder({orderId: result.orderId}).then((resultCallout)=>{
                         resultCallout = JSON.parse(resultCallout);
                         this.showNotification('Observe o Log de Integrações', resultCallout.message, 'info');
