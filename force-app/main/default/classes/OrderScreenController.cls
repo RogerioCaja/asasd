@@ -34,7 +34,7 @@ public without sharing class OrderScreenController {
         Order order = [SELECT Id, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c , ShippingAccount__r.Phone,  ShippingAccount__r.Name, 
         ShippingAccount__r.BillingCity, ShippingAccount__r.BillingState ,ShippingAccount__r.CPF__c, ShippingAccount__r.CNPJ__c , Pricebook2Id, Pricebook2.Name, 
         Pricebook2.InitialDate__c, Pricebook2.EndDate__c, PaymentDate__c,  CustomerOrderNumber__c, Crop__c , Crop__r.Name, Culture__c , Culture__r.Name,
-        PaymentForm__c, StatusSF__c, SalesOrg__c, SalesOrg__r.Name, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, SalesCTV__r.Name,
+        PaymentForm__c, StatusSF__c, CodigoSAP__c, SalesOrg__c, SalesOrg__r.Name, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, SalesCTV__r.Name,
         PaymentCondition__c, PaymentCondition__r.Name, ShippingDate__c, Incoterms__c, OrderReference__c, OrderReference__r.Name, IsOrderMother__c
         FROM Order 
         WHERE Id = :orderId LIMIT 1];
@@ -179,7 +179,7 @@ public without sharing class OrderScreenController {
             if (orderId != null && !cloneOrder) {
                 newOrder = false;
                 order = [SELECT Id, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c, Pricebook2Id, PaymentDate__c, ShippingDate__c, PaymentCondition__c, CustomerOrderNumber__c,
-                Crop__c, Culture__c, PaymentForm__c, StatusSF__c, SalesOrg__c, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c
+                Crop__c, Culture__c, PaymentForm__c, StatusSF__c, SalesOrg__c, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, EffectiveDate
                 FROM Order WHERE Id =: orderId LIMIT 1];
             } else {
                 order = new Order();
@@ -309,7 +309,7 @@ public without sharing class OrderScreenController {
                     counter++;
                 }
 
-                if (salesTeamTerritory == null) {
+                if (salesTeamTerritory == null && territoryAndParents.get(userTerritoryId) != null && territoryAndParents.get(territoryAndParents.get(userTerritoryId).ParentTerritory2Id) != null) {
                     salesTeamTerritory = territoryAndParents.get(territoryAndParents.get(userTerritoryId).ParentTerritory2Id);
                 }
 
@@ -340,7 +340,7 @@ public without sharing class OrderScreenController {
 
             Id companyId;
             Id salesOrgId;
-            if (salesTeamTerritory.DeveloperName != null) {
+            if (salesTeamTerritory != null && salesTeamTerritory.DeveloperName != null) {
                 String salesTeamDevName = salesTeamTerritory.DeveloperName.substring(1, salesTeamTerritory.DeveloperName.length());
                 for (Company__c salesTeamCompany : [
                     SELECT Id,
@@ -361,7 +361,7 @@ public without sharing class OrderScreenController {
             order.ShippingAccount__c = orderData.headerData.cliente_entrega.Id ;
             order.PaymentDate__c = Date.valueOf(orderData.headerData.data_pagamento) ;
             order.CustomerOrderNumber__c = orderData.headerData.numero_pedido_cliente ;
-            order.EffectiveDate = Date.today();
+            order.EffectiveDate = newOrder ? Date.today() : order.EffectiveDate;
             order.Crop__c = orderData.headerData.safra.Id ;
             order.Culture__c = orderData.headerData.cultura.Id ;
             order.PaymentForm__c = orderData.headerData.forma_pagamento ;
@@ -422,7 +422,7 @@ public without sharing class OrderScreenController {
                         orderItem.Product2Id = orderProduct.productId;
                         orderItem.ListPrice = orderProduct.listPrice;
                         orderItem.AmountUsed__c = order.IsOrderMother__c ? 0 : null;
-
+                        orderItem.ServiceDate = System.today();
                         itemCounter++;
                     }
                     
@@ -432,7 +432,7 @@ public without sharing class OrderScreenController {
                         motherItems.put(orderProduct.orderItemId, motherItem);
                     }
 
-                    orderItem.ServiceDate = System.today();
+                    
                     orderItem.Quantity = orderProduct.quantity;
                     orderItem.UnitPrice = orderProduct.unitPrice;
                     orderItem.Dosage__c = orderProduct.dosage;
@@ -491,10 +491,20 @@ public without sharing class OrderScreenController {
                         mapOrderItems.put(key, orderItem.Id);
                     }
 
+                    Map<String, DivisionDeserialize> divisionsByKey = new Map<String, DivisionDeserialize>();
                     for (DivisionDeserialize division : orderData.divisionData) {
                         System.debug('division.divisionId: ' + division.divisionId);
                         if (division.divisionId != null) {
                             setDivisionIds.add(division.divisionId);
+                        }
+
+                        String key = division.deliveryDate + '-' + division.orderItemId;
+                        if (divisionsByKey.containsKey(key)) {
+                            DivisionDeserialize existingDivision = divisionsByKey.get(key);
+                            existingDivision.quantity += division.quantity;
+                            divisionsByKey.put(key, existingDivision);
+                        } else {
+                            divisionsByKey.put(key, division);
                         }
                     }
 
@@ -508,7 +518,9 @@ public without sharing class OrderScreenController {
                     }
 
                     List<ShippingDivison__c> listShippingDivision = new List<ShippingDivison__c>();
-                    for (DivisionDeserialize division : orderData.divisionData) {
+                    Map<Id, Decimal> quantityDistributedByItem = new Map<Id, Decimal>();
+                    // for (DivisionDeserialize division : orderData.divisionData) {
+                    for (DivisionDeserialize division : divisionsByKey.values()) {
                         ShippingDivison__c shippingDivision;
                         if (!newOrder && !cloneOrder && divisionsById.containsKey(division.divisionId)) {
                             shippingDivision = divisionsById.get(division.divisionId);
@@ -523,6 +535,24 @@ public without sharing class OrderScreenController {
                         shippingDivision.OrderItem__c = !cloneOrder && !newDivision && division.orderItemId != null ?
                                                         division.orderItemId : mapOrderItems.get(division.orderItemKey);
                         listShippingDivision.add(shippingDivision);
+
+                        if (quantityDistributedByItem.containsKey(shippingDivision.OrderItem__c)) {
+                            Decimal quantityDistributed = quantityDistributedByItem.get(shippingDivision.OrderItem__c) + shippingDivision.Quantity__c;
+                            quantityDistributedByItem.put(shippingDivision.OrderItem__c, quantityDistributed);
+                        } else {
+                            quantityDistributedByItem.put(shippingDivision.OrderItem__c, shippingDivision.Quantity__c);
+                        }
+                    }
+
+                    for (OrderItem item : listOrderItems) {
+                        Decimal quantityUsed = quantityDistributedByItem.get(item.Id);
+                        if (item.Quantity > quantityUsed) {
+                            ShippingDivison__c shippingDivision = new ShippingDivison__c();
+                            shippingDivision.DeliveryDate__c = order.ShippingDate__c;
+                            shippingDivision.Quantity__c = item.Quantity - quantityUsed;
+                            shippingDivision.OrderItem__c = item.Id;
+                            listShippingDivision.add(shippingDivision);
+                        }
                     }
 
                     String divisionErrors = '';
@@ -557,9 +587,16 @@ public without sharing class OrderScreenController {
     }
 
     @AuraEnabled
-    public static void callout(String orderId){
+    public static string callout(String orderId){
         try {
-            CalloutOrder.processIntegration(Id.valueOf(orderId));
+            IntegrationUtils.CalloutResponse response = CalloutOrder.processIntegration(Id.valueOf(orderId));
+            if(response.success){
+                return JSON.serializePretty(new AGRO_RemotingResult(false, '200', 'Integrado com o SAP', String.valueOf(response.success)));
+            }
+            else{
+                return JSON.serializePretty(new AGRO_RemotingResult(false, '400', 'Não Integrado com o SAP', String.valueOf(response.errorMessage)));
+            }
+            
         } catch (Exception ex) {
             System.debug('Erro: ' + ex.getMessage() + '   -   ' + ex.getStackTraceString());
             throw new AuraHandledException(ex.getMessage());
@@ -588,7 +625,8 @@ public without sharing class OrderScreenController {
 
         result.correctPayment = Date.valueOf(orderValues.paymentDate) == pricebookPaymentDate ? true : false;
         result.isDiscount = Date.valueOf(orderValues.paymentDate) > pricebookPaymentDate ? false : true;
-        String discountOrAddition = result.isDiscount ? 'Desconto' : 'Juros';
+        Id discountOrAdditionRecType = result.isDiscount ? Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get('ZDAN').getRecordTypeId()
+                                                         : Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get('ZJUR').getRecordTypeId();
         
         String companyGroup = '';
         for (Company__c accountCompany : [
@@ -659,7 +697,7 @@ public without sharing class OrderScreenController {
                    SalesTeam__c,
                    harvest__c
               FROM JurosDescontoAntecipao__c
-             WHERE ConditionType__c =: discountOrAddition
+             WHERE RecordTypeId =: discountOrAdditionRecType
                AND StartDate__c <=: System.today()
                AND EndDate__c >=: System.today()
                AND SalesOrg__c =: result.salesOrg
@@ -811,6 +849,7 @@ public without sharing class OrderScreenController {
         public String data_pagamento;
         public String data_entrega;
         public String status_pedido;
+        public String codigo_sap;
         public AccountSerialize cliente_entrega;
         public InformationFields organizacao_vendas;
         public String canal_distribuicao;
@@ -974,6 +1013,7 @@ public without sharing class OrderScreenController {
         public String data_pagamento;
         public String data_entrega;
         public String status_pedido;
+        public String codigo_sap;
         public String cliente_faturamento;
         public AccountSerialize cliente_entrega;
         public InformationFields organizacao_vendas;
@@ -1013,6 +1053,7 @@ public without sharing class OrderScreenController {
             this.cultura = new InformationFields(order.Culture__c, order.Culture__r.Name);
             this.forma_pagamento = order.PaymentForm__c;
             this.status_pedido = order.StatusSF__c;
+            this.codigo_sap = order.CodigoSAP__c;
             this.organizacao_vendas = new InformationFields(order.SalesOrg__c, order.SalesOrg__r.Name);
             this.canal_distribuicao = order.DistributionChannel__c;
             this.setor_atividade = order.ActivitySector__c;

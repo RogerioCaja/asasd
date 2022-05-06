@@ -16,8 +16,9 @@ import saveOrder from '@salesforce/apex/OrderScreenController.saveOrder';
 import calloutOrder from '@salesforce/apex/OrderScreenController.callout';
 import getOrder from '@salesforce/apex/OrderScreenController.getOrder';
 import getAccount from '@salesforce/apex/OrderScreenController.getAccount';
+import { NavigationMixin } from 'lightning/navigation';
 
-export default class OrderScreen extends LightningElement {
+export default class OrderScreen extends NavigationMixin(LightningElement) {
     @api recordId;
     @api originScreen;
     @api recordTypeId;
@@ -272,7 +273,7 @@ export default class OrderScreen extends LightningElement {
             }
         })
     }*/
-    async saveOrder(){
+    async saveOrder(event){
         await this.recordId;
         const data = {accountData: this.accountData, headerData: this.headerData, productData: this.productData, divisionData: this.divisionData, summaryData: this.summaryData};
         console.log(JSON.stringify(data));
@@ -286,9 +287,26 @@ export default class OrderScreen extends LightningElement {
         .then((result) => {
             console.log(JSON.stringify(result));
             result = JSON.parse(result);
+
             if(!result.hasError){
+
                 this.showNotification(result.message, 'Sucesso', 'success');
-                calloutOrder({orderId: result.orderId});
+                if( event.detail == "gerarpedido" ){
+
+                    calloutOrder({orderId: result.orderId}).then((resultCallout)=>{
+                        resultCallout = JSON.parse(resultCallout);
+                        this.showNotification('Observe o Log de Integrações', resultCallout.message, 'info');
+                    });
+                }
+                this[NavigationMixin.Navigate]({
+                    type: 'standard__recordPage',
+                    attributes: {
+                        recordId: result.orderId,
+                        objectApiName: 'Order',
+                        actionName: 'view'
+                    }
+                });
+               
             }
             else
                 this.showNotification(result.message, 'Algo de errado aconteceu','erro');

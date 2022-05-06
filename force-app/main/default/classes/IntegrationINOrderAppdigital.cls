@@ -5,50 +5,95 @@ global with sharing class IntegrationINOrderAppdigital {
     }
     @HttpPost
     global static ResponseModel upsertOrder(List<TemplateDataIntegrationFields.OrderINData> request) {
-
+        // Guarda a relação da conta com o pedido
         Map<String, Id> lookups = new Map<String, Id>();
 
-        Map<String, List<String>> lookupMap = new Map<String, List<String>>();
-        lookupMap = prepareData();
+        Set<String> accountLookups = new Set<String>();
+        Set<String> salesOrgLookups = new Set<String>();
+        Set<String> cropLookups = new Set<String>();
+        Set<String> cultureLookups = new Set<String>();
+        Set<String> orderLookups = new Set<String>();
+        Set<String> salesSectionLookups = new Set<String>();
+        Set<String> salesCTVLookups = new Set<String>();
+        Set<String> pricebookLookups = new Set<String>();
+        Set<String> paymentConditionLookups = new Set<String>();
 
+        //Set<String> pricebookLookups = new Set<String>();
+        // Guarda uma lista de respostas
         List<TemplateDataIntegrationFields.ResponseParent> responseList = new List<TemplateDataIntegrationFields.ResponseParent>();
+        // Guarda uma lista de orderItem para fazer o upsert
         List<TemplateDataIntegrationFields.OrderItemINData> orderItemListToUpsert = new List<TemplateDataIntegrationFields.OrderItemINData>();
-
+        // Guarda uma lista de pedidos para fazer o upsert
+        List<TemplateDataINtegrationFields.ShippingDivisonINData> shippingDivisonListToUpsert = new List<TemplateDataIntegrationFields.ShippingDivisonINData>();
         List<Order> orderListToUpsert = new List<Order>();
 
+        //Application of business rules
         for (TemplateDataIntegrationFields.OrderINData order : request){
-   
-            lookupMap.get('salesOrgLookups').add(order.SalesOrg);
-            lookupMap.get('cropLookups').add(order.Crop);
-            lookupMap.get('cultureLookups').add(order.Culture);
-            lookupMap.get('accountLookups').add(order.PaymentAccount);
-            lookupMap.get('accountLookups').add(order.ShippingAccount);
-            lookupMap.get('salesSectionLookups').add(order.ActivitySector);
-            lookupMap.get('salesCTVLookups').add(order.SalesCTV);
-            lookupMap.get('pricebookLookups').add(order.pricebook2Id);
-            lookupMap.get('orderMotherLookups').add(order.orderMother);
-
+            // Pega a relação da conta com o pedido
+            //Getting account parameters to search
+            accountLookups.add(order.clienteCode);
+            salesOrgLookups.add(order.SalesOrg);
+            cropLookups.add(order.Crop);
+            cultureLookups.add(order.Culture);
+            salesSectionLookups.add(order.ActivitySector);
+            salesCTVLookups.add(order.SalesCTV);
+            paymentConditionLookups.add(order.PaymentCondition);
+            pricebookLookups.add(order.pricebook2Id);
+           
             if(order.orderItems != null) {
+                // Adiciona todos os External Id e o catalogo de preço de order nos orderItem
+                //Putting the Order's ExternalId parameter in the OrderItem
                 for (TemplateDataIntegrationFields.OrderItemINData orderItem : order.orderItems){
-                   orderItem.orderExternalId = order.CodigoSap;
+                    orderItem.orderExternalId = order.CodigoSap;
                 }
+                // Adiciona os orderItem na lista para upsert
+                //Getting list of order items
                 orderItemListToUpsert.addAll(order.orderItems);
+                System.debug('orderItemListToUpsert' + orderItemListToUpsert); 
             }
+            for(TemplateDataIntegrationFields.ShippingDivisonINData shippingDivision : order.shippingDivison){
+                shippingDivision.orderExternalId = order.CodigoSap;
+            }
+            shippingDivisonListToUpsert.addAll(order.shippingDivison);
+            System.debug('shippingDivisonListToUpsert' + shippingDivisonListToUpsert);
+            
+            }
+
+            
+        // Pega o Id da conta com base no CNPJ da conta
+        //Account search based on CNPJ field sent
+        for (Account account : [SELECT Id, CNPJ__c FROM Account WHERE CNPJ__c IN : accountLookups]) {
+            //Map structure for the model -> object name + parameter to record id
+            //Example
+            lookups.put('Account' + account.CNPJ__c, account.Id);
         }
 
+        for (Safra__c crop : [SELECT Id, Name, 	Code__c FROM Safra__c WHERE Code__c IN : cropLookups]){
+            lookups.put('Safra__c' + crop.Code__c, crop.Id);
+            
+        }
+       
 
-        //SetLookups
-        IntegrationUtils.setLookup(new Account(), new Set<String>{'Id', 'ExternalId__c'}, 'ExternalId__c',  lookupMap.get('accountLookups') , lookups);
-        IntegrationUtils.setLookup(new Safra__c(), new Set<String>{'Id', 'Code__c'}, 'Code__c', lookupMap.get('cropLookups'), lookups);
-        IntegrationUtils.setLookup(new Cultura__c(), new Set<String>{'Id', 'Codigo__c'}, 'Codigo__c', lookupMap.get('cultureLookups'), lookups);
-        IntegrationUtils.setLookup(new SalesOrg__c(), new Set<String>{'Id', 'SalesOrganizationCode__c'}, 'SalesOrganizationCode__c', lookupMap.get('salesOrgLookups'), lookups);
-        IntegrationUtils.setLookup(new ActivitySector__c(), new Set<String>{'Id', 'Codigo__c'}, 'Codigo__c', lookupMap.get('salesSectionLookups'), lookups);
-        // => IntegrationUtils.setLookup(new User(), new Set<String>{'Id', 'ExternalId__c'}, 'ExternalId__c',  lookupMap.get('salesCTVLookups') , lookups);
-        IntegrationUtils.setLookup(new Pricebook2(), new Set<String>{'Id', 'ExternalId__c'}, 'ExternalId__c',  lookupMap.get('pricebookLookups') , lookups);
-        IntegrationUtils.setLookup(new Order(), new Set<String>{'Id', 'CodigoSap__c'}, 'CodigoSap__c',  lookupMap.get('orderMotherLookups') , lookups);
+        for (Cultura__c culture : [SELECT Id, Name, Codigo__c FROM Cultura__c WHERE Codigo__c IN : cultureLookups]){
+            lookups.put('Cultura__c' + culture.Codigo__c, culture.Id);
+        }
 
-        System.debug('lookups =>' + lookups);
+        for (SalesOrg__c salesOrg : [SELECT Id, Name, SalesOrganizationCode__c from SalesOrg__c WHERE SalesOrganizationCode__c IN: salesOrgLookups]){
+            lookups.put('SalesOrg__c' + salesOrg.SalesOrganizationCode__c, salesOrg.Id);
+        }
+
+        //for (SalesCTV__c salesCTV : [SELECT Id, Name, 	Code__c from SalesCTV__c]){
+        //    lookups.put('SalesCTV' + distributionCenter.Code__c, distributionCenter.Id);
+       // }
+
+        for (CondicaoPagamento__c paymentCondition : [SELECT Id, Name from CondicaoPagamento__c WHERE Name IN: paymentConditionLookups]){
+            lookups.put('CondicaoPagamento__c' + paymentCondition.Code__c, paymentCondition.Id);
+        }
+        for (Pricebook2 pricebook2Id : [SELECT Id, ExternalId__c, Name FROM Pricebook2 WHERE Name IN : pricebookLookups ]){
+            lookups.put('Pricebook2Id' + pricebook2Id.Name, pricebook2Id.Id);
+        }
         //Converting template to object list and validating required fields
+        // Valida e adiciona objeto na lista para upsert
         FactoryDataIntegration.convertSObject(new Order(), 'IN', request, responseList, orderListToUpsert, lookups);
           
         //Upserting records (Order)
@@ -60,25 +105,41 @@ global with sharing class IntegrationINOrderAppdigital {
         );
         
         //Upserting records (OrderItem)
+        // Upsert OrderItem
         Map<String, List<TemplateDataIntegrationFields.Response>> orderItemsResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
         if(orderItemListToUpsert.size() != 0){
-             orderItemsResponse.putAll(
+            orderItemsResponse.putAll(
                 IntegrationINOrderItemAppdigital.upsertOrderItem(orderItemListToUpsert)
-             );
-         }
+            );
+        }
+
+        Map<String, List<TemplateDataIntegrationFields.Response>> shippingDivisonResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
+        if(shippingDivisonListToUpsert.size() != 0){
+            shippingDivisonResponse.putAll(
+                IntegrationINShippingDivisonAppdigital.upsertShippingDivison(shippingDivisonListToUpsert)
+            );
+        }
 
         //Associating child object's response with object response
-         for(TemplateDataIntegrationFields.ResponseParent response : responseList){
-             response.items = new List<TemplateDataIntegrationFields.Response>();
-             if(orderItemsResponse.size() != 0 && orderItemsResponse.containsKey(response.idSalesforce)){
-                 response.items.addAll(orderItemsResponse.get(response.idSalesforce));
+        // Pega todas as respostas dos OrderItem
+        for(TemplateDataIntegrationFields.ResponseParent response : responseList){
+            response.items = new List<TemplateDataIntegrationFields.Response>();
+            if(orderItemsResponse.size() != 0 && orderItemsResponse.containsKey(response.idSalesforce)){
+                response.items.addAll(orderItemsResponse.get(response.idSalesforce));
+                for(TemplatedataIntegrationFields.Response orderItem : orderItemsResponse.get(response.idSalesforce)){
+                    response.items.addAll(shippingDivisonResponse.get(orderItem.idSalesforce)); 
+                }
             } 
-             else if(orderItemsResponse.size() != 0 && orderItemsResponse.containsKey(response.externalCode)){
+            else if(orderItemsResponse.size() != 0 && orderItemsResponse.containsKey(response.externalCode)){
                 response.items.addAll(orderItemsResponse.get(response.externalCode));
-             }
-         }
+                for(TemplatedataIntegrationFields.Response orderItem : orderItemsResponse.get(response.externalCode)){
+                    response.items.addAll(shippingDivisonResponse.get(orderItem.externalCode)); 
+                }
+            }
+        }
 
         //Checking integration errors to log
+        // Verifica erros de integração para o log
         Boolean hasError = false;
 
         for(TemplateDataIntegrationFields.ResponseParent responseOrder : responseList){
@@ -96,37 +157,15 @@ global with sharing class IntegrationINOrderAppdigital {
         }
 		
         //Creating integration log
-        //IntegrationUtils.createLog('Order', 'Inbound', JSON.serialize(request), JSON.serialize(responseList), hasError);
+        IntegrationLog.createLog('Order', 'Inbound', JSON.serialize(request), JSON.serialize(responseList), hasError);
         
         //Returning response
+         // Retorna a resposta Outbound
         ResponseModel modelo = new ResponseModel();
         modelo.response = responseList;
         return modelo;
     }
-
-    global static Map<String, List<String>> prepareData(){
-        List<String> salesOrgLookups      = new List<String>();
-        List<String> cropLookups          = new List<String>();
-        List<String> cultureLookups       = new List<String>();
-        List<String> accountLookups       = new List<String>();
-        List<String> salesSectionLookups  = new List<String>();
-        List<String> salesCTVLookups  = new List<String>();
-        List<String> pricebookLookups  = new List<String>();
-        List<String> orderMotherLookups = new List<String>();
-
-        Map<String, List<String>> response = new Map<String, List<String>>();
-        response.put('salesOrgLookups', salesOrgLookups);
-        response.put('cropLookups', cropLookups);
-        response.put('cultureLookups', cultureLookups);
-        response.put('accountLookups', accountLookups);
-        response.put('salesSectionLookups', salesSectionLookups);
-        response.put('salesCTVLookups', salesCTVLookups);
-        response.put('pricebookLookups', pricebookLookups);
-        response.put('orderMotherLookups', orderMotherLookups);
-
-        return response;
-    }
-
+    // Classe que cria a resposta
     global class ResponseModel {
 
         List<TemplateDataIntegrationFields.ResponseParent> response;
@@ -141,3 +180,4 @@ global with sharing class IntegrationINOrderAppdigital {
         }
     }
 }
+

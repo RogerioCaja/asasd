@@ -1,6 +1,8 @@
 @isTest
-public with sharing class CalloutOrderTest {
+public with sharing class CalloutOrderDatalakeTest {
+    public CalloutOrderDatalakeTest() {
 
+    }
     @TestSetup
     static void makeData(){
 
@@ -65,14 +67,12 @@ public with sharing class CalloutOrderTest {
         INSERT so;
         INSERT distributionChannel;
         INSERT u;
-        Map <String,Schema.RecordTypeInfo> recordTypeMap = Order.sObjectType.getDescribe().getRecordTypeInfosByName();
 
         Order order = new Order(
             AccountId =  account.Id,
             Status = 'Draft',
             PriceBook2Id = Test.getStandardPricebookId(),
             Type =  'Venda Normal',
-            RecordTypeId = recordTypeMap.get('Venda Sucata').getRecordTypeId(),
             ShippingAccount__c =   account.Id,
             PaymentDate__c =  Date.today(),
             CustomerOrderNumber__c = '0001',
@@ -86,7 +86,6 @@ public with sharing class CalloutOrderTest {
             Currency__c =  'BRL',
             SalesCTV__c =  u.Id,
             StatusSF__c = 'Em digitação',
-            EndDate = Date.today(),
             Incoterms__c = 'CIF'
         );
 
@@ -96,15 +95,14 @@ public with sharing class CalloutOrderTest {
             Name = 'Laptop X200', 
             Family = 'Hardware',
             ExternalId__c = '0001',
-            ClasseAvaliacao__c = 'chucrute',
-            GrupoQuimico__c = 'Só o quimico',
-            MarcadoEliminacao__c = 'S',
-            NCM__c = 'S',
-            NumeroRegistro__c = '0001',
-            OrigemMaterial__c = 'Himalaia',
-            UnidadeMedida__c = 'KG'
+            ClasseAvaliacao__c = 'av01',
+            GrupoQuimico__c = 'bg1',
+            MarcadoEliminacao__c = 'tes01',
+            NCM__c = '85432000',
+            NumeroRegistro__c = '2',
+            OrigemMaterial__c = 'sp',
+            UnidadeMedida__c = 'un'
         );
-
         INSERT prod;
 
         PricebookEntry standardPrice = new PricebookEntry(
@@ -137,15 +135,14 @@ public with sharing class CalloutOrderTest {
         );
         insert shipping;
     }
-    public CalloutOrderTest() {}
 
     @isTest
     static void calloutOrderSuccess(){
-        CalloutOrder calloutTest = new CalloutOrder();
-        Order ord = [SELECT Id, OrderNumber, StatusSF__c FROM Order LIMIT 1][0];
-        Test.setMock(HttpCalloutMock.class, new CalloutOrderMock(true, String.valueOf(ord.OrderNumber)));
+        CalloutOrderDatalake calloutTest = new CalloutOrderDatalake();
+        Order ord = [SELECT Id, OrderNumber, StatusSF__c, StatusSAP__c FROM Order LIMIT 1][0];
+        Test.setMock(HttpCalloutMock.class, new CalloutOrderMockDatalake(true, String.valueOf(ord.OrderNumber)));
         Test.startTest();
-        IntegrationUtils.CalloutResponse response = CalloutOrder.processIntegration(ord.Id);
+        IntegrationUtils.CalloutDatalakeResponse response = CalloutOrderDatalake.processIntegration(ord.Id);
         Test.stopTest();
         System.debug(response);
         System.assertEquals(true, response.success, 'O status era para vir Verdadeiro');
@@ -155,10 +152,10 @@ public with sharing class CalloutOrderTest {
 
     @isTest 
     static void calloutOrderFail(){
-        Order ord = [SELECT Id, OrderNumber, StatusSF__c FROM Order LIMIT 1][0];
-        Test.setMock(HttpCalloutMock.class,new CalloutOrderMock(false, String.valueOf(ord.OrderNumber)));
+        Order ord = [SELECT Id, OrderNumber, StatusSF__c, StatusSAP__c FROM Order LIMIT 1][0];
+        Test.setMock(HttpCalloutMock.class,new CalloutOrderMockDatalake(false, String.valueOf(ord.OrderNumber)));
         Test.startTest();
-        IntegrationUtils.CalloutResponse response = CalloutOrder.processIntegration(ord.Id);
+        IntegrationUtils.CalloutDatalakeResponse response = CalloutOrderDatalake.processIntegration(ord.Id);
         Test.stopTest();
         System.debug(response);
         System.assertEquals(false, response.success, 'O status era para vir falso');
@@ -166,10 +163,10 @@ public with sharing class CalloutOrderTest {
 
     @isTest 
     static void calloutOrderException(){
-        Order ord = [SELECT Id, OrderNumber, StatusSF__c FROM Order LIMIT 1][0];
+        Order ord = [SELECT Id, OrderNumber, StatusSF__c, StatusSAP__c FROM Order LIMIT 1][0];
         Test.setMock(HttpCalloutMock.class, new ExceptionCallouts());
         Test.startTest();
-        IntegrationUtils.CalloutResponse response = CalloutOrder.processIntegration(ord.Id);
+        IntegrationUtils.CalloutDatalakeResponse response = CalloutOrderDatalake.processIntegration(ord.Id);
         Test.stopTest();
         System.assertEquals('Error', response.errorMessage, 'Deveria ter falhado');
     }

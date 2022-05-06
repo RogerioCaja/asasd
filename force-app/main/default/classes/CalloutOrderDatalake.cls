@@ -12,9 +12,9 @@ public with sharing class CalloutOrderDatalake {
 		Order parentOrder = [SELECT Id, CodigoSap__c, ShippingAccount__r.ExternalId__c, Account.ExternalId__c, Type, SalesOrg__r.SalesOrganizationCode__c, DistributionChannel__c, 
                             ActivitySector__c, Incoterms__c, Incoterms2__c, PaymentCondition__c, OrderReason__c , 
                             OrderNumber, Crop__r.Code__c, Culture__r.Codigo__c, EndDate, TotalAmount, 
-                            Currency__c, (SELECT Id FROM OrderItems) 
+                            Currency__c, StatusSAP__c, (SELECT Id FROM OrderItems) 
                             FROM Order WHERE Id = :orderId];
-		
+		System.debug('parentOrder' + parentOrder);
 		List<Order> allOrders = new List<Order>{parentOrder};
 		
 		IntegrationUtils.CalloutDatalakeResponse calloutResponse = sendOrder(allOrders);
@@ -35,7 +35,7 @@ public with sharing class CalloutOrderDatalake {
 
 					Order ord = orderMap.get(respWrapper.OrderNumber);
                     ord.CodigoSap__c = respWrapper.DetalhesPedido[0].NumeroOrdemVenda; 
-                    ord.StatusSAP__c = respWrapper.DetalhesPedido[0].StatusSap;
+                    //ord.StatusSAP__c = respWrapper.DetalhesPedido[0].StatusSap;
                     // ord.TypeMessage__c = respWrapper.Mensagens[0].Tipo;
                     // ord.Message__c = respWrapper.Mensagens[0].Mensagem;
 					orderList.add(ord);
@@ -53,21 +53,24 @@ public with sharing class CalloutOrderDatalake {
 	public static IntegrationUtils.CalloutDatalakeResponse sendOrder(List<Order> orders) {
 			
 		List<RequestParameters> request = new List<RequestParameters>();
-
+        
 		for (Order ord : orders) {
 			request.add(new RequestParameters(ord));
 		}
-
+        System.debug('request' + request);
 		String payload = JSON.serialize(request);
-
+        System.debug('payload' + payload);
 		//Metodo para busca de Access Token, depende de cada projeto, podendo estar presente dentro de uma custom settings ou relacionado com outra requisição.
-		String accessToken = '';//! FALTA SABER A RESPOSTA DO DATALAKE QUANTO A AUTENTICAÇÃO! F
+		String code = (!Test.isRunningTest() ? getAcessCode() : 'acessToken');
+        String accessToken = code;
 		
+
+
 		//Path geralmente cadastrado dentro de ua customSettings
-		String endpoint = (!Test.isRunningTest() ? 'https://e2d5f427-4632-4314-aac5-4801fbbe25db.mock.pstmn.io//OrderUpsert' : 'http://callout.My_Named_Credential.com/some/path');
+		String endpoint = (!Test.isRunningTest() ? 'https://apim.agrogalaxy.com.br/gtw/sales-order/v1/webhook/order' : 'http://callout.My_Named_Credential.com/some/path');
 		Map<String, String> ordersMap = new Map<String, String>();
 		ordersMap.put('Content-type', 'application/json');
-		// ordersMap.put('Authorization', 'Bearer '+ accessToken);
+		ordersMap.put('Authorization', 'Bearer '+ accessToken);
 		
 		IntegrationUtils.RequestResponseObject responseObject = IntegrationUtils.executeCallout(endpoint, payload, ordersMap);
 
@@ -98,12 +101,13 @@ public with sharing class CalloutOrderDatalake {
     public class RequestParameters{
         public Object orders; // criar public list
         //public List<CalloutOrderDatalake.PartnerParameters> partner;
+        
         List<CalloutOrderDatalake.ShippingParameters> Shipping;
         public List<CalloutOrderDatalake.ConditionParameters> condition;
         public List<CalloutOrderDatalake.OrderItemParameters> orderItems;
 
         public RequestParameters(Order order){
-
+            System.debug('orders' + order);
             //partner = new List<CalloutOrder.PartnerParameters>();
             Shipping = new List<CalloutOrderDatalake.ShippingParameters>();
             orderItems = new List<CalloutOrderDatalake.OrderItemParameters>();
@@ -137,6 +141,7 @@ public with sharing class CalloutOrderDatalake {
                 orderDatalake.codSalesforce = order.OrderNumber;
                 orderDatalake.expiredDate = order.EndDate;
             }
+            this.orders = orders;
 
             for(OrderItem orderItem : order.OrderItems){
                 orderItemIds.add(orderItem.Id);
@@ -170,9 +175,14 @@ public with sharing class CalloutOrderDatalake {
                     }
                 }
                 orderItems.add(new CalloutOrderDatalake.OrderItemParameters(orderItem, shippingCodesList));
+                System.debug('order' + orders);
             }
-
-            condition.add(new CalloutOrderDatalake.ConditionParameters(Integer.valueOf(order.Culture__r.Codigo__c), 'PR00', order.TotalAmount, order.Currency__c)); 
+            
+            //condition.add(new CalloutOrderDatalake.ConditionParameters(Integer.valueOf(order.Culture__r.Codigo__c), 'PR00', order.TotalAmount, order.Currency__c)); 
+            this.orders = orders;
+            this.condition = condition;
+            this.Shipping = Shipping;
+            this.orderItems = orderItems;
         }
     }
 
@@ -276,7 +286,33 @@ public with sharing class CalloutOrderDatalake {
     }
 
     public class OrderDetails{
-        public String StatusSap;
+        //public String StatusSap;
         public String NumeroOrdemVenda;
+    }
+
+//Método para atualizar access token
+    public static String getAcessCode(){
+        String payloadToken = 'grant_type=client_credentials';
+        String endpointToken = (!Test.isRunningTest() ? 'https://apim.agrogalaxy.com.br/identityserver/oauth2/token' : 'http://callout.My_Named_Credential.com/some/path');
+        Map<String, String> headersMapToken = new Map<String, String>();
+        headersMapToken.put('Content-type', 'application/x-www-form-urlencoded');
+        headersMapToken.put('Authorization', 'Basic dEQxV2M0bWtXdnRWNWVtRXZSOHlVRF9iUFZvYTpmZmVJQUs5SmdPNXNsbXI1UzVMUXNNcTBOME1h');
+        IntegrationUtils.RequestResponseObject responseObject2 = IntegrationUtils.executeCallout(endpointToken, payloadToken, headersMapToken);
+        System.debug('responseObject2: '+ responseObject2);
+        if (responseObject2.success) {
+            HttpResponse response = responseObject2.response;
+            ResponseParametersToken responses = (ResponseParametersToken) JSON.deserialize(response.getBody(), ResponseParametersToken.class);
+            System.debug('responses: '+ responses);
+            return responses.access_token;
+        } else {
+            return null;
+        }
+    }
+
+    public class ResponseParametersToken {
+        public String access_token;
+        public String scope;
+        public String token_type;
+        public Decimal expires_in;
     }
 }
