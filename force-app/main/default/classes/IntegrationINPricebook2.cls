@@ -109,9 +109,9 @@ global with sharing class IntegrationINPricebook2 {
 
         IntegrationUtils.setLookup(new Product2(), new Set<String>{'Id', 'ExternalId__c'}, 'ExternalId__c', lookupMap.get('productLookups'), lookups);
 
-        IntegrationUtils.setLookup(new Account(), new Set<String>{'Id', 'ExternalId__c'}, 'ExternalId__c', lookupMap.get('salesConditionLookups'), lookups);
+        IntegrationUtils.setLookup(new Account(), new Set<String>{'Id', 'ExternalId__c'}, 'ExternalId__c', lookupMap.get('accountLookups'), lookups);
 
-        IntegrationUtils.setLookup(new SalesCondition__c(), new Set<String>{'Id', 'ExternalId__c'}, 'ExternalId__c', lookupMap.get('accountLookups'), lookups);
+        IntegrationUtils.setLookup(new SalesCondition__c(), new Set<String>{'Id', 'ExternalId__c'}, 'ExternalId__c', lookupMap.get('salesConditionLookups'), lookups);
 
         IntegrationUtils.setLookup(new DistributionCenter__c(), new Set<String>{'Id', 'Code__c'}, 'Code__c', lookupMap.get('centerLookups'), lookups);
 
