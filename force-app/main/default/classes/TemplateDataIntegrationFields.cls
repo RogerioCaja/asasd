@@ -262,7 +262,7 @@ global with sharing class TemplateDataIntegrationFields {
     global class OrderINData implements FieldData{
 
         public String Status;
-        public String Pricebook2Id;
+        public String pricebook2Id;
         public String CodigoSap;
         public String Type;
         public String ShippingAccount;
@@ -315,7 +315,7 @@ global with sharing class TemplateDataIntegrationFields {
                 Incoterms2__c = this.incoterms,
                 Description = this.description,
                 DescriptionBillingSale__c = this.descriptionBillingSale,
-                Pricebook2Id = '01s54000006ieWjAAI'
+                Pricebook2Id = lookups.containsKey('Pricebook2Id'+this.pricebook2Id) ? lookups.get('Pricebook2Id'+this.pricebook2Id) : null
             );
         }
 
