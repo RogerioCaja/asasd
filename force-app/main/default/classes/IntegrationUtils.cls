@@ -44,6 +44,8 @@ public class IntegrationUtils {
     public static void upsertChildRecords(List<Database.UpsertResult> upsResults, Map<String, List<TemplateDataIntegrationFields.Response>> responseMap, List<SObject> sObjectListToUpsert, Schema.SObjectField field){
         TemplateDataIntegrationFields.Response responseData;
 
+        System.debug('upsResults=>'+upsResults);
+
         for(Integer i = 0; i < upsResults.size(); i++){
             responseData = new TemplateDataIntegrationFields.Response();
 
@@ -75,6 +77,26 @@ public class IntegrationUtils {
                 }
                 else{
                     responseMap.put(aux.Pricebook2Id, new List<TemplateDataIntegrationFields.Response>{responseData});
+                }
+            }
+
+            if (objResult.getSObjectType() == globalDescribe.get('OrderItem')) {
+                OrderItem aux = (OrderItem)objResult;
+                if(responseMap.keySet().contains(aux.OrderId)){
+                    responseMap.get(aux.OrderId).add(responseData);
+                }
+                else{
+                    responseMap.put(aux.OrderId, new List<TemplateDataIntegrationFields.Response>{responseData});
+                }
+            }
+
+            if (objResult.getSObjectType() == globalDescribe.get('ShippingDivison__c')) {
+                ShippingDivison__c aux = (ShippingDivison__c)objResult;
+                if(responseMap.keySet().contains(aux.OrderItem__c)){
+                    responseMap.get(aux.OrderItem__c).add(responseData);
+                }
+                else{
+                    responseMap.put(aux.OrderItem__c, new List<TemplateDataIntegrationFields.Response>{responseData});
                 }
             }
         }

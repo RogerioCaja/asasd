@@ -1,66 +1,66 @@
-global with sharing class IntegrationINShippingDivisonAppdigital {
-    public IntegrationINShippingDivisonAppdigital() {
-
+global with sharing class IntegrationINOrderItem {
+    public IntegrationINOrderItem() {
     }
-    global static Map<String, List<TemplateDataIntegrationFields.Response>> upsertShippingDivison(List<TemplateDataIntegrationFields.ShippingDivisonINData> request) {
+    // Integração do OrderItem Upsert
+    //@HttpPost 
+    global static Map<String, List<TemplateDataIntegrationFields.Response>> upsertOrderItem(List<TemplateDataIntegrationFields.OrderItemINData> request) {
         // Guarda as relações de order e product de preço com OrderItem
         Map<String, Id> lookups = new Map<String, Id>();
-
         Set<String> orderLookups = new Set<String>();
-        Set<String> orderItemLookups = new Set<String>();
+        Set<String> productLookups = new Set<String>();
         // Guarda um mapa com uma lista de respostas
         Map<String, List<TemplateDataIntegrationFields.Response>> responseMap = new Map<String, List<TemplateDataIntegrationFields.Response>>();
         // Guarda uma lista com os OrderItem para fazer o upsert
-        List<ShippingDivison__c> shippingDivisonListToUpsert = new List<ShippingDivison__c>();
-
+        List<OrderItem> orderItemListToUpsert = new List<OrderItem>();
         //Application of business rules
-        for(TemplateDataIntegrationFields.ShippingDivisonINData ShippingDivisonINData : request){
-
+        for(TemplateDataIntegrationFields.OrderItemINData OrderItemINData : request) {
             // Pega a relação do OrderItem com Order
             //Getting order parameters to search
-            orderLookups.add(ShippingDivisonINData.NumeroDivisaoRemessa);
-            orderItemLookups.add(ShippingDivisonINData.orderExternalId+'|'+ ShippingDivisonINData.OrderItemCode);
-
+            orderLookups.add(OrderItemINData.orderExternalId);
             // Pega a relação do Product com o OrderItem
             //Getting product parameters to search
+            productLookups.add(OrderItemINData.material);
         }
         // Pega o produto com base no ExternalID recebido
         //Product2 search based on ExternalId__c field sent
+        for (Product2 product : [SELECT Id, ProductCode FROM Product2 WHERE ProductCode IN: productLookups ]) {
+            //Map structure for the model -> object name + parameter to record id
+            lookups.put('Product2' + product.ProductCode, product.Id);
+        }
         // Pega o pedido com base no ExternalId recebido
         //Order search based on ExternalId__c field sent
         for (Order order : [SELECT Id, CodigoSap__c FROM Order WHERE CodigoSap__c IN : orderLookups]) {
             //Map structure for the model -> object name + parameter to record id
             lookups.put('Order' + order.CodigoSap__c, order.Id);
         }
-        for (OrderItem OrderItem : [SELECT Id, ExternalId__c, Product2.ProductCode FROM OrderItem WHERE ExternalId__c IN : orderItemLookups]) {
-            //Map structure for the model -> object name + parameter to record id
-            lookups.put('OrderItem__c' + orderItem.Product2.ProductCode, orderItem.Id);
+        
+        for (PricebookEntry pricebookEntry : [SELECT Id, Product2Id, productCode, Pricebook2.isStandard FROM PricebookEntry ]){
+            lookups.put('PricebookEntry' + pricebookEntry.productCode, pricebookEntry.Id);
         }
-       
         
         // Associa as respostas do OrderItem com Order
         //OrderItem ExternalId Map to Order ExternalId for association of responses
         Map<String, String> parentMapKeys = new Map<String, String>();
-        for(TemplateDataIntegrationFields.ShippingDivisonINData shippingDivison : request) {
+        for(TemplateDataIntegrationFields.OrderItemINData orderItem : request) {
             // como estava = parentMapKeys.put(ORDEREXTERNALID + '|' + ORDERITEMEXTERNALID, lookups.containsKey('Order'+ORDEREXTERNALID) ? lookups.get('Order'+ORDEREXTERNALID) : ORDEREXTERNALID);
-           parentMapKeys.put(shippingDivison.orderExternalId + '|' + shippingDivison.OrderItemCode, lookups.containsKey('Order'+shippingDivison.orderExternalId) ? String.valueOf(lookups.get('Order'+shippingDivison.orderExternalId)) : shippingDivison.orderExternalId);
+            parentMapKeys.put(orderItem.orderExternalId + '|' + orderItem.orderItemCode, lookups.containsKey('Order'+orderItem.orderExternalId) ? String.valueOf(lookups.get('Order'+orderItem.orderExternalId)) : orderItem.orderExternalId);
         }
         // Valida e adiciona os OrderItem na lista para o upsert
         //Converting template to object list and validating required fields
         FactoryDataIntegration.convertSObjectChild(
-            new ShippingDivison__c(), 
+            new OrderItem(), 
             'IN', 
             request, 
             responseMap, 
-            shippingDivisonListToUpsert, 
+            orderItemListToUpsert, 
             lookups, 
             parentMapKeys
         );
 
-        //Upserting records
-        List<Database.UpsertResult> upsResults = Database.upsert(shippingDivisonListToUpsert, ShippingDivison__c.ExternalId__c, false);
 
-        IntegrationUtils.upsertChildRecords(upsResults, responseMap, shippingDivisonListToUpsert, ShippingDivison__c.ExternalId__c); 
+        //Upserting records
+        List<Database.UpsertResult> upsResults = Database.upsert(orderItemListToUpsert, OrderItem.ExternalId__c, false);
+        IntegrationUtils.upsertChildRecords(upsResults, responseMap, orderItemListToUpsert, OrderItem.ExternalId__c); 
         
         //Returning response
         return responseMap;
