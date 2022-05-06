@@ -7,7 +7,8 @@ export default class OrderScreenFooter extends LightningElement {
     }
 
     saveOrder(event){
-        const order = new CustomEvent('saveorder', {detail: event.target.name });
+        const order = new CustomEvent('saveorder');
+        order.data = event.target.dataset.order;
         this.dispatchEvent(order);
     }
 }
