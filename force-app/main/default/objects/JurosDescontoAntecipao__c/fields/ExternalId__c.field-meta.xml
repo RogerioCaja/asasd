@@ -5,7 +5,11 @@
     <externalId>true</externalId>
     <label>Código Sap</label>
     <length>100</length>
+<<<<<<< HEAD
     <required>false</required>
+=======
+    <required>true</required>
+>>>>>>> main
     <trackFeedHistory>false</trackFeedHistory>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>

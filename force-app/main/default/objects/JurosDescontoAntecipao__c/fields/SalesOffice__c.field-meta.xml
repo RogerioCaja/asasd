@@ -5,9 +5,15 @@
     <externalId>false</externalId>
     <label>Escritório de Vendas</label>
     <referenceTo>SalesOffice__c</referenceTo>
+<<<<<<< HEAD
     <relationshipLabel>Listas de Preço</relationshipLabel>
     <relationshipName>Juros_e_Descontos_Antecipa_o</relationshipName>
     <required>false</required>
+=======
+    <relationshipLabel>Juros e Descontos Antecipação</relationshipLabel>
+    <relationshipName>Juros_e_Descontos_Antecipa_o</relationshipName>
+    <required>true</required>
+>>>>>>> main
     <trackFeedHistory>false</trackFeedHistory>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>

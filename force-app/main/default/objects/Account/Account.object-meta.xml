@@ -231,6 +231,10 @@
         <type>Default</type>
     </actionOverrides>
     <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+<<<<<<< HEAD
+=======
+    <enableEnhancedLookup>true</enableEnhancedLookup>
+>>>>>>> main
     <enableFeeds>true</enableFeeds>
     <enableHistory>false</enableHistory>
     <externalSharingModel>Private</externalSharingModel>

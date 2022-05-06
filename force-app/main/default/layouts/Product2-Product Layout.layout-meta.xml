@@ -39,6 +39,7 @@
                 <behavior>Edit</behavior>
                 <field>PrincipleActive__c</field>
             </layoutItems>
+<<<<<<< HEAD
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>DistributionCenter__c</field>
@@ -71,6 +72,8 @@
                 <behavior>Required</behavior>
                 <field>NumeroRegistro__c</field>
             </layoutItems>
+=======
+>>>>>>> main
         </layoutColumns>
         <layoutColumns>
             <layoutItems>

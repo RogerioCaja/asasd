@@ -86,10 +86,15 @@
     </actionOverrides>
     <actionOverrides>
         <actionName>Edit</actionName>
+<<<<<<< HEAD
         <content>CallOrderPage</content>
         <formFactor>Large</formFactor>
         <skipRecordTypeSelect>false</skipRecordTypeSelect>
         <type>LightningComponent</type>
+=======
+        <formFactor>Small</formFactor>
+        <type>Default</type>
+>>>>>>> main
     </actionOverrides>
     <actionOverrides>
         <actionName>Edit</actionName>
@@ -116,10 +121,15 @@
     </actionOverrides>
     <actionOverrides>
         <actionName>New</actionName>
+<<<<<<< HEAD
         <content>CallOrderPage</content>
         <formFactor>Large</formFactor>
         <skipRecordTypeSelect>false</skipRecordTypeSelect>
         <type>LightningComponent</type>
+=======
+        <formFactor>Small</formFactor>
+        <type>Default</type>
+>>>>>>> main
     </actionOverrides>
     <actionOverrides>
         <actionName>New</actionName>

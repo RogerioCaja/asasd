@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+<<<<<<< HEAD
     <applicationVisibilities>
         <application>AgroGalaxy</application>
         <visible>true</visible>
     </applicationVisibilities>
+=======
+>>>>>>> main
     <fieldPermissions>
         <editable>true</editable>
         <field>Account.AccountNumber</field>
@@ -96,6 +99,14 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+<<<<<<< HEAD
+=======
+        <field>Account.Segmento__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+>>>>>>> main
         <field>Account.ShippingAddress</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -146,6 +157,7 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+<<<<<<< HEAD
         <field>Boletos__c.Company__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -626,11 +638,14 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+=======
+>>>>>>> main
         <field>JurosDescontoAntecipao__c.ConditionType__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+<<<<<<< HEAD
         <field>JurosDescontoAntecipao__c.Cost__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -661,6 +676,8 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+=======
+>>>>>>> main
         <field>JurosDescontoAntecipao__c.Percentage__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -671,16 +688,20 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+<<<<<<< HEAD
         <field>JurosDescontoAntecipao__c.ProductMultiplier__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+=======
+>>>>>>> main
         <field>JurosDescontoAntecipao__c.Product__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+<<<<<<< HEAD
         <field>JurosDescontoAntecipao__c.SalesCondition__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -696,6 +717,8 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+=======
+>>>>>>> main
         <field>Lead.Address</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -811,6 +834,7 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+<<<<<<< HEAD
         <field>NotaFiscal__c.BranchOffice__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1241,6 +1265,8 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+=======
+>>>>>>> main
         <field>OrgVProduct__c.Channel__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1296,6 +1322,7 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+<<<<<<< HEAD
         <field>Pricebook2.AccountType__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1486,11 +1513,14 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+=======
+>>>>>>> main
         <field>ProductFamily__c.ExternalId__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+<<<<<<< HEAD
         <field>ProductOffered__c.Amount__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1526,6 +1556,8 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+=======
+>>>>>>> main
         <field>ProductSubGroup__c.ExternalId__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1551,11 +1583,14 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+<<<<<<< HEAD
         <field>SalesCondition__c.ExternalId__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+=======
+>>>>>>> main
         <field>SalesOffice__c.Codigo__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1564,6 +1599,7 @@
         <field>SalesTeam__c.ExternalId__c</field>
         <readable>true</readable>
     </fieldPermissions>
+<<<<<<< HEAD
     <fieldPermissions>
         <editable>true</editable>
         <field>ShippingDivison__c.ConfirmedQuantity__c</field>
@@ -1634,6 +1670,8 @@
         <field>VisitPlanning__c.SellOrg__c</field>
         <readable>true</readable>
     </fieldPermissions>
+=======
+>>>>>>> main
     <hasActivationRequired>false</hasActivationRequired>
     <label>Admin</label>
     <objectPermissions>
@@ -1641,21 +1679,33 @@
         <allowDelete>true</allowDelete>
         <allowEdit>true</allowEdit>
         <allowRead>true</allowRead>
+<<<<<<< HEAD
         <modifyAllRecords>true</modifyAllRecords>
+=======
+        <modifyAllRecords>false</modifyAllRecords>
+>>>>>>> main
         <object>Account</object>
         <viewAllRecords>true</viewAllRecords>
     </objectPermissions>
     <objectPermissions>
         <allowCreate>true</allowCreate>
+<<<<<<< HEAD
         <allowDelete>true</allowDelete>
         <allowEdit>true</allowEdit>
         <allowRead>true</allowRead>
         <modifyAllRecords>true</modifyAllRecords>
+=======
+        <allowDelete>false</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+>>>>>>> main
         <object>ActivitySector__c</object>
         <viewAllRecords>true</viewAllRecords>
     </objectPermissions>
     <objectPermissions>
         <allowCreate>true</allowCreate>
+<<<<<<< HEAD
         <allowDelete>true</allowDelete>
         <allowEdit>true</allowEdit>
         <allowRead>true</allowRead>
@@ -1714,11 +1764,18 @@
         <allowEdit>true</allowEdit>
         <allowRead>true</allowRead>
         <modifyAllRecords>true</modifyAllRecords>
+=======
+        <allowDelete>false</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+>>>>>>> main
         <object>CondicaoPagamento__c</object>
         <viewAllRecords>true</viewAllRecords>
     </objectPermissions>
     <objectPermissions>
         <allowCreate>true</allowCreate>
+<<<<<<< HEAD
         <allowDelete>true</allowDelete>
         <allowEdit>true</allowEdit>
         <allowRead>true</allowRead>
@@ -1741,11 +1798,18 @@
         <allowEdit>true</allowEdit>
         <allowRead>true</allowRead>
         <modifyAllRecords>true</modifyAllRecords>
+=======
+        <allowDelete>false</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+>>>>>>> main
         <object>Cultura__c</object>
         <viewAllRecords>true</viewAllRecords>
     </objectPermissions>
     <objectPermissions>
         <allowCreate>true</allowCreate>
+<<<<<<< HEAD
         <allowDelete>true</allowDelete>
         <allowEdit>true</allowEdit>
         <allowRead>true</allowRead>
@@ -1795,20 +1859,34 @@
         <allowEdit>true</allowEdit>
         <allowRead>true</allowRead>
         <modifyAllRecords>true</modifyAllRecords>
+=======
+        <allowDelete>false</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+>>>>>>> main
         <object>JurosDescontoAntecipao__c</object>
         <viewAllRecords>true</viewAllRecords>
     </objectPermissions>
     <objectPermissions>
         <allowCreate>true</allowCreate>
+<<<<<<< HEAD
         <allowDelete>true</allowDelete>
         <allowEdit>true</allowEdit>
         <allowRead>true</allowRead>
         <modifyAllRecords>true</modifyAllRecords>
+=======
+        <allowDelete>false</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+>>>>>>> main
         <object>Lead</object>
         <viewAllRecords>true</viewAllRecords>
     </objectPermissions>
     <objectPermissions>
         <allowCreate>true</allowCreate>
+<<<<<<< HEAD
         <allowDelete>true</allowDelete>
         <allowEdit>true</allowEdit>
         <allowRead>true</allowRead>
@@ -1827,10 +1905,13 @@
     </objectPermissions>
     <objectPermissions>
         <allowCreate>true</allowCreate>
+=======
+>>>>>>> main
         <allowDelete>false</allowDelete>
         <allowEdit>true</allowEdit>
         <allowRead>true</allowRead>
         <modifyAllRecords>false</modifyAllRecords>
+<<<<<<< HEAD
         <object>Order</object>
         <viewAllRecords>false</viewAllRecords>
     </objectPermissions>
@@ -1840,20 +1921,30 @@
         <allowEdit>true</allowEdit>
         <allowRead>true</allowRead>
         <modifyAllRecords>true</modifyAllRecords>
+=======
+>>>>>>> main
         <object>OrgVProduct__c</object>
         <viewAllRecords>true</viewAllRecords>
     </objectPermissions>
     <objectPermissions>
         <allowCreate>true</allowCreate>
+<<<<<<< HEAD
         <allowDelete>true</allowDelete>
         <allowEdit>true</allowEdit>
         <allowRead>true</allowRead>
         <modifyAllRecords>true</modifyAllRecords>
+=======
+        <allowDelete>false</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+>>>>>>> main
         <object>PlanejamentoVendas__c</object>
         <viewAllRecords>true</viewAllRecords>
     </objectPermissions>
     <objectPermissions>
         <allowCreate>true</allowCreate>
+<<<<<<< HEAD
         <allowDelete>true</allowDelete>
         <allowEdit>true</allowEdit>
         <allowRead>true</allowRead>
@@ -1980,10 +2071,13 @@
     </objectPermissions>
     <objectPermissions>
         <allowCreate>true</allowCreate>
+=======
+>>>>>>> main
         <allowDelete>false</allowDelete>
         <allowEdit>true</allowEdit>
         <allowRead>true</allowRead>
         <modifyAllRecords>false</modifyAllRecords>
+<<<<<<< HEAD
         <object>ShippingDivison__c</object>
         <viewAllRecords>false</viewAllRecords>
     </objectPermissions>
@@ -1994,6 +2088,81 @@
         <allowRead>true</allowRead>
         <modifyAllRecords>true</modifyAllRecords>
         <object>VisitPlanning__c</object>
+=======
+        <object>PotencialCompra__c</object>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>ProductFamily__c</object>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>ProductGroup__c</object>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>ProductSubGroup__c</object>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>ProdutosPlanejamento__c</object>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>Safra__c</object>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>SalesOffice__c</object>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>SalesOrg__c</object>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>SalesTeam__c</object>
+>>>>>>> main
         <viewAllRecords>true</viewAllRecords>
     </objectPermissions>
     <recordTypeVisibilities>
@@ -2008,6 +2177,7 @@
         <recordType>Account.Propriedade</recordType>
         <visible>true</visible>
     </recordTypeVisibilities>
+<<<<<<< HEAD
     <recordTypeVisibilities>
         <recordType>JurosDescontoAntecipao__c.ZDAN</recordType>
         <visible>true</visible>
@@ -2186,6 +2356,10 @@
     </tabSettings>
     <tabSettings>
         <tab>VisitPlanning__c</tab>
+=======
+    <tabSettings>
+        <tab>standard-Dashboard</tab>
+>>>>>>> main
         <visibility>Visible</visibility>
     </tabSettings>
 </PermissionSet>

@@ -1,13 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>SalesOrganizationCode__c</fullName>
+<<<<<<< HEAD
     <caseSensitive>false</caseSensitive>
     <externalId>true</externalId>
+=======
+    <externalId>false</externalId>
+>>>>>>> main
     <label>Código Organização de Venda</label>
     <length>180</length>
     <required>true</required>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>
     <type>Text</type>
+<<<<<<< HEAD
     <unique>true</unique>
+=======
+    <unique>false</unique>
+>>>>>>> main
 </CustomField>

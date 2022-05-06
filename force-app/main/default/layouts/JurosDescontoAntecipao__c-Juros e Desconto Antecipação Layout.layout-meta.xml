@@ -39,6 +39,7 @@
                 <behavior>Required</behavior>
                 <field>ExternalId__c</field>
             </layoutItems>
+<<<<<<< HEAD
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>ConditionNumberRegister__c</field>
@@ -51,6 +52,8 @@
                 <behavior>Readonly</behavior>
                 <field>DescriptionExternalId__c</field>
             </layoutItems>
+=======
+>>>>>>> main
         </layoutColumns>
         <layoutColumns>
             <layoutItems>
