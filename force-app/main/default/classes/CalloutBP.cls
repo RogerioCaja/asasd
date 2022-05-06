@@ -59,6 +59,10 @@ public with sharing class CalloutBP {
             if (!accountList.isEmpty()) {
                 upsert accountList ExternalId__c;
             }
+            for(Account acc : accountList){
+                lookups.put('Account__c' + acc.ExternalId__c, acc.Id);
+            }
+
             Map<String, Id> newLookups = creatyNewLookup(companyList, creditoList, lookups);
             System.debug('creditoList: '+ creditoList);
             System.debug('companyList: '+ companyList);
@@ -85,6 +89,7 @@ public with sharing class CalloutBP {
             salesOrganizationIdList.add(valor.OrganizacaoVendas);
             cultureIdsList.add(valor.Cultura);
             safraIdsList.add(String.valueOf(valor.Safra));
+            System.debug('safraIdsList'+safraIdsList);
         }
         for(CompanyINData valor : companyList){
             accountIdList.add(valor.CodigoExternoAccount);
@@ -179,7 +184,8 @@ public with sharing class CalloutBP {
             if(valor.Bloqueado == 'true'){
                 blocked = true;
             }
-            
+            System.debug('valor.CodigoExternoAccount' + valor.CodigoExternoAccount);
+            System.debug('lookups.get(Account__c+valor.CodigoExternoAccount)' + lookups.get('Account__c'+valor.CodigoExternoAccount));
             LimiteCredito__c credit = new LimiteCredito__c(
             Account__c = lookups.containsKey('Account__c'+valor.CodigoExternoAccount) ? lookups.get('Account__c'+valor.CodigoExternoAccount) : null,
             OrganizacaoVendas__c = lookups.containsKey('SalesOrg__c'+valor.OrganizacaoVendas) ? lookups.get('SalesOrg__c'+valor.OrganizacaoVendas) : null,
