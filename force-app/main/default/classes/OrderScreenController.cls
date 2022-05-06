@@ -309,9 +309,9 @@ public without sharing class OrderScreenController {
                     counter++;
                 }
 
-                // if (salesTeamTerritory == null) {
-                //     salesTeamTerritory = territoryAndParents.get(territoryAndParents.get(userTerritoryId).ParentTerritory2Id);
-                // }
+                if (salesTeamTerritory == null) {
+                    salesTeamTerritory = territoryAndParents.get(territoryAndParents.get(userTerritoryId).ParentTerritory2Id);
+                }
 
                 Map<Id, Id> approvalsByTerritory = new Map<Id, Id>();
                 for (UserTerritory2Association userAssociation : [
@@ -338,21 +338,21 @@ public without sharing class OrderScreenController {
                 }
             }
 
-            // Id companyId;
-            // Id salesOrgId;
-            // if (salesTeamTerritory.DeveloperName != null) {
-            //     String salesTeamDevName = salesTeamTerritory.DeveloperName.substring(1, salesTeamTerritory.DeveloperName.length());
-            //     for (Company__c salesTeamCompany : [
-            //         SELECT Id,
-            //                SalesOrg__c
-            //           FROM Company__c
-            //          WHERE Conta__c =: orderData.accountData.Id
-            //            AND SalesTeam__r.ExternalId__c =: salesTeamDevName
-            //     ]) {
-            //         companyId = salesTeamCompany.Id;
-            //         salesOrgId = salesTeamCompany.SalesOrg__c;
-            //     }
-            // }
+            Id companyId;
+            Id salesOrgId;
+            if (salesTeamTerritory.DeveloperName != null) {
+                String salesTeamDevName = salesTeamTerritory.DeveloperName.substring(1, salesTeamTerritory.DeveloperName.length());
+                for (Company__c salesTeamCompany : [
+                    SELECT Id,
+                           SalesOrg__c
+                      FROM Company__c
+                     WHERE Conta__c =: orderData.accountData.Id
+                       AND SalesTeam__r.ExternalId__c =: salesTeamDevName
+                ]) {
+                    companyId = salesTeamCompany.Id;
+                    salesOrgId = salesTeamCompany.SalesOrg__c;
+                }
+            }
 
             order.AccountId = acc.Id;
             order.Status = 'Draft';
@@ -365,7 +365,7 @@ public without sharing class OrderScreenController {
             order.Crop__c = orderData.headerData.safra.Id ;
             order.Culture__c = orderData.headerData.cultura.Id ;
             order.PaymentForm__c = orderData.headerData.forma_pagamento ;
-            // order.SalesOrg__c = salesOrgId;
+            order.SalesOrg__c = salesOrgId;
             order.DistributionChannel__c = orderData.headerData.canal_distribuicao ;
             order.ActivitySector__c = orderData.headerData.setor_atividade ;
             order.Currency__c = orderData.headerData.moeda ;
