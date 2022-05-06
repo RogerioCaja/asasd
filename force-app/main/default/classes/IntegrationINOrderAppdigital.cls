@@ -38,6 +38,7 @@ global with sharing class IntegrationINOrderAppdigital {
             salesSectionLookups.add(order.ActivitySector);
             salesCTVLookups.add(order.SalesCTV);
             paymentConditionLookups.add(order.PaymentCondition);
+            pricebookLookups.add(order.pricebook2Id);
            
             if(order.orderItems != null) {
                 // Adiciona todos os External Id e o catalogo de preço de order nos orderItem
@@ -88,8 +89,8 @@ global with sharing class IntegrationINOrderAppdigital {
         for (CondicaoPagamento__c paymentCondition : [SELECT Id, Name from CondicaoPagamento__c WHERE Name IN: paymentConditionLookups]){
             lookups.put('CondicaoPagamento__c' + paymentCondition.Code__c, paymentCondition.Id);
         }
-        for (Pricebook2 pricebook2Id : [SELECT Id, ExternalId__c FROM Pricebook2 WHERE ExternalId__c IN : pricebookLookups ]){
-            lookups.put('Pricebook2Id' + pricebook2Id.ExternalId__c, pricebook2Id.Id);
+        for (Pricebook2 pricebook2Id : [SELECT Id, ExternalId__c, Name FROM Pricebook2 WHERE Name IN : pricebookLookups ]){
+            lookups.put('Pricebook2Id' + pricebook2Id.Name, pricebook2Id.Id);
         }
         //Converting template to object list and validating required fields
         // Valida e adiciona objeto na lista para upsert
@@ -115,7 +116,7 @@ global with sharing class IntegrationINOrderAppdigital {
         Map<String, List<TemplateDataIntegrationFields.Response>> shippingDivisonResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
         if(shippingDivisonListToUpsert.size() != 0){
             shippingDivisonResponse.putAll(
-                IntegrationINShippingDivisonAppdigital.upsertShippingDivison(ShippingDivisonListToUpsert)
+                IntegrationINShippingDivisonAppdigital.upsertShippingDivison(shippingDivisonListToUpsert)
             );
         }
 
