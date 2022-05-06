@@ -15,7 +15,7 @@ public class OrderScreenControllerTest {
             Name = 'Child Account',
             Company__c = 'Child Account',
             Phone = '11111111111',
-            ExternalId__c = '123456'
+            ExternalId__c = '123457'
         );
         accountList.add(childAccount);
         insert accountList;
@@ -44,7 +44,8 @@ public class OrderScreenControllerTest {
             Conta__c = parentAccount.Id,
             SalesOrg__c = salesOrg.Id,
             SalesOffice__c = salesOffice.Id,
-            SalesTeam__c = salesTeam.Id
+            SalesTeam__c = salesTeam.Id,
+            ExternalID__c = '001'
         );
         insert company;
 
@@ -108,7 +109,14 @@ public class OrderScreenControllerTest {
             IsActive = true,
             PrincipleActive__c = 'Salicilina',
             ProductGroup__c = productGroup.Id,
-            Multiplicity__c = 5
+            Multiplicity__c = 5,
+            ClasseAvaliacao__c = 'A',
+            GrupoQuimico__c = 'A',
+            MarcadoEliminacao__c = 'A',
+            NCM__c = 'A',
+            NumeroRegistro__c = '2',
+            OrigemMaterial__c = 'Ferro',
+            UnidadeMedida__c = 'Quilos'
         );
         insert product;
 
@@ -143,13 +151,15 @@ public class OrderScreenControllerTest {
             ComissionValue__c = 0,
             CommercialMargin__c = 2,
             Dosage__c = 5,
-            InvoicedQuantity__c = 0
+            InvoicedQuantity__c = 0,
+            NumeroSap__c = '001',
+            ExternalId__c = order.Id + '|001'
         );
         insert orderItem;
 
         ShippingDivison__c shipping = new ShippingDivison__c(
             DeliveryDate__c = System.today().addDays(30),
-            Quantity__c = 10,
+            Quantity__c = 5,
             ExternalId__c = '001',
             ConfirmedQuantity__c = 0,
             OrderItem__c = orderItem.Id
@@ -169,7 +179,8 @@ public class OrderScreenControllerTest {
             StartDate__c = System.today().addDays(-5),
             EndDate__c = System.today().addDays(5),
             AccountType__c = 'A',
-            ConditionType__c = 'Desconto'
+            ConditionType__c = 'Desconto',
+            ExternalId__c = '001'
         );
         insert financialDiscount;
     }
@@ -192,6 +203,7 @@ public class OrderScreenControllerTest {
 
         String data = JSON.serialize(new OrderScreenController.OrderSerializeAll(order, ordItemList, divisionList, account, summary));
         OrderScreenController.saveOrder(null, false, data);
+        OrderScreenController.approvals(data);
     }
 
     @isTest
