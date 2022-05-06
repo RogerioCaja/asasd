@@ -1601,6 +1601,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>User.CodigoSap__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>User.SellerType__c</field>
         <readable>true</readable>
     </fieldPermissions>

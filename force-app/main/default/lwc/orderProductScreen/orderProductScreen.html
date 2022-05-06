@@ -318,11 +318,11 @@
 						<template if:true={divProduct.showInfos}>
 							<div class="column">
 								<label>Data de entrega</label><br>
-								<input class="input-design" type="date" value={divProduct.deliveryDate} onchange={divisionChange} data-target-id={divProduct.deliveryId}/>
+								<input class="input-design" type="date" value={divProduct.deliveryDate} onchange={divisionChange} data-target-id={divProduct.deliveryId} disabled={currentDivisionProduct.dontAllowChange}/>
 							</div>
 							<div class="column">
 								<label>Quantidade</label><br>
-								<input class="input-design" type="number" value={divProduct.quantity} onchange={divisionChange} data-target-id={divProduct.quantityId}/>
+								<input class="input-design" type="number" value={divProduct.quantity} onchange={divisionChange} data-target-id={divProduct.quantityId} disabled={currentDivisionProduct.dontAllowChange}/>
 							</div>
 						</template>
 					</div>
@@ -330,7 +330,7 @@
 
 				<div class="row">
 					<div class="back-button">
-						<a onclick={newFields}>Adicionar remessa</a>
+						<a if:false={currentDivisionProduct.dontAllowChange} onclick={newFields}>Adicionar remessa</a>
 					</div>
 				</div>
 

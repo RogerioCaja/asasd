@@ -13,68 +13,323 @@ global with sharing class TemplateDataIntegrationFields {
         SObject serialize(Map<String, String> lookups);
         String getParentKey();
     }
-    
-    public abstract class ConditionsPrices implements FieldData{
-        public String codExternal;
+
+    global class JurosDescontoAntecipaoINData implements FieldData{
+        public String table;
         public String typeCondition;
+        public String product;
+        public String productGroup;
+        public String unitPrice;
+        public String center;
+
+        public String salesCondition;
+
+        public String cropCode;
         public String cultureCode;
+        public String accountCode;
+        public String accountGroup;
+
         public String orgVendas;
         public String salesOffice;
         public String salesTeam;
-        public String productGroup;
-        public String accountGroup;
+
         public String initialDate;
         public String endDate;
-        public String numRegisterCondition;
+
+        public String typeCurrency;
+        public String externalId;
+        public String unitMeasurement;
+        // Chave(ExternalId__c): (orgVendas) | (safra) | (moeda) | (Material)(Lista de preço) | (Grupo de produtos)(Escritório de vendas)(Equipe de Vendas)(Cultura)(Segmento do Cliente)(Cliente) | (Material)(Equipe de vendas) | (Material)
+        public JurosDescontoAntecipao__c serialize(Map<String, Id> lookups){
+            return new JurosDescontoAntecipao__c(
+                AccountType__c = this.accountGroup,
+                ConditionType__c = this.typeCondition == 'ZPRO' ? 'Condição de Preço' : this.typeCondition == 'ZDAN'? 'Desconto' : 'Juros',
+                RecordTypeId = [SELECT Id FROM RecordType WHERE DeveloperName =: this.typeCondition][0].Id,
+                Culture__c = lookups.containsKey('Cultura__c'+this.cultureCode) ? lookups.get('Cultura__c'+this.cultureCode) : null,
+                DistributionCenter__c =lookups.containsKey('DistributionCenter__c'+this.center) ? lookups.get('DistributionCenter__c'+this.center) : null,
+                EndDate__c = this.endDate != null ? Date.valueOf(this.endDate) : null,
+                // ExternalId__c = this.orgVendas + this.cropCode  + this.typeCurrency +  this.product + this.salesCondition  + this.productGroup + this.salesOffice  + this.cultureCode + this.accountGroup +  this.accountCode  + this.product + this.salesTeam  + this.product, // A estrutura está acima ^^^^
+                ExternalId__c = this.externalId,
+                harvest__c = lookups.containsKey('Safra__c'+this.cropCode) ? lookups.get('Safra__c'+this.cropCode) : null,
+                Product__c = lookups.containsKey('Product2'+this.product) ? lookups.get('Product2'+this.product) : null,
+                ProductGroup__c = lookups.containsKey('ProductGroup__c'+this.productGroup) ? lookups.get('ProductGroup__c'+this.productGroup) : null,
+                SalesOffice__c = lookups.containsKey('SalesOffice__c'+this.salesOffice) ? lookups.get('SalesOffice__c'+this.salesOffice) : null,
+                SalesOrg__c = lookups.containsKey('SalesOrg__c'+this.orgVendas) ? lookups.get('SalesOrg__c'+this.orgVendas) : null,
+                SalesTeam__c = lookups.containsKey('SalesTeam__c'+this.salesTeam) ? lookups.get('SalesTeam__c'+this.salesTeam) : null,
+                StartDate__c = this.initialDate != null ? Date.valueOf(this.initialDate) : null,
+                Account__c = lookups.containsKey('Account'+this.accountCode) ? lookups.get('Account'+this.accountCode) : null,
+                Currency__c = this.typeCurrency,
+                SalesCondition__c = lookups.containsKey('SalesCondition__c'+this.salesCondition) ? lookups.get('SalesCondition__c'+this.salesCondition) : null, 
+                ProductMultiplier__c = 1,
+                UnitMeasurement__c = this.unitMeasurement != null ? this.unitMeasurement : null,
+                UnitPrice__c = (this.typeCurrency == 'BRL' || this.typeCurrency == 'USD') ? Decimal.valueOf(this.unitPrice) : null,
+                Percentage__c = this.typeCurrency == '%' ? Decimal.valueOf(this.unitPrice) : null
+            );
+            
+        }
+    
+        
+        //Required fields for integration
+        public List<String> getRequiredFields(){
+            return new List<String>{
+
+            };
+        }
+
+        //ExternalId field
+        public String getFieldKey(){
+            return 'ExternalId__c';
+        }
+        
+        //Id field
+        public String getFieldId() {
+            return 'Id';
+        }
+    }
+    
+    global class Product2INData implements FieldData {
+        public String ProductName;
+        public String TextoBreveMaterial;
+        public String UnidadeMedida;
+        public String UnidadeMedidaRemessa;
+        public String Status;
+        public String TipoMaterial;
+        public String GrupoMercadoria;
+        public String SubgrupoMercadoria;
+        public String MarcadoEliminacao;
+        public String UnidadePeso;
+        public String CodigoControle;
+        public String ClasseAvaliacao;
+        public String OrigemMaterial;
+        public String Marca;
+        public String NCM;
+        public String GrupoQuimico;
+        public String IngredienteAtivo;
+        public String NumeroRegistro;
+        public Decimal PesoBruto;
+        //public List<TemplateDataIntegrationFields.ProductINData> product2Entries;
+
+global class AccountINData implements FieldData{
+        
+        //Id field
+        public String getFieldId() {
+            return 'Id';
+        }
+    }
+    global class OrderINData implements FieldData{
+
+        public String Status;
+        public String pricebook2Id;
+        public String CodigoSap;
+        public String Type;
+        public String ShippingAccount;
+        public String PaymentAccount;
+        public Date PaymentDate;
+        public String CustomerOrderNumber;
+        public Date EffectiveDate;
+        public String Crop;
+        public String Culture;
+        public String PaymentForm;
+        public String SalesOrg;
+        public String DistributionChannel;
+        public String ActivitySector;
+        public String CurrencyOrder;
+        public String SalesCTV;
+        public String Incoterms;
+        public String Incoterms2;
+        public String Description;
+        public String PaymentCondition;
+        public Date ShippingDate;
+        public String DescriptionBillingSale;
+        public String OrderReference;
+        public String clienteCode;
+        public List<TemplateDataIntegrationFields.OrderItemINData> orderItems;
+        public List<TemplateDataIntegrationFields.ShippingDivisonINData> shippingDivison;
+        public Order serialize(Map<String, Id> lookups){
+
+            return new Order(
+
+                CodigoSap__c = this.CodigoSap,
+                //Pricebook2Id = lookups.containsKey('Pricebook2Id'+this.pricebook2Id) ? lookups.get('Pricebook2Id'+this.pricebook2Id) : null,
+                ShippingAccount__c = lookups.containsKey('ShippingAccount__c'+this.shippingAccount) ? lookups.get('ShippingAccount__c'+this.shippingAccount) : null,
+                AccountId = lookups.containsKey('Account'+ this.clienteCode) ? lookups.get('Account'+this.clienteCode) : null,
+                Crop__c = lookups.containsKey('Safra__c'+this.crop) ? lookups.get('Safra__c'+this.crop) : null,
+                Culture__c = lookups.containsKey('Cultura__c'+this.culture) ? lookups.get('Cultura__c'+this.culture) : null,
+                SalesOrg__c = lookups.containsKey('SalesOrg__c'+this.salesOrg) ? lookups.get('SalesOrg__c'+this.salesOrg) : null,
+                SalesCTV__c = lookups.containsKey('SalesCTV__c'+this.salesCTV) ? lookups.get('SalesCTV__c'+this.salesCTV) : null,
+                PaymentCondition__c = lookups.containsKey('CondicaoPagamento__c'+this.paymentCondition) ? lookups.get('CondicaoPagamento__c'+this.paymentCondition) : null,
+                PaymentDate__c = Date.valueOf(paymentDate),
+                EffectiveDate = Date.valueOf(effectiveDate),
+                ShippingDate__c = Date.valueOf(ShippingDate),
+                Status = this.status,
+                Type = this.type,
+                CustomerOrderNumber__c = this.customerOrderNumber,
+                PaymentForm__c = this.paymentForm,
+                DistributionChannel__c = this.distributionChannel,
+                ActivitySector__c = this.activitySector,
+                Currency__c = this.CurrencyOrder,
+                Incoterms__c = this.incoterms,
+                Incoterms2__c = this.incoterms,
+                Description = this.description,
+                DescriptionBillingSale__c = this.descriptionBillingSale,
+                Pricebook2Id = lookups.containsKey('Pricebook2Id'+this.pricebook2Id) ? lookups.get('Pricebook2Id'+this.pricebook2Id) : null
+            );
+        }
+
+        public List<String> getRequiredFields(){
+            return new List<String>{
+                //'ExternalId__c'
+     
+            };
+        }
+        public String getFieldKey(){
+            return 'CodigoSap__c';
+        }
+        public String getFieldId() {
+            return 'Id';
+        }
     }
 
-    global class Pricebook2INData extends ConditionsPrices{
-        
+    global class OrderItemINData implements FieldDataChild{
         //JSON fields Example
-        public String  name;
-        public String  description;
-        public String  listPrice;
-        public String  cropCode;
-        public String  accountCode;
-        public String  salesSector;
-        public String  effectiveDate;
-        public String  typeCurrency;
-        public Boolean active;
-        public List<TemplateDataIntegrationFields.PricebookEntryINData> pricebookEntries;
+        public String orderItemCode;
+        public String orderExternalId;
+        public String material;
+        public String productCode;
+        public Decimal quantidade;
+        //public String centro;
+        public String unidadeMedida;
+        public Decimal listaPreco;
+        public Decimal porcentagemComissao;
+        public Decimal porcentagemDesconto;
+        public Decimal comissaoValor;
+        public Decimal margemComercial;
+        public Decimal descontoValor;
+        public Decimal valorTotal;
+        public Decimal porcentagemDescontoFin;
+        public Decimal valorDescontoFin;
+        public Decimal porcentagemAcrescFin;
+        public Decimal valorAcrescFin;
 
-        public Pricebook2 serialize(Map<String, Id> lookups){
+        public OrderItem serialize(Map<String, Id> lookups){
 
-            
+            return new OrderItem(
+                OrderId = lookups.containsKey('Order'+this.orderExternalId) ? lookups.get('Order'+this.orderExternalId) : null,
+                Product2Id = lookups.containsKey('Product2'+this.material) ? lookups.get('Product2'+this.material) : null,
+                PricebookEntryId = lookups.containsKey('PricebookEntry'+ this.material) ? lookups.get('PricebookEntry' + this.material) : null,
+                ExternalId__c = this.orderExternalId + '|' + this.orderItemCode,
+                Quantity = this.quantidade,
+                UnitMeasure__c = this.unidadeMedida,
+                UnitPrice = this.listaPreco,
+                PercentComission__c = this.porcentagemComissao,
+                DiscountPercent__c = this.porcentagemDesconto,
+                ComissionValue__c = this.comissaoValor,
+                CommercialMargin__c = this.margemComercial,
+                DiscountValue__c = this.descontoValor,
+                FinalTotalValue__c = this.valorTotal,
+                FinancialDiscountPercent__c = this.porcentagemDescontoFin,
+                FinancialDiscountValue__c = this.valorDescontoFin,
+                FinancialAdditionPercent__c = this.porcentagemAcrescFin,
+                FinancialAdditionValue__c = this.valorAcrescFin 
+                 
+            );
+        }
+        public List<String> getRequiredFields(){
+            //Example
+            return new List<String>{
+               // 'Product2Id'
+    
+
+    global class ShippingDivisonINData implements FieldDataChild{
+        //JSON fields Example
+        public String OrderItemCode;
+        public String orderExternalId;
+        public String DivisaoRemessa;
+        public String NumeroDivisaoRemessa;
+        public Date DataDivisao;
+        public Decimal Quantidade;
+        public Decimal QuantidadeConfirmada;
+        public String ExternalId;
+
+        public ShippingDivison__c serialize(Map<String, Id> lookups){
+
+            return new ShippingDivison__c(
+                ExternalId__c = this.orderExternalId + '|'+ this.OrderItemCode,
+                //Name = this.DivisaoRemessa,
+                OrderItem__c = lookups.containsKey('OrderItem__c'+this.OrderItemCode) ? lookups.get('OrderItem__c'+this.OrderItemCode) : null,
+                DeliveryDate__c = this.DataDivisao,
+                Quantity__c = this.Quantidade,
+                ConfirmedQuantity__c = this.QuantidadeConfirmada
+            );
+        }
+        public List<String> getRequiredFields(){
+            //Example
+            return new List<String>{
+                'OrderItem__c'
+    
+            };
+        }
+
+        //Key field
+        public String getFieldKey(){
+            return 'Id';
+        }
+
+        //ExternalId field
+        public String getFieldExternal(){
+            return 'ExternalId__c';
+        }
+        
+        //Parent ExternalId field
+        public String getParentKey(){
+            return 'OrderId';
+        }
+    }
+
+    global class NotaFiscalINData implements FieldData{
+        //JSON fields Example
+       
+        public String numeroNotaFiscal;
+        public String serie;
+        public String localNegocios;
+        public String codigoStatus;
+        public String chaveAcesso;
+        public Date dataCriacao;
+        public String horaCriacao;
+        public String codigoEmpresa;
+        public String cliente;
+        public String propriedade;
+        public String cpfCnpjCliente;
+        public String cpfCnpjVendedor;
+        public Decimal valorTotalNf;
+        public String naturezaOperacao;
+        public List<TemplateDataIntegrationFields.ItensNotaFiscalINData> itensNotaFiscal; 
+        public NotaFiscal__c serialize(Map<String, Id> lookups){
+
             //Returning Object with Fields.
-            return new Pricebook2(
-                Name = this.name,
-                ExternalId__c =  (String.isEmpty(this.codExternal) || String.isBlank(this.codExternal)) ? null : this.codExternal,
-                // RecordTypeId = [select Id from RecordType where sObjectType='Pricebook2' AND Name='Tipo de Condição'][0].Id,
-                Description = description,
-                SalesOrg__c = lookups.containsKey('SalesOrg__c'+this.orgVendas) ? lookups.get('SalesOrg__c'+this.orgVendas) : null,
-                PriceList__c = listPrice,
-                Crop__c = lookups.containsKey('Safra__c'+this.cropCode) ? lookups.get('Safra__c'+this.cropCode) : null,
-                Culture__c = lookups.containsKey('Cultura__c'+this.cultureCode) ? lookups.get('Cultura__c'+this.cultureCode) : null,
-                Account__c = lookups.containsKey('Account'+this.accountCode) ? lookups.get('Account'+this.accountCode) : null,
-                AccountType__c = accountGroup,
-                SalesOffice__c = lookups.containsKey('SalesOffice__c'+this.salesOffice) ? lookups.get('SalesOffice__c'+this.salesOffice) : null,
-                SalesTeam__c = lookups.containsKey('SalesTeam__c'+this.salesTeam) ? lookups.get('SalesTeam__c'+this.salesTeam) : null,
-                SalesSection__c = lookups.containsKey('ActivitySector__c'+this.salesSector) ? lookups.get('ActivitySector__c'+this.salesSector) : null,
-                InitialDate__c = Date.valueOf(initialDate),
-                EndDate__c = Date.valueOf(endDate),
-                EffectiveDate__c = Date.valueOf(effectiveDate),
-                Currency__c = typeCurrency,
-                ConditionNumberRegister__c = this.numRegisterCondition,
-                IsActive = active,
-                ProductGroup__c = lookups.containsKey('ProductGroup__c'+this.productGroup) ? lookups.get('ProductGroup__c'+this.productGroup) : null
+            return new NotaFiscal__c(
+               
+                //ExternalId__c = this.codExternal,
+                invoiceNumber__c = this.numeroNotaFiscal,
+                Serie__c = this.serie,
+                BranchOffice__c = this.localNegocios,
+                InvoiceStatus__c = this.codigoStatus,
+                AccessKey__c = this.chaveAcesso,
+                Invoice_CreationDate__c = this.dataCriacao,
+                Company__c = this.codigoEmpresa,
+                AccountCode__c = this.cliente,
+                CNPJCode__c = this.cpfCnpjVendedor,
+                Invoice_TotalAmount__c = this.valorTotalNf,
+                CFOP__c = this.naturezaOperacao
+               
             );
         }
         
         //Required fields for integration
         public List<String> getRequiredFields(){
             return new List<String>{
-                'Name',
                 'ExternalId__c'
+       
             };
         }
 
@@ -89,30 +344,32 @@ global with sharing class TemplateDataIntegrationFields {
         }
     }
 
-    global class PricebookEntryINData implements FieldDataChild{
+    global class ItensNotaFiscalINData implements FieldDataChild{
         
-        public String pricebook2Id;
-        public String productCode;
-        public Decimal unitPrice;
+        //JSON fields Example
+        public String nfExternalId;
+        public String codigoMaterial;
+        public Decimal quantidade;
+        public Decimal valorTotalItem;
+        public String lote;
+        public Decimal unidadeMedida;
+        public String naturezaOperacao;
 
-        public PricebookEntry serialize(Map<String, Id> lookups){
+        public ItensNotaFiscal__c serialize(Map<String, Id> lookups){
 
             //Returning Object with Fields.
-            return new PricebookEntry(
-                UnitPrice      = unitPrice,
-                CostPrice__c  =  unitPrice,
-                IsActive = true,
-                Code__c = this.Pricebook2Id + '|' + this.ProductCode,
-                Pricebook2Id  = lookups.containsKey('Pricebook2'+this.pricebook2Id) ? lookups.get('Pricebook2'+this.pricebook2Id) : null,
-                Product2Id  = lookups.containsKey('Product2'+this.productCode) ? lookups.get('Product2'+this.productCode) : null
+            return new ItensNotaFiscal__c(
+                Productcode__c = this.codigoMaterial,
+                Theamount__c = this.quantidade,
+                Amount__c = this.valorTotalItem,
+                Batch__c = this.lote
             );
         }
         
         //Required fields for integration
         public List<String> getRequiredFields(){
             return new List<String>{
-                'Product2Id',
-                'UnitPrice'
+                //'Product2Id'
             };
         }
 
@@ -130,291 +387,6 @@ global with sharing class TemplateDataIntegrationFields {
         }
     }
 
-    global class JurosDescontoAntecipaoINData extends ConditionsPrices{
-       
-        public String  cropCode;
-        public String  product;
-        public String  center;
-        public Integer percentage;
-        public String  priority;
-
-        public JurosDescontoAntecipao__c serialize(Map<String, Id> lookups){
-
-            //Returning Object with Fields.
-            return new JurosDescontoAntecipao__c(
-               
-                ExternalId__c = this.codExternal,
-                harvest__c = lookups.containsKey('Safra__c'+this.cropCode) ? lookups.get('Safra__c'+this.cropCode) : null,
-                Culture__c = lookups.containsKey('Cultura__c'+this.cultureCode) ? lookups.get('Cultura__c'+this.cultureCode) : null,
-                SalesOrg__c = lookups.containsKey('SalesOrg__c'+this.orgVendas) ? lookups.get('SalesOrg__c'+this.orgVendas) : null,
-                SalesOffice__c = lookups.containsKey('SalesOffice__c'+this.salesOffice) ? lookups.get('SalesOffice__c'+this.salesOffice) : null,
-                SalesTeam__c = lookups.containsKey('SalesTeam__c'+this.salesTeam) ? lookups.get('SalesTeam__c'+this.salesTeam) : null,
-                ProductGroup__c = lookups.containsKey('ProductGroup__c'+this.productGroup) ? lookups.get('ProductGroup__c'+this.productGroup) : null,
-                AccountType__c = this.accountGroup,
-                StartDate__c = Date.valueOf(initialDate),
-                EndDate__c = Date.valueOf(endDate),
-                Product__c = lookups.containsKey('Product2'+this.product) ? lookups.get('Product2'+this.product) : null,
-                Percentage__c = this.percentage,
-                ConditionType__c = typeCondition == 'ZJUR' ? 'ZJUR - Juros' : 'ZDAN - Desconto de antecipação' ,
-                PriorityLevel__c = this.priority,
-                DistributionCenter__c = lookups.containsKey('DistributionCenter__c'+this.center) ? lookups.get('DistributionCenter__c'+this.center) : null,
-                ConditionNumberRegister__c = this.numRegisterCondition
-               
-            );
-        }
-        
-        //Required fields for integration
-        public List<String> getRequiredFields(){
-            return new List<String>{
-                'ExternalId__c',
-                'harvest__c',
-                'Culture__c',
-                'SalesOrg__c',
-                'SalesOffice__c',
-                'SalesTeam__c',
-                'ProductGroup__c',
-                'AccountType__c',
-                'StartDate__c',
-                'EndDate__c',
-                'Product__c',
-                'Percentage__c',
-                'ConditionType__c',
-                'PriorityLevel__c'
-            };
-        }
-
-        //ExternalId field
-        public String getFieldKey(){
-            return 'ExternalId__c';
-        }
-        
-        //Id field
-        public String getFieldId() {
-            return 'Id';
-        }
-    }
-
-global class AccountINData implements FieldData{
-        
-    //JSON fields Example
-    public String CodigoExterno;
-    public String RuaEntrega;
-    public String CidadeEntrega;
-    public String EstadoEntrega;
-    public String PaisEntrega;
-    public String CEPEntrega;
-    public String RuaCobranca;
-    public String CidadeCobranca;
-    public String EstadoCobranca;
-    public String PaisCobranca;
-    public String CEPCobranca;
-    public String ContaPai;
-    public String CNPJ;
-    public String CPF;
-    public String InscricaoMunicipal;
-    public String InscricaoEstadual;
-    public String Email;
-    public String Telefone;
-    public String Status;
-    public List<TemplateDataIntegrationFields.LimiteCreditoINData> creditoEntries;
-    public List<TemplateDataIntegrationFields.CompanyINData> companyEntries;
-    
-    public Account serialize(Map<String, Id> lookups){
-
-        Account ac = new Account(
-            ExternalId__c = this.CodigoExterno,
-            ParentId = lookups.containsKey('Account__c'+this.ContaPai) ? lookups.get('Account__c'+this.ContaPai) : null,
-            CNPJ__c = this.CNPJ,
-            CPF__c = this.CPF,
-            MunicipalRegistration__c = this.InscricaoMunicipal,
-            StateRegistration__c = this.InscricaoEstadual,
-            Email__c = this.Email,
-            Phone = this.Telefone,
-            Status__c = this.Status
-        );
-        
-        ac.ShippingStreet = this.RuaEntrega;
-        ac.ShippingCity = this.CidadeEntrega;
-        ac.ShippingState = this.EstadoEntrega;
-        ac.ShippingCountry = this.PaisEntrega;
-        ac.ShippingPostalCode = this.CEPEntrega;
-        ac.BillingStreet = this.RuaCobranca;
-        ac.BillingCity = this.CidadeCobranca;
-        ac.BillingState = this.EstadoCobranca;
-        ac.BillingCountry = this.PaisCobranca;
-        ac.BillingPostalCode = this.CEPCobranca;
-
-        //Returning Object with Fields.
-        return ac;
-    }
-    
-    //Required fields for integration
-    public List<String> getRequiredFields(){
-        return new List<String>{
-            'ExternalId__c'
-        };
-    }
-
-    //ExternalId field
-    public String getFieldKey(){
-        return 'ExternalId__c';
-    }
-    
-    //Id field
-    public String getFieldId() {
-        return 'Id';
-    }
-}
-
-global class LimiteCreditoINData implements FieldDataChild{
-    
-    //JSON fields Example
-    public String accountId;
-    public String ExternalId;
-    public String OrganizacaoVendas;
-    public Decimal Valor;
-    public Boolean Bloqueado;
-    public String Cultura;
-    public String Garantia;
-    public Decimal Saldo;
-    public Date DataConcessao;
-    public Date DataVencimento;
-    public Date DataManutencao;
-    public Decimal Safra;
-
-    public LimiteCredito__c serialize(Map<String, Id> lookups){
-
-        //Returning Object with Fields.
-        return new LimiteCredito__c(
-            Account__c = lookups.containsKey('Account__c'+this.accountId) ? lookups.get('Account__c'+this.accountId) : null,
-            OrganizacaoVendas__c = lookups.containsKey('SalesOrg__c'+this.OrganizacaoVendas) ? lookups.get('SalesOrg__c'+this.OrganizacaoVendas) : null,
-            Culture__c = lookups.containsKey('Culture__c'+this.Cultura) ? lookups.get('Culture__c'+this.Cultura) : null,
-            Guarantee__c = this.Garantia,
-            LimitValue__c = this.Valor,
-            BlockedCredit__c = this.Bloqueado,
-            LimitBalance__c = this.Saldo,
-            ConcessionDate__c = this.DataConcessao,
-            EndDate__c = this.DataVencimento,
-            MaintenanceDate__c = this.DataManutencao,
-            Safra__c = lookups.containsKey('Safra__c'+String.valueOf(this.Safra)) ? lookups.get('Safra__c'+String.valueOf(this.Safra)) : null,
-            ExternalId__c = this.accountId + this.Safra + this.Cultura + this.Garantia 
-        );
-    }
-    
-    //Required fields for integration
-    public List<String> getRequiredFields(){
-        return new List<String>{
-            'accountId'
-        };
-    }
-
-    //ExternalId field
-    public String getFieldKey(){
-        return 'Id';
-    }
-
-    public String getFieldExternal(){
-        return 'ExternalId__c';
-    }
-    
-    public String getParentKey(){
-        return 'AccountId';
-    }
-}
-
-global class CompanyINData implements FieldDataChild{
-    
-    //JSON fields Example
-    public String accountId;
-    public String ExternalId;
-    public String OrganizacaoVendas;
-    public String SetorAtividade;
-    public String CanalDistribuicao;
-    public String DomicilioFiscal;
-    public String EscritorioVendas;
-    public String EquipeVendas;
-    public String GrupoClientes;
-    public Boolean Bloqueado;
-    public String Status;
-    public String SetorVendas;
-    public Company__c serialize(Map<String, Id> lookups){
-
-        //Returning Object with Fields.
-        return new Company__c(
-            Conta__c = lookups.containsKey('Account__c'+this.accountId) ? lookups.get('Account__c'+this.accountId) : null,
-            SalesOrg__c = lookups.containsKey('SalesOrg__c'+this.OrganizacaoVendas) ? lookups.get('SalesOrg__c'+this.OrganizacaoVendas) : null,
-            ActivitySector__c = lookups.containsKey('ActivitySector__c'+this.SetorAtividade) ? lookups.get('ActivitySector__c'+this.SetorAtividade) : null,
-            DistributionChannel__c = lookups.containsKey('DistributionChannel__c'+this.CanalDistribuicao) ? lookups.get('DistributionChannel__c'+this.CanalDistribuicao) : null,
-            FiscalDomicile__c = this.DomicilioFiscal,
-            SalesOffice__c = lookups.containsKey('SalesOffice__c'+this.EscritorioVendas) ? lookups.get('SalesOffice__c'+this.EscritorioVendas) : null,
-            SalesTeam__c = lookups.containsKey('SalesTeam__c'+this.EquipeVendas) ? lookups.get('SalesTeam__c'+this.EquipeVendas) : null,
-            ClientGroup__c = this.GrupoClientes,
-            Blocked__c = this.Bloqueado,
-            Status__c = this.Status,
-            SalesSector__c = this.SetorVendas,
-            ExternalId__c = this.accountId + this.OrganizacaoVendas + this.SetorAtividade + this.CanalDistribuicao + this.EscritorioVendas + this.EquipeVendas
-        );
-    }
-    
-    //Required fields for integration
-    public List<String> getRequiredFields(){
-        return new List<String>{
-            'accountId'
-        };
-    }
-
-    //ExternalId field
-    public String getFieldKey(){
-        return 'Id';
-    }
-
-    public String getFieldExternal(){
-        return 'accountId';
-    }
-    
-    public String getParentKey(){
-        return 'AccountId';
-    }
-}
-
-    global class GenericINData extends ConditionsPrices{
-        public String  name;
-        public String  description;
-        public String  listPrice;
-        public String  cropCode;
-        public String  accountCode;
-        public String  salesSector;
-        public String  effectiveDate;
-        public String  typeCurrency;
-        public Boolean active;
-        public String  priority;
-        public String  center;
-        public String  percentage;
-        public String  product;
-        public List<TemplateDataIntegrationFields.PricebookEntryINData> pricebookEntries;
-
-        public PricebookEntry serialize(Map<String, Id> lookups){
-            //Returning Object with Fields.
-            return new PricebookEntry(
-            );
-        }
-
-         //Required fields for integration
-         public List<String> getRequiredFields(){
-            return new List<String>{
-            };
-        }
-
-        //ExternalId field
-        public String getFieldKey(){
-            return '';
-        }
-        
-        //Id field
-        public String getFieldId() {
-            return '';
-        }
-    }
 
     global virtual class Response {
         public String  idSalesforce;
