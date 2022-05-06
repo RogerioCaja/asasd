@@ -4,7 +4,7 @@ global with sharing class IntegrationINOrderAppdigital {
 
     }
     @HttpPost
-    global static ResponseModel upsertOrder(List<TemplateDataIntegrationFields.IntegrationOrderINData> request) {
+    global static ResponseModel upsertOrder(List<TemplateDataIntegrationFields.OrderINData> request) {
 
         Map<String, Id> lookups = new Map<String, Id>();
 
@@ -16,7 +16,7 @@ global with sharing class IntegrationINOrderAppdigital {
 
         List<Order> orderListToUpsert = new List<Order>();
 
-        for (TemplateDataIntegrationFields.IntegrationOrderINData order : request){
+        for (TemplateDataIntegrationFields.OrderINData order : request){
    
             lookupMap.get('salesOrgLookups').add(order.SalesOrg);
             lookupMap.get('cropLookups').add(order.Crop);
