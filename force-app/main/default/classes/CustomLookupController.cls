@@ -70,37 +70,57 @@ public without sharing class CustomLookupController {
 	}
 
     @AuraEnabled
-    public static List<ProductData> fetchProductsRecords(String searchString, String pricebookListId, String accountId, String ctvId) {
+    public static ProductDataResult fetchProductsRecords(String searchString, String data) {
         try {
+            ProductDataResult result = new ProductDataResult();
+            ProductParams productParams = (ProductParams) JSON.deserialize(data, ProductParams.class);
             Id commodityRecType = Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get('ZPR0').getRecordTypeId();
-            Map<Id, JurosDescontoAntecipao__c> productsPriceById = new Map<Id, JurosDescontoAntecipao__c>();
-            Set<String> priceFields = new Set<String>{'Id', 'UnitPrice__c', 'Cost__c', 'Product__c'};
+
+            SalesResult salesResult = new SalesResult();
+            salesResult.segmento = [SELECT Industry FROM Account WHERE Id =: productParams.accountId].Industry;
+            salesResult.salesOrgId = 'a0U19000005O4sfEAC';
+            salesResult.salesTeamId = 'a0V19000005NzayEAC';
+            salesResult.salesOfficeId = 'a0T19000001BYlXEAW';
+            result.salesResult = salesResult;
+            // SalesResult salesResult = getSalesOrgId(productParams.accountId, productParams.ctvId) != null ? getSalesOrgId(productParams.accountId, productParams.ctvId) : aa;
+
+            Set<String> priceFields = new Set<String>{'Id', 'UnitPrice__c', 'Cost__c', 'Product__c', 'SalesOrg__c', 'SalesTeam__c', 'SalesOffice__c', 'Account__c'};
             String priceQuery = new Q(JurosDescontoAntecipao__c.SObjectType)
                                 .selectFields(priceFields)
                                 .add(Q.condition('RecordTypeId').equalsTo(commodityRecType))
+                                .add(Q.condition('SalesCondition__c').equalsTo(productParams.salesConditionId))
+                                .add(Q.condition('harvest__c').equalsTo(productParams.safra))
+                                .add(Q.condition('Currency__c').equalsTo(productParams.productCurrency))
+                                .add(Q.condition('SalesOrg__c').equalsTo(salesResult.salesOrgId))
                                 .add(Q.condition('IsActive__c').equalsTo(true))
                                 .build();
 
+            Map<Id, JurosDescontoAntecipao__c> productsPriceById = new Map<Id, JurosDescontoAntecipao__c>();
+            Set<Id> accountIds = new Set<Id>();
             for(SObject jda : Database.query(priceQuery)) {
                 System.debug('jda: ' + jda);
                 productsPriceById.put((Id)jda.get('Product__c'), (JurosDescontoAntecipao__c)jda);
+                accountIds.add((Id)jda.get('Account__c'));
             }
 
+            Map<Id, Account> industryByAccountIds = new Map<Id, Account>([
+                SELECT Id, Industry
+                  FROM Account
+                 WHERE Id IN: accountIds
+            ]);
+
             Set<Id> prodsId = new Set<Id>();
-            Id orgV = getSalesOrgId(accountId, ctvId) != null ? getSalesOrgId(accountId, ctvId) : 'a0U8D000000QS7CUAW';
-            System.debug('orgV: ' + orgV);
             for (OrgVProduct__c orgVProduct : [
                 SELECT Id,
                        Product__c
                   FROM OrgVProduct__c
                  WHERE Product__c IN: productsPriceById.keySet()
-                   AND SalesOrg__c =: orgV
+                   AND SalesOrg__c =: salesResult.salesOrgId
             ]) {
                 System.debug('orgVProduct: ' + orgVProduct);
                 prodsId.add(orgVProduct.Product__c);
             }
 
-            List<ProductData> recordsDataList = new List<ProductData>();
             String productQuery = 'SELECT Id, Name, ExternalId__c, QuantityUnitOfMeasure, ProductGroup__c, ProductGroup__r.Name, PrincipleActive__c, Multiplicity__c' +
                                   '  FROM Product2' +
                                   ' WHERE Id IN:prodsId' +
@@ -124,20 +144,63 @@ public without sharing class CustomLookupController {
                  WHERE Id IN: prodGroupIds
             ]);
 
+            result.recordsDataList = new List<ProductData>();
+            result.recordsDataMap = new Map<String, ProductData>();
             for(SObject s : queryResult) {
-                System.debug('s: ' + s);
                 JurosDescontoAntecipao__c jda = productsPriceById.get((Id) s.get('Id'));
-                System.debug('jda: ' + jda);
                 String productGroupId = (String)s.get('ProductGroup__c');
                 String productGroupName = '';
                 
                 if (productGroupId != null) {
                     productGroupName = productsGroupById.get(productGroupId) != null ? productsGroupById.get(productGroupId).Name : '';
                 }
-                recordsDataList.add(new ProductData((String)s.get('Id'), (String)s.get('Name'), (String)s.get('ExternalId__c'), (String)s.get('QuantityUnitOfMeasure'), (String)s.get('PrincipleActive__c'), (Decimal)s.get('Multiplicity__c'), productGroupId, productGroupName, jda.Id, jda.UnitPrice__c, jda.Cost__c));
+
+                ProductData productData = new ProductData((String)s.get('Id'), (String)s.get('Name'), (String)s.get('ExternalId__c'), (String)s.get('QuantityUnitOfMeasure'), (String)s.get('PrincipleActive__c'), (Decimal)s.get('Multiplicity__c'), productGroupId, productGroupName, jda.Id, jda.UnitPrice__c, jda.Cost__c);
+                result.recordsDataList.add(new ProductData((String)s.get('Id'), (String)s.get('Name'), (String)s.get('ExternalId__c'), (String)s.get('QuantityUnitOfMeasure'), (String)s.get('PrincipleActive__c'), (Decimal)s.get('Multiplicity__c'), productGroupId, productGroupName, jda.Id, jda.UnitPrice__c, jda.Cost__c));
+                
+                String key = jda.Account__c + '-' + (String)s.get('Id');
+                if (!result.recordsDataMap.containsKey(key)) {
+                    result.recordsDataMap.put(key, productData);
+                }
+
+                String accountSegment = jda.Account__c != null ? industryByAccountIds.get(jda.Account__c).Industry : '';
+                key = accountSegment + '-' + (String)s.get('Id');
+                if (!result.recordsDataMap.containsKey(key)) {
+                    result.recordsDataMap.put(key, productData);
+                }
+
+                key = productParams.culture + '-' + jda.SalesTeam__c + '-' + (String)s.get('Id');
+                if (!result.recordsDataMap.containsKey(key)) {
+                    result.recordsDataMap.put(key, productData);
+                }
+
+                key = jda.SalesTeam__c + '-' + (String)s.get('Id');
+                if (!result.recordsDataMap.containsKey(key)) {
+                    result.recordsDataMap.put(key, productData);
+                }
+
+                key = jda.SalesOffice__c + '-' + (String)s.get('Id');
+                if (!result.recordsDataMap.containsKey(key)) {
+                    result.recordsDataMap.put(key, productData);
+                }
+
+                key = productGroupId;
+                if (!result.recordsDataMap.containsKey(key)) {
+                    result.recordsDataMap.put(key, productData);
+                }
+
+                key = (String)s.get('Id');
+                if (!result.recordsDataMap.containsKey(key)) {
+                    result.recordsDataMap.put(key, productData);
+                }
 	        }
 
-            return recordsDataList;
+            for (String mapKey : result.recordsDataMap.keySet()) {
+                System.debug(mapKey + '-' + result.recordsDataMap.get(mapKey));
+            }
+
+            System.debug('result: ' + result);
+            return result;
 	    } catch (Exception err) {
             System.debug('Erro: ' + err.getMessage() + '   -   ' + err.getStackTraceString());
 	    	if ( String.isNotBlank( err.getMessage() ) && err.getMessage().contains( 'error:' ) ) {
@@ -148,7 +211,8 @@ public without sharing class CustomLookupController {
 	    }
     }
 
-    public static Id getSalesOrgId(Id accountId, Id ctvId) {
+    public static SalesResult getSalesOrgId(Id accountId, Id ctvId) {
+        SalesResult result = new SalesResult();
         Id userTerritoryId;
         for (UserTerritory2Association userAssociation : [
             SELECT Id,
@@ -171,7 +235,6 @@ public without sharing class CustomLookupController {
             territoryAndParents.put(territory.Id, territory);
         }
 
-        Id salesOrgId;
         if (territoryAndParents != null && territoryAndParents.get(userTerritoryId) != null && territoryAndParents.get(territoryAndParents.get(userTerritoryId).ParentTerritory2Id) != null) {
             Territory2 salesTeamTerritory = territoryAndParents.get(territoryAndParents.get(userTerritoryId).ParentTerritory2Id);
             
@@ -179,17 +242,21 @@ public without sharing class CustomLookupController {
                 String salesTeamDevName = salesTeamTerritory.DeveloperName.substring(1, salesTeamTerritory.DeveloperName.length());
                 for (Company__c salesTeamCompany : [
                     SELECT Id,
-                           SalesOrg__c
+                           SalesOrg__c,
+                           SalesOffice__c,
+                           SalesTeam__c
                       FROM Company__c
                      WHERE Conta__c =: accountId
                        AND SalesTeam__r.ExternalId__c =: salesTeamDevName
                 ]) {
-                    salesOrgId = salesTeamCompany.SalesOrg__c;
+                    result.salesOrgId = salesTeamCompany.SalesOrg__c;
+                    result.salesOfficeId = salesTeamCompany.SalesOffice__c;
+                    result.salesTeamId = salesTeamCompany.SalesTeam__c;
                 }
             }
         }
 
-        return salesOrgId;
+        return result;
     }
 
     public class RecordsData {
@@ -229,5 +296,27 @@ public without sharing class CustomLookupController {
             this.listPrice = listPrice != null ? listPrice : 0;
             this.costPrice = costPrice != null ? costPrice : 0;
         }
+    }
+
+    public class ProductParams {
+        public String salesConditionId;
+        public String accountId;
+        public String ctvId;
+        public String safra;
+        public String productCurrency;
+        public String culture;
+    }
+
+    public class ProductDataResult {
+        @AuraEnabled public List<ProductData> recordsDataList;
+        @AuraEnabled public Map<String, ProductData> recordsDataMap;
+        @AuraEnabled public SalesResult salesResult;
+    }
+
+    public class SalesResult {
+        @AuraEnabled public Id salesOrgId;
+        @AuraEnabled public Id salesOfficeId;
+        @AuraEnabled public Id salesTeamId;
+        @AuraEnabled public String segmento;
     }
 }

@@ -23,8 +23,7 @@ export default class OrderScreen extends LightningElement {
     @api recordTypeId;
     @api clone;
     @track cloneData = {
-        cloneOrder: false,
-        pricebookListId: ''
+        cloneOrder: false
     };
 
     @wire(getObjectInfo, {objectApiName: Order})
@@ -51,7 +50,7 @@ export default class OrderScreen extends LightningElement {
         numero_pedido_cliente: " ",
         safra: " ",
         cultura: " ",
-        lista_precos: " ",
+        condicao_venda: " ",
         condicao_pagamento: " ",
         data_pagamento: " ",
         data_entrega: " ",
@@ -194,8 +193,8 @@ export default class OrderScreen extends LightningElement {
             this.completeScreens([0, 1, 2, 3]);
             this.isLoading = false;
             this.cloneData.cloneOrder = this.clone.cloneOrder;
-            this.headerData.lista_precos = this.headerData.lista_precos != null ? this.headerData.lista_precos : ' ';
-            this.cloneData.pricebookListId = this.headerData.lista_precos != ' ' ?  this.headerData.lista_precos.Id : '';
+            this.headerData.condicao_venda = this.headerData.condicao_venda != null ? this.headerData.condicao_venda : ' ';
+            // this.cloneData.pricebookListId = this.headerData.condicao_venda != ' ' ?  this.headerData.condicao_venda.Id : '';
         })
         .catch((err)=>{
             console.log(err);
@@ -225,8 +224,8 @@ export default class OrderScreen extends LightningElement {
             this.completeScreens([0, 1, 2, 3]);
             this.isLoading = false;
             this.cloneData.cloneOrder = this.clone.cloneOrder;
-            this.headerData.lista_precos = this.headerData.lista_precos != null ? this.headerData.lista_precos : ' ';
-            this.cloneData.pricebookListId = this.headerData.lista_precos != ' ' ?  this.headerData.lista_precos.Id : '';
+            this.headerData.condicao_venda = this.headerData.condicao_venda != null ? this.headerData.condicao_venda : ' ';
+            // this.cloneData.pricebookListId = this.headerData.condicao_venda != ' ' ?  this.headerData.condicao_venda.Id : '';
         })
         .catch((err)=>{
             console.log(err);
