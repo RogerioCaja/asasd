@@ -42,7 +42,7 @@
             Test.startTest();
             CalloutBP.processIntegration();
             Test.stopTest();
-            Account accountResult = [SELECT Id, CPF__c FROM Account WHERE ExternalId__c = '11111'];
-            System.debug('accountResult'+ accountResult);
+            Account accountResult = [SELECT Id, ExternalId__c, CPF__c FROM Account WHERE ExternalId__c = '11111'];
+            System.debug('accountResult: '+ accountResult);
         } 
     }
