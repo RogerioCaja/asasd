@@ -3,7 +3,7 @@
         <span>Pesquisar <b>PRODUTO</b>:</span>
     </div>
     
-    <c-custom-order-search object-name="Product2" pricebook-list-id={priceBookListId} field-name="Name" onshowresults={showResults} label="Pesquisar PRODUTO:" placeholder="Digite o nome do Produto" required="true" onchild={getFieldsValueProduct}></c-custom-order-search>
+    <c-custom-order-search object-name="Product2" field-name="Name" product-params={productParams} onshowresults={showResults} label="Pesquisar PRODUTO:" placeholder="Digite o nome do Produto" required="true" onchild={getFieldsValueProduct}></c-custom-order-search>
 
 	<div class="row" style="width: 100%;" if:true={showBaseProducts}>
 		<template for:each={baseProducts} for:item="prod">
@@ -292,31 +292,32 @@
         </div>
     </template>
 
-	<!-- <template if:true={chooseCommodities}>
-		<c-custom-order-search object-name="Commodity__c" field-name="Name" onshowresults={showCommodityResults} label="Pesquisar COMMODITY:" placeholder="Digite o nome da Commodity" required="true" onchild={getFieldsValueCommodity}></c-custom-order-search>
-	</template> -->
-
 	<div style="width: 100%;" if:true={showCommodities}>
 		<div id="commodity-modal" class="modal">
 			<div class="modal-content" style="width: 900px;">
                 <span class="close" onclick={closeCommodityModal}>&times;</span>
-				
-				<div if:true={selectCommodityScreen}>
-					<p class="new-product-title">Escolha de Commodities</p>
 
-					<template for:each={commodities} for:item="commodity">
-						<div key={commodity.Id} class="card" style="width: 50%;">
-							<div class="container">
-								<div class="card-01">
-									<p class="product-name">{commodity.name}</p>
-									<p><b>Preço:</b> {commodity.currency}{commodity.cotation}</p>
-								</div>
-								<div class="card-02">
-									<button class="include-button" data-target-id={commodity.id} onclick={selectCommodity}>Escolher</button>
+				
+				
+				<div if:true={chooseCommodities}>
+					<p class="new-product-title">Escolha de Commodities</p>
+					<c-custom-order-search class="commodity-search" object-name="Product2" field-name="Name" product-params={productParams} onshowresults={showCommodityResults} label="Pesquisar COMMODITY:" placeholder="Digite o nome da Commodity" required="true" onchild={getFieldsValueCommodity}></c-custom-order-search>
+					
+					<div if:true={selectCommodityScreen}>
+						<template for:each={commodities} for:item="commodity">
+							<div key={commodity.Id} class="card" style="width: 50%;">
+								<div class="container">
+									<div class="card-01">
+										<p class="product-name">{commodity.name}</p>
+										<p><b>Preço:</b> {commodity.currency}{commodity.cotation}</p>
+									</div>
+									<div class="card-02">
+										<button class="include-button" data-target-id={commodity.id} onclick={selectCommodity}>Escolher</button>
+									</div>
 								</div>
 							</div>
-						</div>
-					</template>
+						</template>
+					</div>
 				</div>
 
 				<div if:true={commoditySelected}>

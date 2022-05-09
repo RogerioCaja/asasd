@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>Company__c</fullName>
+    <fullName>ReceiverAccountCode__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
     <externalId>false</externalId>
-    <label>Empresa</label>
-    <referenceTo>SalesOrg__c</referenceTo>
-    <relationshipLabel>Notas Fiscais</relationshipLabel>
-    <relationshipName>Notas_Fiscais</relationshipName>
+    <label>Propriedade</label>
+    <referenceTo>Account</referenceTo>
+    <relationshipLabel>Notas Fiscais (Propriedade)</relationshipLabel>
+    <relationshipName>Notas_Fiscais1</relationshipName>
     <required>false</required>
     <trackFeedHistory>false</trackFeedHistory>
     <trackHistory>false</trackHistory>

@@ -367,7 +367,7 @@ global with sharing class TemplateDataIntegrationFields {
                 //ExternalId__c = this.codExternal,
                 invoiceNumber__c = this.numeroNotaFiscal,
                 Serie__c = this.serie,
-                BranchOffice__c = this.localNegocios,
+                //BranchOffice__c = this.localNegocios,
                 InvoiceStatus__c = this.codigoStatus,
                 AccessKey__c = this.chaveAcesso,
                 Invoice_CreationDate__c = this.dataCriacao,
