@@ -400,6 +400,7 @@ public without sharing class OrderScreenController {
             order.OrderReference__c = orderData.headerData.pedido_mae.Id;
             order.IsOrderMother__c = Boolean.valueOf(orderData.headerData.pedido_mae_check);
             order.FinalTotalValue__c = orderTotalValue;
+            order.Company__c = companyId;
 
             Map<Id, OrderItem> motherItems = new Map<Id, OrderItem>();
             Boolean newDivision = false;

@@ -84,7 +84,7 @@ public without sharing class CustomLookupController {
             result.salesResult = salesResult;
             // SalesResult salesResult = getSalesOrgId(productParams.accountId, productParams.ctvId) != null ? getSalesOrgId(productParams.accountId, productParams.ctvId) : aa;
 
-            Set<String> priceFields = new Set<String>{'Id', 'UnitPrice__c', 'Cost__c', 'Product__c', 'SalesOrg__c', 'SalesTeam__c', 'SalesOffice__c', 'Account__c'};
+            Set<String> priceFields = new Set<String>{'Id', 'UnitPrice__c', 'Cost__c', 'Product__c', 'SalesOrg__c', 'SalesTeam__c', 'SalesOffice__c', 'Account__c', 'Culture__c'};
             String priceQuery = new Q(JurosDescontoAntecipao__c.SObjectType)
                                 .selectFields(priceFields)
                                 .add(Q.condition('RecordTypeId').equalsTo(commodityRecType))
@@ -95,11 +95,17 @@ public without sharing class CustomLookupController {
                                 .add(Q.condition('IsActive__c').equalsTo(true))
                                 .build();
 
-            Map<Id, JurosDescontoAntecipao__c> productsPriceById = new Map<Id, JurosDescontoAntecipao__c>();
+            Map<Id, List<JurosDescontoAntecipao__c>> productsPriceById = new Map<Id, List<JurosDescontoAntecipao__c>>();
             Set<Id> accountIds = new Set<Id>();
             for(SObject jda : Database.query(priceQuery)) {
                 System.debug('jda: ' + jda);
-                productsPriceById.put((Id)jda.get('Product__c'), (JurosDescontoAntecipao__c)jda);
+                if (!productsPriceById.containsKey((Id)jda.get('Product__c'))) {
+                    productsPriceById.put((Id)jda.get('Product__c'), new List<JurosDescontoAntecipao__c>{(JurosDescontoAntecipao__c)jda});
+                } else {
+                    List<JurosDescontoAntecipao__c> jdaList = productsPriceById.get((Id)jda.get('Product__c'));
+                    jdaList.add((JurosDescontoAntecipao__c)jda);
+                    productsPriceById.put((Id)jda.get('Product__c'), jdaList);
+                }
                 accountIds.add((Id)jda.get('Account__c'));
             }
 
@@ -117,7 +123,6 @@ public without sharing class CustomLookupController {
                  WHERE Product__c IN: productsPriceById.keySet()
                    AND SalesOrg__c =: salesResult.salesOrgId
             ]) {
-                System.debug('orgVProduct: ' + orgVProduct);
                 prodsId.add(orgVProduct.Product__c);
             }
 
@@ -134,7 +139,6 @@ public without sharing class CustomLookupController {
             List<SObject> queryResult = Database.query(productQuery);
             Set<Id> prodGroupIds = new Set<Id>();
             for (SObject product : queryResult) {
-                System.debug('product: ' + product);
                 prodGroupIds.add((String)product.get('ProductGroup__c'));
             }
 
@@ -147,59 +151,60 @@ public without sharing class CustomLookupController {
             result.recordsDataList = new List<ProductData>();
             result.recordsDataMap = new Map<String, ProductData>();
             for(SObject s : queryResult) {
-                JurosDescontoAntecipao__c jda = productsPriceById.get((Id) s.get('Id'));
-                String productGroupId = (String)s.get('ProductGroup__c');
-                String productGroupName = '';
-                
-                if (productGroupId != null) {
-                    productGroupName = productsGroupById.get(productGroupId) != null ? productsGroupById.get(productGroupId).Name : '';
-                }
-
-                ProductData productData = new ProductData((String)s.get('Id'), (String)s.get('Name'), (String)s.get('ExternalId__c'), (String)s.get('QuantityUnitOfMeasure'), (String)s.get('PrincipleActive__c'), (Decimal)s.get('Multiplicity__c'), productGroupId, productGroupName, jda.Id, jda.UnitPrice__c, jda.Cost__c);
-                result.recordsDataList.add(new ProductData((String)s.get('Id'), (String)s.get('Name'), (String)s.get('ExternalId__c'), (String)s.get('QuantityUnitOfMeasure'), (String)s.get('PrincipleActive__c'), (Decimal)s.get('Multiplicity__c'), productGroupId, productGroupName, jda.Id, jda.UnitPrice__c, jda.Cost__c));
-                
-                String key = jda.Account__c + '-' + (String)s.get('Id');
-                if (!result.recordsDataMap.containsKey(key)) {
-                    result.recordsDataMap.put(key, productData);
-                }
-
-                String accountSegment = jda.Account__c != null ? industryByAccountIds.get(jda.Account__c).Industry : '';
-                key = accountSegment + '-' + (String)s.get('Id');
-                if (!result.recordsDataMap.containsKey(key)) {
-                    result.recordsDataMap.put(key, productData);
-                }
-
-                key = productParams.culture + '-' + jda.SalesTeam__c + '-' + (String)s.get('Id');
-                if (!result.recordsDataMap.containsKey(key)) {
-                    result.recordsDataMap.put(key, productData);
-                }
-
-                key = jda.SalesTeam__c + '-' + (String)s.get('Id');
-                if (!result.recordsDataMap.containsKey(key)) {
-                    result.recordsDataMap.put(key, productData);
-                }
-
-                key = jda.SalesOffice__c + '-' + (String)s.get('Id');
-                if (!result.recordsDataMap.containsKey(key)) {
-                    result.recordsDataMap.put(key, productData);
-                }
-
-                key = productGroupId;
-                if (!result.recordsDataMap.containsKey(key)) {
-                    result.recordsDataMap.put(key, productData);
-                }
-
-                key = (String)s.get('Id');
-                if (!result.recordsDataMap.containsKey(key)) {
-                    result.recordsDataMap.put(key, productData);
+                List<JurosDescontoAntecipao__c> jdaList = productsPriceById.get((Id) s.get('Id'));
+                Boolean productIncluded = false;
+                for (JurosDescontoAntecipao__c jda : jdaList) {
+                    String productGroupId = (String)s.get('ProductGroup__c');
+                    String productGroupName = '';
+                    
+                    if (productGroupId != null) {
+                        productGroupName = productsGroupById.get(productGroupId) != null ? productsGroupById.get(productGroupId).Name : '';
+                    }
+    
+                    ProductData productData = new ProductData((String)s.get('Id'), (String)s.get('Name'), (String)s.get('ExternalId__c'), (String)s.get('QuantityUnitOfMeasure'), (String)s.get('PrincipleActive__c'), (Decimal)s.get('Multiplicity__c'), productGroupId, productGroupName, jda.Id, jda.UnitPrice__c, jda.Cost__c);
+                    if (!productIncluded) {
+                        result.recordsDataList.add(new ProductData((String)s.get('Id'), (String)s.get('Name'), (String)s.get('ExternalId__c'), (String)s.get('QuantityUnitOfMeasure'), (String)s.get('PrincipleActive__c'), (Decimal)s.get('Multiplicity__c'), productGroupId, productGroupName, jda.Id, jda.UnitPrice__c, jda.Cost__c));
+                        productIncluded = true;
+                    }
+                    
+                    String key = jda.Account__c + '-' + (String)s.get('Id');
+                    if (!result.recordsDataMap.containsKey(key)) {
+                        result.recordsDataMap.put(key, productData);
+                    }
+    
+                    String accountSegment = jda.Account__c != null ? industryByAccountIds.get(jda.Account__c).Industry : '';
+                    key = accountSegment + '-' + (String)s.get('Id');
+                    if (!result.recordsDataMap.containsKey(key)) {
+                        result.recordsDataMap.put(key, productData);
+                    }
+    
+                    key = jda.Culture__c + '-' + jda.SalesTeam__c + '-' + (String)s.get('Id');
+                    if (!result.recordsDataMap.containsKey(key)) {
+                        result.recordsDataMap.put(key, productData);
+                    }
+    
+                    key = jda.SalesTeam__c + '-' + (String)s.get('Id');
+                    if (!result.recordsDataMap.containsKey(key)) {
+                        result.recordsDataMap.put(key, productData);
+                    }
+    
+                    key = jda.SalesOffice__c + '-' + (String)s.get('Id');
+                    if (!result.recordsDataMap.containsKey(key)) {
+                        result.recordsDataMap.put(key, productData);
+                    }
+    
+                    key = productGroupId;
+                    if (!result.recordsDataMap.containsKey(key)) {
+                        result.recordsDataMap.put(key, productData);
+                    }
+    
+                    key = (String)s.get('Id');
+                    if (!result.recordsDataMap.containsKey(key)) {
+                        result.recordsDataMap.put(key, productData);
+                    }
                 }
 	        }
 
-            for (String mapKey : result.recordsDataMap.keySet()) {
-                System.debug(mapKey + '-' + result.recordsDataMap.get(mapKey));
-            }
-
-            System.debug('result: ' + result);
             return result;
 	    } catch (Exception err) {
             System.debug('Erro: ' + err.getMessage() + '   -   ' + err.getStackTraceString());
