@@ -53,8 +53,8 @@ global with sharing class IntegrationINOrderAppdigital {
                 orderItemListToUpsert.addAll(order.orderItems);
                 System.debug('orderItemListToUpsert' + orderItemListToUpsert); 
             }
-            for(TemplateDataIntegrationFields.ShippingDivisonINData shippingDivision : order.shippingDivison){
-                shippingDivision.orderExternalId = order.CodigoSap;
+            for(TemplateDataIntegrationFields.ShippingDivisonINData shippingDivison : order.shippingDivison){
+                shippingDivison.orderExternalId = order.CodigoSap;
             }
             shippingDivisonListToUpsert.addAll(order.shippingDivison);
             System.debug('shippingDivisonListToUpsert' + shippingDivisonListToUpsert);

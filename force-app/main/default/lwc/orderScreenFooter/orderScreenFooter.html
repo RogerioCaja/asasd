@@ -46,14 +46,14 @@
             {valorTotal}
           </div>
           <div if:true={summary} class="finished_buttons">
-            <button name="prepedido" onclick={saveOrder} type="button">
+            <button data-order="prepedido" onclick={saveOrderPre} type="button">
               <span>Pré Pedido</span>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M9.52495 17.657L4.57495 12.707L5.98895 11.293L9.52645 14.8265L9.52495 14.828L18.01 6.34302L19.424 7.75702L10.939 16.243L9.52595 17.656L9.52495 17.657Z"
                      fill="white"></path>
               </svg>
             </button>
-            <button name="gerarpedido" onclick={saveOrder} type="button">
+            <button data-order="gerarpedido" onclick={saveOrder} type="button">
                 <span>Gerar pedido</span>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M9.52495 17.657L4.57495 12.707L5.98895 11.293L9.52645 14.8265L9.52495 14.828L18.01 6.34302L19.424 7.75702L10.939 16.243L9.52595 17.656L9.52495 17.657Z"
