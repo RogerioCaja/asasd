@@ -76,13 +76,8 @@ public without sharing class CustomLookupController {
             ProductParams productParams = (ProductParams) JSON.deserialize(data, ProductParams.class);
             Id commodityRecType = Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get('ZPR0').getRecordTypeId();
 
-            SalesResult salesResult = new SalesResult();
-            salesResult.segmento = [SELECT Industry FROM Account WHERE Id =: productParams.accountId].Industry;
-            salesResult.salesOrgId = 'a0U19000005O4sfEAC';
-            salesResult.salesTeamId = 'a0V19000005NzayEAC';
-            salesResult.salesOfficeId = 'a0T19000001BYlXEAW';
+            SalesResult salesResult = getSalesOrgId(productParams.accountId, productParams.ctvId) != null ? getSalesOrgId(productParams.accountId, productParams.ctvId) : null;
             result.salesResult = salesResult;
-            // SalesResult salesResult = getSalesOrgId(productParams.accountId, productParams.ctvId) != null ? getSalesOrgId(productParams.accountId, productParams.ctvId) : aa;
 
             Set<String> priceFields = new Set<String>{'Id', 'UnitPrice__c', 'Cost__c', 'Product__c', 'SalesOrg__c', 'SalesTeam__c', 'SalesOffice__c', 'Account__c', 'Culture__c'};
             String priceQuery = new Q(JurosDescontoAntecipao__c.SObjectType)
@@ -260,6 +255,7 @@ public without sharing class CustomLookupController {
                 }
             }
         }
+        result.segmento = [SELECT Industry FROM Account WHERE Id =: accountId].Industry;
 
         return result;
     }
