@@ -350,7 +350,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String codigoStatus;
         public String chaveAcesso;
         public Date dataCriacao;
-        public Datetime horaCriacao;
+        public String horaCriacao;
         public String codigoEmpresa;
         public String cliente;
         public String propriedade;
@@ -365,28 +365,28 @@ global with sharing class TemplateDataIntegrationFields {
             return new NotaFiscal__c(
                
                 //ExternalId__c = this.codExternal,
-
-                AccountCode__c = lookups.containsKey('Account'+this.cliente) ? lookups.get('Account' + this.cliente) : null,
-                OrderCode__c = lookups.containsKey('Order'+this.cpfCnpjCliente) ? lookups.get('Order'+ this.cpfCnpjCliente) : null,
-                Company__c = lookups.containsKey('SalesOrg__c'+this.codigoEmpresa) ? lookups.get('SalesOrg__c'+this.codigoEmpresa) : null,
-                ReceiverAccountCode__c = lookups.containsKey('Account'+this.propriedade) ? lookups.get('Account'+this.propriedade) : null,
                 invoiceNumber__c = this.numeroNotaFiscal,
                 Serie__c = this.serie,
-                BranchOffice__c = this.localNegocios,
+                //BranchOffice__c = this.localNegocios,
                 InvoiceStatus__c = this.codigoStatus,
                 AccessKey__c = this.chaveAcesso,
                 Invoice_CreationDate__c = this.dataCriacao,
+                Company__c = this.codigoEmpresa,
+                AccountCode__c = this.cliente,
+                ReceiverAccountCode__c = this.propriedade,
+                // = this.cpfCnpjCliente,
                 HoraCriacao__c = this.horaCriacao,
                 CNPJCode__c = this.cpfCnpjVendedor,
                 Invoice_TotalAmount__c = this.valorTotalNf,
                 CFOP__c = this.naturezaOperacao
+               
             );
         }
         
         //Required fields for integration
         public List<String> getRequiredFields(){
             return new List<String>{
-                //'ExternalId__c'
+                'ExternalId__c'
        
             };
         }
@@ -410,7 +410,7 @@ global with sharing class TemplateDataIntegrationFields {
         public Decimal quantidade;
         public Decimal valorTotalItem;
         public String lote;
-        public String unidadeMedida;
+        public Decimal unidadeMedida;
         public String naturezaOperacao;
 
         public ItensNotaFiscal__c serialize(Map<String, Id> lookups){
