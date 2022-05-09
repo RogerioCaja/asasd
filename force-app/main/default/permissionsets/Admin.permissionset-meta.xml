@@ -616,6 +616,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>JurosDescontoAntecipao__c.AccountType__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>JurosDescontoAntecipao__c.ActivitySector__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -636,6 +641,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>JurosDescontoAntecipao__c.Culture__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>JurosDescontoAntecipao__c.Currency__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -646,7 +656,17 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>JurosDescontoAntecipao__c.EndDate__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>JurosDescontoAntecipao__c.EffectiveDate__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>JurosDescontoAntecipao__c.harvest__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -681,7 +701,25 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>JurosDescontoAntecipao__c.ProductGroup__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>JurosDescontoAntecipao__c.SalesCondition__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>JurosDescontoAntecipao__c.SalesOffice__c</field>
+        <readable>true</readable>
+    </fieldPermissions><fieldPermissions>
+        <editable>true</editable>
+        <field>JurosDescontoAntecipao__c.SalesOrg__c</field>
+        <readable>true</readable>
+    </fieldPermissions><fieldPermissions>
+        <editable>true</editable>
+        <field>JurosDescontoAntecipao__c.SalesTeam__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -882,6 +920,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Order.CodigoSap__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Order.Company__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

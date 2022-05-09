@@ -156,18 +156,18 @@
                         </div>
                         <div class="slds-form-element slds-size_1-of-4">
                             <c-lookup 
-                                name="lista_precos"
-                                input-label="Lista de Preços" 
+                                name="condicao_venda"
+                                input-label="Condição de Vendas" 
                                 object-icon-name="standard:action_list_component"
-                                target-object={redispatchListaPrecoObject}
-                                record-id={headerData.lista_precos.Id}
-                                search-fields={redispatchListaPrecosSearchFields}
-                                list-item-options={redispatchListaPrecoListItemOptions} 
+                                target-object={redispatchCondicaoVendaObject}
+                                record-id={headerData.condicao_venda.Id}
+                                search-fields={redispatchCondicaoVendaSearchFields}
+                                list-item-options={redispatchCondicaoVendaListItemOptions} 
                                 standard-form-layout={booleanTrue}
                                 new-record-button={booleanTrue}
                                 onclearselectedrecord={removeItemRegister}
                                 onselectrecord={selectItemRegister} 
-                                placeholder="Pesquisar Lista de Preços"
+                                placeholder="Pesquisar Condição de Vendas"
                                 style="width: 100%;" 
                                 required="true"
                                 disabled={disabled}>

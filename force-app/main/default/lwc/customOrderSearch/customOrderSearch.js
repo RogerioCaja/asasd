@@ -19,7 +19,7 @@ export default class CustomOrderSearch extends LightningElement {
     @api label;
     @api placeholder;
     @api className;
-    @api pricebookListId;
+    @api productParams;
     @api required = false;
     @track searchString;
     @track selectedRecord;
@@ -101,9 +101,10 @@ export default class CustomOrderSearch extends LightningElement {
                     this.showSpinner = false;
                 });
         }else if (this.objectName == 'Product2') {
+            console.log('this.productParams: ' + JSON.stringify(this.productParams));
             fetchOrderRecords({
                     searchString: this.searchString,
-                    pricebookListId: this.pricebookListId
+                    data: JSON.stringify(this.productParams)
                 })
                 .then(result => {
                     const tabEvent = new CustomEvent("showresults");
