@@ -8,8 +8,10 @@ global with sharing class IntegrationINInvoice {
         // Guarda a relação da conta com o pedido
         Map<String, Id> lookups = new Map<String, Id>();
 
-        //Set<String> productGroupLookups = new Set<String>();
-        //Set<String> productSubGroupLookups = new Set<String>();
+        Set<String> accountLookups = new Set<String>();
+        Set<String> orderLookups = new Set<String>();
+        Set<String> companyLookups = new Set<String>();
+        Set<String> receiverLookups = new Set<String>();
         
 
     
@@ -17,30 +19,33 @@ global with sharing class IntegrationINInvoice {
         //List<TemplateDataINtegrationFields.Product2INData> productListToUpsert = new List<TemplateDataINtegrationFields.Product2INData>();
         List<NotaFiscal__c> notaFiscalListToUpsert = new List<NotaFiscal__c>();
         
-        /*
+        
         //Application of business rules
-        for (TemplateDataIntegrationFields.Product2INData product : request){
+        for (TemplateDataIntegrationFields.NotaFiscalINData invoice : request){
             // Pega a relação da conta com o pedido
             //Getting account parameters to search
-            productGroupLookups.add(product.GrupoMercadoria);
-            productSubGroupLookups.add(product.SubgrupoMercadoria);
-           
+            accountLookups.add(invoice.cliente);
+            orderLookups.add(invoice.cpfCnpjCliente);
+            companyLookups.add(invoice.codigoEmpresa);
+            receiverLookups.add(invoice.propriedade);
         }
-        */
-        /*
+        
         // Pega o Id da conta com base no CNPJ da conta
         //Account search based on CNPJ field sent
-        for (ProductGroup__c productGroup : [SELECT Id, ExternalId__c FROM ProductGroup__c WHERE ExternalId__c IN : productGroupLookups]) {
-            //Map structure for the model -> object name + parameter to record id
-            //Example
-            lookups.put('ProductGroup__c' + productGroup.ExternalId__c, productGroup.Id);
+        for (Account account : [SELECT Id, ExternalId__c FROM Account WHERE ExternalId__c IN : receiverLookups]) {
+            lookups.put('Account' + account.ExternalId__c, account.Id);
+        }
+        for (Account account : [SELECT Id, ExternalId__c FROM Account WHERE ExternalId__c IN : accountLookups]) {
+            lookups.put('Account' + account.ExternalId__c, account.Id);
+        }
+        for (Order order : [SELECT Id, CodigoSap__c FROM Order WHERE  CodigoSap__c IN : orderLookups]){
+            lookups.put('Order' + order.CodigoSap__c, order.Id);
         }
 
-        for (ProductSubgroup__c productSubGroup : [SELECT Id, ExternalId__c FROM ProductSubgroup__c WHERE  ExternalId__c IN : productSubGroupLookups]){
-            lookups.put('ProductSubgroup__c' + productSubGroup.ExternalId__c, productSubGroup.Id);
-            
+        for (SalesOrg__c salesOrg : [SELECT Id, SalesOrganizationCode__c FROM SalesOrg__c  WHERE  SalesOrganizationCode__c IN : companyLookups]){
+            lookups.put('SalesOrg__c' + salesOrg.SalesOrganizationCode__c, salesOrg.Id);
         }
-       */
+       
 
         
         //Converting template to object list and validating required fields
