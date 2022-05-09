@@ -372,6 +372,9 @@ global with sharing class TemplateDataIntegrationFields {
                 Invoice_CreationDate__c = this.dataCriacao,
                 Company__c = this.codigoEmpresa,
                 AccountCode__c = this.cliente,
+                ReceiverAccountCode__c = this.propriedade,
+                // = this.cpfCnpjCliente,
+                HoraCriacao__c = this.horaCriacao,
                 CNPJCode__c = this.cpfCnpjVendedor,
                 Invoice_TotalAmount__c = this.valorTotalNf,
                 CFOP__c = this.naturezaOperacao
@@ -413,17 +416,20 @@ global with sharing class TemplateDataIntegrationFields {
 
             //Returning Object with Fields.
             return new ItensNotaFiscal__c(
+                ExternalID__c = this.nfExternalId,
                 Productcode__c = this.codigoMaterial,
                 Theamount__c = this.quantidade,
                 Amount__c = this.valorTotalItem,
-                Batch__c = this.lote
+                Batch__c = this.lote,
+                UnidadeMedida__C = this.unidadeMedida,
+                CFOP__c = this.naturezaOperacao
             );
         }
         
         //Required fields for integration
         public List<String> getRequiredFields(){
             return new List<String>{
-                //'Product2Id'
+                'ExternalID__c'
             };
         }
 
