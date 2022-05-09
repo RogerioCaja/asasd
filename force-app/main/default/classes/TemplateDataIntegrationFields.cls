@@ -311,7 +311,7 @@ global with sharing class TemplateDataIntegrationFields {
 
             return new ShippingDivison__c(
                 ExternalId__c = this.orderExternalId + '|'+ this.OrderItemCode,
-                OrderItem__c = lookups.containsKey('OrderItem__c'+this.OrderItemCode) ? lookups.get('OrderItem__c'+this.OrderItemCode) : null,
+                OrderItem__c = lookups.containsKey('OrderItem__c'+this.orderExternalId + '|'+ this.OrderItemCode) ? lookups.get('OrderItem__c'+this.orderExternalId + '|'+ this.OrderItemCode) : null,
                 DeliveryDate__c = this.DataDivisao,
                 Quantity__c = this.Quantidade,
                 ConfirmedQuantity__c = this.QuantidadeConfirmada
@@ -340,6 +340,48 @@ global with sharing class TemplateDataIntegrationFields {
             return 'OrderId';
         }
     }
+
+    // global class BoletosINData implements FieldData {
+    //     public String CodigoParceiro;
+    //     public Date VencimentoBoleto;
+    //     public Date DataBoleto;
+    //     public String Empresa;
+    //     public Decimal ValorBoleto;
+    //     public String LinhaDigitavel;
+
+    //     public Boletos__c serialize(Map<String, Id> lookups){
+
+    //         //Returning Object with Fields
+    //         return new Boletos__c(
+    //             SalesOrg__c = lookups.containsKey('SalesOrg__c'+this.Empresa) ? lookups.get('SalesOrg__c'+this.Empresa) : null,
+    //             AccountCode__c = lookups.containsKey('AccountCode__c'+this.CodigoParceiro) ? lookups.get('AccountCode__c'+this.CodigoParceiro) : null,
+    //             ExpirationDate__c = Date.valueOf(ExpirationDate),
+    //             IssueDate__c = Date.valueOf(IssueDate),
+    //             Value__c = this.Value,
+    //             WritableLine__c = this.WritableLine
+    //         );
+    //     }
+    //     //Required fields for integration
+    //     public List<String> getRequiredFields(){
+    //         return new List<String>{
+    //             'AccountCode__c',
+    //             'ExpirationDate__c',
+    //             'Value__c',
+    //             'WritableLine__c'
+
+    //         };
+    //     }
+
+    //     //ExternalId field
+    //     public String getFieldKey(){
+    //         return '';
+    //     }
+        
+    //     //Id field
+    //     public String getFieldId() {
+    //         return 'Id';
+    //     }
+    // }
 
     global class NotaFiscalINData implements FieldData{
         //JSON fields Example
