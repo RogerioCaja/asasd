@@ -10,7 +10,7 @@ public without sharing class OrderScreenController {
         List<DivisionSerialize> divisionList = new List<DivisionSerialize>();
 
         order = getOrderData(recordId, cloneOrder);
-        if (order.lista_precos != null) {
+        if (order.condicao_venda != null) {
             ordItemList = getOrderItemData(order.Id);
             divisionList = getShippingDivison();
         }
@@ -32,7 +32,7 @@ public without sharing class OrderScreenController {
 
     public static HeaderSerialize getOrderData(Id orderId, Boolean cloneOrder){
         Order order = [SELECT Id, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c , ShippingAccount__r.Phone,  ShippingAccount__r.Name, 
-        ShippingAccount__r.BillingCity, ShippingAccount__r.BillingState ,ShippingAccount__r.CPF__c, ShippingAccount__r.CNPJ__c , Pricebook2Id, Pricebook2.Name, 
+        ShippingAccount__r.BillingCity, ShippingAccount__r.BillingState ,ShippingAccount__r.CPF__c, ShippingAccount__r.CNPJ__c , SalesCondition__c, SalesCondition__r.Name, 
         Pricebook2.InitialDate__c, Pricebook2.EndDate__c, PaymentDate__c,  CustomerOrderNumber__c, Crop__c , Crop__r.Name, Culture__c , Culture__r.Name,
         PaymentForm__c, StatusSF__c, CodigoSAP__c, SalesOrg__c, SalesOrg__r.Name, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, SalesCTV__r.Name,
         PaymentCondition__c, PaymentCondition__r.Name, ShippingDate__c, Incoterms__c, OrderReference__c, OrderReference__r.Name, IsOrderMother__c
@@ -178,8 +178,8 @@ public without sharing class OrderScreenController {
             
             if (orderId != null && !cloneOrder) {
                 newOrder = false;
-                order = [SELECT Id, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c, Pricebook2Id, PaymentDate__c, ShippingDate__c, PaymentCondition__c, CustomerOrderNumber__c,
-                Crop__c, Culture__c, PaymentForm__c, StatusSF__c, SalesOrg__c, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, EffectiveDate
+                order = [SELECT Id, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c, SalesCondition__c, PaymentDate__c, ShippingDate__c, PaymentCondition__c, CustomerOrderNumber__c,
+                Crop__c, Culture__c, PaymentForm__c, StatusSF__c, SalesOrg__c, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c
                 FROM Order WHERE Id =: orderId LIMIT 1];
             } else {
                 order = new Order();
@@ -202,10 +202,15 @@ public without sharing class OrderScreenController {
             Id productGroupId;
             Set<Id> setOrderItemsIds = new Set<Id>();
             Set<Id> setProductGroups = new Set<Id>();
+            Set<Id> setProductsIds = new Set<Id>();
             for (ProductDeserialize orderProduct : orderData.productData) {
                 orderTotalValue += orderProduct.totalPrice;
                 if (orderProduct.orderItemId != null) {
                     setOrderItemsIds.add(orderProduct.orderItemId);
+                }
+
+                if (orderProduct.productId != null) {
+                    setProductsIds.add(orderProduct.productId);
                 }
 
                 if (orderProduct.productGroupId != null) {
@@ -217,6 +222,21 @@ public without sharing class OrderScreenController {
                     biggerDiscount = currentDiscount;
                     productGroupId = orderProduct.productGroupId;
                 }
+            }
+
+            Map<Id, PricebookEntry> entriesByProductsIds = new Map<Id, PricebookEntry>();
+            Id pricebookId;
+            for (PricebookEntry entry : [
+                SELECT Id,
+                       Product2Id,
+                       Pricebook2Id,
+                       UnitPrice
+                  FROM PricebookEntry
+                 WHERE Pricebook2.IsStandard = true
+                   AND Product2Id IN: setProductsIds
+            ]) {
+                pricebookId = entry.Pricebook2Id;
+                entriesByProductsIds.put(entry.Product2Id, entry);
             }
             
             Map<Id, OrderItem> orderItemsById = new Map<Id, OrderItem>([
@@ -236,8 +256,8 @@ public without sharing class OrderScreenController {
                            SellerType__c,
                            CommissionPercentage__c 
                     FROM Comissao__c
-                    WHERE ProductGroup__c IN: setProductGroups
-                    AND SellerType__c =: sellerType
+                   WHERE ProductGroup__c IN: setProductGroups
+                     AND SellerType__c =: sellerType
                 ]) {
                     if (!commissionByGroup.containsKey(commission.ProductGroup__c)) {
                         commissionByGroup.put(commission.ProductGroup__c, commission);
@@ -356,7 +376,8 @@ public without sharing class OrderScreenController {
 
             order.AccountId = acc.Id;
             order.Status = 'Draft';
-            order.PriceBook2Id = orderData.headerData.lista_precos.Id;
+            order.PriceBook2Id = pricebookId;
+            order.SalesCondition__c = orderData.headerData.condicao_venda.Id;
             order.Type = orderData.headerData.tipo_venda ;
             order.ShippingAccount__c = orderData.headerData.cliente_entrega.Id ;
             order.PaymentDate__c = Date.valueOf(orderData.headerData.data_pagamento) ;
@@ -379,6 +400,7 @@ public without sharing class OrderScreenController {
             order.OrderReference__c = orderData.headerData.pedido_mae.Id;
             order.IsOrderMother__c = Boolean.valueOf(orderData.headerData.pedido_mae_check);
             order.FinalTotalValue__c = orderTotalValue;
+            order.Company__c = companyId;
 
             Map<Id, OrderItem> motherItems = new Map<Id, OrderItem>();
             Boolean newDivision = false;
@@ -418,9 +440,10 @@ public without sharing class OrderScreenController {
                         orderItem.NumeroSap__c = String.valueOf(itemCounter * 10);
                         orderItem.ExternalId__c = order.Id + '|' + orderItem.NumeroSap__c;
                         orderItem.OrderId = order.Id;
-                        orderItem.PricebookEntryId = orderProduct.entryId;
+                        orderItem.PricebookEntryId = entriesByProductsIds.get(orderProduct.productId).Id;
                         orderItem.Product2Id = orderProduct.productId;
-                        orderItem.ListPrice = orderProduct.listPrice;
+                        // orderItem.ListPrice = orderProduct.listPrice;
+                        orderItem.ListPrice = entriesByProductsIds.get(orderProduct.productId).UnitPrice;
                         orderItem.AmountUsed__c = order.IsOrderMother__c ? 0 : null;
                         orderItem.ServiceDate = System.today();
                         itemCounter++;
@@ -456,6 +479,7 @@ public without sharing class OrderScreenController {
                                                     ) :
                                                     0;
                     orderItem.ComissionValue__c = orderItem.PercentComission__c != 0 ? (orderItem.FinalTotalValue__c * orderItem.PercentComission__c) / 100 : 0;
+                    System.debug('orderItem: ' + orderItem);
                     listOrderItems.add(orderItem);
                 }
                 update motherItems.values();
@@ -464,6 +488,7 @@ public without sharing class OrderScreenController {
                 Set<Id> itemsIds = new Set<Id>();
                 List<Database.UpsertResult> insOrderItemResults = Database.upsert(listOrderItems, false);
                 for (Database.UpsertResult result : insOrderItemResults){
+                    System.debug('result: ' + result);
                     if(!result.isSuccess()){
                         for (Database.error error: insResults.getErrors()){
                             orderItemErrors += '\n' + error.getMessage();
@@ -616,8 +641,8 @@ public without sharing class OrderScreenController {
                    Product2.StockKeepingUnit,
                    Pricebook2.PaymentDate__c
               FROM PricebookEntry
-             WHERE Pricebook2Id =: orderValues.pricebookId
-               AND IsActive = true
+             // WHERE Pricebook2Id =: orderValues.pricebookId
+             WHERE IsActive = true
         ]) {
             pricebookProducts.add(pricebookEntry.Product2.StockKeepingUnit);
             pricebookPaymentDate = pricebookEntry.Pricebook2.PaymentDate__c;
@@ -680,7 +705,6 @@ public without sharing class OrderScreenController {
                 result.salesOffice = company.SalesOffice__c;
                 result.salesTeam = company.SalesTeam__c;
             }
-
         }
 
         Map<String, Decimal> discountByFinancialInfos = new Map<String, Decimal>();
@@ -844,7 +868,7 @@ public without sharing class OrderScreenController {
         public String numero_pedido_cliente;
         public InformationFields safra;
         public InformationFields cultura;
-        public InformationFields lista_precos;
+        public InformationFields condicao_venda;
         public InformationFields condicao_pagamento;
         public String data_pagamento;
         public String data_entrega;
@@ -1008,7 +1032,7 @@ public without sharing class OrderScreenController {
         public String numero_pedido_cliente;
         public InformationFields safra;
         public InformationFields cultura;
-        public InformationFields lista_precos;
+        public InformationFields condicao_venda;
         public InformationFields condicao_pagamento;
         public String data_pagamento;
         public String data_entrega;
@@ -1044,8 +1068,9 @@ public without sharing class OrderScreenController {
             this.cliente_entrega.CPF = order.ShippingAccount__r.CPF__c;
             this.cliente_entrega.Phone = order.ShippingAccount__r.Phone;
 
-            this.lista_precos = (!cloneOrder) || (cloneOrder && order.Pricebook2.InitialDate__c <= System.today() && order.Pricebook2.EndDate__c >= System.today()) ?
-                                new InformationFields(order.Pricebook2Id, order.Pricebook2.Name) : null;
+            /* this.lista_precos = (!cloneOrder) || (cloneOrder && order.Pricebook2.InitialDate__c <= System.today() && order.Pricebook2.EndDate__c >= System.today()) ?
+                                new InformationFields(order.Pricebook2Id, order.Pricebook2.Name) : null; */
+            this.condicao_venda = new InformationFields(order.SalesCondition__c, order.SalesCondition__r.Name);
             this.data_pagamento = String.valueOf(order.PaymentDate__c);
             this.data_entrega = String.valueOf(order.ShippingDate__c);
             this.numero_pedido_cliente = order.CustomerOrderNumber__c;

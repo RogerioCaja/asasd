@@ -299,6 +299,11 @@ lightning-datatable.dt-outer-container {
 	color: #ffffff;
 }
 
+.commodity-search {
+	width: 100%;
+    margin-top: 25px;
+}
+
 @media screen and (max-width: 1000px) {
 	.card {
 		width: 33%;
