@@ -3,10 +3,10 @@ public with sharing class CalloutOrder {
         
     }
 
-    // @future(callout = true)
-    // public static void callIntegration(Id orderId){
-    //     processIntegration(orderId);
-    // }
+    @future(callout = true)
+    public static void callIntegration(Id orderId){
+        processIntegration(orderId);
+    }
 
     public static IntegrationUtils.CalloutResponse processIntegration(Id orderId){
 
@@ -40,11 +40,10 @@ public with sharing class CalloutOrder {
             }
             if(calloutResponse.success){
                 allOrders[0].CodigoSap__c = resp.responses.EV_SALES_DOC;
+                allOrders[0].StatusSF__c = 'Integrado';
                 orderList.add(allOrders[0]);
             }
-				
-			
-
+            
 			if (!orderList.isEmpty()) {
 				update orderList;
 			}

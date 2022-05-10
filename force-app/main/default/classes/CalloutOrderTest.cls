@@ -71,7 +71,7 @@ public with sharing class CalloutOrderTest {
             AccountId =  account.Id,
             Status = 'Draft',
             PriceBook2Id = Test.getStandardPricebookId(),
-            Type =  'Venda Normal',
+            Type =  'Venda Sucata',
             RecordTypeId = recordTypeMap.get('Venda Sucata').getRecordTypeId(),
             ShippingAccount__c =   account.Id,
             PaymentDate__c =  Date.today(),
@@ -172,5 +172,19 @@ public with sharing class CalloutOrderTest {
         IntegrationUtils.CalloutResponse response = CalloutOrder.processIntegration(ord.Id);
         Test.stopTest();
         System.assertEquals('Error', response.errorMessage, 'Deveria ter falhado');
+    }
+
+    @isTest
+    static void calloutOrderTrigger(){
+        Order ord = [SELECT Id, OrderNumber, StatusSF__c FROM Order LIMIT 1][0];
+        Test.setMock(HttpCalloutMock.class,new CalloutOrderMock(true, String.valueOf(ord.OrderNumber)));
+        ord.StatusSF__c = 'Aprovado';
+        
+        Test.startTest();
+        update ord;
+        Test.stopTest();
+        
+        Order ord1 = [SELECT Id, OrderNumber, StatusSF__c FROM Order LIMIT 1][0];
+        System.assertEquals('Integrado', ord1.StatusSF__c);
     }
 }
