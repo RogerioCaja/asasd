@@ -19,7 +19,6 @@ public with sharing class UserHelper {
 
     
     public static void calloutCTVIntegration(){
-        IntegrationUtils.CalloutCTVResponse response = CalloutCTVCarteira.processIntegration();
-        System.debug('Response: '  + response);
+        CalloutCTVCarteira.processIntegration();
     }
 }
