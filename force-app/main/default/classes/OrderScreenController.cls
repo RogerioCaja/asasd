@@ -575,22 +575,22 @@ public without sharing class OrderScreenController {
 		}
     }
 
-    @AuraEnabled
-    public static string callout(String orderId){
-        try {
-            IntegrationUtils.CalloutResponse response = CalloutOrder.processIntegration(Id.valueOf(orderId));
-            if(response.success){
-                return JSON.serializePretty(new AGRO_RemotingResult(false, '200', 'Integrado com o SAP', String.valueOf(response.success)));
-            }
-            else{
-                return JSON.serializePretty(new AGRO_RemotingResult(false, '400', 'Não Integrado com o SAP', String.valueOf(response.errorMessage)));
-            }
+    // @AuraEnabled
+    // public static string callout(String orderId){
+    //     try {
+    //         IntegrationUtils.CalloutResponse response = CalloutOrder.processIntegration(Id.valueOf(orderId));
+    //         if(response.success){
+    //             return JSON.serializePretty(new AGRO_RemotingResult(false, '200', 'Integrado com o SAP', String.valueOf(response.success)));
+    //         }
+    //         else{
+    //             return JSON.serializePretty(new AGRO_RemotingResult(false, '400', 'Não Integrado com o SAP', String.valueOf(response.errorMessage)));
+    //         }
             
-        } catch (Exception ex) {
-            System.debug('Erro: ' + ex.getMessage() + '   -   ' + ex.getStackTraceString());
-            throw new AuraHandledException(ex.getMessage());
-        }
-    }
+    //     } catch (Exception ex) {
+    //         System.debug('Erro: ' + ex.getMessage() + '   -   ' + ex.getStackTraceString());
+    //         throw new AuraHandledException(ex.getMessage());
+    //     }
+    // }
 
     @AuraEnabled
     public static String getFinancialInfos(String data) {
