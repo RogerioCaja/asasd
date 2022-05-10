@@ -309,7 +309,7 @@ public without sharing class OrderScreenController {
                     counter++;
                 }
 
-                if (salesTeamTerritory == null) {
+                if (salesTeamTerritory == null && territoryAndParents.get(userTerritoryId) != null && territoryAndParents.get(territoryAndParents.get(userTerritoryId).ParentTerritory2Id) != null) {
                     salesTeamTerritory = territoryAndParents.get(territoryAndParents.get(userTerritoryId).ParentTerritory2Id);
                 }
 
@@ -340,7 +340,7 @@ public without sharing class OrderScreenController {
 
             Id companyId;
             Id salesOrgId;
-            if (salesTeamTerritory.DeveloperName != null) {
+            if (salesTeamTerritory != null && salesTeamTerritory.DeveloperName != null) {
                 String salesTeamDevName = salesTeamTerritory.DeveloperName.substring(1, salesTeamTerritory.DeveloperName.length());
                 for (Company__c salesTeamCompany : [
                     SELECT Id,
