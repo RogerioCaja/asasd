@@ -13,7 +13,7 @@ import {
 } from 'lightning/platformShowToastEvent';
 import Order from '@salesforce/schema/Order';
 import saveOrder from '@salesforce/apex/OrderScreenController.saveOrder';
-import calloutOrder from '@salesforce/apex/OrderScreenController.callout';
+// import calloutOrder from '@salesforce/apex/OrderScreenController.callout';
 import getOrder from '@salesforce/apex/OrderScreenController.getOrder';
 import getAccount from '@salesforce/apex/OrderScreenController.getAccount';
 import { NavigationMixin } from 'lightning/navigation';
@@ -293,10 +293,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
                 console.log(JSON.stringify(mode));
                 this.showNotification(result.message, 'Sucesso', 'success');
                 if( mode == "gerarpedido" ){
-                    calloutOrder({orderId: result.orderId}).then((resultCallout)=>{
-                        resultCallout = JSON.parse(resultCallout);
-                        this.showNotification('Observe o Log de Integrações', resultCallout.message, 'info');
-                    });
+
                 }
                 this[NavigationMixin.Navigate]({
                     type: 'standard__recordPage',
