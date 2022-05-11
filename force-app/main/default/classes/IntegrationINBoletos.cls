@@ -39,7 +39,7 @@ global with sharing class IntegrationINBoletos {
             new Boletos__c(), 
             'IN', 
             request, 
-            responseMap, 
+            responseList, 
             boletosListToUpsert, 
             lookups
         );
