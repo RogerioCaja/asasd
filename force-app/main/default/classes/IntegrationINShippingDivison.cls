@@ -1,5 +1,5 @@
-global with sharing class IntegrationINShippingDivisonAppdigital {
-    public IntegrationINShippingDivisonAppdigital() {
+global with sharing class IntegrationINShippingDivison {
+    public IntegrationINShippingDivison() {
 
     }
     global static Map<String, List<TemplateDataIntegrationFields.Response>> upsertShippingDivison(List<TemplateDataIntegrationFields.ShippingDivisonINData> request) {
@@ -11,15 +11,15 @@ global with sharing class IntegrationINShippingDivisonAppdigital {
         // Guarda um mapa com uma lista de respostas
         Map<String, List<TemplateDataIntegrationFields.Response>> responseMap = new Map<String, List<TemplateDataIntegrationFields.Response>>();
         // Guarda uma lista com os OrderItem para fazer o upsert
-        List<ShippingDivison__c> shippingDivisonListToUpsert = new List<ShippingDivison__c>();
+        List<ShippingDivison__c> ShippingDivisonListToUpsert = new List<ShippingDivison__c>();
 
         //Application of business rules
-        for(TemplateDataIntegrationFields.ShippingDivisonINData ShippingDivisonINData : request){
+        for(TemplateDataIntegrationFields.ShippingDivisonINData ShippingDivisonData : request){
 
             // Pega a relação do OrderItem com Order
             //Getting order parameters to search
-            orderLookups.add(ShippingDivisonINData.NumeroDivisaoRemessa);
-            orderItemLookups.add(ShippingDivisonINData.orderExternalId+'|'+ ShippingDivisonINData.OrderItemCode);
+            orderLookups.add(ShippingDivisonData.orderExternalId);
+            orderItemLookups.add(ShippingDivisonData.orderExternalId+'|'+ ShippingDivisonData.OrderItemCode);
 
             // Pega a relação do Product com o OrderItem
             //Getting product parameters to search
@@ -32,11 +32,13 @@ global with sharing class IntegrationINShippingDivisonAppdigital {
             //Map structure for the model -> object name + parameter to record id
             lookups.put('Order' + order.CodigoSap__c, order.Id);
         }
+
         for (OrderItem OrderItem : [SELECT Id, ExternalId__c, Product2.ProductCode FROM OrderItem WHERE ExternalId__c IN : orderItemLookups]) {
             //Map structure for the model -> object name + parameter to record id
-            lookups.put('OrderItem__c' + orderItem.Product2.ProductCode, orderItem.Id);
+            lookups.put('OrderItem__c' + orderItem.ExternalId__c, orderItem.Id);
         }
-       
+
+        System.debug('lookups=>'+lookups);
         
         // Associa as respostas do OrderItem com Order
         //OrderItem ExternalId Map to Order ExternalId for association of responses
@@ -52,15 +54,15 @@ global with sharing class IntegrationINShippingDivisonAppdigital {
             'IN', 
             request, 
             responseMap, 
-            shippingDivisonListToUpsert, 
+            ShippingDivisonListToUpsert, 
             lookups, 
             parentMapKeys
         );
 
         //Upserting records
-        List<Database.UpsertResult> upsResults = Database.upsert(shippingDivisonListToUpsert, ShippingDivison__c.ExternalId__c, false);
+        List<Database.UpsertResult> upsResults = Database.upsert(ShippingDivisonListToUpsert, ShippingDivison__c.ExternalId__c, false);
 
-        IntegrationUtils.upsertChildRecords(upsResults, responseMap, shippingDivisonListToUpsert, ShippingDivison__c.ExternalId__c); 
+        IntegrationUtils.upsertChildRecords(upsResults, responseMap, ShippingDivisonListToUpsert, ShippingDivison__c.ExternalId__c); 
         
         //Returning response
         return responseMap;

@@ -45,7 +45,7 @@ public class OrderScreenControllerTest {
             SalesOrg__c = salesOrg.Id,
             SalesOffice__c = salesOffice.Id,
             SalesTeam__c = salesTeam.Id,
-            ExternalId__c = '123457'
+            ExternalID__c = '001'
         );
         insert company;
 
@@ -110,13 +110,13 @@ public class OrderScreenControllerTest {
             PrincipleActive__c = 'Salicilina',
             ProductGroup__c = productGroup.Id,
             Multiplicity__c = 5,
-            ClasseAvaliacao__c = 'chucrute',
-            GrupoQuimico__c = 'Só o quimico',
-            MarcadoEliminacao__c = 'S',
-            NCM__c = 'S',
-            NumeroRegistro__c = '0001',
-            OrigemMaterial__c = 'Himalaia',
-            UnidadeMedida__c = 'KG'
+            ClasseAvaliacao__c = 'A',
+            GrupoQuimico__c = 'A',
+            MarcadoEliminacao__c = 'A',
+            NCM__c = 'A',
+            NumeroRegistro__c = '2',
+            OrigemMaterial__c = 'Ferro',
+            UnidadeMedida__c = 'Quilos'
         );
         insert product;
 
@@ -152,13 +152,15 @@ public class OrderScreenControllerTest {
             ComissionValue__c = 0,
             CommercialMargin__c = 2,
             Dosage__c = 5,
-            InvoicedQuantity__c = 0
+            InvoicedQuantity__c = 0,
+            NumeroSap__c = '001',
+            ExternalId__c = order.Id + '|001'
         );
         insert orderItem;
 
         ShippingDivison__c shipping = new ShippingDivison__c(
             DeliveryDate__c = System.today().addDays(30),
-            Quantity__c = 10,
+            Quantity__c = 5,
             ExternalId__c = '001',
             ConfirmedQuantity__c = 0,
             OrderItem__c = orderItem.Id
@@ -178,7 +180,8 @@ public class OrderScreenControllerTest {
             StartDate__c = System.today().addDays(-5),
             EndDate__c = System.today().addDays(5),
             AccountType__c = 'A',
-            ConditionType__c = 'Desconto'
+            ConditionType__c = 'Desconto',
+            ExternalId__c = '001'
         );
         insert financialDiscount;
     }
@@ -201,6 +204,7 @@ public class OrderScreenControllerTest {
 
         String data = JSON.serialize(new OrderScreenController.OrderSerializeAll(order, ordItemList, divisionList, account, summary));
         OrderScreenController.saveOrder(null, false, data);
+        OrderScreenController.approvals(data);
     }
 
     @isTest
