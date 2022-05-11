@@ -133,7 +133,6 @@ public class OrderScreenControllerTest {
             OrderId = order.Id,
             PricebookEntryId = pricebookEntry.Id,
             Product2Id = product.Id,
-            ExternalId__c = 'texto',
             ListPrice = 150,
             ServiceDate = System.today(),
             Quantity = 10,
