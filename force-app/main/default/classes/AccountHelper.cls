@@ -1,4 +1,4 @@
-public with sharing class CustomerHelper {
+public with sharing class AccountHelper {
     private static Boolean isEnabled;
 
     static{
@@ -21,3 +21,4 @@ public with sharing class CustomerHelper {
         CalloutCTVCarteira.processIntegration();
     }
 }
+    
