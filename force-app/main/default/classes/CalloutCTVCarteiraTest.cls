@@ -49,8 +49,7 @@ public with sharing class CalloutCTVCarteiraTest {
         CalloutOrder calloutTest = new CalloutOrder();
         Test.setMock(HttpCalloutMock.class, new CalloutCTVMock(true));
         Test.startTest();
-        IntegrationUtils.CalloutCTVResponse response = CalloutCTVCarteira.processIntegration();
+        CalloutCTVCarteira.processIntegration();
         Test.stopTest();
-        System.debug(response);
     } 
 }

@@ -29,7 +29,10 @@ export default class OrderProductScreen extends LightningElement {
     safraData={}
     paymentDate;
     hectares;
-    priceBookListId;
+    salesConditionId;
+    productParams={};
+    productsPriceMap;
+    salesInfos;
 
     baseProducts = [];
     showBaseProducts = false;
@@ -95,10 +98,19 @@ export default class OrderProductScreen extends LightningElement {
     connectedCallback(event) {
         this.paymentDate = this.headerData.data_pagamento;
         this.hectares = this.headerData.hectares;
-        this.priceBookListId = this.headerData.lista_precos.Id;
+        this.salesConditionId = this.headerData.condicao_venda.Id;
         this.barterSale = this.headerData.tipo_venda == 'Venda Barter' ? true : false;
 
-        if (this.cloneData.cloneOrder && this.cloneData.pricebookListId != this.priceBookListId) {
+        this.productParams = {
+            salesConditionId: this.headerData.condicao_venda.Id,
+            accountId: this.accountData.Id,
+            ctvId: this.headerData.ctv_venda.Id,
+            safra: this.headerData.safra.Id,
+            productCurrency: this.headerData.moeda,
+            culture: this.headerData.cultura.Id
+        };
+
+        if (this.cloneData.cloneOrder) {
             this.products = []
             this.allDivisionProducts = [];
         } else {
@@ -126,7 +138,7 @@ export default class OrderProductScreen extends LightningElement {
                     paymentDate: this.headerData.data_pagamento != null ? this.headerData.data_pagamento : '',
                     accountId: this.accountData.Id != null ? this.accountData.Id : '',
                     salesOrg: this.headerData.salesOrg != null ? this.headerData.salesOrg : '',
-                    pricebookId: this.headerData.lista_precos.Id != null ? this.headerData.lista_precos.Id : '',
+                    pricebookId: this.headerData.condicao_venda.Id != null ? this.headerData.condicao_venda.Id : '',
                     safra: this.headerData.safra.Id != null ? this.headerData.safra.Id : '',
                     ctv: this.headerData.ctv_venda.Id != null ? this.headerData.ctv_venda.Id : '',
                     culture: this.headerData.cultura.Id != null ? this.headerData.cultura.Id : ''
@@ -141,22 +153,55 @@ export default class OrderProductScreen extends LightningElement {
         }
     }
 
+    getProductByPriority(selectedProduct) {
+        let key1 = this.accountData.Id + '-' + selectedProduct.Id;
+        let key2 = this.salesInfos.segmento + '-' + selectedProduct.Id;
+        let key3 = this.headerData.cultura.Id + '-' + this.salesInfos.salesTeamId + '-' + selectedProduct.Id;
+        let key4 = this.salesInfos.salesTeamId + '-' + selectedProduct.Id;
+        let key5 = this.salesInfos.salesOfficeId + '-' + selectedProduct.Id;
+        let key6 = selectedProduct.productGroupId;
+        let key7 = selectedProduct.Id;
+
+        let productsPrice = this.productsPriceMap;
+        let priorityPrice;
+        if (this.isFilled(productsPrice[key1])) {
+            priorityPrice = productsPrice[key1];
+        } else if (this.isFilled(productsPrice[key2])) {
+            priorityPrice = productsPrice[key2];
+        } else if (this.isFilled(productsPrice[key3])) {
+            priorityPrice = productsPrice[key3];
+        } else if (this.isFilled(productsPrice[key4])) {
+            priorityPrice = productsPrice[key4];
+        } else if (this.isFilled(productsPrice[key5])) {
+            priorityPrice = productsPrice[key5];
+        } else if (this.isFilled(productsPrice[key6])) {
+            priorityPrice = productsPrice[key6];
+        } else if (this.isFilled(productsPrice[key7])) {
+            priorityPrice = productsPrice[key7];
+        }
+
+        return priorityPrice;
+    }
+
     showProductModal(event) {
         this.createNewProduct = !this.createNewProduct;
 
         if (this.createNewProduct) {
             let currentProduct = this.baseProducts.find(e => e.Id == event.target.dataset.targetId);
+            let priorityInfos = this.getProductByPriority(currentProduct);
+            console.log('priorityInfos: ' + JSON.stringify(priorityInfos));
+
             this.multiplicity = currentProduct.multiplicity;
-            this.costPrice = currentProduct.costPrice;
+            this.costPrice = priorityInfos.costPrice;
             this.addProduct = {
                 entryId: currentProduct.entryId,
                 productId: currentProduct.Id,
                 name: currentProduct.Name,
                 unity: currentProduct.unity,
-                listPrice: currentProduct.listPrice,
+                listPrice: priorityInfos.listPrice,
                 dosage: currentProduct.dosage,
                 quantity: null,
-                unitPrice: currentProduct.listPrice,
+                unitPrice: priorityInfos.listPrice,
                 totalPrice: null,
                 initialTotalValue: null,
                 commercialDiscountPercentage: '',
@@ -407,6 +452,7 @@ export default class OrderProductScreen extends LightningElement {
     }
 
     includeProduct() {
+        console.log('this.addProduct: ' + JSON.stringify(this.addProduct));
         let prod = this.addProduct;
         if (this.checkRequiredFields(prod)) {
             let allProducts = JSON.parse(JSON.stringify(this.products));
@@ -421,6 +467,7 @@ export default class OrderProductScreen extends LightningElement {
             this.showIncludedProducts = true;
             this.addProduct = {};
             this.products = JSON.parse(JSON.stringify(allProducts));
+            this.message = false
 
             this.showToast('success', 'Sucesso!', 'Produto incluso.');
             this._verifyFieldsToSave();
@@ -722,7 +769,11 @@ export default class OrderProductScreen extends LightningElement {
 
     showResults(event){
         this.showBaseProducts = event.showResults;
-        this.baseProducts = event.results;
+        this.baseProducts = event.results.recordsDataList;
+        this.productsPriceMap = event.results.recordsDataMap;
+        console.log('this.productsPriceMap: ' + JSON.stringify(this.productsPriceMap));
+        this.salesInfos = event.results.salesResult;
+        console.log('this.salesInfos: ' + JSON.stringify(this.salesInfos));
         this.message = event.message;
     }
 
@@ -730,16 +781,17 @@ export default class OrderProductScreen extends LightningElement {
         this.showCommodities = true;
         this.selectCommodityScreen = true;
         this.currentScreen = 'chooseCommodity';
-        this.commodities = [{id: '01', name: 'Trigo', currency: 'USD', cotation: '50'}, {id: '02', name: 'Milho', currency: 'BRL', cotation: '78'}];
-        // this.chooseCommodities = !this.chooseCommodities;
+        // this.commodities = [{id: '01', name: 'Trigo', currency: 'USD', cotation: '50'}, {id: '02', name: 'Milho', currency: 'BRL', cotation: '78'}];
+        this.chooseCommodities = !this.chooseCommodities;
+        console.log('this.chooseCommodities: ' + this.chooseCommodities);
     }
 
     showCommodityResults(event){
         // this.showCommodities = event.showResults;
-        // this.commodities = event.results;
-        this.showCommodities = true;
-        this.commodities = [{name: 'Trigo', currency: 'USD', cotation: '50'}]
-        // this.message = event.message;
+        this.commodities = event.results;
+        // this.showCommodities = true;
+        // this.commodities = [{name: 'Trigo', currency: 'USD', cotation: '50'}]
+        this.message = event.message;
     }
 
     selectCommodity(event) {
@@ -787,12 +839,13 @@ export default class OrderProductScreen extends LightningElement {
 
     nextScreen(event) {
         this.selectCommodityScreen = false;
+        this.chooseCommodities = false;
         this.commoditySelected = false;
         this.summaryScreen = false;
         this.haScreen = false;
 
         this.currentScreen = this.commodityScreens[this.commodityScreens.indexOf(this.currentScreen) + 1];
-        if (this.currentScreen == 'chooseCommodity') this.selectCommodityScreen = true;
+        if (this.currentScreen == 'chooseCommodity') this.selectCommodityScreen = true;this.chooseCommodities = true;
         if (this.currentScreen == 'fillCommodity') this.commoditySelected = true;
         if (this.currentScreen == 'negotiationDetails') this.fillCommodity();
         if (this.currentScreen == 'haScreen') this.haScreen = true;
