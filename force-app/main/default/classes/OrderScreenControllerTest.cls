@@ -15,7 +15,7 @@ public class OrderScreenControllerTest {
             Name = 'Child Account',
             Company__c = 'Child Account',
             Phone = '11111111111',
-            ExternalId__c = '123456'
+            ExternalId__c = '123457'
         );
         accountList.add(childAccount);
         insert accountList;
@@ -44,7 +44,8 @@ public class OrderScreenControllerTest {
             Conta__c = parentAccount.Id,
             SalesOrg__c = salesOrg.Id,
             SalesOffice__c = salesOffice.Id,
-            SalesTeam__c = salesTeam.Id
+            SalesTeam__c = salesTeam.Id,
+            ExternalId__c = '123457'
         );
         insert company;
 
@@ -108,7 +109,14 @@ public class OrderScreenControllerTest {
             IsActive = true,
             PrincipleActive__c = 'Salicilina',
             ProductGroup__c = productGroup.Id,
-            Multiplicity__c = 5
+            Multiplicity__c = 5,
+            ClasseAvaliacao__c = 'chucrute',
+            GrupoQuimico__c = 'Só o quimico',
+            MarcadoEliminacao__c = 'S',
+            NCM__c = 'S',
+            NumeroRegistro__c = '0001',
+            OrigemMaterial__c = 'Himalaia',
+            UnidadeMedida__c = 'KG'
         );
         insert product;
 
@@ -125,6 +133,7 @@ public class OrderScreenControllerTest {
             OrderId = order.Id,
             PricebookEntryId = pricebookEntry.Id,
             Product2Id = product.Id,
+            ExternalId__c = 'texto',
             ListPrice = 150,
             ServiceDate = System.today(),
             Quantity = 10,
