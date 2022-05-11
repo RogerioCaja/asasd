@@ -7,8 +7,8 @@ import {
     ShowToastEvent
 } from 'lightning/platformShowToastEvent';
 
-import LISTA_PRECO_OBJECT from '@salesforce/schema/Pricebook2';
-import LISTA_PRECO_NAME from '@salesforce/schema/Pricebook2.Name';
+import CONDICAO_VENDA_OBJECT from '@salesforce/schema/SalesCondition__c';
+import CONDICAO_VENDA_NAME from '@salesforce/schema/SalesCondition__c.Name';
 
 import CTV_OBJECT from '@salesforce/schema/User';
 import CTV_NAME from '@salesforce/schema/User.Name';
@@ -56,7 +56,7 @@ export default class OrderHeaderScreen extends LightningElement {
         numero_pedido_cliente: " ",
         safra: {},
         cultura: {},
-        lista_precos: {},
+        condicao_venda: {},
         condicao_pagamento: null,
         data_pagamento: " ",
         data_entrega: " ",
@@ -79,6 +79,7 @@ export default class OrderHeaderScreen extends LightningElement {
 
     @api productData;
     @api divisionData;
+    @api commodityData;
     @api cloneData;
 
     @track pass = false;
@@ -198,10 +199,10 @@ export default class OrderHeaderScreen extends LightningElement {
 
 
     //Lista de Preço
-    redispatchListaPrecoObject = LISTA_PRECO_OBJECT;
-    lista_precos;
-    redispatchListaPrecosSearchFields = [LISTA_PRECO_NAME];
-    redispatchListaPrecoListItemOptions = {
+    redispatchCondicaoVendaObject = CONDICAO_VENDA_OBJECT;
+    condicao_venda;
+    redispatchCondicaoVendaSearchFields = [CONDICAO_VENDA_NAME];
+    redispatchCondicaoVendaListItemOptions = {
         title: 'Name',
         description: 'Name'
     };
@@ -404,8 +405,8 @@ export default class OrderHeaderScreen extends LightningElement {
                 this.headerDictLocale.safra.Id !== undefined &&
                 this.headerDictLocale.cultura.Id !== undefined &&
                 this.headerDictLocale.data_pagamento !== undefined &&
-                this.headerDictLocale.lista_precos != ' ' &&
-                this.headerDictLocale.lista_precos.Id !== undefined &&
+                this.headerDictLocale.condicao_venda != ' ' &&
+                this.headerDictLocale.condicao_venda.Id !== undefined &&
                 this.headerDictLocale.condicao_pagamento.Id !== undefined &&
                 this.headerDictLocale.moeda !== undefined &&
                 this.headerDictLocale.numero_pedido_cliente !== undefined &&

@@ -19,9 +19,7 @@ export default class CustomOrderSearch extends LightningElement {
     @api label;
     @api placeholder;
     @api className;
-    @api pricebookListId;
-    @api accountId;
-    @api ctvId;
+    @api productParams;
     @api required = false;
     @track searchString;
     @track selectedRecord;
@@ -74,6 +72,7 @@ export default class CustomOrderSearch extends LightningElement {
         this.showSpinner = true;
         this.message = '';
         this.recordsList = [];
+        console.log('this.objectName: ' + this.objectName);
         if (this.objectName == 'Account') {
             fetchAccountRecords({
                     searchString: this.searchString
@@ -102,14 +101,12 @@ export default class CustomOrderSearch extends LightningElement {
                     this.message = error.message;
                     this.showSpinner = false;
                 });
-        }else if (this.objectName == 'Product2') {
-            console.log(this.accountId);
-            console.log(this.ctvId);
+        }else if (this.objectName == 'Product2' || this.objectName == 'Commodity') {
+            console.log('this.productParams: ' + JSON.stringify(this.productParams));
             fetchOrderRecords({
                     searchString: this.searchString,
-                    pricebookListId: this.pricebookListId,
-                    accountId: this.accountId,
-                    ctvId: this.ctvId
+                    data: JSON.stringify(this.productParams),
+                    isCommodity: this.objectName == 'Commodity' ? true : false
                 })
                 .then(result => {
                     const tabEvent = new CustomEvent("showresults");

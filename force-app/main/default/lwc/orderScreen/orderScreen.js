@@ -16,15 +16,15 @@ import saveOrder from '@salesforce/apex/OrderScreenController.saveOrder';
 import calloutOrder from '@salesforce/apex/OrderScreenController.callout';
 import getOrder from '@salesforce/apex/OrderScreenController.getOrder';
 import getAccount from '@salesforce/apex/OrderScreenController.getAccount';
+import { NavigationMixin } from 'lightning/navigation';
 
-export default class OrderScreen extends LightningElement {
+export default class OrderScreen extends NavigationMixin(LightningElement) {
     @api recordId;
     @api originScreen;
     @api recordTypeId;
     @api clone;
     @track cloneData = {
-        cloneOrder: false,
-        pricebookListId: ''
+        cloneOrder: false
     };
 
     @wire(getObjectInfo, {objectApiName: Order})
@@ -51,7 +51,7 @@ export default class OrderScreen extends LightningElement {
         numero_pedido_cliente: " ",
         safra: " ",
         cultura: " ",
-        lista_precos: " ",
+        condicao_venda: " ",
         condicao_pagamento: " ",
         data_pagamento: " ",
         data_entrega: " ",
@@ -72,6 +72,7 @@ export default class OrderScreen extends LightningElement {
     };
     @track productData;
     @track divisionData;
+    @track commodityData;
     @track summaryData = {
         'observation' : "",
         'billing_sale_observation': ""
@@ -194,8 +195,8 @@ export default class OrderScreen extends LightningElement {
             this.completeScreens([0, 1, 2, 3]);
             this.isLoading = false;
             this.cloneData.cloneOrder = this.clone.cloneOrder;
-            this.headerData.lista_precos = this.headerData.lista_precos != null ? this.headerData.lista_precos : ' ';
-            this.cloneData.pricebookListId = this.headerData.lista_precos != ' ' ?  this.headerData.lista_precos.Id : '';
+            this.headerData.condicao_venda = this.headerData.condicao_venda != null ? this.headerData.condicao_venda : ' ';
+            // this.cloneData.pricebookListId = this.headerData.condicao_venda != ' ' ?  this.headerData.condicao_venda.Id : '';
         })
         .catch((err)=>{
             console.log(err);
@@ -225,8 +226,8 @@ export default class OrderScreen extends LightningElement {
             this.completeScreens([0, 1, 2, 3]);
             this.isLoading = false;
             this.cloneData.cloneOrder = this.clone.cloneOrder;
-            this.headerData.lista_precos = this.headerData.lista_precos != null ? this.headerData.lista_precos : ' ';
-            this.cloneData.pricebookListId = this.headerData.lista_precos != ' ' ?  this.headerData.lista_precos.Id : '';
+            this.headerData.condicao_venda = this.headerData.condicao_venda != null ? this.headerData.condicao_venda : ' ';
+            // this.cloneData.pricebookListId = this.headerData.condicao_venda != ' ' ?  this.headerData.condicao_venda.Id : '';
         })
         .catch((err)=>{
             console.log(err);
@@ -272,9 +273,10 @@ export default class OrderScreen extends LightningElement {
             }
         })
     }*/
-    async saveOrder(){
+    async saveOrder(event){
+        const mode = event.detail;
         await this.recordId;
-        const data = {accountData: this.accountData, headerData: this.headerData, productData: this.productData, divisionData: this.divisionData, summaryData: this.summaryData};
+        const data = {accountData: this.accountData, headerData: this.headerData, productData: this.productData, divisionData: this.divisionData, commodityData: this.commodityData, summaryData: this.summaryData};
         console.log(JSON.stringify(data));
         this.isLoading = true;
         //console.log(data);
@@ -286,9 +288,25 @@ export default class OrderScreen extends LightningElement {
         .then((result) => {
             console.log(JSON.stringify(result));
             result = JSON.parse(result);
+
             if(!result.hasError){
+                console.log(JSON.stringify(mode));
                 this.showNotification(result.message, 'Sucesso', 'success');
-                calloutOrder({orderId: result.orderId});
+                if( mode == "gerarpedido" ){
+                    calloutOrder({orderId: result.orderId}).then((resultCallout)=>{
+                        resultCallout = JSON.parse(resultCallout);
+                        this.showNotification('Observe o Log de Integrações', resultCallout.message, 'info');
+                    });
+                }
+                this[NavigationMixin.Navigate]({
+                    type: 'standard__recordPage',
+                    attributes: {
+                        recordId: result.orderId,
+                        objectApiName: 'Order',
+                        actionName: 'view'
+                    }
+                });
+               
             }
             else
                 this.showNotification(result.message, 'Algo de errado aconteceu','erro');
@@ -332,6 +350,10 @@ export default class OrderScreen extends LightningElement {
 
     _setDivisionData(event) {
         this.divisionData = event.data;
+    }
+
+    _setCommodityData(event) {
+        this.commodityData = event.data;
     }
 
     _setSummaryData(event) {
