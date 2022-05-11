@@ -53,11 +53,12 @@ export default class OrderProductScreen extends LightningElement {
     financialInfos = {};
     
     selectCommodityScreen = false;
-    commodityScreens = ['chooseCommodity', 'fillCommodity', 'negotiationDetails', 'haScreen'];
+    // commodityScreens = ['chooseCommodity', 'fillCommodity', 'negotiationDetails', 'haScreen'];
+    commodityScreens = ['chooseCommodity', 'fillCommodity', 'negotiationDetails'];
     currentScreen = 'chooseCommodity';
     
     commodities = [];
-    commoditiesData = [];
+    // commoditiesData = [];
     chooseCommodities = false;
     showCommodities = false;
     commoditySelected = false;
@@ -72,8 +73,8 @@ export default class OrderProductScreen extends LightningElement {
         {label: 'Entrega Total', fieldName: 'totalDelivery'}
     ];
 
-    haScreen = false;
-    haData = [{
+    // haScreen = false;
+    /* haData = [{
         productSubGroup: 'productSubGroup',
         totalQuantity: 'totalQuantity',
         haCost: 'haCost',
@@ -86,10 +87,13 @@ export default class OrderProductScreen extends LightningElement {
         {label: 'Custo/HA', fieldName: 'haCost'},
         {label: 'Potencial/HA', fieldName: 'haPotential'},
         {label: 'Customer Share', fieldName: 'customerShare'}
-    ];
+    ]; */
     
     @track products = [];
+    @track commoditiesData = [];
+
     @api productData;
+    @api commodityData;
     @api divisionData;
     @api accountData;
     @api headerData;
@@ -100,6 +104,7 @@ export default class OrderProductScreen extends LightningElement {
         this.hectares = this.headerData.hectares;
         this.salesConditionId = this.headerData.condicao_venda.Id;
         this.barterSale = this.headerData.tipo_venda == 'Venda Barter' ? true : false;
+        this.commoditiesData = this.isFilled(this.commodityData) ? this.commodityData : [];
 
         this.productParams = {
             salesConditionId: this.headerData.condicao_venda.Id,
@@ -107,7 +112,8 @@ export default class OrderProductScreen extends LightningElement {
             ctvId: this.headerData.ctv_venda.Id,
             safra: this.headerData.safra.Id,
             productCurrency: this.headerData.moeda,
-            culture: this.headerData.cultura.Id
+            culture: this.headerData.cultura.Id,
+            orderType: this.headerData.tipo_venda
         };
 
         if (this.cloneData.cloneOrder) {
@@ -767,13 +773,17 @@ export default class OrderProductScreen extends LightningElement {
         this.dispatchEvent(setHeaderData);
     }
 
+    _setCommodityData() {
+        const setHeaderData = new CustomEvent('setcommoditydata');
+        setHeaderData.data = this.commoditiesData;
+        this.dispatchEvent(setHeaderData);
+    }
+
     showResults(event){
         this.showBaseProducts = event.showResults;
         this.baseProducts = event.results.recordsDataList;
         this.productsPriceMap = event.results.recordsDataMap;
-        console.log('this.productsPriceMap: ' + JSON.stringify(this.productsPriceMap));
         this.salesInfos = event.results.salesResult;
-        console.log('this.salesInfos: ' + JSON.stringify(this.salesInfos));
         this.message = event.message;
     }
 
@@ -781,54 +791,84 @@ export default class OrderProductScreen extends LightningElement {
         this.showCommodities = true;
         this.selectCommodityScreen = true;
         this.currentScreen = 'chooseCommodity';
-        // this.commodities = [{id: '01', name: 'Trigo', currency: 'USD', cotation: '50'}, {id: '02', name: 'Milho', currency: 'BRL', cotation: '78'}];
         this.chooseCommodities = !this.chooseCommodities;
-        console.log('this.chooseCommodities: ' + this.chooseCommodities);
     }
 
     showCommodityResults(event){
-        // this.showCommodities = event.showResults;
-        this.commodities = event.results;
-        // this.showCommodities = true;
-        // this.commodities = [{name: 'Trigo', currency: 'USD', cotation: '50'}]
-        this.message = event.message;
+        this.commodities = event.results.recordsDataList;
     }
 
     selectCommodity(event) {
         this.nextScreen();
+        let totalProducts = 0;
+        for (let index = 0; index < this.products.length; index++) {
+            totalProducts += this.products[index].quantity;
+        }
+
         let chooseCommodity = this.commodities.find(e => e.id == event.target.dataset.targetId);
-        console.log('chooseCommodity: ' + JSON.stringify(chooseCommodity));
+        let marginPercent = (1 - this.products[0].commercialMarginPercentage) * 100;
+
+        console.log('chooseCommodity.commissionPercentage: ' + chooseCommodity.commissionPercentage);
+        console.log('totalProducts: ' + totalProducts);
+        console.log('total: ' + (chooseCommodity.commissionPercentage * totalProducts) / 100);
         this.selectedCommodity = {
-            name: chooseCommodity.name,
-            cotation: chooseCommodity.cotation,
+            id: chooseCommodity.Id,
+            name: chooseCommodity.Name,
+            cotation: chooseCommodity.listPrice,
             startDate: null,
             endDate: null,
-            deliveryQuantity: '10 sacas',
-            ptax: 'U$4,67',
+            deliveryQuantity: (totalProducts / chooseCommodity.listPrice).toFixed(4) + ' sacas',
+            ptax: chooseCommodity.productCurrency + chooseCommodity.listPrice,
+            commodityPrice: chooseCommodity.listPrice,
             deliveryAddress: '',
-            commission: 'R$140',
-            totalMarginPercent: '12%',
-            totalMarginValue: 'R$140'
+            commission: 'R$' + ((chooseCommodity.commissionPercentage * totalProducts) / 100),
+            totalMarginPercent: marginPercent.toFixed(4) + '%',
+            totalMarginValue: ((this.products[0].totalPrice * marginPercent) / 100).toFixed(4)
         };
     }
 
     fillCommodity(event) {
         this.summaryScreen = true;
+        for (let index = 0; index < this.commoditiesData.length; index++) {
+            if (this.commoditiesData[index].saved == false) {
+                return;
+            }
+        }
+
+        console.log('this.selectedCommodity: ' + JSON.stringify(this.selectedCommodity));
         this.commoditiesData.push({
             product: this.selectedCommodity.name,
+            productId: this.selectedCommodity.id,
+            commodityPrice: this.selectedCommodity.commodityPrice,
             desage: this.products[0].dosage,
             area: this.headerData.hectares,
-            quantity: this.selectedCommodity.deliveryQuantity,
+            quantity: this.products[0].quantity,
             discount: 'R$' + this.products[0].commercialDiscountValue,
             margin: this.products[0].commercialMarginPercentage.toFixed(4),
-            totalDelivery: 50
+            totalDelivery: this.selectedCommodity.deliveryQuantity,
+            saved: false
         });
+        console.log('this.commoditiesData: ' + JSON.stringify(this.commoditiesData));
     }
 
     closeCommodityModal(event) {
+        console.log('this.commoditiesData.length: ' + this.commoditiesData.length);
+        for (let index = 0; index < this.commoditiesData.length; index++) {
+            console.log('event.target.dataset.targetId: ' + event.target.dataset.targetId);
+            if (event.target.dataset.targetId == 'saveButton') {
+                this.commoditiesData[index].saved = true;
+                console.log('this.commoditiesData[index]: ' + JSON.stringify(this.commoditiesData[index]));
+                this._setCommodityData();
+            } else if (this.commoditiesData[index].saved == false) {
+                this.commoditiesData.splice(index, 1);
+            }
+        }
+        
+        this.showCommodities = false;
+        this.chooseCommodities = false;
         this.commoditySelected = false;
         this.summaryScreen = false;
-        this.showCommodities = false;
+        // this.haScreen = false;
     }
 
     commodityChange(event) {
@@ -842,30 +882,27 @@ export default class OrderProductScreen extends LightningElement {
         this.chooseCommodities = false;
         this.commoditySelected = false;
         this.summaryScreen = false;
-        this.haScreen = false;
+        // this.haScreen = false;
 
         this.currentScreen = this.commodityScreens[this.commodityScreens.indexOf(this.currentScreen) + 1];
-        if (this.currentScreen == 'chooseCommodity') this.selectCommodityScreen = true;this.chooseCommodities = true;
+        if (this.currentScreen == 'chooseCommodity') {this.selectCommodityScreen = true;this.chooseCommodities = true;}
         if (this.currentScreen == 'fillCommodity') this.commoditySelected = true;
         if (this.currentScreen == 'negotiationDetails') this.fillCommodity();
-        if (this.currentScreen == 'haScreen') this.haScreen = true;
+        // if (this.currentScreen == 'haScreen') this.haScreen = true;
     }
 
     backScreen(event) {
         this.selectCommodityScreen = false;
         this.commoditySelected = false;
         this.summaryScreen = false;
-        this.haScreen = false;
+        // this.haScreen = false;
 
         this.currentScreen = this.commodityScreens[this.commodityScreens.indexOf(this.currentScreen) - 1];
-        if (this.currentScreen == 'chooseCommodity') this.selectCommodityScreen = true;
+        if (this.currentScreen == 'chooseCommodity') {this.selectCommodityScreen = true;this.chooseCommodities = true;}
         if (this.currentScreen == 'fillCommodity') this.commoditySelected = true;
         if (this.currentScreen == 'negotiationDetails') this.summaryScreen = true;
-        if (this.currentScreen == 'haScreen') this.haScreen = true;
+        // if (this.currentScreen == 'haScreen') this.haScreen = true;
     }
-
-    // commodityScreens = ['chooseCommodity', 'fillCommodity', 'negotiationDetails', 'haScreen'];
-    // currentScreen = 'chooseCommodity';
 
     showToast(type, title, message) {
         let event = new ShowToastEvent({
