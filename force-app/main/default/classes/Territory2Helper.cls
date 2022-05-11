@@ -20,7 +20,6 @@ public with sharing class Territory2Helper {
     
     public static void checkUpdateFieldsCTV(List<Territory2> newRecords){
         
-        IntegrationUtils.CalloutCTVResponse response = CalloutCTVCarteira.processIntegration();
-        System.debug('Response: '  + response);
+        CalloutCTVCarteira.processIntegration();
     }
 }
