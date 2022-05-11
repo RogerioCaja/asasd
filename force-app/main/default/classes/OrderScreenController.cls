@@ -309,7 +309,7 @@ public without sharing class OrderScreenController {
                     counter++;
                 }
 
-                if (salesTeamTerritory == null) {
+                if (salesTeamTerritory == null && territoryAndParents.get(userTerritoryId) != null && territoryAndParents.get(territoryAndParents.get(userTerritoryId).ParentTerritory2Id) != null) {
                     salesTeamTerritory = territoryAndParents.get(territoryAndParents.get(userTerritoryId).ParentTerritory2Id);
                 }
 
@@ -340,17 +340,23 @@ public without sharing class OrderScreenController {
 
             Id companyId;
             Id salesOrgId;
-            if (salesTeamTerritory.DeveloperName != null) {
+            Id activitySectorId;
+            Id distributionChannelId;
+            if (salesTeamTerritory != null && salesTeamTerritory.DeveloperName != null) {
                 String salesTeamDevName = salesTeamTerritory.DeveloperName.substring(1, salesTeamTerritory.DeveloperName.length());
                 for (Company__c salesTeamCompany : [
                     SELECT Id,
-                           SalesOrg__c
+                           SalesOrg__c,
+                           DistributionChannel__c,
+                           ActivitySector__c
                       FROM Company__c
                      WHERE Conta__c =: orderData.accountData.Id
                        AND SalesTeam__r.ExternalId__c =: salesTeamDevName
                 ]) {
                     companyId = salesTeamCompany.Id;
                     salesOrgId = salesTeamCompany.SalesOrg__c;
+                    activitySectorId = salesTeamCompany.DistributionChannel__c;
+                    distributionChannelId = salesTeamCompany.ActivitySector__c;
                 }
             }
 
@@ -366,12 +372,13 @@ public without sharing class OrderScreenController {
             order.Culture__c = orderData.headerData.cultura.Id ;
             order.PaymentForm__c = orderData.headerData.forma_pagamento ;
             order.SalesOrg__c = salesOrgId;
-            order.DistributionChannel__c = orderData.headerData.canal_distribuicao ;
-            order.ActivitySector__c = orderData.headerData.setor_atividade ;
+            order.DistributionChannel__c = distributionChannelId ;
+            order.ActivitySector__c = activitySectorId ;
             order.Currency__c = orderData.headerData.moeda ;
             order.SalesCTV__c = orderData.headerData.ctv_venda.Id ;
             order.StatusSF__c = orderData.headerData.status_pedido;
             order.Incoterms__c = orderData.headerData.frete;
+            order.Incoterms2__c = orderData.headerData.frete;
             order.Description = orderData.summaryData.observation;
             order.PaymentCondition__c = orderData.headerData.condicao_pagamento.Id;
             order.ShippingDate__c = Date.valueOf(orderData.headerData.data_entrega);
