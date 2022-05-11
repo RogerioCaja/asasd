@@ -24,7 +24,7 @@
 
 	<div class="products-result" if:true={showIncludedProducts}>
         <template if:false={message}>
-			<!-- <button if:true={barterSale} class="barter-sale" onclick={openCommodities}>Escolher commodities</button> -->
+			<button if:true={barterSale} class="barter-sale" onclick={openCommodities}>Escolher commodities</button>
 			<button class="change-columns" onclick={showTableColumns}>Alterar colunas</button>
             <h2>Resultados de <b>PRODUTOS</b>:</h2>
 
@@ -297,19 +297,17 @@
 			<div class="modal-content" style="width: 900px;">
                 <span class="close" onclick={closeCommodityModal}>&times;</span>
 
-				
-				
 				<div if:true={chooseCommodities}>
 					<p class="new-product-title">Escolha de Commodities</p>
-					<c-custom-order-search class="commodity-search" object-name="Product2" field-name="Name" product-params={productParams} onshowresults={showCommodityResults} label="Pesquisar COMMODITY:" placeholder="Digite o nome da Commodity" required="true" onchild={getFieldsValueCommodity}></c-custom-order-search>
+					<c-custom-order-search class="commodity-search" object-name="Commodity" field-name="Name" product-params={productParams} onshowresults={showCommodityResults} label="Pesquisar COMMODITY:" placeholder="Digite o nome da Commodity" required="true" onchild={getFieldsValueCommodity}></c-custom-order-search>
 					
 					<div if:true={selectCommodityScreen}>
 						<template for:each={commodities} for:item="commodity">
 							<div key={commodity.Id} class="card" style="width: 50%;">
 								<div class="container">
 									<div class="card-01">
-										<p class="product-name">{commodity.name}</p>
-										<p><b>Preço:</b> {commodity.currency}{commodity.cotation}</p>
+										<p class="product-name">{commodity.Name}</p>
+										<p><b>Preço:</b> {commodity.productCurrency}{commodity.listPrice}</p>
 									</div>
 									<div class="card-02">
 										<button class="include-button" data-target-id={commodity.id} onclick={selectCommodity}>Escolher</button>
@@ -407,7 +405,7 @@
 					</div>
 				</div>
 
-				<div if:true={haScreen}>
+				<!-- <div if:true={haScreen}>
 					<p class="new-product-title">Custo por HA</p>
 					<lightning-datatable class="slds-is-relative"
 										 data={haData}
@@ -415,7 +413,7 @@
 										 key-field="id"
 					>
 					</lightning-datatable>
-				</div>
+				</div> -->
 
 				<div class="row">
 					<div class="back-button">
@@ -423,8 +421,8 @@
 						<a if:true={selectCommodityScreen} onclick={closeCommodityModal}>Fechar</a>
 					</div>
 					<div class="column" if:false={selectCommodityScreen}>
-						<button if:false={haScreen} class="confirm-button" onclick={nextScreen}>Próximo></button>
-						<button if:true={haScreen} class="confirm-button" onclick={closeCommodityModal}>Salvar</button>
+						<button if:false={summaryScreen} class="confirm-button" onclick={nextScreen}>Próximo></button>
+						<button if:true={summaryScreen} class="confirm-button" onclick={closeCommodityModal} data-target-id="saveButton">Salvar</button>
 					</div>
 				</div>
 			</div>
