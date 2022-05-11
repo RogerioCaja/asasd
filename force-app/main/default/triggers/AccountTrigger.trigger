@@ -2,7 +2,7 @@ trigger AccountTrigger on Account (after insert, after update, before update, be
     if(AccountHelper.isTriggerEnabled()){
         switch on Trigger.operationType{
             when BEFORE_DELETE {
-                AccountHelper.calloutCTVIntegration(Trigger.new);
+                AccountHelper.calloutCTVIntegration(Trigger.old);
             }
             when AFTER_INSERT {
                 AccountHelper.calloutCTVIntegration(Trigger.new);
