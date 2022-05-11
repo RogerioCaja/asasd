@@ -1,453 +1,217 @@
+
 public class TemplateDefaultFields {
 	
     public interface FieldDefaults { 
         Map<String, Object> getFieldDefaults();
     }
 
-    public class UserDefaults implements FieldDefaults {
-        public Map<String, Object> getFieldDefaults(){
-            return new Map<String, Object>{
-                'CompanyName'       => 'TEST',
-                'EmailEncodingKey'  => 'UTF-8',
-                'TimeZoneSidKey'    => 'America/Sao_Paulo',
-                'LocaleSidKey'      => 'pt_BR',
-                'LanguageLocaleKey' => 'pt_BR'
-            };
-        }
+    public Account createAccount(){
+        Account account = new Account(
+            Name = 'Teste 1',
+            BillingStreet = ' ',
+            BillingState = '' ,
+            Phone= '', 
+            BillingCity = ' ', 
+            BillingLongitude = 000000,
+            BillingLatitude = 00000,
+            BillingPostalCode = '',
+            ExternalId__c = '11111',
+            Company__c = 'Empresa 01'
+        );
+
+        return account;
     }
 
-    public class AccountDefaults implements FieldDefaults {
-        public Map<String, Object> getFieldDefaults() {
-            return new Map<String, Object>{
-                'Name' 				       => 'Acc Teste',
-                // 'Status__c'			       => 'New',
-                'BillingCountryCode'       => 'BR',
-                'CNPJ__c'                  => '09210030000105',
-                'FiscalEmail__c'           => 'teste@teste.com.invalid',
-                'AccountSource'            => 'Televendas',
-                'BillingStreet'            => 'Rua das Margaridas',
-                'BillingAddressNumber__c'  => '258',
-                'BillingDistrict__c'       => 'Bairro Jardins',
-                'BillingComplement__c'     => 'Perto da Floricultura',
-                'BillingStateCode'         => 'SP',
-                'BillingPostalCode'        => '00000000',
-                'BillingCity'              => 'Cidade das Flores',
-                'FormTaxation__c'          => 'Simples',
-                'InternalSpecialRegime__c' => 'Sim',
-                'StateRegistration__c'     => '264402937871',
-                'SuframaCode__c'           => '147852369',
-                'EstablishmentType__c'     => 'Matriz',
-                'PCIMember__c'             => 'Não',
-                'Status__c'                => 'WaitingDEPS',
-                'RegistrationStatus__c'    => 'Não Validado/Novo',
-                'TypeOfNegotiation__c'     => 'Negociação Direta'
-            };
-        }
+    public Safra__c createSafra(){
+        Safra__c safra = new Safra__c(
+            Code__c = '1223',
+            Name = 'Safra Teste',
+            Name__c = 'Safra Teste',
+            BillingStartDate__c = System.today(),
+            EndDateBilling__c = System.today(),
+            EndDateInsertionOrders__c = System.today(),
+            NumberOfDaysAfterPayment__c = System.today(),
+            ReleaseStatus__c = 'Ativo',
+            StartDateOrderInsertion__c = System.today()
+
+        );
+        return safra; 
+    }
+
+    public Pricebook2 createPricebook2(){
+        Pricebook2 pricebook = new Pricebook2(
+            Name ='Price Book Test',
+            Description = 'Teste',
+            ExternalId__c = '0001',
+            IsActive =true
+        );
+
+        return pricebook;
+    }
+
+    public Cultura__c createCultura(){
+        Cultura__c cultura = new Cultura__c(
+            Name = 'Cultura Teste',
+            Name__c = 'Cultura Teste',
+            Codigo__c = '1234'
+        );
+
+        return cultura;
+    }
+
+    public SalesOrg__c createOrgVendas(){
+        SalesOrg__c so = new SalesOrg__c(
+            Name = 'AgroGalaxy',
+            SalesOrganizationCode__c = '1111'
+        );
+
+        return so;
+    }
+
+    public DistributionChannel__c createCanalDistribuicao(){
+        DistributionChannel__c distributionChannel = new DistributionChannel__c(
+            Name = 'Teste',
+            Codigo__c = '0001'
+        );
+   
+        return distributionChannel;
+    }
+
+    public Order createOrder(){
+        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User']; 
+        User u = new User(Alias = 'standt', Email='standarduser@testorg.com', 
+            EmailEncodingKey='UTF-8', LastName='Testing', LanguageLocaleKey='en_US', 
+            LocaleSidKey='en_US', ProfileId = p.Id, 
+            TimeZoneSidKey='America/Los_Angeles', UserName='tetedogas@testorg.com');
+
+        Account account = createAccount();
+        Safra__c safra = createSafra();
+        Cultura__c cultura = createCultura();
+        SalesOrg__c so = createOrgVendas();
+        DistributionChannel distributionChannel = createCanalDistribuicao();
+        INSERT account;
+        INSERT safra;
+        INSERT cultura;
+        INSERT so;
+        INSERT distributionChannel;
+        INSERT u;
+        Map <String,Schema.RecordTypeInfo> recordTypeMap = Order.sObjectType.getDescribe().getRecordTypeInfosByName();
+
+        Order order = new Order(
+            AccountId =  account.Id,
+            Status = 'Draft',
+            PriceBook2Id = Test.getStandardPricebookId(),
+            Type =  'Venda Sucata',
+            RecordTypeId = recordTypeMap.get('Venda Sucata').getRecordTypeId(),
+            ShippingAccount__c =   account.Id,
+            PaymentDate__c =  Date.today(),
+            CustomerOrderNumber__c = '0001',
+            EffectiveDate = Date.today(),
+            Crop__c =  safra.Id,
+            Culture__c = cultura.Id,
+            PaymentForm__c =  'Bonificação',
+            SalesOrg__c =  so.Id,
+            DistributionChannel__c =  'Venda Direta',
+            ActivitySector__c =  '',
+            Currency__c =  'BRL',
+            SalesCTV__c =  u.Id,
+            StatusSF__c = 'Em digitação',
+            EndDate = Date.today(),
+            Incoterms__c = 'CIF'
+        );
+   
+        return order;
+    }
+
+    public Product2 createProduct(){
+        Product2 prod = new Product2(
+            Name = 'Laptop X200', 
+            Family = 'Hardware',
+            ExternalId__c = '0001',
+            ClasseAvaliacao__c = 'chucrute',
+            GrupoQuimico__c = 'Só o quimico',
+            MarcadoEliminacao__c = 'S',
+            NCM__c = 'S',
+            NumeroRegistro__c = '0001',
+            OrigemMaterial__c = 'Himalaia',
+            UnidadeMedida__c = 'KG'
+        );
+
+        return prod;
+    }
+
+    public PricebookEntry createPricebookEntry(){
+        Product2 prod = createProduct();
+        INSERT prod;
+        PricebookEntry standardPrice = new PricebookEntry(
+            Pricebook2Id = Test.getStandardPricebookId(), 
+            Product2Id = prod.Id,
+            UnitPrice = 10000,
+            IsActive = true);
+        
+        return standardPrice;
+    }
+
+    public OrderItem createOrderItem(){
+        Order order = createOrder();
+        Product2 prod = createProduct();
+        PricebookEntry standardPrice = createPricebookEntry();
+        INSERT prod;
+        INSERT order;
+        INSERT standardPrice;
+
+        OrderItem orderItem = new OrderItem(
+            OrderId = order.Id,
+            Product2Id = prod.Id,
+            NumeroSap__c = '123',
+            UnitMeasure__c = 'L',
+            UnitPrice = 10000,
+            Quantity = 1,
+            ExternalId__c = 'texto',
+            PricebookEntryId = standardPrice.Id
+        );
+
+        return orderItem;
+    }
+
+    public ShippingDivison__c createDivisaoRemessa(){
+        OrderItem orderItem = createOrderItem();
+        INSERT orderItem;
+
+        ShippingDivison__c shipping = new ShippingDivison__c(
+            DeliveryDate__c = System.today().addDays(30),
+            Quantity__c = 10,
+            ExternalId__c = '001',
+            ConfirmedQuantity__c = 0,
+            OrderItem__c = orderItem.Id
+        );
+        
+
+        return shipping;
     }
     
-    public class CNAEDefaults implements FieldDefaults {
-        public Map<String, Object> getFieldDefaults() {
-            return new Map<String, Object>{
-                'Name' => 'CNAE Teste'
-            };
-        }
-    }
+
+       
+       
+
+        
+
+        
+
+        
     
-    public class CustomerGroupDefaults implements FieldDefaults {
-        public Map<String, Object> getFieldDefaults() {
-            return new Map<String, Object>{
-                'Name' => 'Grupo cliente Teste'
-            };
-        }
-    }
+
+        
+
+       
+
+        
+
     
-    public class BillingGroupDefaults implements FieldDefaults {
-        public Map<String, Object> getFieldDefaults() {
-            return new Map<String, Object>{
-                'Name' => 'Grupo Cobrança Teste'
-            };
-        }
-    }
 
-    public class BusinessUnitDefaults implements FieldDefaults {
-        public Map<String, Object> getFieldDefaults() {
-            return new Map<String, Object>{};
-        }
-    }
+   
 
-    public class SegmentDefaults implements FieldDefaults {
-        public Map<String, Object> getFieldDefaults() {
-            return new Map<String, Object>{};
-        }
-    }
+  
 
-    public class CommerceEntitlementPolicyDefaults implements FieldDefaults {
-        public Map<String, Object> getFieldDefaults() {
-            return new Map<String, Object>{
-                'BatchInProgress__c' => false
-            };
-        }
-    }
-
-    public class CommerceEntitlementProductDefaults implements FieldDefaults {
-        public Map<String, Object> getFieldDefaults() {
-            return new Map<String, Object>{};
-        }
-    }
-
-    public class SalesDiscountRangesDefaults implements FieldDefaults {
-        public Map<String, Object> getFieldDefaults() {
-            return new Map<String, Object>{};
-        }
-    }
-    
-    public class LeadDefaults implements FieldDefaults {
-        public Map<String, Object> getFieldDefaults() {
-            return new Map<String, Object>{
-                'FirstName'           => 'Lead',
-				'LastName'            => '- Teste',
-                'Company'             => 'ABC Company',
-                'Email'               => 'testlead@mail.com',
-                'Phone'               => '11935874410',
-                'Street'              => 'Rua das Margaridas',
-                'District__c'         => 'Jardins',
-                'City'                => 'São Bernardo do Campo',
-                'State'               => 'São Paulo',
-                'Country'             => 'Brazil',
-                'PostalCode'          => '09752400',
-                'EvaluationStatus__c' => 'Não atingiu as Premissas'
-            };
-        }
-    }
-
-    public class OpportunityDefaults implements FieldDefaults {
-        public Map<String, Object> getFieldDefaults() {
-            return new Map<String, Object>{
-                'Name' 				 => 'Opp Teste',
-                'StageName'			 => 'Qualificação'
-            };
-        }
-    }
-
-    public class PaymentConditionDefaults implements FieldDefaults {
-        public Map<String, Object> getFieldDefaults() {
-            return new Map<String, Object>{
-                'Name'          => 'Condição pgto teste',
-                'ExternalId__c' => '123456'
-            };
-        }
-    }
-
-    public class AccountPaymentConditionDefaults implements FieldDefaults {
-        public Map<String, Object> getFieldDefaults() {
-            return new Map<String, Object>{};
-        }
-    }
-
-
-    public class Pricebook2Defaults implements FieldDefaults {
-        public Map<String, Object> getFieldDefaults() {
-            return new Map<String, Object>{
-                'Name'              => 'Pricebook teste',
-                'ExternalId__c'     => '789456',
-                'UFDestination__c'  => 'SP',
-                'PriceGroupCode__c' => '123456',
-                'IsActive'          => true
-            };
-        }
-    }
-
-    public class ProductCatalogDefaults implements FieldDefaults {
-        public Map<String, Object> getFieldDefaults() {
-            return new Map<String, Object>{
-                'Name'          => 'Catalogo teste',
-                'IsStandard__c' => true
-            };
-        }
-    }
-
-    public class Product2Defaults implements FieldDefaults {
-        public Map<String, Object> getFieldDefaults() {
-            return new Map<String, Object>{
-                'Name'                      => 'Produto Teste',
-                'Family'                    => 'ALARMES',
-                'IsActive'                  => true,
-                'AvailableForAttendance__c' => false,
-                'IgnoreTestClasses__c'      => true
-            };
-        }
-    }
-
-    public class PriceBookEntryDefaults implements FieldDefaults {
-        public Map<String, Object> getFieldDefaults() {
-            return new Map<String, Object>{};
-        }
-    }
-
-    public class QuoteDefaults implements FieldDefaults {
-        public Map<String, Object> getFieldDefaults() {
-            return new Map<String, Object>{
-                'Name'                     => 'Cotação teste',
-                'Status'                   => 'Rascunho',
-                'PurchaseGoal__c'          => 'Revenda / Industrialização',
-                'CustomerType__c'          => 'Teste',
-                'StateRegistration__c'     => '264402937871',
-                'SuframaCode__c'           => '147852369'
-            };
-        }
-    }
-
-    public class QuoteLineItemDefaults implements FieldDefaults {
-        public Map<String, Object> getFieldDefaults() {
-            return new Map<String, Object>{
-                'Quantity' => 5,
-                'CommercialDiscount__c' => 10
-            };
-        }
-    }
-
-    public class OrderDefaults implements FieldDefaults {
-        public Map<String, Object> getFieldDefaults() {
-            return new Map<String, Object>{
-                'Status' => 'Novo'
-            };
-        }
-    }
-
-    public class OrderItemDefaults implements FieldDefaults {
-        public Map<String, Object> getFieldDefaults() {
-            return new Map<String, Object>{
-                'Quantity' => 5,
-                'CommercialDiscount__c' => 10
-            };
-        }
-    }
-
-    public class CaseDefaults implements FieldDefaults {
-        public Map<String, Object> getFieldDefaults() {
-            return new Map<String, Object>{
-                'Origin' => 'Oportunidade',
-                'Status' => 'Novo'
-            };
-        }
-    }
-
-    public class FormDefaults implements FieldDefaults {
-        public Map<String, Object> getFieldDefaults() {
-            return new Map<String, Object>{
-                'Name'                      => 'Formulário 1',
-                'Active__c'                 => true,
-                'AvailableForAttendance__c' => true,
-                'AvailableForSales__c'      => true
-            };
-        }
-    }
-
-    public class FormProductDefaults implements FieldDefaults {
-        public Map<String, Object> getFieldDefaults() {
-            return new Map<String, Object>{};
-        }
-    }
-
-    public class ProductPortfolioDefaults implements FieldDefaults {
-        public Map<String, Object> getFieldDefaults() {
-            return new Map<String, Object>{};
-        }
-    }
-
-    public class ProductPaymentConditionDefaults implements FieldDefaults {
-        public Map<String, Object> getFieldDefaults() {
-            return new Map<String, Object>{};
-        }
-    }
-    
-    public class AccountCustomerGroupDefaults implements FieldDefaults {
-        public Map<String, Object> getFieldDefaults() {
-            return new Map<String, Object>{};
-        }
-    }
-
-    public class FormQuestionDefaults implements FieldDefaults {
-        public Map<String, Object> getFieldDefaults() {
-            return new Map<String, Object>{};
-        }
-    }
-
-    public class FormAnswerDefaults implements FieldDefaults {
-        public Map<String, Object> getFieldDefaults() {
-            return new Map<String, Object>{
-                
-            };
-        }
-    }
-
-    public class EntitlementDefaults implements FieldDefaults {
-        public Map<String, Object> getFieldDefaults() {
-            return new Map<String, Object>{};
-        }
-    }
-
-    public class EstablishmentDefaults implements FieldDefaults {
-        public Map<String, Object> getFieldDefaults() {
-            return new Map<String, Object>{
-                'District__c'          => 'Distrito Industrial',
-                'ZIPCode__c'           => '88104765',
-                'City__c'              => 'São José',
-                'CNPJ__c'              => '79009965000103',
-                'StateCode__c'         => 'SP',
-                'StateRegistration__c' => '250.087.499',
-                'StreetAdress__c'      => 'Rua Judite Melo dos Santos; 205;',
-                'CountryCode__c'       => 'Brasil'
-            };
-        }
-    }
-
-    public class ProductKitItemDefaults implements FieldDefaults {
-        public Map<String, Object> getFieldDefaults() {
-            return new Map<String, Object>{
-                'ItemQuantity__c'    => 5,
-                'KitItemDiscount__c' => 1
-            };
-        }
-    }
-
-    public class ContactDefaults implements FieldDefaults{
-        public Map<String, Object> getFieldDefaults() {
-            return new Map<String, Object>{
-                'FirstName'         => 'Carlos',
-                'LastName'          => 'Almeida',
-                'DocumentNumber__c' => '29841241544',
-                'Phone'             => '74905824428',
-                'Email'             => 'teste@teste1.com'                
-            };
-        }
-    }
-
-    public class ContractDefaults implements FieldDefaults{
-        public Map<String, Object> getFieldDefaults() {
-            return new Map<String, Object>{
-                'Name'            => 'Teste',
-                'StartDate'       => System.today(),
-                'ContractTerm'    => 12,
-                'ContractType__c' => 'Venda',
-                'Status'          => 'Em Elaboração'                
-            };
-        }
-    }
-
-    public class ContractedProductDefaults implements FieldDefaults{
-        public Map<String, Object> getFieldDefaults(){
-            return new Map<String, Object>{
-                'ConsumedQuantity__c'  => 0,
-                'AvailableQuantity__c' => 30
-            };
-        }
-    }
-
-    public class AssetDefaults implements FieldDefaults{
-        public Map<String, Object> getFieldDefaults() {
-            return new Map<String, Object>{
-                'Name' => 'Ativo teste'               
-            };
-        }
-    }
-
-    public class CampaignDefaults implements FieldDefaults{
-        public Map<String, Object> getFieldDefaults() {
-            return new Map<String, Object>{
-                'Name'      => 'Campanha teste',
-                'IsActive'  => true,
-                'StartDate' => System.today(),
-                'EndDate'   => System.today().addDays(45)            
-            };
-        }
-    }
-
-    public class CampaignMemberDefaults implements FieldDefaults{
-        public Map<String, Object> getFieldDefaults() {
-            return new Map<String, Object>{
-                'Status' => 'Novo'
-            };
-        }
-    }
-
-    public class WebCartDefaults implements FieldDefaults{
-        public Map<String, Object> getFieldDefaults() {
-            return new Map<String, Object>{
-                'PurchaseGoal__c' => 'Consumo Próprio',
-                'Name'            => 'Cart',
-                'Status'          => 'Active'
-            };
-        }
-    }
-
-    public class WebStoreDefaults implements FieldDefaults{
-        public Map<String, Object> getFieldDefaults(){
-            return new Map<String, Object>{
-                'Name'  => 'WebStore Test'
-            };
-        }
-    }
-
-    public class BuyerGroupDefaults implements FieldDefaults{
-        public Map<String, Object> getFieldDefaults(){
-            return new Map<String, Object>{
-                'Name'  => 'BuyerGroup Test'
-            };
-        }
-    }
-
-    public class BuyerGroupMemberDefaults implements FieldDefaults{
-        public Map<String, Object> getFieldDefaults(){
-            return new Map<String, Object>{};
-        }
-    }
-
-    public class BuyerAccountDefaults implements FieldDefaults{
-        public Map<String, Object> getFieldDefaults(){
-            return new Map<String, Object>{
-                'IsActive' => true,
-                'Name'     => 'Buyer Account Test'
-            };
-        }
-    }
-
-    public class BuyerGroupPricebookDefaults implements FieldDefaults{
-        public Map<String, Object> getFieldDefaults(){
-            return new Map<String, Object>{};
-        }
-    }
-
-    public class CartItemDefaults implements FieldDefaults{
-        public Map<String, Object> getFieldDefaults(){
-            return new Map<String, Object>{
-                'Quantity' => 1,
-                'Name'     => 'Cart Item Test'
-            };
-        }
-    }
-
-    public class CartDeliveryGroupDefaults implements FieldDefaults{
-        public Map<String, Object> getFieldDefaults(){
-            return new Map<String, Object>{
-                'Name' => 'Cart Delivery Group Test'
-            };
-        }
-    }
-
-    public class AccountPriceGroupDefaults implements FieldDefaults{
-        public Map<String, Object> getFieldDefaults(){
-            return new Map<String, Object>{
-                'Name' => 'Account PriceGroup Test'
-            };
-        }
-    }
-
-    public class PriceGroupDefaults implements FieldDefaults{
-        public Map<String, Object> getFieldDefaults(){
-            return new Map<String, Object>{
-                'Name' => 'Price Group Test'
-            };
-        }
-    }
+   
 }
