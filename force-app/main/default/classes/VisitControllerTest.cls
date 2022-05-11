@@ -4,83 +4,8 @@ public with sharing class VisitControllerTest {
 
     @TestSetup
     static void makeData(){
-        //Requisitos: Account, Planejamento de visita
-        Account ac = new Account(
-            Name = 'Teste 1',
-            BillingStreet = ' ',
-            BillingState = '' ,
-            Phone= '', 
-            BillingCity = ' ', 
-            BillingLongitude = 000000,
-            BillingLatitude = 00000,
-            BillingPostalCode = '',
-            ExternalId__c = '11111'
-        );
-        
-
-        Safra__c s = new Safra__c(
-            Code__c = '1223',
-            Name = 'Safra Teste',
-            Name__c = 'Safra Teste',
-            BillingStartDate__c = System.today(),
-            EndDateBilling__c = System.today(),
-            EndDateInsertionOrders__c = System.today(),
-            NumberOfDaysAfterPayment__c = System.today(),
-            ReleaseStatus__c = 'Ativo',
-            StartDateOrderInsertion__c = System.today()
-
-        );
-
-        Cultura__c cultura = new Cultura__c(
-            Name = 'Safrinha',
-            Name__c = 'Safrinha',
-            Codigo__c = '1234'
-        );
-
-        insert ac;
-        insert s;
-        insert cultura;
-
-        SalesOrg__c so = new SalesOrg__c(
-            Name = 'AgroGalaxy',
-            SalesOrganizationCode__c = '1111'
-        );
-
-        insert so;
-        List<Cultura__c> clist = [SELECT Id FROM Cultura__c LIMIT 1];
-        List<Safra__c> sList = [SELECT Id FROM Safra__c LIMIT 1];
-        List<SalesOrg__c> salesList = [SELECT Id FROM SalesOrg__c LIMIT 1];
-        VisitPlanning__c vp = new VisitPlanning__c(
-            CTVvisit__c = 'Teste',
-            Culture__c = clist.get(0).Id,
-            EndDate__c = System.today(),
-            InitialDate__c = System.today(),
-            Safra__c = sList.get(0).Id,
-            SellOrg__c = salesList.get(0).Id
-        );
-        insert vp;
-
-        List<Account> accList = [SELECT Id FROM ACCOUNT LIMIT 1];
-        List<VisitPlanning__c> vpList = [SELECT Id FROM VisitPlanning__c LIMIT 1];
-        Cadastro_ClientedaVisita__c ccv = new Cadastro_ClientedaVisita__c(
-            Account__c = accList.get(0).Id,
-            ChekIn__c = true,
-            DataVisita__c = Datetime.now(),
-            Local_da_Visita__c = 'Local teste',
-            PlanejamentoVisita__c = vpList.get(0).Id,
-            Status_da_Visita__c = 'Planejada',
-            Tipo_da_Visita__c = 'Serviço Técnico'
-        );
-
-        insert ccv;
-        List<Cadastro_ClientedaVisita__c> cvList = [SELECT Id FROM Cadastro_ClientedaVisita__c LIMIT 1];
-        Fotos__c photo = new Fotos__c(
-            ClienteVisita__c = cvList.get(0).Id,
-            Observation__c = 'Teste'
-        );
-        insert photo;
-
-        //Requisito para as fotos e Cadastro do Cliente
+         TemplateDefaultFields t = new TemplateDefaultFields();
+        t.packageTest();
     }
 
     @isTest

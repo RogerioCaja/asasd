@@ -6,6 +6,7 @@ public class CustomLookupControllerTest {
         List<Account> accountList = new List<Account>();
         Account parentAccount = new Account(
             Name = 'Parent Account',
+            Company__c = 'Parent Account',
             Phone = '11111111111',
             ExternalId__c = '123456'
         );
@@ -13,8 +14,9 @@ public class CustomLookupControllerTest {
 
         Account childAccount = new Account(
             Name = 'Child Account',
+            Company__c = 'Child Account',
             Phone = '11111111111',
-            ExternalId__c = '123456'
+            ExternalId__c = '123457'
         );
         accountList.add(childAccount);
         insert accountList;
@@ -35,13 +37,28 @@ public class CustomLookupControllerTest {
         );
         insert order;
 
+        ProductGroup__c productGroup = new ProductGroup__c(
+            Name = 'Grãos',
+            ExternalId__c = '001'
+        );
+        insert productGroup;
+
         Product2 product = new Product2(
             Name = 'Milho',
             ExternalId__c = '001',
             ProductCode = '001',
             CurrencyIsoCode = 'BRL',
             IsActive = true,
-            PrincipleActive__c = 'Salicilina'
+            PrincipleActive__c = 'Salicilina',
+            ProductGroup__c = productGroup.Id,
+            Multiplicity__c = 5,
+            ClasseAvaliacao__c = 'chucrute',
+            GrupoQuimico__c = 'Só o quimico',
+            MarcadoEliminacao__c = 'S',
+            NCM__c = 'S',
+            NumeroRegistro__c = '0001',
+            OrigemMaterial__c = 'Himalaia',
+            UnidadeMedida__c = 'KG'
         );
         insert product;
 
@@ -58,6 +75,7 @@ public class CustomLookupControllerTest {
             OrderId = order.Id,
             PricebookEntryId = pricebookEntry.Id,
             Product2Id = product.Id,
+            ExternalId__c = 'texto',
             ListPrice = 150,
             ServiceDate = System.today(),
             Quantity = 10,
