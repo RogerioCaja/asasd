@@ -8,7 +8,7 @@ global with sharing class IntegrationINBoletos {
         Set<String> salesOrgLookups = new Set<String>();
         Set<String> accountCodeLookups = new Set<String>();
         // Guarda um mapa com uma lista de respostas
-        Map<String, List<TemplateDataIntegrationFields.Response>> responseMap = new Map<String, List<TemplateDataIntegrationFields.Response>>();
+        List<TemplateDataIntegrationFields.Response> responseList = new List<TemplateDataIntegrationFields.Response>();
         // Guarda uma lista com os OrderItem para fazer o upsert
         List<Boletos__c> boletosListToUpsert = new List<Boletos__c>();
 
@@ -44,12 +44,20 @@ global with sharing class IntegrationINBoletos {
             lookups
         );
 
-        //Upserting records
-        List<Database.UpsertResult> upsResults = Database.upsert(boletosListToUpsert, Boletos__c, false);
-
-        IntegrationUtils.upsertRecords(upsResults, responseMap, boletosListToUpsert, Boletos__c.); 
         
-        //Returning response
-        return responseMap;
+        Boolean hasError = IntegrationUtils.upsertRecords(
+            Database.upsert(boletosListToUpsert, Boleto__c.WritableLine__c, false), 
+            responseList, 
+            boletosListToUpsert, 
+            Boleto__c.WritableLine__c
+        );
+		
+        //Creating integration log
+        IntegrationUtils.createLog('Boletos IN', 'IN', JSON.serialize(request), JSON.serialize(responseList), hasError);
+        
+        
+        ResponseModel modelo = new ResponseModel();
+        modelo.response = responseList;
+        return modelo;
     }
 }
