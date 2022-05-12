@@ -1,14 +1,16 @@
+@RestResource(urlMapping='/upsertINBoleto/*')
 global with sharing class IntegrationINBoletos {
     public IntegrationINBoletos() {
 
     }
+    @HttpPost
     global static ResponseModel upsertBoletos(List<TemplateDataIntegrationFields.BoletosINData> request) {
         // Guarda as relações de order e product de preço com OrderItem
         Map<String, Id> lookups = new Map<String, Id>();
         Set<String> salesOrgLookups = new Set<String>();
         Set<String> accountCodeLookups = new Set<String>();
         // Guarda um mapa com uma lista de respostas
-        List<TemplateDataIntegrationFields.Response> responseList = new List<TemplateDataIntegrationFields.Response>();
+         List<TemplateDataIntegrationFields.Response> responseList = new List<TemplateDataIntegrationFields.Response>();
         // Guarda uma lista com os OrderItem para fazer o upsert
         List<Boletos__c> boletosListToUpsert = new List<Boletos__c>();
 
@@ -43,8 +45,6 @@ global with sharing class IntegrationINBoletos {
             boletosListToUpsert, 
             lookups
         );
-
-        
         Boolean hasError = IntegrationUtils.upsertRecords(
             Database.upsert(boletosListToUpsert, Boletos__c.WritableLine__c, false), 
             responseList, 
@@ -61,17 +61,17 @@ global with sharing class IntegrationINBoletos {
         return modelo;
     }
 
-     //? class to JSON responses 
-     global class ResponseModel {
+    //? class to JSON responses 
+    global class ResponseModel {
 
-        global List<TemplateDataIntegrationFields.ResponseParent> response;
+        global List<TemplateDataIntegrationFields.Response> response;
 
-        public ResponseModel(List<TemplateDataIntegrationFields.ResponseParent> response) {
+        public ResponseModel(List<TemplateDataIntegrationFields.Response> response) {
             this.response = response;
             
         }
         public ResponseModel() {   
-            this.response = new List<TemplateDataIntegrationFields.ResponseParent>();         
+            this.response = new List<TemplateDataIntegrationFields.Response>();         
         }
     }
 }
