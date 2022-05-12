@@ -121,11 +121,39 @@
     <picklistValues>
         <picklist>Status</picklist>
         <values>
-            <fullName>Activated</fullName>
+            <fullName>0</fullName>
             <default>false</default>
         </values>
         <values>
-            <fullName>Draft</fullName>
+            <fullName>0001</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>001</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>1</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>2</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>3</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>4</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>5</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>X</fullName>
             <default>false</default>
         </values>
     </picklistValues>
