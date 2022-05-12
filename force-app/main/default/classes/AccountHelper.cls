@@ -22,7 +22,6 @@ public with sharing class AccountHelper {
         for(Account acc : accountList){
             accountIdList.add(acc.Id);
         }
-        System.debug('accountIdList: '+ accountIdList);
         List<ObjectTerritory2Association> terrytoryObjectList = new List<ObjectTerritory2Association>([SELECT Id, Territory2Id, ObjectId  FROM ObjectTerritory2Association WHERE ObjectId =: accountIdList]);
         System.debug('terrytoryObjectList: '+ terrytoryObjectList);
         List<RequestedAssociation> request = new List<RequestedAssociation>();
@@ -31,9 +30,7 @@ public with sharing class AccountHelper {
         }
         System.debug('request: '+ request);
         String payload = JSON.serialize(request);
-        Decimal size = terrytoryObjectList.size();
         for(Account acc : accountList){
-            acc.NumberTerritorys__c = size;
             acc.AssosiationTerritories__c = payload;
         }
     }
