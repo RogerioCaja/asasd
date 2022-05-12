@@ -43,7 +43,7 @@ global with sharing class TemplateDataIntegrationFields {
         public JurosDescontoAntecipao__c serialize(Map<String, Id> lookups){
             return new JurosDescontoAntecipao__c(
                 AccountType__c = this.accountGroup,
-                ConditionType__c = this.typeCondition == 'ZPRO' ? 'Condição de Preço' : this.typeCondition == 'ZDAN'? 'Desconto' : 'Juros',
+                ConditionType__c = this.typeCondition == 'ZPR0' ? 'Preço' : this.typeCondition == 'ZDAN'? 'Desconto' : 'Juros',
                 RecordTypeId = [SELECT Id FROM RecordType WHERE DeveloperName =: this.typeCondition][0].Id,
                 Culture__c = lookups.containsKey('Cultura__c'+this.cultureCode) ? lookups.get('Cultura__c'+this.cultureCode) : null,
                 DistributionCenter__c =lookups.containsKey('DistributionCenter__c'+this.center) ? lookups.get('DistributionCenter__c'+this.center) : null,

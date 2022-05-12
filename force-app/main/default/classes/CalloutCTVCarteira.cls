@@ -1,6 +1,7 @@
 public with sharing class CalloutCTVCarteira {
 
-    public static IntegrationUtils.CalloutCTVResponse processIntegration(){
+    @future(callout = true)
+    public static void processIntegration(){
 
         List<Territory2> territoryList = new List<Territory2>([SELECT id, DeveloperName, lastmodifieddate, ParentTerritory2.DeveloperName, name, Territory2Type.DeveloperName FROM territory2]);
 
@@ -11,8 +12,6 @@ public with sharing class CalloutCTVCarteira {
             System.debug('integração foi um sucesso');
 
         }
-        
-        return calloutResponse;
     }
 
     public static IntegrationUtils.CalloutCTVResponse sendOrder(List<Territory2> territoryList) {

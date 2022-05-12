@@ -3,10 +3,10 @@ public with sharing class CalloutOrder {
         
     }
 
-    // @future(callout = true)
-    // public static void callIntegration(Id orderId){
-    //     processIntegration(orderId);
-    // }
+    @future(callout = true)
+    public static void callIntegration(Id orderId){
+        processIntegration(orderId);
+    }
 
     public static IntegrationUtils.CalloutResponse processIntegration(Id orderId){
 
@@ -40,11 +40,10 @@ public with sharing class CalloutOrder {
             }
             if(calloutResponse.success){
                 allOrders[0].CodigoSap__c = resp.responses.EV_SALES_DOC;
+                allOrders[0].StatusSF__c = 'Integrado';
                 orderList.add(allOrders[0]);
             }
-				
-			
-
+            
 			if (!orderList.isEmpty()) {
 				update orderList;
 			}
@@ -150,7 +149,7 @@ public with sharing class CalloutOrder {
                 header.DISTR_CHAN = order.DistributionChannel__c;
                 header.DIVISION = order.ActivitySector__c;
                 header.INCOTERMS1 = order.Incoterms__c;
-                header.INCOTERMS2 = order.Incoterms2__c;
+                header.INCOTERMS2 = order.Incoterms__c;
                 header.PMNTTRMS = order.PaymentCondition__r.Code__c;
                 header.PYMT_METH = order.PaymentForm__c;
                 
@@ -208,7 +207,7 @@ public with sharing class CalloutOrder {
                 }
                 
                 IT_ITEMS_IN.add(new CalloutOrder.OrderItemParameters(orderItem));
-                IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c, 'ZPRO', String.valueOf(orderItem.Quantity * orderItem.UnitPrice), order.Currency__c));
+                IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c, 'ZPR0', String.valueOf(orderItem.Quantity * orderItem.UnitPrice), order.Currency__c));
                 IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c, 'ZJUR', String.valueOf(orderItem.FinancialAdditionValue__c), order.Currency__c));
                 IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c, 'ZDAN', String.valueOf(orderItem.FinancialDiscountValue__c), order.Currency__c));
             }
@@ -251,8 +250,8 @@ public with sharing class CalloutOrder {
         public String PARTN_NUMB;
 
         public PartnerParameters(String partnerCode, String partnerFunc){
-            this.PARTN_ROLE = partnerCode;
-            this.PARTN_NUMB = partnerFunc;
+            this.PARTN_ROLE = partnerFunc;
+            this.PARTN_NUMB = partnerCode;
         }
     } 
 

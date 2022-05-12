@@ -72,6 +72,7 @@ export default class CustomOrderSearch extends LightningElement {
         this.showSpinner = true;
         this.message = '';
         this.recordsList = [];
+        console.log('this.objectName: ' + this.objectName);
         if (this.objectName == 'Account') {
             fetchAccountRecords({
                     searchString: this.searchString
@@ -100,11 +101,12 @@ export default class CustomOrderSearch extends LightningElement {
                     this.message = error.message;
                     this.showSpinner = false;
                 });
-        }else if (this.objectName == 'Product2') {
+        }else if (this.objectName == 'Product2' || this.objectName == 'Commodity') {
             console.log('this.productParams: ' + JSON.stringify(this.productParams));
             fetchOrderRecords({
                     searchString: this.searchString,
-                    data: JSON.stringify(this.productParams)
+                    data: JSON.stringify(this.productParams),
+                    isCommodity: this.objectName == 'Commodity' ? true : false
                 })
                 .then(result => {
                     const tabEvent = new CustomEvent("showresults");
