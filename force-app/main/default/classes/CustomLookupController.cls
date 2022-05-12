@@ -70,16 +70,19 @@ public without sharing class CustomLookupController {
 	}
 
     @AuraEnabled
-    public static ProductDataResult fetchProductsRecords(String searchString, String data) {
+    public static ProductDataResult fetchProductsRecords(String searchString, String data, Boolean isCommodity) {
         try {
+            System.debug('isCommodity: ' + isCommodity);
             ProductDataResult result = new ProductDataResult();
             ProductParams productParams = (ProductParams) JSON.deserialize(data, ProductParams.class);
+            System.debug('productParams: ' + productParams);
             Id commodityRecType = Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get('ZPR0').getRecordTypeId();
 
             SalesResult salesResult = getSalesOrgId(productParams.accountId, productParams.ctvId) != null ? getSalesOrgId(productParams.accountId, productParams.ctvId) : null;
+            salesResult.segmento = [SELECT Industry FROM Account WHERE Id =: productParams.accountId].Industry;
             result.salesResult = salesResult;
 
-            Set<String> priceFields = new Set<String>{'Id', 'UnitPrice__c', 'Cost__c', 'Product__c', 'SalesOrg__c', 'SalesTeam__c', 'SalesOffice__c', 'Account__c', 'Culture__c'};
+            Set<String> priceFields = new Set<String>{'Id', 'UnitPrice__c', 'Cost__c', 'Product__c', 'Currency__c', 'SalesOrg__c', 'SalesTeam__c', 'SalesOffice__c', 'Account__c', 'Culture__c'};
             String priceQuery = new Q(JurosDescontoAntecipao__c.SObjectType)
                                 .selectFields(priceFields)
                                 .add(Q.condition('RecordTypeId').equalsTo(commodityRecType))
@@ -121,9 +124,11 @@ public without sharing class CustomLookupController {
                 prodsId.add(orgVProduct.Product__c);
             }
 
+            String productType = isCommodity ? 'ZCOM' : 'HAWA';
             String productQuery = 'SELECT Id, Name, ExternalId__c, QuantityUnitOfMeasure, ProductGroup__c, ProductGroup__r.Name, PrincipleActive__c, Multiplicity__c' +
                                   '  FROM Product2' +
                                   ' WHERE Id IN:prodsId' +
+                                  '   AND ProductType__c =: productType' +
                                   '   AND ('+
                                   '            Name LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\'' +
                                   '         OR ProductGroup__r.Name LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\'' +
@@ -142,6 +147,27 @@ public without sharing class CustomLookupController {
                   FROM ProductGroup__c
                  WHERE Id IN: prodGroupIds
             ]);
+            
+            Map<Id, Decimal> commissionByGroup = new Map<Id, Decimal>();
+            if (isCommodity) {
+                User user = [SELECT Id, SellerType__c FROM User WHERE Id =: UserInfo.getUserId()];
+                String sellerType = user.SellerType__c != null ? user.SellerType__c : '';
+    
+                if (sellerType != '') {
+                    for (Comissao__c commission : [
+                        SELECT Id,
+                               ProductGroup__c,
+                               CommissionPercentage__c 
+                        FROM Comissao__c
+                       WHERE ProductGroup__c IN: prodGroupIds
+                         AND SellerType__c =: sellerType
+                    ]) {
+                        if (!commissionByGroup.containsKey(commission.ProductGroup__c)) {
+                            commissionByGroup.put(commission.ProductGroup__c, commission.CommissionPercentage__c);
+                        }
+                    }
+                }
+            }
 
             result.recordsDataList = new List<ProductData>();
             result.recordsDataMap = new Map<String, ProductData>();
@@ -156,9 +182,10 @@ public without sharing class CustomLookupController {
                         productGroupName = productsGroupById.get(productGroupId) != null ? productsGroupById.get(productGroupId).Name : '';
                     }
     
-                    ProductData productData = new ProductData((String)s.get('Id'), (String)s.get('Name'), (String)s.get('ExternalId__c'), (String)s.get('QuantityUnitOfMeasure'), (String)s.get('PrincipleActive__c'), (Decimal)s.get('Multiplicity__c'), productGroupId, productGroupName, jda.Id, jda.UnitPrice__c, jda.Cost__c);
+                    Decimal commissionPercentage = commissionByGroup.get(productGroupId) != null ? commissionByGroup.get(productGroupId) : 0;
+                    ProductData productData = new ProductData((String)s.get('Id'), (String)s.get('Name'), (String)s.get('ExternalId__c'), (String)s.get('QuantityUnitOfMeasure'), (String)s.get('PrincipleActive__c'), (Decimal)s.get('Multiplicity__c'), productGroupId, productGroupName, jda.Currency__c, jda.Id, jda.UnitPrice__c, jda.Cost__c, commissionPercentage);
                     if (!productIncluded) {
-                        result.recordsDataList.add(new ProductData((String)s.get('Id'), (String)s.get('Name'), (String)s.get('ExternalId__c'), (String)s.get('QuantityUnitOfMeasure'), (String)s.get('PrincipleActive__c'), (Decimal)s.get('Multiplicity__c'), productGroupId, productGroupName, jda.Id, jda.UnitPrice__c, jda.Cost__c));
+                        result.recordsDataList.add(productData);
                         productIncluded = true;
                     }
                     
@@ -280,11 +307,13 @@ public without sharing class CustomLookupController {
         @AuraEnabled public String  productGroupName;
         @AuraEnabled public String  activePrinciple;
         @AuraEnabled public String  entryId;
+        @AuraEnabled public String  productCurrency;
         @AuraEnabled public Decimal multiplicity;
         @AuraEnabled public Decimal listPrice;
         @AuraEnabled public Decimal costPrice;
+        @AuraEnabled public Decimal commissionPercentage;
         
-        public ProductData(String Id, String Name, String sapProductCode, String unity, String activePrinciple, Decimal multiplicity, String productGroup, String productGroupName, String entryId, Decimal listPrice, Decimal costPrice) {
+        public ProductData(String Id, String Name, String sapProductCode, String unity, String activePrinciple, Decimal multiplicity, String productGroup, String productGroupName, String productCurrency, Id entryId, Decimal listPrice, Decimal costPrice, Decimal commissionPercentage) {
             this.Id = Id;
             this.Name = Name;
             this.sapProductCode = sapProductCode != null ? sapProductCode : '';
@@ -292,10 +321,12 @@ public without sharing class CustomLookupController {
             this.productGroupId = productGroup != null ? productGroup : '';
             this.productGroupName = productGroupName != null ? productGroupName : '';
             this.activePrinciple = activePrinciple != null ? activePrinciple : '';
+            this.productCurrency = productCurrency != null ? productCurrency : '';
             this.multiplicity = multiplicity != null ? multiplicity : 1;
             this.entryId = entryId;
             this.listPrice = listPrice != null ? listPrice : 0;
             this.costPrice = costPrice != null ? costPrice : 0;
+            this.commissionPercentage = commissionPercentage != null ? commissionPercentage : 0;
         }
     }
 
@@ -306,6 +337,7 @@ public without sharing class CustomLookupController {
         public String safra;
         public String productCurrency;
         public String culture;
+        public String orderType;
     }
 
     public class ProductDataResult {
