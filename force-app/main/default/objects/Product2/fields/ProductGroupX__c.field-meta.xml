@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>Weight__c</fullName>
+    <fullName>ProductGroupX__c</fullName>
     <externalId>false</externalId>
-    <label>Peso</label>
-    <length>40</length>
+    <label>Grupo de Produtos</label>
     <required>false</required>
-    <trackFeedHistory>false</trackFeedHistory>
     <trackHistory>false</trackHistory>
-    <trackTrending>false</trackTrending>
-    <type>Text</type>
-    <unique>false</unique>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetName>Grupo</valueSetName>
+    </valueSet>
 </CustomField>
