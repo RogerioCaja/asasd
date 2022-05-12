@@ -2,7 +2,7 @@ global with sharing class IntegrationINBoletos {
     public IntegrationINBoletos() {
 
     }
-    global static Map<String, List<TemplateDataIntegrationFields.Response>> upsertBoletos(List<TemplateDataIntegrationFields.BoletosINData> request) {
+    global static ResponseModel upsertBoletos(List<TemplateDataIntegrationFields.BoletosINData> request) {
         // Guarda as relações de order e product de preço com OrderItem
         Map<String, Id> lookups = new Map<String, Id>();
         Set<String> salesOrgLookups = new Set<String>();
@@ -46,18 +46,32 @@ global with sharing class IntegrationINBoletos {
 
         
         Boolean hasError = IntegrationUtils.upsertRecords(
-            Database.upsert(boletosListToUpsert, Boleto__c.WritableLine__c, false), 
+            Database.upsert(boletosListToUpsert, Boletos__c.WritableLine__c, false), 
             responseList, 
             boletosListToUpsert, 
-            Boleto__c.WritableLine__c
+            Boletos__c.WritableLine__c
         );
 		
         //Creating integration log
-        IntegrationUtils.createLog('Boletos IN', 'IN', JSON.serialize(request), JSON.serialize(responseList), hasError);
+        IntegrationLog.createLog('Boletos IN', 'IN', JSON.serialize(request), JSON.serialize(responseList), hasError);
         
         
         ResponseModel modelo = new ResponseModel();
         modelo.response = responseList;
         return modelo;
+    }
+
+     //? class to JSON responses 
+     global class ResponseModel {
+
+        global List<TemplateDataIntegrationFields.ResponseParent> response;
+
+        public ResponseModel(List<TemplateDataIntegrationFields.ResponseParent> response) {
+            this.response = response;
+            
+        }
+        public ResponseModel() {   
+            this.response = new List<TemplateDataIntegrationFields.ResponseParent>();         
+        }
     }
 }
