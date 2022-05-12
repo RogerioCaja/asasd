@@ -551,7 +551,6 @@ public without sharing class OrderScreenController {
 
                     List<ShippingDivison__c> listShippingDivision = new List<ShippingDivison__c>();
                     Map<Id, Decimal> quantityDistributedByItem = new Map<Id, Decimal>();
-                    // for (DivisionDeserialize division : orderData.divisionData) {
                     for (DivisionDeserialize division : divisionsByKey.values()) {
                         ShippingDivison__c shippingDivision;
                         if (!newOrder && !cloneOrder && divisionsById.containsKey(division.divisionId)) {
@@ -587,17 +586,48 @@ public without sharing class OrderScreenController {
                         }
                     }
 
-                    String divisionErrors = '';
-                    List<Database.UpsertResult> insDivisionResults = Database.upsert(listShippingDivision, false);
-                    for (Database.UpsertResult result : insDivisionResults){
-                        if(!result.isSuccess()){
-                            for (Database.error error: insResults.getErrors()){
-                                divisionErrors += '\n' + error.getMessage();
-                                msg = 'Pedido não pôde ser ' + (newOrder ? 'criado' : 'atualizado');
-                                return JSON.serializePretty(new AGRO_RemotingResult(false, '200', msg + divisionErrors));
+                    if (listShippingDivision.size() > 0) {
+                        String divisionErrors = '';
+                        List<Database.UpsertResult> insDivisionResults = Database.upsert(listShippingDivision, false);
+                        for (Database.UpsertResult result : insDivisionResults){
+                            if(!result.isSuccess()){
+                                for (Database.error error: insResults.getErrors()){
+                                    divisionErrors += '\n' + error.getMessage();
+                                    msg = 'Pedido não pôde ser ' + (newOrder ? 'criado' : 'atualizado');
+                                    return JSON.serializePretty(new AGRO_RemotingResult(false, '200', msg + divisionErrors));
+                                }
+                            } else {
+                                itemsIds.add(result.getId());
                             }
-                        } else {
-                            itemsIds.add(result.getId());
+                        }
+                    }
+
+                    List<OrderCommodity__c> insCommodities = new List<OrderCommodity__c>();
+                    System.debug('orderData.commodityData: ' + orderData.commodityData);
+                    for (CommodityDeserialize commodity : orderData.commodityData) {
+                        System.debug('commodity: ' + commodity);
+                        OrderCommodity__c orderCommodity = new OrderCommodity__c();
+                        orderCommodity.BagQuantity__c = Decimal.valueOf(commodity.totalDelivery.replace(' sacas', ''));
+                        orderCommodity.CommodityPrice__c = commodity.commodityPrice;
+                        orderCommodity.Order__c = order.Id;
+                        orderCommodity.Product__c = commodity.productId;
+                        insCommodities.add(orderCommodity);
+                    }
+
+                    if (insCommodities.size() > 0) {
+                        String commodityErrors = '';
+                        List<Database.UpsertResult> insCommoditiesResults = Database.upsert(insCommodities, false);
+                        for (Database.UpsertResult result : insCommoditiesResults){
+                            System.debug('result: ' + result);
+                            if(!result.isSuccess()){
+                                for (Database.error error: insResults.getErrors()){
+                                    commodityErrors += '\n' + error.getMessage();
+                                    msg = 'Pedido não pôde ser ' + (newOrder ? 'criado' : 'atualizado');
+                                    return JSON.serializePretty(new AGRO_RemotingResult(false, '200', msg + commodityErrors));
+                                }
+                            } else {
+                                itemsIds.add(result.getId());
+                            }
                         }
                     }
                 }
@@ -617,23 +647,6 @@ public without sharing class OrderScreenController {
 			throw new AuraHandledException('Exception occured:\r\n' + ex.getMessage() + '\r\n' + ex.getStackTraceString() + '\r\n');
 		}
     }
-
-    // @AuraEnabled
-    // public static string callout(String orderId){
-    //     try {
-    //         IntegrationUtils.CalloutResponse response = CalloutOrder.processIntegration(Id.valueOf(orderId));
-    //         if(response.success){
-    //             return JSON.serializePretty(new AGRO_RemotingResult(false, '200', 'Integrado com o SAP', String.valueOf(response.success)));
-    //         }
-    //         else{
-    //             return JSON.serializePretty(new AGRO_RemotingResult(false, '400', 'Não Integrado com o SAP', String.valueOf(response.errorMessage)));
-    //         }
-            
-    //     } catch (Exception ex) {
-    //         System.debug('Erro: ' + ex.getMessage() + '   -   ' + ex.getStackTraceString());
-    //         throw new AuraHandledException(ex.getMessage());
-    //     }
-    // }
 
     @AuraEnabled
     public static String getFinancialInfos(String data) {
@@ -857,6 +870,7 @@ public without sharing class OrderScreenController {
         public HeaderDeserialize headerData;
         public List<ProductDeserialize> productData;
         public List<DivisionDeserialize> divisionData;
+        public List<CommodityDeserialize> commodityData;
         public SummaryDeserialize summaryData;
     }
 
@@ -939,6 +953,19 @@ public without sharing class OrderScreenController {
         public Decimal quantity;
         public Integer productPosition;
         public Boolean showInfos;
+    }
+
+    public class CommodityDeserialize {
+        public String  product;
+        public String  productId;
+        public String  desage;
+        public String  area;
+        public String  discount;
+        public String  margin;
+        public String totalDelivery;
+        public Decimal quantity;
+        public Decimal commodityPrice;
+        public Boolean saved;
     }
 
     public class SummaryDeserialize{

@@ -72,6 +72,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     };
     @track productData;
     @track divisionData;
+    @track commodityData;
     @track summaryData = {
         'observation' : "",
         'billing_sale_observation': ""
@@ -275,7 +276,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     async saveOrder(event){
         const mode = event.detail;
         await this.recordId;
-        const data = {accountData: this.accountData, headerData: this.headerData, productData: this.productData, divisionData: this.divisionData, summaryData: this.summaryData};
+        const data = {accountData: this.accountData, headerData: this.headerData, productData: this.productData, divisionData: this.divisionData, commodityData: this.commodityData, summaryData: this.summaryData};
         console.log(JSON.stringify(data));
         this.isLoading = true;
         //console.log(data);
@@ -292,7 +293,6 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
                 console.log(JSON.stringify(mode));
                 this.showNotification(result.message, 'Sucesso', 'success');
                 if( mode == "gerarpedido" ){
-
                 }
                 this[NavigationMixin.Navigate]({
                     type: 'standard__recordPage',
@@ -346,6 +346,10 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
     _setDivisionData(event) {
         this.divisionData = event.data;
+    }
+
+    _setCommodityData(event) {
+        this.commodityData = event.data;
     }
 
     _setSummaryData(event) {

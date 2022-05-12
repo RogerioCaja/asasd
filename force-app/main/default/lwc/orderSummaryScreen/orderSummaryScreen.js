@@ -9,6 +9,7 @@ export default class OrderSummaryScreen extends LightningElement {
     @api accountData;
     @api productData;
     @api divisionData;
+    @api commodityData;
     @api summaryData;
     
     @api summaryDataLocale;

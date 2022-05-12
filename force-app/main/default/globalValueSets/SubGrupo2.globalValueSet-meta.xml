@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>PREMIUM</fullName>
+        <default>false</default>
+        <label>PREMIUM</label>
+    </customValue>
+    <customValue>
+        <fullName>GENERICO</fullName>
+        <default>false</default>
+        <label>GENÉRICO</label>
+    </customValue>
+    <customValue>
+        <fullName>PROPRIA</fullName>
+        <default>false</default>
+        <label>PRÓPRIA</label>
+    </customValue>
+    <customValue>
+        <fullName>TERCEIROS</fullName>
+        <default>false</default>
+        <label>TERCEIROS</label>
+    </customValue>
+    <customValue>
+        <fullName>CONVENCIONAIS</fullName>
+        <default>false</default>
+        <label>CONVENCIONAIS</label>
+    </customValue>
+    <customValue>
+        <fullName>MINERAL</fullName>
+        <default>false</default>
+        <label>MINERAL</label>
+    </customValue>
+    <customValue>
+        <fullName>ORGANOMINERAL</fullName>
+        <default>false</default>
+        <label>ORGANOMINERAL</label>
+    </customValue>
+    <customValue>
+        <fullName>COMPLEMENTARES</fullName>
+        <default>false</default>
+        <label>COMPLEMENTARES</label>
+    </customValue>
+    <customValue>
+        <fullName>CORRETIVOS SOLO</fullName>
+        <default>false</default>
+        <label>CORRETIVOS SOLO</label>
+    </customValue>
+    <customValue>
+        <fullName>BIO INOCULANTES</fullName>
+        <default>false</default>
+        <label>BIO INOCULANTES</label>
+    </customValue>
+    <customValue>
+        <fullName>BIO FUNGICIDAS</fullName>
+        <default>false</default>
+        <label>BIO FUNGICIDAS</label>
+    </customValue>
+    <customValue>
+        <fullName>BIO INSETICIDAS</fullName>
+        <default>false</default>
+        <label>BIO INSETICIDAS</label>
+    </customValue>
+    <customValue>
+        <fullName>BIO NEMATICIDAS</fullName>
+        <default>false</default>
+        <label>BIO NEMATICIDAS</label>
+    </customValue>
+    <customValue>
+        <fullName>BIO HERBICIDAS</fullName>
+        <default>false</default>
+        <label>BIO HERBICIDAS</label>
+    </customValue>
+    <customValue>
+        <fullName>BIO FISIOLOGICOS</fullName>
+        <default>false</default>
+        <label>BIO FISIOLÓGICOS</label>
+    </customValue>
+    <customValue>
+        <fullName>CONDICIONADORES SOLO</fullName>
+        <default>false</default>
+        <label>CONDICIONADORES SOLO</label>
+    </customValue>
+    <customValue>
+        <fullName>FOLIARES</fullName>
+        <default>false</default>
+        <label>FOLIARES</label>
+    </customValue>
+    <customValue>
+        <fullName>TS E SULCO</fullName>
+        <default>false</default>
+        <label>TS E SULCO</label>
+    </customValue>
+    <customValue>
+        <fullName>FISIOLOGICOS</fullName>
+        <default>false</default>
+        <label>FISIOLÓGICOS</label>
+    </customValue>
+    <customValue>
+        <fullName>SINTETICOS</fullName>
+        <default>false</default>
+        <label>SINTÉTICOS</label>
+    </customValue>
+    <customValue>
+        <fullName>POTENCIALIZADORES</fullName>
+        <default>false</default>
+        <label>POTENCIALIZADORES</label>
+    </customValue>
+    <customValue>
+        <fullName>TECN DE APLICACAO</fullName>
+        <default>false</default>
+        <label>TECN DE APLICAÇÃO</label>
+    </customValue>
+    <customValue>
+        <fullName>PECA E IMPLEMENTO</fullName>
+        <default>false</default>
+        <label>PEÇA E IMPLEMENTO</label>
+    </customValue>
+    <customValue>
+        <fullName>METERIOLOGICO</fullName>
+        <default>false</default>
+        <label>METERIOLÓGICO</label>
+    </customValue>
+    <customValue>
+        <fullName>PROTECAO E ACESSORIO</fullName>
+        <default>false</default>
+        <label>PROTEÇÃO E ACESSÓRIO</label>
+    </customValue>
+    <customValue>
+        <fullName>OUTROS</fullName>
+        <default>false</default>
+        <label>OUTROS</label>
+    </customValue>
+    <customValue>
+        <fullName>ANALISE COMPL CICLO</fullName>
+        <default>false</default>
+        <label>ANÁLISE COMPL CICLO</label>
+    </customValue>
+    <customValue>
+        <fullName>ANALISE DE SOLO</fullName>
+        <default>false</default>
+        <label>ANÁLISE DE SOLO</label>
+    </customValue>
+    <customValue>
+        <fullName>INTERMEDIACAO DE SEGUROS</fullName>
+        <default>false</default>
+        <label>INTERMEDIAÇÃO DE SEGUROS</label>
+    </customValue>
+    <customValue>
+        <fullName>MARKETPLACE</fullName>
+        <default>false</default>
+        <label>MARKETPLACE</label>
+    </customValue>
+    <customValue>
+        <fullName>OUTROS SERVICOS</fullName>
+        <default>false</default>
+        <label>OUTROS SERVIÇOS</label>
+    </customValue>
+    <customValue>
+        <fullName>CAFE</fullName>
+        <default>false</default>
+        <label>CAFÉ</label>
+    </customValue>
+    <customValue>
+        <fullName>MILHO</fullName>
+        <default>false</default>
+        <label>MILHO</label>
+    </customValue>
+    <customValue>
+        <fullName>SOJA</fullName>
+        <default>false</default>
+        <label>SOJA</label>
+    </customValue>
+    <customValue>
+        <fullName>TRIGO</fullName>
+        <default>false</default>
+        <label>TRIGO</label>
+    </customValue>
+    <description>Denominação Grupo Mercadoria Externa</description>
+    <masterLabel>SubGrupo de Produtos 2</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>
