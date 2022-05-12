@@ -89,6 +89,7 @@ global with sharing class TemplateDataIntegrationFields {
     
     global class Product2INData implements FieldData {
         public String ProductName;
+        public String ProductCode;
         public String TextoBreveMaterial;
         public String UnidadeMedida;
         public String UnidadeMedidaRemessa;
@@ -115,6 +116,7 @@ global with sharing class TemplateDataIntegrationFields {
             //Returning Object with Fields
             return new Product2(
                 Name = this.ProductName,
+                ProductCode = this.ProductCode,
                 Description = this.TextoBreveMaterial,
                 UnidadeMedida__c = this.UnidadeMedida,
                 GrossWeightUnitOfMeasure__c = this.UnidadeMedidaRemessa,
@@ -343,7 +345,9 @@ global with sharing class TemplateDataIntegrationFields {
 
     global class NotaFiscalINData implements FieldData{
         //JSON fields Example
-       
+        
+        public String nfExternalId;
+        public String invoiceName;
         public String numeroNotaFiscal;
         public String serie;
         public String localNegocios;
@@ -358,13 +362,15 @@ global with sharing class TemplateDataIntegrationFields {
         public String cpfCnpjVendedor;
         public Decimal valorTotalNf;
         public String naturezaOperacao;
+        public Date dupDate;
         public List<TemplateDataIntegrationFields.ItensNotaFiscalINData> itensNotaFiscal; 
         public NotaFiscal__c serialize(Map<String, Id> lookups){
 
             //Returning Object with Fields.
             return new NotaFiscal__c(
                
-                
+                Name = this.invoiceName,
+                ExternalID__c = this.invoiceName + '|' + this.numeroNotaFiscal,
                 AccountCode__c = lookups.containsKey('Account'+this.cliente) ? lookups.get('Account' + this.cliente) : null,
                 OrderCode__c = lookups.containsKey('Order'+this.cpfCnpjCliente) ? lookups.get('Order'+ this.cpfCnpjCliente) : null,
                 Company__c = lookups.containsKey('SalesOrg__c'+this.codigoEmpresa) ? lookups.get('SalesOrg__c'+this.codigoEmpresa) : null,
@@ -378,15 +384,20 @@ global with sharing class TemplateDataIntegrationFields {
                 HoraCriacao__c = this.horaCriacao,
                 CNPJCode__c = this.cpfCnpjVendedor,
                 Invoice_TotalAmount__c = this.valorTotalNf,
-                CFOP__c = this.naturezaOperacao
-               
+                CFOP__c = this.naturezaOperacao,
+                DuplicateMaturity__c = this.dupDate, //Comunicar o Helder verificar se estes campos vão fazer parte do JSON 
+                StateRegistration__c = '"twerwe"',//Comunicar o Helder
+                Values__c = '"twer"',//Comunicar o Helder
+                Volumn__c = '"twer"',//Comunicar o Helder
+                Weight__c = '"twe"'//Comunicar o Helder
             );
         }
         
         //Required fields for integration
         public List<String> getRequiredFields(){
             return new List<String>{
-                'ExternalId__c'
+                'Name',
+                'numeroNotaFiscal'
        
             };
         }
@@ -405,32 +416,40 @@ global with sharing class TemplateDataIntegrationFields {
     global class ItensNotaFiscalINData implements FieldDataChild{
         
         //JSON fields Example
-        public String nfExternalId;
+        public String notaFiscal;
         public String codigoMaterial;
         public Decimal quantidade;
         public Decimal valorTotalItem;
         public String lote;
         public String unidadeMedida;
         public String naturezaOperacao;
+        public Decimal descontoNF;
+        public Decimal valorUnitarioNF;
 
         public ItensNotaFiscal__c serialize(Map<String, Id> lookups){
 
             //Returning Object with Fields.
             return new ItensNotaFiscal__c(
-                ExternalID__c = this.nfExternalId,
-                Productcode__c = this.codigoMaterial,
+                Name = 'Nota Fiscal' + ' - ' + this.notaFiscal, //Pegar descrição do produto e number NF
+                ExternalID__c = this.codigoMaterial + '|' + this.notaFiscal,
+                Invoice__c = lookups.containsKey('NotaFiscal__c' + this.notaFiscal) ? lookups.get('NotaFiscal__c' + this.notaFiscal) : null,
+                Productcode__c = lookups.containsKey('Product2'+this.codigoMaterial) ? lookups.get('Product2' + this.codigoMaterial) : null,
                 Theamount__c = this.quantidade,
                 Amount__c = this.valorTotalItem,
                 Batch__c = this.lote,
                 UnidadeMedida__C = this.unidadeMedida,
-                CFOP__c = this.naturezaOperacao
+                CFOP__c = this.naturezaOperacao,
+                Discount__c = this.descontoNF,
+                Unitaryvalue__c = this.valorUnitarioNF
             );
         }
         
         //Required fields for integration
         public List<String> getRequiredFields(){
             return new List<String>{
-                'ExternalID__c'
+                'Name',
+                'Invoice__c',
+                'Productcode__c'
             };
         }
 
