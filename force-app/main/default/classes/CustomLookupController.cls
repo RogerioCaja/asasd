@@ -78,7 +78,11 @@ public without sharing class CustomLookupController {
             System.debug('productParams: ' + productParams);
             Id commodityRecType = Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get('ZPR0').getRecordTypeId();
 
-            SalesResult salesResult = getSalesOrgId(productParams.accountId, productParams.ctvId) != null ? getSalesOrgId(productParams.accountId, productParams.ctvId) : null;
+            // SalesResult salesResult = getSalesOrgId(productParams.accountId, productParams.ctvId) != null ? getSalesOrgId(productParams.accountId, productParams.ctvId) : null;
+            SalesResult salesResult = new SalesResult();
+            salesResult.salesOrgId = 'a0V19000005WlgrEAC';
+            salesResult.salesOfficeId = 'a0U19000005Tw2hEAC';
+            salesResult.salesTeamId = 'a0W19000001v4VuEAI';
             salesResult.segmento = [SELECT Industry FROM Account WHERE Id =: productParams.accountId].Industry;
             result.salesResult = salesResult;
 

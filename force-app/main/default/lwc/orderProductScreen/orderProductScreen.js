@@ -105,6 +105,7 @@ export default class OrderProductScreen extends LightningElement {
         this.salesConditionId = this.headerData.condicao_venda.Id;
         this.barterSale = this.headerData.tipo_venda == 'Venda Barter' ? true : false;
         this.commoditiesData = this.isFilled(this.commodityData) ? this.commodityData : [];
+        console.log('this.headerData.IsOrderChild: ' + this.headerData.IsOrderChild);
 
         this.productParams = {
             salesConditionId: this.headerData.condicao_venda.Id,
