@@ -79,6 +79,7 @@ export default class OrderHeaderScreen extends LightningElement {
 
     @api productData;
     @api divisionData;
+    @api commodityData;
     @api cloneData;
 
     @track pass = false;
