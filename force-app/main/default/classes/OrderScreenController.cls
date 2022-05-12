@@ -375,7 +375,7 @@ public without sharing class OrderScreenController {
                 ]) {
                     companyId = salesTeamCompany.Id;
                     salesOrgId = salesTeamCompany.SalesOrg__c;
-                    activitySectorId = salesTeamCompany.DistributionChannel__c;
+                    // activitySectorId = salesTeamCompany.DistributionChannel__c;
                     distributionChannelId = salesTeamCompany.ActivitySector__c;
                 }
             }
@@ -393,7 +393,7 @@ public without sharing class OrderScreenController {
             order.Culture__c = orderData.headerData.cultura.Id ;
             order.PaymentForm__c = orderData.headerData.forma_pagamento ;
             order.SalesOrg__c = salesOrgId;
-            order.DistributionChannel__c = distributionChannelId ;
+            // order.DistributionChannel__c = distributionChannelId ;
             order.ActivitySector__c = activitySectorId ;
             order.Currency__c = orderData.headerData.moeda ;
             order.SalesCTV__c = orderData.headerData.ctv_venda.Id ;
