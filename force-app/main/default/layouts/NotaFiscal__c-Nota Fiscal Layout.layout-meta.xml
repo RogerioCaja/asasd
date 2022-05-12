@@ -13,14 +13,6 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Required</behavior>
-                <field>AccountCode__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Required</behavior>
-                <field>OrderCode__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Required</behavior>
                 <field>InvoiceStatus__c</field>
             </layoutItems>
             <layoutItems>
@@ -61,10 +53,6 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>Company__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
                 <field>BranchOffice__c</field>
             </layoutItems>
             <layoutItems>
@@ -78,6 +66,30 @@
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>Invoice_TotalAmount__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>HoraCriacao__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Company__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>AccountCode__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>ReceiverAccountCode__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>OrderCode__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>ExternalID__c</field>
             </layoutItems>
         </layoutColumns>
         <layoutColumns>
