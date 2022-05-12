@@ -360,7 +360,7 @@ public without sharing class OrderScreenController {
 
             Id companyId;
             Id salesOrgId;
-            Id activitySectorId;
+            // Id activitySectorId;
             Id distributionChannelId;
             if (salesTeamTerritory != null && salesTeamTerritory.DeveloperName != null) {
                 String salesTeamDevName = salesTeamTerritory.DeveloperName.substring(1, salesTeamTerritory.DeveloperName.length());
@@ -394,7 +394,7 @@ public without sharing class OrderScreenController {
             order.PaymentForm__c = orderData.headerData.forma_pagamento ;
             order.SalesOrg__c = salesOrgId;
             // order.DistributionChannel__c = distributionChannelId ;
-            order.ActivitySector__c = activitySectorId ;
+            // order.ActivitySector__c = activitySectorId ;
             order.Currency__c = orderData.headerData.moeda ;
             order.SalesCTV__c = orderData.headerData.ctv_venda.Id ;
             order.StatusSF__c = orderData.headerData.status_pedido;
