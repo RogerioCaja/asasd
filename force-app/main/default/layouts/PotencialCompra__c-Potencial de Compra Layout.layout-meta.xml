@@ -23,6 +23,10 @@
                 <behavior>Required</behavior>
                 <field>SalesOrganization__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>ArableArea__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>

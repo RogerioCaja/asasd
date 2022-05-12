@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>NumeroRegistro__c</fullName>
-    <externalId>true</externalId>
-    <label>Número Registro</label>
+    <fullName>ArableArea__c</fullName>
+    <externalId>false</externalId>
+    <label>Área Agricultável</label>
     <length>180</length>
     <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
     <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
     <type>Text</type>
     <unique>false</unique>
 </CustomField>
