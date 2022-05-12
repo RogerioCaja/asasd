@@ -4,7 +4,7 @@
     <externalId>false</externalId>
     <label>Inscrição Estadual (Cliente)</label>
     <length>40</length>
-    <required>true</required>
+    <required>false</required>
     <trackFeedHistory>false</trackFeedHistory>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>
