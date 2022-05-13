@@ -25,7 +25,7 @@ public with sharing class Product2Helper {
     }
 
 
-    public static void (List<Product2> newRecordList){
+    public static void createStandardEntries(List<Product2> newRecordList){
         List<PricebookEntry> pricebookEntryList = new List<PricebookEntry>();
         for(Product2 product2 : newRecordList){
             pricebookEntryList.add(

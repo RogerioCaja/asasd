@@ -257,6 +257,7 @@ global with sharing class TemplateDataIntegrationFields {
                 OrderId = lookups.containsKey('Order'+this.orderExternalId) ? lookups.get('Order'+this.orderExternalId) : null,
                 Product2Id = lookups.containsKey('Product2'+this.material) ? lookups.get('Product2'+this.material) : null,
                 PricebookEntryId = lookups.containsKey('PricebookEntry'+ this.material) ? lookups.get('PricebookEntry' + this.material) : null,
+                //ProductCode = this.material,
                 ExternalId__c = this.orderExternalId + '|' + this.orderItemCode,
                 Quantity = this.quantidade,
                 UnitMeasure__c = this.unidadeMedida,
@@ -346,7 +347,7 @@ global with sharing class TemplateDataIntegrationFields {
     global class NotaFiscalINData implements FieldData{
         //JSON fields Example
         
-        public String nfExternalId;
+        
         public String invoiceName;
         public String numeroNotaFiscal;
         public String serie;
@@ -385,19 +386,15 @@ global with sharing class TemplateDataIntegrationFields {
                 CNPJCode__c = this.cpfCnpjVendedor,
                 Invoice_TotalAmount__c = this.valorTotalNf,
                 CFOP__c = this.naturezaOperacao,
-                DuplicateMaturity__c = this.dupDate, //Comunicar o Helder verificar se estes campos vão fazer parte do JSON 
-                StateRegistration__c = '"twerwe"',//Comunicar o Helder
-                Values__c = '"twer"',//Comunicar o Helder
-                Volumn__c = '"twer"',//Comunicar o Helder
-                Weight__c = '"twe"'//Comunicar o Helder
+                DuplicateMaturity__c = this.dupDate
             );
         }
         
         //Required fields for integration
         public List<String> getRequiredFields(){
             return new List<String>{
-                'Name',
-                'numeroNotaFiscal'
+                'Name'
+                //'numeroNotaFiscal'
        
             };
         }
@@ -416,6 +413,7 @@ global with sharing class TemplateDataIntegrationFields {
     global class ItensNotaFiscalINData implements FieldDataChild{
         
         //JSON fields Example
+        public String nfExternalId;
         public String notaFiscal;
         public String codigoMaterial;
         public Decimal quantidade;
@@ -459,7 +457,7 @@ global with sharing class TemplateDataIntegrationFields {
         }
 
         public String getFieldExternal(){
-            return 'Code__c';
+            return 'Invoice__c';
         }
         
         public String getParentKey(){
