@@ -491,6 +491,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Contract.OrderNumber__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Contract.OwnerExpirationNotice</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1552,6 +1557,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>ProductOffered__c.ContractItem__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>ProductReceived__c.ContractItem__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
