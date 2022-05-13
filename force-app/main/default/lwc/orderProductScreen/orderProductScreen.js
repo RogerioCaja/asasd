@@ -142,8 +142,8 @@ export default class OrderProductScreen extends LightningElement {
                 };
 
                 let orderData = {
-                    paymentDate: this.headerData.data_pagamento != null ? this.headerData.data_pagamento : '',
                     accountId: this.accountData.Id != null ? this.accountData.Id : '',
+                    paymentDate: this.headerData.data_pagamento != null ? this.headerData.data_pagamento : '',
                     salesOrg: this.headerData.salesOrg != null ? this.headerData.salesOrg : '',
                     pricebookId: this.headerData.condicao_venda.Id != null ? this.headerData.condicao_venda.Id : '',
                     safra: this.headerData.safra.Id != null ? this.headerData.safra.Id : '',
@@ -151,11 +151,13 @@ export default class OrderProductScreen extends LightningElement {
                     culture: this.headerData.cultura.Id != null ? this.headerData.cultura.Id : ''
                 };
 
-                getFinancialInfos({data: JSON.stringify(orderData)})
-                .then((result) => {
-                    this.financialInfos = JSON.parse(result);
-                    console.log('this.financialInfos: ' + JSON.stringify(this.financialInfos));
-                })
+                if (!this.headerData.IsOrderChild) {
+                    getFinancialInfos({data: JSON.stringify(orderData)})
+                    .then((result) => {
+                        this.financialInfos = JSON.parse(result);
+                        console.log('this.financialInfos: ' + JSON.stringify(this.financialInfos));
+                    })
+                }
             })
         }
     }
@@ -343,9 +345,13 @@ export default class OrderProductScreen extends LightningElement {
                 }
             } else if (fieldId == 'quantity') {
                 this.addProduct.quantity = this.calculateMultiplicity(this.addProduct.quantity);
-                this.listTotalPrice = this.addProduct.listPrice * this.addProduct.quantity;
-                this.calculateDiscountOrAddition();
-                this.calculateTotalPrice(false);
+                if (!this.headerData.IsOrderChild) {
+                    this.listTotalPrice = this.addProduct.listPrice * this.addProduct.quantity;
+                    this.calculateDiscountOrAddition();
+                    this.calculateTotalPrice(false);
+                } else {
+                    this.addProduct.totalPrice = this.addProduct.listPrice * this.addProduct.quantity;
+                }
             }
         }
     }
@@ -423,6 +429,14 @@ export default class OrderProductScreen extends LightningElement {
 
     calculateFinancialInfos() {
         if (this.isFilled(this.addProduct.totalPrice)) {
+            if (this.headerData.IsOrderChild) {
+                this.addProduct.financialAdditionPercentage = '0%';
+                this.addProduct.financialDecreasePercentage = '0%';
+                this.addProduct.financialAdditionValue = 0;
+                this.addProduct.financialDecreaseValue = 0;
+                return;
+            }
+
             let defaultKey = this.financialInfos.salesOrg + '-' + this.headerData.safra.Id;
             let key1 = defaultKey + '-' + this.headerData.cultura.Id + '-' + this.addProduct.productId;
             let key2 = defaultKey + '-' + this.financialInfos.salesOffice + '-' + this.addProduct.productId;
@@ -602,6 +616,7 @@ export default class OrderProductScreen extends LightningElement {
         this.productPosition = position;
         let currentProduct = this.products.find(e => e.position == position);
         this.multiplicity = currentProduct.multiplicity;
+
         this.addProduct = {
             orderItemId: currentProduct.orderItemId,
             name: currentProduct.name,
@@ -613,17 +628,17 @@ export default class OrderProductScreen extends LightningElement {
             sapStatus: currentProduct.sapStatus,
             sapProductCode: currentProduct.sapProductCode,
             activePrinciple: currentProduct.activePrinciple,
-            commercialDiscountPercentage: currentProduct.commercialDiscountPercentage,
-            commercialAdditionPercentage: currentProduct.commercialAdditionPercentage,
-            financialAdditionPercentage: currentProduct.financialAdditionPercentage,
-            financialDecreasePercentage: currentProduct.financialDecreasePercentage,
-            commercialDiscountValue: currentProduct.commercialDiscountValue,
-            commercialAdditionValue: currentProduct.commercialAdditionValue,
-            financialAdditionValue: currentProduct.financialAdditionValue,
-            financialDecreaseValue: currentProduct.financialDecreaseValue,
+            commercialDiscountPercentage: this.headerData.IsOrderChild ? '0%' : currentProduct.commercialDiscountPercentage,
+            commercialAdditionPercentage: this.headerData.IsOrderChild ? '0%' : currentProduct.commercialAdditionPercentage,
+            financialAdditionPercentage: this.headerData.IsOrderChild ? '0%' : currentProduct.financialAdditionPercentage,
+            financialDecreasePercentage: this.headerData.IsOrderChild ? '0%' : currentProduct.financialDecreasePercentage,
+            commercialDiscountValue: this.headerData.IsOrderChild ? 0 : currentProduct.commercialDiscountValue,
+            commercialAdditionValue: this.headerData.IsOrderChild ? 0 : currentProduct.commercialAdditionValue,
+            financialAdditionValue: this.headerData.IsOrderChild ? 0 : currentProduct.financialAdditionValue,
+            financialDecreaseValue: this.headerData.IsOrderChild ? 0 : currentProduct.financialDecreaseValue,
             listPrice: currentProduct.listPrice,
-            unitPrice: currentProduct.unitPrice,
-            totalPrice: currentProduct.totalPrice,
+            unitPrice: this.headerData.IsOrderChild ? currentProduct.listPrice : currentProduct.unitPrice,
+            totalPrice: this.headerData.IsOrderChild ? (currentProduct.listPrice * currentProduct.quantity) : currentProduct.totalPrice,
             initialTotalValue: currentProduct.initialTotalValue,
             dosage: currentProduct.dosage,
             quantity: currentProduct.quantity,

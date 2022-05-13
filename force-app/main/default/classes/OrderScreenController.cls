@@ -602,31 +602,33 @@ public without sharing class OrderScreenController {
                         }
                     }
 
-                    List<OrderCommodity__c> insCommodities = new List<OrderCommodity__c>();
                     System.debug('orderData.commodityData: ' + orderData.commodityData);
-                    for (CommodityDeserialize commodity : orderData.commodityData) {
-                        System.debug('commodity: ' + commodity);
-                        OrderCommodity__c orderCommodity = new OrderCommodity__c();
-                        orderCommodity.BagQuantity__c = Decimal.valueOf(commodity.totalDelivery.replace(' sacas', ''));
-                        orderCommodity.CommodityPrice__c = commodity.commodityPrice;
-                        orderCommodity.Order__c = order.Id;
-                        orderCommodity.Product__c = commodity.productId;
-                        insCommodities.add(orderCommodity);
-                    }
+                    if (orderData.commodityData != null && orderData.commodityData.size() > 0) {
+                        List<OrderCommodity__c> insCommodities = new List<OrderCommodity__c>();
+                        for (CommodityDeserialize commodity : orderData.commodityData) {
+                            System.debug('commodity: ' + commodity);
+                            OrderCommodity__c orderCommodity = new OrderCommodity__c();
+                            orderCommodity.BagQuantity__c = Decimal.valueOf(commodity.totalDelivery.replace(' sacas', ''));
+                            orderCommodity.CommodityPrice__c = commodity.commodityPrice;
+                            orderCommodity.Order__c = order.Id;
+                            orderCommodity.Product__c = commodity.productId;
+                            insCommodities.add(orderCommodity);
+                        }
 
-                    if (insCommodities.size() > 0) {
-                        String commodityErrors = '';
-                        List<Database.UpsertResult> insCommoditiesResults = Database.upsert(insCommodities, false);
-                        for (Database.UpsertResult result : insCommoditiesResults){
-                            System.debug('result: ' + result);
-                            if(!result.isSuccess()){
-                                for (Database.error error: insResults.getErrors()){
-                                    commodityErrors += '\n' + error.getMessage();
-                                    msg = 'Pedido não pôde ser ' + (newOrder ? 'criado' : 'atualizado');
-                                    return JSON.serializePretty(new AGRO_RemotingResult(false, '200', msg + commodityErrors));
+                        if (insCommodities.size() > 0) {
+                            String commodityErrors = '';
+                            List<Database.UpsertResult> insCommoditiesResults = Database.upsert(insCommodities, false);
+                            for (Database.UpsertResult result : insCommoditiesResults){
+                                System.debug('result: ' + result);
+                                if(!result.isSuccess()){
+                                    for (Database.error error: insResults.getErrors()){
+                                        commodityErrors += '\n' + error.getMessage();
+                                        msg = 'Pedido não pôde ser ' + (newOrder ? 'criado' : 'atualizado');
+                                        return JSON.serializePretty(new AGRO_RemotingResult(false, '200', msg + commodityErrors));
+                                    }
+                                } else {
+                                    itemsIds.add(result.getId());
                                 }
-                            } else {
-                                itemsIds.add(result.getId());
                             }
                         }
                     }
@@ -1213,10 +1215,10 @@ public without sharing class OrderScreenController {
         public String  externalId;
         public String  orderItemId;
         public String  orderItemKey;
+        public Boolean showInfos;
+        public Integer productPosition;
         public Decimal confirmedQuantity;
         public Decimal quantity;
-        public Integer productPosition;
-        public Boolean showInfos;
 
         DivisionSerialize(){}
 
