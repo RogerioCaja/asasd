@@ -83,6 +83,9 @@ global with sharing class IntegrationINPricebook2 {
 
         for(TemplateDataIntegrationFields.JurosDescontoAntecipaoINData interestDiscount : request){
 
+            if(interestDiscount.typeCondition == 'ZPRS'){
+                interestDiscount = getRecord(interestDiscount);
+            }
             lookupMap.get('accountLookups').add(interestDiscount.accountCode);
             lookupMap.get('salesOrgLookups').add(interestDiscount.orgVendas);
             lookupMap.get('cropLookups').add(interestDiscount.cropCode);
@@ -130,6 +133,34 @@ global with sharing class IntegrationINPricebook2 {
         
         //Creating integration log
         IntegrationLog.createLog('Lista de Preço, Juros e Descontos de Antecipação IN', 'IN', JSON.serialize(request), JSON.serialize(responseList), hasError);
+    }
+
+    global static TemplateDataIntegrationFields.JurosDescontoAntecipaoINData getRecord(TemplateDataIntegrationFields.JurosDescontoAntecipaoINData data){
+        String externalId = data.orgVendas != ''  ? data.orgVendas + '_' : '';
+        externalId = externalId + (data.cropCode != ''  ? data.cropCode + '_' : '');
+        externalId = externalId + (data.typeCurrency != ''  ? data.typeCurrency + '_' : '');
+        externalId = externalId + (data.salesCondition != ''  ? data.salesCondition + '_' : '');
+        externalId = externalId + (data.productGroup != ''  ? data.productGroup + '_' : '');
+        externalId = externalId + (data.salesOffice != ''  ? data.salesOffice + '_' : '');
+        externalId = externalId + (data.cultureCode != ''  ? data.cultureCode + '_' : '');
+        externalId = externalId + (data.accountGroup != ''  ? data.accountGroup + '_' : '');
+        externalId = externalId + (data.accountCode != ''  ? data.accountCode + '_' : '');
+        externalId = externalId + (data.salesTeam != ''  ? data.salesTeam + '_' : '');
+        externalId = externalId + (data.product != ''  ? data.product : '');
+        JurosDescontoAntecipao__c condition;
+        try{
+            condition = [SELECT ExternalId__c FROM JurosDescontoAntecipao__c WHERE DescriptionExternalId__c =: externalId];
+        }
+        catch(Exception e){
+            condition = null;
+        }
+        
+        
+        if(condition != null)
+            data.externalId = condition.ExternalId__c;
+            
+        
+        return data;
     }
 
     global static void setResponses(List<TemplateDataIntegrationFields.ResponseParent> responseList){
