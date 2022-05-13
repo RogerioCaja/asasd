@@ -3,6 +3,8 @@ public with sharing class CalloutOrder {
         
     }
 
+
+
     @future(callout = true)
     public static void callIntegration(Id orderId){
         processIntegration(orderId);
@@ -113,6 +115,33 @@ public with sharing class CalloutOrder {
             IntegrationLog.createLog('Pedido OUT', 'OUT', responseObject.exceptionObject.getMessage(), payload, true);
 			return new IntegrationUtils.CalloutResponse(responseObject.exceptionObject.getMessage());
 		}
+    }
+
+    public static String getCodeTypeOrder(String typeOrder, Boolean isOrderMother){
+        Map<String, String> codTypeOrder = new Map<String, String>();
+        if(!isOrderMother){
+            
+            codTypeOrder.put('EntregaArmazemGeral', '');
+            codTypeOrder.put('RemessasPromocionais', 'ZRBO');
+            codTypeOrder.put('VendaBarter', 'ZVBA');
+            codTypeOrder.put('VendaContaOrdem', 'ZRCO');
+            codTypeOrder.put('VendaServico', 'ZSER');
+            codTypeOrder.put('VendaEntregaFutura', 'ZVEF');
+            codTypeOrder.put('VendaInsumos', 'ZVRS');
+            codTypeOrder.put('VendaSucata', 'ZVSU');
+        }
+        else{
+            codTypeOrder.put('EntregaArmazemGeral', '');
+            codTypeOrder.put('RemessasPromocionais', '');
+            codTypeOrder.put('VendaBarter', 'ZCVB');
+            codTypeOrder.put('VendaContaOrdem', 'ZCCO');
+            codTypeOrder.put('VendaServico', '');
+            codTypeOrder.put('VendaEntregaFutura', 'ZCVF');
+            codTypeOrder.put('VendaInsumos', 'ZCVR');
+            codTypeOrder.put('VendaSucata', '');
+        }
+
+        return codTypeOrder.containsKey(typeOrder) ? codTypeOrder.get(typeOrder) : '';
     }
 
     //! Preparing data to Callout
