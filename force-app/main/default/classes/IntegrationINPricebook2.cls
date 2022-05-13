@@ -155,5 +155,4 @@ global with sharing class IntegrationINPricebook2 {
             this.response = new List<TemplateDataIntegrationFields.ResponseParent>();         
         }
     }
-  
 }
