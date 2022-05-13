@@ -179,7 +179,7 @@ public without sharing class OrderScreenController {
             if (orderId != null && !cloneOrder) {
                 newOrder = false;
                 order = [SELECT Id, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c, SalesCondition__c, PaymentDate__c, ShippingDate__c, PaymentCondition__c, CustomerOrderNumber__c,
-                Crop__c, Culture__c, PaymentForm__c, StatusSF__c, SalesOrg__c, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c
+                Crop__c, Culture__c, PaymentForm__c, StatusSF__c, SalesOrg__c, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, EffectiveDate
                 FROM Order WHERE Id =: orderId LIMIT 1];
             } else {
                 order = new Order();
@@ -361,13 +361,11 @@ public without sharing class OrderScreenController {
             Id companyId;
             Id salesOrgId;
             Id activitySectorId;
-            Id distributionChannelId;
             if (salesTeamTerritory != null && salesTeamTerritory.DeveloperName != null) {
                 String salesTeamDevName = salesTeamTerritory.DeveloperName.substring(1, salesTeamTerritory.DeveloperName.length());
                 for (Company__c salesTeamCompany : [
                     SELECT Id,
                            SalesOrg__c,
-                           DistributionChannel__c,
                            ActivitySector__c
                       FROM Company__c
                      WHERE Conta__c =: orderData.accountData.Id
@@ -375,8 +373,7 @@ public without sharing class OrderScreenController {
                 ]) {
                     companyId = salesTeamCompany.Id;
                     salesOrgId = salesTeamCompany.SalesOrg__c;
-                    activitySectorId = salesTeamCompany.DistributionChannel__c;
-                    distributionChannelId = salesTeamCompany.ActivitySector__c;
+                    activitySectorId = salesTeamCompany.ActivitySector__c;
                 }
             }
 
@@ -393,7 +390,7 @@ public without sharing class OrderScreenController {
             order.Culture__c = orderData.headerData.cultura.Id ;
             order.PaymentForm__c = orderData.headerData.forma_pagamento ;
             order.SalesOrg__c = salesOrgId;
-            order.DistributionChannel__c = distributionChannelId ;
+            order.DistributionChannel__c = orderData.headerData.canal_distribuicao ;
             order.ActivitySector__c = activitySectorId ;
             order.Currency__c = orderData.headerData.moeda ;
             order.SalesCTV__c = orderData.headerData.ctv_venda.Id ;
@@ -604,32 +601,35 @@ public without sharing class OrderScreenController {
 
                     List<OrderCommodity__c> insCommodities = new List<OrderCommodity__c>();
                     System.debug('orderData.commodityData: ' + orderData.commodityData);
-                    for (CommodityDeserialize commodity : orderData.commodityData) {
-                        System.debug('commodity: ' + commodity);
-                        OrderCommodity__c orderCommodity = new OrderCommodity__c();
-                        orderCommodity.BagQuantity__c = Decimal.valueOf(commodity.totalDelivery.replace(' sacas', ''));
-                        orderCommodity.CommodityPrice__c = commodity.commodityPrice;
-                        orderCommodity.Order__c = order.Id;
-                        orderCommodity.Product__c = commodity.productId;
-                        insCommodities.add(orderCommodity);
-                    }
-
-                    if (insCommodities.size() > 0) {
-                        String commodityErrors = '';
-                        List<Database.UpsertResult> insCommoditiesResults = Database.upsert(insCommodities, false);
-                        for (Database.UpsertResult result : insCommoditiesResults){
-                            System.debug('result: ' + result);
-                            if(!result.isSuccess()){
-                                for (Database.error error: insResults.getErrors()){
-                                    commodityErrors += '\n' + error.getMessage();
-                                    msg = 'Pedido não pôde ser ' + (newOrder ? 'criado' : 'atualizado');
-                                    return JSON.serializePretty(new AGRO_RemotingResult(false, '200', msg + commodityErrors));
+                    if(orderData.commodityData != null){
+                        for (CommodityDeserialize commodity : orderData.commodityData) {
+                            System.debug('commodity: ' + commodity);
+                            OrderCommodity__c orderCommodity = new OrderCommodity__c();
+                            orderCommodity.BagQuantity__c = Decimal.valueOf(commodity.totalDelivery.replace(' sacas', ''));
+                            orderCommodity.CommodityPrice__c = commodity.commodityPrice;
+                            orderCommodity.Order__c = order.Id;
+                            orderCommodity.Product__c = commodity.productId;
+                            insCommodities.add(orderCommodity);
+                        }
+    
+                        if (insCommodities.size() > 0) {
+                            String commodityErrors = '';
+                            List<Database.UpsertResult> insCommoditiesResults = Database.upsert(insCommodities, false);
+                            for (Database.UpsertResult result : insCommoditiesResults){
+                                System.debug('result: ' + result);
+                                if(!result.isSuccess()){
+                                    for (Database.error error: insResults.getErrors()){
+                                        commodityErrors += '\n' + error.getMessage();
+                                        msg = 'Pedido não pôde ser ' + (newOrder ? 'criado' : 'atualizado');
+                                        return JSON.serializePretty(new AGRO_RemotingResult(false, '200', msg + commodityErrors));
+                                    }
+                                } else {
+                                    itemsIds.add(result.getId());
                                 }
-                            } else {
-                                itemsIds.add(result.getId());
                             }
                         }
                     }
+                    
                 }
                 
                 return JSON.serializePretty(new AGRO_RemotingResult(false, '200', msg, String.valueOf(order.Id)));

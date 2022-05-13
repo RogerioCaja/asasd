@@ -151,6 +151,30 @@ public class IntegrationUtils {
             this.parsedResponse = response;
         }
     }
+
+    public class CalloutUpdateResponse{
+        public CalloutOrderUpdate.ResponseParameters parsedResponse;
+        public Boolean success;
+        public String errorMessage;
+
+        public CalloutUpdateResponse(CalloutOrderUpdate.ResponseParameters response){
+            this.success = true;
+            this.errorMessage = '';
+            this.parsedResponse = response;
+        }
+
+        public CalloutUpdateResponse(String errorMessage){
+            this.success = false;
+            this.errorMessage = errorMessage;
+            this.parsedResponse = null;
+        }
+
+        public CalloutUpdateResponse(String errorMessage, CalloutOrderUpdate.ResponseParameters response){
+            this.success = false;
+            this.errorMessage = errorMessage;
+            this.parsedResponse = response;
+        }
+    }
     // CALLOUT STANDARD RESPONSE OUTTER CLASS
     public class CalloutBpResponse{
         public CalloutBP.ResponseParameters parsedResponse;
