@@ -399,6 +399,51 @@ global with sharing class TemplateDataIntegrationFields {
         }
     }
 
+    global class BoletosINData implements FieldData {
+
+            public String CodigoParceiro;
+            public Date VencimentoBoleto;
+            public Date DataBoleto;
+            public String Empresa;
+            public Decimal ValorBoleto;
+            public String LinhaDigitavel;
+            public Boletos__c serialize(Map<String, Id> lookups){
+
+                //Returning Object with Fields
+
+            return new Boletos__c(
+                SalesOrg__c = lookups.containsKey('SalesOrg__c'+this.Empresa) ? lookups.get('SalesOrg__c'+this.Empresa) : null,
+                AccountCode__c = lookups.containsKey('AccountCode__c'+this.CodigoParceiro) ? lookups.get('AccountCode__c'+this.CodigoParceiro) : null,
+                ExpirationDate__c = Date.valueOf(VencimentoBoleto),
+                IssueDate__c = Date.valueOf(DataBoleto),
+                Value__c = this.ValorBoleto,
+                WritableLine__c = this.LinhaDigitavel
+            );
+        }
+
+        //Required fields for integration
+
+        public List<String> getRequiredFields(){
+            return new List<String>{
+
+                'AccountCode__c',
+                'ExpirationDate__c',
+                'Value__c',
+                'WritableLine__c'
+            };
+        }
+
+        //ExternalId field
+        public String getFieldKey(){
+            return '';
+        }
+        //Id field
+
+        public String getFieldId() {
+            return 'Id';
+        }
+    }
+
     global class ItensNotaFiscalINData implements FieldDataChild{
         
         //JSON fields Example
