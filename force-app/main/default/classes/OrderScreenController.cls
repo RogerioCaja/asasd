@@ -787,7 +787,8 @@ public without sharing class OrderScreenController {
     public static String getSafraInfos(String safraId){
         Safra__c safra = [SELECT Id,
                                  StartDateOrderInsertion__c,
-                                 EndDateInsertionOrders__c
+                                 EndDateInsertionOrders__c,
+                                 NumberOfDaysAfterPayment__c
                             FROM Safra__c
                            WHERE Id =: safraId];
         return JSON.serialize(new SafraDataSerialize(safra));
@@ -1241,17 +1242,20 @@ public without sharing class OrderScreenController {
     public class SafraDataDeserialize {
         public String initialDate;
         public String endDate;
+        public String paymentDate;
     }
 
     public class SafraDataSerialize {
         public String initialDate;
         public String endDate;
+        public String paymentDate;
 
         SafraDataSerialize() {}
 
         SafraDataSerialize(Safra__c safra) {
             this.initialDate = String.valueOf(safra.StartDateOrderInsertion__c);
             this.endDate = String.valueOf(safra.EndDateInsertionOrders__c);
+            this.paymentDate = String.valueOf(safra.NumberOfDaysAfterPayment__c);
         }
     }
 

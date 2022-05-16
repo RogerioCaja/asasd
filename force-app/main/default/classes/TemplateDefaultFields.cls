@@ -264,6 +264,7 @@ public  class TemplateDefaultFields {
             Type =  'Venda Sucata',
             RecordTypeId = recordTypeMap.get('Venda Sucata').getRecordTypeId(),
             ShippingAccount__c =   account.Id,
+            ShippingDate__c =  Date.today(),
             PaymentDate__c =  Date.today(),
             CustomerOrderNumber__c = '0001',
             EffectiveDate = Date.today(),

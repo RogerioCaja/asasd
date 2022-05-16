@@ -174,7 +174,7 @@ public with sharing class CalloutOrder {
             
             IV_TYPE = order.OrderReference__c != null ? 'G' : 'C';
             
-            IS_HEADER_IN.DOC_TYPE = String.valueOf([SELECT DeveloperName FROM RecordType WHERE Name =: order.Type][0].DeveloperName); // Não esquecer de mudar isso
+            IS_HEADER_IN.DOC_TYPE = getCodeTypeOrder(String.valueOf([SELECT DeveloperName FROM RecordType WHERE Name =: order.Type][0].DeveloperName), IV_TYPE == 'G' ? true : false); 
             IS_HEADER_IN.SALES_ORG = order.SalesOrg__r.SalesOrganizationCode__c;
             IS_HEADER_IN.DISTR_CHAN =order.DistributionChannel__c;
             IS_HEADER_IN.DIVISION = order.ActivitySector__c;
