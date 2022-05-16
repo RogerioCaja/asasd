@@ -34,6 +34,8 @@ import SAFRA_NAME from '@salesforce/schema/Safra__c.Name';
 import getAccountDataChild from '@salesforce/apex/OrderScreenController.getAccountDataChild';
 import getOrderMothers from '@salesforce/apex/OrderScreenController.getOrderMothers';
 
+import getDateLimit from '@salesforce/apex/OrderScreenController.getSafraInfos';
+
 //import FILIAL_OBJECT from '@salesforce/schema/';
 //import FILIAL_NAME from '@salesforce/schema/';
 
@@ -42,6 +44,7 @@ export default class OrderHeaderScreen extends LightningElement {
     booleanTrue = true;
     disabled = false;
     currentDate;
+    dateLimit;
 
     @api accountData;
     @api accountChildData;
@@ -335,13 +338,13 @@ export default class OrderHeaderScreen extends LightningElement {
             if(this.isFilled(event)){
                 var field = event.target.name;
                 if(event.target.value || event.target.checked){
-                    if ((field == 'data_pagamento' || field == 'data_entrega') && this.currentDate > event.detail.value) {
+                    if ((field == 'data_pagamento' || field == 'data_entrega') && (this.currentDate > event.detail.value || this.dateLimit < event.detail.value)) {
                         this.headerDictLocale[field] = null;
                         let headerValues = JSON.parse(JSON.stringify(this.headerData));
                         headerValues[field] = null;
                         this.headerData = JSON.parse(JSON.stringify(headerValues));
                         console.log('this.headerData: ' + JSON.stringify(this.headerData));
-                        this.showToast('warning', 'Atenção!', 'Só é possível selecionar uma data maior ou igual a data atual.');
+                        this.showToast('warning', 'Atenção!', 'Data não permitida.');
                     } else {
                         this.headerDictLocale[field] = field != 'pedido_mae_check' ? event.detail.value : event.target.checked;
                     }
@@ -349,6 +352,9 @@ export default class OrderHeaderScreen extends LightningElement {
                 else{
                     const { record } = event.detail;
                     this.headerDictLocale[field] = (this.registerDetails.includes(field) ? this.resolveRegister(record)  : {Id: record.Id, Name: record.Name});
+                    if(field == 'safra'){
+                        this.setDateLimit(record.Id);
+                    }
                     if(field == 'pedido_mae') { 
                         this.headerDictLocale.IsOrderChild = true; 
                         this.pass = true; 
@@ -380,11 +386,24 @@ export default class OrderHeaderScreen extends LightningElement {
     removeItemRegister(event){
         try{
             var field = event.target.name;
-            this.headerDictLocale[field] = null;
+            this.headerDictLocale[field] = {};
             this.headerDictLocale.IsOrderChild = field == 'pedido_mae' ? false : null;
             this._setData();
         }catch(err){
             console.log(err);
+        }
+    }
+
+    setDateLimit(){
+        if(this.isFilled(this.headerDictLocale['safra'])){
+            getDateLimit({safraId: this.headerDictLocale['safra'].Id})
+            .then((result) =>{
+                this.dateLimit = JSON.parse(result).paymentDate;
+                
+            })
+            .catch((err)=>{
+                console.log(err);
+            });
         }
     }
 
