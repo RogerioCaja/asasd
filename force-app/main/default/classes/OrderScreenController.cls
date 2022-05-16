@@ -179,7 +179,7 @@ public without sharing class OrderScreenController {
             if (orderId != null && !cloneOrder) {
                 newOrder = false;
                 order = [SELECT Id, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c, SalesCondition__c, PaymentDate__c, ShippingDate__c, PaymentCondition__c, CustomerOrderNumber__c,
-                Crop__c, Culture__c, PaymentForm__c, StatusSF__c, SalesOrg__c, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c
+                Crop__c, Culture__c, PaymentForm__c, StatusSF__c, SalesOrg__c, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, EffectiveDate
                 FROM Order WHERE Id =: orderId LIMIT 1];
             } else {
                 order = new Order();
@@ -360,14 +360,12 @@ public without sharing class OrderScreenController {
 
             Id companyId;
             Id salesOrgId;
-            // Id activitySectorId;
-            Id distributionChannelId;
+            Id activitySectorId;
             if (salesTeamTerritory != null && salesTeamTerritory.DeveloperName != null) {
                 String salesTeamDevName = salesTeamTerritory.DeveloperName.substring(1, salesTeamTerritory.DeveloperName.length());
                 for (Company__c salesTeamCompany : [
                     SELECT Id,
                            SalesOrg__c,
-                           DistributionChannel__c,
                            ActivitySector__c
                       FROM Company__c
                      WHERE Conta__c =: orderData.accountData.Id
@@ -375,8 +373,7 @@ public without sharing class OrderScreenController {
                 ]) {
                     companyId = salesTeamCompany.Id;
                     salesOrgId = salesTeamCompany.SalesOrg__c;
-                    // activitySectorId = salesTeamCompany.DistributionChannel__c;
-                    distributionChannelId = salesTeamCompany.ActivitySector__c;
+                    activitySectorId = salesTeamCompany.ActivitySector__c;
                 }
             }
 
@@ -393,8 +390,8 @@ public without sharing class OrderScreenController {
             order.Culture__c = orderData.headerData.cultura.Id ;
             order.PaymentForm__c = orderData.headerData.forma_pagamento ;
             order.SalesOrg__c = salesOrgId;
-            // order.DistributionChannel__c = distributionChannelId ;
-            // order.ActivitySector__c = activitySectorId ;
+            order.DistributionChannel__c = orderData.headerData.canal_distribuicao ;
+            order.ActivitySector__c = activitySectorId ;
             order.Currency__c = orderData.headerData.moeda ;
             order.SalesCTV__c = orderData.headerData.ctv_venda.Id ;
             order.StatusSF__c = orderData.headerData.status_pedido;
@@ -614,7 +611,6 @@ public without sharing class OrderScreenController {
                             orderCommodity.Product__c = commodity.productId;
                             insCommodities.add(orderCommodity);
                         }
-
                         if (insCommodities.size() > 0) {
                             String commodityErrors = '';
                             List<Database.UpsertResult> insCommoditiesResults = Database.upsert(insCommodities, false);
@@ -632,6 +628,7 @@ public without sharing class OrderScreenController {
                             }
                         }
                     }
+                    
                 }
                 
                 return JSON.serializePretty(new AGRO_RemotingResult(false, '200', msg, String.valueOf(order.Id)));
@@ -789,7 +786,8 @@ public without sharing class OrderScreenController {
     public static String getSafraInfos(String safraId){
         Safra__c safra = [SELECT Id,
                                  StartDateOrderInsertion__c,
-                                 EndDateInsertionOrders__c
+                                 EndDateInsertionOrders__c,
+                                 NumberOfDaysAfterPayment__c
                             FROM Safra__c
                            WHERE Id =: safraId];
         return JSON.serialize(new SafraDataSerialize(safra));
@@ -1240,17 +1238,20 @@ public without sharing class OrderScreenController {
     public class SafraDataDeserialize {
         public String initialDate;
         public String endDate;
+        public String paymentDate;
     }
 
     public class SafraDataSerialize {
         public String initialDate;
         public String endDate;
+        public String paymentDate;
 
         SafraDataSerialize() {}
 
         SafraDataSerialize(Safra__c safra) {
             this.initialDate = String.valueOf(safra.StartDateOrderInsertion__c);
             this.endDate = String.valueOf(safra.EndDateInsertionOrders__c);
+            this.paymentDate = String.valueOf(safra.NumberOfDaysAfterPayment__c);
         }
     }
 

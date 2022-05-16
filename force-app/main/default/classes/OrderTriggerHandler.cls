@@ -19,10 +19,12 @@ public with sharing class OrderTriggerHandler {
         OrderHelper.calloutOrderToSAP(this.newRecords);
     }
     
-    public void OnBeforeUpdate(){}
+    public void OnBeforeUpdate(){
+        OrderHelper.calloutOrderToSAP(this.newRecords);
+    }
     
     public void OnAfterUpdate(){
-        OrderHelper.calloutOrderToSAP(this.newRecords);
+        
     }
     
     public void OnBeforeDelete(){}
