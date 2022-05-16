@@ -121,6 +121,7 @@ global with sharing class IntegrationINOrderAppdigital {
             orderItemsResponse.putAll(
                 IntegrationINOrderItemAppdigital.upsertOrderItem(orderItemListToUpsert)
             );
+            System.debug('orderItemsResponse' + orderItemsResponse);
         }
 
         Map<String, List<TemplateDataIntegrationFields.Response>> shippingDivisonResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
@@ -128,6 +129,7 @@ global with sharing class IntegrationINOrderAppdigital {
             shippingDivisonResponse.putAll(
                 IntegrationINShippingDivisonAppdigital.upsertShippingDivison(shippingDivisonListToUpsert)
             );
+            System.debug('shippingDivisonResponse' + shippingDivisonResponse);
         }
 
         //Associating child object's response with object response
@@ -139,6 +141,8 @@ global with sharing class IntegrationINOrderAppdigital {
                 for(TemplatedataIntegrationFields.Response orderItem : orderItemsResponse.get(response.idSalesforce)){
                     response.items.addAll(shippingDivisonResponse.get(orderItem.idSalesforce)); 
                 }
+                System.debug('orderItemsResponse' + orderItemsResponse);
+                System.debug('shippingDivisonResponse' + shippingDivisonResponse);
             } 
             else if(orderItemsResponse.size() != 0 && orderItemsResponse.containsKey(response.externalCode)){
                 response.items.addAll(orderItemsResponse.get(response.externalCode));
