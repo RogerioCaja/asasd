@@ -651,24 +651,19 @@ public without sharing class OrderScreenController {
     public static String getFinancialInfos(String data) {
         FinancialResult result = new FinancialResult();
         OrderDataDeserialize orderValues = (OrderDataDeserialize) JSON.deserialize(data, OrderDataDeserialize.class);
-        Set<String> pricebookProducts = new Set<String>();
-        Date pricebookPaymentDate;
         
-        for (PricebookEntry pricebookEntry : [
+        Date safraPaymentDate;
+        for (Safra__c safra : [
             SELECT Id,
-                   Product2Id,
-                   Product2.StockKeepingUnit,
-                   Pricebook2.PaymentDate__c
-              FROM PricebookEntry
-             // WHERE Pricebook2Id =: orderValues.pricebookId
-             WHERE IsActive = true
+                   PaymentBaseDate__c
+              FROM Safra__c
+             WHERE Id =: orderValues.safra
         ]) {
-            pricebookProducts.add(pricebookEntry.Product2.StockKeepingUnit);
-            pricebookPaymentDate = pricebookEntry.Pricebook2.PaymentDate__c;
+            safraPaymentDate = safra.PaymentBaseDate__c;
         }
 
-        result.correctPayment = Date.valueOf(orderValues.paymentDate) == pricebookPaymentDate ? true : false;
-        result.isDiscount = Date.valueOf(orderValues.paymentDate) > pricebookPaymentDate ? false : true;
+        result.correctPayment = Date.valueOf(orderValues.paymentDate) == safraPaymentDate ? true : false;
+        result.isDiscount = Date.valueOf(orderValues.paymentDate) > safraPaymentDate ? false : true;
         Id discountOrAdditionRecType = result.isDiscount ? Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get('ZDAN').getRecordTypeId()
                                                          : Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get('ZJUR').getRecordTypeId();
         
