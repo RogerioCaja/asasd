@@ -3,8 +3,8 @@ public with sharing class CalloutOrderMock implements HttpCalloutMock {
     private final String body;
     private final Integer status;
 
-    public CalloutOrderMock(Boolean isSuccess, String orderNumber) {
-       if(isSuccess){
+    public CalloutOrderMock(Boolean isSuccess, String orderNumber, Boolean isAccessToken) {
+       if(isSuccess && !isAccessToken){
             status = 200;
             body = '{' 
                 +'"ET_RETURN": {'
@@ -79,6 +79,10 @@ public with sharing class CalloutOrderMock implements HttpCalloutMock {
                     +'},'
                     +'"EV_SALES_DOC": "0000000342"'
                     +'}';
+       }
+       else if(isAccessToken){
+            status = 200;
+            body = '{"access_token" : "fdgfdbvkhjfdv"}';
        }
        else{
             status = 400;
