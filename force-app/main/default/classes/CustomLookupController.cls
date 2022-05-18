@@ -79,7 +79,6 @@ public without sharing class CustomLookupController {
             Id commodityRecType = Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get('ZPR0').getRecordTypeId();
 
             SalesResult salesResult = getSalesOrgId(productParams.accountId, productParams.ctvId) != null ? getSalesOrgId(productParams.accountId, productParams.ctvId) : null;
-            salesResult.segmento = [SELECT Industry FROM Account WHERE Id =: productParams.accountId].Industry;
             result.salesResult = salesResult;
 
             Set<String> priceFields = new Set<String>{'Id', 'UnitPrice__c', 'Cost__c', 'Product__c', 'Currency__c', 'SalesOrg__c', 'SalesTeam__c', 'SalesOffice__c', 'Account__c', 'Culture__c'};

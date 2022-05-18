@@ -289,7 +289,6 @@ export default class OrderHeaderScreen extends LightningElement {
         })
         .catch((err)=>{
         });
-        console.log('orelhao');
         getOrderMothers().then((result) =>{
             console.log(result);
             const orderData = JSON.parse(result);
