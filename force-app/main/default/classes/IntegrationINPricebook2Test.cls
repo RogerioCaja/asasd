@@ -153,12 +153,5 @@ public class IntegrationINPricebook2Test {
         System.assertEquals(null, model.response[0].errorMessage, 'O erro nesta situação deveria vir nulo');
         System.assertNotEquals(null, model.response[0].idSalesforce, 'O idSalesforce nesta situação deveria vir um Id');
         System.assertNotEquals('null', model.response[0].externalCode, 'O externalCode nesta situação deveria vir codExternal');
-    } 
-
-  
-
-
-  
-
-   
+    }
 }

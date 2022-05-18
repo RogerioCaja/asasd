@@ -144,7 +144,7 @@ public without sharing class OrderScreenController {
                             .selectFields(new Set<String>{'Id', 'CustomerOrderNumber__c'})
                             .add(Q.conditionGroup(
                             new List<Qcondition>{
-                            Q.condition('SalesCTV__c').equalsTo(UserInfo.getUserId()), 
+                            Q.condition('OwnerId').equalsTo(UserInfo.getUserId()), 
                             Q.condition('Crop__r.StartDateOrderInsertion__c').isLessOrEquals(System.today()), 
                             Q.condition('Crop__r.EndDateInsertionOrders__c').isGreaterThan(System.today()), 
                             Q.condition('IsOrderMother__c').equalsTo(true)})
@@ -167,7 +167,7 @@ public without sharing class OrderScreenController {
     }
 
     @AuraEnabled
-    public static String saveOrder(Id orderId, Boolean cloneOrder, String data) {
+    public static String saveOrder(Id orderId, Boolean cloneOrder, String data, string typeOrder) {
         Savepoint sp = Database.setSavepoint();
         try{
             Order order;
@@ -179,10 +179,11 @@ public without sharing class OrderScreenController {
             if (orderId != null && !cloneOrder) {
                 newOrder = false;
                 order = [SELECT Id, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c, SalesCondition__c, PaymentDate__c, ShippingDate__c, PaymentCondition__c, CustomerOrderNumber__c,
-                Crop__c, Culture__c, PaymentForm__c, StatusSF__c, SalesOrg__c, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c
+                Crop__c, Culture__c, PaymentForm__c, StatusSF__c, SalesOrg__c, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, EffectiveDate
                 FROM Order WHERE Id =: orderId LIMIT 1];
             } else {
                 order = new Order();
+                order.RecordTypeId = Schema.SObjectType.Order.getRecordTypeInfosByName().get(orderData.headerData.tipo_venda).getRecordTypeId();
             }
             System.debug('order: ' + order);
 
@@ -361,13 +362,11 @@ public without sharing class OrderScreenController {
             Id companyId;
             Id salesOrgId;
             Id activitySectorId;
-            Id distributionChannelId;
             if (salesTeamTerritory != null && salesTeamTerritory.DeveloperName != null) {
                 String salesTeamDevName = salesTeamTerritory.DeveloperName.substring(1, salesTeamTerritory.DeveloperName.length());
                 for (Company__c salesTeamCompany : [
                     SELECT Id,
                            SalesOrg__c,
-                           DistributionChannel__c,
                            ActivitySector__c
                       FROM Company__c
                      WHERE Conta__c =: orderData.accountData.Id
@@ -375,8 +374,7 @@ public without sharing class OrderScreenController {
                 ]) {
                     companyId = salesTeamCompany.Id;
                     salesOrgId = salesTeamCompany.SalesOrg__c;
-                    activitySectorId = salesTeamCompany.DistributionChannel__c;
-                    distributionChannelId = salesTeamCompany.ActivitySector__c;
+                    activitySectorId = salesTeamCompany.ActivitySector__c;
                 }
             }
 
@@ -393,11 +391,12 @@ public without sharing class OrderScreenController {
             order.Culture__c = orderData.headerData.cultura.Id ;
             order.PaymentForm__c = orderData.headerData.forma_pagamento ;
             order.SalesOrg__c = salesOrgId;
-            order.DistributionChannel__c = distributionChannelId ;
+            order.DistributionChannel__c = orderData.headerData.canal_distribuicao ;
             order.ActivitySector__c = activitySectorId ;
             order.Currency__c = orderData.headerData.moeda ;
             order.SalesCTV__c = orderData.headerData.ctv_venda.Id ;
             order.StatusSF__c = orderData.headerData.status_pedido;
+            order.Status = typeOrder == 'prepedido' ? '0' : '001';
             order.Incoterms__c = orderData.headerData.frete;
             order.Incoterms2__c = orderData.headerData.frete;
             order.Description = orderData.summaryData.observation;
@@ -602,34 +601,36 @@ public without sharing class OrderScreenController {
                         }
                     }
 
-                    List<OrderCommodity__c> insCommodities = new List<OrderCommodity__c>();
                     System.debug('orderData.commodityData: ' + orderData.commodityData);
-                    for (CommodityDeserialize commodity : orderData.commodityData) {
-                        System.debug('commodity: ' + commodity);
-                        OrderCommodity__c orderCommodity = new OrderCommodity__c();
-                        orderCommodity.BagQuantity__c = Decimal.valueOf(commodity.totalDelivery.replace(' sacas', ''));
-                        orderCommodity.CommodityPrice__c = commodity.commodityPrice;
-                        orderCommodity.Order__c = order.Id;
-                        orderCommodity.Product__c = commodity.productId;
-                        insCommodities.add(orderCommodity);
-                    }
-
-                    if (insCommodities.size() > 0) {
-                        String commodityErrors = '';
-                        List<Database.UpsertResult> insCommoditiesResults = Database.upsert(insCommodities, false);
-                        for (Database.UpsertResult result : insCommoditiesResults){
-                            System.debug('result: ' + result);
-                            if(!result.isSuccess()){
-                                for (Database.error error: insResults.getErrors()){
-                                    commodityErrors += '\n' + error.getMessage();
-                                    msg = 'Pedido não pôde ser ' + (newOrder ? 'criado' : 'atualizado');
-                                    return JSON.serializePretty(new AGRO_RemotingResult(false, '200', msg + commodityErrors));
+                    if (orderData.commodityData != null && orderData.commodityData.size() > 0) {
+                        List<OrderCommodity__c> insCommodities = new List<OrderCommodity__c>();
+                        for (CommodityDeserialize commodity : orderData.commodityData) {
+                            System.debug('commodity: ' + commodity);
+                            OrderCommodity__c orderCommodity = new OrderCommodity__c();
+                            orderCommodity.BagQuantity__c = Decimal.valueOf(commodity.totalDelivery.replace(' sacas', ''));
+                            orderCommodity.CommodityPrice__c = commodity.commodityPrice;
+                            orderCommodity.Order__c = order.Id;
+                            orderCommodity.Product__c = commodity.productId;
+                            insCommodities.add(orderCommodity);
+                        }
+                        if (insCommodities.size() > 0) {
+                            String commodityErrors = '';
+                            List<Database.UpsertResult> insCommoditiesResults = Database.upsert(insCommodities, false);
+                            for (Database.UpsertResult result : insCommoditiesResults){
+                                System.debug('result: ' + result);
+                                if(!result.isSuccess()){
+                                    for (Database.error error: insResults.getErrors()){
+                                        commodityErrors += '\n' + error.getMessage();
+                                        msg = 'Pedido não pôde ser ' + (newOrder ? 'criado' : 'atualizado');
+                                        return JSON.serializePretty(new AGRO_RemotingResult(false, '200', msg + commodityErrors));
+                                    }
+                                } else {
+                                    itemsIds.add(result.getId());
                                 }
-                            } else {
-                                itemsIds.add(result.getId());
                             }
                         }
                     }
+                    
                 }
                 
                 return JSON.serializePretty(new AGRO_RemotingResult(false, '200', msg, String.valueOf(order.Id)));
@@ -652,24 +653,19 @@ public without sharing class OrderScreenController {
     public static String getFinancialInfos(String data) {
         FinancialResult result = new FinancialResult();
         OrderDataDeserialize orderValues = (OrderDataDeserialize) JSON.deserialize(data, OrderDataDeserialize.class);
-        Set<String> pricebookProducts = new Set<String>();
-        Date pricebookPaymentDate;
         
-        for (PricebookEntry pricebookEntry : [
+        Date safraPaymentDate;
+        for (Safra__c safra : [
             SELECT Id,
-                   Product2Id,
-                   Product2.StockKeepingUnit,
-                   Pricebook2.PaymentDate__c
-              FROM PricebookEntry
-             // WHERE Pricebook2Id =: orderValues.pricebookId
-             WHERE IsActive = true
+                   PaymentBaseDate__c
+              FROM Safra__c
+             WHERE Id =: orderValues.safra
         ]) {
-            pricebookProducts.add(pricebookEntry.Product2.StockKeepingUnit);
-            pricebookPaymentDate = pricebookEntry.Pricebook2.PaymentDate__c;
+            safraPaymentDate = safra.PaymentBaseDate__c;
         }
 
-        result.correctPayment = Date.valueOf(orderValues.paymentDate) == pricebookPaymentDate ? true : false;
-        result.isDiscount = Date.valueOf(orderValues.paymentDate) > pricebookPaymentDate ? false : true;
+        result.correctPayment = Date.valueOf(orderValues.paymentDate) == safraPaymentDate ? true : false;
+        result.isDiscount = Date.valueOf(orderValues.paymentDate) > safraPaymentDate ? false : true;
         Id discountOrAdditionRecType = result.isDiscount ? Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get('ZDAN').getRecordTypeId()
                                                          : Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get('ZJUR').getRecordTypeId();
         
@@ -787,7 +783,8 @@ public without sharing class OrderScreenController {
     public static String getSafraInfos(String safraId){
         Safra__c safra = [SELECT Id,
                                  StartDateOrderInsertion__c,
-                                 EndDateInsertionOrders__c
+                                 EndDateInsertionOrders__c,
+                                 NumberOfDaysAfterPayment__c
                             FROM Safra__c
                            WHERE Id =: safraId];
         return JSON.serialize(new SafraDataSerialize(safra));
@@ -880,47 +877,49 @@ public without sharing class OrderScreenController {
     }
 
     public class HeaderDeserialize {
-       
-
-        public String Id;
-        public String AccountId;
-        public String tipo_venda;
-        //public InformationFields filial;
-        public String numero_pedido_cliente;
+        public String  Id;
+        public String  AccountId;
+        public String  tipo_venda;
+        public String  numero_pedido_cliente;
+        public String  data_pagamento;
+        public String  data_entrega;
+        public String  status_pedido;
+        public String  codigo_sap;
+        public String  canal_distribuicao;
+        public String  setor_atividade;
+        public String  forma_pagamento;
+        public String  moeda;
+        public String  frete;
+        public String  observation;
+        public String  billing_sale_observation;
+        public Boolean pedido_mae_check;
+        public AccountSerialize  cliente_entrega;
         public InformationFields safra;
         public InformationFields cultura;
         public InformationFields condicao_venda;
         public InformationFields condicao_pagamento;
-        public String data_pagamento;
-        public String data_entrega;
-        public String status_pedido;
-        public String codigo_sap;
-        public AccountSerialize cliente_entrega;
         public InformationFields organizacao_vendas;
-        public String canal_distribuicao;
-        public String setor_atividade;
-        public String forma_pagamento;
-        public String moeda;
-        public String frete;
         public InformationFields ctv_venda;
         public InformationFields pedido_mae;
-        public Boolean pedido_mae_check;
-        public String observation;
-        public String billing_sale_observation;
+        //public InformationFields filial;
         //public String cliente_faturamento;
     }
 
     public class ProductDeserialize{
-        public String orderItemId;
-        public String productId;
-        public String name;
-        public String entryId;
-        public String sapProductCode;
-        public String sapStatus;
-        public String unity;
-        public String activePrinciple;
-        public String productGroupId;
-        public String productGroupName;
+        public String  orderItemId;
+        public String  productId;
+        public String  name;
+        public String  entryId;
+        public String  sapProductCode;
+        public String  sapStatus;
+        public String  unity;
+        public String  activePrinciple;
+        public String  productGroupId;
+        public String  productGroupName;
+        public String  commercialDiscountPercentage;
+        public String  commercialAdditionPercentage;
+        public String  financialAdditionPercentage;
+        public String  financialDecreasePercentage;
         public Integer position;
         public Decimal invoicedQuantity;
         public Decimal motherAvailableQuantity;
@@ -929,26 +928,22 @@ public without sharing class OrderScreenController {
         public Decimal unitPrice;
         public Decimal totalPrice;
         public Decimal dosage;
-        public String commercialDiscountPercentage;
         public Decimal commercialDiscountValue;
-        public String commercialAdditionPercentage;
         public Decimal commercialAdditionValue;
-        public String financialAdditionPercentage;
         public Decimal financialAdditionValue;
-        public String financialDecreasePercentage;
         public Decimal financialDecreaseValue;
         public Decimal commercialMarginPercentage;
         public Decimal comissionValue;
     }
 
     public class DivisionDeserialize{
-        public String divisionId;
-        public String deliveryDate;
-        public String deliveryId;
-        public String quantityId;
-        public String externalId;
-        public String orderItemId;
-        public String orderItemKey;
+        public String  divisionId;
+        public String  deliveryDate;
+        public String  deliveryId;
+        public String  quantityId;
+        public String  externalId;
+        public String  orderItemId;
+        public String  orderItemKey;
         public Decimal confirmedQuantity;
         public Decimal quantity;
         public Integer productPosition;
@@ -962,7 +957,7 @@ public without sharing class OrderScreenController {
         public String  area;
         public String  discount;
         public String  margin;
-        public String totalDelivery;
+        public String  totalDelivery;
         public Decimal quantity;
         public Decimal commodityPrice;
         public Boolean saved;
@@ -988,9 +983,9 @@ public without sharing class OrderScreenController {
     //Classe para serialização
     public class OrderSerialize{
         public HeaderSerialize headerData;
+        public AccountSerialize accountData;
         public List<ProductSerialize> productData;
         public List<DivisionSerialize> divisionData;
-        public AccountSerialize accountData;
 
         OrderSerialize(){}       
 
@@ -1059,32 +1054,32 @@ public without sharing class OrderScreenController {
     }
     
     public class HeaderSerialize {
-        public String Id;
-        public String AccountId;
-        public String tipo_venda;
-        public String filial;
-        public String numero_pedido_cliente;
+        public String  Id;
+        public String  AccountId;
+        public String  tipo_venda;
+        public String  filial;
+        public String  numero_pedido_cliente;
+        public String  data_pagamento;
+        public String  data_entrega;
+        public String  status_pedido;
+        public String  codigo_sap;
+        public String  cliente_faturamento;
+        public String  canal_distribuicao;
+        public String  setor_atividade;
+        public String  forma_pagamento;
+        public String  moeda;
+        public String  frete;
+        public String  observation;
+        public String  billing_sale_observation;
+        public Boolean pedido_mae_check;
         public InformationFields safra;
         public InformationFields cultura;
         public InformationFields condicao_venda;
         public InformationFields condicao_pagamento;
-        public String data_pagamento;
-        public String data_entrega;
-        public String status_pedido;
-        public String codigo_sap;
-        public String cliente_faturamento;
-        public AccountSerialize cliente_entrega;
-        public InformationFields organizacao_vendas;
-        public String canal_distribuicao;
-        public String setor_atividade;
-        public String forma_pagamento;
-        public String moeda;
-        public String frete;
         public InformationFields ctv_venda;
         public InformationFields pedido_mae;
-        public Boolean pedido_mae_check;
-        public String observation;
-        public String billing_sale_observation;
+        public InformationFields organizacao_vendas;
+        public AccountSerialize  cliente_entrega;
         //public String data_entrega;
         //public String cliente_faturamento;
         HeaderSerialize(){}
@@ -1138,19 +1133,22 @@ public without sharing class OrderScreenController {
     }
     
     public class ProductSerialize{
-        public String orderId;
-        public String orderItemId;
-        public String productId;
-        public String name;
-        public String sapProductCode;
-        public String entryId;
-        public String sapStatus;
-        public String unity;
-        public String activePrinciple;
-        public String productGroupId;
-        public String productGroupName;
-        // public String productGroup;
-        public Date serviceDate;
+        public Date    serviceDate;
+        public String  orderId;
+        public String  orderItemId;
+        public String  productId;
+        public String  name;
+        public String  sapProductCode;
+        public String  entryId;
+        public String  sapStatus;
+        public String  unity;
+        public String  activePrinciple;
+        public String  productGroupId;
+        public String  productGroupName;
+        public String  commercialDiscountPercentage;
+        public String  commercialAdditionPercentage;
+        public String  financialAdditionPercentage;
+        public String  financialDecreasePercentage;
         public Integer position;
         public Decimal multiplicity;
         public Decimal invoicedQuantity;
@@ -1160,13 +1158,9 @@ public without sharing class OrderScreenController {
         public Decimal unitPrice;
         public Decimal totalPrice;
         public Decimal dosage;
-        public String commercialDiscountPercentage;
         public Decimal commercialDiscountValue;
-        public String commercialAdditionPercentage;
         public Decimal commercialAdditionValue;
-        public String financialAdditionPercentage;
         public Decimal financialAdditionValue;
-        public String financialDecreasePercentage;
         public Decimal financialDecreaseValue;
         public Decimal commercialMarginPercentage;
         public Decimal comissionValue;
@@ -1209,17 +1203,17 @@ public without sharing class OrderScreenController {
     }
 
     public class DivisionSerialize{
-        public String divisionId;
-        public String deliveryDate;
-        public String deliveryId;
-        public String quantityId;
-        public String externalId;
-        public String orderItemId;
-        public String orderItemKey;
+        public String  divisionId;
+        public String  deliveryDate;
+        public String  deliveryId;
+        public String  quantityId;
+        public String  externalId;
+        public String  orderItemId;
+        public String  orderItemKey;
+        public Boolean showInfos;
+        public Integer productPosition;
         public Decimal confirmedQuantity;
         public Decimal quantity;
-        public Integer productPosition;
-        public Boolean showInfos;
 
         DivisionSerialize(){}
 
@@ -1241,17 +1235,20 @@ public without sharing class OrderScreenController {
     public class SafraDataDeserialize {
         public String initialDate;
         public String endDate;
+        public String paymentDate;
     }
 
     public class SafraDataSerialize {
         public String initialDate;
         public String endDate;
+        public String paymentDate;
 
         SafraDataSerialize() {}
 
         SafraDataSerialize(Safra__c safra) {
             this.initialDate = String.valueOf(safra.StartDateOrderInsertion__c);
             this.endDate = String.valueOf(safra.EndDateInsertionOrders__c);
+            this.paymentDate = String.valueOf(safra.NumberOfDaysAfterPayment__c);
         }
     }
 
@@ -1266,20 +1263,20 @@ public without sharing class OrderScreenController {
     }
 
     public class FinancialResult {
+        public String  salesOrg;
+        public String  salesOffice;
+        public String  salesTeam;
         public Boolean isDiscount;
         public Boolean correctPayment;
-        public String salesOrg;
-        public String salesOffice;
-        public String salesTeam;
         public Map<String, Decimal> financialValues;
     }
 
     public class FinancialResultSerialize {
+        public String  salesOrg;
+        public String  salesOffice;
+        public String  salesTeam;
         public Boolean isDiscount;
         public Boolean correctPayment;
-        public String salesOrg;
-        public String salesOffice;
-        public String salesTeam;
         public Map<String, Decimal> financialValues;
 
         FinancialResultSerialize() {}

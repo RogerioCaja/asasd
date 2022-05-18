@@ -43,11 +43,11 @@ global with sharing class TemplateDataIntegrationFields {
         public JurosDescontoAntecipao__c serialize(Map<String, Id> lookups){
             return new JurosDescontoAntecipao__c(
                 AccountType__c = this.accountGroup,
-                ConditionType__c = this.typeCondition == 'ZPR0' ? 'Preço' : this.typeCondition == 'ZDAN'? 'Desconto' : 'Juros',
-                RecordTypeId = [SELECT Id FROM RecordType WHERE DeveloperName =: this.typeCondition][0].Id,
+                ConditionType__c = this.typeCondition == 'ZPR0' ||  this.typeCondition == 'ZPRS' ? 'Preço' : this.typeCondition == 'ZDAN'? 'Desconto' : 'Juros',
+                RecordTypeId = [SELECT Id FROM RecordType WHERE DeveloperName =: this.typeCondition == 'ZPRS' ? 'ZPR0' :  this.typeCondition ][0].Id,
                 Culture__c = lookups.containsKey('Cultura__c'+this.cultureCode) ? lookups.get('Cultura__c'+this.cultureCode) : null,
                 DistributionCenter__c =lookups.containsKey('DistributionCenter__c'+this.center) ? lookups.get('DistributionCenter__c'+this.center) : null,
-                EndDate__c = this.endDate != null ? Date.valueOf(this.endDate) : null,
+                EndDate__c = this.endDate != null ? (Date.valueOf(this.endDate.contains('9999') ? this.endDate.replace('9999','2999') : this.endDate )) : null,
                 // ExternalId__c = this.orgVendas + this.cropCode  + this.typeCurrency +  this.product + this.salesCondition  + this.productGroup + this.salesOffice  + this.cultureCode + this.accountGroup +  this.accountCode  + this.product + this.salesTeam  + this.product, // A estrutura está acima ^^^^
                 ExternalId__c = this.externalId,
                 harvest__c = lookups.containsKey('Safra__c'+this.cropCode) ? lookups.get('Safra__c'+this.cropCode) : null,
@@ -56,14 +56,15 @@ global with sharing class TemplateDataIntegrationFields {
                 SalesOffice__c = lookups.containsKey('SalesOffice__c'+this.salesOffice) ? lookups.get('SalesOffice__c'+this.salesOffice) : null,
                 SalesOrg__c = lookups.containsKey('SalesOrg__c'+this.orgVendas) ? lookups.get('SalesOrg__c'+this.orgVendas) : null,
                 SalesTeam__c = lookups.containsKey('SalesTeam__c'+this.salesTeam) ? lookups.get('SalesTeam__c'+this.salesTeam) : null,
-                StartDate__c = this.initialDate != null ? Date.valueOf(this.initialDate) : null,
+                StartDate__c = this.initialDate != null ? (Date.valueOf(this.initialDate.contains('9999') ? this.initialDate.replace('9999','2999') : this.initialDate )) : null,
                 Account__c = lookups.containsKey('Account'+this.accountCode) ? lookups.get('Account'+this.accountCode) : null,
                 Currency__c = this.typeCurrency,
                 SalesCondition__c = lookups.containsKey('SalesCondition__c'+this.salesCondition) ? lookups.get('SalesCondition__c'+this.salesCondition) : null, 
                 ProductMultiplier__c = 1,
                 UnitMeasurement__c = this.unitMeasurement != null ? this.unitMeasurement : null,
-                UnitPrice__c = (this.typeCurrency == 'BRL' || this.typeCurrency == 'USD') ? Decimal.valueOf(this.unitPrice) : null,
-                Percentage__c = this.typeCurrency == '%' ? Decimal.valueOf(this.unitPrice) : null
+                UnitPrice__c = (this.typeCurrency == 'BRL' || this.typeCurrency == 'USD') ? Decimal.valueOf(this.unitPrice.trim()) : null,
+                Percentage__c = this.typeCurrency == '%' ? Decimal.valueOf(this.unitPrice.trim()) : null,
+                Cost__c = this.typeCondition == 'ZPRS' ?  Decimal.valueOf(this.unitPrice.trim()) : null
             );
             
         }
@@ -89,6 +90,7 @@ global with sharing class TemplateDataIntegrationFields {
     
     global class Product2INData implements FieldData {
         public String ProductName;
+        public String ProductCode;
         public String TextoBreveMaterial;
         public String UnidadeMedida;
         public String UnidadeMedidaRemessa;
@@ -115,6 +117,7 @@ global with sharing class TemplateDataIntegrationFields {
             //Returning Object with Fields
             return new Product2(
                 Name = this.ProductName,
+                ProductCode = this.ProductCode,
                 Description = this.TextoBreveMaterial,
                 UnidadeMedida__c = this.UnidadeMedida,
                 GrossWeightUnitOfMeasure__c = this.UnidadeMedidaRemessa,
@@ -255,6 +258,7 @@ global with sharing class TemplateDataIntegrationFields {
                 OrderId = lookups.containsKey('Order'+this.orderExternalId) ? lookups.get('Order'+this.orderExternalId) : null,
                 Product2Id = lookups.containsKey('Product2'+this.material) ? lookups.get('Product2'+this.material) : null,
                 PricebookEntryId = lookups.containsKey('PricebookEntry'+ this.material) ? lookups.get('PricebookEntry' + this.material) : null,
+                //ProductCode = this.material,
                 ExternalId__c = this.orderExternalId + '|' + this.orderItemCode,
                 Quantity = this.quantidade,
                 UnitMeasure__c = this.unidadeMedida,
@@ -343,14 +347,16 @@ global with sharing class TemplateDataIntegrationFields {
 
     global class NotaFiscalINData implements FieldData{
         //JSON fields Example
-       
+        
+        
+        public String invoiceName;
         public String numeroNotaFiscal;
         public String serie;
         public String localNegocios;
         public String codigoStatus;
         public String chaveAcesso;
         public Date dataCriacao;
-        public String horaCriacao;
+        public Datetime horaCriacao;
         public String codigoEmpresa;
         public String cliente;
         public String propriedade;
@@ -358,32 +364,38 @@ global with sharing class TemplateDataIntegrationFields {
         public String cpfCnpjVendedor;
         public Decimal valorTotalNf;
         public String naturezaOperacao;
+        public Date dupDate;
         public List<TemplateDataIntegrationFields.ItensNotaFiscalINData> itensNotaFiscal; 
         public NotaFiscal__c serialize(Map<String, Id> lookups){
 
             //Returning Object with Fields.
             return new NotaFiscal__c(
                
-                //ExternalId__c = this.codExternal,
+                Name = this.invoiceName,
+                ExternalID__c = this.invoiceName + '|' + this.numeroNotaFiscal,
+                AccountCode__c = lookups.containsKey('Account'+this.cliente) ? lookups.get('Account' + this.cliente) : null,
+                OrderCode__c = lookups.containsKey('Order'+this.cpfCnpjCliente) ? lookups.get('Order'+ this.cpfCnpjCliente) : null,
+                Company__c = lookups.containsKey('SalesOrg__c'+this.codigoEmpresa) ? lookups.get('SalesOrg__c'+this.codigoEmpresa) : null,
+                ReceiverAccountCode__c = lookups.containsKey('Account'+this.propriedade) ? lookups.get('Account'+this.propriedade) : null,
                 invoiceNumber__c = this.numeroNotaFiscal,
                 Serie__c = this.serie,
-                //BranchOffice__c = this.localNegocios,
+                BranchOffice__c = this.localNegocios,
                 InvoiceStatus__c = this.codigoStatus,
                 AccessKey__c = this.chaveAcesso,
                 Invoice_CreationDate__c = this.dataCriacao,
-                //Company__c = this.codigoEmpresa,
-                //AccountCode__c = this.cliente,
+                HoraCriacao__c = this.horaCriacao,
                 CNPJCode__c = this.cpfCnpjVendedor,
                 Invoice_TotalAmount__c = this.valorTotalNf,
-                CFOP__c = this.naturezaOperacao
-               
+                CFOP__c = this.naturezaOperacao,
+                DuplicateMaturity__c = this.dupDate
             );
         }
         
         //Required fields for integration
         public List<String> getRequiredFields(){
             return new List<String>{
-                'ExternalId__c'
+                'Name'
+                //'numeroNotaFiscal'
        
             };
         }
@@ -448,28 +460,40 @@ global with sharing class TemplateDataIntegrationFields {
         
         //JSON fields Example
         public String nfExternalId;
+        public String notaFiscal;
         public String codigoMaterial;
         public Decimal quantidade;
         public Decimal valorTotalItem;
         public String lote;
-        public Decimal unidadeMedida;
+        public String unidadeMedida;
         public String naturezaOperacao;
+        public Decimal descontoNF;
+        public Decimal valorUnitarioNF;
 
         public ItensNotaFiscal__c serialize(Map<String, Id> lookups){
 
             //Returning Object with Fields.
             return new ItensNotaFiscal__c(
-                Productcode__c = this.codigoMaterial,
+                Name = 'Nota Fiscal' + ' - ' + this.notaFiscal, //Pegar descrição do produto e number NF
+                ExternalID__c = this.codigoMaterial + '|' + this.notaFiscal,
+                Invoice__c = lookups.containsKey('NotaFiscal__c' + this.notaFiscal) ? lookups.get('NotaFiscal__c' + this.notaFiscal) : null,
+                Productcode__c = lookups.containsKey('Product2'+this.codigoMaterial) ? lookups.get('Product2' + this.codigoMaterial) : null,
                 Theamount__c = this.quantidade,
                 Amount__c = this.valorTotalItem,
-                Batch__c = this.lote
+                Batch__c = this.lote,
+                UnidadeMedida__C = this.unidadeMedida,
+                CFOP__c = this.naturezaOperacao,
+                Discount__c = this.descontoNF,
+                Unitaryvalue__c = this.valorUnitarioNF
             );
         }
         
         //Required fields for integration
         public List<String> getRequiredFields(){
             return new List<String>{
-                //'Product2Id'
+                'Name',
+                'Invoice__c',
+                'Productcode__c'
             };
         }
 
@@ -479,7 +503,7 @@ global with sharing class TemplateDataIntegrationFields {
         }
 
         public String getFieldExternal(){
-            return 'Code__c';
+            return 'Invoice__c';
         }
         
         public String getParentKey(){
