@@ -668,7 +668,7 @@ public without sharing class OrderScreenController {
         Id discountOrAdditionRecType = result.isDiscount ? Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get('ZDAN').getRecordTypeId()
                                                          : Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get('ZJUR').getRecordTypeId();
         
-        String companyGroup = '';
+        /* String companyGroup = '';
         for (Company__c accountCompany : [
             SELECT Id,
                    ClientGroup__c
@@ -677,7 +677,7 @@ public without sharing class OrderScreenController {
              LIMIT 1
         ]) {
             companyGroup = accountCompany.ClientGroup__c;
-        }
+        } */
 
         Id userTerritoryId;
         for (UserTerritory2Association userAssociation : [
@@ -741,7 +741,7 @@ public without sharing class OrderScreenController {
                AND EndDate__c >=: System.today()
                AND SalesOrg__c =: result.salesOrg
                AND harvest__c =: orderValues.safra
-               AND AccountType__c =: companyGroup
+               // AND AccountType__c =: companyGroup
         ]) {
             System.debug('financialDiscount: ' + financialDiscount);
             String key = financialDiscount.SalesOrg__c + '-' + financialDiscount.harvest__c;

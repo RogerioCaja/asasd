@@ -355,12 +355,12 @@ export default class OrderHeaderScreen extends LightningElement {
                     if(field == 'safra'){
                         this.setDateLimit(record.Id);
                     }
-                    if(field == 'pedido_mae') { 
+                    /* if(field == 'pedido_mae') { 
                         this.headerDictLocale.IsOrderChild = true; 
                         this.pass = true; 
                         this.disabled = true;
                         this._setData();
-                    }
+                    } */
                 }
             }  
         }
