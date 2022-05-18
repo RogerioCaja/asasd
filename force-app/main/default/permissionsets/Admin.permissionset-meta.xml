@@ -1321,6 +1321,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>PotencialCompra__c.ArableArea__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>PotencialCompra__c.Client__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1490,11 +1495,6 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
-        <field>Product2.ProductGroupX__c</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
         <editable>true</editable>
         <field>Product2.ProductGroup__c</field>
         <readable>true</readable>
@@ -1503,11 +1503,6 @@
         <editable>true</editable>
         <field>Product2.ProductSubgroup2__c</field>
         <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Product2.ProductSubgroupX__c</field>
-        <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
