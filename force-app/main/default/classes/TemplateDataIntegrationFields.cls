@@ -310,7 +310,7 @@ global with sharing class TemplateDataIntegrationFields {
         public ShippingDivison__c serialize(Map<String, Id> lookups){
 
             return new ShippingDivison__c(
-                ExternalId__c = this.orderExternalId + '|'+ this.OrderItemCode,
+                ExternalId__c = this.orderExternalId,
                 OrderItem__c = lookups.containsKey('OrderItem__c'+this.OrderItemCode) ? lookups.get('OrderItem__c'+this.OrderItemCode) : null,
                 DeliveryDate__c = this.DataDivisao,
                 Quantity__c = this.Quantidade,
