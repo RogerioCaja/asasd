@@ -167,7 +167,7 @@ public without sharing class OrderScreenController {
     }
 
     @AuraEnabled
-    public static String saveOrder(Id orderId, Boolean cloneOrder, String data) {
+    public static String saveOrder(Id orderId, Boolean cloneOrder, String data, string typeOrder) {
         Savepoint sp = Database.setSavepoint();
         try{
             Order order;
@@ -395,6 +395,7 @@ public without sharing class OrderScreenController {
             order.Currency__c = orderData.headerData.moeda ;
             order.SalesCTV__c = orderData.headerData.ctv_venda.Id ;
             order.StatusSF__c = orderData.headerData.status_pedido;
+            order.Status = typeOrder == 'prepedido' ? '0' : '001';
             order.Incoterms__c = orderData.headerData.frete;
             order.Incoterms2__c = orderData.headerData.frete;
             order.Description = orderData.summaryData.observation;
