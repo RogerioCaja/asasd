@@ -1,10 +1,10 @@
 @isTest
-public with sharing class IntegrationINOrderItemAppdigitalTest {
+public with sharing class IntegrationINOrderAppdigitalTest {
 
     @TestSetup
     static void makeData(){
 
-
+        AccountHelper.disableTrigger();
         Account account = new Account (
             Name = 'Teste 12',
             BillingStreet = ' ',
@@ -18,6 +18,7 @@ public with sharing class IntegrationINOrderItemAppdigitalTest {
             Company__c = 'Empresa 012'
         );
         insert account;
+        AccountHelper.enableTrigger();
 
         Safra__c safra = new Safra__c(
             Code__c = '12234',
@@ -58,12 +59,13 @@ public with sharing class IntegrationINOrderItemAppdigitalTest {
         insert sales;
 
         Profile p = [SELECT Id FROM Profile WHERE Name='Standard User']; 
+        UserHelper.disableTrigger();
         User u = new User(Alias = 'standt', Email='standarduser@testorg.com', 
             EmailEncodingKey='UTF-8', LastName='Testing', LanguageLocaleKey='en_US', 
             LocaleSidKey='en_US', ProfileId = p.Id, 
             TimeZoneSidKey='America/Los_Angeles', UserName='tetedogas@testorg.com');
             insert u;
-
+        UserHelper.enableTrigger();
 
             Order order = new Order(
                 AccountId =  account.Id,
@@ -87,8 +89,10 @@ public with sharing class IntegrationINOrderItemAppdigitalTest {
             );
             insert order;
 
+            
             Product2 prod = new Product2(
-                Name = 'Laptop X2020', 
+                Name = 'Laptop X2020',
+                ProductCode = '100',
                 Family = 'Hardware',
                 ExternalId__c = '0002',
                 ClasseAvaliacao__c = 'chucrute2',
@@ -111,7 +115,7 @@ public with sharing class IntegrationINOrderItemAppdigitalTest {
                 UnitMeasure__c = 'L',
                 UnitPrice = 100000,
                 Quantity = 1,
-                ExternalId__c = 'texto2',
+                ExternalId__c = '100/',
                 PricebookEntryId = standardPricebookEntry.Id
             );
             insert orderItem;
@@ -129,13 +133,13 @@ public with sharing class IntegrationINOrderItemAppdigitalTest {
     @isTest 
     
     static void verifyIntegrationOrder(){
-  
+        
         List<TemplateDataIntegrationFields.OrderItemINData> listOrderItemList = new List<TemplateDataIntegrationFields.OrderItemINData>();
         TemplateDataIntegrationFields.OrderItemINData listOrderItem = new TemplateDataIntegrationFields.OrderItemINData();
         listOrderItem.orderItemCode = '100';
         listOrderItem.orderExternalId = '100';
         listOrderItem.material = '100';
-        listOrderItem.productCode = '100';
+        //listOrderItem.productCode = '100';
         listOrderItem.quantidade = 1;
         listOrderItem.unidadeMedida = '1';
         listOrderItem.listaPreco = 2;
@@ -150,16 +154,17 @@ public with sharing class IntegrationINOrderItemAppdigitalTest {
         listOrderItem.porcentagemAcrescFin = 5;
         listOrderItem.valorAcrescFin = 5;
         listOrderItemList.add(listOrderItem);
-
+        
         List<TemplateDataIntegrationFields.ShippingDivisonINData> listShippingDivisonList = new List<TemplateDataIntegrationFields.ShippingDivisonINData>();
         TemplateDataIntegrationFields.ShippingDivisonINData listShippingDivison = new TemplateDataIntegrationFields.ShippingDivisonINData();
-        listShippingDivison.OrderItemCode = '';
+        listShippingDivison.orderExternalId = '001';
+        listShippingDivison.OrderItemCode = '100';
         listShippingDivison.DivisaoRemessa = 'Texto20';
         listShippingDivison.NumeroDivisaoRemessa = 'Texto21';
         listShippingDivison.Quantidade = 10.00;
         listShippingDivison.QuantidadeConfirmada = 20.00;
         listShippingDivisonList.add(listShippingDivison);
-        
+       
   
         List<TemplateDataIntegrationFields.OrderINData> listOrderList = new List<TemplateDataIntegrationFields.OrderINData>();
         TemplateDataIntegrationFields.OrderINData listOrder = new TemplateDataIntegrationFields.OrderINData();
@@ -194,6 +199,7 @@ public with sharing class IntegrationINOrderItemAppdigitalTest {
         IntegrationINOrderAppdigital.ResponseModel modelo = IntegrationINOrderAppdigital.upsertOrder(listOrderList);
         //IntegrationINOrderAppdigital.ResponseModel toPass = new IntegrationINOrderAppdigital.ResponseModel(modelo.response);
         System.debug(modelo);
+        
         //System.assertEquals(true, modelo.response[0].status, 'O status nesta situação deveria vir verdadeiro');
         //System.assertEquals(null, modelo.response[0].errorMessage, 'O erro nesta situação deveria vir nulo');
 //System.assertEquals(null, modelo.response[0].idSalesforce, 'O idSalesforce nesta situação deveria vir um Id');
