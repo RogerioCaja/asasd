@@ -186,7 +186,6 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             const data = JSON.parse(result);
             this.accountData = data.accountData;
             this.headerData = data.headerData;
-            //this.loadHeaderDataTitle();
             this.productData = data.productData;
             this.divisionData = data.divisionData;
             this.summaryData['observation'] = this.headerData.observation;
@@ -236,13 +235,6 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         })
     }
 
-    // loadHeaderDataTitle(){
-    //     this.headerDataTitle = {... this.headerData};    
-    //     this.headerDataTitle.tipo_venda = this.tiposVenda.find(element => element.value == this.headerData.tipo_venda).label;
-    //     this.headerDataTitle.data_pagamento = this.headerData.data_pagamento;
-    //     this.headerDataTitle.data_entrega = this.headerData.data_entrega ? this.headerData.data_entrega : null;
-           
-    // }
 
     connectedCallback() {
         //Importando estilo para esconder header padrão de página
@@ -253,26 +245,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     async loadVariable(){
         await this.recordId;
     }
-/*
-    getOrder(){
-        getOrder({orderId: this.recordId})
-        .then((result) => {
-            result = JSON.parse(result);
-            
-            this.showSpinner = false;
-            this.showLoadingDataMessage = false;
 
-            //Nenhum registro
-            if(result.length == 0){
-                this.showNoItemsMessage = true;
-            }
-            //Pelo menos um registro
-            else{
-                this.data = result;
-                this.showItems = true;
-            }
-        })
-    }*/
     async saveOrder(event){
         const mode = event.detail;
         await this.recordId;
@@ -316,7 +289,10 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
     _setAccountData(event) {
         try {
+            if(event.data.Id != this.accountData.id)
+                this.headerData.cliente_entrega = " "
             this.accountData = event.data;
+
             console.log('account data setted:', this.accountData);
         } catch (e) {
             console.log(e);
