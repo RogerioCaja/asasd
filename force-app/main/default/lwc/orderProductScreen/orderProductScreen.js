@@ -686,8 +686,8 @@ export default class OrderProductScreen extends LightningElement {
             unitPrice: this.headerData.IsOrderChild ? currentProduct.listPrice : currentProduct.unitPrice,
             totalPrice: this.headerData.IsOrderChild ? (currentProduct.listPrice * currentProduct.quantity) : currentProduct.totalPrice,
             costPrice: currentProduct.costPrice,
-            listCost: priorityInfos.listPrice,
-            practicedCost: priorityInfos.costPrice,
+            listCost: currentProduct.costPrice,
+            practicedCost: currentProduct.practicedCost,
             initialTotalValue: currentProduct.initialTotalValue,
             dosage: currentProduct.dosage,
             quantity: currentProduct.quantity,
@@ -854,7 +854,7 @@ export default class OrderProductScreen extends LightningElement {
         this.baseProducts = event.results.recordsDataList;
         this.productsPriceMap = event.results.recordsDataMap;
         this.salesInfos = event.results.salesResult;
-        this.message = event.message;
+        this.message = this.baseProducts.length > 0 ? false : event.message;
     }
 
     openCommodities(event) {
