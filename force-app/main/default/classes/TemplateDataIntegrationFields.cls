@@ -306,7 +306,6 @@ global with sharing class TemplateDataIntegrationFields {
                 OrderId = lookups.containsKey('Order'+this.orderExternalId) ? lookups.get('Order'+this.orderExternalId) : null,
                 Product2Id = lookups.containsKey('Product2'+this.material) ? lookups.get('Product2'+this.material) : null,
                 PricebookEntryId = lookups.containsKey('PricebookEntry'+ this.material) ? lookups.get('PricebookEntry' + this.material) : null,
-                ProductCode = this.material,
                 ExternalId__c = this.orderExternalId + '|' + this.orderItemCode,
                 Quantity = this.quantidade,
                 UnitMeasure__c = this.unidadeMedida,
