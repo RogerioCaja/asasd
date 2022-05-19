@@ -14,7 +14,7 @@ public with sharing class Lookup {
                 SELECT Id
                   FROM UserTerritory2Association
                  WHERE UserId =: UserInfo.getUserId()
-                   AND Territory2.Territory2Type.DeveloperName = 'SellerPosition'
+                   // AND Territory2.Territory2Type.DeveloperName = 'SellerPosition'
                    LIMIT 1
             ]) {
                 /* if (userAssociation.Territory2.Territory2Type.DeveloperName == 'SellerPosition') {
