@@ -735,10 +735,6 @@ public without sharing class OrderScreenController {
             }
         }
 
-        result.salesOrg = 'a0V1100000DsvEdEAJ';
-        result.salesOffice = 'a0U11000009tJAbEAM';
-        result.salesTeam = 'a0W11000009NcLkEAK';
-
         Map<String, Decimal> discountByFinancialInfos = new Map<String, Decimal>();
         for (JurosDescontoAntecipao__c financialDiscount : [
             SELECT Id,
