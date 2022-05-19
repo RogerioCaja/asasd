@@ -299,7 +299,6 @@ export default class OrderHeaderScreen extends LightningElement {
         .catch((err)=>{
             console.log(err);
         });
-    
     }
 
     loadDataHeader(){
