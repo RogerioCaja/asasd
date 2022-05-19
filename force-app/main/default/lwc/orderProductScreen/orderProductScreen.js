@@ -213,6 +213,8 @@ export default class OrderProductScreen extends LightningElement {
                     name: currentProduct.Name,
                     unity: currentProduct.unity,
                     listPrice: priorityInfos.listPrice,
+                    listCost: priorityInfos.costPrice,
+                    practicedCost: priorityInfos.costPrice,
                     dosage: currentProduct.dosage,
                     quantity: null,
                     unitPrice: priorityInfos.listPrice,
@@ -385,9 +387,12 @@ export default class OrderProductScreen extends LightningElement {
         this.addProduct.totalPrice = null;
 
         if (this.isFilled(this.addProduct.quantity) && this.isFilled(this.addProduct.listPrice)) {
-            this.addProduct.initialTotalValue = this.isFilled(this.addProduct.initialTotalValue) ? this.addProduct.initialTotalValue : this.addProduct.quantity * this.addProduct.listPrice;
+            let inicialTotalPrice = this.isFilled(this.addProduct.initialTotalValue) ? this.addProduct.initialTotalValue : this.addProduct.quantity * this.addProduct.listPrice;
+            // this.addProduct.initialTotalValue = this.isFilled(this.addProduct.initialTotalValue) ? this.addProduct.initialTotalValue : this.addProduct.quantity * this.addProduct.listPrice;
 
+            console.log('this.isFilled(this.addProduct.initialTotalValue): ' + this.isFilled(this.addProduct.initialTotalValue));
             if (!this.isFilled(this.addProduct.initialTotalValue)) {
+                this.addProduct.initialTotalValue = inicialTotalPrice;
                 this.calculateFinancialInfos();
                 this.addProduct.totalPrice = this.isFilled(this.addProduct.financialAdditionValue) ? (this.addProduct.totalPrice + Number(this.addProduct.financialAdditionValue)) : this.addProduct.totalPrice;
                 this.addProduct.totalPrice = this.isFilled(this.addProduct.financialDecreaseValue) ? (this.addProduct.totalPrice - Number(this.addProduct.financialDecreaseValue)) : this.addProduct.totalPrice;
@@ -438,7 +443,9 @@ export default class OrderProductScreen extends LightningElement {
 
     calculateFinancialInfos() {
         this.addProduct.totalPrice = this.isFilled(this.addProduct.initialTotalValue) ? this.addProduct.initialTotalValue : this.addProduct.quantity * this.addProduct.listPrice;
+        console.log('this.isFilled(this.addProduct.totalPrice): ' + this.isFilled(this.addProduct.totalPrice));
         if (this.isFilled(this.addProduct.totalPrice)) {
+            console.log('this.headerData.IsOrderChild: ' + this.headerData.IsOrderChild);;
             if (this.headerData.IsOrderChild) {
                 this.addProduct.financialAdditionPercentage = '0%';
                 this.addProduct.financialDecreasePercentage = '0%';
@@ -467,10 +474,23 @@ export default class OrderProductScreen extends LightningElement {
                 currentDiscountOrAddition = financialValues[defaultKey];
             }
 
+            currentDiscountOrAddition = (currentDiscountOrAddition / 30) * (this.financialInfos.dayDifference < 0 ? (this.financialInfos.dayDifference * -1) : this.financialInfos.dayDifference);
             this.addProduct.financialAdditionPercentage = this.financialInfos.correctPayment ? 0 : ((this.financialInfos.isDiscount ? 0 : currentDiscountOrAddition)) + '%';
             this.addProduct.financialDecreasePercentage = this.financialInfos.correctPayment ? 0 : ((this.financialInfos.isDiscount ? currentDiscountOrAddition : 0)) + '%';
             this.addProduct.financialAdditionValue = this.calculateValue(this.addProduct.financialAdditionPercentage, this.addProduct.totalPrice);
             this.addProduct.financialDecreaseValue = this.calculateValue(this.addProduct.financialDecreasePercentage, this.addProduct.totalPrice);
+            
+            console.log('this.addProduct.listCost: ' + this.addProduct.listCost);
+            this.addProduct.practicedCost = this.calculateValue(currentDiscountOrAddition + '%', this.addProduct.listCost);
+            console.log('this.addProduct.practicedCost: ' + this.addProduct.practicedCost);
+            if (!this.financialInfos.correctPayment) {
+                if (this.financialInfos.isDiscount) {
+                    this.addProduct.practicedCost = this.addProduct.listCost - this.addProduct.practicedCost;
+                } else {
+                    this.addProduct.practicedCost = this.addProduct.listCost + this.addProduct.practicedCost;
+                }
+            }
+            console.log('this.addProduct.practicedCost: ' + this.addProduct.practicedCost);
         }
     }
 
@@ -666,6 +686,8 @@ export default class OrderProductScreen extends LightningElement {
             unitPrice: this.headerData.IsOrderChild ? currentProduct.listPrice : currentProduct.unitPrice,
             totalPrice: this.headerData.IsOrderChild ? (currentProduct.listPrice * currentProduct.quantity) : currentProduct.totalPrice,
             costPrice: currentProduct.costPrice,
+            listCost: priorityInfos.listPrice,
+            practicedCost: priorityInfos.costPrice,
             initialTotalValue: currentProduct.initialTotalValue,
             dosage: currentProduct.dosage,
             quantity: currentProduct.quantity,
@@ -723,6 +745,8 @@ export default class OrderProductScreen extends LightningElement {
         if (this.products.length == 0) {
             this.showIncludedProducts = false;
         }
+
+        this._setData();
         this.showToast('success', 'Produto removido!', '');
     }
 
