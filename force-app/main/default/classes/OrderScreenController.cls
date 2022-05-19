@@ -62,6 +62,8 @@ public without sharing class OrderScreenController {
                    ListPrice,
                    UnitPrice,
                    FinalTotalValue__c,
+                   ListCost__c,
+                   PracticedCost__c,
                    Dosage__c,
                    toLabel(Status__c),
                    UnitMeasure__c,
@@ -468,6 +470,8 @@ public without sharing class OrderScreenController {
                     orderItem.Status__c = orderProduct.sapStatus != null ? statusValueByLabel.get(orderProduct.sapStatus) : null;
                     orderItem.UnitMeasure__c = orderProduct.unity;
                     orderItem.FinalTotalValue__c = orderProduct.totalPrice;
+                    orderItem.ListCost__c = orderProduct.listCost;
+                    orderItem.PracticedCost__c = orderProduct.practicedCost;
                     orderItem.DiscountPercent__c = orderProduct.commercialDiscountPercentage != '' ? stringToDecimal(orderProduct.commercialDiscountPercentage) : 0;
                     orderItem.DiscountValue__c = orderProduct.commercialDiscountValue;
                     orderItem.CommercialAdditionPercent__c = orderProduct.commercialAdditionPercentage != '' ? stringToDecimal(orderProduct.commercialAdditionPercentage) : 0;
@@ -654,6 +658,7 @@ public without sharing class OrderScreenController {
         FinancialResult result = new FinancialResult();
         OrderDataDeserialize orderValues = (OrderDataDeserialize) JSON.deserialize(data, OrderDataDeserialize.class);
         
+        System.debug('orderValues.safra: ' + orderValues.safra);
         Date safraPaymentDate;
         for (Safra__c safra : [
             SELECT Id,
@@ -662,7 +667,14 @@ public without sharing class OrderScreenController {
              WHERE Id =: orderValues.safra
         ]) {
             safraPaymentDate = safra.PaymentBaseDate__c;
+            System.debug('safraPaymentDate: ' + safraPaymentDate);
         }
+
+        System.debug('orderValues.paymentDate: ' + orderValues.paymentDate);
+        result.dayDifference = safraPaymentDate.daysBetween(Date.valueOf(orderValues.paymentDate));
+        if (result.dayDifference == 0) result.correctPayment = true;
+        else if (result.dayDifference > 0) result.isDiscount = false;
+        else result.isDiscount = true;
 
         result.correctPayment = Date.valueOf(orderValues.paymentDate) == safraPaymentDate ? true : false;
         result.isDiscount = Date.valueOf(orderValues.paymentDate) > safraPaymentDate ? false : true;
@@ -742,7 +754,7 @@ public without sharing class OrderScreenController {
                AND EndDate__c >=: System.today()
                AND SalesOrg__c =: result.salesOrg
                AND harvest__c =: orderValues.safra
-               AND AccountType__c =: companyGroup
+               // AND AccountType__c =: companyGroup
         ]) {
             System.debug('financialDiscount: ' + financialDiscount);
             String key = financialDiscount.SalesOrg__c + '-' + financialDiscount.harvest__c;
@@ -925,6 +937,8 @@ public without sharing class OrderScreenController {
         public Decimal motherAvailableQuantity;
         public Decimal quantity;
         public Decimal listPrice;
+        public Decimal listCost;
+        public Decimal practicedCost;
         public Decimal unitPrice;
         public Decimal totalPrice;
         public Decimal dosage;
@@ -1157,6 +1171,8 @@ public without sharing class OrderScreenController {
         public Decimal listPrice;
         public Decimal unitPrice;
         public Decimal totalPrice;
+        public Decimal listCost;
+        public Decimal practicedCost;
         public Decimal dosage;
         public Decimal commercialDiscountValue;
         public Decimal commercialAdditionValue;
@@ -1186,6 +1202,8 @@ public without sharing class OrderScreenController {
             this.listPrice = orderItem.ListPrice;
             this.unitPrice = orderItem.UnitPrice;
             this.totalPrice = orderItem.FinalTotalValue__c;
+            this.listCost = orderItem.ListCost__c;
+            this.practicedCost = orderItem.PracticedCost__c;
             this.dosage = orderItem.Dosage__c;
             this.sapStatus = orderItem.Status__c;
             this.unity = orderItem.UnitMeasure__c;
@@ -1266,6 +1284,7 @@ public without sharing class OrderScreenController {
         public String  salesOrg;
         public String  salesOffice;
         public String  salesTeam;
+        public Integer dayDifference;
         public Boolean isDiscount;
         public Boolean correctPayment;
         public Map<String, Decimal> financialValues;
@@ -1275,6 +1294,7 @@ public without sharing class OrderScreenController {
         public String  salesOrg;
         public String  salesOffice;
         public String  salesTeam;
+        public Integer dayDifference;
         public Boolean isDiscount;
         public Boolean correctPayment;
         public Map<String, Decimal> financialValues;
@@ -1282,11 +1302,12 @@ public without sharing class OrderScreenController {
         FinancialResultSerialize() {}
 
         FinancialResultSerialize(FinancialResult financialResult) {
-            this.isDiscount = financialResult.isDiscount;
-            this.correctPayment = financialResult.correctPayment;
             this.salesOrg = financialResult.salesOrg;
             this.salesOffice = financialResult.salesOffice;
             this.salesTeam = financialResult.salesTeam;
+            this.dayDifference = financialResult.dayDifference;
+            this.isDiscount = financialResult.isDiscount;
+            this.correctPayment = financialResult.correctPayment;
             this.financialValues = financialResult.financialValues;
         }
     }
