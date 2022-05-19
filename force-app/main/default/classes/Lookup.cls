@@ -17,11 +17,12 @@ public with sharing class Lookup {
                    AND Territory2.Territory2Type.DeveloperName = 'SellerPosition'
                    LIMIT 1
             ]) {
-                if (userAssociation.Territory2.Territory2Type.DeveloperName == 'SellerPosition') {
+                /* if (userAssociation.Territory2.Territory2Type.DeveloperName == 'SellerPosition') {
                     userRelatedToTerritory = true;
                 } else {
                     
-                }
+                } */
+                userRelatedToTerritory = true;
             }
 
             Set<Id> relatedUsers = new Set<Id>();
@@ -43,7 +44,7 @@ public with sharing class Lookup {
                            UserId
                       FROM UserTerritory2Association
                      WHERE Territory2Id IN: relatedTerritories
-                       AND Territory2.Territory2Type.DeveloperName = 'SellerPosition'
+                       // AND Territory2.Territory2Type.DeveloperName = 'SellerPosition'
                    ]) {
                     relatedUsers.add(userAssociation.UserId);
                 }
