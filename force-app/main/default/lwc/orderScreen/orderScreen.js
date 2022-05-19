@@ -289,8 +289,11 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
     _setAccountData(event) {
         try {
-            if(event.data.Id != this.accountData.id)
+            if(event.data.Id != this.accountData.id){
                 this.headerData.cliente_entrega = " "
+                this.headerData.ctv_venda = " "
+                this.headerData.status_pedido = "Em digitação"
+            }
             this.accountData = event.data;
 
             console.log('account data setted:', this.accountData);
