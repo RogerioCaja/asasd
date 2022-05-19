@@ -726,11 +726,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>JurosDescontoAntecipao__c.StartDate__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
         <field>JurosDescontoAntecipao__c.UnitMeasurement__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1246,11 +1241,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>OrderItem.ListCost__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
         <field>OrderItem.ListPrice</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1262,11 +1252,6 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>OrderItem.PercentComission__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>OrderItem.PracticedCost__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
