@@ -7,7 +7,7 @@ public with sharing class Lookup {
 
         String query = getQueryBase(requestData);
 
-        /* Set<Id> availableCtvs = new Set<Id>();
+        Set<Id> availableCtvs = new Set<Id>();
         if (requestData.targetObject == 'User') {
             Boolean userRelatedToTerritory = false;
             for (UserTerritory2Association userAssociation : [
@@ -45,7 +45,7 @@ public with sharing class Lookup {
 
             System.debug('relatedUsers: ' + relatedUsers);
             query += ' AND Id IN: relatedUsers';
-        } */
+        }
 
         System.debug(query);
         query += ' LIMIT 25';
