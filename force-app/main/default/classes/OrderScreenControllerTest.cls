@@ -202,7 +202,7 @@ public class OrderScreenControllerTest {
         OrderScreenController.SummarySerialize summary = new OrderScreenController.SummarySerialize('Observation', 'Observation Sales');
 
         String data = JSON.serialize(new OrderScreenController.OrderSerializeAll(order, ordItemList, divisionList, account, summary));
-        OrderScreenController.saveOrder(null, false, data);
+        OrderScreenController.saveOrder(null, false, data, '');
         OrderScreenController.approvals(data);
     }
 

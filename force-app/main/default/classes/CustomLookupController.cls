@@ -72,7 +72,6 @@ public without sharing class CustomLookupController {
     @AuraEnabled
     public static ProductDataResult fetchProductsRecords(String searchString, String data, Boolean isCommodity) {
         try {
-            System.debug('isCommodity: ' + isCommodity);
             ProductDataResult result = new ProductDataResult();
             ProductParams productParams = (ProductParams) JSON.deserialize(data, ProductParams.class);
             System.debug('productParams: ' + productParams);
