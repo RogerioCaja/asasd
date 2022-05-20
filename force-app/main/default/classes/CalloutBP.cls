@@ -12,8 +12,8 @@ public with sharing class CalloutBP {
             System.debug('resp: '+ resp);
             Map<String, Id> lookups = new Map<String, Id>();
             List<String> accountIdsList = new List<String>();
+            List<String> userCodigoSapList = new List<String>();
             for(ResponseParametersWrapper valor : resp.responses){
-                
                 accountIdsList.add(valor.CodigoExterno);
             }
             System.debug('accountIdsList: '+ accountIdsList);
@@ -28,6 +28,7 @@ public with sharing class CalloutBP {
                     creditoList.add(cred);
                 }
                 for(CompanyINData company : valor.EstruturaOrganizacional){
+                    userCodigoSapList.add(company.Partner);
                     company.CodigoExternoAccount = valor.CodigoExterno;
                     companyList.add(company);
                 }
@@ -59,6 +60,8 @@ public with sharing class CalloutBP {
             if (!accountList.isEmpty()) {
                 upsert accountList ExternalId__c;
             }
+            creatyAccountTerrytoryAssossiation(accountList, userCodigoSapList, resp);
+
             for(Account acc : accountList){
                 lookups.put('Account__c' + acc.ExternalId__c, acc.Id);
             }
@@ -140,6 +143,37 @@ public with sharing class CalloutBP {
             lookups.put('Safra__c' + safra.Code__c, safra.Id);
         }
         return lookups;
+    }
+    public static void creatyAccountTerrytoryAssossiation(List<Account> accountList, List<String> userCodigoSapList, ResponseParameters resp){
+        Map<String, Id> accountExternalIdMap = new Map<String, Id>();
+        for(Account acc : accountList){
+            accountExternalIdMap.put(acc.ExternalId__c, acc.Id);
+        }
+        List<User> userList = new List<User>([SELECT Id, CodigoSap__c FROM User WHERE CodigoSap__c =: userCodigoSapList]);
+        List<String> userIdsList = new List<String>();
+        for(User user : userList){
+            userIdsList.add(user.Id);
+        }
+        List<UserTerritory2Association> userTerrytoryList = new List<UserTerritory2Association>([SELECT Id, UserId, User.CodigoSap__c, Territory2Id  FROM UserTerritory2Association WHERE UserId =: userIdsList]);
+        Map<String, UserTerritory2Association> userTerrytoryMap = new Map<String, UserTerritory2Association>();
+        
+        
+        for(UserTerritory2Association userTerrytory : userTerrytoryList){
+            userTerrytoryMap.put(userTerrytory.User.CodigoSap__c, userTerrytory);
+        }
+
+        List<ObjectTerritory2Association> objectTerritoryList = new List<ObjectTerritory2Association>();
+        for(ResponseParametersWrapper valor : resp.responses){
+            for(CompanyINData company : valor.EstruturaOrganizacional){
+                UserTerritory2Association userTerrytory = userTerrytoryMap.get(company.Partner);
+                String accountId = accountExternalIdMap.get(valor.CodigoExterno);
+                ObjectTerritory2Association objObjectTerritory2Association = new ObjectTerritory2Association(ObjectId = accountId, Territory2Id = userTerrytory.Territory2Id, AssociationCause='Territory2Manual');
+                objectTerritoryList.add(objObjectTerritory2Association);
+            }
+        }
+        if (!objectTerritoryList.isEmpty()) {
+            upsert objectTerritoryList;
+        }
     }
     public static void creatyCompany(List<CompanyINData> companyList, Map<String, Id> lookups){
         
@@ -338,6 +372,8 @@ public with sharing class CalloutBP {
     }
 
     public class CompanyINData{
+    
+    public String Partner;
     public String CodigoExternoAccount;    
     public String OrganizacaoVendas;
     public String SetorAtividade;
