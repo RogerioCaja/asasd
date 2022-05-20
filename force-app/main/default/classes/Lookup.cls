@@ -33,9 +33,7 @@ public with sharing class Lookup {
 
             Set<Id> relatedTerritories = new Set<Id>();
             if (!userRelatedToTerritory) {
-                System.debug('userTerritoryType: ' + userTerritoryType);
                 String territoryQuery = 'SELECT Id, Territory2Type.DeveloperName FROM Territory2 WHERE ';
-                System.debug('territoryQuery: ' + territoryQuery);
                 if (userTerritoryType == 'Torre') territoryQuery += 'ParentTerritory2.ParentTerritory2.ParentTerritory2.ParentTerritory2Id IN: userTerritories';
                 else if (userTerritoryType == 'SalesOrg') territoryQuery += 'ParentTerritory2.ParentTerritory2.ParentTerritory2Id IN: userTerritories';
                 else if (userTerritoryType == 'SalesOffice') territoryQuery += 'ParentTerritory2.ParentTerritory2Id IN: userTerritories';
