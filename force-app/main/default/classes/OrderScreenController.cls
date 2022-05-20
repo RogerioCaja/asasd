@@ -943,6 +943,7 @@ public without sharing class OrderScreenController {
         public Decimal unitPrice;
         public Decimal totalPrice;
         public Decimal dosage;
+        //
         public Decimal commercialDiscountValue;
         public Decimal commercialAdditionValue;
         public Decimal financialAdditionValue;
