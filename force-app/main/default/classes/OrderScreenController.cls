@@ -407,7 +407,7 @@ public without sharing class OrderScreenController {
             order.DescriptionBillingSale__c = orderData.summaryData.billing_sale_observation;
             order.OrderReference__c = orderData.headerData.pedido_mae.Id;
             order.IsOrderMother__c = Boolean.valueOf(orderData.headerData.pedido_mae_check);
-            order.FinalTotalValue__c = orderTotalValue.setScale(4);
+            order.FinalTotalValue__c = orderTotalValue != null ? orderTotalValue.setScale(4) : 0;
             order.Company__c = companyId;
 
             Map<Id, OrderItem> motherItems = new Map<Id, OrderItem>();
@@ -450,8 +450,8 @@ public without sharing class OrderScreenController {
                         orderItem.OrderId = order.Id;
                         orderItem.PricebookEntryId = entriesByProductsIds.get(orderProduct.productId).Id;
                         orderItem.Product2Id = orderProduct.productId;
-                        // orderItem.ListPrice = orderProduct.listPrice;
-                        orderItem.ListPrice = entriesByProductsIds.get(orderProduct.productId).UnitPrice.setScale(2);
+                        orderItem.ListPrice = entriesByProductsIds.get(orderProduct.productId).UnitPrice != null ? entriesByProductsIds.get(orderProduct.productId).UnitPrice.setScale(2) : 0;
+                        orderItem.UnitPrice = orderProduct.unitPrice != null ? orderProduct.unitPrice.setScale(4) : 0;
                         orderItem.AmountUsed__c = order.IsOrderMother__c ? 0 : null;
                         orderItem.ServiceDate = System.today();
                         itemCounter++;
@@ -465,26 +465,27 @@ public without sharing class OrderScreenController {
 
                     
                     orderItem.Quantity = orderProduct.quantity;
-                    orderItem.UnitPrice = orderProduct.unitPrice.setScale(2);
-                    orderItem.Dosage__c = orderProduct.dosage.setScale(2);
+                    orderItem.ListPrice__c = orderProduct.listPrice != null ? orderProduct.listPrice.setScale(4) : 0;
+                    orderItem.PracticedPrice__c = orderProduct.unitPrice != null ? orderProduct.unitPrice.setScale(4) : 0;
+                    orderItem.Dosage__c = orderProduct.dosage != null ? orderProduct.dosage.setScale(2) : 0;
                     orderItem.Status__c = orderProduct.sapStatus != null ? statusValueByLabel.get(orderProduct.sapStatus) : null;
                     orderItem.UnitMeasure__c = orderProduct.unity;
                     orderItem.FinalTotalValue__c = orderProduct.totalPrice;
-                    orderItem.ListCost__c = orderProduct.listCost.setScale(4);
-                    orderItem.PracticedCost__c = orderProduct.practicedCost.setScale(4);
-                    orderItem.DiscountPercent__c = orderProduct.commercialDiscountPercentage != '' ? stringToDecimal(orderProduct.commercialDiscountPercentage).setScale(2) : 0;
-                    orderItem.DiscountValue__c = orderProduct.commercialDiscountValue.setScale(4);
-                    orderItem.CommercialAdditionPercent__c = orderProduct.commercialAdditionPercentage != '' ? stringToDecimal(orderProduct.commercialAdditionPercentage).setScale(4) : 0;
-                    orderItem.CommercialAdditionValue__c = orderProduct.commercialAdditionValue.setScale(4);
-                    orderItem.FinancialAdditionPercent__c = orderProduct.financialAdditionPercentage != '' ? stringToDecimal(orderProduct.financialAdditionPercentage).setScale(4) : 0;
-                    orderItem.FinancialAdditionValue__c = orderProduct.financialAdditionValue.setScale(4);
-                    orderItem.FinancialDiscountPercent__c = orderProduct.financialDecreasePercentage != '' ? stringToDecimal(orderProduct.financialDecreasePercentage).setScale(4) : 0;
-                    orderItem.FinancialDiscountValue__c = orderProduct.financialDecreaseValue.setScale(4);
+                    orderItem.ListCost__c = orderProduct.listCost != null ? orderProduct.listCost.setScale(4) : 0;
+                    orderItem.PracticedCost__c = orderProduct.practicedCost != null ? orderProduct.practicedCost.setScale(4) : 0;
+                    orderItem.DiscountPercent__c = orderProduct.commercialDiscountPercentage != '' ? (stringToDecimal(orderProduct.commercialDiscountPercentage) != null ? stringToDecimal(orderProduct.commercialDiscountPercentage).setScale(2) : 0) : 0;
+                    orderItem.DiscountValue__c = orderProduct.commercialDiscountValue != null ? orderProduct.commercialDiscountValue.setScale(4) : 0;
+                    orderItem.CommercialAdditionPercent__c = orderProduct.commercialAdditionPercentage != '' ? (stringToDecimal(orderProduct.commercialAdditionPercentage) != null ? stringToDecimal(orderProduct.commercialAdditionPercentage).setScale(4) : 0) : 0;
+                    orderItem.CommercialAdditionValue__c = orderProduct.commercialAdditionValue != null ? orderProduct.commercialAdditionValue.setScale(4) : 0;
+                    orderItem.FinancialAdditionPercent__c = orderProduct.financialAdditionPercentage != '' ? (stringToDecimal(orderProduct.financialAdditionPercentage) != null ? stringToDecimal(orderProduct.financialAdditionPercentage).setScale(4) : 0) : 0;
+                    orderItem.FinancialAdditionValue__c = orderProduct.financialAdditionValue != null ? orderProduct.financialAdditionValue.setScale(4) : 0;
+                    orderItem.FinancialDiscountPercent__c = orderProduct.financialDecreasePercentage != '' ? (stringToDecimal(orderProduct.financialDecreasePercentage) != null ? stringToDecimal(orderProduct.financialDecreasePercentage).setScale(4) : 0) : 0;
+                    orderItem.FinancialDiscountValue__c = orderProduct.financialDecreaseValue != null ? orderProduct.financialDecreaseValue.setScale(4) : 0;
                     orderItem.ComissionValue__c = orderProduct.comissionValue != null ? orderProduct.comissionValue.setScale(2) : 0;
-                    orderItem.CommercialMargin__c = orderProduct.commercialMarginPercentage.setScale(4);
+                    orderItem.CommercialMargin__c = orderProduct.commercialMarginPercentage != null ? orderProduct.commercialMarginPercentage.setScale(4) : 0;
                     orderItem.PercentComission__c = orderProduct.productGroupId != null ?
                                                     (commissionByGroup.get(orderProduct.productGroupId) != null ?
-                                                        commissionByGroup.get(orderProduct.productGroupId).CommissionPercentage__c.setScale(2) :
+                                                        (commissionByGroup.get(orderProduct.productGroupId).CommissionPercentage__c != null ? commissionByGroup.get(orderProduct.productGroupId).CommissionPercentage__c.setScale(2) : 0) :
                                                         0
                                                     ) :
                                                     0;
