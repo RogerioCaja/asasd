@@ -5,30 +5,5 @@
     <label>Tipo de Produto</label>
     <required>false</required>
     <trackHistory>false</trackHistory>
-    <type>Picklist</type>
-    <valueSet>
-        <valueSetDefinition>
-            <sorted>false</sorted>
-            <value>
-                <fullName>ZCOM</fullName>
-                <default>false</default>
-                <label>Commodity</label>
-            </value>
-            <value>
-                <fullName>HAWA</fullName>
-                <default>false</default>
-                <label>Produto de Revenda</label>
-            </value>
-            <value>
-                <fullName>FERT</fullName>
-                <default>false</default>
-                <label>Produto Acabado</label>
-            </value>
-            <value>
-                <fullName>DIEN</fullName>
-                <default>false</default>
-                <label>Serviços</label>
-            </value>
-        </valueSetDefinition>
-    </valueSet>
+    <type>TextArea</type>
 </CustomField>
