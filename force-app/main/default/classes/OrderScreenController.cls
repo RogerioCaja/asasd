@@ -404,7 +404,7 @@ public without sharing class OrderScreenController {
             order.DescriptionBillingSale__c = orderData.summaryData.billing_sale_observation;
             order.OrderReference__c = orderData.headerData.pedido_mae.Id;
             System.debug('orderData.headerData.pedido_mae.Id: ' + orderData.headerData.pedido_mae.Id);
-            order.IsOrderMother__c = Boolean.valueOf(orderData.headerData.pedido_mae_check);
+            order.IsOrderMother__c = orderData.headerData.pedido_mae.Id != null ? false : Boolean.valueOf(orderData.headerData.pedido_mae_check);
             order.FinalTotalValue__c = orderTotalValue;
             order.Company__c = companyId;
             order.OrderType__c = orderData.headerData.pedido_mae.Id != null ? 'Pedido Filho' : (order.IsOrderMother__c ? 'Pedido Mãe' : 'Pedido Normal');

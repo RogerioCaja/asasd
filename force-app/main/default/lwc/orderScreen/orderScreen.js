@@ -199,6 +199,21 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.isLoading = false;
             this.cloneData.cloneOrder = this.clone.cloneOrder;
             this.headerData.condicao_venda = this.headerData.condicao_venda != null ? this.headerData.condicao_venda : ' ';
+            
+            if (this.childOrder) {
+                console.log('this.headerData.pedido_mae_check: ' + this.headerData.pedido_mae_check);
+                if (!this.headerData.pedido_mae_check) {
+                    this.showNotification('Só é possível gerar pedidos filhos a partir de um pedido mãe', 'Atenção!', 'warning');
+                    this[NavigationMixin.Navigate]({
+                        type: 'standard__recordPage',
+                        attributes: {
+                            recordId: this.recordId,
+                            objectApiName: 'Order',
+                            actionName: 'view'
+                        }
+                    });
+                }
+            }
             // this.cloneData.pricebookListId = this.headerData.condicao_venda != ' ' ?  this.headerData.condicao_venda.Id : '';
         })
         .catch((err)=>{
@@ -454,6 +469,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             console.log(e);
         }
     }
+
 
     showNotification(message, title, variant = 'warning') {
         const evt = new ShowToastEvent({
