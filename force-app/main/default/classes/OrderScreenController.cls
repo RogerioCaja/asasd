@@ -366,7 +366,7 @@ public without sharing class OrderScreenController {
             Id activitySectorId;
             Id distributionChannelId;
             if (salesTeamTerritory != null && salesTeamTerritory.DeveloperName != null) {
-                String salesTeamDevName = salesTeamTerritory.DeveloperName.substring(1, salesTeamTerritory.DeveloperName.length());
+                String salesTeamDevName = salesTeamTerritory.DeveloperName.substring(0, 1) == 'X' ? salesTeamTerritory.DeveloperName.substring(1, salesTeamTerritory.DeveloperName.length()) : salesTeamTerritory.DeveloperName;
                 for (Company__c salesTeamCompany : [
                     SELECT Id,
                            SalesOrg__c,
