@@ -23,6 +23,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     @api originScreen;
     @api recordTypeId;
     @api clone;
+    @api childOrder;
     @track cloneData = {
         cloneOrder: false
     };
@@ -146,8 +147,10 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         this.checkPreviousNextBtn();
         this.changeStyle();
         if(this.originScreen.includes('Order')){
-            if(this.recordId)
+            if(this.recordId) {
+                this.headerData.pedido_mae = {Id: this.recordId, Name: ''};
                 this.getOrder();
+            }
         }else if(this.originScreen.includes('Account')){
             this.getAccount();
         }
@@ -281,7 +284,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         this.isLoading = true;
         //console.log(data);
         saveOrder({
-            orderId: (this.recordId && this.originScreen.includes('Order')) ? this.recordId : null,
+            orderId: (this.recordId && this.originScreen.includes('Order') && !this.childOrder) ? this.recordId : null,
             cloneOrder: this.cloneData.cloneOrder,
             data: JSON.stringify(data)
         })
@@ -329,6 +332,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
     _setHeaderData(event) {
         this.headerData = event.data;
+        this.headerData.IsOrderChild = this.childOrder;
         // if(this.headerData.IsOrderChild) this.getOrderMother(this.headerData.pedido_mae.Id, this.headerData.pedido_mae.Name);
         console.log('header data setted:', this.headerData);
         this.enableNextScreen();

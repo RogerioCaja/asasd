@@ -119,6 +119,7 @@ public without sharing class CustomLookupController {
                   FROM OrgVProduct__c
                  WHERE Product__c IN: productsPriceById.keySet()
                    AND SalesOrg__c =: salesResult.salesOrgId
+                   AND Status__c = 'Adicionada'
             ]) {
                 prodsId.add(orgVProduct.Product__c);
             }
