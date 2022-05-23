@@ -23,6 +23,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     @api originScreen;
     @api recordTypeId;
     @api clone;
+    @api childOrder;
     @track cloneData = {
         cloneOrder: false
     };
@@ -146,8 +147,10 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         this.checkPreviousNextBtn();
         this.changeStyle();
         if(this.originScreen.includes('Order')){
-            if(this.recordId)
+            if(this.recordId) {
+                this.headerData.pedido_mae = {Id: this.recordId, Name: ''};
                 this.getOrder();
+            }
         }else if(this.originScreen.includes('Account')){
             this.getAccount();
         }
@@ -195,6 +198,21 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.isLoading = false;
             this.cloneData.cloneOrder = this.clone.cloneOrder;
             this.headerData.condicao_venda = this.headerData.condicao_venda != null ? this.headerData.condicao_venda : ' ';
+            
+            if (this.childOrder) {
+                console.log('this.headerData.pedido_mae_check: ' + this.headerData.pedido_mae_check);
+                if (!this.headerData.pedido_mae_check) {
+                    this.showNotification('Só é possível gerar pedidos filhos a partir de um pedido mãe', 'Atenção!', 'warning');
+                    this[NavigationMixin.Navigate]({
+                        type: 'standard__recordPage',
+                        attributes: {
+                            recordId: this.recordId,
+                            objectApiName: 'Order',
+                            actionName: 'view'
+                        }
+                    });
+                }
+            }
             // this.cloneData.pricebookListId = this.headerData.condicao_venda != ' ' ?  this.headerData.condicao_venda.Id : '';
         })
         .catch((err)=>{
@@ -254,7 +272,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         this.isLoading = true;
         //console.log(data);
         saveOrder({
-            orderId: (this.recordId && this.originScreen.includes('Order')) ? this.recordId : null,
+            orderId: (this.recordId && this.originScreen.includes('Order') && !this.childOrder) ? this.recordId : null,
             cloneOrder: this.cloneData.cloneOrder,
             data: JSON.stringify(data),
             typeOrder: mode
@@ -306,7 +324,8 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
     _setHeaderData(event) {
         this.headerData = event.data;
-        if(this.headerData.IsOrderChild) this.getOrderMother(this.headerData.pedido_mae.Id, this.headerData.pedido_mae.Name);
+        this.headerData.IsOrderChild = this.childOrder;
+        // if(this.headerData.IsOrderChild) this.getOrderMother(this.headerData.pedido_mae.Id, this.headerData.pedido_mae.Name);
         console.log('header data setted:', this.headerData);
         this.enableNextScreen();
         this.completeCurrentScreen();
@@ -427,6 +446,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             console.log(e);
         }
     }
+
 
     showNotification(message, title, variant = 'warning') {
         const evt = new ShowToastEvent({

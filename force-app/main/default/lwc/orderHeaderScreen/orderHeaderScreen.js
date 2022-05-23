@@ -354,12 +354,12 @@ export default class OrderHeaderScreen extends LightningElement {
                     if(field == 'safra'){
                         this.setDateLimit(record.Id);
                     }
-                    if(field == 'pedido_mae') { 
+                    /* if(field == 'pedido_mae') { 
                         this.headerDictLocale.IsOrderChild = true; 
                         this.pass = true; 
                         this.disabled = true;
                         this._setData();
-                    }
+                    } */
                 }
             }  
         }
@@ -386,7 +386,7 @@ export default class OrderHeaderScreen extends LightningElement {
         try{
             var field = event.target.name;
             this.headerDictLocale[field] = {};
-            this.headerDictLocale.IsOrderChild = field == 'pedido_mae' ? false : null;
+            // this.headerDictLocale.IsOrderChild = field == 'pedido_mae' ? false : null;
             this._setData();
         }catch(err){
             console.log(err);
