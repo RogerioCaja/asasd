@@ -122,11 +122,17 @@ public without sharing class CustomLookupController {
                 prodsId.add(orgVProduct.Product__c);
             }
 
-            String productType = isCommodity ? 'ZCOM' : 'HAWA';
+            Set<String> normalSale = new Set<String>{'HAWA', 'FERT'};
+            String productType = isCommodity ? 'ZCOM' : (productParams.orderType == 'Venda de Serviço' ? 'DIEN' : (productParams.orderType == 'Venda Barter' ? 'HAWA' : ''));
+            
             String productQuery = 'SELECT Id, Name, ExternalId__c, QuantityUnitOfMeasure, ProductGroup__c, ProductGroup__r.Name, PrincipleActive__c, Multiplicity__c' +
                                   '  FROM Product2' +
                                   ' WHERE Id IN:prodsId' +
-                                  '   AND ProductType__c =: productType' +
+                                  (
+                                    productType == '' ? 
+                                        ' AND ProductType__c IN: normalSale' :
+                                        ' AND ProductType__c =: productType'
+                                  ) +
                                   '   AND ('+
                                   '            Name LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\'' +
                                   '         OR ProductGroup__r.Name LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\'' +
@@ -264,7 +270,7 @@ public without sharing class CustomLookupController {
             Territory2 salesTeamTerritory = territoryAndParents.get(territoryAndParents.get(userTerritoryId).ParentTerritory2Id);
             
             if (salesTeamTerritory != null && salesTeamTerritory.DeveloperName != null) {
-                String salesTeamDevName = salesTeamTerritory.DeveloperName.substring(1, salesTeamTerritory.DeveloperName.length());
+                String salesTeamDevName = salesTeamTerritory.DeveloperName.substring(0, 1) == 'X' ? salesTeamTerritory.DeveloperName.substring(1, salesTeamTerritory.DeveloperName.length()) : salesTeamTerritory.DeveloperName;
                 for (Company__c salesTeamCompany : [
                     SELECT Id,
                            SalesOrg__c,
