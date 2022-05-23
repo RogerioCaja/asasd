@@ -19,7 +19,8 @@ global with sharing class IntegrationINShippingDivisonAppdigital {
             // Pega a relação do OrderItem com Order
             //Getting order parameters to search
             orderLookups.add(ShippingDivisonINData.NumeroDivisaoRemessa);
-            orderItemLookups.add(ShippingDivisonINData.orderExternalId+'|'+ ShippingDivisonINData.OrderItemCode);
+            //orderItemLookups.add(ShippingDivisonINData.orderExternalId+'|'+ ShippingDivisonINData.OrderItemCode);
+            orderItemLookups.add(ShippingDivisonINData.OrderItemCode);
 
             // Pega a relação do Product com o OrderItem
             //Getting product parameters to search

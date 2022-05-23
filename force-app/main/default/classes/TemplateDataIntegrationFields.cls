@@ -43,11 +43,11 @@ global with sharing class TemplateDataIntegrationFields {
         public JurosDescontoAntecipao__c serialize(Map<String, Id> lookups){
             return new JurosDescontoAntecipao__c(
                 AccountType__c = this.accountGroup,
-                ConditionType__c = this.typeCondition == 'ZPR0' ? 'Preço' : this.typeCondition == 'ZDAN'? 'Desconto' : 'Juros',
-                RecordTypeId = [SELECT Id FROM RecordType WHERE DeveloperName =: this.typeCondition][0].Id,
+                ConditionType__c = this.typeCondition == 'ZPR0' ||  this.typeCondition == 'ZPRS' ? 'Preço' : this.typeCondition == 'ZDAN'? 'Desconto' : 'Juros',
+                RecordTypeId = [SELECT Id FROM RecordType WHERE DeveloperName =: this.typeCondition == 'ZPRS' ? 'ZPR0' :  this.typeCondition ][0].Id,
                 Culture__c = lookups.containsKey('Cultura__c'+this.cultureCode) ? lookups.get('Cultura__c'+this.cultureCode) : null,
                 DistributionCenter__c =lookups.containsKey('DistributionCenter__c'+this.center) ? lookups.get('DistributionCenter__c'+this.center) : null,
-                EndDate__c = this.endDate != null ? Date.valueOf(this.endDate) : null,
+                EndDate__c = this.endDate != null ? (Date.valueOf(this.endDate.contains('9999') ? this.endDate.replace('9999','2999') : this.endDate )) : null,
                 // ExternalId__c = this.orgVendas + this.cropCode  + this.typeCurrency +  this.product + this.salesCondition  + this.productGroup + this.salesOffice  + this.cultureCode + this.accountGroup +  this.accountCode  + this.product + this.salesTeam  + this.product, // A estrutura está acima ^^^^
                 ExternalId__c = this.externalId,
                 harvest__c = lookups.containsKey('Safra__c'+this.cropCode) ? lookups.get('Safra__c'+this.cropCode) : null,
@@ -56,14 +56,15 @@ global with sharing class TemplateDataIntegrationFields {
                 SalesOffice__c = lookups.containsKey('SalesOffice__c'+this.salesOffice) ? lookups.get('SalesOffice__c'+this.salesOffice) : null,
                 SalesOrg__c = lookups.containsKey('SalesOrg__c'+this.orgVendas) ? lookups.get('SalesOrg__c'+this.orgVendas) : null,
                 SalesTeam__c = lookups.containsKey('SalesTeam__c'+this.salesTeam) ? lookups.get('SalesTeam__c'+this.salesTeam) : null,
-                StartDate__c = this.initialDate != null ? Date.valueOf(this.initialDate) : null,
+                StartDate__c = this.initialDate != null ? (Date.valueOf(this.initialDate.contains('9999') ? this.initialDate.replace('9999','2999') : this.initialDate )) : null,
                 Account__c = lookups.containsKey('Account'+this.accountCode) ? lookups.get('Account'+this.accountCode) : null,
                 Currency__c = this.typeCurrency,
                 SalesCondition__c = lookups.containsKey('SalesCondition__c'+this.salesCondition) ? lookups.get('SalesCondition__c'+this.salesCondition) : null, 
                 ProductMultiplier__c = 1,
                 UnitMeasurement__c = this.unitMeasurement != null ? this.unitMeasurement : null,
-                UnitPrice__c = (this.typeCurrency == 'BRL' || this.typeCurrency == 'USD') ? Decimal.valueOf(this.unitPrice) : null,
-                Percentage__c = this.typeCurrency == '%' ? Decimal.valueOf(this.unitPrice) : null
+                UnitPrice__c = (this.typeCurrency == 'BRL' || this.typeCurrency == 'USD') ? Decimal.valueOf(this.unitPrice.trim()) : null,
+                Percentage__c = this.typeCurrency == '%' ? Decimal.valueOf(this.unitPrice.trim()) : null,
+                Cost__c = this.typeCondition == 'ZPRS' ?  Decimal.valueOf(this.unitPrice.trim()) : null
             );
             
         }
@@ -305,7 +306,6 @@ global with sharing class TemplateDataIntegrationFields {
                 OrderId = lookups.containsKey('Order'+this.orderExternalId) ? lookups.get('Order'+this.orderExternalId) : null,
                 Product2Id = lookups.containsKey('Product2'+this.material) ? lookups.get('Product2'+this.material) : null,
                 PricebookEntryId = lookups.containsKey('PricebookEntry'+ this.material) ? lookups.get('PricebookEntry' + this.material) : null,
-                ProductCode = this.material,
                 ExternalId__c = this.orderExternalId + '|' + this.orderItemCode,
                 Quantity = this.quantidade,
                 UnitMeasure__c = this.unidadeMedida,
@@ -350,6 +350,7 @@ global with sharing class TemplateDataIntegrationFields {
     global class ShippingDivisonINData implements FieldDataChild{
         //JSON fields Example
         public String OrderItemCode;
+        public String OrderItemCode;
         public String orderExternalId;
         public String DivisaoRemessa;
         public String NumeroDivisaoRemessa;
@@ -361,7 +362,7 @@ global with sharing class TemplateDataIntegrationFields {
         public ShippingDivison__c serialize(Map<String, Id> lookups){
 
             return new ShippingDivison__c(
-                ExternalId__c = this.orderExternalId, //Confirmar com Helder como deverá ser essa chave
+                ExternalId__c = this.orderExternalId,//Confirmar com Helder como deverá ser essa chave
                 OrderItem__c = lookups.containsKey('OrderItem__c'+this.OrderItemCode) ? lookups.get('OrderItem__c'+this.OrderItemCode) : null,
                 DeliveryDate__c = this.DataDivisao,
                 Quantity__c = this.Quantidade,
@@ -455,6 +456,51 @@ global with sharing class TemplateDataIntegrationFields {
         }
         
         //Id field
+        public String getFieldId() {
+            return 'Id';
+        }
+    }
+
+    global class BoletosINData implements FieldData {
+
+            public String CodigoParceiro;
+            public Date VencimentoBoleto;
+            public Date DataBoleto;
+            public String Empresa;
+            public Decimal ValorBoleto;
+            public String LinhaDigitavel;
+            public Boletos__c serialize(Map<String, Id> lookups){
+
+                //Returning Object with Fields
+
+            return new Boletos__c(
+                SalesOrg__c = lookups.containsKey('SalesOrg__c'+this.Empresa) ? lookups.get('SalesOrg__c'+this.Empresa) : null,
+                AccountCode__c = lookups.containsKey('AccountCode__c'+this.CodigoParceiro) ? lookups.get('AccountCode__c'+this.CodigoParceiro) : null,
+                ExpirationDate__c = Date.valueOf(VencimentoBoleto),
+                IssueDate__c = Date.valueOf(DataBoleto),
+                Value__c = this.ValorBoleto,
+                WritableLine__c = this.LinhaDigitavel
+            );
+        }
+
+        //Required fields for integration
+
+        public List<String> getRequiredFields(){
+            return new List<String>{
+
+                'AccountCode__c',
+                'ExpirationDate__c',
+                'Value__c',
+                'WritableLine__c'
+            };
+        }
+
+        //ExternalId field
+        public String getFieldKey(){
+            return '';
+        }
+        //Id field
+
         public String getFieldId() {
             return 'Id';
         }
