@@ -12,8 +12,8 @@ public with sharing class CalloutOrder {
 
     public static IntegrationUtils.CalloutResponse processIntegration(Id orderId){
 
-		Order parentOrder = [SELECT Id, CodigoSap__c, ShippingAccount__r.ExternalId__c, Account.ExternalId__c, Type, SalesOrg__r.SalesOrganizationCode__c, DistributionChannel__c, 
-                            ActivitySector__c, Incoterms__c, Incoterms2__c, PaymentCondition__r.Code__c, OrderReason__c , SalesCTV__r.CodigoSap__c, PaymentDate__c,
+		Order parentOrder = [SELECT Id, CodigoSap__c, ShippingAccount__r.ExternalId__c, Account.ExternalId__c, Type, SalesOrg__r.SalesOrganizationCode__c, DistributionChannel__r.Codigo__c, 
+                            ActivitySector__r.Codigo__c, Incoterms__c, Incoterms2__c, PaymentCondition__r.Code__c, OrderReason__c , SalesCTV__r.CodigoSap__c, PaymentDate__c,
                             OrderNumber, Crop__r.Code__c, Crop__r.StartDateOrderInsertion__c, Crop__r.EndDateInsertionOrders__c ,Culture__r.Codigo__c, EndDate, TotalAmount, PaymentForm__c, OrderReference__c, CustomerOrderNumber__c,
                             Currency__c, Crop__r.PaymentBaseDate__c, RecordTypeId, (SELECT Id FROM OrderItems) 
                             FROM Order WHERE Id = :orderId];
@@ -185,15 +185,15 @@ public with sharing class CalloutOrder {
             
             IS_HEADER_IN.DOC_TYPE = getCodeTypeOrder(String.valueOf([SELECT DeveloperName FROM RecordType WHERE Name =: order.Type][0].DeveloperName), IV_TYPE == 'G' ? true : false); 
             IS_HEADER_IN.SALES_ORG = order.SalesOrg__r.SalesOrganizationCode__c;
-            IS_HEADER_IN.DISTR_CHAN =order.DistributionChannel__c;
-            IS_HEADER_IN.DIVISION = order.ActivitySector__c;
+            IS_HEADER_IN.DISTR_CHAN =order.DistributionChannel__r.Codigo__c;
+            IS_HEADER_IN.DIVISION = order.ActivitySector__r.Codigo__c;
             IS_HEADER_IN.INCOTERMS1 = order.Incoterms__c;
             IS_HEADER_IN.INCOTERMS2 = order.Incoterms2__c;
             IS_HEADER_IN.PMNTTRMS = order.PaymentCondition__r.Code__c;
             IS_HEADER_IN.PYMT_METH = order.PaymentForm__c;
             
-            IS_HEADER_IN.CT_VALID_F = IV_TYPE == 'G'  ? dateF :  ' ';
-            IS_HEADER_IN.CT_VALID_T = IV_TYPE == 'G' ? String.valueOf(order.Crop__r.EndDateInsertionOrders__c).replace('-', '') : ' ';
+            IS_HEADER_IN.CT_VALID_F = IV_TYPE == 'G'  ? dateF :  '';
+            IS_HEADER_IN.CT_VALID_T = IV_TYPE == 'G' ? String.valueOf(order.Crop__r.EndDateInsertionOrders__c).replace('-', '') : '';
 
             IS_HEADER_IN.PURCH_NO_C = order.CustomerOrderNumber__c;
             IS_HEADER_IN.ORD_REASON = order.OrderReason__c;
@@ -313,7 +313,7 @@ public with sharing class CalloutOrder {
         public OrderItemParameters(OrderItem orderItem){
             this.ITM_NUMBER = String.valueOf(orderItem.NumeroSap__c).leftPad(6, '0');
             this.MATERIAL = orderItem.Product2.ExternalId__c;
-            this.PLANT = orderItem.Product2.DistributionCenter__r.Code__c;
+            this.PLANT = orderItem.Product2.DistributionCenter__r.Code__c != null ? orderItem.Product2.DistributionCenter__r.Code__c : '';
             this.TARGET_QTY =  String.valueOf(orderItem.Quantity);
         }
     }
