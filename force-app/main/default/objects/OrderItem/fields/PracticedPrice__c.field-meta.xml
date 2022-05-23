@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>ProductGroupX__c</fullName>
+    <fullName>PracticedPrice__c</fullName>
     <externalId>false</externalId>
-    <label>Grupo de Produtos</label>
+    <label>Preço Praticado</label>
+    <precision>18</precision>
     <required>false</required>
+    <scale>4</scale>
     <trackHistory>false</trackHistory>
-    <type>Picklist</type>
-    <valueSet>
-        <restricted>true</restricted>
-        <valueSetName>Grupo</valueSetName>
-    </valueSet>
+    <type>Currency</type>
 </CustomField>

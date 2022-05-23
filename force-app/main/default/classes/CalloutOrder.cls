@@ -3,6 +3,8 @@ public with sharing class CalloutOrder {
         
     }
 
+
+
     @future(callout = true)
     public static void callIntegration(Id orderId){
         processIntegration(orderId);
@@ -10,10 +12,10 @@ public with sharing class CalloutOrder {
 
     public static IntegrationUtils.CalloutResponse processIntegration(Id orderId){
 
-		Order parentOrder = [SELECT Id, CodigoSap__c, ShippingAccount__r.ExternalId__c, Account.ExternalId__c, Type, SalesOrg__r.SalesOrganizationCode__c, DistributionChannel__c, 
+		Order parentOrder = [SELECT Id, CodigoSap__c, ShippingAccount__r.ExternalId__c, Account.ExternalId__c, Type, SalesOrg__r.SalesOrganizationCode__c, DistributionChannel__c, DistributionChannel__r.Codigo__c,
                             ActivitySector__c, Incoterms__c, Incoterms2__c, PaymentCondition__r.Code__c, OrderReason__c , SalesCTV__r.CodigoSap__c, PaymentDate__c,
-                            OrderNumber, Crop__r.Code__c, Culture__r.Codigo__c, EndDate, TotalAmount, PaymentForm__c, OrderReference__c, CustomerOrderNumber__c,
-                            Currency__c, RecordTypeId, (SELECT Id FROM OrderItems) 
+                            OrderNumber, Crop__r.Code__c, Crop__r.StartDateOrderInsertion__c, Crop__r.EndDateInsertionOrders__c ,Culture__r.Codigo__c, EndDate, TotalAmount, PaymentForm__c, OrderReference__c, CustomerOrderNumber__c,
+                            Currency__c, Crop__r.PaymentBaseDate__c, RecordTypeId, (SELECT Id FROM OrderItems) 
                             FROM Order WHERE Id = :orderId];
 		
 		List<Order> allOrders = new List<Order>{parentOrder};
@@ -33,7 +35,7 @@ public with sharing class CalloutOrder {
 
 			
             for(Messages message : resp.responses.ET_RETURN.item){
-                if(message.TYPE != 'S'){
+                if(message.TYPE != 'S' && message.TYPE != 'W'){
                     calloutResponse.success = false;
                     calloutResponse.errorMessage = message.MESSAGE;
                 }
@@ -45,7 +47,9 @@ public with sharing class CalloutOrder {
             }
             
 			if (!orderList.isEmpty()) {
+                OrderHelper.disableTrigger();
 				update orderList;
+                OrderHelper.enableTrigger();
 			}
 		}
 		
@@ -113,10 +117,37 @@ public with sharing class CalloutOrder {
 		}
     }
 
+    public static String getCodeTypeOrder(String typeOrder, Boolean isOrderMother){
+        Map<String, String> codTypeOrder = new Map<String, String>();
+        if(!isOrderMother){
+            
+            codTypeOrder.put('EntregaArmazemGeral', '');
+            codTypeOrder.put('RemessasPromocionais', 'ZRBO');
+            codTypeOrder.put('VendaBarter', 'ZVBA');
+            codTypeOrder.put('VendaContaOrdem', 'ZRCO');
+            codTypeOrder.put('VendaServico', 'ZSER');
+            codTypeOrder.put('VendaEntregaFutura', 'ZVEF');
+            codTypeOrder.put('VendaInsumos', 'ZVRS');
+            codTypeOrder.put('VendaSucata', 'ZVSU');
+        }
+        else{
+            codTypeOrder.put('EntregaArmazemGeral', '');
+            codTypeOrder.put('RemessasPromocionais', '');
+            codTypeOrder.put('VendaBarter', 'ZCVB');
+            codTypeOrder.put('VendaContaOrdem', 'ZCCO');
+            codTypeOrder.put('VendaServico', '');
+            codTypeOrder.put('VendaEntregaFutura', 'ZCVF');
+            codTypeOrder.put('VendaInsumos', 'ZCVR');
+            codTypeOrder.put('VendaSucata', '');
+        }
+
+        return codTypeOrder.containsKey(typeOrder) ? codTypeOrder.get(typeOrder) : '';
+    }
+
     //! Preparing data to Callout
     public class RequestParameters{
         public String IV_TYPE;
-        public Object IS_HEADER_IN;
+        CalloutOrder.Header IS_HEADER_IN;
         public List<CalloutOrder.PartnerParameters> IT_PARTNERS;
         public List<CalloutOrder.ScheduleParameters> IT_ORDER_SCHEDULES_IN;
         public List<CalloutOrder.ConditionParameters> IT_CONDITIONS_IN;
@@ -139,38 +170,40 @@ public with sharing class CalloutOrder {
 
             Set<Id> orderItemIds = new Set<Id>();
 
-            if(order.CodigoSap__c == null){
-                CalloutOrder.HeaderInsert header = new CalloutOrder.HeaderInsert();
-                
-                IV_TYPE = order.OrderReference__c != null ? 'G' : 'C';
-               
-                header.DOC_TYPE = String.valueOf([SELECT DeveloperName FROM RecordType WHERE Name =: order.Type][0].DeveloperName); // Não esquecer de mudar isso
-                header.SALES_ORG = order.SalesOrg__r.SalesOrganizationCode__c;
-                header.DISTR_CHAN = order.DistributionChannel__c;
-                header.DIVISION = order.ActivitySector__c;
-                header.INCOTERMS1 = order.Incoterms__c;
-                header.INCOTERMS2 = order.Incoterms__c;
-                header.PMNTTRMS = order.PaymentCondition__r.Code__c;
-                header.PYMT_METH = order.PaymentForm__c;
-                
-                header.CT_VALID_F = '';
-                header.CT_VALID_T = '';
+            IS_HEADER_IN = new CalloutOrder.Header();
+            
+            IV_TYPE = order.OrderReference__c != null ? 'G' : 'C';
 
-                header.PURCH_NO_C = order.CustomerOrderNumber__c;
-                header.ORD_REASON = order.OrderReason__c;
-                header.ZZSAFRA = order.Crop__r.Code__c;
-                header.ZZCOD_CULTURA = order.Culture__r.Codigo__c;
-                header.ZZPED_CRM = order.OrderNumber;
-                header.ZZDATA_CARENCIA = '';
-                header.ZZDATA_VENCTO = String.valueOf(order.PaymentDate__c).replace('-', '');
-                this.IS_HEADER_IN = header;
+            String dateF;
+
+            if(order.Crop__r.StartDateOrderInsertion__c < System.today() && IV_TYPE == 'G' ){
+                dateF = String.valueOf(order.EffectiveDate).replace('-', '');
             }
-            // else {
-            //     CalloutOrder.HeaderUpdate header = new CalloutOrder.HeaderUpdate();
-            //     header.codSap = order.CodigoSap__c;
-            //     header.codSalesforce = order.OrderNumber;
-            //     header.expiredDate = order.EndDate;
-            // }
+            else{
+                dateF = String.valueOf(order.Crop__r.StartDateOrderInsertion__c).replace('-', '');
+            }
+            
+            IS_HEADER_IN.DOC_TYPE = getCodeTypeOrder(String.valueOf([SELECT DeveloperName FROM RecordType WHERE Name =: order.Type][0].DeveloperName), IV_TYPE == 'G' ? true : false); 
+            IS_HEADER_IN.SALES_ORG = order.SalesOrg__r.SalesOrganizationCode__c;
+            IS_HEADER_IN.DISTR_CHAN =order.DistributionChannel__r.Codigo__c;
+            IS_HEADER_IN.DIVISION = order.ActivitySector__c;
+            IS_HEADER_IN.INCOTERMS1 = order.Incoterms__c;
+            IS_HEADER_IN.INCOTERMS2 = order.Incoterms2__c;
+            IS_HEADER_IN.PMNTTRMS = order.PaymentCondition__r.Code__c;
+            IS_HEADER_IN.PYMT_METH = order.PaymentForm__c;
+            
+            IS_HEADER_IN.CT_VALID_F = IV_TYPE == 'G'  ? dateF :  ' ';
+            IS_HEADER_IN.CT_VALID_T = IV_TYPE == 'G' ? String.valueOf(order.Crop__r.EndDateInsertionOrders__c).replace('-', '') : ' ';
+
+            IS_HEADER_IN.PURCH_NO_C = order.CustomerOrderNumber__c;
+            IS_HEADER_IN.ORD_REASON = order.OrderReason__c;
+            IS_HEADER_IN.ZZSAFRA = order.Crop__r.Code__c;
+            IS_HEADER_IN.ZZCOD_CULTURA = order.Culture__r.Codigo__c;
+            IS_HEADER_IN.ZZPED_CRM = order.OrderNumber;
+            IS_HEADER_IN.ZZDATA_CARENCIA = String.valueOf(order.Crop__r.PaymentBaseDate__c).replace('-', '');
+            IS_HEADER_IN.ZZDATA_VENCTO = String.valueOf(order.PaymentDate__c).replace('-', '');
+            
+            
 
             for(OrderItem orderItem : order.OrderItems){
                 orderItemIds.add(orderItem.Id);
@@ -182,8 +215,7 @@ public with sharing class CalloutOrder {
                 WHERE Id IN: orderItemIds
             ]);
 
-      
-
+    
             List<ShippingDivison__c> divisonList = [SELECT Id,Name, DeliveryDate__c, Quantity__c, OrderItem__c FROM ShippingDivison__c WHERE OrderItem__c IN: orderItemIds];
             Map<Id, List<ShippingDivison__c>> divisionMap = new  Map<Id, List<ShippingDivison__c>>();
 
@@ -197,24 +229,22 @@ public with sharing class CalloutOrder {
             List<Integer> shippingCodesList = new List<Integer>();
             for(OrderItem orderItem : orderItemMap.values()){
 
-                // shippingCodesList.clear();
                 if(!divisionMap.isEmpty())
                 {
                     for(ShippingDivison__c sd : divisionMap.get(orderItem.Id)){
-                        // shippingCodesList.add(Integer.valueOf(sd.Name));
-                        IT_ORDER_SCHEDULES_IN.add(new CalloutOrder.ScheduleParameters(String.valueOf(orderItem.NumeroSap__c), String.valueOf(sd.Quantity__c), String.valueOf(sd.DeliveryDate__c)));
+                        IT_ORDER_SCHEDULES_IN.add(new CalloutOrder.ScheduleParameters(String.valueOf(orderItem.NumeroSap__c).leftPad(6, '0'), String.valueOf(sd.Quantity__c), String.valueOf(sd.DeliveryDate__c)));
                     }
                 }
                 
                 IT_ITEMS_IN.add(new CalloutOrder.OrderItemParameters(orderItem));
-                IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c, 'ZPR0', String.valueOf(orderItem.Quantity * orderItem.UnitPrice), order.Currency__c));
-                IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c, 'ZJUR', String.valueOf(orderItem.FinancialAdditionValue__c), order.Currency__c));
-                IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c, 'ZDAN', String.valueOf(orderItem.FinancialDiscountValue__c), order.Currency__c));
+                IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZPR0', String.valueOf(orderItem.Quantity * orderItem.UnitPrice), order.Currency__c));
+                IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZJUR', String.valueOf(orderItem.FinancialAdditionValue__c), order.Currency__c));
+                IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDAN', String.valueOf(orderItem.FinancialDiscountValue__c), order.Currency__c));
             }
         }
     }
 
-    public class HeaderInsert{
+    public class Header{
         
         public String DOC_TYPE; // orderSalesType;
         public String SALES_ORG; //salesOrg;
@@ -234,16 +264,9 @@ public with sharing class CalloutOrder {
         public String ZZDATA_CARENCIA;
         public String ZZDATA_VENCTO;
 
-        public HeaderInsert(){}
+        public Header(){}
     }
 
-    public class HeaderUpdate{
-        public String codSap;
-        public String codSalesforce;
-        public Date  expiredDate;
-
-        // public HeaderUpdate(){}
-    }
 
     public class PartnerParameters{
         public String PARTN_ROLE;
@@ -288,7 +311,7 @@ public with sharing class CalloutOrder {
         public String TARGET_QTY;
 
         public OrderItemParameters(OrderItem orderItem){
-            this.ITM_NUMBER = String.valueOf(orderItem.NumeroSap__c);
+            this.ITM_NUMBER = String.valueOf(orderItem.NumeroSap__c).leftPad(6, '0');
             this.MATERIAL = orderItem.Product2.ExternalId__c;
             this.PLANT = orderItem.Product2.DistributionCenter__r.Code__c;
             this.TARGET_QTY =  String.valueOf(orderItem.Quantity);

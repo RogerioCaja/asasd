@@ -40,6 +40,40 @@ public class IntegrationUtils {
         return hasError;
     }
 
+    public static Boolean upsertRecords(List<Database.UpsertResult> upsResults, List<TemplateDataIntegrationFields.Response> responseList, List<SObject> sObjectListToUpsert, Schema.SObjectField field){
+        TemplateDataIntegrationFields.Response responseData;
+        Boolean hasError = false;
+
+        for (TemplateDataIntegrationFields.Response response : responseList) {
+            if(response.status == false)
+				hasError = true;                
+        }
+
+        for (Integer i = 0; i < upsResults.size(); i++) {
+            responseData = new TemplateDataIntegrationFields.Response();
+
+            SObject objResult = sObjectListToUpsert[i];
+            Database.UpsertResult upsResult = upsResults[i];
+
+            if (upsResult.isSuccess()) {
+                responseData.success(
+                    upsResult.getId(), 
+                    String.valueOf(objResult.get(field)), 
+                    String.valueOf(objResult.getSObjectType())
+                );
+            }
+            else {
+                responseData.error(String.valueOf(objResult.get(field)),
+                                   upsResult.getErrors()[0].getMessage().replace('Campos obrigatórios ausentes', 'Valor inválido para o campo obrigatório'), 
+                                   String.valueOf(objResult.getSObjectType())
+                );
+                hasError = true;
+            }
+            responseList.add(responseData);
+        }
+        return hasError;
+    }
+
     //Child records upsert validation, adding results to the response list
     public static void upsertChildRecords(List<Database.UpsertResult> upsResults, Map<String, List<TemplateDataIntegrationFields.Response>> responseMap, List<SObject> sObjectListToUpsert, Schema.SObjectField field){
         TemplateDataIntegrationFields.Response responseData;
@@ -146,6 +180,30 @@ public class IntegrationUtils {
         }
 
         public CalloutResponse(String errorMessage, CalloutOrder.ResponseParameters response){
+            this.success = false;
+            this.errorMessage = errorMessage;
+            this.parsedResponse = response;
+        }
+    }
+
+    public class CalloutUpdateResponse{
+        public CalloutOrderUpdate.ResponseParameters parsedResponse;
+        public Boolean success;
+        public String errorMessage;
+
+        public CalloutUpdateResponse(CalloutOrderUpdate.ResponseParameters response){
+            this.success = true;
+            this.errorMessage = '';
+            this.parsedResponse = response;
+        }
+
+        public CalloutUpdateResponse(String errorMessage){
+            this.success = false;
+            this.errorMessage = errorMessage;
+            this.parsedResponse = null;
+        }
+
+        public CalloutUpdateResponse(String errorMessage, CalloutOrderUpdate.ResponseParameters response){
             this.success = false;
             this.errorMessage = errorMessage;
             this.parsedResponse = response;

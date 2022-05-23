@@ -16,13 +16,6 @@
         </values>
     </picklistValues>
     <picklistValues>
-        <picklist>DistributionChannel__c</picklist>
-        <values>
-            <fullName>Venda Direta</fullName>
-            <default>false</default>
-        </values>
-    </picklistValues>
-    <picklistValues>
         <picklist>Freight__c</picklist>
         <values>
             <fullName>Y1</fullName>
@@ -108,6 +101,21 @@
         </values>
         <values>
             <fullName>200</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>OrderType__c</picklist>
+        <values>
+            <fullName>Pedido Filho</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pedido Mãe</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pedido Normal</fullName>
             <default>false</default>
         </values>
     </picklistValues>
