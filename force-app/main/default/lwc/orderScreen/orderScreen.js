@@ -148,7 +148,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         this.changeStyle();
         if(this.originScreen.includes('Order')){
             if(this.recordId) {
-                this.headerData.pedido_mae = {Id: this.recordId, Name: ''};
+                this.headerData.pedido_mae = this.childOrder ? {Id: this.recordId, Name: ''} : {};
                 this.getOrder();
             }
         }else if(this.originScreen.includes('Account')){
