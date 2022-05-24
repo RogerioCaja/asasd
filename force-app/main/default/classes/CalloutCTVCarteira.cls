@@ -2,12 +2,42 @@ public with sharing class CalloutCTVCarteira {
 
     @future(callout = true)
     public static void processIntegration(){
-
-        List<Territory2> territoryList = new List<Territory2>([SELECT id, DeveloperName, lastmodifieddate, ParentTerritory2.DeveloperName, name, Territory2Type.DeveloperName FROM territory2]);
-
+        Datetime UTC = System.now().addHours(-24); 
+        Organization orgDetails = [SELECT Id, TimeZoneSidKey FROM Organization WHERE Id = :UserInfo.getOrganizationId()]; 
+        Timezone tz = Timezone.getTimeZone(orgDetails.TimeZoneSidKey);
+        Datetime orgTime = UTC.addSeconds((tz.getOffset(UTC)/1000));
+        List<Territory2> territoryFirstList = new List<Territory2>([SELECT id, DeveloperName, lastmodifieddate, ParentTerritory2.DeveloperName, name, Territory2Type.DeveloperName FROM territory2 WHERE lastmodifieddate >: orgTime]);
         
-        IntegrationUtils.CalloutCTVResponse calloutResponse = sendOrder(territoryList);
+        System.debug('orgTime: '+orgTime);
+        List<ObjectTerritory2Association> terrytoryObject = new List<ObjectTerritory2Association>([SELECT Id, Territory2Id, ObjectId  FROM ObjectTerritory2Association WHERE lastmodifieddate >: orgTime]);
+        List<UserTerritory2Association> userTerrytoryList = new List<UserTerritory2Association>([SELECT Id, UserId, User.CodigoSap__c, Territory2Id  FROM UserTerritory2Association WHERE lastmodifieddate >: orgTime]);
+        List<String> terrytoryIdList = new List<String>();
+        List<Territory2> terrytoryCompleteList = new List<Territory2>();
+        for(ObjectTerritory2Association objectTerrytori : terrytoryObject){
+            terrytoryIdList.add(objectTerrytori.Territory2Id);
+        }
+        for(UserTerritory2Association userTerrytory : userTerrytoryList){
+            terrytoryIdList.add(userTerrytory.Territory2Id);
+        }
+        List<Territory2> territorySecondList = new List<Territory2>([SELECT id, DeveloperName, lastmodifieddate, ParentTerritory2.DeveloperName, name, Territory2Type.DeveloperName FROM territory2 WHERE Id >: terrytoryIdList]);
+        for(Territory2 territoryFirst : territoryFirstList){
+            if(!terrytoryCompleteList.contains(territoryFirst)){
+                terrytoryCompleteList.add(territoryFirst);
+            }
+        }
+        for(Territory2 territorySecond : territorySecondList){
+            if(!terrytoryCompleteList.contains(territorySecond)){
+                terrytoryCompleteList.add(territorySecond);
+            }
+        }
+        System.debug('territoryList: '+territoryFirstList);
+        System.debug('territorySecond: '+territorySecondList);
+        System.debug('terrytoryCompleteList: '+terrytoryCompleteList);
+        System.debug('terrytoryObject: '+terrytoryObject);
+        System.debug('userTerrytoryList: '+userTerrytoryList);
 
+        IntegrationUtils.CalloutCTVResponse calloutResponse = sendOrder(terrytoryCompleteList);
+        
         if (calloutResponse.success) {
             System.debug('integração foi um sucesso');
 
@@ -86,6 +116,7 @@ public with sharing class CalloutCTVCarteira {
             List<String> accountIds = new List<String>();
             CalloutCTVCarteira.HeaderInsert header = new CalloutCTVCarteira.HeaderInsert();
             UserTerritory2Association territoryAsso;
+
             Try{
                 territoryAsso = [SELECT id, User.CodigoSAP__c FROM UserTerritory2Association WHERE Territory2Id =: territory.Id];
              } 
