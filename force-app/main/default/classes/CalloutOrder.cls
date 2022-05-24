@@ -192,8 +192,8 @@ public with sharing class CalloutOrder {
             IS_HEADER_IN.PMNTTRMS = order.PaymentCondition__r.Code__c;
             IS_HEADER_IN.PYMT_METH = order.PaymentForm__c;
             
-            IS_HEADER_IN.CT_VALID_F = IV_TYPE == 'G'  ? dateF :  ' ';
-            IS_HEADER_IN.CT_VALID_T = IV_TYPE == 'G' ? String.valueOf(order.Crop__r.EndDateInsertionOrders__c).replace('-', '') : ' ';
+            IS_HEADER_IN.CT_VALID_F = IV_TYPE == 'G'  ? dateF :  '';
+            IS_HEADER_IN.CT_VALID_T = IV_TYPE == 'G' ? String.valueOf(order.Crop__r.EndDateInsertionOrders__c).replace('-', '') : '';
 
             IS_HEADER_IN.PURCH_NO_C = order.CustomerOrderNumber__c;
             IS_HEADER_IN.ORD_REASON = order.OrderReason__c;
@@ -313,7 +313,7 @@ public with sharing class CalloutOrder {
         public OrderItemParameters(OrderItem orderItem){
             this.ITM_NUMBER = String.valueOf(orderItem.NumeroSap__c).leftPad(6, '0');
             this.MATERIAL = orderItem.Product2.ExternalId__c;
-            this.PLANT = orderItem.Product2.DistributionCenter__r.Code__c;
+            this.PLANT = orderItem.Product2.DistributionCenter__r.Code__c != null ? orderItem.Product2.DistributionCenter__r.Code__c : '';
             this.TARGET_QTY =  String.valueOf(orderItem.Quantity);
         }
     }
