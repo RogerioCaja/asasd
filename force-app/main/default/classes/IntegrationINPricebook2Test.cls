@@ -3,12 +3,7 @@ public class IntegrationINPricebook2Test {
   
     @TestSetup
     static void makeData(){
-        Pricebook2 standardPricebook = new Pricebook2(
-            Id = Test.getStandardPricebookId(),
-            IsActive = true
-        );
 
-        update standardPricebook;
 
         Account account = new Account(
             Name = 'Teste 1',

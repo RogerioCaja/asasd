@@ -78,6 +78,7 @@ global with sharing class IntegrationINProduct {
                 response.items.addAll(orgVproductResponse.get(response.externalCode));
             }
         }
+        //Verificar se o responselist está de acordo com o ExternalCode 
 
         //Checking integration errors to log
         // Verifica erros de integração para o log
