@@ -413,7 +413,6 @@ global with sharing class TemplateDataIntegrationFields {
         public String cpfCnpjVendedor;
         public Decimal valorTotalNf;
         public String naturezaOperacao;
-        public Date dupDate;
         public List<TemplateDataIntegrationFields.ItensNotaFiscalINData> itensNotaFiscal; 
         public NotaFiscal__c serialize(Map<String, Id> lookups){
 
@@ -435,8 +434,7 @@ global with sharing class TemplateDataIntegrationFields {
                 HoraCriacao__c = this.horaCriacao,
                 CNPJCode__c = this.cpfCnpjVendedor,
                 Invoice_TotalAmount__c = this.valorTotalNf,
-                CFOP__c = this.naturezaOperacao,
-                DuplicateMaturity__c = this.dupDate
+                CFOP__c = this.naturezaOperacao
             );
         }
         
