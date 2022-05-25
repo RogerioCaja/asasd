@@ -247,6 +247,8 @@ global with sharing class TemplateDataIntegrationFields {
                 SalesCTV__c = lookups.containsKey('SalesCTV__c'+this.salesCTV) ? lookups.get('SalesCTV__c'+this.salesCTV) : null,
                 PaymentCondition__c = lookups.containsKey('CondicaoPagamento__c'+this.paymentCondition) ? lookups.get('CondicaoPagamento__c'+this.paymentCondition) : null,
                 OrderReference__c = lookups.containsKey('OrderReference__c'+this.orderReference) ? lookups.get('OrderReference__c'+this.orderReference) : null,
+                DistributionChannel__c = lookups.containsKey('DistributionChannel__c' + this.distributionChannel)? lookups.get ('' + this.distributionChannel) : null,
+                ActivitySector__c = lookups.containsKey('ActivitySector__c' + this.activitySector)? lookups.get ('' + this.activitySector) : null,
                 PaymentDate__c = Date.valueOf(paymentDate),
                 EffectiveDate = Date.valueOf(effectiveDate),
                 ShippingDate__c = Date.valueOf(ShippingDate),
@@ -254,8 +256,6 @@ global with sharing class TemplateDataIntegrationFields {
                 Type = this.type,
                 CustomerOrderNumber__c = this.customerOrderNumber,
                 PaymentForm__c = this.paymentForm,
-                DistributionChannel__c = this.distributionChannel,
-                ActivitySector__c = this.activitySector,
                 Currency__c = this.CurrencyOrder,
                 Incoterms__c = this.incoterms,
                 Incoterms2__c = this.incoterms,
@@ -349,7 +349,7 @@ global with sharing class TemplateDataIntegrationFields {
 
     global class ShippingDivisonINData implements FieldDataChild{
         //JSON fields Example
-        public String OrderItemCode;
+        public String OrderItemCode;    
         public String orderExternalId;
         public String DivisaoRemessa;
         public String NumeroDivisaoRemessa;
@@ -361,8 +361,9 @@ global with sharing class TemplateDataIntegrationFields {
         public ShippingDivison__c serialize(Map<String, Id> lookups){
 
             return new ShippingDivison__c(
-                ExternalId__c = this.orderExternalId,//Confirmar com Helder como deverá ser essa chave
                 OrderItem__c = lookups.containsKey('OrderItem__c'+this.OrderItemCode) ? lookups.get('OrderItem__c'+this.OrderItemCode) : null,
+                // Como estava ----> ExternalId__c = this.orderExternalId + '|' + this.OrderItemCode,//Confirmar com Helder como deverá ser essa chave
+                ExternalId__c = this.orderExternalId,//Confirmar com Helder como deverá ser essa chave
                 DeliveryDate__c = this.DataDivisao,
                 Quantity__c = this.Quantidade,
                 ConfirmedQuantity__c = this.QuantidadeConfirmada
@@ -413,7 +414,6 @@ global with sharing class TemplateDataIntegrationFields {
         public String cpfCnpjVendedor;
         public Decimal valorTotalNf;
         public String naturezaOperacao;
-        public Date dupDate;
         public List<TemplateDataIntegrationFields.ItensNotaFiscalINData> itensNotaFiscal; 
         public NotaFiscal__c serialize(Map<String, Id> lookups){
 
@@ -435,8 +435,7 @@ global with sharing class TemplateDataIntegrationFields {
                 HoraCriacao__c = this.horaCriacao,
                 CNPJCode__c = this.cpfCnpjVendedor,
                 Invoice_TotalAmount__c = this.valorTotalNf,
-                CFOP__c = this.naturezaOperacao,
-                DuplicateMaturity__c = this.dupDate
+                CFOP__c = this.naturezaOperacao
             );
         }
         
@@ -524,7 +523,7 @@ global with sharing class TemplateDataIntegrationFields {
             //Returning Object with Fields.
             return new ItensNotaFiscal__c(
                 Name = 'Nota Fiscal' + ' - ' + this.notaFiscal, //Pegar descrição do produto e number NF
-                ExternalID__c = this.codigoMaterial + '|' + this.notaFiscal,
+                ExternalID__c = this.codigoMaterial + '|' + this.notaFiscal + '|' + this.lote,
                 Invoice__c = lookups.containsKey('NotaFiscal__c' + this.notaFiscal) ? lookups.get('NotaFiscal__c' + this.notaFiscal) : null,
                 Productcode__c = lookups.containsKey('Product2'+this.codigoMaterial) ? lookups.get('Product2' + this.codigoMaterial) : null,
                 Theamount__c = this.quantidade,
