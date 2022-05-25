@@ -339,9 +339,9 @@ export default class OrderHeaderScreen extends LightningElement {
                 var field = event.target.name;
                 if(event.target.value || event.target.checked){
                     if ((field == 'data_pagamento' || field == 'data_entrega') && (this.currentDate > event.detail.value || this.dateLimit < event.detail.value || this.dateLimitBilling < event.detail.value)) {
-                        this.headerDictLocale[field] = undefined;
+                        this.headerDictLocale[field] = null;
                         let headerValues = JSON.parse(JSON.stringify(this.headerData));
-                        headerValues[field] = undefined;
+                        headerValues[field] = null;
                         this.headerData = JSON.parse(JSON.stringify(headerValues));
                         console.log('this.headerData: ' + JSON.stringify(this.headerData));
                         this.showToast('warning', 'Atenção!', 'Data não permitida.');
