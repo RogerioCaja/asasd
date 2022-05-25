@@ -58,6 +58,10 @@
                 <behavior>Required</behavior>
                 <field>ExternalID__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>SupplierCenter__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>

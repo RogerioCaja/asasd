@@ -77,7 +77,12 @@ public without sharing class CustomLookupController {
             System.debug('productParams: ' + productParams);
             Id commodityRecType = Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get('ZPR0').getRecordTypeId();
 
-            SalesResult salesResult = getSalesOrgId(productParams.accountId, productParams.ctvId) != null ? getSalesOrgId(productParams.accountId, productParams.ctvId) : null;
+            // SalesResult salesResult = getSalesOrgId(productParams.accountId, productParams.ctvId) != null ? getSalesOrgId(productParams.accountId, productParams.ctvId) : null;
+            SalesResult salesResult = new SalesResult();
+            salesResult.salesOrgId = productParams.salesOrgId;
+            salesResult.salesOfficeId = productParams.salesOfficeId;
+            salesResult.salesTeamId = productParams.salesTeamId;
+            salesResult.segmento = [SELECT Industry FROM Account WHERE Id =: productParams.accountId].Industry;
             result.salesResult = salesResult;
 
             Set<String> priceFields = new Set<String>{'Id', 'UnitPrice__c', 'Cost__c', 'Product__c', 'Currency__c', 'SalesOrg__c', 'SalesTeam__c', 'SalesOffice__c', 'Account__c', 'Culture__c'};
@@ -243,7 +248,7 @@ public without sharing class CustomLookupController {
 	    }
     }
 
-    public static SalesResult getSalesOrgId(Id accountId, Id ctvId) {
+    /* public static SalesResult getSalesOrgId(Id accountId, Id ctvId) {
         SalesResult result = new SalesResult();
         Id userTerritoryId;
         for (UserTerritory2Association userAssociation : [
@@ -290,7 +295,7 @@ public without sharing class CustomLookupController {
         result.segmento = [SELECT Industry FROM Account WHERE Id =: accountId].Industry;
 
         return result;
-    }
+    } */
 
     public class RecordsData {
 
@@ -343,6 +348,9 @@ public without sharing class CustomLookupController {
         public String productCurrency;
         public String culture;
         public String orderType;
+        public String salesOrgId;
+        public String salesOfficeId;
+        public String salesTeamId;
     }
 
     public class ProductDataResult {
