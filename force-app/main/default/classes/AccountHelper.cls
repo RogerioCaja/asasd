@@ -52,10 +52,10 @@ public with sharing class AccountHelper {
             ObjectTerritory2Association associantionNew = terrytoryObjectMap.get(associantionOld.Id);
             System.debug('associantionNew: '+ associantionNew);
             if(associantionNew == null){
-                CalloutCTVCarteira.processIntegration();
+                //CalloutCTVCarteira.processIntegration();
                 break;
             }else if(associantionNew.ObjectId != associantionOld.ObjectId){
-                CalloutCTVCarteira.processIntegration();
+                //CalloutCTVCarteira.processIntegration();
                 break;
             }
         }
@@ -67,8 +67,8 @@ public with sharing class AccountHelper {
             accountIdList.add(acc.Id);
         }
         List<ObjectTerritory2Association> terrytoryObject = new List<ObjectTerritory2Association>([SELECT Id, Territory2Id, ObjectId  FROM ObjectTerritory2Association WHERE ObjectId =: accountIdList]);
-        if(!terrytoryObject.isEmpty())
-            CalloutCTVCarteira.processIntegration();
+        //if(!terrytoryObject.isEmpty())
+            //CalloutCTVCarteira.processIntegration();
     }
 
     public class RequestedAssociation { 
