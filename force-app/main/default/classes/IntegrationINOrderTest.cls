@@ -46,11 +46,13 @@ public with sharing class IntegrationINOrderTest {
         );
         insert salesOrg;
 
+        
         ActivitySector__c activitySector = new ActivitySector__c(
             Name = 'Setor Teste',
             Codigo__c = '2'
         );
         insert activitySector;
+        
 
         SalesCondition__c sales = new SalesCondition__c(
             Name = 'Condição',

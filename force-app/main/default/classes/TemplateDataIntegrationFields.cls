@@ -98,6 +98,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String TipoMaterial;
         public String GrupoMercadoria;
         public String SubgrupoMercadoria;
+        public String SubgrupoMercadoria2;
         public String MarcadoEliminacao;
         public String UnidadePeso;
         public String CodigoControle;
@@ -109,6 +110,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String IngredienteAtivo;
         public String NumeroRegistro;
         public Decimal PesoBruto;
+        public List<TemplateDataIntegrationFields.OrgVProductINData> orgVProductItems;
         //public List<TemplateDataIntegrationFields.ProductINData> product2Entries;
 
         public Product2 serialize(Map<String, Id> lookups){
@@ -125,6 +127,7 @@ global with sharing class TemplateDataIntegrationFields {
                 ProductType__c = this.TipoMaterial,
                 ProductGroup__c = lookups.containsKey('ProductGroup__c'+this.GrupoMercadoria) ? lookups.get('ProductGroup__c'+this.GrupoMercadoria) : null,
                 ProductSubgroup__c = lookups.containsKey('ProductSubgroup__c'+this.SubgrupoMercadoria) ? lookups.get('ProductSubgroup__c'+this.SubgrupoMercadoria) : null,
+                ProductSubgroup2__c = this.SubgrupoMercadoria2,
                 MarcadoEliminacao__c = this.MarcadoEliminacao,
                 QuantityUnitOfMeasure = this.UnidadePeso,
                 ExternalId__c = this.CodigoControle,
@@ -156,6 +159,51 @@ global with sharing class TemplateDataIntegrationFields {
             return 'Id';
         }
     }
+
+    global class OrgVProductINData implements FieldDataChild{
+        
+        //JSON fields Example
+        public String OrgVId;
+        public String OrganizacaoVendas;
+        public String SetorAtividade;
+        public String OrgProduct;
+        public String Status;
+        
+
+        public OrgVProduct__c serialize(Map<String, Id> lookups){
+
+            //Returning Object with Fields.
+            return new OrgVProduct__c(
+                OrgVExternal__c = this.OrgProduct + '|' + this.OrgVId,
+                SalesOrg__c = lookups.containsKey('SalesOrg__c' + this.OrganizacaoVendas) ? lookups.get('SalesOrg__c' + this.OrganizacaoVendas) : null,
+                Product__c = lookups.containsKey('Product2' + this.OrgProduct) ? lookups.get('Product2' + this.OrgProduct) : null,
+                Department__c = this.SetorAtividade,
+                Status__c = this.Status
+            );
+        }
+        
+        //Required fields for integration
+        public List<String> getRequiredFields(){
+            return new List<String>{
+               //'Name',
+               
+            };
+        }
+
+        //ExternalId field
+        public String getFieldKey(){
+            return 'Id';
+        }
+
+        public String getFieldExternal(){
+            return 'Invoice__c';
+        }
+        
+        public String getParentKey(){
+            return 'Pricebook2Id';
+        }
+    }
+
     global class OrderINData implements FieldData{
 
         public String Status;
@@ -199,6 +247,8 @@ global with sharing class TemplateDataIntegrationFields {
                 SalesCTV__c = lookups.containsKey('SalesCTV__c'+this.salesCTV) ? lookups.get('SalesCTV__c'+this.salesCTV) : null,
                 PaymentCondition__c = lookups.containsKey('CondicaoPagamento__c'+this.paymentCondition) ? lookups.get('CondicaoPagamento__c'+this.paymentCondition) : null,
                 OrderReference__c = lookups.containsKey('OrderReference__c'+this.orderReference) ? lookups.get('OrderReference__c'+this.orderReference) : null,
+                DistributionChannel__c = lookups.containsKey('DistributionChannel__c' + this.distributionChannel)? lookups.get ('' + this.distributionChannel) : null,
+                ActivitySector__c = lookups.containsKey('ActivitySector__c' + this.activitySector)? lookups.get ('' + this.activitySector) : null,
                 PaymentDate__c = Date.valueOf(paymentDate),
                 EffectiveDate = Date.valueOf(effectiveDate),
                 ShippingDate__c = Date.valueOf(ShippingDate),
@@ -206,8 +256,6 @@ global with sharing class TemplateDataIntegrationFields {
                 Type = this.type,
                 CustomerOrderNumber__c = this.customerOrderNumber,
                 PaymentForm__c = this.paymentForm,
-                DistributionChannel__c = this.distributionChannel,
-                ActivitySector__c = this.activitySector,
                 Currency__c = this.CurrencyOrder,
                 Incoterms__c = this.incoterms,
                 Incoterms2__c = this.incoterms,
@@ -258,7 +306,6 @@ global with sharing class TemplateDataIntegrationFields {
                 OrderId = lookups.containsKey('Order'+this.orderExternalId) ? lookups.get('Order'+this.orderExternalId) : null,
                 Product2Id = lookups.containsKey('Product2'+this.material) ? lookups.get('Product2'+this.material) : null,
                 PricebookEntryId = lookups.containsKey('PricebookEntry'+ this.material) ? lookups.get('PricebookEntry' + this.material) : null,
-                //ProductCode = this.material,
                 ExternalId__c = this.orderExternalId + '|' + this.orderItemCode,
                 Quantity = this.quantidade,
                 UnitMeasure__c = this.unidadeMedida,
@@ -302,7 +349,7 @@ global with sharing class TemplateDataIntegrationFields {
 
     global class ShippingDivisonINData implements FieldDataChild{
         //JSON fields Example
-        public String OrderItemCode;
+        public String OrderItemCode;    
         public String orderExternalId;
         public String DivisaoRemessa;
         public String NumeroDivisaoRemessa;
@@ -314,13 +361,15 @@ global with sharing class TemplateDataIntegrationFields {
         public ShippingDivison__c serialize(Map<String, Id> lookups){
 
             return new ShippingDivison__c(
-                ExternalId__c = this.orderExternalId,
                 OrderItem__c = lookups.containsKey('OrderItem__c'+this.OrderItemCode) ? lookups.get('OrderItem__c'+this.OrderItemCode) : null,
+                // Como estava ----> ExternalId__c = this.orderExternalId + '|' + this.OrderItemCode,//Confirmar com Helder como deverá ser essa chave
+                ExternalId__c = this.orderExternalId,//Confirmar com Helder como deverá ser essa chave
                 DeliveryDate__c = this.DataDivisao,
                 Quantity__c = this.Quantidade,
                 ConfirmedQuantity__c = this.QuantidadeConfirmada
             );
         }
+        
         public List<String> getRequiredFields(){
             //Example
             return new List<String>{
@@ -343,8 +392,9 @@ global with sharing class TemplateDataIntegrationFields {
         public String getParentKey(){
             return 'OrderId';
         }
+        
     }
-
+    
     global class NotaFiscalINData implements FieldData{
         //JSON fields Example
         
@@ -364,7 +414,6 @@ global with sharing class TemplateDataIntegrationFields {
         public String cpfCnpjVendedor;
         public Decimal valorTotalNf;
         public String naturezaOperacao;
-        public Date dupDate;
         public List<TemplateDataIntegrationFields.ItensNotaFiscalINData> itensNotaFiscal; 
         public NotaFiscal__c serialize(Map<String, Id> lookups){
 
@@ -386,8 +435,7 @@ global with sharing class TemplateDataIntegrationFields {
                 HoraCriacao__c = this.horaCriacao,
                 CNPJCode__c = this.cpfCnpjVendedor,
                 Invoice_TotalAmount__c = this.valorTotalNf,
-                CFOP__c = this.naturezaOperacao,
-                DuplicateMaturity__c = this.dupDate
+                CFOP__c = this.naturezaOperacao
             );
         }
         
@@ -475,7 +523,7 @@ global with sharing class TemplateDataIntegrationFields {
             //Returning Object with Fields.
             return new ItensNotaFiscal__c(
                 Name = 'Nota Fiscal' + ' - ' + this.notaFiscal, //Pegar descrição do produto e number NF
-                ExternalID__c = this.codigoMaterial + '|' + this.notaFiscal,
+                ExternalID__c = this.codigoMaterial + '|' + this.notaFiscal + '|' + this.lote,
                 Invoice__c = lookups.containsKey('NotaFiscal__c' + this.notaFiscal) ? lookups.get('NotaFiscal__c' + this.notaFiscal) : null,
                 Productcode__c = lookups.containsKey('Product2'+this.codigoMaterial) ? lookups.get('Product2' + this.codigoMaterial) : null,
                 Theamount__c = this.quantidade,
@@ -511,6 +559,7 @@ global with sharing class TemplateDataIntegrationFields {
         }
     }
 
+    
 
     global virtual class Response {
         public String  idSalesforce;

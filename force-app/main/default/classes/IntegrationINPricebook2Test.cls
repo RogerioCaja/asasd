@@ -3,12 +3,7 @@ public class IntegrationINPricebook2Test {
   
     @TestSetup
     static void makeData(){
-        Pricebook2 standardPricebook = new Pricebook2(
-            Id = Test.getStandardPricebookId(),
-            IsActive = true
-        );
 
-        update standardPricebook;
 
         Account account = new Account(
             Name = 'Teste 1',
@@ -71,10 +66,13 @@ public class IntegrationINPricebook2Test {
             Name = 'Equipe Teste',
             ExternalId__c = '1'
         );
+
+        
         ActivitySector__c activitySector = new ActivitySector__c(
             Name = 'Setor Teste',
             Codigo__c = '1'
         );
+        
 
         ProductFamily__c productFamily = new ProductFamily__c(
             Name = 'Família Teste',

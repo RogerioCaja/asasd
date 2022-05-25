@@ -72,7 +72,6 @@ public without sharing class CustomLookupController {
     @AuraEnabled
     public static ProductDataResult fetchProductsRecords(String searchString, String data, Boolean isCommodity) {
         try {
-            System.debug('isCommodity: ' + isCommodity);
             ProductDataResult result = new ProductDataResult();
             ProductParams productParams = (ProductParams) JSON.deserialize(data, ProductParams.class);
             System.debug('productParams: ' + productParams);
@@ -119,6 +118,7 @@ public without sharing class CustomLookupController {
                   FROM OrgVProduct__c
                  WHERE Product__c IN: productsPriceById.keySet()
                    AND SalesOrg__c =: salesResult.salesOrgId
+                   AND Status__c = 'Adicionada'
             ]) {
                 prodsId.add(orgVProduct.Product__c);
             }

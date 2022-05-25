@@ -19,6 +19,8 @@ global with sharing class IntegrationINOrderAppdigital {
         Set<String> paymentConditionLookups = new Set<String>();
         Set<String> shippingAccountLookups = new Set<String>();
         Set<String> orderReferenceLookups = new Set<String>();
+        Set<String> activitySectorLookups = new Set<String>();
+        Set<String> distributionChannelLookups = new Set<String>();
         //Set<String> pricebookLookups = new Set<String>();
         // Guarda uma lista de respostas
         List<TemplateDataIntegrationFields.ResponseParent> responseList = new List<TemplateDataIntegrationFields.ResponseParent>();
@@ -42,6 +44,8 @@ global with sharing class IntegrationINOrderAppdigital {
             pricebookLookups.add(order.pricebook2Id);
             shippingAccountLookups.add(order.ShippingAccount);
             orderReferenceLookups.add(order.orderReference);
+            activitySectorLookups.add(order.ActivitySector);
+            distributionChannelLookups.add(order.DistributionChannel);
             if(order.orderItems != null) {
                 // Adiciona todos os External Id e o catalogo de preço de order nos orderItem
                 //Putting the Order's ExternalId parameter in the OrderItem
@@ -79,7 +83,16 @@ global with sharing class IntegrationINOrderAppdigital {
             
         }
        
+        for (DistributionChannel__c distributionChannel :[SELECT Id, Name, Codigo__c FROM DistributionChannel__c WHERE Codigo__c IN : distributionChannelLookups]){
+            lookups.put('DistributionChannel__c' + distributionChannel.Codigo__c, distributionChannel.Id);
+        }
 
+        
+        for (ActivitySector__c activitySector :[SELECT Id, Name, Codigo__c FROM ActivitySector__c WHERE Codigo__c IN : activitySectorLookups]){
+            lookups.put('ActivitySector__c' + activitySector.Codigo__c, activitySector.Id);
+        }
+        
+        
         for (Cultura__c culture : [SELECT Id, Name, Codigo__c FROM Cultura__c WHERE Codigo__c IN : cultureLookups]){
             lookups.put('Cultura__c' + culture.Codigo__c, culture.Id);
         }
@@ -121,6 +134,7 @@ global with sharing class IntegrationINOrderAppdigital {
             orderItemsResponse.putAll(
                 IntegrationINOrderItemAppdigital.upsertOrderItem(orderItemListToUpsert)
             );
+            System.debug('orderItemsResponse' + orderItemsResponse);
         }
 
         Map<String, List<TemplateDataIntegrationFields.Response>> shippingDivisonResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
@@ -128,6 +142,7 @@ global with sharing class IntegrationINOrderAppdigital {
             shippingDivisonResponse.putAll(
                 IntegrationINShippingDivisonAppdigital.upsertShippingDivison(shippingDivisonListToUpsert)
             );
+            System.debug('shippingDivisonResponse' + shippingDivisonResponse);
         }
 
         //Associating child object's response with object response
@@ -139,6 +154,8 @@ global with sharing class IntegrationINOrderAppdigital {
                 for(TemplatedataIntegrationFields.Response orderItem : orderItemsResponse.get(response.idSalesforce)){
                     response.items.addAll(shippingDivisonResponse.get(orderItem.idSalesforce)); 
                 }
+                System.debug('orderItemsResponse' + orderItemsResponse);
+                System.debug('shippingDivisonResponse' + shippingDivisonResponse);
             } 
             else if(orderItemsResponse.size() != 0 && orderItemsResponse.containsKey(response.externalCode)){
                 response.items.addAll(orderItemsResponse.get(response.externalCode));
