@@ -11,9 +11,9 @@ public with sharing class CalloutOrderUpdate {
     public static IntegrationUtils.CalloutUpdateResponse processIntegration(Id orderId, String rmCode, String agCode, String zcCode){
 
 		Order parentOrder = [SELECT Id, CodigoSap__c, ShippingAccount__r.ExternalId__c, Account.ExternalId__c, Type, SalesOrg__r.SalesOrganizationCode__c, DistributionChannel__c, 
-                            ActivitySector__c, Incoterms__c, Incoterms2__c, PaymentCondition__r.Code__c, OrderReason__c , SalesCTV__r.CodigoSap__c, PaymentDate__c,
+                            ActivitySector__c, Incoterms__c, Incoterms2__c, PaymentCondition__r.Code__c, OrderReason__c , SalesCTV__r.CodigoSap__c, PaymentDate__c, EffectiveDate,
                             OrderNumber, Crop__r.Code__c,  Crop__r.StartDateOrderInsertion__c, Crop__r.EndDateInsertionOrders__c,  Culture__r.Codigo__c, EndDate, TotalAmount, PaymentForm__c, OrderReference__c, CustomerOrderNumber__c, ShippingDate__c,
-                            Currency__c,  Crop__r.PaymentBaseDate__c, RecordTypeId, (SELECT Id FROM OrderItems) 
+                            Currency__c,  Crop__r.PaymentBaseDate__c, IsOrderMother__c, RecordTypeId, (SELECT Id FROM OrderItems) 
                             FROM Order WHERE Id = :orderId];
 		
 		List<Order> allOrders = new List<Order>{parentOrder};
@@ -153,7 +153,7 @@ public with sharing class CalloutOrderUpdate {
             }
 
             Set<Id> orderItemIds = new Set<Id>();
-            String IV_TYPE = order.OrderReference__c != null ? 'G' : 'C';
+            String IV_TYPE = order.IsOrderMother__c != false ? 'G' : 'C';
 
             String dateF;
 
@@ -172,8 +172,8 @@ public with sharing class CalloutOrderUpdate {
             IS_HEADER_IN.PMNTTRMS = order.PaymentCondition__r.Code__c;
             IS_HEADER_IN.PYMT_METH = order.PaymentForm__c;
             
-            IS_HEADER_IN.CT_VALID_F = IV_TYPE == 'G'  ? dateF :  ' ';
-            IS_HEADER_IN.CT_VALID_T = IV_TYPE == 'G' ? String.valueOf(order.Crop__r.EndDateInsertionOrders__c).replace('-', '') : ' ';
+            IS_HEADER_IN.CT_VALID_F = IV_TYPE == 'G'  ? dateF :  '';
+            IS_HEADER_IN.CT_VALID_T = IV_TYPE == 'G' ? String.valueOf(order.Crop__r.EndDateInsertionOrders__c).replace('-', '') : '';
             
             IS_HEADER_IN.PURCH_NO_C = order.CustomerOrderNumber__c;
             

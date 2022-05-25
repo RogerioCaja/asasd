@@ -45,6 +45,7 @@ export default class OrderHeaderScreen extends LightningElement {
     disabled = false;
     currentDate;
     dateLimit;
+    dateLimitBilling;
 
     @api accountData;
     @api accountChildData;
@@ -337,7 +338,7 @@ export default class OrderHeaderScreen extends LightningElement {
             if(this.isFilled(event)){
                 var field = event.target.name;
                 if(event.target.value || event.target.checked){
-                    if ((field == 'data_pagamento' || field == 'data_entrega') && (this.currentDate > event.detail.value || this.dateLimit < event.detail.value)) {
+                    if ((field == 'data_pagamento' || field == 'data_entrega') && (this.currentDate > event.detail.value || this.dateLimit < event.detail.value || this.dateLimitBilling < event.detail.value)) {
                         this.headerDictLocale[field] = null;
                         let headerValues = JSON.parse(JSON.stringify(this.headerData));
                         headerValues[field] = null;
@@ -397,8 +398,9 @@ export default class OrderHeaderScreen extends LightningElement {
         if(this.isFilled(this.headerDictLocale['safra'])){
             getDateLimit({safraId: this.headerDictLocale['safra'].Id})
             .then((result) =>{
-                this.dateLimit = JSON.parse(result).paymentDate;
-                
+                const data = JSON.parse(result);
+                this.dateLimit = data.paymentDate;
+                this.dateLimitBilling = data.endDateBilling;
             })
             .catch((err)=>{
                 console.log(err);
@@ -422,6 +424,7 @@ export default class OrderHeaderScreen extends LightningElement {
                 this.headerDictLocale.safra.Id !== undefined &&
                 this.headerDictLocale.cultura.Id !== undefined &&
                 this.headerDictLocale.data_pagamento !== undefined &&
+                this.headerDictLocale.data_entrega !== undefined &&
                 this.headerDictLocale.condicao_venda != ' ' &&
                 this.headerDictLocale.condicao_venda.Id !== undefined &&
                 this.headerDictLocale.condicao_pagamento.Id !== undefined &&
