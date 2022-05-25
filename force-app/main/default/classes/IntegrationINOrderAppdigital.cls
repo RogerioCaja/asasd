@@ -87,10 +87,11 @@ global with sharing class IntegrationINOrderAppdigital {
             lookups.put('DistributionChannel__c' + distributionChannel.Codigo__c, distributionChannel.Id);
         }
 
+        
         for (ActivitySector__c activitySector :[SELECT Id, Name, Codigo__c FROM ActivitySector__c WHERE Codigo__c IN : activitySectorLookups]){
             lookups.put('ActivitySector__c' + activitySector.Codigo__c, activitySector.Id);
         }
-
+        
         
         for (Cultura__c culture : [SELECT Id, Name, Codigo__c FROM Cultura__c WHERE Codigo__c IN : cultureLookups]){
             lookups.put('Cultura__c' + culture.Codigo__c, culture.Id);

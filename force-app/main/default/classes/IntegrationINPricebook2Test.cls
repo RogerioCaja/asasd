@@ -66,10 +66,13 @@ public class IntegrationINPricebook2Test {
             Name = 'Equipe Teste',
             ExternalId__c = '1'
         );
+
+        
         ActivitySector__c activitySector = new ActivitySector__c(
             Name = 'Setor Teste',
             Codigo__c = '1'
         );
+        
 
         ProductFamily__c productFamily = new ProductFamily__c(
             Name = 'Família Teste',
