@@ -327,8 +327,11 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         this.headerData.IsOrderChild = this.childOrder;
         // if(this.headerData.IsOrderChild) this.getOrderMother(this.headerData.pedido_mae.Id, this.headerData.pedido_mae.Name);
         console.log('header data setted:', this.headerData);
-        this.enableNextScreen();
-        this.completeCurrentScreen();
+        if(this.headerData.isCompleted){
+            this.enableNextScreen();
+            this.completeCurrentScreen();
+        }
+        
     }
 
     _setProductData(event) {
@@ -397,10 +400,13 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         if (this.currentTab !== 0) {
             if (this.tabs[this.currentTab - 1].enable == true) {
                 this.tabs[this.currentTab].current = false;
+                if(this.currentTab == 2)
+                    this.tabs[this.currentTab].enable = false;
                 this.currentTab = this.currentTab - 1;
                 this.tabs[this.currentTab].current = true;
                 this.changeTab();
                 this.changeStyle();
+
             } else {
                 this.showNotification(this.tabs[this.currentTab].message, 'Não é possível voltar uma etapa');
             }
