@@ -426,8 +426,10 @@ export default class OrderHeaderScreen extends LightningElement {
             if ((this.headerDictLocale.tipo_venda !== undefined &&
                 this.headerDictLocale.safra.Id !== undefined &&
                 this.headerDictLocale.cultura.Id !== undefined &&
-                this.headerDictLocale.data_pagamento !== undefined &&
-                this.headerDictLocale.data_entrega !== undefined &&
+                this.headerDictLocale.data_pagamento !== null &&
+                this.headerDictLocale.data_pagamento !== ' ' &&
+                this.headerDictLocale.data_entrega !== null &&
+                this.headerDictLocale.data_entrega !== ' ' &&
                 this.headerDictLocale.condicao_venda != ' ' &&
                 this.headerDictLocale.condicao_venda.Id !== undefined &&
                 this.headerDictLocale.condicao_pagamento.Id !== undefined &&
