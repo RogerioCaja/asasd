@@ -69,6 +69,16 @@
         <div class="campos">
             <fieldset class="slds-form-element slds-form-element_compound">
                 <div class="slds-form-element__control">
+                    <div  if:false={headerData.IsOrderChild} class="slds-form-element__row">
+                        <div class="slds-size_1-of-4">
+                            <p>
+                                <label>Pedido Mãe:</label>
+                                <input  if:true={headerData.pedido_mae_check} type="checkbox" id="check0" name="pedido_mae_check" value="yes" onchange={selectItemRegister} checked>
+                                <input  if:false={headerData.pedido_mae_check} type="checkbox" id="check1" name="pedido_mae_check" value="no" onchange={selectItemRegister} disabled={headerDictLocale.IsOrderChild}>
+                            </p>
+                        </div>
+                    </div>
+
                     <div class="slds-form-element__row">
                         <div class="slds-form-element slds-size_1-of-4">
                            
@@ -218,7 +228,8 @@
                                 onchange={selectItemRegister} 
                                 required="true"
                                 disabled={disabled}
-                                min={currentDate}>
+                                min={currentDate}
+                                max={dateLimitBilling}>
                             </lightning-input>
                         </div>
                         <div class="slds-size_1-of-4">
@@ -282,9 +293,9 @@
                             </lightning-combobox>
                             
                         </div>
-                        <div class="slds-size_1-of-4">
+                        <!-- <div class="slds-size_1-of-4">
                             <c-lookup-order-mother name="pedido_mae" record-id={headerData.pedido_mae.Id} onclearselectedrecord={removeItemRegister} onselectrecord={selectItemRegister} order-list={orderMother} disabled={disabled}></c-lookup-order-mother>
-                        </div>
+                        </div> -->
                         <div class="slds-size_1-of-4">
                             <lightning-input 
                             name="hectares"
@@ -296,14 +307,6 @@
                             required="true"
                             disabled={disabled}>
                             </lightning-input>
-                        </div>
-                    </div>
-                    <div class="slds-form-element__row">
-                        <div class="slds-size_1-of-4">
-                            Pedido Mãe: 
-                            <input  if:true={headerData.pedido_mae_check} type="checkbox" id="check0" name="pedido_mae_check" value="yes" onchange={selectItemRegister} checked>
-                            <input  if:false={headerData.pedido_mae_check} type="checkbox" id="check1" name="pedido_mae_check" value="no" onchange={selectItemRegister} disabled={headerDictLocale.IsOrderChild}>
-                            
                         </div>
                     </div>
                     

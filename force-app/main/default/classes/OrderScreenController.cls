@@ -366,7 +366,7 @@ public without sharing class OrderScreenController {
             Id activitySectorId;
             Id distributionChannelId;
             if (salesTeamTerritory != null && salesTeamTerritory.DeveloperName != null) {
-                String salesTeamDevName = salesTeamTerritory.DeveloperName.substring(1, salesTeamTerritory.DeveloperName.length());
+                String salesTeamDevName = salesTeamTerritory.DeveloperName.substring(0, 1) == 'X' ? salesTeamTerritory.DeveloperName.substring(1, salesTeamTerritory.DeveloperName.length()) : salesTeamTerritory.DeveloperName;
                 for (Company__c salesTeamCompany : [
                     SELECT Id,
                            SalesOrg__c,
@@ -409,9 +409,11 @@ public without sharing class OrderScreenController {
             order.ShippingDate__c = Date.valueOf(orderData.headerData.data_entrega);
             order.DescriptionBillingSale__c = orderData.summaryData.billing_sale_observation;
             order.OrderReference__c = orderData.headerData.pedido_mae.Id;
-            order.IsOrderMother__c = Boolean.valueOf(orderData.headerData.pedido_mae_check);
-            order.FinalTotalValue__c = orderTotalValue != null ? orderTotalValue.setScale(4) : 0;
+            System.debug('orderData.headerData.pedido_mae.Id: ' + orderData.headerData.pedido_mae.Id);
+            order.IsOrderMother__c = orderData.headerData.pedido_mae.Id != null ? false : Boolean.valueOf(orderData.headerData.pedido_mae_check);
+            order.FinalTotalValue__c = orderTotalValue;
             order.Company__c = companyId;
+            order.OrderType__c = orderData.headerData.pedido_mae.Id != null ? 'Pedido Filho' : (order.IsOrderMother__c ? 'Pedido Mãe' : 'Pedido Normal');
 
             Map<Id, OrderItem> motherItems = new Map<Id, OrderItem>();
             Boolean newDivision = false;
@@ -460,6 +462,7 @@ public without sharing class OrderScreenController {
                         itemCounter++;
                     }
                     
+                    System.debug('orderProduct.orderItemId: ' + orderProduct.orderItemId);
                     if (motherItems.containsKey(orderProduct.orderItemId)) {
                         OrderItem motherItem = motherItems.get(orderProduct.orderItemId);
                         motherItem.AmountUsed__c = motherItem.AmountUsed__c != null ? motherItem.AmountUsed__c + orderProduct.quantity : 0;
@@ -685,7 +688,7 @@ public without sharing class OrderScreenController {
         Id discountOrAdditionRecType = result.isDiscount ? Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get('ZDAN').getRecordTypeId()
                                                          : Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get('ZJUR').getRecordTypeId();
         
-        String companyGroup = '';
+        /* String companyGroup = '';
         for (Company__c accountCompany : [
             SELECT Id,
                    ClientGroup__c
@@ -694,7 +697,7 @@ public without sharing class OrderScreenController {
              LIMIT 1
         ]) {
             companyGroup = accountCompany.ClientGroup__c;
-        }
+        } */
 
         Id userTerritoryId;
         for (UserTerritory2Association userAssociation : [
@@ -800,7 +803,8 @@ public without sharing class OrderScreenController {
         Safra__c safra = [SELECT Id,
                                  StartDateOrderInsertion__c,
                                  EndDateInsertionOrders__c,
-                                 NumberOfDaysAfterPayment__c
+                                 NumberOfDaysAfterPayment__c,
+                                 EndDateBilling__c
                             FROM Safra__c
                            WHERE Id =: safraId];
         return JSON.serialize(new SafraDataSerialize(safra));
@@ -1259,12 +1263,14 @@ public without sharing class OrderScreenController {
         public String initialDate;
         public String endDate;
         public String paymentDate;
+        public String endDateBilling;
     }
 
     public class SafraDataSerialize {
         public String initialDate;
         public String endDate;
         public String paymentDate;
+        public String endDateBilling;
 
         SafraDataSerialize() {}
 
@@ -1272,6 +1278,7 @@ public without sharing class OrderScreenController {
             this.initialDate = String.valueOf(safra.StartDateOrderInsertion__c);
             this.endDate = String.valueOf(safra.EndDateInsertionOrders__c);
             this.paymentDate = String.valueOf(safra.NumberOfDaysAfterPayment__c);
+            this.endDateBilling = String.valueOf(safra.EndDateBilling__c);
         }
     }
 
