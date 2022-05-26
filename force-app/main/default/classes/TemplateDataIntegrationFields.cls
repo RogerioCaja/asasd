@@ -410,10 +410,9 @@ global with sharing class TemplateDataIntegrationFields {
         public String codigoEmpresa;
         public String cliente;
         public String propriedade;
-        public String cpfCnpjCliente;
-        public String cpfCnpjVendedor;
         public Decimal valorTotalNf;
         public String naturezaOperacao;
+        public String numeroPedido;
         public List<TemplateDataIntegrationFields.ItensNotaFiscalINData> itensNotaFiscal; 
         public NotaFiscal__c serialize(Map<String, Id> lookups){
 
@@ -423,7 +422,7 @@ global with sharing class TemplateDataIntegrationFields {
                 Name = this.invoiceName,
                 ExternalID__c = this.invoiceName + '|' + this.numeroNotaFiscal,
                 AccountCode__c = lookups.containsKey('Account'+this.cliente) ? lookups.get('Account' + this.cliente) : null,
-                OrderCode__c = lookups.containsKey('Order'+this.cpfCnpjCliente) ? lookups.get('Order'+ this.cpfCnpjCliente) : null,
+                OrderCode__c = lookups.containsKey('Order'+this.numeroPedido) ? lookups.get('Order'+ this.numeroPedido) : null,
                 Company__c = lookups.containsKey('SalesOrg__c'+this.codigoEmpresa) ? lookups.get('SalesOrg__c'+this.codigoEmpresa) : null,
                 ReceiverAccountCode__c = lookups.containsKey('Account'+this.propriedade) ? lookups.get('Account'+this.propriedade) : null,
                 invoiceNumber__c = this.numeroNotaFiscal,
@@ -433,7 +432,6 @@ global with sharing class TemplateDataIntegrationFields {
                 AccessKey__c = this.chaveAcesso,
                 Invoice_CreationDate__c = this.dataCriacao,
                 HoraCriacao__c = this.horaCriacao,
-                CNPJCode__c = this.cpfCnpjVendedor,
                 Invoice_TotalAmount__c = this.valorTotalNf,
                 CFOP__c = this.naturezaOperacao
             );
