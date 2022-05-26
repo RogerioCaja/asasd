@@ -22,7 +22,7 @@ global with sharing class IntegrationINShippingDivisonAppdigital {
             orderItemLookups.add(ShippingDivisonINData.orderExternalId+'|'+ ShippingDivisonINData.OrderItemCode);
 
             // Pega a relação do Product com o OrderItem
-            //Getting product parameters to search
+            //Getting product parameters to search      
         }
         // Pega o produto com base no ExternalID recebido
         //Product2 search based on ExternalId__c field sent

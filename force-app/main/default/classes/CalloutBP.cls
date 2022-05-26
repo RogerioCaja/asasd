@@ -110,10 +110,12 @@ public with sharing class CalloutBP {
             lookups.put('SalesOrg__c' + sales.SalesOrganizationCode__c, sales.Id);
         }
         //Get ActivitySector
+        
         List<ActivitySector__c> activyList = new List<ActivitySector__c>([SELECT Id, Codigo__c FROM ActivitySector__c WHERE Codigo__c =: activitySectorIdList]);
         for (ActivitySector__c sector : activyList) {
             lookups.put('ActivitySector__c' + sector.Codigo__c, sector.Id);
         }
+        
         //Get DistributionChannel
         List<DistributionChannel__c> distributionList = new List<DistributionChannel__c>([SELECT Id, Codigo__c FROM DistributionChannel__c WHERE Codigo__c =: distributionChannelIdList]);
         for (DistributionChannel__c distribution : distributionList) {
