@@ -78,12 +78,15 @@ public with sharing class CalloutCTVCarteira {
             for(ObjectTerritory2Association terrytory : terrytoryObject){
                 accountIds.add(terrytory.ObjectId);
             }
-
+            Territory2 territoryParrent;
+            if(territory.ParentTerritory2Id != null){
+                territoryParrent = [SELECT id, DeveloperName, lastmodifieddate, ParentTerritory2.DeveloperName, name, Territory2Type.DeveloperName FROM territory2 WHERE Id =: territory.ParentTerritory2Id];
+            }
             List<Account> accountList = new List<Account>([SELECT Id, ExternalId__c  FROM Account WHERE Id =: accountIds]);
             header.IdTerritorio = territory.DeveloperName;
             header.VendedorSAP = territoryAsso != null ?  territoryAsso.User.CodigoSAP__c : null;
             header.DataHoraAtualizacao = territory.LastModifiedDate;
-            header.TerritorioPai = territory.ParentTerritory2Id;
+            header.TerritorioPai = territoryParrent != null ? territoryParrent.DeveloperName : null;
             header.NamePosition = territory.Name;
             header.TipoTerritorio = territory.Territory2Type.DeveloperName;
             List<CalloutCTVCarteira.ClienteParameters> clientList= new List<CalloutCTVCarteira.ClienteParameters>();
