@@ -13,9 +13,9 @@ public with sharing class CalloutOrder {
     public static IntegrationUtils.CalloutResponse processIntegration(Id orderId){
 
 		Order parentOrder = [SELECT Id, CodigoSap__c, ShippingAccount__r.ExternalId__c, Account.ExternalId__c, Type, SalesOrg__r.SalesOrganizationCode__c, DistributionChannel__c, DistributionChannel__r.Codigo__c,
-                            ActivitySector__c, Incoterms__c, Incoterms2__c, PaymentCondition__r.Code__c, OrderReason__c , SalesCTV__r.CodigoSap__c, PaymentDate__c,
+                            ActivitySector__c, ActivitySector__r.Codigo__c, Incoterms__c, Incoterms2__c, PaymentCondition__r.Code__c, OrderReason__c , SalesCTV__r.CodigoSap__c, PaymentDate__c,EffectiveDate,
                             OrderNumber, Crop__r.Code__c, Crop__r.StartDateOrderInsertion__c, Crop__r.EndDateInsertionOrders__c ,Culture__r.Codigo__c, EndDate, TotalAmount, PaymentForm__c, OrderReference__c, CustomerOrderNumber__c,
-                            Currency__c, Crop__r.PaymentBaseDate__c, RecordTypeId, (SELECT Id FROM OrderItems) 
+                            Currency__c, Crop__r.PaymentBaseDate__c,IsOrderMother__c, RecordTypeId, (SELECT Id FROM OrderItems) 
                             FROM Order WHERE Id = :orderId];
 		
 		List<Order> allOrders = new List<Order>{parentOrder};
@@ -172,7 +172,7 @@ public with sharing class CalloutOrder {
 
             IS_HEADER_IN = new CalloutOrder.Header();
             
-            IV_TYPE = order.OrderReference__c != null ? 'G' : 'C';
+            IV_TYPE = order.IsOrderMother__c != false ? 'G' : 'C';
 
             String dateF;
 
@@ -183,14 +183,14 @@ public with sharing class CalloutOrder {
                 dateF = String.valueOf(order.Crop__r.StartDateOrderInsertion__c).replace('-', '');
             }
             
-            IS_HEADER_IN.DOC_TYPE = getCodeTypeOrder(String.valueOf([SELECT DeveloperName FROM RecordType WHERE Name =: order.Type][0].DeveloperName), IV_TYPE == 'G' ? true : false); 
+            IS_HEADER_IN.DOC_TYPE = IV_TYPE == 'C' ? 'ZVNO': getCodeTypeOrder(String.valueOf([SELECT DeveloperName FROM RecordType WHERE Name =: order.Type][0].DeveloperName), IV_TYPE == 'G' ? true : false); 
             IS_HEADER_IN.SALES_ORG = order.SalesOrg__r.SalesOrganizationCode__c;
             IS_HEADER_IN.DISTR_CHAN =order.DistributionChannel__r.Codigo__c;
-            IS_HEADER_IN.DIVISION = order.ActivitySector__c;
+            IS_HEADER_IN.DIVISION = IV_TYPE == 'C' ? order.ActivitySector__r.Codigo__c : '10';
             IS_HEADER_IN.INCOTERMS1 = order.Incoterms__c;
             IS_HEADER_IN.INCOTERMS2 = order.Incoterms2__c;
             IS_HEADER_IN.PMNTTRMS = order.PaymentCondition__r.Code__c;
-            IS_HEADER_IN.PYMT_METH = order.PaymentForm__c;
+            IS_HEADER_IN.PYMT_METH = 'B';//order.PaymentForm__c;
             
             IS_HEADER_IN.CT_VALID_F = IV_TYPE == 'G'  ? dateF :  '';
             IS_HEADER_IN.CT_VALID_T = IV_TYPE == 'G' ? String.valueOf(order.Crop__r.EndDateInsertionOrders__c).replace('-', '') : '';
