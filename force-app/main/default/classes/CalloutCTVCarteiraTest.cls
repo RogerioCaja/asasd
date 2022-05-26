@@ -49,7 +49,7 @@ public with sharing class CalloutCTVCarteiraTest {
         CalloutOrder calloutTest = new CalloutOrder();
         Test.setMock(HttpCalloutMock.class, new CalloutCTVMock(true));
         Test.startTest();
-        //CalloutCTVCarteira.processIntegration();
+        CalloutCTVCarteira.processIntegration();
         Test.stopTest();
     } 
 }

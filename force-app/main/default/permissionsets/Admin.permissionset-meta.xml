@@ -1046,11 +1046,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Order.IsOrderMother__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
         <field>Order.Manager_BranchOffice__c</field>
         <readable>true</readable>
     </fieldPermissions>

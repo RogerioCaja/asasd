@@ -20,7 +20,7 @@ public with sharing class Territory2Helper {
     
     public static void checkUpdateFieldsCTV(List<Territory2> newRecords){
         if(!Test.isRunningTest() ){
-            //CalloutCTVCarteira.processIntegration();
+            CalloutCTVCarteira.processIntegration();
         }
     }
 }

@@ -19,6 +19,6 @@ public with sharing class UserHelper {
 
     
     public static void calloutCTVIntegration(){
-        //CalloutCTVCarteira.processIntegration();
+        CalloutCTVCarteira.processIntegration();
     }
 }

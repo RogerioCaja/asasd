@@ -11,44 +11,19 @@
         <valueSetDefinition>
             <sorted>false</sorted>
             <value>
-                <fullName>NÃO SEGMENTADO</fullName>
+                <fullName>A</fullName>
                 <default>false</default>
-                <label>NÃO SEGMENTADO</label>
+                <label>A</label>
             </value>
             <value>
-                <fullName>REDISTRIBUIÇÃO</fullName>
+                <fullName>B</fullName>
                 <default>false</default>
-                <label>REDISTRIBUIÇÃO</label>
+                <label>B</label>
             </value>
             <value>
-                <fullName>MODULAR</fullName>
+                <fullName>C</fullName>
                 <default>false</default>
-                <label>MODULAR</label>
-            </value>
-            <value>
-                <fullName>CLÁSSICO</fullName>
-                <default>false</default>
-                <label>CLÁSSICO</label>
-            </value>
-            <value>
-                <fullName>INOVADOR</fullName>
-                <default>false</default>
-                <label>INOVADOR</label>
-            </value>
-            <value>
-                <fullName>CLUBE A</fullName>
-                <default>false</default>
-                <label>CLUBE A</label>
-            </value>
-            <value>
-                <fullName>CONECTA</fullName>
-                <default>false</default>
-                <label>CONECTA</label>
-            </value>
-            <value>
-                <fullName>DINÂMICO</fullName>
-                <default>false</default>
-                <label>DINÂMICO</label>
+                <label>C</label>
             </value>
         </valueSetDefinition>
     </valueSet>

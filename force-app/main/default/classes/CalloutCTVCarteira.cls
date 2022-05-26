@@ -2,13 +2,19 @@ public with sharing class CalloutCTVCarteira {
 
     @future(callout = true)
     public static void processIntegration(){
+
         List<Territory2> territoryList = new List<Territory2>([SELECT id, DeveloperName, lastmodifieddate, ParentTerritory2.DeveloperName, name, Territory2Type.DeveloperName FROM territory2]);
-        sendOrder(territoryList);
 
         
+        IntegrationUtils.CalloutCTVResponse calloutResponse = sendOrder(territoryList);
+
+        if (calloutResponse.success) {
+            System.debug('integração foi um sucesso');
+
+        }
     }
 
-    public static void sendOrder(List<Territory2> territoryList) {
+    public static IntegrationUtils.CalloutCTVResponse sendOrder(List<Territory2> territoryList) {
 
         List<RequestParameters> request = new List<RequestParameters>();
         
@@ -36,9 +42,22 @@ public with sharing class CalloutCTVCarteira {
             HttpResponse response = responseObject.response;
 
             IntegrationLog.createLog('Pedido OUT', 'OUT', response.getBody(), payload, false);
+            // .WSLog('Pedido', 'OUTBOUND', response.getBody(), payload, false);
             System.debug('response.getBody(): '+ response.getBody());
+            try {
+                
+                List<ResponseParametersWrapper> responses = (List<ResponseParametersWrapper>) JSON.deserialize(response.getBody(), List<ResponseParametersWrapper>.class);
+                return new IntegrationUtils.CalloutCTVResponse(new ResponseParameters(responses));
+            } catch (Exception e) {
+                
+                String defaultErrorMessage = 'Malformatted HTTP Response Exception: ' + e.getMessage();
+
+                return new IntegrationUtils.CalloutCTVResponse(defaultErrorMessage);
+            }
         } else {
+
             IntegrationLog.createLog('Pedido OUT', 'OUT', responseObject.exceptionObject.getMessage(), payload, true);
+            return new IntegrationUtils.CalloutCTVResponse(responseObject.exceptionObject.getMessage());
         }
     }
     public static String getAcessCode(){
@@ -67,7 +86,6 @@ public with sharing class CalloutCTVCarteira {
             List<String> accountIds = new List<String>();
             CalloutCTVCarteira.HeaderInsert header = new CalloutCTVCarteira.HeaderInsert();
             UserTerritory2Association territoryAsso;
-
             Try{
                 territoryAsso = [SELECT id, User.CodigoSAP__c FROM UserTerritory2Association WHERE Territory2Id =: territory.Id];
              } 

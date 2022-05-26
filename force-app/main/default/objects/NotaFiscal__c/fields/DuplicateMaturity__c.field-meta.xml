@@ -3,7 +3,7 @@
     <fullName>DuplicateMaturity__c</fullName>
     <externalId>false</externalId>
     <label>Vencimento Duplicata</label>
-    <required>false</required>
+    <required>true</required>
     <trackFeedHistory>false</trackFeedHistory>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>
