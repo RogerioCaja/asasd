@@ -28,7 +28,7 @@ export default class OrderProductScreen extends LightningElement {
     }
 
     companyResult=[];
-    selectCompany=false;
+    selectCompany = false;
     safraData={};
     paymentDate;
     hectares;
@@ -133,7 +133,6 @@ export default class OrderProductScreen extends LightningElement {
         getAccountCompanies({data: JSON.stringify(getCompanyData)})
         .then((result) => {
             this.companyResult = JSON.parse(result).listCompanyInfos;
-            console.log('this.companyResult.length: ' + this.companyResult.length);
             if (this.companyResult.length == 0) {
                 this.showToast('warning', 'Atenção!', 'Não foi encontrado Área de Vendas no SAP. Contate o administrador do sistema.');
             } if (this.companyResult.length == 1) {
@@ -141,33 +140,37 @@ export default class OrderProductScreen extends LightningElement {
                 this.onSelectCompany();
             } else if (this.companyResult.length > 1) {
                 this.selectCompany = true;
-                // this.selectedCompany = this.companyResult[0];
-                // this.onSelectCompany();
             }
         });
     }
 
     chooseCompany(event) {
         let oldCompanyId;
+        let companies = this.companyResult;
         if (this.isFilled(this.selectedCompany)) {
-            let companies = this.companyResult;
-            oldCompanyId = this.selectedCompany.companyId;
+            oldCompanyId = this.isFilled(this.selectedCompany) ? this.selectedCompany.companyId : null;
             for (let index = 0; index < companies.length; index++) {
                 if (companies[index].companyId == oldCompanyId) {
                     companies[index].selected = false;
+                    this.selectedCompany = {};
+                } else if (companies[index].companyId == event.target.dataset.targetId) {
+                    companies[index].selected = true;
+                    this.selectedCompany = companies[index];
                 }
             }
-
-            this.companyResult = JSON.parse(JSON.stringify(companies));
+        } else {
+            for (let index = 0; index < companies.length; index++) {
+                if (companies[index].companyId == event.target.dataset.targetId) {
+                    companies[index].selected = true;
+                    this.selectedCompany = companies[index];
+                }
+            }
         }
-
-        if (oldCompanyId != event.target.dataset.targetId) {
-            this.selectedCompany = this.companyResult.find(e => e.companyId == event.target.dataset.targetId);
-            console.log('this.selectedCompany: ' + JSON.stringify(this.selectedCompany));
-        }
+        this.companyResult = JSON.parse(JSON.stringify(companies));
     }
 
     onSelectCompany() {
+        this.selectCompany = !this.selectCompany;
         if (this.isFilled(this.headerData.safra.Id)) {
             getSafraInfos({safraId: this.headerData.safra.Id})
             .then((result) => {
@@ -185,6 +188,7 @@ export default class OrderProductScreen extends LightningElement {
                     productCurrency: this.headerData.moeda,
                     culture: this.headerData.cultura.Id,
                     orderType: this.headerData.tipo_venda,
+                    supplierCenter: this.selectedCompany.supplierCenter,
                     salesOrgId: this.selectedCompany.salesOrgId != null ? this.selectedCompany.salesOrgId : '',
                     salesOfficeId: this.selectedCompany.salesOfficeId != null ? this.selectedCompany.salesOfficeId : '',
                     salesTeamId: this.selectedCompany.salesTeamId != null ? this.selectedCompany.salesTeamId : ''

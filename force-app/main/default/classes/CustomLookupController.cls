@@ -77,7 +77,6 @@ public without sharing class CustomLookupController {
             System.debug('productParams: ' + productParams);
             Id commodityRecType = Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get('ZPR0').getRecordTypeId();
 
-            // SalesResult salesResult = getSalesOrgId(productParams.accountId, productParams.ctvId) != null ? getSalesOrgId(productParams.accountId, productParams.ctvId) : null;
             SalesResult salesResult = new SalesResult();
             salesResult.salesOrgId = productParams.salesOrgId;
             salesResult.salesOfficeId = productParams.salesOfficeId;
@@ -124,6 +123,7 @@ public without sharing class CustomLookupController {
                  WHERE Product__c IN: productsPriceById.keySet()
                    AND SalesOrg__c =: salesResult.salesOrgId
                    AND Status__c = 'Adicionada'
+                   AND SupplierCenter__c =: productParams.supplierCenter
             ]) {
                 prodsId.add(orgVProduct.Product__c);
             }
@@ -248,55 +248,6 @@ public without sharing class CustomLookupController {
 	    }
     }
 
-    /* public static SalesResult getSalesOrgId(Id accountId, Id ctvId) {
-        SalesResult result = new SalesResult();
-        Id userTerritoryId;
-        for (UserTerritory2Association userAssociation : [
-            SELECT Id,
-                   UserId,
-                   Territory2Id
-              FROM UserTerritory2Association
-             WHERE UserId =: ctvId
-             LIMIT 1
-        ]) {
-            userTerritoryId = userAssociation.Territory2Id;
-        }
-
-        Map<Id, Territory2> territoryAndParents = new Map<Id, Territory2>();
-        for(Territory2 territory : [
-            SELECT Id,
-                   DeveloperName,
-                   ParentTerritory2Id
-              FROM Territory2
-        ]){
-            territoryAndParents.put(territory.Id, territory);
-        }
-
-        if (territoryAndParents != null && territoryAndParents.get(userTerritoryId) != null && territoryAndParents.get(territoryAndParents.get(userTerritoryId).ParentTerritory2Id) != null) {
-            Territory2 salesTeamTerritory = territoryAndParents.get(territoryAndParents.get(userTerritoryId).ParentTerritory2Id);
-            
-            if (salesTeamTerritory != null && salesTeamTerritory.DeveloperName != null) {
-                String salesTeamDevName = salesTeamTerritory.DeveloperName.substring(0, 1) == 'X' ? salesTeamTerritory.DeveloperName.substring(1, salesTeamTerritory.DeveloperName.length()) : salesTeamTerritory.DeveloperName;
-                for (Company__c salesTeamCompany : [
-                    SELECT Id,
-                           SalesOrg__c,
-                           SalesOffice__c,
-                           SalesTeam__c
-                      FROM Company__c
-                     WHERE Conta__c =: accountId
-                       AND SalesTeam__r.ExternalId__c =: salesTeamDevName
-                ]) {
-                    result.salesOrgId = salesTeamCompany.SalesOrg__c;
-                    result.salesOfficeId = salesTeamCompany.SalesOffice__c;
-                    result.salesTeamId = salesTeamCompany.SalesTeam__c;
-                }
-            }
-        }
-        result.segmento = [SELECT Industry FROM Account WHERE Id =: accountId].Industry;
-
-        return result;
-    } */
-
     public class RecordsData {
 
         @AuraEnabled public String label;
@@ -348,6 +299,7 @@ public without sharing class CustomLookupController {
         public String productCurrency;
         public String culture;
         public String orderType;
+        public String supplierCenter;
         public String salesOrgId;
         public String salesOfficeId;
         public String salesTeamId;

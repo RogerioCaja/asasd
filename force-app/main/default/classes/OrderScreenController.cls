@@ -713,8 +713,8 @@ public without sharing class OrderScreenController {
         }
 
         List<CompanyInfos> companyList = new List<CompanyInfos>();
-        // if (salesTeamTerritory != null && salesTeamTerritory.DeveloperName != null) {
-            // String salesTeamDevName = salesTeamTerritory.DeveloperName.substring(0, 1) == 'X' ? salesTeamTerritory.DeveloperName.substring(1, salesTeamTerritory.DeveloperName.length()) : salesTeamTerritory.DeveloperName;
+        if (salesTeamTerritory != null && salesTeamTerritory.DeveloperName != null) {
+            String salesTeamDevName = salesTeamTerritory.DeveloperName.substring(0, 1) == 'X' ? salesTeamTerritory.DeveloperName.substring(1, salesTeamTerritory.DeveloperName.length()) : salesTeamTerritory.DeveloperName;
             for (Company__c salesTeamCompany : [
                 SELECT Id,
                        SalesOrg__c,
@@ -727,7 +727,7 @@ public without sharing class OrderScreenController {
                        DistributionChannel__r.Name
                   FROM Company__c
                  WHERE Conta__c =: companyInfos.accountId
-                   AND SalesTeam__r.ExternalId__c = '001'
+                   AND SalesTeam__r.ExternalId__c =: salesTeamDevName
             ]) {
                 CompanyInfos company = new CompanyInfos();
                 company.companyId = salesTeamCompany.Id;
@@ -743,7 +743,7 @@ public without sharing class OrderScreenController {
                 company.selected = false;
                 companyList.add(company);
             }
-        // }
+        }
         return JSON.serialize(new CompanyInfosSerialize(companyList));
     }
 
