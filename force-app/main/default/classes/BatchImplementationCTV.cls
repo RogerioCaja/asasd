@@ -1,7 +1,7 @@
 global class BatchImplementationCTV  implements Database.Batchable<sObject>, Database.AllowsCallouts{
     String query;
     public static void run(){
-        Database.executeBatch(new BatchImplementationCTV(), 1);
+        Database.executeBatch(new BatchImplementationCTV(), 200);
     }
     public BatchImplementationCTV() {}
 
