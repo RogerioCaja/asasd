@@ -748,17 +748,6 @@ public without sharing class OrderScreenController {
     }
 
     @AuraEnabled
-    public static String getSafraInfos(String safraId){
-        Safra__c safra = [SELECT Id,
-                                 StartDateOrderInsertion__c,
-                                 EndDateInsertionOrders__c,
-                                 NumberOfDaysAfterPayment__c
-                            FROM Safra__c
-                           WHERE Id =: safraId];
-        return JSON.serialize(new SafraDataSerialize(safra));
-    }
-
-    @AuraEnabled
     public static String getFinancialInfos(String data) {
         FinancialResult result = new FinancialResult();
         OrderDataDeserialize orderValues = (OrderDataDeserialize) JSON.deserialize(data, OrderDataDeserialize.class);
