@@ -1566,6 +1566,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>ProductHierarchy__c.External_Id__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>ProductOffered__c.Amount__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1988,6 +1993,15 @@
         <allowEdit>true</allowEdit>
         <allowRead>true</allowRead>
         <modifyAllRecords>true</modifyAllRecords>
+        <object>ProductHierarchy__c</object>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>true</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>true</modifyAllRecords>
         <object>ProductOffered__c</object>
         <viewAllRecords>true</viewAllRecords>
     </objectPermissions>
@@ -2227,6 +2241,10 @@
     </tabSettings>
     <tabSettings>
         <tab>ProductGroup__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>ProductHierarchy__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
     <tabSettings>
