@@ -52,14 +52,13 @@ public with sharing class IntegrationINInvoiceTest {
         listInvoice.invoiceName = '1620';
         listInvoice.numeroNotaFiscal = '1620';
         listInvoice.cliente = '100';
-        listInvoice.cpfCnpjCliente = '100';
+        listInvoice.numeroPedido = '100';
         listInvoice.codigoEmpresa = '1';
         listInvoice.propriedade = '100';
         listInvoice.serie = '001';
         listInvoice.localNegocios = 'Minas Gerais';
         listInvoice.codigoStatus = '1';
         listInvoice.chaveAcesso = '3511.0444.4631.5600.0184.5505.9000.1947.4412.0510.2788';
-        listInvoice.cpfCnpjVendedor = '40202262936';
         listInvoice.valorTotalNf = 110;
         listInvoice.naturezaOperacao = '09090945';
         listInvoice.itensNotaFiscal = listItemsList;
