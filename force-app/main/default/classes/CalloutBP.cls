@@ -230,7 +230,7 @@ public with sharing class CalloutBP {
             BlockedCredit__c = blocked,
             LimitBalance__c = valor.Saldo,
             Safra__c = lookups.containsKey('Safra__c'+String.valueOf(valor.Safra)) ? lookups.get('Safra__c'+String.valueOf(valor.Safra)) : null,
-            ExternalId__c = valor.CodigoExternoAccount + valor.Safra + valor.Cultura + valor.Garantia);
+            ExternalId__c = valor.CodigoExternoAccount + valor.Safra + valor.Cultura);
             creditListToUpsert.add(credit);
         }
         if (!creditListToUpsert.isEmpty()) {
