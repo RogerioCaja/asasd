@@ -62,7 +62,7 @@
 				<div class="row">
 					<div class="column">
 						<label>Dosagem</label><br>
-						<input class="input-design" type="number" value={addProduct.dosage} onchange={changeValue} data-target-id="dosage"/>
+						<input class="input-design" type="number" value={addProduct.dosage} onchange={changeValue} data-target-id="dosage" disabled={headerData.IsOrderChild}/>
 					</div>
 					<div class="column">
 						<label>Quantidade</label><br>
