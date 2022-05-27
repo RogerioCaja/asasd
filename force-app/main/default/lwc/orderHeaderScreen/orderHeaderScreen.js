@@ -78,7 +78,8 @@ export default class OrderHeaderScreen extends LightningElement {
         frete: "CIF",
         org: {Name: " "},
         aprovation: null,
-        IsOrderChild : false
+        IsOrderChild : false,
+        isCompleted : false,
     };
 
     @api productData;
@@ -388,6 +389,7 @@ export default class OrderHeaderScreen extends LightningElement {
             var field = event.target.name;
             this.headerDictLocale[field] = {};
             // this.headerDictLocale.IsOrderChild = field == 'pedido_mae' ? false : null;
+            this.headerDictLocale.isCompleted = false;
             this._setData();
         }catch(err){
             console.log(err);
@@ -411,6 +413,7 @@ export default class OrderHeaderScreen extends LightningElement {
     @api
     _verifyFieldsToSave() {
         if (this.verifyMandatoryFields()) {
+            this.headerDictLocale.isCompleted = true;
             this._setData();
             return true;
         }
@@ -423,8 +426,10 @@ export default class OrderHeaderScreen extends LightningElement {
             if ((this.headerDictLocale.tipo_venda !== undefined &&
                 this.headerDictLocale.safra.Id !== undefined &&
                 this.headerDictLocale.cultura.Id !== undefined &&
-                this.headerDictLocale.data_pagamento !== undefined &&
-                this.headerDictLocale.data_entrega !== undefined &&
+                this.headerDictLocale.data_pagamento !== null &&
+                this.headerDictLocale.data_pagamento !== ' ' &&
+                this.headerDictLocale.data_entrega !== null &&
+                this.headerDictLocale.data_entrega !== ' ' &&
                 this.headerDictLocale.condicao_venda != ' ' &&
                 this.headerDictLocale.condicao_venda.Id !== undefined &&
                 this.headerDictLocale.condicao_pagamento.Id !== undefined &&
@@ -439,7 +444,7 @@ export default class OrderHeaderScreen extends LightningElement {
         } catch(err){
             console.log(err);
         }
-
+        this.headerDictLocale.isCompleted = false;
         return false; 
     }
 

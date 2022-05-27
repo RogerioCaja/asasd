@@ -228,11 +228,11 @@ public class OrderScreenControllerTest {
     public static void getFinancialInfosTest() {
         OrderScreenController.OrderDataDeserialize orderData = new OrderScreenController.OrderDataDeserialize();
         orderData.paymentDate = String.valueOf(System.today());
-        orderData.accountId = [SELECT Id FROM Account LIMIT 1].Id;
+        // orderData.accountId = [SELECT Id FROM Account LIMIT 1].Id;
         orderData.salesOrg = '';
-        orderData.pricebookId = Test.getStandardPricebookId();
+        // orderData.pricebookId = Test.getStandardPricebookId();
         orderData.safra = [SELECT Id FROM Safra__c LIMIT 1].Id;
-        orderData.ctv = UserInfo.getUserId();
+        // orderData.ctv = UserInfo.getUserId();
         orderData.culture = [SELECT Id FROM Cultura__c LIMIT 1].Id;
 
         String data = JSON.serialize(orderData);

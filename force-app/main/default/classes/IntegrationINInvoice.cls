@@ -26,7 +26,7 @@ global with sharing class IntegrationINInvoice {
             // Pega a relação da conta com o pedido
             //Getting account parameters to search
             accountLookups.add(invoice.cliente);
-            orderLookups.add(invoice.cpfCnpjCliente);
+            orderLookups.add(invoice.numeroPedido);
             companyLookups.add(invoice.codigoEmpresa);
             receiverLookups.add(invoice.propriedade);
 

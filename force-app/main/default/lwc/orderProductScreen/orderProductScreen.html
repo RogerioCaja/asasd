@@ -62,7 +62,7 @@
 				<div class="row">
 					<div class="column">
 						<label>Dosagem</label><br>
-						<input class="input-design" type="number" value={addProduct.dosage} onchange={changeValue} data-target-id="dosage"/>
+						<input class="input-design" type="number" value={addProduct.dosage} onchange={changeValue} data-target-id="dosage" disabled={headerData.IsOrderChild}/>
 					</div>
 					<div class="column">
 						<label>Quantidade</label><br>
@@ -478,6 +478,36 @@
 					</div>
 					<div class="column">
 						<button class="confirm-button" onclick={confirmDivision}>Confirmar</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</template>
+
+	<template if:true={selectCompany}>
+		<div id="select-company-modal" class="modal">
+            <div class="modal-content" style="width: 700px;">
+				<p class="new-product-title">Escolha umas das seguintes áreas de vendas:</p>
+
+				<template for:each={companyResult} for:item="company">
+					<div key={company.companyId} class="company-card">
+						<div class="container">
+							<div class="company-card-01">
+								<p><b>Equipe de Vendas:</b> {company.salesTeamName}</p>
+								<p><b>Centro Fornecedor:</b> {company.supplierCenter}</p>
+								<p><b>Setor de Atividade:</b> {company.activitySectorName}</p>
+								<p><b>Centro de distribuição:</b> {company.distributionChannelName}</p>
+							</div>
+							<div class="company-card-02">
+								<input type="checkbox" class="checkbox-round" onclick={chooseCompany} checked={company.selected} data-target-id={company.companyId}>
+							</div>
+						</div>
+					</div>
+				</template>
+
+				<div class="row">
+					<div class="column" style="width: 100%;">
+						<button class="confirm-button" onclick={onSelectCompany}>Confirmar</button>
 					</div>
 				</div>
 			</div>
