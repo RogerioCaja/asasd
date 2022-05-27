@@ -89,9 +89,9 @@ global with sharing class TemplateDataIntegrationFields {
     }
     
     global class Product2INData implements FieldData {
-        public String ProductName;
         public String ProductCode;
         public String TextoBreveMaterial;
+        public String DescricaoMaterial;
         public String UnidadeMedida;
         public String UnidadeMedidaRemessa;
         public String Status;
@@ -120,7 +120,7 @@ global with sharing class TemplateDataIntegrationFields {
             return new Product2(
                 Name = this.TextoBreveMaterial,
                 ProductCode = this.ProductCode,
-                //Description = //this.TextoBreveMaterial, ->> aqui podemos receber o campo de descrição do material conforme informado pelo Paulo
+                Description = this.DescricaoMaterial,
                 UnidadeMedida__c = this.UnidadeMedida,
                 GrossWeightUnitOfMeasure__c = this.UnidadeMedidaRemessa,
                 ProductType__c = this.TipoMaterial,
