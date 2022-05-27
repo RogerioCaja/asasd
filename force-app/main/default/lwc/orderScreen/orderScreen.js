@@ -66,6 +66,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         moeda: " ",
         ctv_venda: " ",
         pedido_mae: {},
+        IsOrderChild : false,
         pedido_mae_check : false,
         frete: "CIF",
         org: {Name: " "},
