@@ -32,7 +32,6 @@ import SAFRA_OBJECT from '@salesforce/schema/Safra__c';
 import SAFRA_NAME from '@salesforce/schema/Safra__c.Name';
 
 import getAccountDataChild from '@salesforce/apex/OrderScreenController.getAccountDataChild';
-import getOrderMothers from '@salesforce/apex/OrderScreenController.getOrderMothers';
 
 import getDateLimit from '@salesforce/apex/OrderScreenController.getSafraInfos';
 
@@ -49,7 +48,6 @@ export default class OrderHeaderScreen extends LightningElement {
 
     @api accountData;
     @api accountChildData;
-    @api orderMother;
 
     @api headerData;
     @api headerDictLocale ={
@@ -74,7 +72,7 @@ export default class OrderHeaderScreen extends LightningElement {
         moeda: " ",
         ctv_venda: " ",
         pedido_mae: {},
-        pedido_mae_check : false,
+        pedido_mae_check : true,
         frete: "CIF",
         org: {Name: " "},
         aprovation: null,
@@ -290,15 +288,6 @@ export default class OrderHeaderScreen extends LightningElement {
             this.accountChildData = accountsChild.accountList;
         })
         .catch((err)=>{
-        });
-        getOrderMothers().then((result) =>{
-            console.log(result);
-            const orderData = JSON.parse(result);
-            this.orderMother = orderData;
-            console.log(this.orderMother);
-        })
-        .catch((err)=>{
-            console.log(err);
         });
     }
 
