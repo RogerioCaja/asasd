@@ -54,7 +54,7 @@
 						<input class="input-design" type="text" value={addProduct.unity} disabled/> 
 					</div>
 					<div class="column">
-						<label>Preço de Lista</label><br>
+						<label>Preço Lista (un)</label><br>
 						<input class="input-design" type="number" value={addProduct.listPrice} disabled/>
 					</div>
 				</div>
@@ -65,14 +65,14 @@
 						<input class="input-design" type="number" value={addProduct.dosage} onchange={changeValue} data-target-id="dosage" disabled={headerData.IsOrderChild}/>
 					</div>
 					<div class="column">
-						<label>Quantidade</label><br>
+						<label>Qtd</label><br>
 						<input class="input-design" type="number" value={addProduct.quantity} onchange={changeValue} data-target-id="quantity"/>
 					</div>
 				</div>
 
 				<div class="row">
 					<div class="column">
-						<label>Preço Unitário</label><br>
+						<label>Preço Praticado (un)</label><br>
 						<input class="input-design" type="number" value={addProduct.unitPrice} onchange={changeValue} data-target-id="unitPrice" disabled={headerData.IsOrderChild}/>
 					</div>
 					<div class="column">
@@ -86,7 +86,7 @@
 
 				<div class="row">
 					<div class="column">
-						<label>Percentual de Desconto Comercial</label><br>
+						<label>% Desconto Comercial</label><br>
 						<input class="input-design" type="text" value={addProduct.commercialDiscountPercentage} maxlength="8" onkeypress={changeToPercentage} onchange={changeValue} data-target-id="commercialDiscountPercentage" disabled={headerData.IsOrderChild}/>
 					</div>
 					<div class="column">
@@ -97,7 +97,7 @@
 
 				<div class="row">
 					<div class="column">
-						<label>Percentual de Acréscimo Comercial</label><br>
+						<label>% Acréscimo Comercial</label><br>
 						<input class="input-design" type="text" value={addProduct.commercialAdditionPercentage} maxlength="8" onkeypress={changeToPercentage} onchange={changeValue} data-target-id="commercialAdditionPercentage" disabled={headerData.IsOrderChild}/>
 					</div>
 					<div class="column">
@@ -111,7 +111,7 @@
 
 				<div class="row">
 					<div class="column">
-						<label>Percentual de Acréscimo Financeiro</label><br>
+						<label>% Acréscimo Financeiro</label><br>
 						<input class="input-design" type="text" value={addProduct.financialAdditionPercentage} maxlength="8" data-target-id="financialAdditionPercentage" disabled/>
 					</div>
 					<div class="column">
@@ -122,7 +122,7 @@
 
 				<div class="row">
 					<div class="column">
-						<label>Percentual de Decréscimo Financeiro</label><br>
+						<label>% Decréscimo Financeiro</label><br>
 						<input class="input-design" type="text" value={addProduct.financialDecreasePercentage} maxlength="8" data-target-id="financialDecreasePercentage" disabled/>
 					</div>
 					<div class="column">
@@ -151,8 +151,8 @@
 						<input class="input-design" type="text" value={addProduct.productGroupName} onchange={changeValue} data-target-id="productGroupName" disabled/>
 					</div>
 					<div class="column">
-						<label>Status SAP</label><br>
-						<input class="input-design" type="text" value={addProduct.sapStatus} disabled/>
+						<label>Subgrupo do Produto</label><br>
+						<input class="input-design" type="text" value={addProduct.productSubgroupName} disabled/>
 					</div>
 				</div>
 
@@ -188,7 +188,7 @@
 					</div>
 					<div class="column">
 						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnListPrice} data-target-id="columnListPrice">
-						<label class="column-title">Preço de Lista</label><br>
+						<label class="column-title">Preço Lista (un)</label><br>
 					</div>
 				</div>
 
@@ -199,14 +199,14 @@
 					</div>
 					<div class="column">
 						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnQuantity} data-target-id="columnQuantity">
-						<label class="column-title">Quantidade</label><br>
+						<label class="column-title">Qtd</label><br>
 					</div>
 				</div>
 
 				<div class="row">
 					<div class="column">
 						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnUnitPrice} data-target-id="columnUnitPrice">
-						<label class="column-title">Preço Unitário</label><br>
+						<label class="column-title">Preço Praticado (un)</label><br>
 					</div>
 					<div class="column">
 						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnTotalPrice} data-target-id="columnTotalPrice">
@@ -217,7 +217,7 @@
 				<div class="row">
 					<div class="column">
 						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnCommercialDiscountPercentage} data-target-id="columnCommercialDiscountPercentage">
-						<label class="column-title">Percentual de Desconto Comercial</label><br>
+						<label class="column-title">% Desconto Comercial</label><br>
 					</div>
 					<div class="column">
 						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnCommercialDiscountValue} data-target-id="columnCommercialDiscountValue">
@@ -228,7 +228,7 @@
 				<div class="row">
 					<div class="column">
 						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnCommercialAdditionPercentage} data-target-id="columnCommercialAdditionPercentage">
-						<label class="column-title">Percentual de Acréscimo Comercial</label><br>
+						<label class="column-title">% Acréscimo Comercial</label><br>
 					</div>
 					<div class="column">
 						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnCommercialAdditionValue} data-target-id="columnCommercialAdditionValue">
@@ -239,7 +239,7 @@
 				<div class="row">
 					<div class="column">
 						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnFinancialAdditionPercentage} data-target-id="columnFinancialAdditionPercentage">
-						<label class="column-title">Percentual de Acréscimo Financeiro</label><br>
+						<label class="column-title">% Acréscimo Financeiro</label><br>
 					</div>
 					<div class="column">
 						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnFinancialAdditionValue} data-target-id="columnFinancialAdditionValue">
@@ -250,7 +250,7 @@
 				<div class="row">
 					<div class="column">
 						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnFinancialDecreasePercentage} data-target-id="columnFinancialDecreasePercentage">
-						<label class="column-title">Percentual de Decréscimo Financeiro</label><br>
+						<label class="column-title">% Decréscimo Financeiro</label><br>
 					</div>
 					<div class="column">
 						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnFinancialDecreaseValue} data-target-id="columnFinancialDecreaseValue">
@@ -275,8 +275,8 @@
 						<label class="column-title">Grupo do Produto</label><br>
 					</div>
 					<div class="column">
-						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnSapStatus} data-target-id="columnSapStatus">
-						<label class="column-title">Status SAP</label><br>
+						<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnproductSubgroupName} data-target-id="columnproductSubgroupName">
+						<label class="column-title">Subgrupo do Produto</label><br>
 					</div>
 				</div>
 
