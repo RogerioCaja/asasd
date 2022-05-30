@@ -16,6 +16,7 @@ import saveOrder from '@salesforce/apex/OrderScreenController.saveOrder';
 // import calloutOrder from '@salesforce/apex/OrderScreenController.callout';
 import getOrder from '@salesforce/apex/OrderScreenController.getOrder';
 import getAccount from '@salesforce/apex/OrderScreenController.getAccount';
+import checkMotherQuantities from '@salesforce/apex/OrderScreenController.checkMotherQuantities';
 import { NavigationMixin } from 'lightning/navigation';
 
 export default class OrderScreen extends NavigationMixin(LightningElement) {
@@ -66,7 +67,8 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         moeda: " ",
         ctv_venda: " ",
         pedido_mae: {},
-        pedido_mae_check : false,
+        IsOrderChild : false,
+        pedido_mae_check : true,
         frete: "CIF",
         org: {Name: " "},
         aprovation: " "
@@ -80,8 +82,8 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     };
 
     qtdItens = 0;
-    valorTotal = 0;
-    frete = '';
+    valorTotal = 0.0;
+    frete = '-----';
 
     currentTab = 0;
 
@@ -190,6 +192,12 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.accountData = data.accountData;
             this.headerData = data.headerData;
             this.productData = data.productData;
+            this.qtdItens = data.productData.length;
+          
+            this.productData.forEach(product =>{
+                this.valorTotal  += parseFloat(product.totalPrice);
+            })
+            this.valorTotal = parseFloat(this.valorTotal).toFixed(2);
             this.divisionData = data.divisionData;
             this.summaryData['observation'] = this.headerData.observation;
             this.summaryData['billing_sale_observation'] = this.headerData.billing_sale_observation;
@@ -200,17 +208,26 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.headerData.condicao_venda = this.headerData.condicao_venda != null ? this.headerData.condicao_venda : ' ';
             
             if (this.childOrder) {
-                console.log('this.headerData.pedido_mae_check: ' + this.headerData.pedido_mae_check);
                 if (!this.headerData.pedido_mae_check) {
                     this.showNotification('Só é possível gerar pedidos filhos a partir de um pedido mãe', 'Atenção!', 'warning');
-                    this[NavigationMixin.Navigate]({
-                        type: 'standard__recordPage',
-                        attributes: {
-                            recordId: this.recordId,
-                            objectApiName: 'Order',
-                            actionName: 'view'
+                    this.redirectToOrder();
+                } else {
+                    checkMotherQuantities({orderId: this.recordId})
+                    .then((motherResult) =>{
+                        if (!motherResult) {
+                            this.showNotification('Todos os produtos já foram distribuídos', 'Atenção!', 'warning');
+                            this.redirectToOrder();
+                        } else {
+                            let availableProducts = [];
+                            for (let index = 0; index < this.productData.length; index++) {
+                                if (this.productData[index].quantity > 0) {
+                                    availableProducts.push(this.productData[index]);
+                                }
+                            }
+                            this.productData = JSON.parse(JSON.stringify(availableProducts));
+                            console.log('this.productData: ' + JSON.stringify(this.productData));
                         }
-                    });
+                    })
                 }
             }
             // this.cloneData.pricebookListId = this.headerData.condicao_venda != ' ' ?  this.headerData.condicao_venda.Id : '';
@@ -222,7 +239,18 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         })
     }
 
-    getOrderMother(id, name){
+    redirectToOrder() {
+        this[NavigationMixin.Navigate]({
+            type: 'standard__recordPage',
+            attributes: {
+                recordId: this.recordId,
+                objectApiName: 'Order',
+                actionName: 'view'
+            }
+        });
+    }
+
+    /* getOrderMother(id, name){
         console.log('getOrder');
         if(this.headerData.Id != " ")
             return;
@@ -251,7 +279,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.showNotification(err.message, 'Ocorreu algum erro');
             this.isLoading = false;
         })
-    }
+    } */
 
 
     connectedCallback() {
@@ -339,6 +367,11 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
     _setProductData(event) {
         this.productData = event.data;
+        this.qtdItens = this.productData.length;
+        this.productData.forEach(product =>{
+            this.valorTotal  += parseFloat(product.totalPrice);
+        })
+        this.valorTotal = parseFloat(this.valorTotal).toFixed(2);
         console.log('this.productData: ' + this.productData);
         console.log('acproductcount data setted:', this.productData, event.detail, event.data, event);
         //this.qtdItens = this.productData.length;

@@ -73,8 +73,8 @@
                         <div class="slds-size_1-of-4">
                             <p>
                                 <label>Pedido Mãe:</label>
-                                <input  if:true={headerData.pedido_mae_check} type="checkbox" id="check0" name="pedido_mae_check" value="yes" onchange={selectItemRegister} checked>
-                                <input  if:false={headerData.pedido_mae_check} type="checkbox" id="check1" name="pedido_mae_check" value="no" onchange={selectItemRegister} disabled={headerDictLocale.IsOrderChild}>
+                                <input if:true={headerData.pedido_mae_check} type="checkbox" id="check0" name="pedido_mae_check" value="yes" onchange={selectItemRegister} checked>
+                                <input if:false={headerData.pedido_mae_check} type="checkbox" id="check1" name="pedido_mae_check" value="no" onchange={selectItemRegister} disabled={headerDictLocale.IsOrderChild}>
                             </p>
                         </div>
                     </div>
@@ -212,6 +212,7 @@
                                 date-style="short" 
                                 onchange={selectItemRegister} 
                                 type="date" 
+                                disabled={headerData.IsOrderChild}
                                 required="true"
                                 min={currentDate}
                                 max={dateLimit}>
@@ -227,9 +228,9 @@
                                 date-style="short" 
                                 onchange={selectItemRegister} 
                                 required="true"
-                                disabled={disabled}
                                 min={currentDate}
-                                max={dateLimitBilling}>
+                                max={dateLimitBilling}
+                                disabled={headerData.IsOrderChild}>
                             </lightning-input>
                         </div>
                         <div class="slds-size_1-of-4">
@@ -293,9 +294,6 @@
                             </lightning-combobox>
                             
                         </div>
-                        <!-- <div class="slds-size_1-of-4">
-                            <c-lookup-order-mother name="pedido_mae" record-id={headerData.pedido_mae.Id} onclearselectedrecord={removeItemRegister} onselectrecord={selectItemRegister} order-list={orderMother} disabled={disabled}></c-lookup-order-mother>
-                        </div> -->
                         <div class="slds-size_1-of-4">
                             <lightning-input 
                             name="hectares"
@@ -305,7 +303,7 @@
                             onchange={selectItemRegister}
                             type="text" 
                             required="true"
-                            disabled={disabled}>
+                            disabled={headerData.IsOrderChild}>
                             </lightning-input>
                         </div>
                     </div>
