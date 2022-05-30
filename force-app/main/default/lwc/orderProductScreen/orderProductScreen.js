@@ -353,8 +353,8 @@ export default class OrderProductScreen extends LightningElement {
                 }
             } else if (fieldId == 'quantity') {
                 this.addProduct.quantity = this.calculateMultiplicity(this.addProduct.quantity);
+                this.addProduct.dosage = this.isFilled(this.hectares) ? this.addProduct.quantity / this.hectares : 0
                 if (!this.headerData.IsOrderChild) {
-                    this.addProduct.dosage = this.isFilled(this.hectares) ? this.addProduct.quantity / this.hectares : 0
                     this.listTotalPrice = this.addProduct.listPrice * this.addProduct.quantity;
                     this.calculateDiscountOrAddition();
                     this.calculateTotalPrice(true);

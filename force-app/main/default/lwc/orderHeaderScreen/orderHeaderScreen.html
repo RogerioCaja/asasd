@@ -212,7 +212,6 @@
                                 date-style="short" 
                                 onchange={selectItemRegister} 
                                 type="date" 
-                                disabled={headerData.IsOrderChild}
                                 required="true"
                                 min={currentDate}
                                 max={dateLimit}>
@@ -228,7 +227,7 @@
                                 date-style="short" 
                                 onchange={selectItemRegister} 
                                 required="true"
-                                disabled={headerData.IsOrderChild}
+                                disabled={disabled}
                                 min={currentDate}
                                 max={dateLimitBilling}>
                             </lightning-input>
@@ -306,7 +305,7 @@
                             onchange={selectItemRegister}
                             type="text" 
                             required="true"
-                            disabled={headerData.IsOrderChild}>
+                            disabled={disabled}>
                             </lightning-input>
                         </div>
                     </div>
