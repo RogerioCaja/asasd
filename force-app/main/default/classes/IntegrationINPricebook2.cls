@@ -76,7 +76,7 @@ global with sharing class IntegrationINPricebook2 {
                 interestDiscount = getRecord(interestDiscount);
             }
             lookupMap.get('accountLookups').add(interestDiscount.accountCode);
-            lookupMap.get('accountLookups').add(interestDiscount.accountCode.leftPad(6, '0'));
+            lookupMap.get('accountLookups').add(interestDiscount.accountCode.leftPad(10, '0'));
             lookupMap.get('salesOrgLookups').add(interestDiscount.orgVendas);
             lookupMap.get('cropLookups').add(interestDiscount.cropCode);
             lookupMap.get('cultureLookups').add(interestDiscount.cultureCode);
@@ -84,7 +84,7 @@ global with sharing class IntegrationINPricebook2 {
             lookupMap.get('salesTeamLookups').add(interestDiscount.salesTeam);
             lookupMap.get('productGroupLookups').add(interestDiscount.productGroup);
             lookupMap.get('productLookups').add(interestDiscount.product);
-            lookupMap.get('productLookups').add(interestDiscount.product.leftPad(6, '0'));
+            lookupMap.get('productLookups').add(interestDiscount.product.leftPad(18, '0'));
             lookupMap.get('salesConditionLookups').add(interestDiscount.salesCondition);
             lookupMap.get('centerLookups').add(interestDiscount.center);
         }
