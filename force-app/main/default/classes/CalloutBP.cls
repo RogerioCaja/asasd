@@ -226,15 +226,11 @@ public with sharing class CalloutBP {
             Account__c = lookups.containsKey('Account__c'+valor.CodigoExternoAccount) ? lookups.get('Account__c'+valor.CodigoExternoAccount) : null,
             OrganizacaoVendas__c = lookups.containsKey('SalesOrg__c'+valor.OrganizacaoVendas) ? lookups.get('SalesOrg__c'+valor.OrganizacaoVendas) : null,
             Culture__c = lookups.containsKey('Culture__c'+valor.Cultura) ? lookups.get('Culture__c'+valor.Cultura) : null,
-            Guarantee__c = valor.Garantia,
             LimitValue__c = valor.Valor,
             BlockedCredit__c = blocked,
             LimitBalance__c = valor.Saldo,
-            ConcessionDate__c = valor.DataConcessao != '' ? Date.valueOf(valor.DataConcessao) : null,
-            EndDate__c = valor.DataVencimento != '' ? Date.valueOf(valor.DataVencimento) : null,
-            MaintenanceDate__c = valor.DataManutencao != '' ? Date.valueOf(valor.DataManutencao) : null,
             Safra__c = lookups.containsKey('Safra__c'+String.valueOf(valor.Safra)) ? lookups.get('Safra__c'+String.valueOf(valor.Safra)) : null,
-            ExternalId__c = valor.CodigoExternoAccount + valor.Safra + valor.Cultura + valor.Garantia);
+            ExternalId__c = valor.CodigoExternoAccount + valor.Safra + valor.Cultura);
             creditListToUpsert.add(credit);
         }
         if (!creditListToUpsert.isEmpty()) {
@@ -365,11 +361,7 @@ public with sharing class CalloutBP {
         public Decimal Valor;
         public String Bloqueado;
         public String Cultura;
-        public String Garantia;
         public Decimal Saldo;
-        public String DataConcessao;
-        public String DataVencimento;
-        public String DataManutencao;
         public Decimal Safra;
     }
 

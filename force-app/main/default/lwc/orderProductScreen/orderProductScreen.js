@@ -6,6 +6,7 @@ import {
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getSafraInfos from '@salesforce/apex/OrderScreenController.getSafraInfos';
 import getFinancialInfos from '@salesforce/apex/OrderScreenController.getFinancialInfos';
+import getAccountCompanies from '@salesforce/apex/OrderScreenController.getAccountCompanies';
 
 
 let actions = [];
@@ -26,6 +27,8 @@ export default class OrderProductScreen extends LightningElement {
         columnSapStatus: true
     }
 
+    companyResult=[];
+    selectCompany = false;
     safraData={};
     paymentDate;
     hectares;
@@ -106,16 +109,6 @@ export default class OrderProductScreen extends LightningElement {
         this.barterSale = this.headerData.tipo_venda == 'Venda Barter' ? true : false;
         this.commoditiesData = this.isFilled(this.commodityData) ? this.commodityData : [];
 
-        this.productParams = {
-            salesConditionId: this.headerData.condicao_venda.Id,
-            accountId: this.accountData.Id,
-            ctvId: this.headerData.ctv_venda.Id,
-            safra: this.headerData.safra.Id,
-            productCurrency: this.headerData.moeda,
-            culture: this.headerData.cultura.Id,
-            orderType: this.headerData.tipo_venda
-        };
-
         if (this.cloneData.cloneOrder) {
             this.products = this.isFilled(this.productData) ? this.productData : [];
             this.allDivisionProducts = [];
@@ -131,6 +124,53 @@ export default class OrderProductScreen extends LightningElement {
         this.showIncludedProducts = this.products.length > 0;
         this.applySelectedColumns(event);
 
+        let getCompanyData = {
+            ctvId: this.headerData.ctv_venda.Id != null ? this.headerData.ctv_venda.Id : '',
+            accountId: this.accountData.Id != null ? this.accountData.Id : '',
+            approvalNumber: 1
+        }
+
+        getAccountCompanies({data: JSON.stringify(getCompanyData)})
+        .then((result) => {
+            this.companyResult = JSON.parse(result).listCompanyInfos;
+            if (this.companyResult.length == 0) {
+                this.showToast('warning', 'Atenção!', 'Não foi encontrado Área de Vendas no SAP. Contate o administrador do sistema.');
+            } if (this.companyResult.length == 1) {
+                this.selectedCompany = this.companyResult[0];
+                this.onSelectCompany();
+            } else if (this.companyResult.length > 1) {
+                this.selectCompany = true;
+            }
+        });
+    }
+
+    chooseCompany(event) {
+        let oldCompanyId;
+        let companies = this.companyResult;
+        if (this.isFilled(this.selectedCompany)) {
+            oldCompanyId = this.isFilled(this.selectedCompany) ? this.selectedCompany.companyId : null;
+            for (let index = 0; index < companies.length; index++) {
+                if (companies[index].companyId == oldCompanyId) {
+                    companies[index].selected = false;
+                    this.selectedCompany = {};
+                } else if (companies[index].companyId == event.target.dataset.targetId) {
+                    companies[index].selected = true;
+                    this.selectedCompany = companies[index];
+                }
+            }
+        } else {
+            for (let index = 0; index < companies.length; index++) {
+                if (companies[index].companyId == event.target.dataset.targetId) {
+                    companies[index].selected = true;
+                    this.selectedCompany = companies[index];
+                }
+            }
+        }
+        this.companyResult = JSON.parse(JSON.stringify(companies));
+    }
+
+    onSelectCompany() {
+        this.selectCompany = !this.selectCompany;
         if (this.isFilled(this.headerData.safra.Id)) {
             getSafraInfos({safraId: this.headerData.safra.Id})
             .then((result) => {
@@ -140,13 +180,26 @@ export default class OrderProductScreen extends LightningElement {
                     endDate: safraResult.endDate
                 };
 
+                this.productParams = {
+                    salesConditionId: this.headerData.condicao_venda.Id,
+                    accountId: this.accountData.Id,
+                    ctvId: this.headerData.ctv_venda.Id,
+                    safra: this.headerData.safra.Id,
+                    productCurrency: this.headerData.moeda,
+                    culture: this.headerData.cultura.Id,
+                    orderType: this.headerData.tipo_venda,
+                    supplierCenter: this.selectedCompany.supplierCenter,
+                    salesOrgId: this.selectedCompany.salesOrgId != null ? this.selectedCompany.salesOrgId : '',
+                    salesOfficeId: this.selectedCompany.salesOfficeId != null ? this.selectedCompany.salesOfficeId : '',
+                    salesTeamId: this.selectedCompany.salesTeamId != null ? this.selectedCompany.salesTeamId : ''
+                };
+
                 let orderData = {
-                    accountId: this.accountData.Id != null ? this.accountData.Id : '',
                     paymentDate: this.headerData.data_pagamento != null ? this.headerData.data_pagamento : '',
-                    salesOrg: this.headerData.salesOrg != null ? this.headerData.salesOrg : '',
-                    pricebookId: this.headerData.condicao_venda.Id != null ? this.headerData.condicao_venda.Id : '',
+                    salesOrg: this.selectedCompany.salesOrgId != null ? this.selectedCompany.salesOrgId : '',
+                    salesOffice: this.selectedCompany.salesOfficeId != null ? this.selectedCompany.salesOfficeId : '',
+                    salesTeam: this.selectedCompany.salesTeamId != null ? this.selectedCompany.salesTeamId : '',
                     safra: this.headerData.safra.Id != null ? this.headerData.safra.Id : '',
-                    ctv: this.headerData.ctv_venda.Id != null ? this.headerData.ctv_venda.Id : '',
                     culture: this.headerData.cultura.Id != null ? this.headerData.cultura.Id : ''
                 };
 
@@ -353,8 +406,8 @@ export default class OrderProductScreen extends LightningElement {
                 }
             } else if (fieldId == 'quantity') {
                 this.addProduct.quantity = this.calculateMultiplicity(this.addProduct.quantity);
-                this.addProduct.dosage = this.isFilled(this.hectares) ? this.addProduct.quantity / this.hectares : 0
                 if (!this.headerData.IsOrderChild) {
+                    this.addProduct.dosage = this.isFilled(this.hectares) ? this.addProduct.quantity / this.hectares : 0
                     this.listTotalPrice = this.addProduct.listPrice * this.addProduct.quantity;
                     this.calculateDiscountOrAddition();
                     this.calculateTotalPrice(true);
