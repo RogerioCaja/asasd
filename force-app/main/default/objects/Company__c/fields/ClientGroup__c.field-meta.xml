@@ -46,6 +46,11 @@
                 <default>false</default>
                 <label>CONECTA</label>
             </value>
+            <value>
+                <fullName>DINÂMICO</fullName>
+                <default>false</default>
+                <label>DINÂMICO</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>
