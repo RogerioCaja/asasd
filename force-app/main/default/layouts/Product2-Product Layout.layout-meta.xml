@@ -59,6 +59,10 @@
                 <behavior>Edit</behavior>
                 <field>NumeroRegistro__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Hierarquia_de_Produtos__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>
