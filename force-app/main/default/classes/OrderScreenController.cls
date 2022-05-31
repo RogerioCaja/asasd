@@ -63,6 +63,7 @@ public without sharing class OrderScreenController {
                    ServiceDate,
                    Quantity,
                    ListPrice,
+                   ListPrice__c,
                    UnitPrice,
                    FinalTotalValue__c,
                    ListCost__c,
@@ -1209,7 +1210,7 @@ public without sharing class OrderScreenController {
             this.quantity = !cloneOrder ? (orderItem.AmountUsed__c != 0 && orderItem.AmountUsed__c != null ? orderItem.Quantity - orderItem.AmountUsed__c : orderItem.Quantity) : orderItem.Quantity;
             this.invoicedQuantity = orderItem.InvoicedQuantity__c;
             this.motherAvailableQuantity = orderItem.AmountUsed__c != null ? orderItem.Quantity - orderItem.AmountUsed__c : null;
-            this.listPrice = orderItem.ListPrice;
+            this.listPrice = orderItem.ListPrice__c;
             this.unitPrice = orderItem.UnitPrice;
             this.totalPrice = orderItem.FinalTotalValue__c;
             this.listCost = orderItem.ListCost__c;
