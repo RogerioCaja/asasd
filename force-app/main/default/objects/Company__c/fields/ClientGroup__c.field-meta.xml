@@ -12,11 +12,6 @@
         <valueSetDefinition>
             <sorted>false</sorted>
             <value>
-                <fullName>DINÂMICO</fullName>
-                <default>false</default>
-                <label>DINÂMICO</label>
-            </value>
-            <value>
                 <fullName>NÃO SEGMENTADO</fullName>
                 <default>false</default>
                 <label>NÃO SEGMENTADO</label>
