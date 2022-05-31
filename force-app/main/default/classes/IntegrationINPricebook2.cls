@@ -69,22 +69,25 @@ global with sharing class IntegrationINPricebook2 {
 
     global static void upsertInterestDiscount(Map<String, List<String>> lookupMap, Map<String, Id> lookups, List<TemplateDataIntegrationFields.JurosDescontoAntecipaoINData> request, List<TemplateDataIntegrationFields.ResponseParent> responseList, 
     List<JurosDescontoAntecipao__c> interestDicountListToUpsert){
+        Integer valueToTransform;
         Map<String, List<String>> requirementsMap = prepareRequirements();
         for(TemplateDataIntegrationFields.JurosDescontoAntecipaoINData interestDiscount : request){
 
             if(interestDiscount.typeCondition == 'ZPRS'){
                 interestDiscount = getRecord(interestDiscount);
             }
+            valueToTransform = Integer.valueOf(interestDiscount.accountCode);
+            interestDiscount.accountCode = String.valueOf(valueToTransform);
             lookupMap.get('accountLookups').add(interestDiscount.accountCode);
-            lookupMap.get('accountLookups').add(interestDiscount.accountCode.leftPad(6, '0'));
             lookupMap.get('salesOrgLookups').add(interestDiscount.orgVendas);
             lookupMap.get('cropLookups').add(interestDiscount.cropCode);
             lookupMap.get('cultureLookups').add(interestDiscount.cultureCode);
             lookupMap.get('salesOfficeLookups').add(interestDiscount.salesOffice);
             lookupMap.get('salesTeamLookups').add(interestDiscount.salesTeam);
             lookupMap.get('productGroupLookups').add(interestDiscount.productGroup);
+            valueToTransform = Integer.valueOf(interestDiscount.product);
+            interestDiscount.product = String.valueOf(valueToTransform);
             lookupMap.get('productLookups').add(interestDiscount.product);
-            lookupMap.get('productLookups').add(interestDiscount.product.leftPad(6, '0'));
             lookupMap.get('salesConditionLookups').add(interestDiscount.salesCondition);
             lookupMap.get('centerLookups').add(interestDiscount.center);
         }
