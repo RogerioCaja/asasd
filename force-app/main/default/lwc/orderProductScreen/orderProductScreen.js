@@ -221,12 +221,15 @@ export default class OrderProductScreen extends LightningElement {
                                 let newPrice = this.changeProduct();
                                 if (oldPrice != newPrice) {
                                     showPriceChange = true;
-                                    priceChangeMessage += 'O preço do ' + currentProducts[index].name + ' foi alterado de ' + oldPrice + ' para ' + newPrice + '. ';
+                                    priceChangeMessage += 'O preço do ' + currentProducts[index].name + ' foi alterado de ' + oldPrice + ' para ' + newPrice + '.\n';
                                 }
                             }
                             this.recalculatePrice = false;
 
                             if (showPriceChange) {
+                                if (currentProducts.length > 1) {
+                                    priceChangeMessage = 'Os preços foram recalculados devido a alteração de data de pagamento. Verifique-os.';
+                                }
                                 this.showToast('warning', 'Alteração nos preços!', priceChangeMessage);
                             }
                         }
@@ -565,11 +568,13 @@ export default class OrderProductScreen extends LightningElement {
                 currentDiscountOrAddition = financialValues[defaultKey];
             }
 
+            let totalValue = this.isFilled(this.headerData.id) ? this.addProduct.quantity * this.addProduct.unitPrice : this.addProduct.totalPrice;
+
             currentDiscountOrAddition = (currentDiscountOrAddition / 30) * (this.financialInfos.dayDifference < 0 ? (this.financialInfos.dayDifference * -1) : this.financialInfos.dayDifference);
             this.addProduct.financialAdditionPercentage = this.financialInfos.correctPayment ? '0%' : this.fixDecimalPlaces(((this.financialInfos.isDiscount ? 0 : currentDiscountOrAddition))) + '%';
             this.addProduct.financialDecreasePercentage = this.financialInfos.correctPayment ? '0%' : this.fixDecimalPlaces(((this.financialInfos.isDiscount ? currentDiscountOrAddition : 0))) + '%';
-            this.addProduct.financialAdditionValue = this.calculateValue(this.addProduct.financialAdditionPercentage, this.addProduct.totalPrice);
-            this.addProduct.financialDecreaseValue = this.calculateValue(this.addProduct.financialDecreasePercentage, this.addProduct.totalPrice);
+            this.addProduct.financialAdditionValue = this.calculateValue(this.addProduct.financialAdditionPercentage, totalValue);
+            this.addProduct.financialDecreaseValue = this.calculateValue(this.addProduct.financialDecreasePercentage, totalValue);
             
             if (!this.financialInfos.correctPayment) {
                 if (this.financialInfos.isDiscount) {
@@ -612,7 +617,7 @@ export default class OrderProductScreen extends LightningElement {
             this.products = JSON.parse(JSON.stringify(allProducts));
             this.message = false
 
-            this.showToast('success', 'Sucesso!', 'Produto incluso.');
+            this.showToast('success', 'Sucesso!', 'Produto incluído.');
             this._verifyFieldsToSave();
 
             this.createNewProduct = !this.createNewProduct;
