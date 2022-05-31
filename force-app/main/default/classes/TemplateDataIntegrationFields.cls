@@ -89,9 +89,9 @@ global with sharing class TemplateDataIntegrationFields {
     }
     
     global class Product2INData implements FieldData {
-        public String ProductName;
         public String ProductCode;
         public String TextoBreveMaterial;
+        public String DescricaoMaterial;
         public String UnidadeMedida;
         public String UnidadeMedidaRemessa;
         public String Status;
@@ -116,12 +116,11 @@ global with sharing class TemplateDataIntegrationFields {
 
             //Returning Object with Fields
             return new Product2(
-                Name = this.ProductName,
+                Name = this.TextoBreveMaterial,
                 ProductCode = this.ProductCode,
-                Description = this.TextoBreveMaterial,
+                Description = this.DescricaoMaterial,
                 UnidadeMedida__c = this.UnidadeMedida,
                 GrossWeightUnitOfMeasure__c = this.UnidadeMedidaRemessa,
-                SalesOrgStatus__c = this.Status,
                 ProductType__c = this.TipoMaterial,
                 ProductGroup__c = lookups.containsKey('ProductGroup__c'+this.GrupoMercadoria) ? lookups.get('ProductGroup__c'+this.GrupoMercadoria) : null,
                 ProductSubgroup__c = lookups.containsKey('ProductSubgroup__c'+this.SubgrupoMercadoria) ? lookups.get('ProductSubgroup__c'+this.SubgrupoMercadoria) : null,

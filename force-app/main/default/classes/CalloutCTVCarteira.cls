@@ -87,9 +87,12 @@ public with sharing class CalloutCTVCarteira {
             header.NamePosition = territory.Name;
             header.TipoTerritorio = territory.Territory2Type.DeveloperName;
             List<CalloutCTVCarteira.ClienteParameters> clientList= new List<CalloutCTVCarteira.ClienteParameters>();
-            for(Account acc : accountList){
-                clientList.add(new CalloutCTVCarteira.ClienteParameters(acc.ExternalId__c));
+            if(header.TipoTerritorio == 'SellerPosition'){
+                for(Account acc : accountList){
+                    clientList.add(new CalloutCTVCarteira.ClienteParameters(acc.ExternalId__c));
+                }
             }
+
             header.Clientes = clientList;
             this.header = header;
         }

@@ -12,12 +12,12 @@
         <valueSetDefinition>
             <sorted>false</sorted>
             <value>
-                <fullName>NAO SEGMENTADO</fullName>
+                <fullName>NÃO SEGMENTADO</fullName>
                 <default>false</default>
                 <label>NÃO SEGMENTADO</label>
             </value>
             <value>
-                <fullName>REDISTRIBUICAO</fullName>
+                <fullName>REDISTRIBUIÇÃO</fullName>
                 <default>false</default>
                 <label>REDISTRIBUIÇÃO</label>
             </value>
@@ -27,7 +27,7 @@
                 <label>MODULAR</label>
             </value>
             <value>
-                <fullName>CLASSICO</fullName>
+                <fullName>CLÁSSICO</fullName>
                 <default>false</default>
                 <label>CLÁSSICO</label>
             </value>
@@ -47,7 +47,7 @@
                 <label>CONECTA</label>
             </value>
             <value>
-                <fullName>DINAMICO</fullName>
+                <fullName>DINÂMICO</fullName>
                 <default>false</default>
                 <label>DINÂMICO</label>
             </value>

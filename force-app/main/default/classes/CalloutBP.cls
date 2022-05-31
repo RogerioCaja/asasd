@@ -164,6 +164,7 @@ public with sharing class CalloutBP {
             SalesTeam__c = lookups.containsKey('SalesTeam__c'+valor.EquipeVendas) ? lookups.get('SalesTeam__c'+valor.EquipeVendas) : null,
             ClientGroup__c = valor.GrupoClientes,
             Blocked__c = blocked,
+            SupplierCenter__c = valor.CentroFornecedor,
             Status__c = valor.Status,
             SalesSector__c = valor.SetorVendas,
             ExternalId__c = valor.CodigoExternoAccount + valor.OrganizacaoVendas + valor.SetorAtividade + valor.CanalDistribuicao + valor.EscritorioVendas + valor.EquipeVendas
@@ -346,6 +347,7 @@ public with sharing class CalloutBP {
     public String CanalDistribuicao;
     public String DomicilioFiscal;
     public String EscritorioVendas;
+    public String CentroFornecedor;
     public String EquipeVendas;
     public String GrupoClientes;
     public String Bloqueado;
