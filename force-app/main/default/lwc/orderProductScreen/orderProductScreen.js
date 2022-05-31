@@ -118,7 +118,7 @@ export default class OrderProductScreen extends LightningElement {
         };
 
         if (this.cloneData.cloneOrder) {
-            this.products = []
+            this.products = this.isFilled(this.productData) ? this.productData : [];
             this.allDivisionProducts = [];
         } else {
             this.products = this.isFilled(this.productData) ? this.productData : [];
