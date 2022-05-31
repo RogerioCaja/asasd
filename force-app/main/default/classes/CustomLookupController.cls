@@ -126,7 +126,7 @@ public without sharing class CustomLookupController {
             Set<String> normalSale = new Set<String>{'HAWA', 'FERT'};
             String productType = isCommodity ? 'ZCOM' : (productParams.orderType == 'Venda de Serviço' ? 'DIEN' : (productParams.orderType == 'Venda Barter' ? 'HAWA' : ''));
             
-            String productQuery = 'SELECT Id, Name, ExternalId__c, QuantityUnitOfMeasure, ProductGroup__c, ProductGroup__r.Name, PrincipleActive__c, Multiplicity__c' +
+            String productQuery = 'SELECT Id, Name, ExternalId__c, QuantityUnitOfMeasure, ProductGroup__c, ProductGroup__r.Name, ProductSubgroup__c, PrincipleActive__c, Multiplicity__c' +
                                   '  FROM Product2' +
                                   ' WHERE Id IN:prodsId' +
                                   (
@@ -143,14 +143,22 @@ public without sharing class CustomLookupController {
             
             List<SObject> queryResult = Database.query(productQuery);
             Set<Id> prodGroupIds = new Set<Id>();
+            Set<Id> prodSubgroupIds = new Set<Id>();
             for (SObject product : queryResult) {
                 prodGroupIds.add((String)product.get('ProductGroup__c'));
+                prodSubgroupIds.add((String)product.get('ProductSubgroup__c'));
             }
 
             Map<Id, ProductGroup__c> productsGroupById = new Map<Id, ProductGroup__c>([
                 SELECT Id, Name
                   FROM ProductGroup__c
                  WHERE Id IN: prodGroupIds
+            ]);
+
+            Map<Id, ProductSubgroup__c> productsSubgroupById = new Map<Id, ProductSubgroup__c>([
+                SELECT Id, Name
+                  FROM ProductSubgroup__c
+                 WHERE Id IN: prodSubgroupIds
             ]);
             
             Map<Id, Decimal> commissionByGroup = new Map<Id, Decimal>();
@@ -181,14 +189,20 @@ public without sharing class CustomLookupController {
                 Boolean productIncluded = false;
                 for (JurosDescontoAntecipao__c jda : jdaList) {
                     String productGroupId = (String)s.get('ProductGroup__c');
+                    String productSubgroupId = (String)s.get('ProductSubgroup__c');
                     String productGroupName = '';
+                    String productSubgroupName = '';
                     
                     if (productGroupId != null) {
                         productGroupName = productsGroupById.get(productGroupId) != null ? productsGroupById.get(productGroupId).Name : '';
                     }
+
+                    if (productSubgroupId != null) {
+                        productSubgroupName = productsSubgroupById.get(productSubgroupId) != null ? productsSubgroupById.get(productSubgroupId).Name : '';
+                    }
     
                     Decimal commissionPercentage = commissionByGroup.get(productGroupId) != null ? commissionByGroup.get(productGroupId) : 0;
-                    ProductData productData = new ProductData((String)s.get('Id'), (String)s.get('Name'), (String)s.get('ExternalId__c'), (String)s.get('QuantityUnitOfMeasure'), (String)s.get('PrincipleActive__c'), (Decimal)s.get('Multiplicity__c'), productGroupId, productGroupName, jda.Currency__c, jda.Id, jda.UnitPrice__c, jda.Cost__c, commissionPercentage);
+                    ProductData productData = new ProductData((String)s.get('Id'), (String)s.get('Name'), (String)s.get('ExternalId__c'), (String)s.get('QuantityUnitOfMeasure'), (String)s.get('PrincipleActive__c'), (Decimal)s.get('Multiplicity__c'), productGroupId, productGroupName, productSubgroupId, productSubgroupName, jda.Currency__c, jda.Id, jda.UnitPrice__c, jda.Cost__c, commissionPercentage);
                     if (!productIncluded) {
                         result.recordsDataList.add(productData);
                         productIncluded = true;
@@ -310,6 +324,8 @@ public without sharing class CustomLookupController {
         @AuraEnabled public String  unity;
         @AuraEnabled public String  productGroupId;
         @AuraEnabled public String  productGroupName;
+        @AuraEnabled public String  productSubgroupId;
+        @AuraEnabled public String  productSubgroupName;
         @AuraEnabled public String  activePrinciple;
         @AuraEnabled public String  entryId;
         @AuraEnabled public String  productCurrency;
@@ -318,13 +334,15 @@ public without sharing class CustomLookupController {
         @AuraEnabled public Decimal costPrice;
         @AuraEnabled public Decimal commissionPercentage;
         
-        public ProductData(String Id, String Name, String sapProductCode, String unity, String activePrinciple, Decimal multiplicity, String productGroup, String productGroupName, String productCurrency, Id entryId, Decimal listPrice, Decimal costPrice, Decimal commissionPercentage) {
+        public ProductData(String Id, String Name, String sapProductCode, String unity, String activePrinciple, Decimal multiplicity, String productGroup, String productGroupName, String productSubgroup, String productSubgroupName, String productCurrency, Id entryId, Decimal listPrice, Decimal costPrice, Decimal commissionPercentage) {
             this.Id = Id;
             this.Name = Name;
             this.sapProductCode = sapProductCode != null ? sapProductCode : '';
             this.unity = unity != null ? unity : '';
             this.productGroupId = productGroup != null ? productGroup : '';
             this.productGroupName = productGroupName != null ? productGroupName : '';
+            this.productSubgroupId = productSubgroup != null ? productSubgroup : '';
+            this.productSubgroupName = productSubgroupName != null ? productSubgroupName : '';
             this.activePrinciple = activePrinciple != null ? activePrinciple : '';
             this.productCurrency = productCurrency != null ? productCurrency : '';
             this.multiplicity = multiplicity != null ? multiplicity : 1;

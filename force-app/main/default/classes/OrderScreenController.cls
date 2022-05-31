@@ -2,7 +2,7 @@ public without sharing class OrderScreenController {
     public static Map<Id, Integer> orderItemsPosition;
 
     @AuraEnabled
-    public static String getOrder(String recordId, Boolean cloneOrder) {
+    public static String getOrder(String recordId, Boolean cloneOrder, Boolean checkQuantities) {
         System.debug('recordId: ' + recordId);
         HeaderSerialize order;
         AccountSerialize account;
@@ -11,7 +11,7 @@ public without sharing class OrderScreenController {
 
         order = getOrderData(recordId, cloneOrder);
         if (order.condicao_venda != null) {
-            ordItemList = getOrderItemData(order.Id);
+            ordItemList = getOrderItemData(order.Id, cloneOrder);
             divisionList = getShippingDivison();
         }
         account = getOrderAccountData(order.AccountId);
@@ -41,7 +41,7 @@ public without sharing class OrderScreenController {
         return new HeaderSerialize(order, cloneOrder);
     }
 
-    public static List<ProductSerialize> getOrderItemData(Id orderId) {
+    public static List<ProductSerialize> getOrderItemData(Id orderId, Boolean cloneOrder) {
         List<ProductSerialize> prods = new List<ProductSerialize>();
         orderItemsPosition = new Map<Id, Integer>();
         Integer counter = 0;
@@ -54,8 +54,11 @@ public without sharing class OrderScreenController {
                    Product2.Multiplicity__c,
                    Product2.ProductGroup__c,
                    Product2.ProductGroup__r.Name,
+                   Product2.ProductSubgroup__c,
+                   Product2.ProductSubgroup__r.Name,
                    InvoicedQuantity__c,
                    OrderId,
+                   Order.IsOrderMother__c,
                    PricebookEntryId,
                    ServiceDate,
                    Quantity,
@@ -81,7 +84,7 @@ public without sharing class OrderScreenController {
               FROM OrderItem
              WHERE OrderId =: orderId
         ]){
-            prods.add(new ProductSerialize(item, counter));
+            prods.add(new ProductSerialize(item, counter, cloneOrder));
             orderItemsPosition.put(item.Id, counter);
             counter++;
         }
@@ -134,35 +137,27 @@ public without sharing class OrderScreenController {
     }
 
     @AuraEnabled
-    public static string getOrderMothers(){
+    public static Boolean checkMotherQuantities(Id orderId) {
         try 
         {
             List<InformationFields> orders = new List<InformationFields>();
             Q subQuery = new Q('OrderItems')
-                                .selectFields(new Set<String>{'AmountUsed__c', 'Quantity'});
+                         .selectFields(new Set<String>{'AmountUsed__c', 'Quantity'});
 
             String query = new Q(Order.SObjectType)
-                            .addSubquery(subQuery)
-                            .selectFields(new Set<String>{'Id', 'CustomerOrderNumber__c'})
-                            .add(Q.conditionGroup(
-                            new List<Qcondition>{
-                            Q.condition('OwnerId').equalsTo(UserInfo.getUserId()), 
-                            Q.condition('Crop__r.StartDateOrderInsertion__c').isLessOrEquals(System.today()), 
-                            Q.condition('Crop__r.EndDateInsertionOrders__c').isGreaterThan(System.today()), 
-                            Q.condition('IsOrderMother__c').equalsTo(true)})
-                            .setLogicalOperatorAsAnd()).build();
-            List<Order> orderList = Database.query(query);
+                           .addSubquery(subQuery)
+                           .selectFields(new Set<String>{'Id', 'CustomerOrderNumber__c'})
+                           .add(Q.condition('Id').equalsTo(orderId))
+                           .build();
+            Order motherOrder = Database.query(query);
+            System.debug('motherOrder: ' + motherOrder);
 
-            for (Order order : orderList) {
-                Boolean isAvalaible = false;
-                for (OrderItem orderItem : order.OrderItems) {
-                    if (orderItem.AmountUsed__c < orderItem.Quantity) isAvalaible = true;
-                }
-
-                if (isAvalaible) orders.add(new InformationFields(order.Id, order.CustomerOrderNumber__c));
+            Boolean isAvalaible = false;
+            for (OrderItem orderItem : motherOrder.OrderItems) {
+                if (orderItem.AmountUsed__c < orderItem.Quantity) isAvalaible = true;
             }
 
-            return JSON.serialize(orders);
+            return isAvalaible;
         } catch (Exception e) {
             throw new AuraHandledException(e.getMessage());
         }
@@ -936,6 +931,8 @@ public without sharing class OrderScreenController {
         public String  activePrinciple;
         public String  productGroupId;
         public String  productGroupName;
+        public String  productSubgroupId;
+        public String  productSubgroupName;
         public String  commercialDiscountPercentage;
         public String  commercialAdditionPercentage;
         public String  financialAdditionPercentage;
@@ -1168,6 +1165,8 @@ public without sharing class OrderScreenController {
         public String  activePrinciple;
         public String  productGroupId;
         public String  productGroupName;
+        public String  productSubgroupId;
+        public String  productSubgroupName;
         public String  commercialDiscountPercentage;
         public String  commercialAdditionPercentage;
         public String  financialAdditionPercentage;
@@ -1192,7 +1191,7 @@ public without sharing class OrderScreenController {
 
         ProductSerialize(){}
 
-        ProductSerialize(OrderItem orderItem, Integer position){
+        ProductSerialize(OrderItem orderItem, Integer position, Boolean cloneOrder){
             this.position = position;
             this.orderItemId = orderItem.Id;
             this.productId = orderItem.Product2Id;
@@ -1202,10 +1201,12 @@ public without sharing class OrderScreenController {
             this.activePrinciple = orderItem.Product2.PrincipleActive__c;
             this.productGroupId = orderItem.Product2.ProductGroup__c;
             this.productGroupName = orderItem.Product2.ProductGroup__r.Name;
+            this.productSubgroupId = orderItem.Product2.ProductSubgroup__c;
+            this.productSubgroupName = orderItem.Product2.ProductSubgroup__r.Name;
             this.entryId = orderItem.PricebookEntryId;
             this.orderId = OrderId;
             this.serviceDate = orderItem.ServiceDate;
-            this.quantity = orderItem.AmountUsed__c != 0 && orderItem.AmountUsed__c != null ? orderItem.Quantity - orderItem.AmountUsed__c : orderItem.Quantity;
+            this.quantity = !cloneOrder ? (orderItem.AmountUsed__c != 0 && orderItem.AmountUsed__c != null ? orderItem.Quantity - orderItem.AmountUsed__c : orderItem.Quantity) : orderItem.Quantity;
             this.invoicedQuantity = orderItem.InvoicedQuantity__c;
             this.motherAvailableQuantity = orderItem.AmountUsed__c != null ? orderItem.Quantity - orderItem.AmountUsed__c : null;
             this.listPrice = orderItem.ListPrice;
