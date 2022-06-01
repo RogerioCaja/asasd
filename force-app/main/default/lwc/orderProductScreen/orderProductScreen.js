@@ -330,6 +330,7 @@ export default class OrderProductScreen extends LightningElement {
                     productGroupId: currentProduct.productGroupId != null ? currentProduct.productGroupId : '',
                     productGroupName: currentProduct.productGroupName != null ? currentProduct.productGroupName : '',
                     productSubgroupName: currentProduct.productSubgroupName != null ? currentProduct.productSubgroupName : '',
+                    productHierarchyId: currentProduct.productHierarchyId != null ? currentProduct.productHierarchyId : '',
                     sapStatus: currentProduct.sapStatus != null ? currentProduct.sapStatus : '',
                     sapProductCode: currentProduct.sapProductCode != null ? currentProduct.sapProductCode : ''
                 };
@@ -786,6 +787,7 @@ export default class OrderProductScreen extends LightningElement {
             productGroupId: currentProduct.productGroupId,
             productGroupName: currentProduct.productGroupName,
             productSubgroupName: currentProduct.productSubgroupName,
+            productHierarchyId: currentProduct.productHierarchyId,
             sapStatus: currentProduct.sapStatus,
             sapProductCode: currentProduct.sapProductCode,
             activePrinciple: currentProduct.activePrinciple,
