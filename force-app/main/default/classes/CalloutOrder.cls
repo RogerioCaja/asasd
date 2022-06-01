@@ -237,9 +237,15 @@ public with sharing class CalloutOrder {
                 }
                 
                 IT_ITEMS_IN.add(new CalloutOrder.OrderItemParameters(orderItem));
-                IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDEC', String.valueOf(orderItem.CommercialAdditionValue__c), order.Currency__c));
-                IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZJUR', String.valueOf(orderItem.FinancialAdditionValue__c), order.Currency__c));
-                IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDAN', String.valueOf(orderItem.FinancialDiscountValue__c), order.Currency__c));
+                if(orderItem.FinancialAdditionValue__c > 0){
+                    IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDEC', String.valueOf(orderItem.FinancialAdditionValue__c), order.Currency__c));
+                }
+                else{
+                    IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDEC', String.valueOf(orderItem.FinancialDiscountValue__c != 0 ? orderItem.FinancialDiscountValue__c*-1 : orderItem.FinancialDiscountValue__c), order.Currency__c));
+                }
+                // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDEC', String.valueOf(orderItem.CommercialAdditionValue__c), order.Currency__c));
+                // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZJUR', String.valueOf(orderItem.FinancialAdditionValue__c), order.Currency__c));
+                // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDAN', String.valueOf(orderItem.FinancialDiscountValue__c), order.Currency__c));
             }
         }
     }
