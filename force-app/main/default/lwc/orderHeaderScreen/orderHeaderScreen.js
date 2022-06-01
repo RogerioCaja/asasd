@@ -78,6 +78,7 @@ export default class OrderHeaderScreen extends LightningElement {
         aprovation: null,
         IsOrderChild : false,
         isCompleted : false,
+        companyId: null
     };
 
     @api productData;
