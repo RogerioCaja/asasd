@@ -67,6 +67,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         moeda: " ",
         ctv_venda: " ",
         pedido_mae: {},
+        IsOrderChild : false,
         pedido_mae_check : true,
         frete: "CIF",
         org: {Name: " "},
@@ -82,8 +83,8 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     };
 
     qtdItens = 0;
-    valorTotal = 0;
-    frete = '';
+    valorTotal = 0.0;
+    frete = '-----';
 
     currentTab = 0;
 
@@ -192,6 +193,12 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.accountData = data.accountData;
             this.headerData = data.headerData;
             this.productData = data.productData;
+            this.qtdItens = data.productData.length;
+          
+            this.productData.forEach(product =>{
+                this.valorTotal  += parseFloat(product.totalPrice);
+            })
+            this.valorTotal = parseFloat(this.valorTotal).toFixed(2);
             this.divisionData = data.divisionData;
             this.summaryData['observation'] = this.headerData.observation;
             this.summaryData['billing_sale_observation'] = this.headerData.billing_sale_observation;
@@ -296,17 +303,16 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         saveOrder({
             orderId: (this.recordId && this.originScreen.includes('Order') && !this.childOrder) ? this.recordId : null,
             cloneOrder: this.cloneData.cloneOrder,
-            data: JSON.stringify(data)
+            data: JSON.stringify(data),
+            typeOrder: mode
         })
         .then((result) => {
             console.log(JSON.stringify(result));
             result = JSON.parse(result);
 
             if(!result.hasError){
-                console.log(JSON.stringify(mode));
                 this.showNotification(result.message, 'Sucesso', 'success');
-                if( mode == "gerarpedido" ){
-                }
+              
                 this[NavigationMixin.Navigate]({
                     type: 'standard__recordPage',
                     attributes: {
@@ -322,7 +328,6 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
             this.isLoading = false;
         }).catch((err)=>{
-            console.log(this.headerData);
             console.log(JSON.stringify(err));
             this.showNotification(err.message, 'Aconteceram alguns erros', 'error');
             this.isLoading = false;
@@ -366,6 +371,11 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
     _setProductData(event) {
         this.productData = event.data;
+        this.qtdItens = this.productData.length;
+        this.productData.forEach(product =>{
+            this.valorTotal  += parseFloat(product.totalPrice);
+        })
+        this.valorTotal = parseFloat(this.valorTotal).toFixed(2);
         console.log('this.productData: ' + this.productData);
         console.log('acproductcount data setted:', this.productData, event.detail, event.data, event);
         //this.qtdItens = this.productData.length;

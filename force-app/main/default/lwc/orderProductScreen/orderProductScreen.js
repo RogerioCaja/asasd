@@ -6,6 +6,7 @@ import {
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getSafraInfos from '@salesforce/apex/OrderScreenController.getSafraInfos';
 import getFinancialInfos from '@salesforce/apex/OrderScreenController.getFinancialInfos';
+import getAccountCompanies from '@salesforce/apex/OrderScreenController.getAccountCompanies';
 
 
 let actions = [];
@@ -26,6 +27,8 @@ export default class OrderProductScreen extends LightningElement {
         columnCommercialDiscountPercentage: true
     }
 
+    companyResult=[];
+    selectCompany = false;
     safraData={};
     paymentDate;
     hectares;
@@ -106,16 +109,6 @@ export default class OrderProductScreen extends LightningElement {
         this.salesConditionId = this.headerData.condicao_venda.Id;
         this.barterSale = this.headerData.tipo_venda == 'Venda Barter' ? true : false;
         this.commoditiesData = this.isFilled(this.commodityData) ? this.commodityData : [];
-
-        this.productParams = {
-            salesConditionId: this.headerData.condicao_venda.Id,
-            accountId: this.accountData.Id,
-            ctvId: this.headerData.ctv_venda.Id,
-            safra: this.headerData.safra.Id,
-            productCurrency: this.headerData.moeda,
-            culture: this.headerData.cultura.Id,
-            orderType: this.headerData.tipo_venda
-        };
 
         if (this.cloneData.cloneOrder) {
             this.products = this.isFilled(this.productData) ? this.productData : [];
@@ -206,13 +199,26 @@ export default class OrderProductScreen extends LightningElement {
                     endDate: safraResult.endDate
                 };
 
+                this.productParams = {
+                    salesConditionId: this.headerData.condicao_venda.Id,
+                    accountId: this.accountData.Id,
+                    ctvId: this.headerData.ctv_venda.Id,
+                    safra: this.headerData.safra.Id,
+                    productCurrency: this.headerData.moeda,
+                    culture: this.headerData.cultura.Id,
+                    orderType: this.headerData.tipo_venda,
+                    supplierCenter: this.selectedCompany.supplierCenter,
+                    salesOrgId: this.selectedCompany.salesOrgId != null ? this.selectedCompany.salesOrgId : '',
+                    salesOfficeId: this.selectedCompany.salesOfficeId != null ? this.selectedCompany.salesOfficeId : '',
+                    salesTeamId: this.selectedCompany.salesTeamId != null ? this.selectedCompany.salesTeamId : ''
+                };
+
                 let orderData = {
-                    accountId: this.accountData.Id != null ? this.accountData.Id : '',
                     paymentDate: this.headerData.data_pagamento != null ? this.headerData.data_pagamento : '',
-                    salesOrg: this.headerData.salesOrg != null ? this.headerData.salesOrg : '',
-                    pricebookId: this.headerData.condicao_venda.Id != null ? this.headerData.condicao_venda.Id : '',
+                    salesOrg: this.selectedCompany.salesOrgId != null ? this.selectedCompany.salesOrgId : '',
+                    salesOffice: this.selectedCompany.salesOfficeId != null ? this.selectedCompany.salesOfficeId : '',
+                    salesTeam: this.selectedCompany.salesTeamId != null ? this.selectedCompany.salesTeamId : '',
                     safra: this.headerData.safra.Id != null ? this.headerData.safra.Id : '',
-                    ctv: this.headerData.ctv_venda.Id != null ? this.headerData.ctv_venda.Id : '',
                     culture: this.headerData.cultura.Id != null ? this.headerData.cultura.Id : ''
                 };
 
@@ -444,8 +450,8 @@ export default class OrderProductScreen extends LightningElement {
                 }
             } else if (fieldId == 'quantity') {
                 this.addProduct.quantity = this.calculateMultiplicity(this.addProduct.quantity);
-                this.addProduct.dosage = this.isFilled(this.hectares) ? this.addProduct.quantity / this.hectares : 0
                 if (!this.headerData.IsOrderChild) {
+                    this.addProduct.dosage = this.isFilled(this.hectares) ? this.addProduct.quantity / this.hectares : 0
                     this.listTotalPrice = this.addProduct.listPrice * this.addProduct.quantity;
                     this.calculateDiscountOrAddition();
                     this.calculateTotalPrice(true);
