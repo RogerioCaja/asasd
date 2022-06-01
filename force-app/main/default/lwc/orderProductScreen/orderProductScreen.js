@@ -126,12 +126,77 @@ export default class OrderProductScreen extends LightningElement {
         }
 
         actions = [];
-        if (this.headerData.pedido_mae_check) actions.push({ label: 'Editar', name: 'edit' }, { label: 'Excluir', name: 'delete' });
+        if(this.headerData.IsOrderChild) actions.push({ label: 'Editar', name: 'edit' }, { label: 'Divisão de Remessas', name: 'shippingDivision' }, { label: 'Excluir', name: 'delete' });
+        else if (this.headerData.pedido_mae_check) actions.push({ label: 'Editar', name: 'edit' }, { label: 'Excluir', name: 'delete' });
         else actions.push({ label: 'Editar', name: 'edit' }, { label: 'Divisão de Remessas', name: 'shippingDivision' }, { label: 'Excluir', name: 'delete' });
 
         this.showIncludedProducts = this.products.length > 0;
         this.applySelectedColumns(event);
 
+        this.headerData = JSON.parse(JSON.stringify(this.headerData));
+        let getCompanyData = {
+            ctvId: this.headerData.ctv_venda.Id != null ? this.headerData.ctv_venda.Id : '',
+            accountId: this.accountData.Id != null ? this.accountData.Id : '',
+            approvalNumber: 1
+        }
+
+        getAccountCompanies({data: JSON.stringify(getCompanyData)})
+        .then((result) => {
+            this.companyResult = JSON.parse(result).listCompanyInfos;
+            if (this.headerData.companyId != null) {
+                for (let index = 0; index < this.companyResult.length; index++) {
+                    if (this.companyResult[index].companyId == this.headerData.companyId) {
+                        this.selectedCompany = this.companyResult[index];
+                        this.onSelectCompany();
+                        break;
+                    }
+                }
+            } else {
+                if (this.companyResult.length == 0) {
+                    this.showToast('warning', 'Atenção!', 'Não foi encontrado Área de Vendas no SAP. Contate o administrador do sistema.');
+                } else if (this.companyResult.length == 1) {
+                    this.selectedCompany = this.companyResult[0];
+                    this.headerData.companyId = this.selectedCompany.companyId;
+                    this.onSelectCompany();
+                } else if (this.companyResult.length > 1) {
+                    this.selectCompany = true;
+                }
+            }
+        });
+    }
+
+    chooseCompany(event) {
+        let oldCompanyId;
+        let companies = this.companyResult;
+        if (this.isFilled(this.selectedCompany)) {
+            oldCompanyId = this.isFilled(this.selectedCompany) ? this.selectedCompany.companyId : null;
+            for (let index = 0; index < companies.length; index++) {
+                if (companies[index].companyId == oldCompanyId) {
+                    companies[index].selected = false;
+                    this.selectedCompany = {};
+                } else if (companies[index].companyId == event.target.dataset.targetId) {
+                    companies[index].selected = true;
+                    this.selectedCompany = companies[index];
+                }
+            }
+        } else {
+            for (let index = 0; index < companies.length; index++) {
+                if (companies[index].companyId == event.target.dataset.targetId) {
+                    companies[index].selected = true;
+                    this.selectedCompany = companies[index];
+                }
+            }
+        }
+        this.companyResult = JSON.parse(JSON.stringify(companies));
+    }
+
+    onSelectCompany() {
+        if (!this.isFilled(this.headerData.companyId)) {
+            this.selectCompany = !this.selectCompany;
+            this.headerData.companyId = this.selectedCompany.companyId;
+        }
+
+        this._setHeaderValues();
         if (this.isFilled(this.headerData.safra.Id)) {
             getSafraInfos({safraId: this.headerData.safra.Id})
             .then((result) => {
@@ -896,6 +961,13 @@ export default class OrderProductScreen extends LightningElement {
         const setHeaderData = new CustomEvent('setcommoditydata');
         setHeaderData.data = this.commoditiesData;
         this.dispatchEvent(setHeaderData);
+    }
+
+    _setHeaderValues() {
+        const setHeaderValues = new CustomEvent('setheadervalues');
+        console.log('this.headerData: ' + JSON.stringify(this.headerData));
+        setHeaderValues.data = this.headerData;
+        this.dispatchEvent(setHeaderValues);
     }
 
     showResults(event){

@@ -70,7 +70,8 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         pedido_mae_check : true,
         frete: "CIF",
         org: {Name: " "},
-        aprovation: " "
+        aprovation: " ",
+        companyId: null
     };
     @track productData;
     @track divisionData;
@@ -357,7 +358,10 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         else{
             this.disableNextScreen();
         }
-        
+    }
+
+    _setHeaderValues(event) {
+        this.headerData = event.data;
     }
 
     _setProductData(event) {
