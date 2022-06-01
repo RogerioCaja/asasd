@@ -193,12 +193,6 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.accountData = data.accountData;
             this.headerData = data.headerData;
             this.productData = data.productData;
-            this.qtdItens = data.productData.length;
-          
-            this.productData.forEach(product =>{
-                this.valorTotal  += parseFloat(product.totalPrice);
-            })
-            this.valorTotal = parseFloat(this.valorTotal).toFixed(2);
             this.divisionData = data.divisionData;
             this.summaryData['observation'] = this.headerData.observation;
             this.summaryData['billing_sale_observation'] = this.headerData.billing_sale_observation;
@@ -371,11 +365,6 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
     _setProductData(event) {
         this.productData = event.data;
-        this.qtdItens = this.productData.length;
-        this.productData.forEach(product =>{
-            this.valorTotal  += parseFloat(product.totalPrice);
-        })
-        this.valorTotal = parseFloat(this.valorTotal).toFixed(2);
         console.log('this.productData: ' + this.productData);
         console.log('acproductcount data setted:', this.productData, event.detail, event.data, event);
         //this.qtdItens = this.productData.length;
