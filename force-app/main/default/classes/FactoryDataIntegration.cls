@@ -59,12 +59,15 @@ public with sharing class FactoryDataIntegration {
     }
 
     public static void convertSObject(SObject sObj, String service, List<TemplateDataIntegrationFields.JurosDescontoAntecipaoINData> fieldDataList, List<TemplateDataIntegrationFields.Response> responseList, List<SObject> listToUpsert, 
-    Map<String, String> lookups, Map<String, List<String>> requiredFields) {
+    Map<String, String> lookups, Map<String, List<String>> requiredFields, Map<String, Boolean> isValidMap) {
 
         TemplateDataIntegrationFields.JurosDescontoAntecipaoINData defaults = new TemplateDataIntegrationFields.JurosDescontoAntecipaoINData();
 
         for (TemplateDataIntegrationFields.JurosDescontoAntecipaoINData Obj : fieldDataList) {
-            validateObject(defaults.getFieldId(), defaults.getFieldKey(), Obj.serialize(lookups), listToUpsert, responseList, requiredFields.get(Obj.table));
+            if(isValidMap.get(Obj.externalId))
+                validateObject(defaults.getFieldId(), defaults.getFieldKey(), Obj.serialize(lookups), listToUpsert, responseList, requiredFields.get(Obj.table));
+            else
+                validateObject(defaults.getFieldId(), defaults.getFieldKey(), Obj.serialize(lookups), listToUpsert, responseList, defaults.getRequiredFields());
         }
     }
 
