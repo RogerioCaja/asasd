@@ -73,7 +73,7 @@ global with sharing class IntegrationINOrderAppdigital {
             //Example
             lookups.put('Account' + account.ExternalId__c, account.Id);
         }
-
+// Pega o WE 
         for (Account account : [SELECT Id, ExternalId__c FROM Account WHERE ExternalId__c IN : shippingAccountLookups]) {
             lookups.put('Account' + account.ExternalId__c, account.Id);
         }
