@@ -127,16 +127,24 @@ export default class OrderProductScreen extends LightningElement {
         this.applySelectedColumns(event);
 
         this.headerData = JSON.parse(JSON.stringify(this.headerData));
-        if (this.headerData.companyId == null) {
-            let getCompanyData = {
-                ctvId: this.headerData.ctv_venda.Id != null ? this.headerData.ctv_venda.Id : '',
-                accountId: this.accountData.Id != null ? this.accountData.Id : '',
-                approvalNumber: 1
-            }
+        let getCompanyData = {
+            ctvId: this.headerData.ctv_venda.Id != null ? this.headerData.ctv_venda.Id : '',
+            accountId: this.accountData.Id != null ? this.accountData.Id : '',
+            approvalNumber: 1
+        }
 
-            getAccountCompanies({data: JSON.stringify(getCompanyData)})
-            .then((result) => {
-                this.companyResult = JSON.parse(result).listCompanyInfos;
+        getAccountCompanies({data: JSON.stringify(getCompanyData)})
+        .then((result) => {
+            this.companyResult = JSON.parse(result).listCompanyInfos;
+            if (this.headerData.companyId != null) {
+                for (let index = 0; index < this.companyResult.length; index++) {
+                    if (this.companyResult[index].companyId == this.headerData.companyId) {
+                        this.selectedCompany = this.companyResult[index];
+                        this.onSelectCompany();
+                        break;
+                    }
+                }
+            } else {
                 if (this.companyResult.length == 0) {
                     this.showToast('warning', 'Atenção!', 'Não foi encontrado Área de Vendas no SAP. Contate o administrador do sistema.');
                 } else if (this.companyResult.length == 1) {
@@ -146,8 +154,8 @@ export default class OrderProductScreen extends LightningElement {
                 } else if (this.companyResult.length > 1) {
                     this.selectCompany = true;
                 }
-            });
-        }
+            }
+        });
     }
 
     chooseCompany(event) {
