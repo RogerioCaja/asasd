@@ -52,7 +52,7 @@
             <c-order-header-screen if:true={header} tab="header" onsetheaderdata={_setHeaderData} account-data={accountData} header-data={headerData} header-data-title={headerDataTitle} product-data={productData} division-data={divisionData} clone-data={cloneData} commodity-data={commodityData}>
             </c-order-header-screen>
 
-            <c-order-product-screen if:true={product} tab="product" onsetproductdata={_setProductData} onsetdivisiondata={_setDivisionData} onsetcommoditydata={_setCommodityData} account-data={accountData} header-data={headerData} product-data={productData} division-data={divisionData} clone-data={cloneData} commodity-data={commodityData}>
+            <c-order-product-screen if:true={product} tab="product" onsetproductdata={_setProductData} onsetheadervalues={_setHeaderValues} onsetdivisiondata={_setDivisionData} onsetcommoditydata={_setCommodityData} account-data={accountData} header-data={headerData} product-data={productData} division-data={divisionData} clone-data={cloneData} commodity-data={commodityData}>
             </c-order-product-screen>
 
             <c-order-summary-screen if:true={summary} tab="summary" onsetsummarydata={_setSummaryData} product-data={productData} division-data={divisionData} header-data={headerData} account-data={accountData} summary-data={summaryData} clone-data={cloneData} commodity-data={commodityData}>

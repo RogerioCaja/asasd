@@ -1011,6 +1011,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Order.DistributionChannel__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Order.FinalTotalValue__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1205,7 +1210,7 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>OrderItem.CommercialMargin__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1270,7 +1275,7 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>OrderItem.ListPrice__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1285,7 +1290,7 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>OrderItem.PracticedCost__c</field>
         <readable>true</readable>
     </fieldPermissions>
