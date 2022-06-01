@@ -366,7 +366,7 @@ global with sharing class TemplateDataIntegrationFields {
                 // Como estava ----> ExternalId__c = this.orderExternalId + '|' + this.OrderItemCode,//Confirmar com Helder como deverá ser essa chave
                 ExternalId__c = this.orderExternalId,//Confirmar com Helder como deverá ser essa chave
                 DeliveryDate__c = this.DataDivisao,
-                Quantity__c = this.Quantidade,
+                Quantity__c = this.Quantidade, 
                 ConfirmedQuantity__c = this.QuantidadeConfirmada
             );
         }
