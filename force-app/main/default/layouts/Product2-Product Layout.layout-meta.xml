@@ -190,10 +190,17 @@
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
+        <fields>SalesOrg__c</fields>
+        <fields>SupplierCenter__c</fields>
+        <fields>Channel__c</fields>
+        <fields>Status__c</fields>
         <relatedList>OrgVProduct__c.Product__c</relatedList>
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
+        <fields>UnitPrice__c</fields>
+        <fields>Cost__c</fields>
+        <fields>CREATED_DATE</fields>
         <relatedList>JurosDescontoAntecipao__c.Product__c</relatedList>
     </relatedLists>
     <showEmailCheckbox>false</showEmailCheckbox>
@@ -202,7 +209,7 @@
     <showRunAssignmentRulesCheckbox>false</showRunAssignmentRulesCheckbox>
     <showSubmitAndAttachButton>false</showSubmitAndAttachButton>
     <summaryLayout>
-        <masterLabel>00h17000009YUV8</masterLabel>
+        <masterLabel>00h63000006v4Co</masterLabel>
         <sizeX>4</sizeX>
         <sizeY>0</sizeY>
         <summaryLayoutStyle>Default</summaryLayoutStyle>
