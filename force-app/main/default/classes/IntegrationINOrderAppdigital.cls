@@ -121,10 +121,10 @@ global with sharing class IntegrationINOrderAppdigital {
           
         //Upserting records (Order)
 		IntegrationUtils.upsertRecords(
-            Database.upsert(orderListToUpsert, Order.CodigoSap__c, false), 
+            Database.upsert(orderListToUpsert, Order.NumeroPedidoApp__c, false), 
             responseList, 
             orderListToUpsert, 
-            Order.CodigoSap__c
+            Order.NumeroPedidoApp__c
         );
         
         //Upserting records (OrderItem)

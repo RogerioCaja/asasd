@@ -208,6 +208,7 @@ global with sharing class TemplateDataIntegrationFields {
     global class OrderINData implements FieldData{
 
         public String Status;
+        public String numeroPedidoApp;
         public String pricebook2Id;
         public String CodigoSap;
         public String Type;
@@ -239,6 +240,7 @@ global with sharing class TemplateDataIntegrationFields {
             return new Order(
 
                 CodigoSap__c = this.CodigoSap,
+                NumeroPedidoApp__c = this.numeroPedidoApp,
                 Pricebook2Id = lookups.containsKey('Pricebook2Id'+this.pricebook2Id) ? lookups.get('Pricebook2Id'+this.pricebook2Id) : null,
                 ShippingAccount__c = lookups.containsKey('ShippingAccount__c'+this.shippingAccount) ? lookups.get('ShippingAccount__c'+this.shippingAccount) : null,
                 AccountId = lookups.containsKey('Account'+ this.PaymentAccount) ? lookups.get('Account'+this.PaymentAccount) : null,
