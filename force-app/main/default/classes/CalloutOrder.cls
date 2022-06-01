@@ -81,6 +81,7 @@ public with sharing class CalloutOrder {
 		// }
 
 		String payload = JSON.serialize(request);
+        payload = payload.replace('TYPE_CURRENCY', 'CURRENCY');
         System.debug(JSON.serializePretty(request));
 
 		//Metodo para busca de Access Token, depende de cada projeto, podendo estar presente dentro de uma custom settings ou relacionado com outra requisição.

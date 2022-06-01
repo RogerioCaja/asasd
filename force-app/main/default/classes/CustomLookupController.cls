@@ -168,13 +168,8 @@ public without sharing class CustomLookupController {
                  WHERE Id IN: prodSubgroupIds
             ]);
 
-            Map<Id, ProductHierarchy__c> productsHierarchyById = new Map<Id, ProductHierarchy__c>([
-                SELECT Id, Name
-                  FROM ProductHierarchy__c
-                 WHERE Id IN: prodHierarchyIds
-            ]);
             
-            Map<Id, Decimal> commissionByGroup = new Map<Id, Decimal>();
+            Map<Id, Decimal> commissionByHierarchy = new Map<Id, Decimal>();
             if (isCommodity) {
                 User user = [SELECT Id, SellerType__c FROM User WHERE Id =: UserInfo.getUserId()];
                 String sellerType = user.SellerType__c != null ? user.SellerType__c : '';
@@ -188,8 +183,8 @@ public without sharing class CustomLookupController {
                        WHERE ProductHierarchy__c IN: prodHierarchyIds
                          AND SellerType__c =: sellerType
                     ]) {
-                        if (!commissionByGroup.containsKey(commission.ProductHierarchy__c)) {
-                            commissionByGroup.put(commission.ProductHierarchy__c, commission.CommissionPercentage__c);
+                        if (!commissionByHierarchy.containsKey(commission.ProductHierarchy__c)) {
+                            commissionByHierarchy.put(commission.ProductHierarchy__c, commission.CommissionPercentage__c);
                         }
                     }
                 }
@@ -215,7 +210,7 @@ public without sharing class CustomLookupController {
                         productSubgroupName = productsSubgroupById.get(productSubgroupId) != null ? productsSubgroupById.get(productSubgroupId).Name : '';
                     }
     
-                    Decimal commissionPercentage = commissionByGroup.get(productHierarchyId) != null ? commissionByGroup.get(productHierarchyId) : 0;
+                    Decimal commissionPercentage = commissionByHierarchy.get(productHierarchyId) != null ? commissionByHierarchy.get(productHierarchyId) : 0;
                     ProductData productData = new ProductData((String)s.get('Id'), (String)s.get('Name'), (String)s.get('ExternalId__c'), (String)s.get('QuantityUnitOfMeasure'), (String)s.get('PrincipleActive__c'), (Decimal)s.get('Multiplicity__c'), productGroupId, productHierarchyId, productGroupName, productSubgroupId, productSubgroupName, jda.Currency__c, jda.Id, jda.UnitPrice__c, jda.Cost__c, commissionPercentage);
                     if (!productIncluded) {
                         result.recordsDataList.add(productData);
