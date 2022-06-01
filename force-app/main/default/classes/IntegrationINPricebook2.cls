@@ -71,13 +71,26 @@ global with sharing class IntegrationINPricebook2 {
     List<JurosDescontoAntecipao__c> interestDicountListToUpsert){
         Integer valueToTransform;
         Map<String, List<String>> requirementsMap = prepareRequirements();
+        Map<String, Boolean> isValidMap = new Map<String, Boolean>();
         for(TemplateDataIntegrationFields.JurosDescontoAntecipaoINData interestDiscount : request){
 
             if(interestDiscount.typeCondition == 'ZPRS'){
                 interestDiscount = getRecord(interestDiscount);
             }
-            valueToTransform = Integer.valueOf(interestDiscount.accountCode);
-            interestDiscount.accountCode = String.valueOf(valueToTransform);
+            if(interestDiscount.accountCode != null){
+                valueToTransform = Integer.valueOf(interestDiscount.accountCode);
+            	interestDiscount.accountCode = String.valueOf(valueToTransform);
+            }
+         	if(interestDiscount.product != null){
+                valueToTransform = Integer.valueOf(interestDiscount.product);
+            	interestDiscount.product = String.valueOf(valueToTransform);
+            }
+            if(Date.valueOf(interestDiscount.endDate) < Date.today()){
+                isValidMap.put(interestDiscount.externalId, false);
+            }
+            else{
+                isValidMap.put(interestDiscount.externalId, true);
+            }
             lookupMap.get('accountLookups').add(interestDiscount.accountCode);
             lookupMap.get('salesOrgLookups').add(interestDiscount.orgVendas);
             lookupMap.get('cropLookups').add(interestDiscount.cropCode);
@@ -85,8 +98,6 @@ global with sharing class IntegrationINPricebook2 {
             lookupMap.get('salesOfficeLookups').add(interestDiscount.salesOffice);
             lookupMap.get('salesTeamLookups').add(interestDiscount.salesTeam);
             lookupMap.get('productGroupLookups').add(interestDiscount.productGroup);
-            valueToTransform = Integer.valueOf(interestDiscount.product);
-            interestDiscount.product = String.valueOf(valueToTransform);
             lookupMap.get('productLookups').add(interestDiscount.product);
             lookupMap.get('salesConditionLookups').add(interestDiscount.salesCondition);
             lookupMap.get('centerLookups').add(interestDiscount.center);
@@ -113,7 +124,7 @@ global with sharing class IntegrationINPricebook2 {
         IntegrationUtils.setLookup(new DistributionCenter__c(), new Set<String>{'Id', 'Code__c'}, 'Code__c', lookupMap.get('centerLookups'), lookups);
 
 
-        FactoryDataIntegration.convertSObject(new JurosDescontoAntecipao__c(), 'IN', request, responseList, interestDicountListToUpsert, lookups, requirementsMap);
+        FactoryDataIntegration.convertSObject(new JurosDescontoAntecipao__c(), 'IN', request, responseList, interestDicountListToUpsert, lookups, requirementsMap, isValidMap);
         
         IntegrationUtils.upsertRecords(
             Database.upsert(interestDicountListToUpsert, JurosDescontoAntecipao__c.ExternalId__c, false), 
@@ -147,8 +158,8 @@ global with sharing class IntegrationINPricebook2 {
 
         Map<String, List<String>> response = new Map<String, List<String>>();
         response.put('A930', new List<String>{'SalesOrg__c', 'harvest__c', 'AccountType__c','Product__c'});
-        response.put('A931', new List<String>{'SalesOrg__c', 'harvest__c','DistributionCenter__c' ,'Product__c'});
-        response.put('A932', new List<String>{'SalesOrg__c', 'harvest__c','DistributionCenter__c' ,'ProductGroup__c'});
+        response.put('A945', new List<String>{'SalesOrg__c', 'harvest__c','SalesTeam__c' ,'Product__c'});
+        response.put('A946', new List<String>{'SalesOrg__c', 'harvest__c','SalesTeam__c' ,'ProductGroup__c'});
         response.put('A933', new List<String>{'SalesOrg__c', 'harvest__c','DistributionCenter__c' ,'Product__c'});
         response.put('A934', new List<String>{'SalesOrg__c', 'harvest__c'});
 
