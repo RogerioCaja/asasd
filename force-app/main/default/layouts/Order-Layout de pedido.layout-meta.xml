@@ -34,6 +34,10 @@
                 <behavior>Edit</behavior>
                 <field>DistributionChannel__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>NumeroPedidoApp__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>
@@ -189,10 +193,6 @@
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>SalesOrg__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
-                <field>ActivitySector__c</field>
             </layoutItems>
         </layoutColumns>
         <layoutColumns/>
