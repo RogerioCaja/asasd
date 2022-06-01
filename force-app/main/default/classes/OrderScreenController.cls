@@ -35,7 +35,7 @@ public without sharing class OrderScreenController {
         ShippingAccount__r.BillingCity, ShippingAccount__r.BillingState ,ShippingAccount__r.CPF__c, ShippingAccount__r.CNPJ__c , SalesCondition__c, SalesCondition__r.Name, 
         Pricebook2.InitialDate__c, Pricebook2.EndDate__c, PaymentDate__c,  CustomerOrderNumber__c, Crop__c , Crop__r.Name, Culture__c , Culture__r.Name,
         PaymentForm__c, StatusSF__c, CodigoSAP__c, SalesOrg__c, SalesOrg__r.Name, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, SalesCTV__r.Name,
-        PaymentCondition__c, PaymentCondition__r.Name, ShippingDate__c, Incoterms__c, OrderReference__c, OrderReference__r.Name, IsOrderMother__c
+        PaymentCondition__c, PaymentCondition__r.Name, ShippingDate__c, Incoterms__c, OrderReference__c, OrderReference__r.Name, IsOrderMother__c, Company__c
         FROM Order 
         WHERE Id = :orderId LIMIT 1];
         return new HeaderSerialize(order, cloneOrder);
@@ -177,7 +177,7 @@ public without sharing class OrderScreenController {
             if (orderId != null && !cloneOrder) {
                 newOrder = false;
                 order = [SELECT Id, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c, SalesCondition__c, PaymentDate__c, ShippingDate__c, PaymentCondition__c, CustomerOrderNumber__c,
-                Crop__c, Culture__c, PaymentForm__c, StatusSF__c, SalesOrg__c, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, EffectiveDate
+                Crop__c, Culture__c, PaymentForm__c, StatusSF__c, SalesOrg__c, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, EffectiveDate, Company__c
                 FROM Order WHERE Id =: orderId LIMIT 1];
             } else {
                 order = new Order();
@@ -189,9 +189,12 @@ public without sharing class OrderScreenController {
             Company__c company = new Company__c();
             for (Company__c accountCompany : [
                 SELECT Id,
-                       ClientGroup__c
+                       SalesOrg__c,
+                       ClientGroup__c,
+                       ActivitySector__c,
+                       DistributionChannel__c
                   FROM Company__c
-                 WHERE Conta__c =: orderData.accountData.Id
+                 WHERE Id =: orderData.headerData.companyId
             ]) {
                 company = accountCompany;
             }
@@ -216,7 +219,7 @@ public without sharing class OrderScreenController {
                     setProductGroups.add(orderProduct.productGroupId);
                 }
 
-                Decimal currentDiscount = 100 - ((orderProduct.totalPrice * 100) / (orderProduct.quantity * orderProduct.listPrice));
+                Decimal currentDiscount = orderProduct.commercialDiscountPercentage != '' ? (stringToDecimal(orderProduct.commercialDiscountPercentage) != null ? stringToDecimal(orderProduct.commercialDiscountPercentage).setScale(2) : 0) : 0;
                 if (biggerDiscount < currentDiscount) {
                     biggerDiscount = currentDiscount;
                     productGroupId = orderProduct.productGroupId;
@@ -322,15 +325,15 @@ public without sharing class OrderScreenController {
                         approvalByCounter.put(counter, userTerritoryId);
                     }
 
-                    if (counter == 1) {
+                    /* if (counter == 1) {
                         salesTeamTerritory = territory;
-                    }
+                    } */
                     counter++;
                 }
 
-                if (salesTeamTerritory == null && territoryAndParents.get(userTerritoryId) != null && territoryAndParents.get(territoryAndParents.get(userTerritoryId).ParentTerritory2Id) != null) {
+                /* if (salesTeamTerritory == null && territoryAndParents.get(userTerritoryId) != null && territoryAndParents.get(territoryAndParents.get(userTerritoryId).ParentTerritory2Id) != null) {
                     salesTeamTerritory = territoryAndParents.get(territoryAndParents.get(userTerritoryId).ParentTerritory2Id);
-                }
+                } */
 
                 Map<Id, Id> approvalsByTerritory = new Map<Id, Id>();
                 for (UserTerritory2Association userAssociation : [
@@ -357,7 +360,7 @@ public without sharing class OrderScreenController {
                 }
             }
 
-            Id companyId;
+            /* Id companyId;
             Id salesOrgId;
             Id activitySectorId;
             Id distributionChannelId;
@@ -377,8 +380,9 @@ public without sharing class OrderScreenController {
                     activitySectorId = salesTeamCompany.ActivitySector__c;
                     distributionChannelId = salesTeamCompany.DistributionChannel__c;
                 }
-            }
+            } */
 
+            System.debug('orderData.headerData.companyId: ' + orderData.headerData.companyId);
             order.AccountId = acc.Id;
             order.Status = 'Draft';
             order.PriceBook2Id = pricebookId;
@@ -391,9 +395,9 @@ public without sharing class OrderScreenController {
             order.Crop__c = orderData.headerData.safra.Id ;
             order.Culture__c = orderData.headerData.cultura.Id ;
             order.PaymentForm__c = orderData.headerData.forma_pagamento ;
-            order.SalesOrg__c = salesOrgId;
-            order.DistributionChannel__c = distributionChannelId ;
-            order.ActivitySector__c = activitySectorId ;
+            order.SalesOrg__c = company.SalesOrg__c;
+            order.DistributionChannel__c = company.DistributionChannel__c ;
+            order.ActivitySector__c = company.ActivitySector__c ;
             order.Currency__c = orderData.headerData.moeda ;
             order.SalesCTV__c = orderData.headerData.ctv_venda.Id ;
             order.StatusSF__c = orderData.headerData.status_pedido;
@@ -408,7 +412,7 @@ public without sharing class OrderScreenController {
             System.debug('orderData.headerData.pedido_mae.Id: ' + orderData.headerData.pedido_mae.Id);
             order.IsOrderMother__c = orderData.headerData.pedido_mae.Id != null ? false : Boolean.valueOf(orderData.headerData.pedido_mae_check);
             order.FinalTotalValue__c = orderTotalValue;
-            order.Company__c = companyId;
+            order.Company__c = company.Id;
             order.OrderType__c = orderData.headerData.pedido_mae.Id != null ? 'Pedido Filho' : (order.IsOrderMother__c ? 'Pedido Mãe' : 'Pedido Normal');
 
             Map<Id, OrderItem> motherItems = new Map<Id, OrderItem>();
@@ -694,7 +698,7 @@ public without sharing class OrderScreenController {
             Territory2 territory = territoryAndParents.containsKey(userTerritoryId) ? territoryAndParents.get(userTerritoryId) : new Territory2();
 
             if (territory != null && territory.ParentTerritory2Id != null) {
-                userTerritoryId = territory.ParentTerritory2Id;
+                userTerritoryId = territory.Id;
                 approvalByCounter.put(counter, userTerritoryId);
             }
 
@@ -891,7 +895,7 @@ public without sharing class OrderScreenController {
             SELECT Id,
                    ClientGroup__c
               FROM Company__c
-             WHERE Conta__c =: orderData.accountData.Id
+             WHERE Id =: orderData.headerData.companyId
         ]) {
             company = accountCompany;
         }
@@ -904,7 +908,7 @@ public without sharing class OrderScreenController {
         for (ProductDeserialize orderProduct : orderData.productData) {
             orderTotalValue += orderProduct.totalPrice;
 
-            Decimal currentDiscount = 100 - ((orderProduct.totalPrice * 100) / (orderProduct.quantity * orderProduct.listPrice));
+            Decimal currentDiscount = orderProduct.commercialDiscountPercentage != '' ? (stringToDecimal(orderProduct.commercialDiscountPercentage) != null ? stringToDecimal(orderProduct.commercialDiscountPercentage).setScale(2) : 0) : 0;
             if (biggerDiscount < currentDiscount) {
                 biggerDiscount = currentDiscount;
                 productGroupId = orderProduct.productGroupId;
@@ -984,6 +988,7 @@ public without sharing class OrderScreenController {
         public String  frete;
         public String  observation;
         public String  billing_sale_observation;
+        public String  companyId;
         public Boolean pedido_mae_check;
         public AccountSerialize  cliente_entrega;
         public InformationFields safra;
@@ -1167,6 +1172,7 @@ public without sharing class OrderScreenController {
         public String  frete;
         public String  observation;
         public String  billing_sale_observation;
+        public String  companyId;
         public Boolean pedido_mae_check;
         public InformationFields safra;
         public InformationFields cultura;
@@ -1215,6 +1221,7 @@ public without sharing class OrderScreenController {
             this.frete = order.Incoterms__c;
             this.observation = order.Description;
             this.billing_sale_observation = order.DescriptionBillingSale__c;
+            this.companyId = order.Company__c;
         }
     }
 
