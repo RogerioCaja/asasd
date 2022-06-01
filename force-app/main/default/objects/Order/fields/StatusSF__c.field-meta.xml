@@ -12,18 +12,23 @@
             <sorted>false</sorted>
             <value>
                 <fullName>Em digitação</fullName>
-                <default>false</default>
+                <default>true</default>
                 <label>Em digitação</label>
             </value>
             <value>
-                <fullName>Em aprovação</fullName>
+                <fullName>Em aprovação - GerenteFilial</fullName>
                 <default>false</default>
-                <label>Em aprovação</label>
+                <label>Em aprovação - Gerente Filial</label>
             </value>
             <value>
-                <fullName>Recusado</fullName>
+                <fullName>Em Aprovação - Gerente Regional</fullName>
                 <default>false</default>
-                <label>Recusado</label>
+                <label>Em Aprovação - Gerente Regional</label>
+            </value>
+            <value>
+                <fullName>Em Aprovação - Diretor</fullName>
+                <default>false</default>
+                <label>Em Aprovação - Diretor</label>
             </value>
             <value>
                 <fullName>Em Aprovação - Comitê Margem</fullName>
@@ -31,9 +36,19 @@
                 <label>Em Aprovação - Comitê Margem</label>
             </value>
             <value>
+                <fullName>Em Aprovação - Mesa de Grãos</fullName>
+                <default>false</default>
+                <label>Em Aprovação - Mesa de Grãos</label>
+            </value>
+            <value>
                 <fullName>Aprovado</fullName>
                 <default>false</default>
                 <label>Aprovado</label>
+            </value>
+            <value>
+                <fullName>Recusado</fullName>
+                <default>false</default>
+                <label>Recusado</label>
             </value>
             <value>
                 <fullName>Integrado</fullName>
