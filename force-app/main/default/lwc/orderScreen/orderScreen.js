@@ -67,6 +67,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         moeda: " ",
         ctv_venda: " ",
         pedido_mae: {},
+        IsOrderChild : false,
         pedido_mae_check : true,
         frete: "CIF",
         org: {Name: " "},
@@ -82,8 +83,8 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     };
 
     qtdItens = 0;
-    valorTotal = 0;
-    frete = '';
+    valorTotal = 0.0;
+    frete = '-----';
 
     currentTab = 0;
 
@@ -296,17 +297,16 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         saveOrder({
             orderId: (this.recordId && this.originScreen.includes('Order') && !this.childOrder) ? this.recordId : null,
             cloneOrder: this.cloneData.cloneOrder,
-            data: JSON.stringify(data)
+            data: JSON.stringify(data),
+            typeOrder: mode
         })
         .then((result) => {
             console.log(JSON.stringify(result));
             result = JSON.parse(result);
 
             if(!result.hasError){
-                console.log(JSON.stringify(mode));
                 this.showNotification(result.message, 'Sucesso', 'success');
-                if( mode == "gerarpedido" ){
-                }
+              
                 this[NavigationMixin.Navigate]({
                     type: 'standard__recordPage',
                     attributes: {
@@ -322,7 +322,6 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
             this.isLoading = false;
         }).catch((err)=>{
-            console.log(this.headerData);
             console.log(JSON.stringify(err));
             this.showNotification(err.message, 'Aconteceram alguns erros', 'error');
             this.isLoading = false;
