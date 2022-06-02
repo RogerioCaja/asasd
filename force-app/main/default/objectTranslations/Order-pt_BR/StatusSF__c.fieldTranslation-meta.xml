@@ -3,27 +3,39 @@
     <label><!-- Status SF --></label>
     <name>StatusSF__c</name>
     <picklistValues>
-        <masterLabel>Aprovado</masterLabel>
-        <translation><!-- Aprovado --></translation>
+        <masterLabel>Em digitação</masterLabel>
+        <translation><!-- Em digitação --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Em aprovação - GerenteFilial</masterLabel>
+        <translation><!-- Em Aprovação - Comitê Margem --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Em Aprovação - Gerente Regional</masterLabel>
+        <translation><!-- Em Aprovação - Gerente Regional --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Em Aprovação - Diretor</masterLabel>
+        <translation><!-- Em Aprovação - Diretor --></translation>
     </picklistValues>
     <picklistValues>
         <masterLabel>Em Aprovação - Comitê Margem</masterLabel>
         <translation><!-- Em Aprovação - Comitê Margem --></translation>
     </picklistValues>
     <picklistValues>
-        <masterLabel>Em aprovação</masterLabel>
-        <translation><!-- Em aprovação --></translation>
+        <masterLabel>Em Aprovação - Mesa de Grãos</masterLabel>
+        <translation><!-- Em Aprovação - Mesa de Grãos --></translation>
     </picklistValues>
     <picklistValues>
-        <masterLabel>Em digitação</masterLabel>
-        <translation><!-- Em digitação --></translation>
-    </picklistValues>
-    <picklistValues>
-        <masterLabel>Integrado</masterLabel>
-        <translation><!-- Integrado --></translation>
+        <masterLabel>Aprovado</masterLabel>
+        <translation><!-- Aprovado --></translation>
     </picklistValues>
     <picklistValues>
         <masterLabel>Recusado</masterLabel>
         <translation><!-- Recusado --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Integrado</masterLabel>
+        <translation><!-- Integrado --></translation>
     </picklistValues>
 </CustomFieldTranslation>
