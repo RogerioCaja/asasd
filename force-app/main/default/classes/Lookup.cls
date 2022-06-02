@@ -67,7 +67,6 @@ public with sharing class Lookup {
                 }
             }
 
-            System.debug('relatedUsers: ' + relatedUsers);
             query += ' AND Id IN: relatedUsers';
         }
 
