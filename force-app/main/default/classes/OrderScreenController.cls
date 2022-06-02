@@ -250,8 +250,8 @@ public without sharing class OrderScreenController {
                   FROM OrderItem
                  WHERE Id IN: setOrderItemsIds
             ]);
-            
-            User user = [SELECT Id, SellerType__c FROM User WHERE Id =: UserInfo.getUserId()];
+            String salesCTVId = orderData.headerData.ctv_venda != null ? orderData.headerData.ctv_venda.Id : '';
+            User user = [SELECT Id, SellerType__c FROM User WHERE Id =: salesCTVId];
             String sellerType = user.SellerType__c != null ? user.SellerType__c : '';
 
             Map<Id, Comissao__c> commissionByHierarchy = new Map<Id, Comissao__c>();
@@ -270,7 +270,7 @@ public without sharing class OrderScreenController {
                     }
                 }
             }
-
+            System.debug('commissionByHierarchy => ' + commissionByHierarchy);
             Territory2 salesTeamTerritory;
             if (company != null) {
                 Id userTerritoryId;
