@@ -3,7 +3,7 @@
     <fullName>AccessKey__c</fullName>
     <externalId>false</externalId>
     <label>Chave de Acesso</label>
-    <length>40</length>
+    <length>44</length>
     <required>true</required>
     <trackFeedHistory>false</trackFeedHistory>
     <trackHistory>false</trackHistory>
