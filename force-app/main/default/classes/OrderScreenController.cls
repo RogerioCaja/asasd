@@ -53,6 +53,7 @@ public without sharing class OrderScreenController {
                    Product2.PrincipleActive__c,
                    Product2.Multiplicity__c,
                    Product2.ProductGroup__c,
+                   Product2.ProductHierarchy__c,
                    Product2.ProductGroup__r.Name,
                    Product2.ProductSubgroup__c,
                    Product2.ProductSubgroup__r.Name,
@@ -205,6 +206,7 @@ public without sharing class OrderScreenController {
             Set<Id> setOrderItemsIds = new Set<Id>();
             Set<Id> setProductGroups = new Set<Id>();
             Set<Id> setProductsIds = new Set<Id>();
+            Set<Id> setProductHierarchyIds = new Set<Id>();
             for (ProductDeserialize orderProduct : orderData.productData) {
                 orderTotalValue += orderProduct.totalPrice;
                 if (orderProduct.orderItemId != null) {
@@ -217,6 +219,10 @@ public without sharing class OrderScreenController {
 
                 if (orderProduct.productGroupId != null) {
                     setProductGroups.add(orderProduct.productGroupId);
+                }
+
+                if(orderProduct.productHierarchyId != null){
+                    setProductHierarchyIds.add(orderProduct.productHierarchyId);
                 }
 
                 Decimal currentDiscount = orderProduct.commercialDiscountPercentage != '' ? (stringToDecimal(orderProduct.commercialDiscountPercentage) != null ? stringToDecimal(orderProduct.commercialDiscountPercentage).setScale(2) : 0) : 0;
@@ -250,19 +256,19 @@ public without sharing class OrderScreenController {
             User user = [SELECT Id, SellerType__c FROM User WHERE Id =: UserInfo.getUserId()];
             String sellerType = user.SellerType__c != null ? user.SellerType__c : '';
 
-            Map<Id, Comissao__c> commissionByGroup = new Map<Id, Comissao__c>();
+            Map<Id, Comissao__c> commissionByHierarchy = new Map<Id, Comissao__c>();
             if (sellerType != '') {
                 for (Comissao__c commission : [
                     SELECT Id,
-                           ProductGroup__c,
+                           ProductHierarchy__c,
                            SellerType__c,
                            CommissionPercentage__c 
                     FROM Comissao__c
-                   WHERE ProductGroup__c IN: setProductGroups
+                   WHERE ProductHierarchy__c IN: setProductHierarchyIds
                      AND SellerType__c =: sellerType
                 ]) {
-                    if (!commissionByGroup.containsKey(commission.ProductGroup__c)) {
-                        commissionByGroup.put(commission.ProductGroup__c, commission);
+                    if (!commissionByHierarchy.containsKey(commission.ProductHierarchy__c)) {
+                        commissionByHierarchy.put(commission.ProductHierarchy__c, commission);
                     }
                 }
             }
@@ -489,9 +495,9 @@ public without sharing class OrderScreenController {
                     orderItem.FinancialDiscountValue__c = orderProduct.financialDecreaseValue != null ? orderProduct.financialDecreaseValue.setScale(2) : 0;
                     orderItem.ComissionValue__c = orderProduct.comissionValue != null ? orderProduct.comissionValue.setScale(2) : 0;
                     orderItem.CommercialMargin__c = orderProduct.commercialMarginPercentage != null ? orderProduct.commercialMarginPercentage.setScale(2) : 0;
-                    orderItem.PercentComission__c = orderProduct.productGroupId != null ?
-                                                    (commissionByGroup.get(orderProduct.productGroupId) != null ?
-                                                        (commissionByGroup.get(orderProduct.productGroupId).CommissionPercentage__c != null ? commissionByGroup.get(orderProduct.productGroupId).CommissionPercentage__c.setScale(2) : 0) :
+                    orderItem.PercentComission__c = orderProduct.productHierarchyId != null ?
+                                                    (commissionByHierarchy.get(orderProduct.productHierarchyId) != null ?
+                                                        (commissionByHierarchy.get(orderProduct.productHierarchyId).CommissionPercentage__c != null ? commissionByHierarchy.get(orderProduct.productHierarchyId).CommissionPercentage__c : 0) :
                                                         0
                                                     ) :
                                                     0;
@@ -1012,6 +1018,7 @@ public without sharing class OrderScreenController {
         public String  unity;
         public String  activePrinciple;
         public String  productGroupId;
+        public String  productHierarchyId;
         public String  productGroupName;
         public String  productSubgroupId;
         public String  productSubgroupName;
@@ -1247,6 +1254,7 @@ public without sharing class OrderScreenController {
         public String  unity;
         public String  activePrinciple;
         public String  productGroupId;
+        public String  productHierarchyId;
         public String  productGroupName;
         public String  productSubgroupId;
         public String  productSubgroupName;
@@ -1283,6 +1291,7 @@ public without sharing class OrderScreenController {
             this.multiplicity = orderItem.Product2.Multiplicity__c;
             this.activePrinciple = orderItem.Product2.PrincipleActive__c;
             this.productGroupId = orderItem.Product2.ProductGroup__c;
+            this.productHierarchyId = orderItem.Product2.ProductHierarchy__c;
             this.productGroupName = orderItem.Product2.ProductGroup__r.Name;
             this.productSubgroupId = orderItem.Product2.ProductSubgroup__c;
             this.productSubgroupName = orderItem.Product2.ProductSubgroup__r.Name;
