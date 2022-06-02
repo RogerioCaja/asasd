@@ -5,7 +5,7 @@
     <label>Porcentagem de Comissão</label>
     <precision>18</precision>
     <required>true</required>
-    <scale>0</scale>
+    <scale>4</scale>
     <trackFeedHistory>false</trackFeedHistory>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>

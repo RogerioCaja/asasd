@@ -93,7 +93,7 @@
     <fieldUpdates>
         <fullName>UpdateStatus_EmAprovacao</fullName>
         <field>StatusSF__c</field>
-        <literalValue>Em aprovação - GerenteFilial</literalValue>
+        <literalValue>Em aprovação - Gerente Filial</literalValue>
         <name>Atualiza Status - Em aprovação</name>
         <notifyAssignee>false</notifyAssignee>
         <operation>Literal</operation>
