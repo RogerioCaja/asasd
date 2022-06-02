@@ -16,7 +16,7 @@
                 <label>Em digitação</label>
             </value>
             <value>
-                <fullName>Em aprovação - GerenteFilial</fullName>
+                <fullName>Em aprovação - Gerente Filial</fullName>
                 <default>false</default>
                 <label>Em aprovação - Gerente Filial</label>
             </value>
