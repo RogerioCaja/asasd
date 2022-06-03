@@ -50,7 +50,6 @@ global with sharing class TemplateDataIntegrationFields {
                 EndDate__c = this.endDate != null ? (Date.valueOf(this.endDate.contains('9999') ? this.endDate.replace('9999','2999') : this.endDate )) : null,
                 // ExternalId__c = this.orgVendas + this.cropCode  + this.typeCurrency +  this.product + this.salesCondition  + this.productGroup + this.salesOffice  + this.cultureCode + this.accountGroup +  this.accountCode  + this.product + this.salesTeam  + this.product, // A estrutura está acima ^^^^
                 ExternalId__c = this.externalId,
-                IsActive__c = Date.valueOf(this.endDate) < Date.today() ? false : true,
                 harvest__c = lookups.containsKey('Safra__c'+this.cropCode) ? lookups.get('Safra__c'+this.cropCode) : null,
                 Product__c = lookups.containsKey('Product2'+this.product) ? lookups.get('Product2'+this.product) : null,
                 ProductGroup__c = lookups.containsKey('ProductGroup__c'+this.productGroup) ? lookups.get('ProductGroup__c'+this.productGroup) : null,
@@ -93,6 +92,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String ProductCode;
         public String TextoBreveMaterial;
         public String DescricaoMaterial;
+        public String hierarquiaProduto;
         public String UnidadeMedida;
         public String UnidadeMedidaRemessa;
         public String Status;
@@ -125,6 +125,7 @@ global with sharing class TemplateDataIntegrationFields {
                 UnidadeMedida__c = this.UnidadeMedida,
                 GrossWeightUnitOfMeasure__c = this.UnidadeMedidaRemessa,
                 ProductType__c = this.TipoMaterial,
+                ProductHierarchy__c = lookups.containsKey('ProductHierarchy__c'+this.hierarquiaProduto) ? lookups.get('ProductHierarchy__c'+this.hierarquiaProduto) : null,
                 ProductGroup__c = lookups.containsKey('ProductGroup__c'+this.GrupoMercadoria) ? lookups.get('ProductGroup__c'+this.GrupoMercadoria) : null,
                 ProductSubgroup__c = lookups.containsKey('ProductSubgroup__c'+this.SubgrupoMercadoria) ? lookups.get('ProductSubgroup__c'+this.SubgrupoMercadoria) : null,
                 ProductSubgroup2__c = this.SubgrupoMercadoria2,
@@ -207,6 +208,7 @@ global with sharing class TemplateDataIntegrationFields {
     global class OrderINData implements FieldData{
 
         public String Status;
+        public String numeroPedidoApp;
         public String pricebook2Id;
         public String CodigoSap;
         public String Type;
@@ -238,6 +240,7 @@ global with sharing class TemplateDataIntegrationFields {
             return new Order(
 
                 CodigoSap__c = this.CodigoSap,
+                NumeroPedidoApp__c = this.numeroPedidoApp,
                 Pricebook2Id = lookups.containsKey('Pricebook2Id'+this.pricebook2Id) ? lookups.get('Pricebook2Id'+this.pricebook2Id) : null,
                 ShippingAccount__c = lookups.containsKey('ShippingAccount__c'+this.shippingAccount) ? lookups.get('ShippingAccount__c'+this.shippingAccount) : null,
                 AccountId = lookups.containsKey('Account'+ this.PaymentAccount) ? lookups.get('Account'+this.PaymentAccount) : null,
@@ -365,7 +368,7 @@ global with sharing class TemplateDataIntegrationFields {
                 // Como estava ----> ExternalId__c = this.orderExternalId + '|' + this.OrderItemCode,//Confirmar com Helder como deverá ser essa chave
                 ExternalId__c = this.orderExternalId,//Confirmar com Helder como deverá ser essa chave
                 DeliveryDate__c = this.DataDivisao,
-                Quantity__c = this.Quantidade,
+                Quantity__c = this.Quantidade, 
                 ConfirmedQuantity__c = this.QuantidadeConfirmada
             );
         }
