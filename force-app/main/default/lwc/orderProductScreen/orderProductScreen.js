@@ -188,7 +188,6 @@ export default class OrderProductScreen extends LightningElement {
             this.selectCompany = !this.selectCompany;
             this.headerData.companyId = this.selectedCompany.companyId;
         }
-
         this._setHeaderValues();
         if (this.isFilled(this.headerData.safra.Id)) {
             getSafraInfos({safraId: this.headerData.safra.Id})
@@ -198,7 +197,6 @@ export default class OrderProductScreen extends LightningElement {
                     initialDate: safraResult.initialDate,
                     endDate: safraResult.endDate
                 };
-
                 this.productParams = {
                     salesConditionId: this.headerData.condicao_venda.Id,
                     accountId: this.accountData.Id,
@@ -212,7 +210,6 @@ export default class OrderProductScreen extends LightningElement {
                     salesOfficeId: this.selectedCompany.salesOfficeId != null ? this.selectedCompany.salesOfficeId : '',
                     salesTeamId: this.selectedCompany.salesTeamId != null ? this.selectedCompany.salesTeamId : ''
                 };
-
                 let orderData = {
                     paymentDate: this.headerData.data_pagamento != null ? this.headerData.data_pagamento : '',
                     salesOrg: this.selectedCompany.salesOrgId != null ? this.selectedCompany.salesOrgId : '',
@@ -221,19 +218,23 @@ export default class OrderProductScreen extends LightningElement {
                     safra: this.headerData.safra.Id != null ? this.headerData.safra.Id : '',
                     culture: this.headerData.cultura.Id != null ? this.headerData.cultura.Id : ''
                 };
-
                 if (!this.headerData.IsOrderChild) {
                     getFinancialInfos({data: JSON.stringify(orderData)})
                     .then((result) => {
                         this.financialInfos = JSON.parse(result);
                         if (this.products.length > 0) {
                             let showPriceChange = false;
+                            let showQuantityChange = false;
                             let priceChangeMessage = '';
                             let currentProducts = this.products;
-                            
                             for (let index = 0; index < currentProducts.length; index++) {
                                 this.recalculatePrice = true;
                                 this.editProduct(currentProducts[index].position, true);
+                                let oldQUantity = currentProducts[index].quantity;
+                                this.addProduct.quantity = this.calculateMultiplicity(this.addProduct.dosage * this.hectares);
+                                if (this.addProduct.quantity != oldQUantity) {
+                                    showQuantityChange = true;
+                                }
                                 let oldPrice = currentProducts[index].unitPrice;
                                 this.calculateTotalPrice(true);
                                 let newPrice = this.changeProduct();
@@ -243,12 +244,14 @@ export default class OrderProductScreen extends LightningElement {
                                 }
                             }
                             this.recalculatePrice = false;
-
                             if (showPriceChange) {
                                 if (currentProducts.length > 1) {
                                     priceChangeMessage = 'Os preços foram recalculados devido a alteração de data de pagamento. Verifique-os.';
                                 }
                                 this.showToast('warning', 'Alteração nos preços!', priceChangeMessage);
+                            }
+                            if (showQuantityChange) {
+                                this.showToast('warning', 'Alteração nas quantidades!', 'As quantidades foram recalculados devido a alteração no hectar. Verifique-os.');
                             }
                         }
                     })
