@@ -171,7 +171,7 @@ public without sharing class CustomLookupController {
             
             Map<Id, Decimal> commissionByHierarchy = new Map<Id, Decimal>();
             if (isCommodity) {
-                User user = [SELECT Id, SellerType__c FROM User WHERE Id =: UserInfo.getUserId()];
+                User user = [SELECT Id, SellerType__c FROM User WHERE Id =: productParams.ctvId];
                 String sellerType = user.SellerType__c != null ? user.SellerType__c : '';
     
                 if (sellerType != '') {
