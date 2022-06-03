@@ -68,8 +68,11 @@ export default class OrderSummaryScreen extends LightningElement {
 
     formatPercent(num){
         try{
+           
             if(num.toString().indexOf('%') != -1)
                 num = num.toString().split('%')[0];
+            
+            num = parseFloat(num.replace(',', '.'));
             return (parseFloat(num)/100).toLocaleString(undefined,{style: 'percent', minimumFractionDigits:2});
         }
         catch(err){
