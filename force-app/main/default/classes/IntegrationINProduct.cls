@@ -10,7 +10,7 @@ global with sharing class IntegrationINProduct {
 
         Set<String> productGroupLookups = new Set<String>();
         Set<String> productSubGroupLookups = new Set<String>();
-        
+        Set<String> productHierarchyLookups = new Set<String>();
 
     
         List<TemplateDataIntegrationFields.ResponseParent> responseList = new List<TemplateDataIntegrationFields.ResponseParent>();
@@ -24,7 +24,10 @@ global with sharing class IntegrationINProduct {
             //Getting account parameters to search
             productGroupLookups.add(product.GrupoMercadoria);
             productSubGroupLookups.add(product.SubgrupoMercadoria);
-           
+            productHierarchyLookups.add(product.hierarquiaProduto);
+
+            orgVProductListToUpsert.addAll(product.orgVProductItems);
+            System.debug('orgVProductListToUpsert --->' + orgVProductListToUpsert);
         }
         // Pega o Id da conta com base no CNPJ da conta
         //Account search based on CNPJ field sent
@@ -36,6 +39,11 @@ global with sharing class IntegrationINProduct {
 
         for (ProductSubgroup__c productSubGroup : [SELECT Id, ExternalId__c FROM ProductSubgroup__c WHERE  ExternalId__c IN : productSubGroupLookups]){
             lookups.put('ProductSubgroup__c' + productSubGroup.ExternalId__c, productSubGroup.Id);
+            
+        }
+        
+        for (ProductHierarchy__c productHierarchy : [SELECT Id, External_Id__c FROM ProductHierarchy__c WHERE  External_Id__c IN : productHierarchyLookups]){
+            lookups.put('ProductHierarchy__c' + productHierarchy.External_Id__c, productHierarchy.Id);
             
         }
        
