@@ -16,9 +16,9 @@
                 <label>KG</label>
             </value>
             <value>
-                <fullName>T</fullName>
+                <fullName>TO</fullName>
                 <default>false</default>
-                <label>T</label>
+                <label>TO</label>
             </value>
         </valueSetDefinition>
     </valueSet>
