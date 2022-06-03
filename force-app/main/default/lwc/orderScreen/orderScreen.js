@@ -209,6 +209,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             if(this.cloneData.cloneOrder){
                 this.headerData.ctv_venda.Id = null;
                 this.headerData.status_pedido = 'Em digitação';
+                this.headerData.cliente_entrega.Id = null;
             }
             this.headerData.condicao_venda = this.headerData.condicao_venda != null ? this.headerData.condicao_venda : ' ';
             
