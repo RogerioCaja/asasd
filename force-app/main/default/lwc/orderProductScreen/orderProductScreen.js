@@ -1001,7 +1001,7 @@ export default class OrderProductScreen extends LightningElement {
         this.nextScreen();
         let totalProducts = 0;
         for (let index = 0; index < this.products.length; index++) {
-            totalProducts += this.products[index].quantity;
+            totalProducts += Number(this.products[index].totalPrice);
         }
 
         let chooseCommodity = this.commodities.find(e => e.id == event.target.dataset.targetId);
