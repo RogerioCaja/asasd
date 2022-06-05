@@ -418,6 +418,7 @@ public without sharing class OrderScreenController {
             order.FinalTotalValue__c = orderTotalValue;
             order.Company__c = company.Id;
             order.OrderType__c = orderData.headerData.pedido_mae.Id != null ? 'Pedido Filho' : (order.IsOrderMother__c ? 'Pedido Mãe' : 'Pedido Normal');
+            order.OrderMargin__c = orderData.summaryData.orderMargin != null ? stringToDecimal((orderData.summaryData.orderMargin)) : 0;
 
             Map<Id, OrderItem> motherItems = new Map<Id, OrderItem>();
             Boolean newDivision = false;
@@ -937,6 +938,7 @@ public without sharing class OrderScreenController {
         public String  frete;
         public String  observation;
         public String  billing_sale_observation;
+        public String  orderMargin;
         public String  companyId;
         public Boolean pedido_mae_check;
         public Decimal hectares;
@@ -1018,16 +1020,19 @@ public without sharing class OrderScreenController {
     public class SummaryDeserialize{
         public String observation;
         public String billing_sale_observation;
+        public String orderMargin;
     }
 
     public class SummarySerialize{
         public String observation;
         public String billing_sale_observation;
+        public String orderMargin;
 
         public SummarySerialize(){}
         public SummarySerialize(String observation, String billing_sale_observation){
             this.observation = observation;
             this.billing_sale_observation = billing_sale_observation;
+            this.orderMargin = orderMargin;
         }
     }
 
@@ -1123,6 +1128,7 @@ public without sharing class OrderScreenController {
         public String  frete;
         public String  observation;
         public String  billing_sale_observation;
+        public String  orderMargin;
         public String  companyId;
         public Boolean pedido_mae_check;
         public Decimal hectares;
@@ -1172,6 +1178,7 @@ public without sharing class OrderScreenController {
             this.frete = order.Incoterms__c;
             this.observation = order.Description;
             this.billing_sale_observation = order.DescriptionBillingSale__c;
+            this.orderMargin = String.valueOf(order.OrderMargin__c) + '%';
             this.companyId = order.Company__c;
         }
     }
