@@ -59,6 +59,7 @@ export default class OrderSummaryScreen extends LightningElement {
 
             this.orderMargin = ((1 - (orderTotalCost / orderTotalPrice)) * 100).toFixed(2) + '%';
             this.summaryDataLocale.orderMargin = this.orderMargin;
+            this.defineOrderMargin();
         }
     }
 
@@ -97,6 +98,13 @@ export default class OrderSummaryScreen extends LightningElement {
 
     changeObservationSale(event){
         this.summaryDataLocale.billing_sale_observation = event.target.value;
+        const setSummaryData = new CustomEvent('setsummarydata');
+        setSummaryData.data = this.summaryDataLocale;
+      
+        this.dispatchEvent(setSummaryData);
+    }
+
+    defineOrderMargin(event){
         const setSummaryData = new CustomEvent('setsummarydata');
         setSummaryData.data = this.summaryDataLocale;
       
