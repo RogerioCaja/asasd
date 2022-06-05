@@ -38,12 +38,15 @@ export default class OrderSummaryScreen extends LightningElement {
        
         if(this.productData){
             this.productDataLocale = JSON.parse(JSON.stringify(this.productData));
+            let orderTotalPrice = 0;
+            let orderTotalCost = 0;
             for(var i= 0; i< this.productDataLocale.length; i++){
+                orderTotalPrice += Number(this.productDataLocale[i].unitPrice) * Number(this.productDataLocale[i].quantity);
+                orderTotalCost += Number(this.productDataLocale[i].practicedCost) * Number(this.productDataLocale[i].quantity);
                 this.productDataLocale[i]['unitPrice'] = this.formatCurrency(this.productDataLocale[i].unitPrice);
                 this.productDataLocale[i]['totalPrice']  = this.formatCurrency(this.productDataLocale[i].totalPrice);
                 this.productDataLocale[i]['commercialDiscountValue']  =  this.formatCurrency(this.productDataLocale[i].commercialDiscountValue);
                 this.productDataLocale[i]['commercialDiscountPercentage']  =  this.formatPercent(this.productDataLocale[i].commercialDiscountPercentage);
-                this.orderMargin += this.productDataLocale[i].commercialMarginPercentage;
                 this.productDataLocale[i]['commercialMarginPercentage']  = this.formatPercent( this.productDataLocale[i].commercialMarginPercentage);
                 this.productDataLocale[i]['divisionData'] = [];
                 if(this.divisionData){
@@ -53,7 +56,9 @@ export default class OrderSummaryScreen extends LightningElement {
                     }
                 }
             }
-            this.orderMargin = this.formatPercent(this.orderMargin);
+
+            this.orderMargin = ((1 - (orderTotalCost / orderTotalPrice)) * 100).toFixed(2) + '%';
+            this.summaryDataLocale.orderMargin = this.orderMargin;
         }
     }
 
