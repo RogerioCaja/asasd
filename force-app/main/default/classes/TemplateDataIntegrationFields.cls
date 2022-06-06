@@ -89,7 +89,6 @@ global with sharing class TemplateDataIntegrationFields {
     }
     
     global class Product2INData implements FieldData {
-        public String ProductName;
         public String ProductCode;
         public String TextoBreveMaterial;
         public String DescricaoMaterial;
@@ -100,6 +99,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String TipoMaterial;
         public String GrupoMercadoria;
         public String SubgrupoMercadoria;
+        public String SubgrupoMercadoria2;
         public String MarcadoEliminacao;
         public String UnidadePeso;
         public String CodigoControle;
@@ -111,6 +111,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String IngredienteAtivo;
         public String NumeroRegistro;
         public Decimal PesoBruto;
+        public List<TemplateDataIntegrationFields.OrgVProductINData> orgVProductItems;
         //public List<TemplateDataIntegrationFields.ProductINData> product2Entries;
 
         public Product2 serialize(Map<String, Id> lookups){
@@ -118,16 +119,16 @@ global with sharing class TemplateDataIntegrationFields {
 
             //Returning Object with Fields
             return new Product2(
-                Name = this.ProductName,
+                Name = this.TextoBreveMaterial,
                 ProductCode = this.ProductCode,
-                Description = this.TextoBreveMaterial,
+                Description = this.DescricaoMaterial,
                 UnidadeMedida__c = this.UnidadeMedida,
                 GrossWeightUnitOfMeasure__c = this.UnidadeMedidaRemessa,
-                SalesOrgStatus__c = this.Status,
                 ProductType__c = this.TipoMaterial,
                 ProductHierarchy__c = lookups.containsKey('ProductHierarchy__c'+this.hierarquiaProduto) ? lookups.get('ProductHierarchy__c'+this.hierarquiaProduto) : null,
                 ProductGroup__c = lookups.containsKey('ProductGroup__c'+this.GrupoMercadoria) ? lookups.get('ProductGroup__c'+this.GrupoMercadoria) : null,
                 ProductSubgroup__c = lookups.containsKey('ProductSubgroup__c'+this.SubgrupoMercadoria) ? lookups.get('ProductSubgroup__c'+this.SubgrupoMercadoria) : null,
+                ProductSubgroup2__c = this.SubgrupoMercadoria2,
                 MarcadoEliminacao__c = this.MarcadoEliminacao,
                 QuantityUnitOfMeasure = this.UnidadePeso,
                 ExternalId__c = this.CodigoControle,
@@ -159,6 +160,51 @@ global with sharing class TemplateDataIntegrationFields {
             return 'Id';
         }
     }
+
+    global class OrgVProductINData implements FieldDataChild{
+        
+        //JSON fields Example
+        public String OrgVId;
+        public String OrganizacaoVendas;
+        public String SetorAtividade;
+        public String OrgProduct;
+        public String Status;
+        
+
+        public OrgVProduct__c serialize(Map<String, Id> lookups){
+
+            //Returning Object with Fields.
+            return new OrgVProduct__c(
+                OrgVExternal__c = this.OrgProduct + '|' + this.OrgVId,
+                SalesOrg__c = lookups.containsKey('SalesOrg__c' + this.OrganizacaoVendas) ? lookups.get('SalesOrg__c' + this.OrganizacaoVendas) : null,
+                Product__c = lookups.containsKey('Product2' + this.OrgProduct) ? lookups.get('Product2' + this.OrgProduct) : null,
+                Department__c = this.SetorAtividade,
+                Status__c = this.Status
+            );
+        }
+        
+        //Required fields for integration
+        public List<String> getRequiredFields(){
+            return new List<String>{
+               //'Name',
+               
+            };
+        }
+
+        //ExternalId field
+        public String getFieldKey(){
+            return 'Id';
+        }
+
+        public String getFieldExternal(){
+            return 'Invoice__c';
+        }
+        
+        public String getParentKey(){
+            return 'Pricebook2Id';
+        }
+    }
+    
     global class OrderINData implements FieldData{
 
         public String Status;
