@@ -36,6 +36,10 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
+                <field>NumeroPedidoApp__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
                 <field>Hectare__c</field>
             </layoutItems>
         </layoutColumns>
@@ -193,10 +197,6 @@
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>SalesOrg__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
-                <field>ActivitySector__c</field>
             </layoutItems>
         </layoutColumns>
         <layoutColumns/>

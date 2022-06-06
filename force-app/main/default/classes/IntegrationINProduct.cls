@@ -10,11 +10,11 @@ global with sharing class IntegrationINProduct {
 
         Set<String> productGroupLookups = new Set<String>();
         Set<String> productSubGroupLookups = new Set<String>();
-        
+        Set<String> productHierarchyLookups = new Set<String>();
 
     
         List<TemplateDataIntegrationFields.ResponseParent> responseList = new List<TemplateDataIntegrationFields.ResponseParent>();
-        //List<TemplateDataINtegrationFields.Product2INData> productListToUpsert = new List<TemplateDataINtegrationFields.Product2INData>();
+        List<TemplateDataINtegrationFields.OrgVProductINData> orgVProductListToUpsert = new List<TemplateDataINtegrationFields.OrgVProductINData>();
         List<Product2> productListToUpsert = new List<Product2>();
         
 
@@ -24,7 +24,10 @@ global with sharing class IntegrationINProduct {
             //Getting account parameters to search
             productGroupLookups.add(product.GrupoMercadoria);
             productSubGroupLookups.add(product.SubgrupoMercadoria);
-           
+            productHierarchyLookups.add(product.hierarquiaProduto);
+
+            orgVProductListToUpsert.addAll(product.orgVProductItems);
+            System.debug('orgVProductListToUpsert --->' + orgVProductListToUpsert);
         }
         // Pega o Id da conta com base no CNPJ da conta
         //Account search based on CNPJ field sent
@@ -36,6 +39,11 @@ global with sharing class IntegrationINProduct {
 
         for (ProductSubgroup__c productSubGroup : [SELECT Id, ExternalId__c FROM ProductSubgroup__c WHERE  ExternalId__c IN : productSubGroupLookups]){
             lookups.put('ProductSubgroup__c' + productSubGroup.ExternalId__c, productSubGroup.Id);
+            
+        }
+        
+        for (ProductHierarchy__c productHierarchy : [SELECT Id, External_Id__c FROM ProductHierarchy__c WHERE  External_Id__c IN : productHierarchyLookups]){
+            lookups.put('ProductHierarchy__c' + productHierarchy.External_Id__c, productHierarchy.Id);
             
         }
        
@@ -55,11 +63,11 @@ global with sharing class IntegrationINProduct {
         
         //Upserting records (OrderItem)
         // Upsert OrderItem
-        /*
-        Map<String, List<TemplateDataIntegrationFields.Response>> orderItemsResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
-        if(orderItemListToUpsert.size() != 0){
-            orderItemsResponse.putAll(
-                IntegrationInboundOrderItem.upsertOrderItem(orderItemListToUpsert)
+        
+        Map<String, List<TemplateDataIntegrationFields.Response>> orgVproductResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
+        if(orgVProductListToUpsert.size() != 0){
+            orgVproductResponse.putAll(
+                IntegrationINOrgVProduct.upsertOrgVProduct(orgVProductListToUpsert)
             );
         }
 
@@ -67,14 +75,14 @@ global with sharing class IntegrationINProduct {
         // Pega todas as respostas dos OrderItem
         for(TemplateDataIntegrationFields.ResponseParent response : responseList){
             response.items = new List<TemplateDataIntegrationFields.Response>();
-            if(orderItemsResponse.size() != 0 && orderItemsResponse.containsKey(response.idSalesforce)){
-                response.items.addAll(orderItemsResponse.get(response.idSalesforce));
+            if(orgVproductResponse.size() != 0 && orgVproductResponse.containsKey(response.idSalesforce)){
+                response.items.addAll(orgVproductResponse.get(response.idSalesforce));
             } 
-            else if(orderItemsResponse.size() != 0 && orderItemsResponse.containsKey(response.externalCode)){
-                response.items.addAll(orderItemsResponse.get(response.externalCode));
+            else if(orgVproductResponse.size() != 0 && orgVproductResponse.containsKey(response.externalCode)){
+                response.items.addAll(orgVproductResponse.get(response.externalCode));
             }
         }
-*/
+
         //Checking integration errors to log
         // Verifica erros de integração para o log
         Boolean hasError = false;
@@ -83,7 +91,7 @@ global with sharing class IntegrationINProduct {
             if(responseProduct.status == false){
                 hasError = true;
                 break;
-            } /*else {
+            } else {
                 for(TemplateDataIntegrationFields.Response response : responseProduct.items){
                     if(response.status == false){
                         hasError = true;
@@ -91,7 +99,7 @@ global with sharing class IntegrationINProduct {
                     }
                 }
             }
-            */
+            
         }
 		
         //Creating integration log

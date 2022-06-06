@@ -60,6 +60,10 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
+                <field>NumeroPedidoApp__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
                 <field>Hectare__c</field>
             </layoutItems>
         </layoutColumns>
