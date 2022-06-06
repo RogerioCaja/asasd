@@ -161,7 +161,7 @@ global with sharing class TemplateDataIntegrationFields {
             return 'Id';
         }
     }
-
+    
     global class OrgVProductINData implements FieldDataChild{
         
         //JSON fields Example
