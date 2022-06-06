@@ -125,7 +125,7 @@ global with sharing class TemplateDataIntegrationFields {
                 UnidadeMedida__c = this.UnidadeMedida,
                 GrossWeightUnitOfMeasure__c = this.UnidadeMedidaRemessa,
                 ProductType__c = this.TipoMaterial,
-                Hierarquia_de_Produtos__c = lookups.containsKey('ProductHierarchy__c'+this.hierarquiaProduto) ? lookups.get('ProductHierarchy__c'+this.hierarquiaProduto) : null,
+                ProductHierarchy__c = lookups.containsKey('ProductHierarchy__c'+this.hierarquiaProduto) ? lookups.get('ProductHierarchy__c'+this.hierarquiaProduto) : null,
                 ProductGroup__c = lookups.containsKey('ProductGroup__c'+this.GrupoMercadoria) ? lookups.get('ProductGroup__c'+this.GrupoMercadoria) : null,
                 ProductSubgroup__c = lookups.containsKey('ProductSubgroup__c'+this.SubgrupoMercadoria) ? lookups.get('ProductSubgroup__c'+this.SubgrupoMercadoria) : null,
                 ProductSubgroup2__c = this.SubgrupoMercadoria2,
@@ -208,6 +208,7 @@ global with sharing class TemplateDataIntegrationFields {
     global class OrderINData implements FieldData{
 
         public String Status;
+        public String statusRecusa;
         public String numeroPedidoApp;
         public String pricebook2Id;
         public String CodigoSap;
@@ -237,6 +238,27 @@ global with sharing class TemplateDataIntegrationFields {
         public List<TemplateDataIntegrationFields.ShippingDivisonINData> shippingDivison;
         public Order serialize(Map<String, Id> lookups){
 
+            switch on Status {
+                when 'Em análise de Crédito' {
+                    Status = '1';
+                }
+                when 'Crédito Bloqueado'{
+                    Status = '2';
+                }
+                when 'Crédito Liberado'{
+                    Status = '3';
+                }
+                when 'Faturado Parcialmente'{
+                    Status = '4';
+                }
+                when 'Concluído'{
+                    Status = '5';
+                }
+                when 'Cancelado'{
+                    Status = 'X';
+                }
+            }
+
             return new Order(
 
                 CodigoSap__c = this.CodigoSap,
@@ -256,6 +278,7 @@ global with sharing class TemplateDataIntegrationFields {
                 EffectiveDate = Date.valueOf(effectiveDate),
                 ShippingDate__c = Date.valueOf(ShippingDate),
                 Status = this.status,
+                StatusRecusa__c	= this.statusRecusa,
                 Type = this.type,
                 CustomerOrderNumber__c = this.customerOrderNumber,
                 PaymentForm__c = this.paymentForm,

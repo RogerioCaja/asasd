@@ -166,6 +166,13 @@
         </values>
     </picklistValues>
     <picklistValues>
+        <picklist>StatusRecusa__c</picklist>
+        <values>
+            <fullName>Teste</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
         <picklist>StatusSAP__c</picklist>
         <values>
             <fullName>1</fullName>
@@ -203,7 +210,19 @@
             <default>false</default>
         </values>
         <values>
-            <fullName>Em aprovação</fullName>
+            <fullName>Em Aprovação - Diretor</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Em Aprovação - Gerente Regional</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Em Aprovação - Mesa de Grãos</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Em aprovação - Gerente Filial</fullName>
             <default>false</default>
         </values>
         <values>
