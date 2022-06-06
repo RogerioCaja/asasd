@@ -71,7 +71,8 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         pedido_mae_check : true,
         frete: "CIF",
         org: {Name: " "},
-        aprovation: " "
+        aprovation: " ",
+        companyId: null
     };
     @track productData;
     @track divisionData;
@@ -82,7 +83,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     };
 
     qtdItens = 0;
-    valorTotal = 0.0;
+    @api valorTotal = 0.0;
     frete = '-----';
 
     currentTab = 0;
@@ -193,11 +194,11 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.headerData = data.headerData;
             this.productData = data.productData;
             this.qtdItens = data.productData.length;
-          
-            this.productData.forEach(product =>{
-                this.valorTotal  += parseFloat(product.totalPrice);
-            })
-            this.valorTotal = parseFloat(this.valorTotal).toFixed(2);
+            this.valorTotal = 0;
+            // this.productData.forEach(product =>{
+            //     this.valorTotal  += parseFloat(product.totalPrice);
+            // })
+            // this.valorTotal = parseFloat(this.valorTotal).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
             this.divisionData = data.divisionData;
             this.summaryData['observation'] = this.headerData.observation;
             this.summaryData['billing_sale_observation'] = this.headerData.billing_sale_observation;
@@ -205,6 +206,11 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.completeScreens([0, 1, 2, 3]);
             this.isLoading = false;
             this.cloneData.cloneOrder = this.clone.cloneOrder;
+            if(this.cloneData.cloneOrder){
+                this.headerData.ctv_venda.Id = null;
+                this.headerData.status_pedido = 'Em digitação';
+                this.headerData.cliente_entrega.Id = null;
+            }
             this.headerData.condicao_venda = this.headerData.condicao_venda != null ? this.headerData.condicao_venda : ' ';
             
             if (this.childOrder) {
@@ -362,16 +368,20 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         else{
             this.disableNextScreen();
         }
-        
+    }
+
+    _setHeaderValues(event) {
+        this.headerData = event.data;
     }
 
     _setProductData(event) {
         this.productData = event.data;
         this.qtdItens = this.productData.length;
-        this.productData.forEach(product =>{
-            this.valorTotal  += parseFloat(product.totalPrice);
-        })
-        this.valorTotal = parseFloat(this.valorTotal).toFixed(2);
+        this.valorTotal = 0;
+        // this.productData.forEach(product =>{
+        //     this.valorTotal  = parseFloat(this.valorTotal) + parseFloat(product.totalPrice);
+        // })
+        // this.valorTotal = parseFloat(this.valorTotal).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
         console.log('this.productData: ' + this.productData);
         console.log('acproductcount data setted:', this.productData, event.detail, event.data, event);
         //this.qtdItens = this.productData.length;

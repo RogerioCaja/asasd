@@ -48,7 +48,35 @@ public with sharing class OrderHelper {
                 CalloutOrderUpdate.callIntegration(order.Id, rmCode , agCode , zcCode);
             }  
         }
-        Orderhelper.enableTrigger();
-        
+        Orderhelper.enableTrigger(); 
+    }
+
+    public static void sendApprovalProccess(List<Order> newRecords){
+
+        List<Order> orderToUpdate = new List<Order>();
+        for(Order order : newRecords){
+            if(order.Status != '0'){
+                if(!order.MarginCommittee__c || !order.MarginCommittee__c || !order.Gerente_Regional__c || !order.Director__c)
+                    {
+                        try{
+                            Approval.ProcessSubmitRequest administrationRequest = new Approval.ProcessSubmitRequest();
+                            administrationRequest.setProcessDefinitionNameOrId('OrderApproval3');
+                            administrationRequest.setObjectId(order.Id);
+                            Approval.ProcessResult approvalResult = Approval.process(administrationRequest);
+                            System.debug('pedido submetido para aprovação com sucesso: '+ approvalResult.isSuccess());
+                        }
+                        catch(Exception e){
+                            System.debug(e.getMessage());
+                        }
+                    }
+                    else{
+                        order.StatusSF__c = 'Aprovado';
+                        orderToUpdate.add(order);
+                    }
+            }
+            
+        }
+        if(orderToUpdate.size() > 0)
+            update orderToUpdate;
     }
 }
