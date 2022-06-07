@@ -120,7 +120,10 @@ export default class OrderProductScreen extends LightningElement {
             this.allDivisionProducts = this.isFilled(this.divisionData) ? this.divisionData : [];
         }
         
-        if (this.headerData.status_pedido == 'Em aprovação') this.disabled = true;
+        if (this.headerData.status_pedido == 'Em aprovação - Gerente Filial' || this.headerData.status_pedido == 'Em aprovação - Gerente Regional' ||
+            this.headerData.status_pedido == 'Em aprovação - Diretor' || this.headerData.status_pedido == 'Em aprovação - Comitê Margem' || this.headerData.status_pedido == 'Em aprovação - Mesa de Grãos') {
+            this.disabled = true;
+        }
 
         actions = [];
         if (this.disabled)  actions.push({ label: 'Visualizar', name: 'visualize' })

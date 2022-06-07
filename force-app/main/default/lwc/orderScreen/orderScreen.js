@@ -305,7 +305,8 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     }
 
     async saveOrder(event){
-        if (this.headerData.status_pedido == 'Em aprovação') {
+        if (this.headerData.status_pedido == 'Em aprovação - Gerente Filial' || this.headerData.status_pedido == 'Em aprovação - Gerente Regional' ||
+            this.headerData.status_pedido == 'Em aprovação - Diretor' || this.headerData.status_pedido == 'Em aprovação - Comitê Margem' || this.headerData.status_pedido == 'Em aprovação - Mesa de Grãos') {
             this.showNotification('O pedido está Em Aprovação, portanto não pode ser alterado', 'Atenção', 'warning');
             return;
         }
