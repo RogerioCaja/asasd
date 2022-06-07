@@ -299,7 +299,11 @@ export default class OrderHeaderScreen extends LightningElement {
 
             if(this.headerData){
                 this.headerDictLocale = JSON.parse(JSON.stringify(this.headerData));
-                if (this.headerData.status_pedido == 'Em aprovação') this.disabled = true;
+                if (this.headerData.status_pedido == 'Em aprovação - Gerente Filial' || this.headerData.status_pedido == 'Em aprovação - Gerente Regional' ||
+                    this.headerData.status_pedido == 'Em aprovação - Diretor' || this.headerData.status_pedido == 'Em aprovação - Comitê Margem' || this.headerData.status_pedido == 'Em aprovação - Mesa de Grãos') {
+                    this.disabled = true;
+                }
+                
                 this.pass = false;
                 if(this.headerDictLocale.tipo_venda != " "){
                     // this.headerDataTitleLocale.tipo_venda = this.tiposVenda.find(element => element.value == this.headerData.tipo_venda).label;

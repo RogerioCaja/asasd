@@ -53,7 +53,7 @@ public with sharing class OrderHelper {
 
     public static void sendApprovalProccess(List<Order> newRecords){
 
-        List<Order> orderToUpdate = new List<Order>();
+        Set<Id> orderToUpdate = new Set<Id>();
         for(Order order : newRecords){
             if(order.Status != '0'){
                 if(order.MarginCommittee__c || order.Manager_BranchOffice__c || order.Gerente_Regional__c || order.Director__c)
@@ -70,13 +70,20 @@ public with sharing class OrderHelper {
                     }
                 }
                 else{
-                    order.StatusSF__c = 'Aprovado';
-                    orderToUpdate.add(order);
+                    orderToUpdate.add(order.Id);
                 }
             }
             
         }
-        if(orderToUpdate.size() > 0)
-            update orderToUpdate;
+        if(orderToUpdate.size() > 0){
+            List<Order> orderList = [SELECT Id, StatusSF__c FROM Order WHERE Id IN: orderToUpdate];
+            List<Order> orderToUpdateList = new List<Order>();
+            for(Order order : orderList){
+                order.StatusSF__c = 'Aprovado';
+                orderToUpdateList.add(order);
+            }
+            update orderToUpdateList;
+        }
+            
     }
 }

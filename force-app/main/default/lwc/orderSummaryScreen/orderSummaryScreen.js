@@ -39,7 +39,12 @@ export default class OrderSummaryScreen extends LightningElement {
        
         if(this.productData){
             this.productDataLocale = JSON.parse(JSON.stringify(this.productData));
-            if (this.headerData.status_pedido == 'Em aprovação') this.disabled = true;
+
+            if (this.headerData.status_pedido == 'Em aprovação - Gerente Filial' || this.headerData.status_pedido == 'Em aprovação - Gerente Regional' ||
+                this.headerData.status_pedido == 'Em aprovação - Diretor' || this.headerData.status_pedido == 'Em aprovação - Comitê Margem' || this.headerData.status_pedido == 'Em aprovação - Mesa de Grãos') {
+                this.disabled = true;
+            }
+            
             let orderTotalPrice = 0;
             let orderTotalCost = 0;
             for(var i= 0; i< this.productDataLocale.length; i++){
