@@ -4,6 +4,41 @@
     <active>true</active>
     <label>Desconto</label>
     <picklistValues>
+        <picklist>AccountType__c</picklist>
+        <values>
+            <fullName>CLUBE A</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>CLÁSSICO</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>CONECTA</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>DINÂMICO</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>INOVADOR</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>MODULAR</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>NÃO SEGMENTADO</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>REDISTRIBUIÇÃO</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
         <picklist>Currency__c</picklist>
         <values>
             <fullName>%25</fullName>
