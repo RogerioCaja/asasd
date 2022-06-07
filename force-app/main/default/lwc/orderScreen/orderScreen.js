@@ -369,7 +369,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
     _setHeaderData(event) {
         this.headerData = event.data;
-        this.headerData.IsOrderChild = this.childOrder || this.headerData.tipo_pedido;
+        this.headerData.IsOrderChild = this.childOrder || this.headerData.tipo_pedido == 'Pedido Filho';
         console.log('header data setted:', this.headerData);
         if(this.headerData.isCompleted){
             this.enableNextScreen();

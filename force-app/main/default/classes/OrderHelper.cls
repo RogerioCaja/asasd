@@ -56,7 +56,7 @@ public with sharing class OrderHelper {
         List<Order> orderToUpdate = new List<Order>();
         for(Order order : newRecords){
             if(order.Status != '0'){
-                if(!order.MarginCommittee__c || !order.Manager_BranchOffice__c || !order.Gerente_Regional__c || !order.Director__c)
+                if(order.MarginCommittee__c || order.Manager_BranchOffice__c || order.Gerente_Regional__c || order.Director__c)
                 {
                     try{
                         Approval.ProcessSubmitRequest administrationRequest = new Approval.ProcessSubmitRequest();
