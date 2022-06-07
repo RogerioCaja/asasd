@@ -616,7 +616,9 @@ public without sharing class OrderScreenController {
                     List<OrderCommodity__c> insCommodities = new List<OrderCommodity__c>();
                     for (CommodityDeserialize commodity : orderData.commodityData) {
                         OrderCommodity__c orderCommodity = new OrderCommodity__c();
+                        orderCommodity.Name = commodity.product;
                         orderCommodity.BagQuantity__c = Decimal.valueOf(commodity.totalDelivery.replace(' sacas', ''));
+                        orderCommodity.BagMargin__c = Decimal.valueOf(commodity.marginValue.replace(' sacas', ''));
                         orderCommodity.CommodityPrice__c = commodity.commodityPrice;
                         orderCommodity.Order__c = order.Id;
                         orderCommodity.Product__c = commodity.productId;
@@ -1012,6 +1014,7 @@ public without sharing class OrderScreenController {
         public String  area;
         public String  discount;
         public String  margin;
+        public String  marginValue;
         public String  totalDelivery;
         public Decimal quantity;
         public Decimal commodityPrice;
