@@ -1067,6 +1067,7 @@ export default class OrderProductScreen extends LightningElement {
             quantity: this.selectedCommodity.quantity,
             discount: 'R$' + this.selectedCommodity.totalDiscountValue,
             margin: this.selectedCommodity.totalMarginPercent,
+            marginValue: this.selectedCommodity.totalMarginValue,
             totalDelivery: this.selectedCommodity.deliveryQuantity,
             saved: false
         });
