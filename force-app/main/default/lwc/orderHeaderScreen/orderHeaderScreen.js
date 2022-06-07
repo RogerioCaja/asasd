@@ -69,6 +69,7 @@ export default class OrderHeaderScreen extends LightningElement {
         canal_distribuicao: null,
         setor_atividade: null,
         forma_pagamento: " ",
+        tipo_pedido: " ",
         moeda: " ",
         ctv_venda: " ",
         pedido_mae: {},
@@ -297,7 +298,8 @@ export default class OrderHeaderScreen extends LightningElement {
         try{
 
             if(this.headerData){
-                this.headerDictLocale =JSON.parse(JSON.stringify(this.headerData));
+                this.headerDictLocale = JSON.parse(JSON.stringify(this.headerData));
+                if (this.headerData.status_pedido == 'Em aprovação') this.disabled = true;
                 this.pass = false;
                 if(this.headerDictLocale.tipo_venda != " "){
                     // this.headerDataTitleLocale.tipo_venda = this.tiposVenda.find(element => element.value == this.headerData.tipo_venda).label;
