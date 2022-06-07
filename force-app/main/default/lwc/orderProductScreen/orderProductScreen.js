@@ -62,6 +62,8 @@ export default class OrderProductScreen extends LightningElement {
     currentScreen = 'chooseCommodity';
     
     commodities = [];
+    showCommodityData = false;
+    openCommoditiesData = false;
     // commoditiesData = [];
     chooseCommodities = false;
     showCommodities = false;
@@ -1015,12 +1017,19 @@ export default class OrderProductScreen extends LightningElement {
     selectCommodity(event) {
         this.nextScreen();
         let totalProducts = 0;
+        let orderTotalCost = 0;
+        let productsQUantity = 0;
+        let totalDiscount = 0;
+
         for (let index = 0; index < this.products.length; index++) {
             totalProducts += Number(this.products[index].totalPrice);
+            orderTotalCost += Number(this.products[index].practicedCost) * Number(this.products[index].quantity);
+            productsQUantity += Number(this.products[index].quantity);
+            totalDiscount += Number(this.products[index].commercialDiscountValue);
         }
 
         let chooseCommodity = this.commodities.find(e => e.id == event.target.dataset.targetId);
-        let marginPercent = (1 - this.products[0].commercialMarginPercentage) * 100;
+        let marginPercent = ((1 - (orderTotalCost / totalProducts)) * 100);
 
         this.selectedCommodity = {
             id: chooseCommodity.Id,
@@ -1034,8 +1043,12 @@ export default class OrderProductScreen extends LightningElement {
             deliveryAddress: '',
             commission: 'R$' + ((chooseCommodity.commissionPercentage * totalProducts) / 100),
             totalMarginPercent: this.fixDecimalPlaces(marginPercent) + '%',
-            totalMarginValue: this.fixDecimalPlaces(((this.products[0].totalPrice * marginPercent) / 100))
+            totalMarginValue: this.fixDecimalPlaces(((totalProducts * marginPercent) / 100) / chooseCommodity.listPrice) + ' sacas',
+            quantity: productsQUantity,
+            totalDiscountValue: totalDiscount
         };
+
+        this.commodities = [];
     }
 
     fillCommodity(event) {
@@ -1046,29 +1059,24 @@ export default class OrderProductScreen extends LightningElement {
             }
         }
 
-        console.log('this.selectedCommodity: ' + JSON.stringify(this.selectedCommodity));
         this.commoditiesData.push({
             product: this.selectedCommodity.name,
             productId: this.selectedCommodity.id,
             commodityPrice: this.selectedCommodity.commodityPrice,
-            desage: this.products[0].dosage,
             area: this.headerData.hectares,
-            quantity: this.products[0].quantity,
-            discount: 'R$' + this.products[0].commercialDiscountValue,
-            margin: this.fixDecimalPlaces(this.products[0].commercialMarginPercentage),
+            quantity: this.selectedCommodity.quantity,
+            discount: 'R$' + this.selectedCommodity.totalDiscountValue,
+            margin: this.selectedCommodity.totalMarginPercent,
             totalDelivery: this.selectedCommodity.deliveryQuantity,
             saved: false
         });
-        console.log('this.commoditiesData: ' + JSON.stringify(this.commoditiesData));
     }
 
     closeCommodityModal(event) {
-        console.log('this.commoditiesData.length: ' + this.commoditiesData.length);
         for (let index = 0; index < this.commoditiesData.length; index++) {
-            console.log('event.target.dataset.targetId: ' + event.target.dataset.targetId);
             if (event.target.dataset.targetId == 'saveButton') {
                 this.commoditiesData[index].saved = true;
-                console.log('this.commoditiesData[index]: ' + JSON.stringify(this.commoditiesData[index]));
+                this.showCommodityData = true;
                 this._setCommodityData();
             } else if (this.commoditiesData[index].saved == false) {
                 this.commoditiesData.splice(index, 1);
@@ -1079,7 +1087,12 @@ export default class OrderProductScreen extends LightningElement {
         this.chooseCommodities = false;
         this.commoditySelected = false;
         this.summaryScreen = false;
+        this.commodities = [];
         // this.haScreen = false;
+    }
+
+    openCommodityData(event) {
+        this.openCommoditiesData = !this.openCommoditiesData;
     }
 
     commodityChange(event) {
