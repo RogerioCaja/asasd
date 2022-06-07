@@ -28,16 +28,24 @@ public with sharing class Lookup {
 
                 userTerritoryType = territoryTypes.indexOf(userAssociation.Territory2.Territory2Type.DeveloperName) > territoryTypes.indexOf(userTerritoryType) &&
                                     territoryTypes.indexOf(userTerritoryType) > -1 ? userTerritoryType : userAssociation.Territory2.Territory2Type.DeveloperName;
-
             }
 
             Set<Id> relatedTerritories = new Set<Id>();
             if (!userRelatedToTerritory) {
-                String territoryQuery = 'SELECT Id, Territory2Type.DeveloperName FROM Territory2 WHERE ';
-                if (userTerritoryType == 'Torre') territoryQuery += 'ParentTerritory2.ParentTerritory2.ParentTerritory2.ParentTerritory2Id IN: userTerritories';
-                else if (userTerritoryType == 'SalesOrg') territoryQuery += 'ParentTerritory2.ParentTerritory2.ParentTerritory2Id IN: userTerritories';
-                else if (userTerritoryType == 'SalesOffice') territoryQuery += 'ParentTerritory2.ParentTerritory2Id IN: userTerritories';
-                else if (userTerritoryType == 'SalesTeam') territoryQuery += 'ParentTerritory2Id IN: userTerritories';
+                for (ObjectTerritory2Association objAssociation : [
+                    SELECT Id,
+                           Territory2Id
+                      FROM ObjectTerritory2Association
+                     WHERE ObjectId =: requestData.accountId
+                ]) {
+                    relatedTerritories.add(objAssociation.Territory2Id);
+                }
+
+                String territoryQuery = 'SELECT Id, Territory2Type.DeveloperName FROM Territory2 WHERE Id IN: relatedTerritories ';
+                if (userTerritoryType == 'Torre') territoryQuery += 'AND ParentTerritory2.ParentTerritory2.ParentTerritory2.ParentTerritory2Id IN: userTerritories';
+                else if (userTerritoryType == 'SalesOrg') territoryQuery += 'AND ParentTerritory2.ParentTerritory2.ParentTerritory2Id IN: userTerritories';
+                else if (userTerritoryType == 'SalesOffice') territoryQuery += 'AND ParentTerritory2.ParentTerritory2Id IN: userTerritories';
+                else if (userTerritoryType == 'SalesTeam') territoryQuery += 'AND ParentTerritory2Id IN: userTerritories';
                 
                 for(SObject sobj : Database.query(territoryQuery)) {
                     relatedTerritories.add((Id)sobj.get('Id'));
@@ -48,15 +56,6 @@ public with sharing class Lookup {
             if (userRelatedToTerritory) {
                 relatedUsers.add(UserInfo.getUserId());
             } else {
-                for (ObjectTerritory2Association objAssociation : [
-                    SELECT Id,
-                           Territory2Id
-                      FROM ObjectTerritory2Association
-                     WHERE ObjectId =: requestData.accountId
-                ]) {
-                    relatedTerritories.add(objAssociation.Territory2Id);
-                }
-    
                 for (UserTerritory2Association userAssociation : [
                     SELECT Id,
                            UserId
@@ -68,7 +67,6 @@ public with sharing class Lookup {
                 }
             }
 
-            System.debug('relatedUsers: ' + relatedUsers);
             query += ' AND Id IN: relatedUsers';
         }
 

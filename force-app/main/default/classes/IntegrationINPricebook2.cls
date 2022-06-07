@@ -52,39 +52,44 @@ global with sharing class IntegrationINPricebook2 {
     }
 
     global static Map<String, List<String>> prepareData(){
-        List<String> salesOrgLookups       = new List<String>();
-        List<String> cropLookups           = new List<String>();
-        List<String> cultureLookups        = new List<String>();
-        List<String> accountLookups        = new List<String>();
-        List<String> salesOfficeLookups    = new List<String>();
-        List<String> salesTeamLookups      = new List<String>();
-        List<String> productGroupLookups   = new List<String>();
-        List<String> productLookups        = new List<String>();
-        List<String> salesConditionLookups = new List<String>();
-        List<String> centerLookups         = new List<String>();
-
         Map<String, List<String>> response = new Map<String, List<String>>();
-        response.put('salesOrgLookups', salesOrgLookups);
-        response.put('cropLookups', cropLookups);
-        response.put('cultureLookups', cultureLookups);
-        response.put('accountLookups', accountLookups);
-        response.put('salesOfficeLookups', salesOfficeLookups);
-        response.put('salesTeamLookups', salesTeamLookups);
-        response.put('productGroupLookups', productGroupLookups);
-        response.put('productLookups', productLookups);
-        response.put('salesConditionLookups', salesConditionLookups);
-        response.put('centerLookups', centerLookups);
-
+        response.put('salesOrgLookups',       new List<String>());
+        response.put('cropLookups',           new List<String>());
+        response.put('cultureLookups',        new List<String>());
+        response.put('accountLookups',        new List<String>());
+        response.put('salesOfficeLookups',    new List<String>());
+        response.put('salesTeamLookups',      new List<String>());
+        response.put('productGroupLookups',   new List<String>());
+        response.put('productLookups',        new List<String>());
+        response.put('salesConditionLookups', new List<String>());
+        response.put('centerLookups',         new List<String>());
+        
         return response;
     }
 
     global static void upsertInterestDiscount(Map<String, List<String>> lookupMap, Map<String, Id> lookups, List<TemplateDataIntegrationFields.JurosDescontoAntecipaoINData> request, List<TemplateDataIntegrationFields.ResponseParent> responseList, 
     List<JurosDescontoAntecipao__c> interestDicountListToUpsert){
-
+        Integer valueToTransform;
+        Map<String, List<String>> requirementsMap = prepareRequirements();
+        Map<String, Boolean> isValidMap = new Map<String, Boolean>();
         for(TemplateDataIntegrationFields.JurosDescontoAntecipaoINData interestDiscount : request){
 
             if(interestDiscount.typeCondition == 'ZPRS'){
                 interestDiscount = getRecord(interestDiscount);
+            }
+            if(interestDiscount.accountCode != null){
+                valueToTransform = Integer.valueOf(interestDiscount.accountCode);
+            	interestDiscount.accountCode = String.valueOf(valueToTransform);
+            }
+         	if(interestDiscount.product != null){
+                valueToTransform = Integer.valueOf(interestDiscount.product);
+            	interestDiscount.product = String.valueOf(valueToTransform);
+            }
+            if(Date.valueOf(interestDiscount.endDate) < Date.today()){
+                isValidMap.put(interestDiscount.externalId, false);
+            }
+            else{
+                isValidMap.put(interestDiscount.externalId, true);
             }
             lookupMap.get('accountLookups').add(interestDiscount.accountCode);
             lookupMap.get('salesOrgLookups').add(interestDiscount.orgVendas);
@@ -119,8 +124,8 @@ global with sharing class IntegrationINPricebook2 {
         IntegrationUtils.setLookup(new DistributionCenter__c(), new Set<String>{'Id', 'Code__c'}, 'Code__c', lookupMap.get('centerLookups'), lookups);
 
 
-        FactoryDataIntegration.convertSObject(new JurosDescontoAntecipao__c(), 'IN', request, responseList, interestDicountListToUpsert, lookups);
-
+        FactoryDataIntegration.convertSObject(new JurosDescontoAntecipao__c(), 'IN', request, responseList, interestDicountListToUpsert, lookups, requirementsMap, isValidMap);
+        
         IntegrationUtils.upsertRecords(
             Database.upsert(interestDicountListToUpsert, JurosDescontoAntecipao__c.ExternalId__c, false), 
             responseList, 
@@ -133,6 +138,40 @@ global with sharing class IntegrationINPricebook2 {
         
         //Creating integration log
         IntegrationLog.createLog('Lista de Preço, Juros e Descontos de Antecipação IN', 'IN', JSON.serialize(request), JSON.serialize(responseList), hasError);
+    }
+
+
+    global static Map<String, List<String>> prepareRequirements(){
+        // A935 => Org.vendas/Moeda/Safra/Lst.preços/Cliente/Material
+        // A936 => Org.vendas/Moeda/Safra/Lst.preços/GrpClients/Material
+        // A937 => Org.vendas/Moeda/Safra/Lst.preços/Cód Cult./Eq.vendas/Material
+        // A938 => Org.vendas/Moeda/Safra/Lst.preços/Eq.vendas/Material
+        // A939 => Org.vendas/Moeda/Safra/Lst.preços/EscrVendas/Material
+        // A940 => Org.vendas/Moeda/Safra/Lst.preços/Grp.merc
+        // A941 => Org.vendas/Moeda/Safra/Material
+        
+        // A930 => Org.vendas/Safra/GrpClients/Material
+        // A931 => Org.vendas/Safra/Centro/Material
+        // A932 => Org.vendas/Safra/Centro/Grp.merc.
+        // A933 => Org.vendas/Safra/Centro/Material
+        // A934 => Org.vendas/Safra
+
+        Map<String, List<String>> response = new Map<String, List<String>>();
+        response.put('A930', new List<String>{'SalesOrg__c', 'harvest__c', 'AccountType__c','Product__c'});
+        response.put('A945', new List<String>{'SalesOrg__c', 'harvest__c','SalesTeam__c' ,'Product__c'});
+        response.put('A946', new List<String>{'SalesOrg__c', 'harvest__c','SalesTeam__c' ,'ProductGroup__c'});
+        response.put('A933', new List<String>{'SalesOrg__c', 'harvest__c','DistributionCenter__c' ,'Product__c'});
+        response.put('A934', new List<String>{'SalesOrg__c', 'harvest__c'});
+
+        response.put('A935', new List<String>{'SalesOrg__c', 'Currency__c' ,'harvest__c', 'SalesCondition__c', 'Account__c','Product__c'});
+        response.put('A936', new List<String>{'SalesOrg__c', 'Currency__c' ,'harvest__c', 'SalesCondition__c', 'AccountType__c', 'Product__c'});
+        response.put('A937', new List<String>{'SalesOrg__c', 'Currency__c' ,'harvest__c', 'SalesCondition__c', 'Culture__c', 'SalesTeam__c' ,'Product__c'});
+        response.put('A938', new List<String>{'SalesOrg__c', 'Currency__c' ,'harvest__c', 'SalesCondition__c', 'SalesTeam__c' ,'Product__c'});
+        response.put('A939', new List<String>{'SalesOrg__c', 'Currency__c' ,'harvest__c', 'SalesCondition__c', 'SalesOffice__c' ,'Product__c'});
+        response.put('A940', new List<String>{'SalesOrg__c', 'Currency__c' ,'harvest__c', 'SalesCondition__c', 'ProductGroup__c' });
+        response.put('A941', new List<String>{'SalesOrg__c', 'Currency__c' ,'harvest__c','Product__c'});
+        
+        return response;
     }
 
     global static TemplateDataIntegrationFields.JurosDescontoAntecipaoINData getRecord(TemplateDataIntegrationFields.JurosDescontoAntecipaoINData data){

@@ -73,7 +73,7 @@ global with sharing class IntegrationINOrderAppdigital {
             //Example
             lookups.put('Account' + account.ExternalId__c, account.Id);
         }
-
+// Pega o WE 
         for (Account account : [SELECT Id, ExternalId__c FROM Account WHERE ExternalId__c IN : shippingAccountLookups]) {
             lookups.put('Account' + account.ExternalId__c, account.Id);
         }
@@ -121,10 +121,10 @@ global with sharing class IntegrationINOrderAppdigital {
           
         //Upserting records (Order)
 		IntegrationUtils.upsertRecords(
-            Database.upsert(orderListToUpsert, Order.CodigoSap__c, false), 
+            Database.upsert(orderListToUpsert, Order.NumeroPedidoApp__c, false), 
             responseList, 
             orderListToUpsert, 
-            Order.CodigoSap__c
+            Order.NumeroPedidoApp__c
         );
         
         //Upserting records (OrderItem)
