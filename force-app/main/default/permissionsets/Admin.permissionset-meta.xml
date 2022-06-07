@@ -1206,6 +1206,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>OrderCommodity__c.BagMargin__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>OrderCommodity__c.CommodityPrice__c</field>
         <readable>true</readable>
     </fieldPermissions>
