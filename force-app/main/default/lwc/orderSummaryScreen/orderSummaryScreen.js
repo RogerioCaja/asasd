@@ -4,6 +4,7 @@ import approval from '@salesforce/apex/OrderScreenController.approvals';
 export default class OrderSummaryScreen extends LightningElement {
     staticValue = 'hidden';
     hasData = true;
+    disabled=false;
     @track orderMargin = 0;
     @track approval = '';
     @api accountData;
@@ -38,6 +39,7 @@ export default class OrderSummaryScreen extends LightningElement {
        
         if(this.productData){
             this.productDataLocale = JSON.parse(JSON.stringify(this.productData));
+            if (this.headerData.status_pedido == 'Em aprovação') this.disabled = true;
             let orderTotalPrice = 0;
             let orderTotalCost = 0;
             for(var i= 0; i< this.productDataLocale.length; i++){

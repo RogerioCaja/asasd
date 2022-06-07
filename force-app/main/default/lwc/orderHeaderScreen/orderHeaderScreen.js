@@ -69,6 +69,7 @@ export default class OrderHeaderScreen extends LightningElement {
         canal_distribuicao: null,
         setor_atividade: null,
         forma_pagamento: " ",
+        tipo_pedido: " ",
         moeda: " ",
         ctv_venda: " ",
         pedido_mae: {},
@@ -297,7 +298,8 @@ export default class OrderHeaderScreen extends LightningElement {
         try{
 
             if(this.headerData){
-                this.headerDictLocale =JSON.parse(JSON.stringify(this.headerData));
+                this.headerDictLocale = JSON.parse(JSON.stringify(this.headerData));
+                if (this.headerData.status_pedido == 'Em aprovação') this.disabled = true;
                 this.pass = false;
                 if(this.headerDictLocale.tipo_venda != " "){
                     // this.headerDataTitleLocale.tipo_venda = this.tiposVenda.find(element => element.value == this.headerData.tipo_venda).label;
@@ -329,7 +331,8 @@ export default class OrderHeaderScreen extends LightningElement {
             if(this.isFilled(event)){
                 var field = event.target.name;
                 if(event.target.value || event.target.checked){
-                    if ((field == 'data_pagamento' || field == 'data_entrega') && (this.currentDate > event.detail.value || this.dateLimit < event.detail.value || this.dateLimitBilling < event.detail.value)) {
+                    if ((field == 'data_pagamento' || (field == 'data_entrega')) && (this.currentDate > event.detail.value || (field == 'data_pagamento' && this.dateLimit < event.detail.value) || (field == 'data_entrega' && this.dateLimitBilling < event.detail.value))) 
+                    {
                         this.headerDictLocale[field] = null;
                         let headerValues = JSON.parse(JSON.stringify(this.headerData));
                         headerValues[field] = null;
@@ -424,6 +427,7 @@ export default class OrderHeaderScreen extends LightningElement {
                 this.headerDictLocale.condicao_venda.Id !== undefined &&
                 this.headerDictLocale.condicao_pagamento.Id !== undefined &&
                 this.headerDictLocale.moeda !== undefined &&
+                this.headerDictLocale.moeda !== ' ' &&
                 this.headerDictLocale.numero_pedido_cliente !== undefined &&
                 this.headerDictLocale.ctv_venda.Id !==undefined &&
                 this.headerDictLocale.forma_pagamento !== undefined &&

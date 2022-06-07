@@ -64,6 +64,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         canal_distribuicao: " ",
         setor_atividade: " ",
         forma_pagamento: " ",
+        tipo_pedido: " ",
         moeda: " ",
         ctv_venda: " ",
         pedido_mae: {},
@@ -192,6 +193,11 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             const data = JSON.parse(result);
             this.accountData = data.accountData;
             this.headerData = data.headerData;
+
+            if (this.childOrder) {
+                this.headerData.status_pedido = 'Em digitação'
+            }
+
             this.productData = data.productData;
             this.qtdItens = data.productData.length;
             this.valorTotal = 0;
@@ -299,6 +305,11 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     }
 
     async saveOrder(event){
+        if (this.headerData.status_pedido == 'Em aprovação') {
+            this.showNotification('O pedido está Em Aprovação, portanto não pode ser alterado', 'Atenção', 'warning');
+            return;
+        }
+
         const mode = event.detail;
         await this.recordId;
         const data = {accountData: this.accountData, headerData: this.headerData, productData: this.productData, divisionData: this.divisionData, commodityData: this.commodityData, summaryData: this.summaryData};
@@ -358,8 +369,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
     _setHeaderData(event) {
         this.headerData = event.data;
-        this.headerData.IsOrderChild = this.childOrder;
-        // if(this.headerData.IsOrderChild) this.getOrderMother(this.headerData.pedido_mae.Id, this.headerData.pedido_mae.Name);
+        this.headerData.IsOrderChild = this.childOrder || this.headerData.tipo_pedido == 'Pedido Filho';
         console.log('header data setted:', this.headerData);
         if(this.headerData.isCompleted){
             this.enableNextScreen();

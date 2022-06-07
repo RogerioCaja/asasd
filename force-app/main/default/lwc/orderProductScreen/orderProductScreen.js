@@ -77,6 +77,8 @@ export default class OrderProductScreen extends LightningElement {
         {label: 'Entrega Total', fieldName: 'totalDelivery'}
     ];
 
+    disabled=false;
+
     // haScreen = false;
     /* haData = [{
         productSubGroup: 'productSubGroup',
@@ -117,9 +119,12 @@ export default class OrderProductScreen extends LightningElement {
             this.products = this.isFilled(this.productData) ? this.productData : [];
             this.allDivisionProducts = this.isFilled(this.divisionData) ? this.divisionData : [];
         }
+        
+        if (this.headerData.status_pedido == 'Em aprovação') this.disabled = true;
 
         actions = [];
-        if(this.headerData.IsOrderChild) actions.push({ label: 'Editar', name: 'edit' }, { label: 'Divisão de Remessas', name: 'shippingDivision' }, { label: 'Excluir', name: 'delete' });
+        if (this.disabled)  actions.push({ label: 'Visualizar', name: 'visualize' })
+        else if(this.headerData.IsOrderChild) actions.push({ label: 'Editar', name: 'edit' }, { label: 'Divisão de Remessas', name: 'shippingDivision' }, { label: 'Excluir', name: 'delete' });
         else if (this.headerData.pedido_mae_check) actions.push({ label: 'Editar', name: 'edit' }, { label: 'Excluir', name: 'delete' });
         else actions.push({ label: 'Editar', name: 'edit' }, { label: 'Divisão de Remessas', name: 'shippingDivision' }, { label: 'Excluir', name: 'delete' });
 
@@ -132,6 +137,7 @@ export default class OrderProductScreen extends LightningElement {
             accountId: this.accountData.Id != null ? this.accountData.Id : '',
             approvalNumber: 1
         }
+
 
         getAccountCompanies({data: JSON.stringify(getCompanyData)})
         .then((result) => {
@@ -763,6 +769,9 @@ export default class OrderProductScreen extends LightningElement {
         const actionName = event.detail.action.name;
         const row = event.detail.row;
         switch (actionName) {
+            case 'visualize':
+                this.editProduct(row.position, false);
+            break;
             case 'edit':
                 this.editProduct(row.position, false);
             break;
