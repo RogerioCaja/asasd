@@ -329,7 +329,8 @@ export default class OrderHeaderScreen extends LightningElement {
             if(this.isFilled(event)){
                 var field = event.target.name;
                 if(event.target.value || event.target.checked){
-                    if ((field == 'data_pagamento' || field == 'data_entrega') && (this.currentDate > event.detail.value || this.dateLimit < event.detail.value || this.dateLimitBilling < event.detail.value)) {
+                    if ((field == 'data_pagamento' || (field == 'data_entrega')) && (this.currentDate > event.detail.value || (field == 'data_pagamento' && this.dateLimit < event.detail.value) || (field == 'data_entrega' && this.dateLimitBilling < event.detail.value))) 
+                    {
                         this.headerDictLocale[field] = null;
                         let headerValues = JSON.parse(JSON.stringify(this.headerData));
                         headerValues[field] = null;
@@ -424,6 +425,7 @@ export default class OrderHeaderScreen extends LightningElement {
                 this.headerDictLocale.condicao_venda.Id !== undefined &&
                 this.headerDictLocale.condicao_pagamento.Id !== undefined &&
                 this.headerDictLocale.moeda !== undefined &&
+                this.headerDictLocale.moeda !== ' ' &&
                 this.headerDictLocale.numero_pedido_cliente !== undefined &&
                 this.headerDictLocale.ctv_venda.Id !==undefined &&
                 this.headerDictLocale.forma_pagamento !== undefined &&
