@@ -112,7 +112,7 @@ public with sharing class OrderHelper {
                         try{
                             Approval.ProcessSubmitRequest administrationRequest = new Approval.ProcessSubmitRequest();
                             administrationRequest.setProcessDefinitionNameOrId('OrderApproval4');
-                            administrationRequest.setObjectId(order.Id);
+                            administrationRequest.setObjectId(id);
                             Approval.ProcessResult approvalResult = Approval.process(administrationRequest);
                             System.debug('pedido submetido para aprovação com sucesso: '+ approvalResult.isSuccess());
                         }
