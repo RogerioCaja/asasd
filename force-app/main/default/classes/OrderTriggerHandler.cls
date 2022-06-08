@@ -22,6 +22,7 @@ public with sharing class OrderTriggerHandler {
     
     public void OnBeforeUpdate(){
         OrderHelper.calloutOrderToSAP(this.newRecords);
+        OrderHelper.sendApprovalProccess(this.oldMap, this.newMap)
     }
     
     public void OnAfterUpdate(){
