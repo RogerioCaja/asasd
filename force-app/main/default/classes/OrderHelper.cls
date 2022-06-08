@@ -99,8 +99,8 @@ public with sharing class OrderHelper {
         Set<Id> orderIds = new Set<Id>();
         Set<Id> orderToUpdate = new Set<Id>();
 
-        for(Order order : newMap){
-            orderIds.add(order.Id);
+        for(Id order : newMap.keySet()){
+            orderIds.add(order);
         }
         try
         {
