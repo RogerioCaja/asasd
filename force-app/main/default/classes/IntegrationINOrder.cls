@@ -140,9 +140,11 @@ global with sharing class IntegrationINOrder {
             System.debug('orderItemResponse=>'+orderItemsResponse);
             System.debug('responseList=>'+responseList);
             
+            
             if(orderItemsResponse.size() != 0 && orderItemsResponse.containsKey(response.idSalesforce)){
                 response.items.addAll(orderItemsResponse.get(response.idSalesforce));
                 for(TemplatedataIntegrationFields.Response orderItem : orderItemsResponse.get(response.idSalesforce)){
+                    System.debug('orderItem'+orderItem);
                     response.items.addAll(shippingDivisonResponse.get(orderItem.idSalesforce)); 
                 }
             } 
