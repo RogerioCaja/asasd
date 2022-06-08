@@ -54,7 +54,7 @@ export default class OrderSummaryScreen extends LightningElement {
                 this.productDataLocale[i]['totalPrice']  = this.formatCurrency(this.productDataLocale[i].totalPrice);
                 this.productDataLocale[i]['commercialDiscountValue']  =  this.formatCurrency(this.productDataLocale[i].commercialDiscountValue);
                 this.productDataLocale[i]['commercialDiscountPercentage']  =  this.formatPercent(this.productDataLocale[i].commercialDiscountPercentage);
-                this.productDataLocale[i]['commercialMarginPercentage']  = this.formatPercent( this.productDataLocale[i].commercialMarginPercentage);
+                this.productDataLocale[i]['commercialMarginPercentage']  = this.productDataLocale[i].commercialMarginPercentage + '%';
                 this.productDataLocale[i]['divisionData'] = [];
                 if(this.divisionData){
                     for(var j=0; j< this.divisionData.length; j++){
