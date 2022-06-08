@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ApprovalProcess xmlns="http://soap.sforce.com/2006/04/metadata">
-    <active>false</active>
+    <active>true</active>
     <allowRecall>true</allowRecall>
     <allowedSubmitters>
         <type>creator</type>
@@ -23,6 +23,26 @@
     </approvalPageFields>
     <approvalStep>
         <allowDelegate>true</allowDelegate>
+        <assignedApprover>
+            <approver>
+                <name>MesaGraos</name>
+                <type>queue</type>
+            </approver>
+            <whenMultipleApprovers>FirstResponse</whenMultipleApprovers>
+        </assignedApprover>
+        <entryCriteria>
+            <criteriaItems>
+                <field>Order.RecordType</field>
+                <operation>equals</operation>
+                <value>Venda Barter</value>
+            </criteriaItems>
+        </entryCriteria>
+        <ifCriteriaNotMet>GotoNextStep</ifCriteriaNotMet>
+        <label>Aprovação Barter</label>
+        <name>AprovacaoBarter</name>
+    </approvalStep>
+    <approvalStep>
+        <allowDelegate>true</allowDelegate>
         <approvalActions>
             <action>
                 <name>AprovacaoGerenteRegional</name>
@@ -31,8 +51,10 @@
         </approvalActions>
         <assignedApprover>
             <approver>
-                <type>userHierarchyField</type>
+                <name>ApprovalBranchManager__c</name>
+                <type>relatedUserField</type>
             </approver>
+            <whenMultipleApprovers>FirstResponse</whenMultipleApprovers>
         </assignedApprover>
         <entryCriteria>
             <criteriaItems>
@@ -44,6 +66,9 @@
         <ifCriteriaNotMet>GotoNextStep</ifCriteriaNotMet>
         <label>Aprovação Gerente Filial</label>
         <name>Step_1</name>
+        <rejectBehavior>
+            <type>RejectRequest</type>
+        </rejectBehavior>
     </approvalStep>
     <approvalStep>
         <allowDelegate>true</allowDelegate>
@@ -55,8 +80,10 @@
         </approvalActions>
         <assignedApprover>
             <approver>
-                <type>userHierarchyField</type>
+                <name>ApprovalRegionalManager__c</name>
+                <type>relatedUserField</type>
             </approver>
+            <whenMultipleApprovers>FirstResponse</whenMultipleApprovers>
         </assignedApprover>
         <entryCriteria>
             <criteriaItems>
@@ -82,8 +109,10 @@
         </approvalActions>
         <assignedApprover>
             <approver>
-                <type>userHierarchyField</type>
+                <name>ApprovalDirector__c</name>
+                <type>relatedUserField</type>
             </approver>
+            <whenMultipleApprovers>FirstResponse</whenMultipleApprovers>
         </assignedApprover>
         <entryCriteria>
             <criteriaItems>
@@ -167,12 +196,6 @@
         </action>
     </finalRejectionActions>
     <finalRejectionRecordLock>false</finalRejectionRecordLock>
-    <initialSubmissionActions>
-        <action>
-            <name>UpdateStatus_EmAprovacao</name>
-            <type>FieldUpdate</type>
-        </action>
-    </initialSubmissionActions>
     <label>Aprovação do pedido</label>
     <nextAutomatedApprover>
         <useApproverFieldOfRecordOwner>false</useApproverFieldOfRecordOwner>
