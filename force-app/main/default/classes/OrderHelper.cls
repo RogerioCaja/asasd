@@ -56,6 +56,7 @@ public with sharing class OrderHelper {
         Set<Id> orderToUpdate = new Set<Id>();
         try
         {
+            Map<ID,Schema.RecordTypeInfo> orderMap = Order.sObjectType.getDescribe().getRecordTypeInfosById();
             for(Order order : newRecords){
                 if(order.Status != '0'){
                     if(order.MarginCommittee__c || order.Manager_BranchOffice__c || order.Gerente_Regional__c || order.Director__c || orderMap.get(newMap.get(id).RecordTypeId).getName() == 'VendaBarter')
