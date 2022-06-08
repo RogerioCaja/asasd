@@ -4,6 +4,7 @@ import approval from '@salesforce/apex/OrderScreenController.approvals';
 export default class OrderSummaryScreen extends LightningElement {
     staticValue = 'hidden';
     hasData = true;
+    disabled=false;
     @track orderMargin = 0;
     @track approval = '';
     @api accountData;
@@ -38,12 +39,21 @@ export default class OrderSummaryScreen extends LightningElement {
        
         if(this.productData){
             this.productDataLocale = JSON.parse(JSON.stringify(this.productData));
+
+            if (this.headerData.status_pedido == 'Em aprovação - Gerente Filial' || this.headerData.status_pedido == 'Em aprovação - Gerente Regional' ||
+                this.headerData.status_pedido == 'Em aprovação - Diretor' || this.headerData.status_pedido == 'Em aprovação - Comitê Margem' || this.headerData.status_pedido == 'Em aprovação - Mesa de Grãos') {
+                this.disabled = true;
+            }
+            
+            let orderTotalPrice = 0;
+            let orderTotalCost = 0;
             for(var i= 0; i< this.productDataLocale.length; i++){
+                orderTotalPrice += Number(this.productDataLocale[i].unitPrice) * Number(this.productDataLocale[i].quantity);
+                orderTotalCost += Number(this.productDataLocale[i].practicedCost) * Number(this.productDataLocale[i].quantity);
                 this.productDataLocale[i]['unitPrice'] = this.formatCurrency(this.productDataLocale[i].unitPrice);
                 this.productDataLocale[i]['totalPrice']  = this.formatCurrency(this.productDataLocale[i].totalPrice);
                 this.productDataLocale[i]['commercialDiscountValue']  =  this.formatCurrency(this.productDataLocale[i].commercialDiscountValue);
                 this.productDataLocale[i]['commercialDiscountPercentage']  =  this.formatPercent(this.productDataLocale[i].commercialDiscountPercentage);
-                this.orderMargin += this.productDataLocale[i].commercialMarginPercentage;
                 this.productDataLocale[i]['commercialMarginPercentage']  = this.formatPercent( this.productDataLocale[i].commercialMarginPercentage);
                 this.productDataLocale[i]['divisionData'] = [];
                 if(this.divisionData){
@@ -53,7 +63,10 @@ export default class OrderSummaryScreen extends LightningElement {
                     }
                 }
             }
-            this.orderMargin = this.formatPercent(this.orderMargin);
+
+            this.orderMargin = ((1 - (orderTotalCost / orderTotalPrice)) * 100).toFixed(2) + '%';
+            this.summaryDataLocale.orderMargin = this.orderMargin;
+            this.defineOrderMargin();
         }
     }
 
@@ -68,8 +81,11 @@ export default class OrderSummaryScreen extends LightningElement {
 
     formatPercent(num){
         try{
+           
             if(num.toString().indexOf('%') != -1)
                 num = num.toString().split('%')[0];
+            
+            num = parseFloat(num.replace(',', '.'));
             return (parseFloat(num)/100).toLocaleString(undefined,{style: 'percent', minimumFractionDigits:2});
         }
         catch(err){
@@ -89,6 +105,13 @@ export default class OrderSummaryScreen extends LightningElement {
 
     changeObservationSale(event){
         this.summaryDataLocale.billing_sale_observation = event.target.value;
+        const setSummaryData = new CustomEvent('setsummarydata');
+        setSummaryData.data = this.summaryDataLocale;
+      
+        this.dispatchEvent(setSummaryData);
+    }
+
+    defineOrderMargin(event){
         const setSummaryData = new CustomEvent('setsummarydata');
         setSummaryData.data = this.summaryDataLocale;
       

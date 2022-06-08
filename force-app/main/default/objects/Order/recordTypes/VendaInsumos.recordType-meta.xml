@@ -203,7 +203,19 @@
             <default>false</default>
         </values>
         <values>
-            <fullName>Em aprovação</fullName>
+            <fullName>Em Aprovação - Diretor</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Em Aprovação - Gerente Regional</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Em Aprovação - Mesa de Grãos</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Em aprovação - Gerente Filial</fullName>
             <default>false</default>
         </values>
         <values>

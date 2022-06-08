@@ -181,13 +181,7 @@ public with sharing class CalloutBP {
         
         List<Company__c> companyListToUpsert = new List<Company__c>();
         for(CompanyINData valor : companyList){
-            Boolean blocked = false;
-            if(valor.Bloqueado == null){
-                blocked = false;
-            }
-            if(valor.Bloqueado == 'true'){
-                blocked = true;
-            }
+            
             Company__c company = new Company__c(
             Conta__c = lookups.containsKey('Account__c'+valor.CodigoExternoAccount) ? lookups.get('Account__c'+valor.CodigoExternoAccount) : null,
             SalesOrg__c = lookups.containsKey('SalesOrg__c'+valor.OrganizacaoVendas) ? lookups.get('SalesOrg__c'+valor.OrganizacaoVendas) : null,
@@ -197,7 +191,7 @@ public with sharing class CalloutBP {
             SalesOffice__c = lookups.containsKey('SalesOffice__c'+valor.EscritorioVendas) ? lookups.get('SalesOffice__c'+valor.EscritorioVendas) : null,
             SalesTeam__c = lookups.containsKey('SalesTeam__c'+valor.EquipeVendas) ? lookups.get('SalesTeam__c'+valor.EquipeVendas) : null,
             ClientGroup__c = valor.GrupoClientes,
-            Blocked__c = blocked,
+            SupplierCenter__c = valor.CentroFornecedor,
             Status__c = valor.Status,
             SalesSector__c = valor.SetorVendas,
             ExternalId__c = valor.CodigoExternoAccount + valor.OrganizacaoVendas + valor.SetorAtividade + valor.CanalDistribuicao + valor.EscritorioVendas + valor.EquipeVendas
@@ -374,9 +368,9 @@ public with sharing class CalloutBP {
     public String CanalDistribuicao;
     public String DomicilioFiscal;
     public String EscritorioVendas;
+    public String CentroFornecedor;
     public String EquipeVendas;
     public String GrupoClientes;
-    public String Bloqueado;
     public String Status;
     public String SetorVendas;
     }
