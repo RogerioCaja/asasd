@@ -412,9 +412,12 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         
         console.log('this.productData: ' + this.productData);
         console.log('acproductcount data setted:', this.productData, event.detail, event.data, event);
-        //this.qtdItens = this.productData.length;
-        this.enableNextScreen();
-        this.completeCurrentScreen();
+        if(this.headerData.tipo_venda != 'Venda Barter'){
+            this.enableNextScreen();
+            this.completeCurrentScreen();
+        }
+      
+        
     }
 
     _setDivisionData(event) {
@@ -423,6 +426,13 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
     _setCommodityData(event) {
         this.commodityData = event.data;
+        if(this.commodityData.length > 0){
+            this.enableNextScreen();
+            this.completeCurrentScreen();
+        }
+        else{
+            this.disableNextScreen();
+        }
     }
 
     _setSummaryData(event) {

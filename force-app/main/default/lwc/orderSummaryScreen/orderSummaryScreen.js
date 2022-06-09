@@ -42,12 +42,9 @@ export default class OrderSummaryScreen extends LightningElement {
         if(this.productData){
             this.productDataLocale = JSON.parse(JSON.stringify(this.productData));
            
-            this.commodityDataLocale = {};
+            this.commodityDataLocale;
             if(this.commodityData){
-                let commodities = JSON.parse(JSON.stringify(this.commodityData));
-                for(var i=0; i< commodities.length; i++){
-                    this.commodityDataLocale[commodities[i].product] = commodities[i];
-                }
+                this.commodityDataLocale= JSON.parse(JSON.stringify(this.commodityData));
             }
             
            
@@ -63,12 +60,12 @@ export default class OrderSummaryScreen extends LightningElement {
             if(this.headerData.tipo_venda == 'Venda Barter'){
                 for(var i= 0; i< this.productDataLocale.length; i++){
                     this.isBarter = true;
-                    this.orderMargin = this.commodityDataLocale[this.productDataLocale[i].name].marginValue;
-                    this.productDataLocale[i]['unitPrice'] = (Number(this.productDataLocale[i].practicedCost) / Number(this.commodityDataLocale[this.productDataLocale[i].name].commodityPrice)).toFixed(4).toString() + ' sacas';
-                    this.productDataLocale[i]['totalPrice']  = this.commodityDataLocale[this.productDataLocale[i].name].totalDelivery;
-                    this.productDataLocale[i]['commercialDiscountValue']  =  this.commodityDataLocale[this.productDataLocale[i].name].discount;
-                    this.productDataLocale[i]['commercialDiscountPercentage']  =  this.formatPercent(this.productDataLocale[i].commercialDiscountPercentage);
-                    this.productDataLocale[i]['commercialMarginPercentage']  = this.commodityDataLocale[this.productDataLocale[i].name].marginValue;
+                    this.orderMargin = this.commodityDataLocale[0].marginValue;
+                    this.productDataLocale[i]['unitPrice'] = (Number(this.productDataLocale[i].practicedCost) / Number(this.commodityDataLocale[0].commodityPrice)).toFixed(4).toString() + ' sacas';
+                    this.productDataLocale[i]['totalPrice']  = Number(Number(this.productDataLocale[i]['unitPrice'].toString().replace(' sacas', '')) * Number(this.productDataLocale[i].quantity)).toFixed(2).toString() + ' sacas';
+                    this.productDataLocale[i]['commercialDiscountValue']  =  this.commodityDataLocale[0].discount;
+                    this.productDataLocale[i]['commercialDiscountPercentage']  =  this.productDataLocale[i].commercialDiscountPercentage;
+                    this.productDataLocale[i]['commercialMarginPercentage']  = this.commodityDataLocale[0].marginValue;
                     this.productDataLocale[i]['divisionData'] = [];
                     if(this.divisionData){
                         for(var j=0; j< this.divisionData.length; j++){
@@ -85,7 +82,7 @@ export default class OrderSummaryScreen extends LightningElement {
                     this.productDataLocale[i]['unitPrice'] = this.formatCurrency(this.productDataLocale[i].unitPrice);
                     this.productDataLocale[i]['totalPrice']  = this.formatCurrency(this.productDataLocale[i].totalPrice);
                     this.productDataLocale[i]['commercialDiscountValue']  =  this.formatCurrency(this.productDataLocale[i].commercialDiscountValue);
-                    this.productDataLocale[i]['commercialDiscountPercentage']  =  this.formatPercent(this.productDataLocale[i].commercialDiscountPercentage);
+                    this.productDataLocale[i]['commercialDiscountPercentage']  =  this.productDataLocale[i].commercialDiscountPercentage;
                     this.productDataLocale[i]['commercialMarginPercentage']  = this.productDataLocale[i].commercialMarginPercentage + '%';
                     this.productDataLocale[i]['divisionData'] = [];
                     if(this.divisionData){
