@@ -62,7 +62,7 @@ global with sharing class TemplateDataIntegrationFields {
                 Account__c = lookups.containsKey('Account'+this.accountCode) ? lookups.get('Account'+this.accountCode) : null,
                 Currency__c = this.typeCurrency,
                 SalesCondition__c = lookups.containsKey('SalesCondition__c'+this.salesCondition) ? lookups.get('SalesCondition__c'+this.salesCondition) : null, 
-                ProductMultiplier__c = Decimal(this.multiplicationFactor.trim()),
+                ProductMultiplier__c = Decimal.valueOf(this.multiplicationFactor.trim()),
                 UnitMeasurement__c = this.unitMeasurement != null ? this.unitMeasurement : null,
                 UnitPrice__c = (this.typeCurrency == 'BRL' || this.typeCurrency == 'USD') ? Decimal.valueOf(this.unitPrice.trim()) : null,
                 Percentage__c = this.typeCurrency == '%' ? Decimal.valueOf(this.unitPrice.trim()) : null,
