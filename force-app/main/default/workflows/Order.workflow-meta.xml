@@ -91,6 +91,16 @@
         <reevaluateOnChange>false</reevaluateOnChange>
     </fieldUpdates>
     <fieldUpdates>
+        <fullName>StatusEmAprovacao</fullName>
+        <field>Status</field>
+        <literalValue>0001</literalValue>
+        <name>Status - Em Aprovação</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
         <fullName>UpdateStatus_EmAprovacao</fullName>
         <field>StatusSF__c</field>
         <literalValue>Em aprovação - Gerente Filial</literalValue>
