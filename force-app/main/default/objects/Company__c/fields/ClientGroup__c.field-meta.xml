@@ -51,6 +51,16 @@
                 <default>false</default>
                 <label>DINÂMICO</label>
             </value>
+            <value>
+                <fullName>FORNECEDOR</fullName>
+                <default>false</default>
+                <label>FORNECEDOR</label>
+            </value>
+            <value>
+                <fullName>FUNCIONÁRIO</fullName>
+                <default>false</default>
+                <label>FUNCIONÁRIO</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

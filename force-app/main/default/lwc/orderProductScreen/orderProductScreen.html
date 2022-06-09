@@ -353,7 +353,7 @@
 										<p><b>Preço:</b> {commodity.productCurrency}{commodity.listPrice}</p>
 									</div>
 									<div class="card-02">
-										<button class="include-button" data-target-id={commodity.id} onclick={selectCommodity}>Escolher</button>
+										<button class="include-button" data-target-id={commodity.Id} onclick={selectCommodity}>Escolher</button>
 									</div>
 								</div>
 							</div>
@@ -479,8 +479,9 @@
 				<p class="new-product-title">Detalhes da Negociação</p>
 				<lightning-datatable class="slds-is-relative"
 									 data={commoditiesData}
-									 columns={commodityColumns}
+									 columns={visualizeCommodityColumns}
 									 key-field="id"
+									 onrowaction={handleCommodityActions}
 					>
 				</lightning-datatable>
 			</div>

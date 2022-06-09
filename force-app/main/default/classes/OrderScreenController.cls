@@ -418,7 +418,8 @@ public without sharing class OrderScreenController {
             order.FinalTotalValue__c = orderTotalValue;
             order.Company__c = company.Id;
             order.OrderType__c = orderData.headerData.pedido_mae.Id != null ? 'Pedido Filho' : (order.IsOrderMother__c ? 'Pedido Mãe' : 'Pedido Normal');
-            order.OrderMargin__c = orderData.summaryData.orderMargin != null ? stringToDecimal((orderData.summaryData.orderMargin)) : 0;
+            order.OrderMargin__c = orderData.summaryData.orderMargin != null ? (orderData.summaryData.orderMargin.contains(' sacas') ?
+                                     stringToDecimal(orderData.summaryData.orderMargin.replace(' sacas', '')) : stringToDecimal((orderData.summaryData.orderMargin))) : 0;
 
             Map<Id, OrderItem> motherItems = new Map<Id, OrderItem>();
             Boolean newDivision = false;

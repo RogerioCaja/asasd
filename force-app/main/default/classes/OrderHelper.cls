@@ -59,7 +59,7 @@ public with sharing class OrderHelper {
             Map<ID,Schema.RecordTypeInfo> orderMap = Order.sObjectType.getDescribe().getRecordTypeInfosById();
             for(Order order : newRecords){
                 if(order.Status != '0'){
-                    if(order.MarginCommittee__c || order.Manager_BranchOffice__c || order.Gerente_Regional__c || order.Director__c || orderMap.get(order.RecordTypeId).getName() == 'VendaBarter')
+                    if(order.MarginCommittee__c || order.Manager_BranchOffice__c || order.Gerente_Regional__c || order.Director__c || orderMap.get(order.RecordTypeId).getName() == 'Venda Barter')
                     {
                         try{
                             Approval.ProcessSubmitRequest administrationRequest = new Approval.ProcessSubmitRequest();
@@ -107,7 +107,7 @@ public with sharing class OrderHelper {
             Map<ID,Schema.RecordTypeInfo> orderMap = Order.sObjectType.getDescribe().getRecordTypeInfosById();
             for(Id id : orderIds){
                 if(oldMap.get(id).Status == '0' && newMap.get(id).Status == '001'){
-                    if(newMap.get(id).MarginCommittee__c || newMap.get(id).Manager_BranchOffice__c || newMap.get(id).Gerente_Regional__c || newMap.get(id).Director__c || orderMap.get(newMap.get(id).RecordTypeId).getName() == 'VendaBarter')
+                    if(newMap.get(id).MarginCommittee__c || newMap.get(id).Manager_BranchOffice__c || newMap.get(id).Gerente_Regional__c || newMap.get(id).Director__c || orderMap.get(newMap.get(id).RecordTypeId).getName() == 'Venda Barter')
                     {
                         try{
                             Approval.ProcessSubmitRequest administrationRequest = new Approval.ProcessSubmitRequest();
