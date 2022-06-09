@@ -10,6 +10,7 @@ import getAccountCompanies from '@salesforce/apex/OrderScreenController.getAccou
 
 
 let actions = [];
+let commodityActions = [{label: 'Excluir', name: 'delete'}];
 export default class OrderProductScreen extends LightningElement {
     @track addProduct={};
     costPrice;
@@ -62,6 +63,8 @@ export default class OrderProductScreen extends LightningElement {
     currentScreen = 'chooseCommodity';
     
     commodities = [];
+    showCommodityData = false;
+    openCommoditiesData = false;
     // commoditiesData = [];
     chooseCommodities = false;
     showCommodities = false;
@@ -76,6 +79,7 @@ export default class OrderProductScreen extends LightningElement {
         {label: 'Margem', fieldName: 'margin'},
         {label: 'Entrega Total', fieldName: 'totalDelivery'}
     ];
+    visualizeCommodityColumns = [];
 
     disabled=false;
 
@@ -109,8 +113,8 @@ export default class OrderProductScreen extends LightningElement {
         this.paymentDate = this.headerData.data_pagamento;
         this.hectares = this.headerData.hectares;
         this.salesConditionId = this.headerData.condicao_venda.Id;
-        this.barterSale = this.headerData.tipo_venda == 'Venda Barter' ? true : false;
         this.commoditiesData = this.isFilled(this.commodityData) ? this.commodityData : [];
+        this.barterSale = this.headerData.tipo_venda == 'Venda Barter' && this.commoditiesData.length == 0 ? true : false;
 
         if (this.cloneData.cloneOrder) {
             this.products = this.isFilled(this.productData) ? this.productData : [];
@@ -124,6 +128,16 @@ export default class OrderProductScreen extends LightningElement {
             this.headerData.status_pedido == 'Em aprovação - Diretor' || this.headerData.status_pedido == 'Em aprovação - Comitê Margem' || this.headerData.status_pedido == 'Em aprovação - Mesa de Grãos') {
             this.disabled = true;
         }
+
+        if (this.isFilled(this.commoditiesData) && this.commoditiesData.length > 0) this.showCommodityData = true;
+        this.visualizeCommodityColumns = JSON.parse(JSON.stringify(this.commodityColumns));
+        this.visualizeCommodityColumns.push({
+            type: 'action',
+            typeAttributes: {
+                rowActions: commodityActions,
+                menuAlignment: 'auto'
+            }
+        });
 
         actions = [];
         if (this.disabled)  actions.push({ label: 'Visualizar', name: 'visualize' })
@@ -259,8 +273,13 @@ export default class OrderProductScreen extends LightningElement {
                                 }
                                 this.showToast('warning', 'Alteração nos preços!', priceChangeMessage);
                             }
+
                             if (showQuantityChange) {
                                 this.showToast('warning', 'Alteração nas quantidades!', 'As quantidades foram recalculados devido a alteração no hectar. Verifique-os.');
+                            }
+
+                            if ((showPriceChange || showQuantityChange) && this.headerData.tipo_venda == 'Venda Barter') {
+                                this.recalculateCommodities();
                             }
                         }
                     })
@@ -634,7 +653,7 @@ export default class OrderProductScreen extends LightningElement {
         let prod = this.addProduct;
         if (this.checkRequiredFields(prod)) {
             let allProducts = JSON.parse(JSON.stringify(this.products));
-            let margin = this.isFilled(this.addProduct.practicedCost) ? (1 - this.fixDecimalPlaces(Number(this.addProduct.practicedCost)) / (prod.totalPrice / prod.quantity)) * 100 : 0;
+            let margin = this.isFilled(this.addProduct.practicedCost) ? this.fixDecimalPlaces((1 - (Number(this.addProduct.practicedCost) / (prod.totalPrice / prod.quantity))) * 100) : 0;
             
             prod.commercialMarginPercentage = margin;
             prod.costPrice = this.costPrice;
@@ -655,6 +674,8 @@ export default class OrderProductScreen extends LightningElement {
         } else {
             this.showToast('error', 'Atenção!', 'Campos obrigatórios não preenchidos.');
         }
+        
+        this.recalculateCommodities();
     }
 
     changeProduct() {
@@ -703,6 +724,7 @@ export default class OrderProductScreen extends LightningElement {
         }
 
         this._verifyFieldsToSave();
+        this.recalculateCommodities();
         console.log(JSON.stringify(this.products));
     }
 
@@ -881,6 +903,17 @@ export default class OrderProductScreen extends LightningElement {
 
         if (this.products.length == 0) {
             this.showIncludedProducts = false;
+
+            if (this.commoditiesData.length > 0) {
+                this.commoditiesData = [];
+                this.commodities = [];
+                this.barterSale = true;
+                this.showCommodityData = false;
+                this._setCommodityData();
+                this.showToast('warning', 'As commodities foram removidas por conta da falta de produtos!', '');
+            }
+        } else {
+            this.recalculateCommodities()  ;
         }
 
         this._setData();
@@ -1015,12 +1048,19 @@ export default class OrderProductScreen extends LightningElement {
     selectCommodity(event) {
         this.nextScreen();
         let totalProducts = 0;
+        let orderTotalCost = 0;
+        let productsQUantity = 0;
+        let totalDiscount = 0;
+
         for (let index = 0; index < this.products.length; index++) {
             totalProducts += Number(this.products[index].totalPrice);
+            orderTotalCost += Number(this.products[index].practicedCost) * Number(this.products[index].quantity);
+            productsQUantity += Number(this.products[index].quantity);
+            totalDiscount += Number(this.products[index].commercialDiscountValue);
         }
 
-        let chooseCommodity = this.commodities.find(e => e.id == event.target.dataset.targetId);
-        let marginPercent = (1 - this.products[0].commercialMarginPercentage) * 100;
+        let chooseCommodity = this.commodities.find(e => e.Id == event.target.dataset.targetId);
+        let marginPercent = ((1 - (orderTotalCost / totalProducts)) * 100);
 
         this.selectedCommodity = {
             id: chooseCommodity.Id,
@@ -1034,7 +1074,9 @@ export default class OrderProductScreen extends LightningElement {
             deliveryAddress: '',
             commission: 'R$' + ((chooseCommodity.commissionPercentage * totalProducts) / 100),
             totalMarginPercent: this.fixDecimalPlaces(marginPercent) + '%',
-            totalMarginValue: this.fixDecimalPlaces(((this.products[0].totalPrice * marginPercent) / 100))
+            totalMarginValue: this.fixDecimalPlaces(((totalProducts * marginPercent) / 100) / chooseCommodity.listPrice) + ' sacas',
+            quantity: productsQUantity,
+            totalDiscountValue: this.fixDecimalPlaces(totalDiscount / chooseCommodity.listPrice) + ' sacas'
         };
     }
 
@@ -1046,29 +1088,27 @@ export default class OrderProductScreen extends LightningElement {
             }
         }
 
-        console.log('this.selectedCommodity: ' + JSON.stringify(this.selectedCommodity));
         this.commoditiesData.push({
             product: this.selectedCommodity.name,
             productId: this.selectedCommodity.id,
             commodityPrice: this.selectedCommodity.commodityPrice,
-            desage: this.products[0].dosage,
             area: this.headerData.hectares,
-            quantity: this.products[0].quantity,
-            discount: 'R$' + this.products[0].commercialDiscountValue,
-            margin: this.fixDecimalPlaces(this.products[0].commercialMarginPercentage),
+            quantity: this.selectedCommodity.quantity,
+            discount: this.selectedCommodity.totalDiscountValue,
+            margin: this.selectedCommodity.totalMarginPercent,
+            marginValue: this.selectedCommodity.totalMarginValue,
             totalDelivery: this.selectedCommodity.deliveryQuantity,
+            cotation: this.selectedCommodity.cotation,
             saved: false
         });
-        console.log('this.commoditiesData: ' + JSON.stringify(this.commoditiesData));
     }
 
     closeCommodityModal(event) {
-        console.log('this.commoditiesData.length: ' + this.commoditiesData.length);
         for (let index = 0; index < this.commoditiesData.length; index++) {
-            console.log('event.target.dataset.targetId: ' + event.target.dataset.targetId);
             if (event.target.dataset.targetId == 'saveButton') {
                 this.commoditiesData[index].saved = true;
-                console.log('this.commoditiesData[index]: ' + JSON.stringify(this.commoditiesData[index]));
+                this.showCommodityData = true;
+                this.barterSale = false;
                 this._setCommodityData();
             } else if (this.commoditiesData[index].saved == false) {
                 this.commoditiesData.splice(index, 1);
@@ -1080,6 +1120,10 @@ export default class OrderProductScreen extends LightningElement {
         this.commoditySelected = false;
         this.summaryScreen = false;
         // this.haScreen = false;
+    }
+
+    openCommodityData(event) {
+        this.openCommoditiesData = !this.openCommoditiesData;
     }
 
     commodityChange(event) {
@@ -1113,6 +1157,54 @@ export default class OrderProductScreen extends LightningElement {
         if (this.currentScreen == 'fillCommodity') this.commoditySelected = true;
         if (this.currentScreen == 'negotiationDetails') this.summaryScreen = true;
         // if (this.currentScreen == 'haScreen') this.haScreen = true;
+    }
+
+    recalculateCommodities() {
+        console.log(this.isFilled(this.commoditiesData) && this.commoditiesData.length > 0);
+        if (this.isFilled(this.commoditiesData) && this.commoditiesData.length > 0) {
+            let totalProducts = 0;
+            let orderTotalCost = 0;
+            let productsQUantity = 0;
+            let totalDiscount = 0;
+            
+            for (let index = 0; index < this.products.length; index++) {
+                totalProducts += Number(this.products[index].totalPrice);
+                orderTotalCost += Number(this.products[index].practicedCost) * Number(this.products[index].quantity);
+                productsQUantity += Number(this.products[index].quantity);
+                totalDiscount += Number(this.products[index].commercialDiscountValue);
+            }
+    
+            let marginPercent = ((1 - (orderTotalCost / totalProducts)) * 100);
+            let currentCommodityValues = JSON.parse(JSON.stringify(this.commoditiesData[0]));
+            
+            currentCommodityValues.area = this.headerData.hectares;
+            currentCommodityValues.quantity = productsQUantity;
+            currentCommodityValues.discount = this.fixDecimalPlaces(totalDiscount / Number(currentCommodityValues.cotation)) + ' sacas';
+            currentCommodityValues.margin = this.fixDecimalPlaces(marginPercent) + '%';
+            currentCommodityValues.marginValue = this.fixDecimalPlaces(((totalProducts * marginPercent) / 100) / Number(currentCommodityValues.cotation)) + ' sacas';
+            currentCommodityValues.totalDelivery = this.fixDecimalPlaces((totalProducts / currentCommodityValues.cotation)) + ' sacas';
+            
+            this.commoditiesData = [];
+            this.commoditiesData.push(currentCommodityValues);
+
+            this._setCommodityData();
+            this.showToast('warning', 'Atenção!', 'Os valores da commodity foram alterados de acordo com a alteração/inclusão de um produto.');
+        }
+    }
+
+    handleCommodityActions(event) {
+        const actionName = event.detail.action.name;
+        switch (actionName) {
+            case 'delete':
+                this.commoditiesData = [];
+                this.commodities = [];
+                this.barterSale = true;
+                this.showCommodityData = false;
+                this._setCommodityData();
+                this.openCommodityData();
+                this.showToast('success', 'Sucesso!', 'Commodity removida.');
+            break;
+        }
     }
 
     showToast(type, title, message) {

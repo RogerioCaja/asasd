@@ -27,6 +27,7 @@
 	<div class="products-result" if:true={showIncludedProducts}>
         <template if:false={message}>
 			<button if:true={barterSale} class="barter-sale" onclick={openCommodities}>Escolher commodities</button>
+			<button if:true={showCommodityData} class="barter-sale" onclick={openCommodityData}>Visualizar commodities</button>
 			<button class="change-columns" onclick={showTableColumns}>Alterar colunas</button>
             <h2>Resultados de <b>PRODUTOS</b>:</h2>
 
@@ -352,7 +353,7 @@
 										<p><b>Preço:</b> {commodity.productCurrency}{commodity.listPrice}</p>
 									</div>
 									<div class="card-02">
-										<button class="include-button" data-target-id={commodity.id} onclick={selectCommodity}>Escolher</button>
+										<button class="include-button" data-target-id={commodity.Id} onclick={selectCommodity}>Escolher</button>
 									</div>
 								</div>
 							</div>
@@ -369,7 +370,7 @@
 						</div>
 						<div class="column">
 							<label>Valor</label><br>
-							<input class="input-design" type="number" value={selectedCommodity.cotation} data-target-id="cotation" onchange={commodityChange}/>
+							<input class="input-design" type="number" value={selectedCommodity.cotation} data-target-id="cotation" onchange={commodityChange} disabled/>
 						</div>
 					</div>
 
@@ -467,6 +468,22 @@
 						<button if:true={summaryScreen} class="confirm-button" onclick={closeCommodityModal} data-target-id="saveButton">Salvar</button>
 					</div>
 				</div>
+			</div>
+		</div>
+	</div>
+
+	<div style="width: 100%;" if:true={openCommoditiesData}>
+		<div id="commodity-data-modal" class="modal">
+			<div class="modal-content" style="width: 900px">
+                <span class="close" onclick={openCommodityData}>&times;</span>
+				<p class="new-product-title">Detalhes da Negociação</p>
+				<lightning-datatable class="slds-is-relative"
+									 data={commoditiesData}
+									 columns={visualizeCommodityColumns}
+									 key-field="id"
+									 onrowaction={handleCommodityActions}
+					>
+				</lightning-datatable>
 			</div>
 		</div>
 	</div>
