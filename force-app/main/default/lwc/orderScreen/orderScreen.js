@@ -201,10 +201,19 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.productData = data.productData;
             this.qtdItens = data.productData.length;
             this.valorTotal = 0;
-            // this.productData.forEach(product =>{
-            //     this.valorTotal  += parseFloat(product.totalPrice);
-            // })
-            // this.valorTotal = parseFloat(this.valorTotal).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
+            try
+            {
+                this.productData.forEach(product =>{
+                    this.valorTotal  += parseFloat(product.totalPrice);
+                })
+                this.valorTotal = parseFloat(this.valorTotal).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
+
+            }
+            catch(e)
+            {
+                console.log(e);
+            }
+           
             this.divisionData = data.divisionData;
             this.summaryData['observation'] = this.headerData.observation;
             this.summaryData['billing_sale_observation'] = this.headerData.billing_sale_observation;
@@ -389,15 +398,26 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         this.productData = event.data;
         this.qtdItens = this.productData.length;
         this.valorTotal = 0;
-        // this.productData.forEach(product =>{
-        //     this.valorTotal  = parseFloat(this.valorTotal) + parseFloat(product.totalPrice);
-        // })
-        // this.valorTotal = parseFloat(this.valorTotal).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
+        try
+        {
+            this.productData.forEach(product =>{
+                this.valorTotal  = parseFloat(this.valorTotal) + parseFloat(product.totalPrice);
+            })
+            this.valorTotal = parseFloat(this.valorTotal).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
+        }
+        catch(e)
+        {
+            console.log(e);
+        }
+        
         console.log('this.productData: ' + this.productData);
         console.log('acproductcount data setted:', this.productData, event.detail, event.data, event);
-        //this.qtdItens = this.productData.length;
-        this.enableNextScreen();
-        this.completeCurrentScreen();
+        if(this.headerData.tipo_venda != 'Venda Barter'){
+            this.enableNextScreen();
+            this.completeCurrentScreen();
+        }
+      
+        
     }
 
     _setDivisionData(event) {
@@ -406,6 +426,13 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
     _setCommodityData(event) {
         this.commodityData = event.data;
+        if(this.commodityData.length > 0){
+            this.enableNextScreen();
+            this.completeCurrentScreen();
+        }
+        else{
+            this.disableNextScreen();
+        }
     }
 
     _setSummaryData(event) {
