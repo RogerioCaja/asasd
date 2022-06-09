@@ -4,8 +4,8 @@ import {
     track
 } from 'lwc';
 import fetchRecords from '@salesforce/apex/CustomLookupController.fetchRecords';
-import fetchAccountRecords from '@salesforce/apex/CustomLookupController.fetchAccountRecords';
 import fetchOrderRecords from '@salesforce/apex/CustomLookupController.fetchProductsRecords';
+import fetchAccountRecords from '@salesforce/apex/CustomAccountLookupController.fetchAccountRecords';
 import {
     ShowToastEvent
 } from 'lightning/platformShowToastEvent';
