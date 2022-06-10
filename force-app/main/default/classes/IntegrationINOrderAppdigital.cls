@@ -50,7 +50,7 @@ global with sharing class IntegrationINOrderAppdigital {
                 // Adiciona todos os External Id e o catalogo de preço de order nos orderItem
                 //Putting the Order's ExternalId parameter in the OrderItem
                 for (TemplateDataIntegrationFields.OrderItemINData orderItem : order.orderItems){
-                    orderItem.orderExternalId = order.CodigoSap;
+                    orderItem.orderExternalId = order.numeroPedidoApp;
                 }
                 // Adiciona os orderItem na lista para upsert
                 //Getting list of order items
@@ -58,7 +58,7 @@ global with sharing class IntegrationINOrderAppdigital {
                 System.debug('orderItemListToUpsert' + orderItemListToUpsert); 
             }
             for(TemplateDataIntegrationFields.ShippingDivisonINData shippingDivison : order.shippingDivison){
-                shippingDivison.orderExternalId = order.CodigoSap;
+                shippingDivison.orderExternalId = order.numeroPedidoApp;
             }
             shippingDivisonListToUpsert.addAll(order.shippingDivison);
             System.debug('shippingDivisonListToUpsert' + shippingDivisonListToUpsert);
