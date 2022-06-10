@@ -51,6 +51,10 @@
                 <behavior>Readonly</behavior>
                 <field>DescriptionExternalId__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>ClientGroup__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>
@@ -64,10 +68,6 @@
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>Product__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
-                <field>AccountType__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
