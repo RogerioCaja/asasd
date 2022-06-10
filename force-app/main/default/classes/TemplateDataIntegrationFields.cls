@@ -206,6 +206,15 @@ global with sharing class TemplateDataIntegrationFields {
         }
     }
 
+    public class PartnerInsert{
+        public String PARVW;
+	    public String KUNNR;
+        public PartnerInsert(){}
+    }
+
+
+
+
     global class OrderINData implements FieldData{
 
         public String Status;
@@ -237,6 +246,7 @@ global with sharing class TemplateDataIntegrationFields {
         //public String clienteCode; 
         public List<TemplateDataIntegrationFields.OrderItemINData> orderItems;
         public List<TemplateDataIntegrationFields.ShippingDivisonINData> shippingDivison;
+        public List<TemplateDataIntegrationFields.PartnerInsert> partners;
         public Order serialize(Map<String, Id> lookups){
 
             switch on Status {
@@ -282,7 +292,7 @@ global with sharing class TemplateDataIntegrationFields {
                 Crop__c = lookups.containsKey('Safra__c'+this.crop) ? lookups.get('Safra__c'+this.crop) : null,
                 Culture__c = lookups.containsKey('Cultura__c'+this.culture) ? lookups.get('Cultura__c'+this.culture) : null,
                 SalesOrg__c = lookups.containsKey('SalesOrg__c'+this.salesOrg) ? lookups.get('SalesOrg__c'+this.salesOrg) : null,
-                SalesCTV__c = lookups.containsKey('SalesCTV__c'+this.salesCTV) ? lookups.get('SalesCTV__c'+this.salesCTV) : null,
+                SalesCTV__c = lookups.containsKey('User'+this.salesCTV) ? lookups.get('User'+this.salesCTV) : null,
                 PaymentCondition__c = lookups.containsKey('CondicaoPagamento__c'+this.paymentCondition) ? lookups.get('CondicaoPagamento__c'+this.paymentCondition) : null,
                 OrderReference__c = lookups.containsKey('OrderReference__c'+this.orderReference) ? lookups.get('OrderReference__c'+this.orderReference) : null,
                 DistributionChannel__c = lookups.containsKey('DistributionChannel__c' + this.distributionChannel)? lookups.get ('' + this.distributionChannel) : null,
@@ -305,8 +315,8 @@ global with sharing class TemplateDataIntegrationFields {
 
         public List<String> getRequiredFields(){
             return new List<String>{
-                'CodigoSap__c',
-                'AccountId'
+                'CodigoSap__c'
+                //'AccountId'
      
             };
         }
@@ -509,6 +519,7 @@ global with sharing class TemplateDataIntegrationFields {
                 //Returning Object with Fields
 
             return new Boletos__c(
+                Name = this.LinhaDigitavel,
                 SalesOrg__c = lookups.containsKey('SalesOrg__c'+this.Empresa) ? lookups.get('SalesOrg__c'+this.Empresa) : null,
                 AccountCode__c = lookups.containsKey('AccountCode__c'+this.CodigoParceiro) ? lookups.get('AccountCode__c'+this.CodigoParceiro) : null,
                 ExpirationDate__c = Date.valueOf(VencimentoBoleto),
