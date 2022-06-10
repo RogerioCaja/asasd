@@ -116,7 +116,7 @@ public with sharing class CalloutOrderDatalake {
             }
             
             Map<Id, OrderItem> orderItemMap = new Map<Id, OrderItem>([
-                SELECT Id, Product2.ExternalId__c, Product2.DistributionCenter__r.Code__c, Quantity
+                SELECT Id, NumeroSap__c, Product2.ExternalId__c, Product2.DistributionCenter__r.Code__c, Quantity
                 FROM OrderItem
                 WHERE Id IN: orderItemIds
             ]);
@@ -139,11 +139,11 @@ public with sharing class CalloutOrderDatalake {
                 {
                     for(ShippingDivison__c sd : divisionMap.get(orderItem.Id)){
                         shippingCodesList.add(Integer.valueOf(sd.Name));
-                        Shipping.add(new CalloutOrderDatalake.ShippingParameters(Integer.valueOf(sd.Name), sd.Quantity__c, sd.DeliveryDate__c));
+                        scheduleList.add(new CalloutOrderDatalake.ScheduleParameters(Integer.valueOf(sd.Name), sd.Quantity__c, sd.DeliveryDate__c));
                     }
                 }
-                orderItems.add(new CalloutOrderDatalake.OrderItemParameters(orderItem, shippingCodesList));
-                System.debug('order' + orders);
+                orderItemList.add(new CalloutOrderDatalake.OrderItemParameters(orderItem, shippingCodesList));
+                //System.debug('order' + orders);
             }
 
             if(order.CodigoSap__c != null){
@@ -189,14 +189,14 @@ public with sharing class CalloutOrderDatalake {
             
             
             //condition.add(new CalloutOrderDatalake.ConditionParameters(Integer.valueOf(order.Culture__r.Codigo__c), 'PR00', order.TotalAmount, order.Currency__c)); 
-            this.orders = orders;
-            this.condition = condition;
-            this.Shipping = Shipping;
-            this.orderItems = orderItems;
+            //this.orders = orders;
+            //this.condition = condition;
+            //this.Shipping = Shipping;
+            //this.orderItemList = orderItemList;
         }
     }
 
-    public class OrderInsert{
+    public class HeaderInsert{
         public String orderSalesType;
         public String salesOrg;
         public String distributionChannel;
@@ -219,12 +219,12 @@ public with sharing class CalloutOrderDatalake {
         public HeaderInsert(){}
     }
 
-    public class OrderUpdate{
+    public class HeaderUpdate{
         public String codSap;
         public String codSalesforce;
         public Date  expiredDate;
 
-        public OrderUpdate(){}
+        //public OrderUpdate(){}
     }
 
     public class ScheduleParameters{
@@ -232,7 +232,7 @@ public with sharing class CalloutOrderDatalake {
         public Decimal quantityItem;
         public Date deliveryDate;
 
-        public ShippingParameters(Integer incrementItem, Decimal quantityItem, Date deliveryDate){
+        public ScheduleParameters(Integer incrementItem, Decimal quantityItem, Date deliveryDate){
             this.incrementItem = incrementItem;
             this.quantityItem = quantityItem;
             this.deliveryDate = deliveryDate;
