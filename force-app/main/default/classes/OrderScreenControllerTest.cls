@@ -178,7 +178,7 @@ public class OrderScreenControllerTest {
             harvest__c = crop.Id,
             StartDate__c = System.today().addDays(-5),
             EndDate__c = System.today().addDays(5),
-            AccountType__c = 'A',
+            ClientGroup__c = 'A',
             ConditionType__c = 'Desconto',
             ExternalId__c = '001'
         );

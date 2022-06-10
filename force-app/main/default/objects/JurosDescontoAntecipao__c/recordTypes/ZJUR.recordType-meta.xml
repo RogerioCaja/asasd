@@ -4,37 +4,45 @@
     <active>true</active>
     <label>Juros</label>
     <picklistValues>
-        <picklist>AccountType__c</picklist>
+        <picklist>ClientGroup__c</picklist>
         <values>
-            <fullName>CLUBE A</fullName>
+            <fullName>1</fullName>
             <default>false</default>
         </values>
         <values>
-            <fullName>CLÁSSICO</fullName>
+            <fullName>10</fullName>
             <default>false</default>
         </values>
         <values>
-            <fullName>CONECTA</fullName>
+            <fullName>2</fullName>
             <default>false</default>
         </values>
         <values>
-            <fullName>DINÂMICO</fullName>
+            <fullName>3</fullName>
             <default>false</default>
         </values>
         <values>
-            <fullName>INOVADOR</fullName>
+            <fullName>4</fullName>
             <default>false</default>
         </values>
         <values>
-            <fullName>MODULAR</fullName>
+            <fullName>5</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>6</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>7</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>8</fullName>
             <default>false</default>
         </values>
         <values>
             <fullName>NÃO SEGMENTADO</fullName>
-            <default>false</default>
-        </values>
-        <values>
-            <fullName>REDISTRIBUIÇÃO</fullName>
             <default>false</default>
         </values>
     </picklistValues>
