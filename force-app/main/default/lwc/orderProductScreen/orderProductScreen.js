@@ -6,9 +6,11 @@ import {
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getSafraInfos from '@salesforce/apex/OrderScreenController.getSafraInfos';
 import getFinancialInfos from '@salesforce/apex/OrderScreenController.getFinancialInfos';
+import getAccountCompanies from '@salesforce/apex/OrderScreenController.getAccountCompanies';
 
 
 let actions = [];
+let commodityActions = [{label: 'Excluir', name: 'delete'}];
 export default class OrderProductScreen extends LightningElement {
     @track addProduct={};
     costPrice;
@@ -17,16 +19,18 @@ export default class OrderProductScreen extends LightningElement {
     productPosition;
 
     selectedColumns={
+        columnUnity: true,
         columnListPrice: true,
         columnQuantity: true,
         columnUnitPrice: true,
         columnTotalPrice: true,
-        columnCommercialAdditionValue: true,
-        columnFinancialAdditionValue: true,
-        columnSapStatus: true
+        columnProductGroupName: true,
+        columnCommercialDiscountPercentage: true
     }
 
-    safraData={}
+    companyResult=[];
+    selectCompany = false;
+    safraData={};
     paymentDate;
     hectares;
     salesConditionId;
@@ -40,6 +44,7 @@ export default class OrderProductScreen extends LightningElement {
     message = false;
     createNewProduct = false;
     updateProduct = false;
+    recalculatePrice = false;
     showList = false;
     changeColumns = false;
     showProductDivision = false;
@@ -58,6 +63,8 @@ export default class OrderProductScreen extends LightningElement {
     currentScreen = 'chooseCommodity';
     
     commodities = [];
+    showCommodityData = false;
+    openCommoditiesData = false;
     // commoditiesData = [];
     chooseCommodities = false;
     showCommodities = false;
@@ -72,6 +79,9 @@ export default class OrderProductScreen extends LightningElement {
         {label: 'Margem', fieldName: 'margin'},
         {label: 'Entrega Total', fieldName: 'totalDelivery'}
     ];
+    visualizeCommodityColumns = [];
+
+    disabled=false;
 
     // haScreen = false;
     /* haData = [{
@@ -103,34 +113,105 @@ export default class OrderProductScreen extends LightningElement {
         this.paymentDate = this.headerData.data_pagamento;
         this.hectares = this.headerData.hectares;
         this.salesConditionId = this.headerData.condicao_venda.Id;
-        this.barterSale = this.headerData.tipo_venda == 'Venda Barter' ? true : false;
         this.commoditiesData = this.isFilled(this.commodityData) ? this.commodityData : [];
-
-        this.productParams = {
-            salesConditionId: this.headerData.condicao_venda.Id,
-            accountId: this.accountData.Id,
-            ctvId: this.headerData.ctv_venda.Id,
-            safra: this.headerData.safra.Id,
-            productCurrency: this.headerData.moeda,
-            culture: this.headerData.cultura.Id,
-            orderType: this.headerData.tipo_venda
-        };
+        this.barterSale = this.headerData.tipo_venda == 'Venda Barter' && this.commoditiesData.length == 0 ? true : false;
 
         if (this.cloneData.cloneOrder) {
-            this.products = []
+            this.products = this.isFilled(this.productData) ? this.productData : [];
             this.allDivisionProducts = [];
         } else {
             this.products = this.isFilled(this.productData) ? this.productData : [];
             this.allDivisionProducts = this.isFilled(this.divisionData) ? this.divisionData : [];
         }
+        
+        if (this.headerData.status_pedido == 'Em aprovação - Gerente Filial' || this.headerData.status_pedido == 'Em aprovação - Gerente Regional' ||
+            this.headerData.status_pedido == 'Em aprovação - Diretor' || this.headerData.status_pedido == 'Em aprovação - Comitê Margem' || this.headerData.status_pedido == 'Em aprovação - Mesa de Grãos') {
+            this.disabled = true;
+        }
+
+        if (this.isFilled(this.commoditiesData) && this.commoditiesData.length > 0) this.showCommodityData = true;
+        this.visualizeCommodityColumns = JSON.parse(JSON.stringify(this.commodityColumns));
+        this.visualizeCommodityColumns.push({
+            type: 'action',
+            typeAttributes: {
+                rowActions: commodityActions,
+                menuAlignment: 'auto'
+            }
+        });
 
         actions = [];
-        if (this.headerData.pedido_mae_check) actions.push({ label: 'Editar', name: 'edit' });
-        else actions.push({ label: 'Editar', name: 'edit' },{ label: 'Divisão de Remessas', name: 'shippingDivision' });
+        if (this.disabled)  actions.push({ label: 'Visualizar', name: 'visualize' })
+        else if(this.headerData.IsOrderChild) actions.push({ label: 'Editar', name: 'edit' }, { label: 'Divisão de Remessas', name: 'shippingDivision' }, { label: 'Excluir', name: 'delete' });
+        else if (this.headerData.pedido_mae_check) actions.push({ label: 'Editar', name: 'edit' }, { label: 'Excluir', name: 'delete' });
+        else actions.push({ label: 'Editar', name: 'edit' }, { label: 'Divisão de Remessas', name: 'shippingDivision' }, { label: 'Excluir', name: 'delete' });
 
         this.showIncludedProducts = this.products.length > 0;
         this.applySelectedColumns(event);
 
+        this.headerData = JSON.parse(JSON.stringify(this.headerData));
+        let getCompanyData = {
+            ctvId: this.headerData.ctv_venda.Id != null ? this.headerData.ctv_venda.Id : '',
+            accountId: this.accountData.Id != null ? this.accountData.Id : '',
+            approvalNumber: 1
+        }
+
+
+        getAccountCompanies({data: JSON.stringify(getCompanyData)})
+        .then((result) => {
+            this.companyResult = JSON.parse(result).listCompanyInfos;
+            if (this.headerData.companyId != null) {
+                for (let index = 0; index < this.companyResult.length; index++) {
+                    if (this.companyResult[index].companyId == this.headerData.companyId) {
+                        this.selectedCompany = this.companyResult[index];
+                        this.onSelectCompany();
+                        break;
+                    }
+                }
+            } else {
+                if (this.companyResult.length == 0) {
+                    this.showToast('warning', 'Atenção!', 'Não foi encontrado Área de Vendas no SAP. Contate o administrador do sistema.');
+                } else if (this.companyResult.length == 1) {
+                    this.selectedCompany = this.companyResult[0];
+                    this.headerData.companyId = this.selectedCompany.companyId;
+                    this.onSelectCompany();
+                } else if (this.companyResult.length > 1) {
+                    this.selectCompany = true;
+                }
+            }
+        });
+    }
+
+    chooseCompany(event) {
+        let oldCompanyId;
+        let companies = this.companyResult;
+        if (this.isFilled(this.selectedCompany)) {
+            oldCompanyId = this.isFilled(this.selectedCompany) ? this.selectedCompany.companyId : null;
+            for (let index = 0; index < companies.length; index++) {
+                if (companies[index].companyId == oldCompanyId) {
+                    companies[index].selected = false;
+                    this.selectedCompany = {};
+                } else if (companies[index].companyId == event.target.dataset.targetId) {
+                    companies[index].selected = true;
+                    this.selectedCompany = companies[index];
+                }
+            }
+        } else {
+            for (let index = 0; index < companies.length; index++) {
+                if (companies[index].companyId == event.target.dataset.targetId) {
+                    companies[index].selected = true;
+                    this.selectedCompany = companies[index];
+                }
+            }
+        }
+        this.companyResult = JSON.parse(JSON.stringify(companies));
+    }
+
+    onSelectCompany() {
+        if (!this.isFilled(this.headerData.companyId)) {
+            this.selectCompany = !this.selectCompany;
+            this.headerData.companyId = this.selectedCompany.companyId;
+        }
+        this._setHeaderValues();
         if (this.isFilled(this.headerData.safra.Id)) {
             getSafraInfos({safraId: this.headerData.safra.Id})
             .then((result) => {
@@ -139,22 +220,70 @@ export default class OrderProductScreen extends LightningElement {
                     initialDate: safraResult.initialDate,
                     endDate: safraResult.endDate
                 };
-
+                this.productParams = {
+                    salesConditionId: this.headerData.condicao_venda.Id,
+                    accountId: this.accountData.Id,
+                    ctvId: this.headerData.ctv_venda.Id,
+                    safra: this.headerData.safra.Id,
+                    productCurrency: this.headerData.moeda,
+                    culture: this.headerData.cultura.Id,
+                    orderType: this.headerData.tipo_venda,
+                    supplierCenter: this.selectedCompany.supplierCenter,
+                    salesOrgId: this.selectedCompany.salesOrgId != null ? this.selectedCompany.salesOrgId : '',
+                    salesOfficeId: this.selectedCompany.salesOfficeId != null ? this.selectedCompany.salesOfficeId : '',
+                    salesTeamId: this.selectedCompany.salesTeamId != null ? this.selectedCompany.salesTeamId : ''
+                };
                 let orderData = {
                     paymentDate: this.headerData.data_pagamento != null ? this.headerData.data_pagamento : '',
-                    accountId: this.accountData.Id != null ? this.accountData.Id : '',
-                    salesOrg: this.headerData.salesOrg != null ? this.headerData.salesOrg : '',
-                    pricebookId: this.headerData.condicao_venda.Id != null ? this.headerData.condicao_venda.Id : '',
+                    salesOrg: this.selectedCompany.salesOrgId != null ? this.selectedCompany.salesOrgId : '',
+                    salesOffice: this.selectedCompany.salesOfficeId != null ? this.selectedCompany.salesOfficeId : '',
+                    salesTeam: this.selectedCompany.salesTeamId != null ? this.selectedCompany.salesTeamId : '',
                     safra: this.headerData.safra.Id != null ? this.headerData.safra.Id : '',
-                    ctv: this.headerData.ctv_venda.Id != null ? this.headerData.ctv_venda.Id : '',
                     culture: this.headerData.cultura.Id != null ? this.headerData.cultura.Id : ''
                 };
+                if (!this.headerData.IsOrderChild) {
+                    getFinancialInfos({data: JSON.stringify(orderData)})
+                    .then((result) => {
+                        this.financialInfos = JSON.parse(result);
+                        if (this.products.length > 0) {
+                            let showPriceChange = false;
+                            let showQuantityChange = false;
+                            let priceChangeMessage = '';
+                            let currentProducts = this.products;
+                            for (let index = 0; index < currentProducts.length; index++) {
+                                this.recalculatePrice = true;
+                                this.editProduct(currentProducts[index].position, true);
+                                let oldQUantity = currentProducts[index].quantity;
+                                this.addProduct.quantity = this.calculateMultiplicity(this.addProduct.dosage * this.hectares);
+                                if (this.addProduct.quantity != oldQUantity) {
+                                    showQuantityChange = true;
+                                }
+                                let oldPrice = currentProducts[index].unitPrice;
+                                this.calculateTotalPrice(true);
+                                let newPrice = this.changeProduct();
+                                if (oldPrice != newPrice) {
+                                    showPriceChange = true;
+                                    priceChangeMessage += 'O preço do ' + currentProducts[index].name + ' foi alterado de ' + oldPrice + ' para ' + newPrice + '.\n';
+                                }
+                            }
+                            this.recalculatePrice = false;
+                            if (showPriceChange) {
+                                if (currentProducts.length > 1) {
+                                    priceChangeMessage = 'Os preços foram recalculados devido a alteração de data de pagamento. Verifique-os.';
+                                }
+                                this.showToast('warning', 'Alteração nos preços!', priceChangeMessage);
+                            }
 
-                getFinancialInfos({data: JSON.stringify(orderData)})
-                .then((result) => {
-                    this.financialInfos = JSON.parse(result);
-                    console.log('this.financialInfos: ' + JSON.stringify(this.financialInfos));
-                })
+                            if (showQuantityChange) {
+                                this.showToast('warning', 'Alteração nas quantidades!', 'As quantidades foram recalculados devido a alteração no hectar. Verifique-os.');
+                            }
+
+                            if ((showPriceChange || showQuantityChange) && this.headerData.tipo_venda == 'Venda Barter') {
+                                this.recalculateCommodities();
+                            }
+                        }
+                    })
+                }
             })
         }
     }
@@ -193,39 +322,50 @@ export default class OrderProductScreen extends LightningElement {
         this.createNewProduct = !this.createNewProduct;
 
         if (this.createNewProduct) {
-            let currentProduct = this.baseProducts.find(e => e.Id == event.target.dataset.targetId);
-            let priorityInfos = this.getProductByPriority(currentProduct);
-            console.log('priorityInfos: ' + JSON.stringify(priorityInfos));
+            let existProduct = this.products.find(e => e.productId == event.target.dataset.targetId);
 
-            this.multiplicity = currentProduct.multiplicity;
-            this.costPrice = priorityInfos.costPrice;
-            this.addProduct = {
-                entryId: currentProduct.entryId,
-                productId: currentProduct.Id,
-                name: currentProduct.Name,
-                unity: currentProduct.unity,
-                listPrice: priorityInfos.listPrice,
-                dosage: currentProduct.dosage,
-                quantity: null,
-                unitPrice: priorityInfos.listPrice,
-                totalPrice: null,
-                initialTotalValue: null,
-                commercialDiscountPercentage: '',
-                commercialDiscountValue: null,
-                commercialAdditionPercentage: '',
-                commercialAdditionValue: null,
-                financialAdditionPercentage: '',
-                financialAdditionValue: null,
-                financialDecreasePercentage: '',
-                financialDecreaseValue: null,
-                invoicedQuantity: currentProduct.invoicedQuantity,
-                motherAvailableQuantity: currentProduct.motherAvailableQuantity,
-                activePrinciple: currentProduct.activePrinciple != null ? currentProduct.activePrinciple : '',
-                productGroupId: currentProduct.productGroupId != null ? currentProduct.productGroupId : '',
-                productGroupName: currentProduct.productGroupName != null ? currentProduct.productGroupName : '',
-                sapStatus: currentProduct.sapStatus != null ? currentProduct.sapStatus : '',
-                sapProductCode: currentProduct.sapProductCode != null ? currentProduct.sapProductCode : ''
-            };
+            if (this.isFilled(existProduct)) {
+                this.createNewProduct = false;
+                this.editProduct(existProduct.position, false);
+            } else {
+                let currentProduct = this.baseProducts.find(e => e.Id == event.target.dataset.targetId);
+                let priorityInfos = this.getProductByPriority(currentProduct);
+                console.log('priorityInfos: ' + JSON.stringify(priorityInfos));
+    
+                this.multiplicity = currentProduct.multiplicity;
+                this.costPrice = priorityInfos.costPrice;
+                this.addProduct = {
+                    entryId: currentProduct.entryId,
+                    productId: currentProduct.Id,
+                    name: currentProduct.Name,
+                    unity: currentProduct.unity,
+                    listPrice: this.isFilled(priorityInfos.listPrice) ? this.fixDecimalPlaces(priorityInfos.listPrice) : 0,
+                    listCost: this.isFilled(priorityInfos.costPrice) ? this.fixDecimalPlaces(priorityInfos.costPrice) : 0,
+                    practicedCost: this.isFilled(priorityInfos.costPrice) ? this.fixDecimalPlaces(priorityInfos.costPrice) : 0,
+                    dosage: currentProduct.dosage,
+                    quantity: null,
+                    unitPrice: this.isFilled(priorityInfos.listPrice) ? this.fixDecimalPlaces(priorityInfos.listPrice) : 0,
+                    totalPrice: null,
+                    initialTotalValue: null,
+                    commercialDiscountPercentage: null,
+                    commercialDiscountValue: null,
+                    commercialAdditionPercentage: null,
+                    commercialAdditionValue: null,
+                    financialAdditionPercentage: null,
+                    financialAdditionValue: null,
+                    financialDecreasePercentage: null,
+                    financialDecreaseValue: null,
+                    invoicedQuantity: currentProduct.invoicedQuantity,
+                    motherAvailableQuantity: currentProduct.motherAvailableQuantity,
+                    activePrinciple: currentProduct.activePrinciple != null ? currentProduct.activePrinciple : '',
+                    productGroupId: currentProduct.productGroupId != null ? currentProduct.productGroupId : '',
+                    productGroupName: currentProduct.productGroupName != null ? currentProduct.productGroupName : '',
+                    productSubgroupName: currentProduct.productSubgroupName != null ? currentProduct.productSubgroupName : '',
+                    productHierarchyId: currentProduct.productHierarchyId != null ? currentProduct.productHierarchyId : '',
+                    sapStatus: currentProduct.sapStatus != null ? currentProduct.sapStatus : '',
+                    sapProductCode: currentProduct.sapProductCode != null ? currentProduct.sapProductCode : ''
+                };
+            }
         }
     }
 
@@ -235,25 +375,25 @@ export default class OrderProductScreen extends LightningElement {
     }
 
     applySelectedColumns(event) {
-        let selectedColumns = [{label: 'Nome', fieldName: 'name'}];
+        let selectedColumns = [{label: 'Produto', fieldName: 'name'}];
         if (this.isSelected(this.selectedColumns.columnUnity)) selectedColumns.push({label: 'Unidade de Medida', fieldName: 'unity'})
-        if (this.isSelected(this.selectedColumns.columnListPrice)) selectedColumns.push({label: 'Preço da Lista', fieldName: 'listPrice'})
+        if (this.isSelected(this.selectedColumns.columnListPrice)) selectedColumns.push({label: 'Preço Lista (un)', fieldName: 'listPrice'})
         if (this.isSelected(this.selectedColumns.columnDosage)) selectedColumns.push({label: 'Dosagem', fieldName: 'dosage'})
-        if (this.isSelected(this.selectedColumns.columnQuantity)) selectedColumns.push({label: 'Quantidade', fieldName: 'quantity'})
-        if (this.isSelected(this.selectedColumns.columnUnitPrice)) selectedColumns.push({label: 'Preço Unitário', fieldName: 'unitPrice'})
+        if (this.isSelected(this.selectedColumns.columnQuantity)) selectedColumns.push({label: 'Qtd', fieldName: 'quantity'})
+        if (this.isSelected(this.selectedColumns.columnUnitPrice)) selectedColumns.push({label: 'Preço Praticado (un)', fieldName: 'unitPrice'})
         if (this.isSelected(this.selectedColumns.columnTotalPrice)) selectedColumns.push({label: 'Preço Total', fieldName: 'totalPrice'})
-        if (this.isSelected(this.selectedColumns.columnCommercialDiscountPercentage)) selectedColumns.push({label: 'Percentual de Desconto Comercial', fieldName: 'commercialDiscountPercentage'})
+        if (this.isSelected(this.selectedColumns.columnCommercialDiscountPercentage)) selectedColumns.push({label: '% Desconto Comercial', fieldName: 'commercialDiscountPercentage'})
         if (this.isSelected(this.selectedColumns.columnCommercialDiscountValue)) selectedColumns.push({label: 'Valor de Desconto Comercial', fieldName: 'commercialDiscountValue'})
-        if (this.isSelected(this.selectedColumns.columnCommercialAdditionPercentage)) selectedColumns.push({label: 'Percentual de Acréscimo Comercial', fieldName: 'commercialAdditionPercentage'})
+        if (this.isSelected(this.selectedColumns.columnCommercialAdditionPercentage)) selectedColumns.push({label: '% Acréscimo Comercial', fieldName: 'commercialAdditionPercentage'})
         if (this.isSelected(this.selectedColumns.columnCommercialAdditionValue)) selectedColumns.push({label: 'Valor de Acréscimo Comercial', fieldName: 'commercialAdditionValue'})
-        if (this.isSelected(this.selectedColumns.columnFinancialAdditionPercentage)) selectedColumns.push({label: 'Percentual de Acréscimo Financeiro', fieldName: 'financialAdditionPercentage'})
+        if (this.isSelected(this.selectedColumns.columnFinancialAdditionPercentage)) selectedColumns.push({label: '% Acréscimo Financeiro', fieldName: 'financialAdditionPercentage'})
         if (this.isSelected(this.selectedColumns.columnFinancialAdditionValue)) selectedColumns.push({label: 'Valor de Acréscimo Financeiro', fieldName: 'financialAdditionValue'})
-        if (this.isSelected(this.selectedColumns.columnFinancialDecreasePercentage)) selectedColumns.push({label: 'Percentual de Decréscimo Financeiro', fieldName: 'financialDecreasePercentage'})
+        if (this.isSelected(this.selectedColumns.columnFinancialDecreasePercentage)) selectedColumns.push({label: '% Decréscimo Financeiro', fieldName: 'financialDecreasePercentage'})
         if (this.isSelected(this.selectedColumns.columnFinancialDecreaseValue)) selectedColumns.push({label: 'Valor de Decréscimo Financeiro', fieldName: 'financialDecreaseValue'})
         if (this.isSelected(this.selectedColumns.columnInvoicedQuantity)) selectedColumns.push({label: 'Quantidade Faturada', fieldName: 'invoicedQuantity'})
         if (this.isSelected(this.selectedColumns.columnActivePrinciple)) selectedColumns.push({label: 'Princípio Ativo', fieldName: 'activePrinciple'})
         if (this.isSelected(this.selectedColumns.columnGroup)) selectedColumns.push({label: 'Grupo do Produto', fieldName: 'productGroupName'})
-        if (this.isSelected(this.selectedColumns.columnSapStatus)) selectedColumns.push({label: 'Status SAP', fieldName: 'sapStatus'})
+        if (this.isSelected(this.selectedColumns.columnproductSubgroupName)) selectedColumns.push({label: 'Subgrupo do Produto', fieldName: 'productSubgroupName'})
 
         if (selectedColumns.length >= 2) {
             selectedColumns.push({
@@ -299,37 +439,37 @@ export default class OrderProductScreen extends LightningElement {
         if (this.isFilled(fieldValue)) {
             this.addProduct[fieldId] = fieldValue;
             if (fieldId == 'unitPrice') {
-                this.calculateDiscountOrAddition();
+                this.recalculateValuesByUnitPrice();
                 this.calculateTotalPrice(false);
             } else if (fieldId == 'commercialDiscountPercentage') {
                 this.addProduct.commercialDiscountPercentage = this.addProduct.commercialDiscountPercentage == '' ? '0%' : this.addProduct.commercialDiscountPercentage;
                 this.addProduct.commercialDiscountValue = 
-                    this.isFilled(this.listTotalPrice) ?
-                    this.calculateValue(this.addProduct.commercialDiscountPercentage, this.listTotalPrice) :
+                    this.isFilled(this.addProduct.totalPrice) ?
+                    this.calculateValue(this.addProduct.commercialDiscountPercentage, this.addProduct.totalPrice) :
                     this.addProduct.commercialDiscountValue;
                 
                 this.calculateTotalPrice(true);
             } else if (fieldId == 'commercialDiscountValue') {
-                this.addProduct.commercialDiscountValue = this.addProduct.commercialDiscountValue == '' ? 0 : this.addProduct.commercialDiscountValue;
+                this.addProduct.commercialDiscountValue = this.addProduct.commercialDiscountValue == '' ? 0 : this.fixDecimalPlaces(Number(this.addProduct.commercialDiscountValue));
                 this.addProduct.commercialDiscountPercentage = 
-                    this.isFilled(this.listTotalPrice) ?
-                    this.calculatePercentage(this.addProduct.commercialDiscountValue, this.listTotalPrice) :
+                    this.isFilled(this.addProduct.totalPrice) ?
+                    this.calculatePercentage(this.addProduct.commercialDiscountValue, this.addProduct.totalPrice) :
                     this.addProduct.commercialDiscountPercentage;
                 
                 this.calculateTotalPrice(true);
             } else if (fieldId == 'commercialAdditionPercentage') {
                 this.addProduct.commercialAdditionPercentage = this.addProduct.commercialAdditionPercentage == '' ? '0%' : this.addProduct.commercialAdditionPercentage;
                 this.addProduct.commercialAdditionValue = 
-                    this.isFilled(this.listTotalPrice) ?
-                    this.calculateValue(this.addProduct.commercialAdditionPercentage, this.listTotalPrice) :
+                    this.isFilled(this.addProduct.totalPrice) ?
+                    this.calculateValue(this.addProduct.commercialAdditionPercentage, this.addProduct.totalPrice) :
                     this.addProduct.commercialAdditionValue;
                 
                 this.calculateTotalPrice(true);
             } else if (fieldId == 'commercialAdditionValue') {
-                this.addProduct.commercialAdditionValue = this.addProduct.commercialAdditionValue == '' ? 0 : this.addProduct.commercialAdditionValue;
+                this.addProduct.commercialAdditionValue = this.addProduct.commercialAdditionValue == '' ? 0 : this.fixDecimalPlaces(Number(this.addProduct.commercialAdditionValue));
                 this.addProduct.commercialAdditionPercentage = 
-                    this.isFilled(this.listTotalPrice) ?
-                    this.calculatePercentage(this.addProduct.commercialAdditionValue, this.listTotalPrice) :
+                    this.isFilled(this.addProduct.totalPrice) ?
+                    this.calculatePercentage(this.addProduct.commercialAdditionValue, this.addProduct.totalPrice) :
                     this.addProduct.commercialAdditionPercentage;
                 
                 this.calculateTotalPrice(true);
@@ -338,13 +478,18 @@ export default class OrderProductScreen extends LightningElement {
                     this.addProduct.quantity = this.calculateMultiplicity(this.addProduct.dosage * this.hectares);
                     this.listTotalPrice = this.addProduct.listPrice * this.addProduct.quantity;
                     this.calculateDiscountOrAddition();
-                    this.calculateTotalPrice(false);
+                    this.calculateTotalPrice(true);
                 }
             } else if (fieldId == 'quantity') {
                 this.addProduct.quantity = this.calculateMultiplicity(this.addProduct.quantity);
-                this.listTotalPrice = this.addProduct.listPrice * this.addProduct.quantity;
-                this.calculateDiscountOrAddition();
-                this.calculateTotalPrice(false);
+                if (!this.headerData.IsOrderChild) {
+                    this.addProduct.dosage = this.isFilled(this.hectares) ? this.addProduct.quantity / this.hectares : 0
+                    this.listTotalPrice = this.addProduct.listPrice * this.addProduct.quantity;
+                    this.calculateDiscountOrAddition();
+                    this.calculateTotalPrice(true);
+                } else {
+                    this.addProduct.totalPrice = this.fixDecimalPlaces((this.addProduct.listPrice * this.addProduct.quantity));
+                }
             }
         }
     }
@@ -352,7 +497,7 @@ export default class OrderProductScreen extends LightningElement {
     calculateMultiplicity(quantity) {
         if (this.isFilled(this.multiplicity)) {
             let remainder = quantity % this.multiplicity;
-            if (this.addProduct.motherAvailableQuantity != null &&  quantity > this.addProduct.motherAvailableQuantity) {
+            if (this.headerData.IsOrderChild && this.addProduct.motherAvailableQuantity != null && quantity > this.addProduct.motherAvailableQuantity) {
                 this.showToast('warning', 'Atenção!', 'A quantidade não pode ultrapassar ' + this.addProduct.motherAvailableQuantity + '.');
                 return this.addProduct.motherAvailableQuantity;
             }
@@ -371,57 +516,88 @@ export default class OrderProductScreen extends LightningElement {
         this.addProduct.totalPrice = null;
 
         if (this.isFilled(this.addProduct.quantity) && this.isFilled(this.addProduct.listPrice)) {
-            this.addProduct.totalPrice = this.isFilled(this.addProduct.initialTotalValue) ? this.addProduct.initialTotalValue : this.addProduct.quantity * this.addProduct.listPrice;
+            let inicialTotalPrice = this.addProduct.quantity * this.addProduct.listPrice;
 
             if (!this.isFilled(this.addProduct.initialTotalValue)) {
+                this.addProduct.initialTotalValue = this.fixDecimalPlaces(inicialTotalPrice);
                 this.calculateFinancialInfos();
-                this.addProduct.totalPrice = this.isFilled(this.addProduct.financialAdditionValue) ? (this.addProduct.totalPrice + Number(this.addProduct.financialAdditionValue)) : this.addProduct.totalPrice;
-                this.addProduct.totalPrice = this.isFilled(this.addProduct.financialDecreaseValue) ? (this.addProduct.totalPrice - Number(this.addProduct.financialDecreaseValue)) : this.addProduct.totalPrice;
-                this.addProduct.initialTotalValue = this.addProduct.totalPrice;
+                this.addProduct.initialTotalValue = this.fixDecimalPlaces(this.addProduct.totalPrice);
+            } else {
+                this.addProduct.totalPrice = this.addProduct.quantity * this.addProduct.listPrice;
+                this.addProduct.financialAdditionValue = this.calculateValue(this.addProduct.financialAdditionPercentage, this.addProduct.totalPrice);
+                this.addProduct.financialDecreaseValue = this.calculateValue(this.addProduct.financialDecreasePercentage, this.addProduct.totalPrice);
             }
             
+            this.addProduct.totalPrice = this.isFilled(this.addProduct.financialAdditionValue) ? (this.addProduct.totalPrice + Number(this.addProduct.financialAdditionValue)) : this.addProduct.totalPrice;
+            this.addProduct.totalPrice = this.isFilled(this.addProduct.financialDecreaseValue) ? (this.addProduct.totalPrice - Number(this.addProduct.financialDecreaseValue)) : this.addProduct.totalPrice;
             this.addProduct.totalPrice = this.isFilled(this.addProduct.commercialAdditionValue) ? (this.addProduct.totalPrice + Number(this.addProduct.commercialAdditionValue)) : this.addProduct.totalPrice;
-            this.addProduct.totalPrice = this.isFilled(this.addProduct.commercialDiscountValue) ? (this.addProduct.totalPrice - Number(this.addProduct.commercialDiscountValue)) : this.addProduct.totalPrice;
+            this.addProduct.totalPrice = this.isFilled(this.addProduct.commercialDiscountValue) ? this.fixDecimalPlaces((this.addProduct.totalPrice - Number(this.addProduct.commercialDiscountValue))) : this.fixDecimalPlaces(this.addProduct.totalPrice);
 
             if (recalculateUnitPrice) {
-                this.addProduct.unitPrice = (this.addProduct.totalPrice / this.addProduct.quantity).toFixed(4);
+                this.addProduct.unitPrice = this.fixDecimalPlaces((this.addProduct.totalPrice / this.addProduct.quantity));
             }
         }
     }
 
     calculateDiscountOrAddition() {
         if (this.isFilled(this.addProduct.listPrice) && this.isFilled(this.addProduct.quantity) && this.isFilled(this.addProduct.unitPrice)) {
-            this.addProduct.commercialAdditionValue = '0';
-            this.addProduct.commercialDiscountValue = '0';
-            this.addProduct.commercialAdditionPercentage = '0%';
-            this.addProduct.commercialDiscountPercentage = '0%';
+            this.addProduct.commercialAdditionValue = this.isFilled(this.addProduct.commercialAdditionValue) ? this.addProduct.commercialAdditionValue : '0';
+            this.addProduct.commercialDiscountValue = this.isFilled(this.addProduct.commercialDiscountValue) ? this.addProduct.commercialDiscountValue : '0';
+            this.addProduct.commercialAdditionPercentage = this.isFilled(this.addProduct.commercialAdditionPercentage) ? this.addProduct.commercialAdditionPercentage : '0%';
+            this.addProduct.commercialDiscountPercentage = this.isFilled(this.addProduct.commercialDiscountPercentage) ? this.addProduct.commercialDiscountPercentage : '0%';
             let currentPrice = this.addProduct.unitPrice * this.addProduct.quantity;
             this.listTotalPrice = this.addProduct.listPrice * this.addProduct.quantity;
             
             if (this.isFilled(currentPrice) && this.addProduct.unitPrice > this.addProduct.listPrice) {
-                this.addProduct.commercialAdditionValue = (currentPrice - this.listTotalPrice).toFixed(4);
-                this.addProduct.commercialAdditionPercentage = this.calculatePercentage(this.addProduct.commercialAdditionValue, this.listTotalPrice);
+                this.addProduct.commercialAdditionValue = this.calculateValue(this.addProduct.commercialAdditionPercentage, this.listTotalPrice);
             } else if (this.isFilled(currentPrice) && this.addProduct.unitPrice < this.addProduct.listPrice) {
-                this.addProduct.commercialDiscountValue = (this.listTotalPrice - currentPrice).toFixed(4);
-                this.addProduct.commercialDiscountPercentage = this.calculatePercentage(this.addProduct.commercialDiscountValue, this.listTotalPrice);
+                this.addProduct.commercialDiscountValue = this.calculateValue(this.addProduct.commercialDiscountPercentage, this.listTotalPrice);
             }
         }
     }
 
+    recalculateValuesByUnitPrice() {
+        if (this.isFilled(this.addProduct.listPrice) && this.isFilled(this.addProduct.quantity) && this.isFilled(this.addProduct.unitPrice)) {
+            let currentPrice = this.addProduct.unitPrice * this.addProduct.quantity;
+            let totalPrice = Number(this.addProduct.totalPrice) - Number(this.addProduct.commercialAdditionValue) + Number(this.addProduct.commercialDiscountValue);
+            
+            if (this.isFilled(currentPrice) && Number(currentPrice) > Number(totalPrice)) {
+                this.addProduct.commercialAdditionValue = this.fixDecimalPlaces((currentPrice - totalPrice));
+                this.addProduct.commercialAdditionPercentage = this.calculatePercentage(this.addProduct.commercialAdditionValue, totalPrice);
+            } else if (this.isFilled(currentPrice) && Number(currentPrice) < Number(totalPrice)) {
+                this.addProduct.commercialDiscountValue = this.fixDecimalPlaces((totalPrice - currentPrice));
+                this.addProduct.commercialDiscountPercentage = this.calculatePercentage(this.addProduct.commercialDiscountValue, totalPrice);
+            }
+        }
+    }
+
+    fixDecimalPlaces(value) {
+        return (+(Math.trunc(+(value + 'e' + 2)) + 'e' + -2)).toFixed(2);
+    }
+
     calculatePercentage(valueToBeCalculated, total) {
-        let percentageValue = ((valueToBeCalculated * 100) / total).toFixed(4) + '%';
+        let percentageValue = this.fixDecimalPlaces(((valueToBeCalculated * 100) / total)) + '%';
         percentageValue = percentageValue.includes('.') ? percentageValue.replace('.', ',') : percentageValue;
         return percentageValue;
     }
 
     calculateValue(percentage, total) {
         percentage = percentage.includes(',') ? percentage.replace(',', '.').replace('%', '') : percentage.replace('%', '');
-        let value = ((parseFloat(percentage) / 100) * total).toFixed(4);
+        let value = this.fixDecimalPlaces(((parseFloat(percentage) / 100) * total));
         return value;
     }
 
     calculateFinancialInfos() {
+        this.addProduct.totalPrice = this.addProduct.quantity * this.addProduct.listPrice;
         if (this.isFilled(this.addProduct.totalPrice)) {
+            if (this.headerData.IsOrderChild) {
+                this.addProduct.financialAdditionPercentage = '0%';
+                this.addProduct.financialDecreasePercentage = '0%';
+                this.addProduct.financialAdditionValue = 0;
+                this.addProduct.financialDecreaseValue = 0;
+                return;
+            }
+
             let defaultKey = this.financialInfos.salesOrg + '-' + this.headerData.safra.Id;
             let key1 = defaultKey + '-' + this.headerData.cultura.Id + '-' + this.addProduct.productId;
             let key2 = defaultKey + '-' + this.financialInfos.salesOffice + '-' + this.addProduct.productId;
@@ -442,15 +618,30 @@ export default class OrderProductScreen extends LightningElement {
                 currentDiscountOrAddition = financialValues[defaultKey];
             }
 
-            this.addProduct.financialAdditionPercentage = this.financialInfos.correctPayment ? 0 : ((this.financialInfos.isDiscount ? 0 : currentDiscountOrAddition)) + '%';
-            this.addProduct.financialDecreasePercentage = this.financialInfos.correctPayment ? 0 : ((this.financialInfos.isDiscount ? currentDiscountOrAddition : 0)) + '%';
-            this.addProduct.financialAdditionValue = this.calculateValue(this.addProduct.financialAdditionPercentage, this.addProduct.totalPrice);
-            this.addProduct.financialDecreaseValue = this.calculateValue(this.addProduct.financialDecreasePercentage, this.addProduct.totalPrice);
+            let totalValue = this.isFilled(this.headerData.id) ? this.addProduct.quantity * this.addProduct.unitPrice : this.addProduct.totalPrice;
+
+            currentDiscountOrAddition = (currentDiscountOrAddition / 30) * (this.financialInfos.dayDifference < 0 ? (this.financialInfos.dayDifference * -1) : this.financialInfos.dayDifference);
+            this.addProduct.financialAdditionPercentage = this.financialInfos.correctPayment ? '0%' : this.fixDecimalPlaces(((this.financialInfos.isDiscount ? 0 : currentDiscountOrAddition))) + '%';
+            this.addProduct.financialDecreasePercentage = this.financialInfos.correctPayment ? '0%' : this.fixDecimalPlaces(((this.financialInfos.isDiscount ? currentDiscountOrAddition : 0))) + '%';
+            this.addProduct.financialAdditionValue = this.calculateValue(this.addProduct.financialAdditionPercentage, totalValue);
+            this.addProduct.financialDecreaseValue = this.calculateValue(this.addProduct.financialDecreasePercentage, totalValue);
+            
+            if (!this.financialInfos.correctPayment) {
+                if (this.financialInfos.isDiscount) {
+                    this.addProduct.practicedCost = this.fixDecimalPlaces((Number(this.addProduct.listCost) - (Number(this.addProduct.listCost) * (Number(currentDiscountOrAddition) / 100))));
+                } else {
+                    this.addProduct.practicedCost = this.fixDecimalPlaces((Number(this.addProduct.listCost) + (Number(this.addProduct.listCost) * (Number(currentDiscountOrAddition) / 100))));
+                }
+            }
         }
     }
 
     isFilled(field) {
         return ((field !== undefined && field != null && field != '') || field == 0);
+    }
+
+    greaterThanZero(field) {
+        return ((field !== undefined && field != null && field > 0));
     }
 
     isSelected(field) {
@@ -462,9 +653,10 @@ export default class OrderProductScreen extends LightningElement {
         let prod = this.addProduct;
         if (this.checkRequiredFields(prod)) {
             let allProducts = JSON.parse(JSON.stringify(this.products));
-            let margin = this.isFilled(this.costPrice) ? (this.costPrice).toFixed(2) / (prod.totalPrice / prod.quantity) : 0;
+            let margin = this.isFilled(this.addProduct.practicedCost) ? this.fixDecimalPlaces((1 - (Number(this.addProduct.practicedCost) / (prod.totalPrice / prod.quantity))) * 100) : 0;
             
             prod.commercialMarginPercentage = margin;
+            prod.costPrice = this.costPrice;
             prod.multiplicity = this.multiplicity;
             prod.position = this.isFilled(this.products) ? this.products.length : 0
             allProducts.push(prod);
@@ -475,13 +667,15 @@ export default class OrderProductScreen extends LightningElement {
             this.products = JSON.parse(JSON.stringify(allProducts));
             this.message = false
 
-            this.showToast('success', 'Sucesso!', 'Produto incluso.');
+            this.showToast('success', 'Sucesso!', 'Produto incluído.');
             this._verifyFieldsToSave();
 
             this.createNewProduct = !this.createNewProduct;
         } else {
             this.showToast('error', 'Atenção!', 'Campos obrigatórios não preenchidos.');
         }
+        
+        this.recalculateCommodities();
     }
 
     changeProduct() {
@@ -489,7 +683,7 @@ export default class OrderProductScreen extends LightningElement {
         for (let index = 0; index < includedProducts.length; index++) {
             if (includedProducts[index].position == this.productPosition) {
                 if (this.checkRequiredFields(this.addProduct)) {
-                    let margin = this.isFilled(this.costPrice) ? (this.costPrice / (this.addProduct.totalPrice / this.addProduct.quantity)).toFixed(2) : null;
+                    let margin = this.isFilled(this.addProduct.practicedCost) ? this.fixDecimalPlaces(((1 - (Number(this.addProduct.practicedCost) / (Number(this.addProduct.totalPrice) / Number(this.addProduct.quantity)))) * 100)) : null;
                     this.addProduct.commercialMarginPercentage = margin;
                     this.addProduct.multiplicity = this.multiplicity;
                     includedProducts[index] = JSON.parse(JSON.stringify(this.addProduct));
@@ -502,30 +696,35 @@ export default class OrderProductScreen extends LightningElement {
         }
 
         this.products = JSON.parse(JSON.stringify(includedProducts));
-        this.updateProduct = !this.updateProduct;
-        this.createNewProduct = !this.createNewProduct;
-
-        let allDivisions = JSON.parse(JSON.stringify(this.allDivisionProducts));
-        if (allDivisions.length > 0) {
-            let allDivisionQuantitys = 0;
-            for (let index = 0; index < allDivisions.length; index++) {
-                let existingProductDivision = allDivisions[index];
-                if (existingProductDivision.productPosition == this.productPosition) {
-                    allDivisionQuantitys += Number(existingProductDivision.quantity);
+        if (this.recalculatePrice) {
+            this._verifyFieldsToSave();
+            return this.addProduct.unitPrice;
+        } else {
+            this.updateProduct = !this.updateProduct;
+            this.createNewProduct = !this.createNewProduct;
+            let allDivisions = JSON.parse(JSON.stringify(this.allDivisionProducts));
+            if (allDivisions.length > 0) {
+                let allDivisionQuantitys = 0;
+                for (let index = 0; index < allDivisions.length; index++) {
+                    let existingProductDivision = allDivisions[index];
+                    if (existingProductDivision.productPosition == this.productPosition) {
+                        allDivisionQuantitys += Number(existingProductDivision.quantity);
+                    }
                 }
-            }
 
-            if (allDivisionQuantitys > Number(this.addProduct.quantity)) {
-                this.showToast('warning', 'Atenção!', 'A soma das quantidades não pode ultrapassar ' + this.addProduct.quantity + '.');
-                this.productDivision(this.productPosition);
+                if (allDivisionQuantitys > Number(this.addProduct.quantity)) {
+                    this.showToast('warning', 'Atenção!', 'A soma das quantidades não pode ultrapassar ' + this.addProduct.quantity + '.');
+                    this.productDivision(this.productPosition);
+                } else {
+                    this.showToast('success', 'Sucesso!', 'Produto alterado.');
+                }
             } else {
                 this.showToast('success', 'Sucesso!', 'Produto alterado.');
             }
-        } else {
-            this.showToast('success', 'Sucesso!', 'Produto alterado.');
         }
 
         this._verifyFieldsToSave();
+        this.recalculateCommodities();
         console.log(JSON.stringify(this.products));
     }
 
@@ -565,14 +764,21 @@ export default class OrderProductScreen extends LightningElement {
             let filledDivisions = [];
             for (let index = 0; index < this.divisionProducts.length; index++) {
                 let checkFields = this.divisionProducts[index];
+                let pushValue = true;
                 if (this.isFilled(checkFields.quantity) && this.isFilled(checkFields.deliveryDate)) {
-                    filledDivisions.push(checkFields);
+                    for (let i = 0; i < filledDivisions.length; i++) {
+                        if (filledDivisions[i].deliveryDate == checkFields.deliveryDate && filledDivisions[i].productId == checkFields.productId) {
+                            filledDivisions[i].quantity = Number(filledDivisions[i].quantity) + Number(checkFields.quantity);
+                            pushValue = false;
+                        }
+                    }
+                    if (pushValue) filledDivisions.push(checkFields);
                 }
             }
 
             for (let index = 0; index < filledDivisions.length; index++) {
                 if (filledDivisions[index].productPosition == this.productPosition) {
-                    filledDivisions[index].orderItemKey = this.currentDivisionProduct.productId + '-' + Number(this.currentDivisionProduct.quantity).toFixed(2) + '-' + Number(this.currentDivisionProduct.unitPrice).toFixed(2);
+                    filledDivisions[index].orderItemKey = this.currentDivisionProduct.productId + '-' + this.fixDecimalPlaces(Number(this.currentDivisionProduct.quantity)) + '-' + this.fixDecimalPlaces(Number(this.currentDivisionProduct.unitPrice));
                 }
             }
 
@@ -588,19 +794,27 @@ export default class OrderProductScreen extends LightningElement {
         const actionName = event.detail.action.name;
         const row = event.detail.row;
         switch (actionName) {
+            case 'visualize':
+                this.editProduct(row.position, false);
+            break;
             case 'edit':
-                this.editProduct(row.position);
+                this.editProduct(row.position, false);
             break;
             case 'shippingDivision':
                 this.productDivision(row.position);
             break;
+            case 'delete':
+                this.deleteProduct(row.position);
+            break;
         }
     }
 
-    editProduct(position) {
+    editProduct(position, recalculateFinancialValues) {
         this.productPosition = position;
         let currentProduct = this.products.find(e => e.position == position);
+        console.log('currentProduct: ' + JSON.stringify(currentProduct));
         this.multiplicity = currentProduct.multiplicity;
+
         this.addProduct = {
             orderItemId: currentProduct.orderItemId,
             name: currentProduct.name,
@@ -609,20 +823,25 @@ export default class OrderProductScreen extends LightningElement {
             unity: currentProduct.unity,
             productGroupId: currentProduct.productGroupId,
             productGroupName: currentProduct.productGroupName,
+            productSubgroupName: currentProduct.productSubgroupName,
+            productHierarchyId: currentProduct.productHierarchyId,
             sapStatus: currentProduct.sapStatus,
             sapProductCode: currentProduct.sapProductCode,
             activePrinciple: currentProduct.activePrinciple,
-            commercialDiscountPercentage: currentProduct.commercialDiscountPercentage,
-            commercialAdditionPercentage: currentProduct.commercialAdditionPercentage,
-            financialAdditionPercentage: currentProduct.financialAdditionPercentage,
-            financialDecreasePercentage: currentProduct.financialDecreasePercentage,
-            commercialDiscountValue: currentProduct.commercialDiscountValue,
-            commercialAdditionValue: currentProduct.commercialAdditionValue,
-            financialAdditionValue: currentProduct.financialAdditionValue,
-            financialDecreaseValue: currentProduct.financialDecreaseValue,
+            commercialDiscountPercentage: this.headerData.IsOrderChild ? '0%' : currentProduct.commercialDiscountPercentage,
+            commercialAdditionPercentage: this.headerData.IsOrderChild ? '0%' : currentProduct.commercialAdditionPercentage,
+            financialAdditionPercentage: this.headerData.IsOrderChild ? '0%' : currentProduct.financialAdditionPercentage,
+            financialDecreasePercentage: this.headerData.IsOrderChild ? '0%' : currentProduct.financialDecreasePercentage,
+            commercialDiscountValue: this.headerData.IsOrderChild ? 0 : currentProduct.commercialDiscountValue,
+            commercialAdditionValue: this.headerData.IsOrderChild ? 0 : currentProduct.commercialAdditionValue,
+            financialAdditionValue: this.headerData.IsOrderChild ? 0 : currentProduct.financialAdditionValue,
+            financialDecreaseValue: this.headerData.IsOrderChild ? 0 : currentProduct.financialDecreaseValue,
             listPrice: currentProduct.listPrice,
-            unitPrice: currentProduct.unitPrice,
-            totalPrice: currentProduct.totalPrice,
+            unitPrice: this.headerData.IsOrderChild ? currentProduct.listPrice : currentProduct.unitPrice,
+            totalPrice: this.headerData.IsOrderChild ? this.fixDecimalPlaces((currentProduct.listPrice * currentProduct.quantity)) : currentProduct.totalPrice,
+            costPrice: currentProduct.listCost,
+            listCost: currentProduct.listCost,
+            practicedCost: currentProduct.practicedCost,
             initialTotalValue: currentProduct.initialTotalValue,
             dosage: currentProduct.dosage,
             quantity: currentProduct.quantity,
@@ -630,10 +849,15 @@ export default class OrderProductScreen extends LightningElement {
             invoicedQuantity: currentProduct.invoicedQuantity,
             position: currentProduct.position
         }
+        console.log('this.addProduct: ' + this.addProduct.listCost);
         console.log('this.addProduct: ' + JSON.stringify(this.addProduct));
 
-        this.createNewProduct = !this.createNewProduct;
-        this.updateProduct = !this.updateProduct;
+        if (recalculateFinancialValues) {
+            this.calculateFinancialInfos();
+        } else {
+            this.createNewProduct = !this.createNewProduct;
+            this.updateProduct = !this.updateProduct;
+        }
     }
 
     productDivision(position) {
@@ -672,14 +896,38 @@ export default class OrderProductScreen extends LightningElement {
         }
     }
 
+    deleteProduct(position) {
+        let excludeProduct = JSON.parse(JSON.stringify(this.products));
+        excludeProduct.splice(position, 1);
+        this.products = JSON.parse(JSON.stringify(excludeProduct));
+
+        if (this.products.length == 0) {
+            this.showIncludedProducts = false;
+
+            if (this.commoditiesData.length > 0) {
+                this.commoditiesData = [];
+                this.commodities = [];
+                this.barterSale = true;
+                this.showCommodityData = false;
+                this._setCommodityData();
+                this.showToast('warning', 'As commodities foram removidas por conta da falta de produtos!', '');
+            }
+        } else {
+            this.recalculateCommodities()  ;
+        }
+
+        this._setData();
+        this.showToast('success', 'Produto removido!', '');
+    }
+
     newFields() {
         let allDivisions = JSON.parse(JSON.stringify(this.divisionProducts));
         let divPosition = this.isFilled(allDivisions) ? allDivisions.length : 0;
         let deliveryId = 'deliveryId-' + divPosition;
         let quantityId = 'quantityId-' + divPosition;
-        let orderItemKey = this.currentDivisionProduct.productId + '-' + Number(this.currentDivisionProduct.quantity).toFixed(2) + '-' + Number(this.currentDivisionProduct.unitPrice).toFixed(2);
+        let orderItemKey = this.currentDivisionProduct.productId + '-' + this.fixDecimalPlaces(Number(this.currentDivisionProduct.quantity)) + '-' + this.fixDecimalPlaces(Number(this.currentDivisionProduct.unitPrice));
         
-        allDivisions.push({deliveryDate: null, quantity: null, position: divPosition, deliveryId: deliveryId, quantityId: quantityId, orderItemKey: orderItemKey, productPosition: this.productPosition, showInfos: true});
+        allDivisions.push({productId: this.currentDivisionProduct.productId, deliveryDate: null, quantity: null, position: divPosition, deliveryId: deliveryId, quantityId: quantityId, orderItemKey: orderItemKey, productPosition: this.productPosition, showInfos: true});
         this.divisionProducts = JSON.parse(JSON.stringify(allDivisions));
     }
 
@@ -730,18 +978,10 @@ export default class OrderProductScreen extends LightningElement {
     }
 
     checkRequiredFields(prod) {
-        /* if (this.isFilled(prod.name) && this.isFilled(prod.listPrice) && this.isFilled(prod.unitPrice) &&
-            this.isFilled(prod.totalPrice) && this.isFilled(prod.commercialDiscountPercentage) &&
-            this.isFilled(prod.commercialDiscountValue) && this.isFilled(prod.commercialAdditionPercentage) &&
-            this.isFilled(prod.commercialAdditionValue) && this.isFilled(prod.financialAdditionPercentage) &&
-            this.isFilled(prod.financialAdditionValue) && this.isFilled(prod.financialDecreasePercentage) &&
-            this.isFilled(prod.financialDecreaseValue) && this.isFilled(prod.dosage) && this.isFilled(prod.quantity)) {
-            return true;
-        } */
         if (this.isFilled(prod.name) && this.isFilled(prod.listPrice) && this.isFilled(prod.unitPrice) &&
             this.isFilled(prod.totalPrice) && this.isFilled(prod.commercialDiscountPercentage) &&
             this.isFilled(prod.commercialDiscountValue) && this.isFilled(prod.commercialAdditionPercentage) &&
-            this.isFilled(prod.commercialAdditionValue) && this.isFilled(prod.dosage) && this.isFilled(prod.quantity)) {
+            this.isFilled(prod.commercialAdditionValue) && this.greaterThanZero(prod.dosage) && this.isFilled(prod.quantity)) {
             return true;
         }
         return false;
@@ -779,12 +1019,19 @@ export default class OrderProductScreen extends LightningElement {
         this.dispatchEvent(setHeaderData);
     }
 
+    _setHeaderValues() {
+        const setHeaderValues = new CustomEvent('setheadervalues');
+        console.log('this.headerData: ' + JSON.stringify(this.headerData));
+        setHeaderValues.data = this.headerData;
+        this.dispatchEvent(setHeaderValues);
+    }
+
     showResults(event){
         this.showBaseProducts = event.showResults;
         this.baseProducts = event.results.recordsDataList;
         this.productsPriceMap = event.results.recordsDataMap;
         this.salesInfos = event.results.salesResult;
-        this.message = event.message;
+        this.message = this.baseProducts.length > 0 ? false : event.message;
     }
 
     openCommodities(event) {
@@ -801,29 +1048,35 @@ export default class OrderProductScreen extends LightningElement {
     selectCommodity(event) {
         this.nextScreen();
         let totalProducts = 0;
+        let orderTotalCost = 0;
+        let productsQUantity = 0;
+        let totalDiscount = 0;
+
         for (let index = 0; index < this.products.length; index++) {
-            totalProducts += this.products[index].quantity;
+            totalProducts += Number(this.products[index].totalPrice);
+            orderTotalCost += Number(this.products[index].practicedCost) * Number(this.products[index].quantity);
+            productsQUantity += Number(this.products[index].quantity);
+            totalDiscount += Number(this.products[index].commercialDiscountValue);
         }
 
-        let chooseCommodity = this.commodities.find(e => e.id == event.target.dataset.targetId);
-        let marginPercent = (1 - this.products[0].commercialMarginPercentage) * 100;
+        let chooseCommodity = this.commodities.find(e => e.Id == event.target.dataset.targetId);
+        let marginPercent = ((1 - (orderTotalCost / totalProducts)) * 100);
 
-        console.log('chooseCommodity.commissionPercentage: ' + chooseCommodity.commissionPercentage);
-        console.log('totalProducts: ' + totalProducts);
-        console.log('total: ' + (chooseCommodity.commissionPercentage * totalProducts) / 100);
         this.selectedCommodity = {
             id: chooseCommodity.Id,
             name: chooseCommodity.Name,
             cotation: chooseCommodity.listPrice,
             startDate: null,
             endDate: null,
-            deliveryQuantity: (totalProducts / chooseCommodity.listPrice).toFixed(4) + ' sacas',
+            deliveryQuantity: this.fixDecimalPlaces((totalProducts / chooseCommodity.listPrice)) + ' sacas',
             ptax: chooseCommodity.productCurrency + chooseCommodity.listPrice,
             commodityPrice: chooseCommodity.listPrice,
             deliveryAddress: '',
             commission: 'R$' + ((chooseCommodity.commissionPercentage * totalProducts) / 100),
-            totalMarginPercent: marginPercent.toFixed(4) + '%',
-            totalMarginValue: ((this.products[0].totalPrice * marginPercent) / 100).toFixed(4)
+            totalMarginPercent: this.fixDecimalPlaces(marginPercent) + '%',
+            totalMarginValue: this.fixDecimalPlaces(((totalProducts * marginPercent) / 100) / chooseCommodity.listPrice) + ' sacas',
+            quantity: productsQUantity,
+            totalDiscountValue: this.fixDecimalPlaces(totalDiscount / chooseCommodity.listPrice) + ' sacas'
         };
     }
 
@@ -835,29 +1088,27 @@ export default class OrderProductScreen extends LightningElement {
             }
         }
 
-        console.log('this.selectedCommodity: ' + JSON.stringify(this.selectedCommodity));
         this.commoditiesData.push({
             product: this.selectedCommodity.name,
             productId: this.selectedCommodity.id,
             commodityPrice: this.selectedCommodity.commodityPrice,
-            desage: this.products[0].dosage,
             area: this.headerData.hectares,
-            quantity: this.products[0].quantity,
-            discount: 'R$' + this.products[0].commercialDiscountValue,
-            margin: this.products[0].commercialMarginPercentage.toFixed(4),
+            quantity: this.selectedCommodity.quantity,
+            discount: this.selectedCommodity.totalDiscountValue,
+            margin: this.selectedCommodity.totalMarginPercent,
+            marginValue: this.selectedCommodity.totalMarginValue,
             totalDelivery: this.selectedCommodity.deliveryQuantity,
+            cotation: this.selectedCommodity.cotation,
             saved: false
         });
-        console.log('this.commoditiesData: ' + JSON.stringify(this.commoditiesData));
     }
 
     closeCommodityModal(event) {
-        console.log('this.commoditiesData.length: ' + this.commoditiesData.length);
         for (let index = 0; index < this.commoditiesData.length; index++) {
-            console.log('event.target.dataset.targetId: ' + event.target.dataset.targetId);
             if (event.target.dataset.targetId == 'saveButton') {
                 this.commoditiesData[index].saved = true;
-                console.log('this.commoditiesData[index]: ' + JSON.stringify(this.commoditiesData[index]));
+                this.showCommodityData = true;
+                this.barterSale = false;
                 this._setCommodityData();
             } else if (this.commoditiesData[index].saved == false) {
                 this.commoditiesData.splice(index, 1);
@@ -869,6 +1120,10 @@ export default class OrderProductScreen extends LightningElement {
         this.commoditySelected = false;
         this.summaryScreen = false;
         // this.haScreen = false;
+    }
+
+    openCommodityData(event) {
+        this.openCommoditiesData = !this.openCommoditiesData;
     }
 
     commodityChange(event) {
@@ -902,6 +1157,54 @@ export default class OrderProductScreen extends LightningElement {
         if (this.currentScreen == 'fillCommodity') this.commoditySelected = true;
         if (this.currentScreen == 'negotiationDetails') this.summaryScreen = true;
         // if (this.currentScreen == 'haScreen') this.haScreen = true;
+    }
+
+    recalculateCommodities() {
+        console.log(this.isFilled(this.commoditiesData) && this.commoditiesData.length > 0);
+        if (this.isFilled(this.commoditiesData) && this.commoditiesData.length > 0) {
+            let totalProducts = 0;
+            let orderTotalCost = 0;
+            let productsQUantity = 0;
+            let totalDiscount = 0;
+            
+            for (let index = 0; index < this.products.length; index++) {
+                totalProducts += Number(this.products[index].totalPrice);
+                orderTotalCost += Number(this.products[index].practicedCost) * Number(this.products[index].quantity);
+                productsQUantity += Number(this.products[index].quantity);
+                totalDiscount += Number(this.products[index].commercialDiscountValue);
+            }
+    
+            let marginPercent = ((1 - (orderTotalCost / totalProducts)) * 100);
+            let currentCommodityValues = JSON.parse(JSON.stringify(this.commoditiesData[0]));
+            
+            currentCommodityValues.area = this.headerData.hectares;
+            currentCommodityValues.quantity = productsQUantity;
+            currentCommodityValues.discount = this.fixDecimalPlaces(totalDiscount / Number(currentCommodityValues.cotation)) + ' sacas';
+            currentCommodityValues.margin = this.fixDecimalPlaces(marginPercent) + '%';
+            currentCommodityValues.marginValue = this.fixDecimalPlaces(((totalProducts * marginPercent) / 100) / Number(currentCommodityValues.cotation)) + ' sacas';
+            currentCommodityValues.totalDelivery = this.fixDecimalPlaces((totalProducts / currentCommodityValues.cotation)) + ' sacas';
+            
+            this.commoditiesData = [];
+            this.commoditiesData.push(currentCommodityValues);
+
+            this._setCommodityData();
+            this.showToast('warning', 'Atenção!', 'Os valores da commodity foram alterados de acordo com a alteração/inclusão de um produto.');
+        }
+    }
+
+    handleCommodityActions(event) {
+        const actionName = event.detail.action.name;
+        switch (actionName) {
+            case 'delete':
+                this.commoditiesData = [];
+                this.commodities = [];
+                this.barterSale = true;
+                this.showCommodityData = false;
+                this._setCommodityData();
+                this.openCommodityData();
+                this.showToast('success', 'Sucesso!', 'Commodity removida.');
+            break;
+        }
     }
 
     showToast(type, title, message) {

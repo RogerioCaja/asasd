@@ -37,7 +37,7 @@ public with sharing class IntegrationINProductTest {
     static void verifyIntegrationProduct(){
         List<TemplateDataINtegrationFields.Product2INData> listProduct2List = new List<TemplateDataIntegrationFields.Product2INData>();
         TemplateDataIntegrationFields.Product2INData listProduct = new TemplateDataIntegrationFields.Product2INData();
-        listProduct.ProductName = 'Café'; 
+        listProduct.TextoBreveMaterial = 'Café'; 
         listProduct.ProductCode = 'CF01'; 
         listProduct.TextoBreveMaterial = 'Café em graõs'; 
         listProduct.UnidadeMedida = 'Kg'; 

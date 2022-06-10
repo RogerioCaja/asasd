@@ -16,13 +16,6 @@
         </values>
     </picklistValues>
     <picklistValues>
-        <picklist>DistributionChannel__c</picklist>
-        <values>
-            <fullName>Venda Direta</fullName>
-            <default>false</default>
-        </values>
-    </picklistValues>
-    <picklistValues>
         <picklist>Freight__c</picklist>
         <values>
             <fullName>Y1</fullName>
@@ -112,6 +105,21 @@
         </values>
     </picklistValues>
     <picklistValues>
+        <picklist>OrderType__c</picklist>
+        <values>
+            <fullName>Pedido Filho</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pedido Mãe</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pedido Normal</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
         <picklist>PaymentForm__c</picklist>
         <values>
             <fullName>Bonificação</fullName>
@@ -195,7 +203,19 @@
             <default>false</default>
         </values>
         <values>
-            <fullName>Em aprovação</fullName>
+            <fullName>Em Aprovação - Diretor</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Em Aprovação - Gerente Regional</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Em Aprovação - Mesa de Grãos</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Em aprovação - Gerente Filial</fullName>
             <default>false</default>
         </values>
         <values>

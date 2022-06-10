@@ -20,6 +20,10 @@
                 <field>Name</field>
             </layoutItems>
             <layoutItems>
+                <behavior>Edit</behavior>
+                <field>OrderNumber__c</field>
+            </layoutItems>
+            <layoutItems>
                 <behavior>Required</behavior>
                 <field>AccountId</field>
             </layoutItems>
@@ -204,6 +208,10 @@
         <fields>NAME</fields>
         <relatedList>ProductOffered__c.ContractItem__c</relatedList>
     </relatedLists>
+    <relatedLists>
+        <fields>NAME</fields>
+        <relatedList>ProductReceived__c.ContractItem__c</relatedList>
+    </relatedLists>
     <relatedObjects>AccountId</relatedObjects>
     <showEmailCheckbox>false</showEmailCheckbox>
     <showHighlightsPanel>true</showHighlightsPanel>
@@ -211,7 +219,7 @@
     <showRunAssignmentRulesCheckbox>false</showRunAssignmentRulesCheckbox>
     <showSubmitAndAttachButton>false</showSubmitAndAttachButton>
     <summaryLayout>
-        <masterLabel>00h2F000004GfYT</masterLabel>
+        <masterLabel>00h1D000007AeXv</masterLabel>
         <sizeX>4</sizeX>
         <sizeY>0</sizeY>
         <summaryLayoutStyle>Default</summaryLayoutStyle>

@@ -2,19 +2,13 @@ public with sharing class CalloutCTVCarteira {
 
     @future(callout = true)
     public static void processIntegration(){
-
         List<Territory2> territoryList = new List<Territory2>([SELECT id, DeveloperName, lastmodifieddate, ParentTerritory2.DeveloperName, name, Territory2Type.DeveloperName FROM territory2]);
+        sendOrder(territoryList);
 
         
-        IntegrationUtils.CalloutCTVResponse calloutResponse = sendOrder(territoryList);
-
-        if (calloutResponse.success) {
-            System.debug('integração foi um sucesso');
-
-        }
     }
 
-    public static IntegrationUtils.CalloutCTVResponse sendOrder(List<Territory2> territoryList) {
+    public static void sendOrder(List<Territory2> territoryList) {
 
         List<RequestParameters> request = new List<RequestParameters>();
         
@@ -42,22 +36,9 @@ public with sharing class CalloutCTVCarteira {
             HttpResponse response = responseObject.response;
 
             IntegrationLog.createLog('Pedido OUT', 'OUT', response.getBody(), payload, false);
-            // .WSLog('Pedido', 'OUTBOUND', response.getBody(), payload, false);
             System.debug('response.getBody(): '+ response.getBody());
-            try {
-                
-                List<ResponseParametersWrapper> responses = (List<ResponseParametersWrapper>) JSON.deserialize(response.getBody(), List<ResponseParametersWrapper>.class);
-                return new IntegrationUtils.CalloutCTVResponse(new ResponseParameters(responses));
-            } catch (Exception e) {
-                
-                String defaultErrorMessage = 'Malformatted HTTP Response Exception: ' + e.getMessage();
-
-                return new IntegrationUtils.CalloutCTVResponse(defaultErrorMessage);
-            }
         } else {
-
             IntegrationLog.createLog('Pedido OUT', 'OUT', responseObject.exceptionObject.getMessage(), payload, true);
-            return new IntegrationUtils.CalloutCTVResponse(responseObject.exceptionObject.getMessage());
         }
     }
     public static String getAcessCode(){
@@ -86,6 +67,7 @@ public with sharing class CalloutCTVCarteira {
             List<String> accountIds = new List<String>();
             CalloutCTVCarteira.HeaderInsert header = new CalloutCTVCarteira.HeaderInsert();
             UserTerritory2Association territoryAsso;
+
             Try{
                 territoryAsso = [SELECT id, User.CodigoSAP__c FROM UserTerritory2Association WHERE Territory2Id =: territory.Id];
              } 
@@ -96,18 +78,24 @@ public with sharing class CalloutCTVCarteira {
             for(ObjectTerritory2Association terrytory : terrytoryObject){
                 accountIds.add(terrytory.ObjectId);
             }
-
+            Territory2 territoryParrent;
+            if(territory.ParentTerritory2Id != null){
+                territoryParrent = [SELECT id, DeveloperName, lastmodifieddate, ParentTerritory2.DeveloperName, name, Territory2Type.DeveloperName FROM territory2 WHERE Id =: territory.ParentTerritory2Id];
+            }
             List<Account> accountList = new List<Account>([SELECT Id, ExternalId__c  FROM Account WHERE Id =: accountIds]);
             header.IdTerritorio = territory.DeveloperName;
             header.VendedorSAP = territoryAsso != null ?  territoryAsso.User.CodigoSAP__c : null;
             header.DataHoraAtualizacao = territory.LastModifiedDate;
-            header.TerritorioPai = territory.ParentTerritory2Id;
+            header.TerritorioPai = territoryParrent != null ? territoryParrent.DeveloperName : null;
             header.NamePosition = territory.Name;
             header.TipoTerritorio = territory.Territory2Type.DeveloperName;
             List<CalloutCTVCarteira.ClienteParameters> clientList= new List<CalloutCTVCarteira.ClienteParameters>();
-            for(Account acc : accountList){
-                clientList.add(new CalloutCTVCarteira.ClienteParameters(acc.ExternalId__c));
+            if(header.TipoTerritorio == 'SellerPosition'){
+                for(Account acc : accountList){
+                    clientList.add(new CalloutCTVCarteira.ClienteParameters(acc.ExternalId__c));
+                }
             }
+
             header.Clientes = clientList;
             this.header = header;
         }

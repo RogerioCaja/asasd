@@ -23,9 +23,7 @@ public with sharing class CalloutCTVCarteiraTest {
         EmailEncodingKey='UTF-8', LastName='Testing', LanguageLocaleKey='en_US', 
         LocaleSidKey='en_US', ProfileId = p.Id, 
         TimeZoneSidKey='America/Los_Angeles', UserName='testes@testes.com');
-
         insert u;
-        
     }
     @isTest
     static void calloutCTVSuccess(){
