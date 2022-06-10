@@ -162,7 +162,7 @@ global with sharing class TemplateDataIntegrationFields {
             return 'Id';
         }
     }
-
+    
     global class OrgVProductINData implements FieldDataChild{
         
         //JSON fields Example
@@ -207,9 +207,19 @@ global with sharing class TemplateDataIntegrationFields {
         }
     }
 
+    public class PartnerInsert{
+        public String PARVW;
+	    public String KUNNR;
+        public PartnerInsert(){}
+    }
+
+
+
+
     global class OrderINData implements FieldData{
 
         public String Status;
+        public String statusRecusa;
         public String numeroPedidoApp;
         public String pricebook2Id;
         public String CodigoSap;
@@ -237,7 +247,41 @@ global with sharing class TemplateDataIntegrationFields {
         //public String clienteCode; 
         public List<TemplateDataIntegrationFields.OrderItemINData> orderItems;
         public List<TemplateDataIntegrationFields.ShippingDivisonINData> shippingDivison;
+        public List<TemplateDataIntegrationFields.PartnerInsert> partners;
         public Order serialize(Map<String, Id> lookups){
+
+            switch on Status {
+                when 'Em análise de Crédito' {
+                    Status = '1';
+                }
+                when 'Crédito Bloqueado'{
+                    Status = '2';
+                }
+                when 'Crédito Liberado'{
+                    Status = '3';
+                }
+                when 'Faturado Parcialmente'{
+                    Status = '4';
+                }
+                when 'Concluído'{
+                    Status = '5';
+                }
+                when 'Cancelado'{
+                    Status = 'X';
+                }
+                when 'Em analise de Credito' {
+                    Status = '1';
+                }
+                when 'Credito Bloqueado'{
+                    Status = '2';
+                }
+                when 'Credito Liberado'{
+                    Status = '3';
+                }
+                when 'Concluido'{
+                    Status = '5';
+                }
+            }
 
             return new Order(
 
@@ -249,7 +293,7 @@ global with sharing class TemplateDataIntegrationFields {
                 Crop__c = lookups.containsKey('Safra__c'+this.crop) ? lookups.get('Safra__c'+this.crop) : null,
                 Culture__c = lookups.containsKey('Cultura__c'+this.culture) ? lookups.get('Cultura__c'+this.culture) : null,
                 SalesOrg__c = lookups.containsKey('SalesOrg__c'+this.salesOrg) ? lookups.get('SalesOrg__c'+this.salesOrg) : null,
-                SalesCTV__c = lookups.containsKey('SalesCTV__c'+this.salesCTV) ? lookups.get('SalesCTV__c'+this.salesCTV) : null,
+                SalesCTV__c = lookups.containsKey('User'+this.salesCTV) ? lookups.get('User'+this.salesCTV) : null,
                 PaymentCondition__c = lookups.containsKey('CondicaoPagamento__c'+this.paymentCondition) ? lookups.get('CondicaoPagamento__c'+this.paymentCondition) : null,
                 OrderReference__c = lookups.containsKey('OrderReference__c'+this.orderReference) ? lookups.get('OrderReference__c'+this.orderReference) : null,
                 DistributionChannel__c = lookups.containsKey('DistributionChannel__c' + this.distributionChannel)? lookups.get ('' + this.distributionChannel) : null,
@@ -258,6 +302,7 @@ global with sharing class TemplateDataIntegrationFields {
                 EffectiveDate = Date.valueOf(effectiveDate),
                 ShippingDate__c = Date.valueOf(ShippingDate),
                 Status = this.status,
+                StatusRecusa__c	= this.statusRecusa,
                 Type = this.type,
                 CustomerOrderNumber__c = this.customerOrderNumber,
                 PaymentForm__c = this.paymentForm,
@@ -271,8 +316,8 @@ global with sharing class TemplateDataIntegrationFields {
 
         public List<String> getRequiredFields(){
             return new List<String>{
-                'CodigoSap__c',
-                'AccountId'
+                'CodigoSap__c'
+                //'AccountId'
      
             };
         }
@@ -354,7 +399,8 @@ global with sharing class TemplateDataIntegrationFields {
 
     global class ShippingDivisonINData implements FieldDataChild{
         //JSON fields Example
-        public String OrderItemCode;    
+        public String OrderItemCode;
+        public String material;
         public String orderExternalId;
         public String DivisaoRemessa;
         public String NumeroDivisaoRemessa;
@@ -366,9 +412,8 @@ global with sharing class TemplateDataIntegrationFields {
         public ShippingDivison__c serialize(Map<String, Id> lookups){
 
             return new ShippingDivison__c(
-                OrderItem__c = lookups.containsKey('OrderItem__c'+this.OrderItemCode) ? lookups.get('OrderItem__c'+this.OrderItemCode) : null,
-                // Como estava ----> ExternalId__c = this.orderExternalId + '|' + this.OrderItemCode,//Confirmar com Helder como deverá ser essa chave
-                ExternalId__c = this.orderExternalId,//Confirmar com Helder como deverá ser essa chave
+                OrderItem__c = lookups.containsKey('OrderItem__c'+this.material) ? lookups.get('OrderItem__c'+this.material) : null,
+                ExternalId__c = this.orderExternalId + '|' + this.OrderItemCode + '|' + this.DivisaoRemessa,
                 DeliveryDate__c = this.DataDivisao,
                 Quantity__c = this.Quantidade, 
                 ConfirmedQuantity__c = this.QuantidadeConfirmada
@@ -475,6 +520,7 @@ global with sharing class TemplateDataIntegrationFields {
                 //Returning Object with Fields
 
             return new Boletos__c(
+                Name = this.LinhaDigitavel,
                 SalesOrg__c = lookups.containsKey('SalesOrg__c'+this.Empresa) ? lookups.get('SalesOrg__c'+this.Empresa) : null,
                 AccountCode__c = lookups.containsKey('AccountCode__c'+this.CodigoParceiro) ? lookups.get('AccountCode__c'+this.CodigoParceiro) : null,
                 ExpirationDate__c = Date.valueOf(VencimentoBoleto),
