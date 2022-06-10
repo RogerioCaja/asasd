@@ -32,8 +32,8 @@ public without sharing class OrderScreenController {
     public static HeaderSerialize getOrderData(Id orderId, Boolean cloneOrder){
         Order order = [SELECT Id, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c , ShippingAccount__r.Phone,  ShippingAccount__r.Name, 
         ShippingAccount__r.BillingCity, ShippingAccount__r.BillingState ,ShippingAccount__r.CPF__c, ShippingAccount__r.CNPJ__c , SalesCondition__c, SalesCondition__r.Name, 
-        Pricebook2.InitialDate__c, Pricebook2.EndDate__c, PaymentDate__c,  CustomerOrderNumber__c, Crop__c , Crop__r.Name, Culture__c , Culture__r.Name,
-        PaymentForm__c, StatusSF__c, CodigoSAP__c, SalesOrg__c, SalesOrg__r.Name, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, SalesCTV__r.Name,
+        Pricebook2.InitialDate__c, Pricebook2.EndDate__c, PaymentDate__c,  CustomerOrderNumber__c, Crop__c , Crop__r.Name, Culture__c , Culture__r.Name, OrderMargin__c,
+        PaymentForm__c, StatusSF__c, CodigoSAP__c, SalesOrg__c, SalesOrg__r.Name, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, SalesCTV__r.Name, OrderType__c,
         PaymentCondition__c, PaymentCondition__r.Name, ShippingDate__c, Incoterms__c, OrderReference__c, OrderReference__r.Name, IsOrderMother__c, Company__c, Hectare__c
         FROM Order 
         WHERE Id = :orderId LIMIT 1];
@@ -175,8 +175,8 @@ public without sharing class OrderScreenController {
             
             if (orderId != null && !cloneOrder) {
                 newOrder = false;
-                order = [SELECT Id, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c, SalesCondition__c, PaymentDate__c, ShippingDate__c, PaymentCondition__c, CustomerOrderNumber__c,
-                         Crop__c, Culture__c, PaymentForm__c, StatusSF__c, SalesOrg__c, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, EffectiveDate, Company__c, Hectare__c
+                order = [SELECT Id, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c, SalesCondition__c, PaymentDate__c, ShippingDate__c, PaymentCondition__c, CustomerOrderNumber__c, OrderType__c,
+                                Crop__c, Culture__c, PaymentForm__c, StatusSF__c, SalesOrg__c, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, EffectiveDate, Company__c, Hectare__c, OrderMargin__c
                 FROM Order WHERE Id =: orderId LIMIT 1];
             } else {
                 order = new Order();
@@ -418,6 +418,8 @@ public without sharing class OrderScreenController {
             order.FinalTotalValue__c = orderTotalValue;
             order.Company__c = company.Id;
             order.OrderType__c = orderData.headerData.pedido_mae.Id != null ? 'Pedido Filho' : (order.IsOrderMother__c ? 'Pedido Mãe' : 'Pedido Normal');
+            order.OrderMargin__c = orderData.summaryData.orderMargin != null ? (orderData.summaryData.orderMargin.contains(' sacas') ?
+                                     stringToDecimal(orderData.summaryData.orderMargin.replace(' sacas', '')) : stringToDecimal((orderData.summaryData.orderMargin))) : 0;
 
             Map<Id, OrderItem> motherItems = new Map<Id, OrderItem>();
             Boolean newDivision = false;
@@ -615,7 +617,9 @@ public without sharing class OrderScreenController {
                     List<OrderCommodity__c> insCommodities = new List<OrderCommodity__c>();
                     for (CommodityDeserialize commodity : orderData.commodityData) {
                         OrderCommodity__c orderCommodity = new OrderCommodity__c();
+                        orderCommodity.Name = commodity.product;
                         orderCommodity.BagQuantity__c = Decimal.valueOf(commodity.totalDelivery.replace(' sacas', ''));
+                        orderCommodity.BagMargin__c = Decimal.valueOf(commodity.marginValue.replace(' sacas', ''));
                         orderCommodity.CommodityPrice__c = commodity.commodityPrice;
                         orderCommodity.Order__c = order.Id;
                         orderCommodity.Product__c = commodity.productId;
@@ -929,6 +933,7 @@ public without sharing class OrderScreenController {
         public String  data_pagamento;
         public String  data_entrega;
         public String  status_pedido;
+        public String  tipo_pedido;
         public String  codigo_sap;
         public String  canal_distribuicao;
         public String  setor_atividade;
@@ -937,6 +942,7 @@ public without sharing class OrderScreenController {
         public String  frete;
         public String  observation;
         public String  billing_sale_observation;
+        public String  orderMargin;
         public String  companyId;
         public Boolean pedido_mae_check;
         public Decimal hectares;
@@ -1009,6 +1015,7 @@ public without sharing class OrderScreenController {
         public String  area;
         public String  discount;
         public String  margin;
+        public String  marginValue;
         public String  totalDelivery;
         public Decimal quantity;
         public Decimal commodityPrice;
@@ -1018,16 +1025,19 @@ public without sharing class OrderScreenController {
     public class SummaryDeserialize{
         public String observation;
         public String billing_sale_observation;
+        public String orderMargin;
     }
 
     public class SummarySerialize{
         public String observation;
         public String billing_sale_observation;
+        public String orderMargin;
 
         public SummarySerialize(){}
         public SummarySerialize(String observation, String billing_sale_observation){
             this.observation = observation;
             this.billing_sale_observation = billing_sale_observation;
+            this.orderMargin = orderMargin;
         }
     }
 
@@ -1114,6 +1124,7 @@ public without sharing class OrderScreenController {
         public String  data_pagamento;
         public String  data_entrega;
         public String  status_pedido;
+        public String  tipo_pedido;
         public String  codigo_sap;
         public String  cliente_faturamento;
         public String  canal_distribuicao;
@@ -1123,6 +1134,7 @@ public without sharing class OrderScreenController {
         public String  frete;
         public String  observation;
         public String  billing_sale_observation;
+        public String  orderMargin;
         public String  companyId;
         public Boolean pedido_mae_check;
         public Decimal hectares;
@@ -1159,6 +1171,7 @@ public without sharing class OrderScreenController {
             this.cultura = new InformationFields(order.Culture__c, order.Culture__r.Name);
             this.forma_pagamento = order.PaymentForm__c;
             this.status_pedido = order.StatusSF__c;
+            this.tipo_pedido = order.OrderType__c;
             this.codigo_sap = order.CodigoSAP__c;
             this.organizacao_vendas = new InformationFields(order.SalesOrg__c, order.SalesOrg__r.Name);
             this.canal_distribuicao = order.DistributionChannel__c;
@@ -1172,6 +1185,7 @@ public without sharing class OrderScreenController {
             this.frete = order.Incoterms__c;
             this.observation = order.Description;
             this.billing_sale_observation = order.DescriptionBillingSale__c;
+            this.orderMargin = String.valueOf(order.OrderMargin__c) + '%';
             this.companyId = order.Company__c;
         }
     }

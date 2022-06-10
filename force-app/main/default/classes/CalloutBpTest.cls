@@ -36,6 +36,11 @@
             LocaleSidKey='en_US', ProfileId = p.Id, 
             TimeZoneSidKey='America/Los_Angeles', UserName='testes@testes.com',CodigoSap__c = 'test1');
             INSERT u;
+            User u2 = new User(Alias = 'standt', Email='standarduser@testorg.com', 
+            EmailEncodingKey='UTF-8', LastName='Testing2', LanguageLocaleKey='en_US', 
+            LocaleSidKey='en_US', ProfileId = p.Id, 
+            TimeZoneSidKey='America/Los_Angeles', UserName='tes2@testes.com',CodigoSap__c = 'test2');
+            INSERT u2;
         }
 
         @isTest
@@ -51,7 +56,7 @@
                 objTerr.Territory2TypeId = terrModel.Id;
                 objTerr.Territory2ModelId = model.Id;
             insert objTerr;
-    
+
             UserTerritory2Association userTerrAssociation = new UserTerritory2Association(Territory2Id= objTerr.Id, UserId= u.Id, RoleInTerritory2='Sales / Marketing Manager');
             insert userTerrAssociation;
             Test.setMock(HttpCalloutMock.class, new CalloutBPMock(true));
