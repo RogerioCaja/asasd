@@ -536,11 +536,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Discount__c.ClientGroup__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
         <field>Discount__c.EndDate__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -631,11 +626,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>JurosDescontoAntecipao__c.AccountType__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
         <field>JurosDescontoAntecipao__c.Account__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -643,6 +633,11 @@
         <editable>true</editable>
         <field>JurosDescontoAntecipao__c.ActivitySector__c</field>
         <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>JurosDescontoAntecipao__c.ClientGroup__c</field>
+        <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>

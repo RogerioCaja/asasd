@@ -9,7 +9,7 @@ IF(ISBLANK( SalesCondition__r.ExternalId__c ), &apos;&apos;,  SalesCondition__r.
 IF(ISBLANK( ProductGroup__r.ExternalId__c ), &apos;&apos;,  ProductGroup__r.ExternalId__c +&apos;_&apos;)+
 IF(ISBLANK( SalesOffice__r.Codigo__c ), &apos;&apos;, SalesOffice__r.Codigo__c +&apos;_&apos;)+
 IF(ISBLANK( Culture__r.Codigo__c ), &apos;&apos;,  Culture__r.Codigo__c +&apos;_&apos;)+
-IF(ISBLANK(AccountType__c ), &apos;&apos;,  AccountType__c +&apos;_&apos;)+ 
+IF(ISPICKVAL(ClientGroup__c, "" ), '', TEXT(ClientGroup__c) +'_')+
 IF(ISBLANK(Account__r.ExternalId__c  ), &apos;&apos;,  Account__r.ExternalId__c +&apos;_&apos;)+
 IF(ISBLANK(SalesTeam__r.ExternalId__c ), &apos;&apos;, SalesTeam__r.ExternalId__c +&apos;_&apos;)+
 IF(ISBLANK(Product__r.ProductCode ), &apos;&apos;, Product__r.ProductCode)</formula>
