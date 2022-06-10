@@ -38,6 +38,10 @@
                 <behavior>Edit</behavior>
                 <field>Hectare__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>StatusRecusa__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>
@@ -264,6 +268,9 @@
             <actionName>GeneratePDF</actionName>
             <actionType>CustomButton</actionType>
             <sortOrder>1</sortOrder>
+            <actionName>Delete</actionName>
+            <actionType>StandardButton</actionType>
+            <sortOrder>15</sortOrder>
         </platformActionListItems>
         <platformActionListItems>
             <actionName>FeedItem.ContentPost</actionName>
@@ -279,6 +286,11 @@
             <actionName>FeedItem.LinkPost</actionName>
             <actionType>QuickAction</actionType>
             <sortOrder>4</sortOrder>
+        </platformActionListItems>
+        <platformActionListItems>
+            <actionName>Deactivate</actionName>
+            <actionType>StandardButton</actionType>
+            <sortOrder>14</sortOrder>
         </platformActionListItems>
         <platformActionListItems>
             <actionName>FeedItem.PollPost</actionName>
