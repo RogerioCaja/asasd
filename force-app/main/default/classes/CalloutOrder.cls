@@ -128,7 +128,7 @@ public with sharing class CalloutOrder {
             codTypeOrder.put('VendaContaOrdem', 'ZRCO');
             codTypeOrder.put('VendaServico', 'ZSER');
             codTypeOrder.put('VendaEntregaFutura', 'ZVEF');
-            codTypeOrder.put('VendaInsumos', 'ZVRS');
+            codTypeOrder.put('VendaInsumos', 'ZVNO');
             codTypeOrder.put('VendaSucata', 'ZVSU');
         }
         else{
@@ -184,10 +184,10 @@ public with sharing class CalloutOrder {
                 dateF = String.valueOf(order.Crop__r.StartDateOrderInsertion__c).replace('-', '');
             }
             
-            IS_HEADER_IN.DOC_TYPE = IV_TYPE == 'C' ? 'ZVNO': getCodeTypeOrder(String.valueOf([SELECT DeveloperName FROM RecordType WHERE Name =: order.Type][0].DeveloperName), IV_TYPE == 'G' ? true : false); 
+            IS_HEADER_IN.DOC_TYPE = getCodeTypeOrder(String.valueOf([SELECT DeveloperName FROM RecordType WHERE Name =: order.Type][0].DeveloperName), IV_TYPE == 'G' ? true : false); 
             IS_HEADER_IN.SALES_ORG = order.SalesOrg__r.SalesOrganizationCode__c;
             IS_HEADER_IN.DISTR_CHAN =order.DistributionChannel__r.Codigo__c;
-            IS_HEADER_IN.DIVISION = IV_TYPE == 'C' ? order.ActivitySector__r.Codigo__c : '10';
+            IS_HEADER_IN.DIVISION = order.ActivitySector__r.Codigo__c;
             IS_HEADER_IN.INCOTERMS1 = order.Incoterms__c;
             IS_HEADER_IN.INCOTERMS2 = order.Incoterms2__c;
             IS_HEADER_IN.PMNTTRMS = order.PaymentCondition__r.Code__c;
@@ -211,7 +211,7 @@ public with sharing class CalloutOrder {
             }
 
             Map<Id, OrderItem> orderItemMap = new Map<Id, OrderItem>([
-                SELECT Id, NumeroSap__c, Product2.ExternalId__c, Product2.DistributionCenter__r.Code__c, Quantity, UnitPrice, FinancialAdditionValue__c, FinancialDiscountValue__c
+                SELECT Id, NumeroSap__c, Product2.ExternalId__c, Product2.DistributionCenter__r.Code__c, Quantity, UnitPrice, DiscountValue__c, FinancialAdditionValue__c, FinancialDiscountValue__c, CommercialAdditionValue__c
                 FROM OrderItem
                 WHERE Id IN: orderItemIds
             ]);
@@ -239,10 +239,10 @@ public with sharing class CalloutOrder {
                 
                 IT_ITEMS_IN.add(new CalloutOrder.OrderItemParameters(orderItem));
                 if(orderItem.FinancialAdditionValue__c > 0){
-                    IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDEC', String.valueOf(orderItem.FinancialAdditionValue__c), order.Currency__c));
+                    IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDEC', String.valueOf(orderItem.CommercialAdditionValue__c), order.Currency__c));
                 }
                 else{
-                    IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDEC', String.valueOf(orderItem.FinancialDiscountValue__c != 0 ? orderItem.FinancialDiscountValue__c*-1 : orderItem.FinancialDiscountValue__c), order.Currency__c));
+                    IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDEC', String.valueOf(orderItem.DiscountValue__c != 0 ? orderItem.DiscountValue__c*-1 : orderItem.DiscountValue__c), order.Currency__c));
                 }
                 // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDEC', String.valueOf(orderItem.CommercialAdditionValue__c), order.Currency__c));
                 // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZJUR', String.valueOf(orderItem.FinancialAdditionValue__c), order.Currency__c));

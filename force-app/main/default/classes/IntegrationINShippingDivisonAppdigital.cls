@@ -28,9 +28,9 @@ global with sharing class IntegrationINShippingDivisonAppdigital {
         //Product2 search based on ExternalId__c field sent
         // Pega o pedido com base no ExternalId recebido
         //Order search based on ExternalId__c field sent
-        for (Order order : [SELECT Id, CodigoSap__c FROM Order WHERE CodigoSap__c IN : orderLookups]) {
+        for (Order order : [SELECT Id, NumeroPedidoApp__c FROM Order WHERE NumeroPedidoApp__c IN : orderLookups]) {
             //Map structure for the model -> object name + parameter to record id
-            lookups.put('Order' + order.CodigoSap__c, order.Id);
+            lookups.put('Order' + order.NumeroPedidoApp__c, order.Id);
         }
         for (OrderItem OrderItem : [SELECT Id, ExternalId__c, Product2.ProductCode FROM OrderItem WHERE ExternalId__c IN : orderItemLookups]) {
             //Map structure for the model -> object name + parameter to record id
