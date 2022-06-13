@@ -36,6 +36,8 @@ global with sharing class TemplateDataIntegrationFields {
         public String initialDate;
         public String endDate;
 
+        public String costPrice;
+
         public String typeCurrency;
         public String externalId;
         public String unitMeasurement;
@@ -66,7 +68,7 @@ global with sharing class TemplateDataIntegrationFields {
                 UnitMeasurement__c = this.unitMeasurement != null ? this.unitMeasurement : null,
                 UnitPrice__c = (this.typeCurrency == 'BRL' || this.typeCurrency == 'USD') ? Decimal.valueOf(this.unitPrice.trim()) : null,
                 Percentage__c = this.typeCurrency == '%' ? Decimal.valueOf(this.unitPrice.trim()) : null,
-                Cost__c = this.typeCondition == 'ZPRS' ?  Decimal.valueOf(this.unitPrice.trim()) : null
+                Cost__c = this.costPrice != null ?  Decimal.valueOf(this.costPrice.trim()) : 0
             );
             
         }
@@ -88,7 +90,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String getFieldId() {
             return 'Id';
         }
-    }
+    } 
     
     global class Product2INData implements FieldData {
         public String ProductCode;
