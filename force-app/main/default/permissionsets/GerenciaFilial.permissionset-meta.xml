@@ -2146,7 +2146,7 @@
         <visible>true</visible>
     </recordTypeVisibilities>
     <recordTypeVisibilities>
-        <recordType>Order.EntregaArmazemGeral</recordType>
+        <recordType>Order.VendaAmostraGratis</recordType>
         <visible>true</visible>
     </recordTypeVisibilities>
     <recordTypeVisibilities>
