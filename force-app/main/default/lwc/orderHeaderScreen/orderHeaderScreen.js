@@ -111,49 +111,45 @@ export default class OrderHeaderScreen extends LightningElement {
 
     tiposVenda = [{
             value: '0',
-            label: 'Venda Normal',
+            label: 'Venda Amostra Grátis',
             description: ''
         },
         {
             value: '1',
-            label: 'Venda Conta e Ordem',
+            label: 'Venda Bonificação',
             description: ''
         },
         {
             value: '2',
-            label: 'Venda Entrega Futura',
+            label: 'Venda Conta e Ordem',
             description: ''
         },
         {
             value: '3',
-            label: 'Venda Consignação',
-            description: ''
-        },
-        {
-            value: '4',
-            label: 'Venda Exportação',
-            description: ''
-        },
-        {
-            value: '5',
-            label: 'Venda Sucata',
-            description: ''
-        },
-        {
-            value: '6',
-            label: 'Venda de Ativo',
-            description: ''
-        },
-        {
-            value: '7',
             label: 'Venda de Serviço',
             description: ''
         },
         {
-            value: '8',
-            label: 'Remessas Promocionais',
+            value: '4',
+            label: 'Venda Barter',
             description: ''
         },
+        {
+            value: '5',
+            label: 'Venda Entrega Futura',
+            description: ''
+        },
+        {
+            value: '6',
+            label: 'Venda Normal',
+            description: ''
+        },
+        {
+            value: '7',
+            label: 'Venda Ordem Simples Faturamento',
+            description: ''
+        },
+        
     ];
 
     statusPedido = [{
