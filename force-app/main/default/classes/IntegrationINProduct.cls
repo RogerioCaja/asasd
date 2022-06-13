@@ -14,8 +14,8 @@ global with sharing class IntegrationINProduct {
 
     
         List<TemplateDataIntegrationFields.ResponseParent> responseList = new List<TemplateDataIntegrationFields.ResponseParent>();
-        //List<TemplateDataINtegrationFields.Product2INData> productListToUpsert = new List<TemplateDataINtegrationFields.Product2INData>();
         List<TemplateDataINtegrationFields.OrgVProductINData> orgVProductListToUpsert = new List<TemplateDataINtegrationFields.OrgVProductINData>();
+        //List<TemplateDataINtegrationFields.Product2INData> productListToUpsert = new List<TemplateDataINtegrationFields.Product2INData>();
         List<Product2> productListToUpsert = new List<Product2>();
         
 

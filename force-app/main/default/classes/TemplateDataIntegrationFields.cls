@@ -36,13 +36,16 @@ global with sharing class TemplateDataIntegrationFields {
         public String initialDate;
         public String endDate;
 
+        public String costPrice;
+
         public String typeCurrency;
         public String externalId;
         public String unitMeasurement;
+        public String multiplicationFactor;
         // Chave(ExternalId__c): (orgVendas) | (safra) | (moeda) | (Material)(Lista de preço) | (Grupo de produtos)(Escritório de vendas)(Equipe de Vendas)(Cultura)(Segmento do Cliente)(Cliente) | (Material)(Equipe de vendas) | (Material)
         public JurosDescontoAntecipao__c serialize(Map<String, Id> lookups){
             return new JurosDescontoAntecipao__c(
-                AccountType__c = this.accountGroup,
+                ClientGroup__c = this.accountGroup,
                 ConditionType__c = this.typeCondition == 'ZPR0' ||  this.typeCondition == 'ZPRS' ? 'Preço' : this.typeCondition == 'ZDAN'? 'Desconto' : 'Juros',
                 RecordTypeId = [SELECT Id FROM RecordType WHERE DeveloperName =: this.typeCondition == 'ZPRS' ? 'ZPR0' :  this.typeCondition ][0].Id,
                 Culture__c = lookups.containsKey('Cultura__c'+this.cultureCode) ? lookups.get('Cultura__c'+this.cultureCode) : null,
@@ -61,11 +64,11 @@ global with sharing class TemplateDataIntegrationFields {
                 Account__c = lookups.containsKey('Account'+this.accountCode) ? lookups.get('Account'+this.accountCode) : null,
                 Currency__c = this.typeCurrency,
                 SalesCondition__c = lookups.containsKey('SalesCondition__c'+this.salesCondition) ? lookups.get('SalesCondition__c'+this.salesCondition) : null, 
-                ProductMultiplier__c = 1,
+                ProductMultiplier__c = Decimal.valueOf(this.multiplicationFactor.trim()),
                 UnitMeasurement__c = this.unitMeasurement != null ? this.unitMeasurement : null,
                 UnitPrice__c = (this.typeCurrency == 'BRL' || this.typeCurrency == 'USD') ? Decimal.valueOf(this.unitPrice.trim()) : null,
                 Percentage__c = this.typeCurrency == '%' ? Decimal.valueOf(this.unitPrice.trim()) : null,
-                Cost__c = this.typeCondition == 'ZPRS' ?  Decimal.valueOf(this.unitPrice.trim()) : null
+                Cost__c = this.costPrice != null ?  Decimal.valueOf(this.costPrice.trim()) : 0
             );
             
         }
@@ -87,7 +90,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String getFieldId() {
             return 'Id';
         }
-    }
+    } 
     
     global class Product2INData implements FieldData {
         public String ProductCode;
@@ -161,7 +164,7 @@ global with sharing class TemplateDataIntegrationFields {
             return 'Id';
         }
     }
-
+    
     global class OrgVProductINData implements FieldDataChild{
         
         //JSON fields Example

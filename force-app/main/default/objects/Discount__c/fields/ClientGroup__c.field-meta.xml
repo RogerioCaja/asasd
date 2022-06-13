@@ -8,48 +8,7 @@
     <trackTrending>false</trackTrending>
     <type>Picklist</type>
     <valueSet>
-        <valueSetDefinition>
-            <sorted>false</sorted>
-            <value>
-                <fullName>NÃO SEGMENTADO</fullName>
-                <default>false</default>
-                <label>NÃO SEGMENTADO</label>
-            </value>
-            <value>
-                <fullName>REDISTRIBUIÇÃO</fullName>
-                <default>false</default>
-                <label>REDISTRIBUIÇÃO</label>
-            </value>
-            <value>
-                <fullName>MODULAR</fullName>
-                <default>false</default>
-                <label>MODULAR</label>
-            </value>
-            <value>
-                <fullName>CLÁSSICO</fullName>
-                <default>false</default>
-                <label>CLÁSSICO</label>
-            </value>
-            <value>
-                <fullName>INOVADOR</fullName>
-                <default>false</default>
-                <label>INOVADOR</label>
-            </value>
-            <value>
-                <fullName>CLUBE A</fullName>
-                <default>false</default>
-                <label>CLUBE A</label>
-            </value>
-            <value>
-                <fullName>CONECTA</fullName>
-                <default>false</default>
-                <label>CONECTA</label>
-            </value>
-            <value>
-                <fullName>DINÂMICO</fullName>
-                <default>false</default>
-                <label>DINÂMICO</label>
-            </value>
-        </valueSetDefinition>
+        <restricted>true</restricted>
+        <valueSetName>GrupoCliente</valueSetName>
     </valueSet>
 </CustomField>

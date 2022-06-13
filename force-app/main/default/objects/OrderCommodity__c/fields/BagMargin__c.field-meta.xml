@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>GrossWeightUnitOfMeasure__c</fullName>
+    <fullName>BagMargin__c</fullName>
     <externalId>false</externalId>
-    <label>Unidade Medida do Peso Bruto</label>
-    <length>180</length>
+    <label>Margem em Sacas</label>
+    <precision>18</precision>
     <required>false</required>
-    <trackHistory>false</trackHistory>
-    <type>Text</type>
+    <scale>4</scale>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
     <unique>false</unique>
 </CustomField>

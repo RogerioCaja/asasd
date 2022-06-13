@@ -1,30 +1,33 @@
 <template>
-    <div class="search-title">
-        <span>Pesquisar <b>PRODUTO</b>:</span>
-    </div>
-    
-    <c-custom-order-search object-name="Product2" field-name="Name" product-params={productParams} onshowresults={showResults} label="Pesquisar PRODUTO:" placeholder="Digite o nome do Produto" required="true" onchild={getFieldsValueProduct}></c-custom-order-search>
+	<template if:false={disabled}>
+		<div class="search-title">
+			<span>Pesquisar <b>PRODUTO</b>:</span>
+		</div>
+		
+		<c-custom-order-search object-name="Product2" field-name="Name" product-params={productParams} onshowresults={showResults} label="Pesquisar PRODUTO:" placeholder="Digite o nome do Produto" required="true" onchild={getFieldsValueProduct}></c-custom-order-search>
 
-	<div class="row" style="width: 100%;" if:true={showBaseProducts}>
-		<template for:each={baseProducts} for:item="prod">
-			<div key={prod.Id} class="card">
-				<div class="container">
-					<div class="card-01">
-						<p class="product-name">{prod.Name}</p>
-						<p><b>Grupo:</b> {prod.productGroupName}</p>
-						<p><b>Princípio ativo:</b> {prod.activePrinciple}</p>
-					</div>
-					<div class="card-02">
-						<button class="include-button" data-target-id={prod.Id} onclick={showProductModal}>Incluir</button>
+		<div class="row" style="width: 100%;" if:true={showBaseProducts}>
+			<template for:each={baseProducts} for:item="prod">
+				<div key={prod.Id} class="card">
+					<div class="container">
+						<div class="card-01">
+							<p class="product-name">{prod.Name}</p>
+							<p><b>Grupo:</b> {prod.productGroupName}</p>
+							<p><b>Princípio ativo:</b> {prod.activePrinciple}</p>
+						</div>
+						<div class="card-02">
+							<button class="include-button" data-target-id={prod.Id} onclick={showProductModal}>Incluir</button>
+						</div>
 					</div>
 				</div>
-			</div>
-		</template>
-	</div>
+			</template>
+		</div>
+	</template>
 
 	<div class="products-result" if:true={showIncludedProducts}>
         <template if:false={message}>
 			<button if:true={barterSale} class="barter-sale" onclick={openCommodities}>Escolher commodities</button>
+			<button if:true={showCommodityData} class="barter-sale" onclick={openCommodityData}>Visualizar commodities</button>
 			<button class="change-columns" onclick={showTableColumns}>Alterar colunas</button>
             <h2>Resultados de <b>PRODUTOS</b>:</h2>
 
@@ -62,18 +65,29 @@
 				<div class="row">
 					<div class="column">
 						<label>Dosagem</label><br>
-						<input class="input-design" type="number" value={addProduct.dosage} onchange={changeValue} data-target-id="dosage" disabled={headerData.IsOrderChild}/>
+						<template if:true={headerData.IsOrderChild}>
+							<input class="input-design" type="number" value={addProduct.dosage} onchange={changeValue} data-target-id="dosage" disabled/>
+						</template>
+						<template if:false={headerData.IsOrderChild}>
+							<input class="input-design" type="number" value={addProduct.dosage} onchange={changeValue} data-target-id="dosage" disabled={disabled}/>
+						</template>
 					</div>
+
 					<div class="column">
 						<label>Qtd</label><br>
-						<input class="input-design" type="number" value={addProduct.quantity} onchange={changeValue} data-target-id="quantity"/>
+						<input class="input-design" type="number" value={addProduct.quantity} onchange={changeValue} data-target-id="quantity" disabled={disabled}/>
 					</div>
 				</div>
 
 				<div class="row">
 					<div class="column">
 						<label>Preço Praticado (un)</label><br>
-						<input class="input-design" type="number" value={addProduct.unitPrice} onchange={changeValue} data-target-id="unitPrice" disabled={headerData.IsOrderChild}/>
+						<template if:true={headerData.IsOrderChild}>
+							<input class="input-design" type="number" value={addProduct.unitPrice} onchange={changeValue} data-target-id="unitPrice" disabled/>
+						</template>
+						<template if:false={headerData.IsOrderChild}>
+							<input class="input-design" type="number" value={addProduct.unitPrice} onchange={changeValue} data-target-id="unitPrice" disabled={disabled}/>
+						</template>
 					</div>
 					<div class="column">
 						<label>Preço Total</label><br>
@@ -84,27 +98,54 @@
 				<hr class="line-divisor"/>
 				<p class="title-divisor">Comercial</p>
 
-				<div class="row">
-					<div class="column">
-						<label>% Desconto Comercial</label><br>
-						<input class="input-design" type="text" value={addProduct.commercialDiscountPercentage} maxlength="8" onkeypress={changeToPercentage} onchange={changeValue} data-target-id="commercialDiscountPercentage" disabled={headerData.IsOrderChild}/>
+				<template if:true={headerData.IsOrderChild}>
+					<div class="row">
+						<div class="column">
+							<label>% Desconto Comercial</label><br>
+							<input class="input-design" type="text" value={addProduct.commercialDiscountPercentage} maxlength="8" onkeypress={changeToPercentage} onchange={changeValue} data-target-id="commercialDiscountPercentage" disabled/>
+						</div>
+						<div class="column">
+							<label>Valor de Desconto Comercial</label><br>
+							<input class="input-design" type="number" value={addProduct.commercialDiscountValue} onchange={changeValue} data-target-id="commercialDiscountValue" disabled/>
+						</div>
 					</div>
-					<div class="column">
-						<label>Valor de Desconto Comercial</label><br>
-						<input class="input-design" type="number" value={addProduct.commercialDiscountValue} onchange={changeValue} data-target-id="commercialDiscountValue" disabled={headerData.IsOrderChild}/>
-					</div>
-				</div>
 
-				<div class="row">
-					<div class="column">
-						<label>% Acréscimo Comercial</label><br>
-						<input class="input-design" type="text" value={addProduct.commercialAdditionPercentage} maxlength="8" onkeypress={changeToPercentage} onchange={changeValue} data-target-id="commercialAdditionPercentage" disabled={headerData.IsOrderChild}/>
+					<div class="row">
+						<div class="column">
+							<label>% Acréscimo Comercial</label><br>
+							<input class="input-design" type="text" value={addProduct.commercialAdditionPercentage} maxlength="8" onkeypress={changeToPercentage} onchange={changeValue} data-target-id="commercialAdditionPercentage" disabled/>
+						</div>
+						<div class="column">
+							<label>Valor de Acréscimo Comercial</label><br>
+							<input class="input-design" type="number" value={addProduct.commercialAdditionValue} onchange={changeValue} data-target-id="commercialAdditionValue" disabled/>
+						</div>
 					</div>
-					<div class="column">
-						<label>Valor de Acréscimo Comercial</label><br>
-						<input class="input-design" type="number" value={addProduct.commercialAdditionValue} onchange={changeValue} data-target-id="commercialAdditionValue" disabled={headerData.IsOrderChild}/>
+				</template>
+
+				<template if:false={headerData.IsOrderChild}>
+					<div class="row">
+						<div class="column">
+							<label>% Desconto Comercial</label><br>
+							<input class="input-design" type="text" value={addProduct.commercialDiscountPercentage} maxlength="8" onkeypress={changeToPercentage} onchange={changeValue} data-target-id="commercialDiscountPercentage" disabled={disabled}/>
+						</div>
+						<div class="column">
+							<label>Valor de Desconto Comercial</label><br>
+							<input class="input-design" type="number" value={addProduct.commercialDiscountValue} onchange={changeValue} data-target-id="commercialDiscountValue" disabled={disabled}/>
+						</div>
 					</div>
-				</div>
+
+					<div class="row">
+						<div class="column">
+							<label>% Acréscimo Comercial</label><br>
+							<input class="input-design" type="text" value={addProduct.commercialAdditionPercentage} maxlength="8" onkeypress={changeToPercentage} onchange={changeValue} data-target-id="commercialAdditionPercentage" disabled={disabled}/>
+						</div>
+						<div class="column">
+							<label>Valor de Acréscimo Comercial</label><br>
+							<input class="input-design" type="number" value={addProduct.commercialAdditionValue} onchange={changeValue} data-target-id="commercialAdditionValue" disabled={disabled}/>
+						</div>
+					</div>
+				</template>
+
 
 				<hr class="line-divisor"/>
 				<p class="title-divisor">Financeiro</p>
@@ -160,15 +201,17 @@
 					<div class="back-button">
 						<a onclick={showProductModal}>Fechar</a>
 					</div>
-					<template if:true={updateProduct}>
-						<div class="column">
-							<button class="confirm-button" onclick={changeProduct}>Alterar Produto</button>
-						</div>
-					</template>
-					<template if:false={updateProduct}>
-						<div class="column">
-							<button class="confirm-button" onclick={includeProduct}>Incluir Produto</button>
-						</div>
+					<template if:false={disabled}>
+						<template if:true={updateProduct}>
+							<div class="column">
+								<button class="confirm-button" onclick={changeProduct}>Alterar Produto</button>
+							</div>
+						</template>
+						<template if:false={updateProduct}>
+							<div class="column">
+								<button class="confirm-button" onclick={includeProduct}>Incluir Produto</button>
+							</div>
+						</template>
 					</template>
 				</div>
             </div>
@@ -310,7 +353,7 @@
 										<p><b>Preço:</b> {commodity.productCurrency}{commodity.listPrice}</p>
 									</div>
 									<div class="card-02">
-										<button class="include-button" data-target-id={commodity.id} onclick={selectCommodity}>Escolher</button>
+										<button class="include-button" data-target-id={commodity.Id} onclick={selectCommodity}>Escolher</button>
 									</div>
 								</div>
 							</div>
@@ -327,7 +370,7 @@
 						</div>
 						<div class="column">
 							<label>Valor</label><br>
-							<input class="input-design" type="number" value={selectedCommodity.cotation} data-target-id="cotation" onchange={commodityChange}/>
+							<input class="input-design" type="number" value={selectedCommodity.cotation} data-target-id="cotation" onchange={commodityChange} disabled/>
 						</div>
 					</div>
 
@@ -425,6 +468,22 @@
 						<button if:true={summaryScreen} class="confirm-button" onclick={closeCommodityModal} data-target-id="saveButton">Salvar</button>
 					</div>
 				</div>
+			</div>
+		</div>
+	</div>
+
+	<div style="width: 100%;" if:true={openCommoditiesData}>
+		<div id="commodity-data-modal" class="modal">
+			<div class="modal-content" style="width: 900px">
+                <span class="close" onclick={openCommodityData}>&times;</span>
+				<p class="new-product-title">Detalhes da Negociação</p>
+				<lightning-datatable class="slds-is-relative"
+									 data={commoditiesData}
+									 columns={visualizeCommodityColumns}
+									 key-field="id"
+									 onrowaction={handleCommodityActions}
+					>
+				</lightning-datatable>
 			</div>
 		</div>
 	</div>

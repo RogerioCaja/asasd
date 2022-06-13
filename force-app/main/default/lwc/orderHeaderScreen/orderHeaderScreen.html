@@ -69,12 +69,18 @@
         <div class="campos">
             <fieldset class="slds-form-element slds-form-element_compound">
                 <div class="slds-form-element__control">
-                    <div  if:false={headerData.IsOrderChild} class="slds-form-element__row">
+                    <div if:false={headerData.IsOrderChild} class="slds-form-element__row">
                         <div class="slds-size_1-of-4">
                             <p>
                                 <label>Pedido Mãe:</label>
-                                <input if:true={headerData.pedido_mae_check} type="checkbox" id="check0" name="pedido_mae_check" value="yes" onchange={selectItemRegister} checked>
-                                <input if:false={headerData.pedido_mae_check} type="checkbox" id="check1" name="pedido_mae_check" value="no" onchange={selectItemRegister} disabled={headerDictLocale.IsOrderChild}>
+                                <template if:true={disabled}>
+                                    <input if:true={headerData.pedido_mae_check} type="checkbox" id="check0" name="pedido_mae_check" value="yes" onchange={selectItemRegister} checked disabled>
+                                    <input if:false={headerData.pedido_mae_check} type="checkbox" id="check1" name="pedido_mae_check" value="no" onchange={selectItemRegister} disabled>
+                                </template>
+                                <template if:false={disabled}>
+                                    <input if:true={headerData.pedido_mae_check} type="checkbox" id="check2" name="pedido_mae_check" value="yes" onchange={selectItemRegister} checked>
+                                    <input if:false={headerData.pedido_mae_check} type="checkbox" id="check3" name="pedido_mae_check" value="no" onchange={selectItemRegister} disabled={headerDictLocale.IsOrderChild}>
+                                </template>
                             </p>
                         </div>
                     </div>
@@ -200,39 +206,77 @@
                                 new-record-button={booleanTrue} 
                                 placeholder="Pesquisar Condições de Pagamento"
                                 style="width: 100%;" 
-                                required="true">
+                                required="true"
+                                disabled={disabled}>
                             </c-lookup>
                         </div>
-                        <div class="slds-size_1-of-8">
-                            <lightning-input 
-                                name="data_pagamento"
-                                label="Data de Pagamento" 
-                                field-name="data_pagamento"
-                                value={headerData.data_pagamento} 
-                                date-style="short" 
-                                onchange={selectItemRegister} 
-                                type="date" 
-                                disabled={headerData.IsOrderChild}
-                                required="true"
-                                min={currentDate}
-                                max={dateLimit}>
-                            </lightning-input>
-                        </div>
-                        <div class="slds-size_1-of-8">
-                            <lightning-input 
-                                name="data_entrega"
-                                label="Data de Entrega" 
-                                field-name="data_entrega" 
-                                value={headerData.data_entrega} 
-                                type="date" 
-                                date-style="short" 
-                                onchange={selectItemRegister} 
-                                required="true"
-                                min={currentDate}
-                                max={dateLimitBilling}
-                                disabled={headerData.IsOrderChild}>
-                            </lightning-input>
-                        </div>
+                        
+                        <template if:true={headerData.IsOrderChild}>
+                            <div class="slds-size_1-of-8">
+                                <lightning-input 
+                                    name="data_pagamento"
+                                    label="Data de Pagamento" 
+                                    field-name="data_pagamento"
+                                    value={headerData.data_pagamento} 
+                                    date-style="short" 
+                                    onchange={selectItemRegister} 
+                                    type="date" 
+                                    disabled="true"
+                                    required="true"
+                                    min={currentDate}
+                                    max={dateLimit}>
+                                </lightning-input>
+                            </div>
+                            <div class="slds-size_1-of-8">
+                                <lightning-input 
+                                    name="data_entrega"
+                                    label="Data de Entrega" 
+                                    field-name="data_entrega" 
+                                    value={headerData.data_entrega} 
+                                    type="date" 
+                                    date-style="short" 
+                                    onchange={selectItemRegister} 
+                                    required="true"
+                                    min={currentDate}
+                                    max={dateLimitBilling}
+                                    disabled="true">
+                                </lightning-input>
+                            </div>
+                        </template>
+
+                        <template if:false={headerData.IsOrderChild}>
+                            <div class="slds-size_1-of-8">
+                                <lightning-input 
+                                    name="data_pagamento"
+                                    label="Data de Pagamento" 
+                                    field-name="data_pagamento"
+                                    value={headerData.data_pagamento} 
+                                    date-style="short" 
+                                    onchange={selectItemRegister} 
+                                    type="date" 
+                                    disabled={disabled}
+                                    required="true"
+                                    min={currentDate}
+                                    max={dateLimit}>
+                                </lightning-input>
+                            </div>
+                            <div class="slds-size_1-of-8">
+                                <lightning-input 
+                                    name="data_entrega"
+                                    label="Data de Entrega" 
+                                    field-name="data_entrega" 
+                                    value={headerData.data_entrega} 
+                                    type="date" 
+                                    date-style="short" 
+                                    onchange={selectItemRegister} 
+                                    required="true"
+                                    min={currentDate}
+                                    max={dateLimitBilling}
+                                    disabled={disabled}>
+                                </lightning-input>
+                            </div>
+                        </template>
+
                         <div class="slds-size_1-of-4">
                             <lightning-combobox 
                                 name="forma_pagamento" 
@@ -241,7 +285,8 @@
                                 value={headerData.forma_pagamento}  
                                 onchange={selectItemRegister}
                                 options={formasPagamento} 
-                                required="true">
+                                required="true"
+                                disabled={disabled}>
                             </lightning-combobox>
                         </div>
                     </div>
@@ -276,8 +321,9 @@
                                 field-name="numero_pedido_cliente"
                                 value={headerData.numero_pedido_cliente} 
                                 onchange={selectItemRegister} 
+                                required="false"
                                 type="text" 
-                                required="true">
+                                disabled={disabled}>
                             </lightning-input>
                         </div>
                     </div>
@@ -290,22 +336,39 @@
                                 value={headerData.frete} 
                                 onchange={selectItemRegister} 
                                 options={fretes} 
-                                required="true">
+                                required="true"
+                                disabled={disabled}>
                             </lightning-combobox>
-                            
                         </div>
-                        <div class="slds-size_1-of-4">
-                            <lightning-input 
-                            name="hectares"
-                            label="Hectares" 
-                            field-name="hectares"
-                            value={headerData.hectares}
-                            onchange={selectItemRegister}
-                            type="text" 
-                            required="true"
-                            disabled={headerData.IsOrderChild}>
-                            </lightning-input>
-                        </div>
+
+                        <template if:true={headerData.IsOrderChild}>
+                            <div class="slds-size_1-of-4">
+                                <lightning-input 
+                                name="hectares"
+                                label="Hectares" 
+                                field-name="hectares"
+                                value={headerData.hectares}
+                                onchange={selectItemRegister}
+                                type="text" 
+                                required="true"
+                                disabled="true">
+                                </lightning-input>
+                            </div>
+                        </template>
+                        <template if:false={headerData.IsOrderChild}>
+                            <div class="slds-size_1-of-4">
+                                <lightning-input 
+                                name="hectares"
+                                label="Hectares" 
+                                field-name="hectares"
+                                value={headerData.hectares}
+                                onchange={selectItemRegister}
+                                type="text" 
+                                required="true"
+                                disabled={disabled}>
+                                </lightning-input>
+                            </div>
+                        </template>
                     </div>
                     
                 </div>

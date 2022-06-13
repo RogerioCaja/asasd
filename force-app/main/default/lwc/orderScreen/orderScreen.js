@@ -64,6 +64,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         canal_distribuicao: " ",
         setor_atividade: " ",
         forma_pagamento: " ",
+        tipo_pedido: " ",
         moeda: " ",
         ctv_venda: " ",
         pedido_mae: {},
@@ -192,13 +193,27 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             const data = JSON.parse(result);
             this.accountData = data.accountData;
             this.headerData = data.headerData;
+
+            if (this.childOrder) {
+                this.headerData.status_pedido = 'Em digitação'
+            }
+
             this.productData = data.productData;
             this.qtdItens = data.productData.length;
             this.valorTotal = 0;
-            // this.productData.forEach(product =>{
-            //     this.valorTotal  += parseFloat(product.totalPrice);
-            // })
-            // this.valorTotal = parseFloat(this.valorTotal).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
+            try
+            {
+                this.productData.forEach(product =>{
+                    this.valorTotal  += parseFloat(product.totalPrice);
+                })
+                this.valorTotal = parseFloat(this.valorTotal).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
+
+            }
+            catch(e)
+            {
+                console.log(e);
+            }
+           
             this.divisionData = data.divisionData;
             this.summaryData['observation'] = this.headerData.observation;
             this.summaryData['billing_sale_observation'] = this.headerData.billing_sale_observation;
@@ -299,6 +314,12 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     }
 
     async saveOrder(event){
+        if (this.headerData.status_pedido == 'Em aprovação - Gerente Filial' || this.headerData.status_pedido == 'Em aprovação - Gerente Regional' ||
+            this.headerData.status_pedido == 'Em aprovação - Diretor' || this.headerData.status_pedido == 'Em aprovação - Comitê Margem' || this.headerData.status_pedido == 'Em aprovação - Mesa de Grãos') {
+            this.showNotification('O pedido está Em Aprovação, portanto não pode ser alterado', 'Atenção', 'warning');
+            return;
+        }
+
         const mode = event.detail;
         await this.recordId;
         const data = {accountData: this.accountData, headerData: this.headerData, productData: this.productData, divisionData: this.divisionData, commodityData: this.commodityData, summaryData: this.summaryData};
@@ -358,8 +379,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
     _setHeaderData(event) {
         this.headerData = event.data;
-        this.headerData.IsOrderChild = this.childOrder;
-        // if(this.headerData.IsOrderChild) this.getOrderMother(this.headerData.pedido_mae.Id, this.headerData.pedido_mae.Name);
+        this.headerData.IsOrderChild = this.childOrder || this.headerData.tipo_pedido == 'Pedido Filho';
         console.log('header data setted:', this.headerData);
         if(this.headerData.isCompleted){
             this.enableNextScreen();
@@ -378,15 +398,26 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         this.productData = event.data;
         this.qtdItens = this.productData.length;
         this.valorTotal = 0;
-        // this.productData.forEach(product =>{
-        //     this.valorTotal  = parseFloat(this.valorTotal) + parseFloat(product.totalPrice);
-        // })
-        // this.valorTotal = parseFloat(this.valorTotal).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
+        try
+        {
+            this.productData.forEach(product =>{
+                this.valorTotal  = parseFloat(this.valorTotal) + parseFloat(product.totalPrice);
+            })
+            this.valorTotal = parseFloat(this.valorTotal).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
+        }
+        catch(e)
+        {
+            console.log(e);
+        }
+        
         console.log('this.productData: ' + this.productData);
         console.log('acproductcount data setted:', this.productData, event.detail, event.data, event);
-        //this.qtdItens = this.productData.length;
-        this.enableNextScreen();
-        this.completeCurrentScreen();
+        if(this.headerData.tipo_venda != 'Venda Barter'){
+            this.enableNextScreen();
+            this.completeCurrentScreen();
+        }
+      
+        
     }
 
     _setDivisionData(event) {
@@ -395,6 +426,13 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
     _setCommodityData(event) {
         this.commodityData = event.data;
+        if(this.commodityData.length > 0){
+            this.enableNextScreen();
+            this.completeCurrentScreen();
+        }
+        else{
+            this.disableNextScreen();
+        }
     }
 
     _setSummaryData(event) {
