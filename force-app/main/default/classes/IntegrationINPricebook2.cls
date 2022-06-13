@@ -127,7 +127,7 @@ global with sharing class IntegrationINPricebook2 {
 
         IntegrationUtils.setLookup(new ProductGroup__c(), new Set<String>{'Id', 'ExternalId__c'}, 'ExternalId__c', lookupMap.get('productGroupLookups'), lookups);
 
-        IntegrationUtils.setLookup(new Product2(), new Set<String>{'Id', 'ExternalId__c'}, 'ExternalId__c', lookupMap.get('productLookups'), lookups);
+        IntegrationUtils.setLookup(new Product2(), new Set<String>{'Id', 'ProductCode__c'}, 'ProductCode__c', lookupMap.get('productLookups'), lookups);
 
         IntegrationUtils.setLookup(new Account(), new Set<String>{'Id', 'ExternalId__c'}, 'ExternalId__c', lookupMap.get('accountLookups'), lookups);
 
