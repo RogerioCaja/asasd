@@ -175,6 +175,776 @@
         <default>false</default>
         <label>TRIGO</label>
     </customValue>
+    <customValue>
+        <fullName>HERBICIDA PREM</fullName>
+        <default>false</default>
+        <label>HERBICIDA PREM</label>
+    </customValue>
+    <customValue>
+        <fullName>HERBICIDA GEN</fullName>
+        <default>false</default>
+        <label>HERBICIDA GEN</label>
+    </customValue>
+    <customValue>
+        <fullName>FUNGICIDA PREM</fullName>
+        <default>false</default>
+        <label>FUNGICIDA PREM</label>
+    </customValue>
+    <customValue>
+        <fullName>FUNGICIDA GEN</fullName>
+        <default>false</default>
+        <label>FUNGICIDA GEN</label>
+    </customValue>
+    <customValue>
+        <fullName>INSETICIDA PREM</fullName>
+        <default>false</default>
+        <label>INSETICIDA PREM</label>
+    </customValue>
+    <customValue>
+        <fullName>INSETICIDA GEN</fullName>
+        <default>false</default>
+        <label>INSETICIDA GEN</label>
+    </customValue>
+    <customValue>
+        <fullName>TS INSETICIDA PREM</fullName>
+        <default>false</default>
+        <label>TS INSETICIDA PREM</label>
+    </customValue>
+    <customValue>
+        <fullName>TS INSETICIDA GEN</fullName>
+        <default>false</default>
+        <label>TS INSETICIDA GEN</label>
+    </customValue>
+    <customValue>
+        <fullName>TS FUNGICIDA PREM</fullName>
+        <default>false</default>
+        <label>TS FUNGICIDA PREM</label>
+    </customValue>
+    <customValue>
+        <fullName>TS FUNGICIDA GEN</fullName>
+        <default>false</default>
+        <label>TS FUNGICIDA GEN</label>
+    </customValue>
+    <customValue>
+        <fullName>TS FUNG E INSET PREM</fullName>
+        <default>false</default>
+        <label>TS FUNG E INSET PREM</label>
+    </customValue>
+    <customValue>
+        <fullName>TS FUNG E INSET GEN</fullName>
+        <default>false</default>
+        <label>TS FUNG E INSET GEN</label>
+    </customValue>
+    <customValue>
+        <fullName>OLEO PREM</fullName>
+        <default>false</default>
+        <label>OLEO PREM</label>
+    </customValue>
+    <customValue>
+        <fullName>OLEO GEN</fullName>
+        <default>false</default>
+        <label>OLEO GEN</label>
+    </customValue>
+    <customValue>
+        <fullName>ESP ADESIVO PREM</fullName>
+        <default>false</default>
+        <label>ESP ADESIVO PREM</label>
+    </customValue>
+    <customValue>
+        <fullName>ESP ADESIVO GEN</fullName>
+        <default>false</default>
+        <label>ESP ADESIVO GEN</label>
+    </customValue>
+    <customValue>
+        <fullName>OUTRO PREM</fullName>
+        <default>false</default>
+        <label>OUTRO PREM</label>
+    </customValue>
+    <customValue>
+        <fullName>OUTRO GEN</fullName>
+        <default>false</default>
+        <label>OUTRO GEN</label>
+    </customValue>
+    <customValue>
+        <fullName>BIOLOGICO INOCULANTE</fullName>
+        <default>false</default>
+        <label>BIOLOGICO INOCULANTE</label>
+    </customValue>
+    <customValue>
+        <fullName>BIOLOGICO FUNGICIDA</fullName>
+        <default>false</default>
+        <label>BIOLOGICO FUNGICIDA</label>
+    </customValue>
+    <customValue>
+        <fullName>BIOLOGICO INSETICIDA</fullName>
+        <default>false</default>
+        <label>BIOLOGICO INSETICIDA</label>
+    </customValue>
+    <customValue>
+        <fullName>BIOLOGICO NEMATICIDA</fullName>
+        <default>false</default>
+        <label>BIOLOGICO NEMATICIDA</label>
+    </customValue>
+    <customValue>
+        <fullName>BIOLOGICO HERBICIDA</fullName>
+        <default>false</default>
+        <label>BIOLOGICO HERBICIDA</label>
+    </customValue>
+    <customValue>
+        <fullName>BIOLOGICO FISIOLOGIC</fullName>
+        <default>false</default>
+        <label>BIOLOGICO FISIOLOGIC</label>
+    </customValue>
+    <customValue>
+        <fullName>BIOLOGICO COND SOLO</fullName>
+        <default>false</default>
+        <label>BIOLOGICO COND SOLO</label>
+    </customValue>
+    <customValue>
+        <fullName>NUTRICAO FOLIAR</fullName>
+        <default>false</default>
+        <label>NUTRICAO FOLIAR</label>
+    </customValue>
+    <customValue>
+        <fullName>NUTRICAO TS E SULCO</fullName>
+        <default>false</default>
+        <label>NUTRICAO TS E SULCO</label>
+    </customValue>
+    <customValue>
+        <fullName>NUTRICAO FISIOLOGIC</fullName>
+        <default>false</default>
+        <label>NUTRICAO FISIOLOGIC</label>
+    </customValue>
+    <customValue>
+        <fullName>HORMONAL SINTETICO</fullName>
+        <default>false</default>
+        <label>HORMONAL SINTETICO</label>
+    </customValue>
+    <customValue>
+        <fullName>ADJUVANTE POTENCIALI</fullName>
+        <default>false</default>
+        <label>ADJUVANTE POTENCIALI</label>
+    </customValue>
+    <customValue>
+        <fullName>ADJUVANTE TECN APLIC</fullName>
+        <default>false</default>
+        <label>ADJUVANTE TECN APLIC</label>
+    </customValue>
+    <customValue>
+        <fullName>CONVENCIONAL</fullName>
+        <default>false</default>
+        <label>CONVENCIONAL</label>
+    </customValue>
+    <customValue>
+        <fullName>PREM MINERAL</fullName>
+        <default>false</default>
+        <label>PREM MINERAL</label>
+    </customValue>
+    <customValue>
+        <fullName>PREM ORGANOMIN</fullName>
+        <default>false</default>
+        <label>PREM ORGANOMIN</label>
+    </customValue>
+    <customValue>
+        <fullName>EXCLUSIVO MINERAL</fullName>
+        <default>false</default>
+        <label>EXCLUSIVO MINERAL</label>
+    </customValue>
+    <customValue>
+        <fullName>EXCLUSIVO ORGANOMIN</fullName>
+        <default>false</default>
+        <label>EXCLUSIVO ORGANOMIN</label>
+    </customValue>
+    <customValue>
+        <fullName>ENCARGOS BANCÁRIOS</fullName>
+        <default>false</default>
+        <label>ENCARGOS BANCÁRIOS</label>
+    </customValue>
+    <customValue>
+        <fullName>COMISSÕES</fullName>
+        <default>false</default>
+        <label>COMISSÕES</label>
+    </customValue>
+    <customValue>
+        <fullName>DOAÇÕES</fullName>
+        <default>false</default>
+        <label>DOAÇÕES</label>
+    </customValue>
+    <customValue>
+        <fullName>TAXAS</fullName>
+        <default>false</default>
+        <label>TAXAS</label>
+    </customValue>
+    <customValue>
+        <fullName>TAXAS DE JUROS</fullName>
+        <default>false</default>
+        <label>TAXAS DE JUROS</label>
+    </customValue>
+    <customValue>
+        <fullName>LICENÇA</fullName>
+        <default>false</default>
+        <label>LICENÇA</label>
+    </customValue>
+    <customValue>
+        <fullName>ADESÕES/ DÍVIDAS</fullName>
+        <default>false</default>
+        <label>ADESÕES/ DÍVIDAS</label>
+    </customValue>
+    <customValue>
+        <fullName>O/D, PAGAMENTOS AUTO</fullName>
+        <default>false</default>
+        <label>O/D, PAGAMENTOS AUTO</label>
+    </customValue>
+    <customValue>
+        <fullName>RECIPIENTES DE EMBAL</fullName>
+        <default>false</default>
+        <label>RECIPIENTES DE EMBAL</label>
+    </customValue>
+    <customValue>
+        <fullName>SUPRIMENTOS DE EMBAL</fullName>
+        <default>false</default>
+        <label>SUPRIMENTOS DE EMBAL</label>
+    </customValue>
+    <customValue>
+        <fullName>PALETES</fullName>
+        <default>false</default>
+        <label>PALETES</label>
+    </customValue>
+    <customValue>
+        <fullName>ELETRICA</fullName>
+        <default>false</default>
+        <label>ELETRICA</label>
+    </customValue>
+    <customValue>
+        <fullName>PETRÓLEO E GÁS</fullName>
+        <default>false</default>
+        <label>PETRÓLEO E GÁS</label>
+    </customValue>
+    <customValue>
+        <fullName>OUTRO COMBUSTÍVEL</fullName>
+        <default>false</default>
+        <label>OUTRO COMBUSTÍVEL</label>
+    </customValue>
+    <customValue>
+        <fullName>EQUIP. DE REDE</fullName>
+        <default>false</default>
+        <label>EQUIP. DE REDE</label>
+    </customValue>
+    <customValue>
+        <fullName>EQUIP. TELEFÔNICO</fullName>
+        <default>false</default>
+        <label>EQUIP. TELEFÔNICO</label>
+    </customValue>
+    <customValue>
+        <fullName>GER.DE INSTALAÇÕES</fullName>
+        <default>false</default>
+        <label>GER.DE INSTALAÇÕES</label>
+    </customValue>
+    <customValue>
+        <fullName>EQUIP. DE ESCRITORIO</fullName>
+        <default>false</default>
+        <label>EQUIP. DE ESCRITORIO</label>
+    </customValue>
+    <customValue>
+        <fullName>MATERIAL DE ESCRITÓR</fullName>
+        <default>false</default>
+        <label>MATERIAL DE ESCRITÓR</label>
+    </customValue>
+    <customValue>
+        <fullName>FACILITIES E MANUTEN</fullName>
+        <default>false</default>
+        <label>FACILITIES E MANUTEN</label>
+    </customValue>
+    <customValue>
+        <fullName>SERV. DE INST/MANUT</fullName>
+        <default>false</default>
+        <label>SERV. DE INST/MANUT</label>
+    </customValue>
+    <customValue>
+        <fullName>ENTRETENIMENTO</fullName>
+        <default>false</default>
+        <label>ENTRETENIMENTO</label>
+    </customValue>
+    <customValue>
+        <fullName>FROTA</fullName>
+        <default>false</default>
+        <label>FROTA</label>
+    </customValue>
+    <customValue>
+        <fullName>VIAGEM</fullName>
+        <default>false</default>
+        <label>VIAGEM</label>
+    </customValue>
+    <customValue>
+        <fullName>REMUNER.OU BENEF</fullName>
+        <default>false</default>
+        <label>REMUNER.OU BENEF</label>
+    </customValue>
+    <customValue>
+        <fullName>SERVIÇOS DE RH</fullName>
+        <default>false</default>
+        <label>SERVIÇOS DE RH</label>
+    </customValue>
+    <customValue>
+        <fullName>OUTROS RH</fullName>
+        <default>false</default>
+        <label>OUTROS RH</label>
+    </customValue>
+    <customValue>
+        <fullName>DISPLAYS DE COMPUTAD</fullName>
+        <default>false</default>
+        <label>DISPLAYS DE COMPUTAD</label>
+    </customValue>
+    <customValue>
+        <fullName>PEÇAS E ACES. COMPUT</fullName>
+        <default>false</default>
+        <label>PEÇAS E ACES. COMPUT</label>
+    </customValue>
+    <customValue>
+        <fullName>COMPUTADORES</fullName>
+        <default>false</default>
+        <label>COMPUTADORES</label>
+    </customValue>
+    <customValue>
+        <fullName>HARDWARE DE REDE TI</fullName>
+        <default>false</default>
+        <label>HARDWARE DE REDE TI</label>
+    </customValue>
+    <customValue>
+        <fullName>DISP. DE ARMAZ.MIDIA</fullName>
+        <default>false</default>
+        <label>DISP. DE ARMAZ.MIDIA</label>
+    </customValue>
+    <customValue>
+        <fullName>OUTRAS LOGÍSTICAS</fullName>
+        <default>false</default>
+        <label>OUTRAS LOGÍSTICAS</label>
+    </customValue>
+    <customValue>
+        <fullName>LOGÍSTICA DE TERCEIR</fullName>
+        <default>false</default>
+        <label>LOGÍSTICA DE TERCEIR</label>
+    </customValue>
+    <customValue>
+        <fullName>EMBALAGEM E MANUSEIO</fullName>
+        <default>false</default>
+        <label>EMBALAGEM E MANUSEIO</label>
+    </customValue>
+    <customValue>
+        <fullName>SERVIÇOS DE TERMINAL</fullName>
+        <default>false</default>
+        <label>SERVIÇOS DE TERMINAL</label>
+    </customValue>
+    <customValue>
+        <fullName>SERV.DE VALOR AGREGA</fullName>
+        <default>false</default>
+        <label>SERV.DE VALOR AGREGA</label>
+    </customValue>
+    <customValue>
+        <fullName>ARMAZENAMENTO</fullName>
+        <default>false</default>
+        <label>ARMAZENAMENTO</label>
+    </customValue>
+    <customValue>
+        <fullName>PESQUISA DE MERCADO</fullName>
+        <default>false</default>
+        <label>PESQUISA DE MERCADO</label>
+    </customValue>
+    <customValue>
+        <fullName>MÍDIA &amp; PUBLICIDADE</fullName>
+        <default>false</default>
+        <label>MÍDIA &amp; PUBLICIDADE</label>
+    </customValue>
+    <customValue>
+        <fullName>PROMOÇÃO</fullName>
+        <default>false</default>
+        <label>PROMOÇÃO</label>
+    </customValue>
+    <customValue>
+        <fullName>SERV. DE VENDAS/SUP</fullName>
+        <default>false</default>
+        <label>SERV. DE VENDAS/SUP</label>
+    </customValue>
+    <customValue>
+        <fullName>PAG. INTER/INTRA EMP</fullName>
+        <default>false</default>
+        <label>PAG. INTER/INTRA EMP</label>
+    </customValue>
+    <customValue>
+        <fullName>SERV.DE CONFERÊNCIA</fullName>
+        <default>false</default>
+        <label>SERV.DE CONFERÊNCIA</label>
+    </customValue>
+    <customValue>
+        <fullName>SERV. DE INTERNET</fullName>
+        <default>false</default>
+        <label>SERV. DE INTERNET</label>
+    </customValue>
+    <customValue>
+        <fullName>SERV.TELEFÔNICOS</fullName>
+        <default>false</default>
+        <label>SERV.TELEFÔNICOS</label>
+    </customValue>
+    <customValue>
+        <fullName>MANUT. HARDWARE DE C</fullName>
+        <default>false</default>
+        <label>MANUT. HARDWARE DE C</label>
+    </customValue>
+    <customValue>
+        <fullName>CONS. DE TI &amp; DES. S</fullName>
+        <default>false</default>
+        <label>CONS. DE TI &amp; DES. S</label>
+    </customValue>
+    <customValue>
+        <fullName>IMPOSTOS</fullName>
+        <default>false</default>
+        <label>IMPOSTOS</label>
+    </customValue>
+    <customValue>
+        <fullName>REP.E CONST. DE PRÉD</fullName>
+        <default>false</default>
+        <label>REP.E CONST. DE PRÉD</label>
+    </customValue>
+    <customValue>
+        <fullName>MANUT. E REP. DE EQU</fullName>
+        <default>false</default>
+        <label>MANUT. E REP. DE EQU</label>
+    </customValue>
+    <customValue>
+        <fullName>SERV. DE MANUTENÇÃO</fullName>
+        <default>false</default>
+        <label>SERV. DE MANUTENÇÃO</label>
+    </customValue>
+    <customValue>
+        <fullName>CONSULTORIA</fullName>
+        <default>false</default>
+        <label>CONSULTORIA</label>
+    </customValue>
+    <customValue>
+        <fullName>SERVIÇOS FINANCEIROS</fullName>
+        <default>false</default>
+        <label>SERVIÇOS FINANCEIROS</label>
+    </customValue>
+    <customValue>
+        <fullName>OUTROS SERV. PROFISS</fullName>
+        <default>false</default>
+        <label>OUTROS SERV. PROFISS</label>
+    </customValue>
+    <customValue>
+        <fullName>SOFTWARE ESP. DA FUN</fullName>
+        <default>false</default>
+        <label>SOFTWARE ESP. DA FUN</label>
+    </customValue>
+    <customValue>
+        <fullName>SOFTWARE DE GER. DE</fullName>
+        <default>false</default>
+        <label>SOFTWARE DE GER. DE</label>
+    </customValue>
+    <customValue>
+        <fullName>FINANC. CONTÁBIL E S</fullName>
+        <default>false</default>
+        <label>FINANC. CONTÁBIL E S</label>
+    </customValue>
+    <customValue>
+        <fullName>SOFTWARE DE AMBIENTE</fullName>
+        <default>false</default>
+        <label>SOFTWARE DE AMBIENTE</label>
+    </customValue>
+    <customValue>
+        <fullName>OUTROS SOFTWARES</fullName>
+        <default>false</default>
+        <label>OUTROS SOFTWARES</label>
+    </customValue>
+    <customValue>
+        <fullName>SOFTWARE DE SEGURANÇ</fullName>
+        <default>false</default>
+        <label>SOFTWARE DE SEGURANÇ</label>
+    </customValue>
+    <customValue>
+        <fullName>MATERIAIS DE CONSTRU</fullName>
+        <default>false</default>
+        <label>MATERIAIS DE CONSTRU</label>
+    </customValue>
+    <customValue>
+        <fullName>PROD. QUÍMICOS E LUB</fullName>
+        <default>false</default>
+        <label>PROD. QUÍMICOS E LUB</label>
+    </customValue>
+    <customValue>
+        <fullName>ELÉTRICO</fullName>
+        <default>false</default>
+        <label>ELÉTRICO</label>
+    </customValue>
+    <customValue>
+        <fullName>ELETRÔNICA E INSTRUM</fullName>
+        <default>false</default>
+        <label>ELETRÔNICA E INSTRUM</label>
+    </customValue>
+    <customValue>
+        <fullName>FILTRAÇÃO</fullName>
+        <default>false</default>
+        <label>FILTRAÇÃO</label>
+    </customValue>
+    <customValue>
+        <fullName>COMPONENTES HIDRAULI</fullName>
+        <default>false</default>
+        <label>COMPONENTES HIDRAULI</label>
+    </customValue>
+    <customValue>
+        <fullName>MATERIAIS DE FIXAÇÃO</fullName>
+        <default>false</default>
+        <label>MATERIAIS DE FIXAÇÃO</label>
+    </customValue>
+    <customValue>
+        <fullName>HVAC</fullName>
+        <default>false</default>
+        <label>HVAC</label>
+    </customValue>
+    <customValue>
+        <fullName>GASES INDUSTRIAIS</fullName>
+        <default>false</default>
+        <label>GASES INDUSTRIAIS</label>
+    </customValue>
+    <customValue>
+        <fullName>SUPRIMENTOS INDUSTRI</fullName>
+        <default>false</default>
+        <label>SUPRIMENTOS INDUSTRI</label>
+    </customValue>
+    <customValue>
+        <fullName>EQUIP. DE LAB.E SUP.</fullName>
+        <default>false</default>
+        <label>EQUIP. DE LAB.E SUP.</label>
+    </customValue>
+    <customValue>
+        <fullName>MATERIAL DE MOVIMENT</fullName>
+        <default>false</default>
+        <label>MATERIAL DE MOVIMENT</label>
+    </customValue>
+    <customValue>
+        <fullName>EQUIPAMENTO OEM</fullName>
+        <default>false</default>
+        <label>EQUIPAMENTO OEM</label>
+    </customValue>
+    <customValue>
+        <fullName>TUBOS, VÁLVULAS E EN</fullName>
+        <default>false</default>
+        <label>TUBOS, VÁLVULAS E EN</label>
+    </customValue>
+    <customValue>
+        <fullName>TRANSMISSÃO E ROLAME</fullName>
+        <default>false</default>
+        <label>TRANSMISSÃO E ROLAME</label>
+    </customValue>
+    <customValue>
+        <fullName>BOMBAS E COMPRESSORE</fullName>
+        <default>false</default>
+        <label>BOMBAS E COMPRESSORE</label>
+    </customValue>
+    <customValue>
+        <fullName>SUPRIMENTOS DE SEGUR</fullName>
+        <default>false</default>
+        <label>SUPRIMENTOS DE SEGUR</label>
+    </customValue>
+    <customValue>
+        <fullName>TRANSPORTE AÉREO</fullName>
+        <default>false</default>
+        <label>TRANSPORTE AÉREO</label>
+    </customValue>
+    <customValue>
+        <fullName>SERVIÇOS DE ENTREGA</fullName>
+        <default>false</default>
+        <label>SERVIÇOS DE ENTREGA</label>
+    </customValue>
+    <customValue>
+        <fullName>INTERMODAL</fullName>
+        <default>false</default>
+        <label>INTERMODAL</label>
+    </customValue>
+    <customValue>
+        <fullName>TRANSPORTE MARITIMO</fullName>
+        <default>false</default>
+        <label>TRANSPORTE MARITIMO</label>
+    </customValue>
+    <customValue>
+        <fullName>TRANSPORTE FERROVIÁR</fullName>
+        <default>false</default>
+        <label>TRANSPORTE FERROVIÁR</label>
+    </customValue>
+    <customValue>
+        <fullName>TRANSPORTE RODOVIÁRI</fullName>
+        <default>false</default>
+        <label>TRANSPORTE RODOVIÁRI</label>
+    </customValue>
+    <customValue>
+        <fullName>ESGOTO</fullName>
+        <default>false</default>
+        <label>ESGOTO</label>
+    </customValue>
+    <customValue>
+        <fullName>GESTÃO DE RESÍDUOS</fullName>
+        <default>false</default>
+        <label>GESTÃO DE RESÍDUOS</label>
+    </customValue>
+    <customValue>
+        <fullName>ÁGUA</fullName>
+        <default>false</default>
+        <label>ÁGUA</label>
+    </customValue>
+    <customValue>
+        <fullName>EQUIP METERIOLOGICO</fullName>
+        <default>false</default>
+        <label>EQUIP METERIOLOGICO</label>
+    </customValue>
+    <customValue>
+        <fullName>EQUIP PROT E ACESSOR</fullName>
+        <default>false</default>
+        <label>EQUIP PROT E ACESSOR</label>
+    </customValue>
+    <customValue>
+        <fullName>OUTRO</fullName>
+        <default>false</default>
+        <label>OUTRO</label>
+    </customValue>
+    <customValue>
+        <fullName>SOJA PROPRIA</fullName>
+        <default>false</default>
+        <label>SOJA PROPRIA</label>
+    </customValue>
+    <customValue>
+        <fullName>SOJA TERCEIRO</fullName>
+        <default>false</default>
+        <label>SOJA TERCEIRO</label>
+    </customValue>
+    <customValue>
+        <fullName>MILHO PROPRIA</fullName>
+        <default>false</default>
+        <label>MILHO PROPRIA</label>
+    </customValue>
+    <customValue>
+        <fullName>MILHO TERCEIRO</fullName>
+        <default>false</default>
+        <label>MILHO TERCEIRO</label>
+    </customValue>
+    <customValue>
+        <fullName>SORGO PROPRIA</fullName>
+        <default>false</default>
+        <label>SORGO PROPRIA</label>
+    </customValue>
+    <customValue>
+        <fullName>SORGO TERCEIRO</fullName>
+        <default>false</default>
+        <label>SORGO TERCEIRO</label>
+    </customValue>
+    <customValue>
+        <fullName>ALGODAO PROPRIA</fullName>
+        <default>false</default>
+        <label>ALGODAO PROPRIA</label>
+    </customValue>
+    <customValue>
+        <fullName>ALGODAO TERCEIRO</fullName>
+        <default>false</default>
+        <label>ALGODAO TERCEIRO</label>
+    </customValue>
+    <customValue>
+        <fullName>ARROZ PROPRIA</fullName>
+        <default>false</default>
+        <label>ARROZ PROPRIA</label>
+    </customValue>
+    <customValue>
+        <fullName>ARROZ TERCEIRO</fullName>
+        <default>false</default>
+        <label>ARROZ TERCEIRO</label>
+    </customValue>
+    <customValue>
+        <fullName>FEIJAO PROPRIA</fullName>
+        <default>false</default>
+        <label>FEIJAO PROPRIA</label>
+    </customValue>
+    <customValue>
+        <fullName>FEIJAO TERCEIRO</fullName>
+        <default>false</default>
+        <label>FEIJAO TERCEIRO</label>
+    </customValue>
+    <customValue>
+        <fullName>PASTAGEM PROPRIA</fullName>
+        <default>false</default>
+        <label>PASTAGEM PROPRIA</label>
+    </customValue>
+    <customValue>
+        <fullName>PASTAGEM TERCEIRO</fullName>
+        <default>false</default>
+        <label>PASTAGEM TERCEIRO</label>
+    </customValue>
+    <customValue>
+        <fullName>TRIGO PROPRIA</fullName>
+        <default>false</default>
+        <label>TRIGO PROPRIA</label>
+    </customValue>
+    <customValue>
+        <fullName>TRIGO TERCEIRO</fullName>
+        <default>false</default>
+        <label>TRIGO TERCEIRO</label>
+    </customValue>
+    <customValue>
+        <fullName>AVEIA PROPRIA</fullName>
+        <default>false</default>
+        <label>AVEIA PROPRIA</label>
+    </customValue>
+    <customValue>
+        <fullName>AVEIA TERCEIRO</fullName>
+        <default>false</default>
+        <label>AVEIA TERCEIRO</label>
+    </customValue>
+    <customValue>
+        <fullName>HORTALICA PROPRIA</fullName>
+        <default>false</default>
+        <label>HORTALICA PROPRIA</label>
+    </customValue>
+    <customValue>
+        <fullName>HORTALICA TERCEIRO</fullName>
+        <default>false</default>
+        <label>HORTALICA TERCEIRO</label>
+    </customValue>
+    <customValue>
+        <fullName>GIRASSOL PROPRIA</fullName>
+        <default>false</default>
+        <label>GIRASSOL PROPRIA</label>
+    </customValue>
+    <customValue>
+        <fullName>GIRASSOL TERCEIRO</fullName>
+        <default>false</default>
+        <label>GIRASSOL TERCEIRO</label>
+    </customValue>
+    <customValue>
+        <fullName>OUTRO PROPRIA</fullName>
+        <default>false</default>
+        <label>OUTRO PROPRIA</label>
+    </customValue>
+    <customValue>
+        <fullName>OUTRO TERCEIRO</fullName>
+        <default>false</default>
+        <label>OUTRO TERCEIRO</label>
+    </customValue>
+    <customValue>
+        <fullName>AGROKEA ANAL CICLO</fullName>
+        <default>false</default>
+        <label>AGROKEA ANAL CICLO</label>
+    </customValue>
+    <customValue>
+        <fullName>AGROKEA ANAL SOLO</fullName>
+        <default>false</default>
+        <label>AGROKEA ANAL SOLO</label>
+    </customValue>
+    <customValue>
+        <fullName>FINSEG INTERM SEGURO</fullName>
+        <default>false</default>
+        <label>FINSEG INTERM SEGURO</label>
+    </customValue>
+    <customValue>
+        <fullName>OUTRO SERVICOS</fullName>
+        <default>false</default>
+        <label>OUTRO SERVICOS</label>
+    </customValue>
     <description>Denominação Grupo Mercadoria Externa</description>
     <masterLabel>SubGrupo de Produtos 2</masterLabel>
     <sorted>false</sorted>
