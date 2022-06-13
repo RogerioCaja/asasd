@@ -57,6 +57,10 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>CustomAccountLookupController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>CustomLookupController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -71,7 +75,7 @@
     <classAccesses>
         <apexClass>IntegrationINBoletos</apexClass>
         <enabled>true</enabled>
-    </classAccesses>    
+    </classAccesses>
     <classAccesses>
         <apexClass>IntegrationINInvoice</apexClass>
         <enabled>true</enabled>
@@ -783,11 +787,6 @@
         <editable>false</editable>
         <field>JurosDescontoAntecipao__c.ActivitySector__c</field>
         <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>JurosDescontoAntecipao__c.ClientGroup__c</field>
-        <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
@@ -2052,6 +2051,16 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Task.WhoId</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>User.CodigoSap__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>User.SellerType__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
