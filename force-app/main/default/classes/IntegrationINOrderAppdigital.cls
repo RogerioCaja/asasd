@@ -180,7 +180,7 @@ global with sharing class IntegrationINOrderAppdigital {
         }
 		
         //Creating integration log
-        IntegrationLog.createLog('Order', 'Inbound', JSON.serialize(request), JSON.serialize(responseList), hasError);
+        IntegrationLog.createLog('Order', 'IN', JSON.serialize(request), JSON.serialize(responseList), hasError);
         
         //Returning response
          // Retorna a resposta Outbound

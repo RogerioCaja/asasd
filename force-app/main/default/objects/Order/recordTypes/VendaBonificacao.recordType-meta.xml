@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>VendaSucata</fullName>
+    <fullName>VendaBonificacao</fullName>
     <active>true</active>
     <compactLayoutAssignment>AgroGalaxyOrder</compactLayoutAssignment>
-    <label>Venda Sucata</label>
+    <label>Venda Bonificação</label>
     <picklistValues>
         <picklist>Currency__c</picklist>
         <values>

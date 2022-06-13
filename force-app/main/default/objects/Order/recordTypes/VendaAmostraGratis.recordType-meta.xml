@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>RemessasPromocionais</fullName>
+    <fullName>VendaAmostraGratis</fullName>
     <active>true</active>
     <compactLayoutAssignment>AgroGalaxyOrder</compactLayoutAssignment>
-    <label>Remessas Promocionais</label>
+    <label>Venda Amostra Grátis</label>
     <picklistValues>
         <picklist>Currency__c</picklist>
         <values>

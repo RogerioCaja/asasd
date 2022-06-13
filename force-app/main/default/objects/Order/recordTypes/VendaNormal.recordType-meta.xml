@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>EntregaArmazemGeral</fullName>
+    <fullName>VendaNormal</fullName>
     <active>true</active>
     <compactLayoutAssignment>AgroGalaxyOrder</compactLayoutAssignment>
-    <label>Entrega Armazém Geral</label>
+    <label>Venda Normal</label>
     <picklistValues>
         <picklist>Currency__c</picklist>
         <values>
