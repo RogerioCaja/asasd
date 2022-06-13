@@ -122,24 +122,19 @@ public with sharing class CalloutOrder {
         Map<String, String> codTypeOrder = new Map<String, String>();
         if(!isOrderMother){
             
-            codTypeOrder.put('EntregaArmazemGeral', '');
-            codTypeOrder.put('RemessasPromocionais', 'ZRBO');
+            codTypeOrder.put('VendaAmostraGratis', 'ZRAG');
+            codTypeOrder.put('VendaBonificacao', 'ZRBO');
             codTypeOrder.put('VendaBarter', 'ZVBA');
             codTypeOrder.put('VendaContaOrdem', 'ZRCO');
             codTypeOrder.put('VendaServico', 'ZSER');
             codTypeOrder.put('VendaEntregaFutura', 'ZVEF');
-            codTypeOrder.put('VendaInsumos', 'ZVNO');
-            codTypeOrder.put('VendaSucata', 'ZVSU');
+            codTypeOrder.put('VendaNormal', 'ZVNO');
+            codTypeOrder.put('VendaOrdemSimplesFaturamento', 'ZVVO');
         }
         else{
-            codTypeOrder.put('EntregaArmazemGeral', '');
-            codTypeOrder.put('RemessasPromocionais', '');
-            codTypeOrder.put('VendaBarter', 'ZCVB');
             codTypeOrder.put('VendaContaOrdem', 'ZCCO');
-            codTypeOrder.put('VendaServico', '');
             codTypeOrder.put('VendaEntregaFutura', 'ZCVF');
-            codTypeOrder.put('VendaInsumos', 'ZCVR');
-            codTypeOrder.put('VendaSucata', '');
+            codTypeOrder.put('VendaNormal', 'ZCVN');
         }
 
         return codTypeOrder.containsKey(typeOrder) ? codTypeOrder.get(typeOrder) : '';
