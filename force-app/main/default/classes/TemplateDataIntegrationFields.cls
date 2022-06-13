@@ -522,7 +522,6 @@ global with sharing class TemplateDataIntegrationFields {
                 //Returning Object with Fields
 
             return new Boletos__c(
-                Name = this.LinhaDigitavel,
                 SalesOrg__c = lookups.containsKey('SalesOrg__c'+this.Empresa) ? lookups.get('SalesOrg__c'+this.Empresa) : null,
                 AccountCode__c = lookups.containsKey('AccountCode__c'+this.CodigoParceiro) ? lookups.get('AccountCode__c'+this.CodigoParceiro) : null,
                 ExpirationDate__c = Date.valueOf(VencimentoBoleto),
