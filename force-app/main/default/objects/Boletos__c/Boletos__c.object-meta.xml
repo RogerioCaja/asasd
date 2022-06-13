@@ -161,13 +161,14 @@
     <externalSharingModel>Private</externalSharingModel>
     <label>Boleto</label>
     <nameField>
+        <displayFormat>B-{0000}</displayFormat>
         <label>Nome de Boleto</label>
         <trackFeedHistory>false</trackFeedHistory>
         <trackHistory>false</trackHistory>
-        <type>Text</type>
+        <type>AutoNumber</type>
     </nameField>
     <pluralLabel>Boletos</pluralLabel>
-    <searchLayouts/>
+    <searchLayouts></searchLayouts>
     <sharingModel>ReadWrite</sharingModel>
     <visibility>Public</visibility>
 </CustomObject>
