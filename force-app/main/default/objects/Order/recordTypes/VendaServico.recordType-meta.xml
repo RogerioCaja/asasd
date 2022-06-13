@@ -166,6 +166,13 @@
         </values>
     </picklistValues>
     <picklistValues>
+        <picklist>StatusRecusa__c</picklist>
+        <values>
+            <fullName>Teste</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
         <picklist>StatusSAP__c</picklist>
         <values>
             <fullName>1</fullName>

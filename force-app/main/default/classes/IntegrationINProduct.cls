@@ -57,10 +57,10 @@ global with sharing class IntegrationINProduct {
           
         //Upserting records (Product)
 		IntegrationUtils.upsertRecords(
-            Database.upsert(productListToUpsert, Product2.ExternalId__c, false), 
+            Database.upsert(productListToUpsert, Product2.ProductCode__c, false), 
             responseList, 
             productListToUpsert, 
-            Product2.ExternalId__c
+            Product2.ProductCode__c
         );
         
         //Upserting records (OrderItem)
@@ -106,7 +106,7 @@ global with sharing class IntegrationINProduct {
         }
 		
         //Creating integration log
-        IntegrationLog.createLog('Product2', 'Inbound', JSON.serialize(request), JSON.serialize(responseList), hasError);
+        IntegrationLog.createLog('Product2', 'IN', JSON.serialize(request), JSON.serialize(responseList), hasError);
         
         //Returning response
          // Retorna a resposta Outbound

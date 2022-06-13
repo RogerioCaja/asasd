@@ -24,36 +24,36 @@
         <fullName>1</fullName>
         <default>false</default>
         <label>Em análise de Crédito</label>
-        <groupingString>Activated</groupingString>
+        <groupingString>Draft</groupingString>
     </standardValue>
     <standardValue>
         <fullName>2</fullName>
         <default>false</default>
         <label>Crédito Bloqueado</label>
-        <groupingString>Activated</groupingString>
+        <groupingString>Draft</groupingString>
     </standardValue>
     <standardValue>
         <fullName>3</fullName>
         <default>false</default>
         <label>Crédito Liberado</label>
-        <groupingString>Activated</groupingString>
+        <groupingString>Draft</groupingString>
     </standardValue>
     <standardValue>
         <fullName>4</fullName>
         <default>false</default>
         <label>Faturado Parcialmente</label>
-        <groupingString>Activated</groupingString>
+        <groupingString>Draft</groupingString>
     </standardValue>
     <standardValue>
         <fullName>5</fullName>
         <default>false</default>
         <label>Concluído</label>
-        <groupingString>Activated</groupingString>
+        <groupingString>Draft</groupingString>
     </standardValue>
     <standardValue>
         <fullName>X</fullName>
         <default>false</default>
         <label>Cancelado</label>
-        <groupingString>Activated</groupingString>
+        <groupingString>Draft</groupingString>
     </standardValue>
 </StandardValueSet>
