@@ -2,6 +2,7 @@
 global with sharing class IntegrationINPricebook2 {
 
     global static Boolean hasError = false;
+    global static Boolean errorCostPrice = false;
     // This example of request
     // EndPoint => /services/apexrest/upsertPricebook2/
     // {
@@ -69,13 +70,24 @@ global with sharing class IntegrationINPricebook2 {
 
     global static void upsertInterestDiscount(Map<String, List<String>> lookupMap, Map<String, Id> lookups, List<TemplateDataIntegrationFields.JurosDescontoAntecipaoINData> request, List<TemplateDataIntegrationFields.ResponseParent> responseList, 
     List<JurosDescontoAntecipao__c> interestDicountListToUpsert){
+        
+        List<TemplateDataIntegrationFields.JurosDescontoAntecipaoINData> interestToRemove = new List<TemplateDataIntegrationFields.JurosDescontoAntecipaoINData>();
+        List<TemplateDataIntegrationFields.JurosDescontoAntecipaoINData> cloneRequest = request.clone();
+        
         Integer valueToTransform;
+
         Map<String, List<String>> requirementsMap = prepareRequirements();
         Map<String, Boolean> isValidMap = new Map<String, Boolean>();
+
         for(TemplateDataIntegrationFields.JurosDescontoAntecipaoINData interestDiscount : request){
 
             if(interestDiscount.typeCondition == 'ZPRS'){
                 interestDiscount = getRecord(interestDiscount);
+                if(errorCostPrice){
+                    getRecordInCreation(interestDiscount, request);
+                    interestToRemove.add(interestDiscount);
+                }
+                
             }
             if(interestDiscount.accountCode != null){
                 valueToTransform = Integer.valueOf(interestDiscount.accountCode);
@@ -123,7 +135,10 @@ global with sharing class IntegrationINPricebook2 {
 
         IntegrationUtils.setLookup(new DistributionCenter__c(), new Set<String>{'Id', 'Code__c'}, 'Code__c', lookupMap.get('centerLookups'), lookups);
 
-
+		
+        for(TemplateDataIntegrationFields.JurosDescontoAntecipaoINData interest : interestToRemove){
+            request.remove(request.indexOf(interest));
+        }
         FactoryDataIntegration.convertSObject(new JurosDescontoAntecipao__c(), 'IN', request, responseList, interestDicountListToUpsert, lookups, requirementsMap, isValidMap);
         
         IntegrationUtils.upsertRecords(
@@ -137,7 +152,7 @@ global with sharing class IntegrationINPricebook2 {
             
         
         //Creating integration log
-        IntegrationLog.createLog('Lista de Preço, Juros e Descontos de Antecipação IN', 'IN', JSON.serialize(request), JSON.serialize(responseList), hasError);
+        IntegrationLog.createLog('Lista de Preço, Juros e Descontos de Antecipação IN', 'IN', JSON.serialize(cloneRequest), JSON.serialize(responseList), hasError);
     }
 
 
@@ -175,31 +190,57 @@ global with sharing class IntegrationINPricebook2 {
     }
 
     global static TemplateDataIntegrationFields.JurosDescontoAntecipaoINData getRecord(TemplateDataIntegrationFields.JurosDescontoAntecipaoINData data){
-        String externalId = data.orgVendas != ''  ? data.orgVendas + '_' : '';
-        externalId = externalId + (data.cropCode != ''  ? data.cropCode + '_' : '');
-        externalId = externalId + (data.typeCurrency != ''  ? data.typeCurrency + '_' : '');
-        externalId = externalId + (data.salesCondition != ''  ? data.salesCondition + '_' : '');
-        externalId = externalId + (data.productGroup != ''  ? data.productGroup + '_' : '');
-        externalId = externalId + (data.salesOffice != ''  ? data.salesOffice + '_' : '');
-        externalId = externalId + (data.cultureCode != ''  ? data.cultureCode + '_' : '');
-        externalId = externalId + (data.accountGroup != ''  ? data.accountGroup + '_' : '');
-        externalId = externalId + (data.accountCode != ''  ? data.accountCode + '_' : '');
-        externalId = externalId + (data.salesTeam != ''  ? data.salesTeam + '_' : '');
-        externalId = externalId + (data.product != ''  ? data.product : '');
+        String externalId = createExternalId(data);
         JurosDescontoAntecipao__c condition;
         try{
-            condition = [SELECT ExternalId__c FROM JurosDescontoAntecipao__c WHERE DescriptionExternalId__c =: externalId];
+            condition = [SELECT ExternalId__c, UnitPrice__c FROM JurosDescontoAntecipao__c WHERE DescriptionExternalId__c =: externalId];
         }
         catch(Exception e){
+            errorCostPrice = true;
             condition = null;
         }
         
-        
-        if(condition != null)
+        if(condition != null){
             data.externalId = condition.ExternalId__c;
-            
+            data.costPrice = data.unitPrice; //this is unic field SAP send, then this field is confused
+            data.unitPrice = String.valueOf(condition.UnitPrice__c);
+        }  
         
         return data;
+    }
+
+    global static TemplateDataIntegrationFields.JurosDescontoAntecipaoINData getRecordInCreation(TemplateDataIntegrationFields.JurosDescontoAntecipaoINData data, List<TemplateDataIntegrationFields.JurosDescontoAntecipaoINData> datas){
+        List<TemplateDataIntegrationFields.JurosDescontoAntecipaoINData> priceConditonList = new List<TemplateDataIntegrationFields.JurosDescontoAntecipaoINData>();
+        for(TemplateDataIntegrationFields.JurosDescontoAntecipaoINData interest : datas){
+            if(interest.typeCondition == 'ZPR0')
+                priceConditonList.add(interest);
+        }
+
+        for(TemplateDataIntegrationFields.JurosDescontoAntecipaoINData interest : priceConditonList){
+            if(createExternalId(data) == createExternalId(interest)){
+                interest.unitPrice = interest.unitPrice;
+                interest.costPrice = data.unitPrice;
+                break;
+            }
+        }
+        errorCostPrice = false;
+        return data;
+    }
+
+    global static String createExternalId(TemplateDataIntegrationFields.JurosDescontoAntecipaoINData data){
+        String externalId = data.orgVendas != '' && data.orgVendas != null ? data.orgVendas + '_' : '';
+        externalId = externalId + (data.cropCode != '' && data.cropCode != null  ? data.cropCode + '_' : '');
+        externalId = externalId + (data.typeCurrency != '' && data.typeCurrency != null  ? data.typeCurrency + '_' : '');
+        externalId = externalId + (data.salesCondition != '' && data.salesCondition != null  ? data.salesCondition + '_' : '');
+        externalId = externalId + (data.productGroup != '' && data.productGroup != null  ? data.productGroup + '_' : '');
+        externalId = externalId + (data.salesOffice != '' && data.salesOffice != null  ? data.salesOffice + '_' : '');
+        externalId = externalId + (data.cultureCode != '' && data.cultureCode != null  ? data.cultureCode + '_' : '');
+        externalId = externalId + (data.accountGroup != '' && data.accountGroup != null  ? data.accountGroup + '_' : '');
+        externalId = externalId + (data.accountCode != '' && data.accountCode != null  ? data.accountCode + '_' : '');
+        externalId = externalId + (data.salesTeam != '' && data.salesTeam != null  ? data.salesTeam + '_' : '');
+        externalId = externalId + (data.product != '' && data.product != null  ? data.product : '');
+
+        return externalId;
     }
 
     global static void setResponses(List<TemplateDataIntegrationFields.ResponseParent> responseList){
