@@ -106,7 +106,7 @@ global with sharing class IntegrationINProduct {
         }
 		
         //Creating integration log
-        IntegrationLog.createLog('Product2', 'Inbound', JSON.serialize(request), JSON.serialize(responseList), hasError);
+        IntegrationLog.createLog('Product2', 'IN', JSON.serialize(request), JSON.serialize(responseList), hasError);
         
         //Returning response
          // Retorna a resposta Outbound
