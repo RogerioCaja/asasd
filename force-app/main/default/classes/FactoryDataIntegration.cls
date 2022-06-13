@@ -64,10 +64,12 @@ public with sharing class FactoryDataIntegration {
         TemplateDataIntegrationFields.JurosDescontoAntecipaoINData defaults = new TemplateDataIntegrationFields.JurosDescontoAntecipaoINData();
 
         for (TemplateDataIntegrationFields.JurosDescontoAntecipaoINData Obj : fieldDataList) {
-            if(isValidMap.get(Obj.externalId))
-                validateObject(defaults.getFieldId(), defaults.getFieldKey(), Obj.serialize(lookups), listToUpsert, responseList, requiredFields.get(Obj.table));
-            else
-                validateObject(defaults.getFieldId(), defaults.getFieldKey(), Obj.serialize(lookups), listToUpsert, responseList, defaults.getRequiredFields());
+            if(isValidMap.containsKey(Obj.externalId)){
+                if(isValidMap.get(Obj.externalId))
+                   validateObject(defaults.getFieldId(), defaults.getFieldKey(), Obj.serialize(lookups), listToUpsert, responseList, requiredFields.get(Obj.table));
+               else
+                   validateObject(defaults.getFieldId(), defaults.getFieldKey(), Obj.serialize(lookups), listToUpsert, responseList, defaults.getRequiredFields());
+           }
         }
     }
 
