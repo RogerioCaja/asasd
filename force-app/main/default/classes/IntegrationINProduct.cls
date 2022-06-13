@@ -14,8 +14,8 @@ global with sharing class IntegrationINProduct {
 
     
         List<TemplateDataIntegrationFields.ResponseParent> responseList = new List<TemplateDataIntegrationFields.ResponseParent>();
-        List<TemplateDataINtegrationFields.OrgVProductINData> orgVProductListToUpsert = new List<TemplateDataINtegrationFields.OrgVProductINData>();
         //List<TemplateDataINtegrationFields.Product2INData> productListToUpsert = new List<TemplateDataINtegrationFields.Product2INData>();
+        List<TemplateDataINtegrationFields.OrgVProductINData> orgVProductListToUpsert = new List<TemplateDataINtegrationFields.OrgVProductINData>();
         List<Product2> productListToUpsert = new List<Product2>();
         
 
@@ -57,10 +57,10 @@ global with sharing class IntegrationINProduct {
           
         //Upserting records (Product)
 		IntegrationUtils.upsertRecords(
-            Database.upsert(productListToUpsert, Product2.ExternalId__c, false), 
+            Database.upsert(productListToUpsert, Product2.ProductCode__c, false), 
             responseList, 
             productListToUpsert, 
-            Product2.ExternalId__c
+            Product2.ProductCode__c
         );
         
         //Upserting records (OrderItem)
