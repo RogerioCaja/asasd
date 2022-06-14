@@ -4,23 +4,27 @@
 			<span>Pesquisar <b>PRODUTO</b>:</span>
 		</div>
 		
-		<c-custom-order-search object-name="Product2" field-name="Name" product-params={productParams} onshowresults={showResults} label="Pesquisar PRODUTO:" placeholder="Digite o nome do Produto" required="true" onchild={getFieldsValueProduct}></c-custom-order-search>
+		<c-custom-order-search data-target-id="product-search" object-name="Product2" field-name="Name" product-params={productParams} onshowresults={showResults} label="Pesquisar PRODUTO:" placeholder="Digite o nome do Produto" required="true" onchild={getFieldsValueProduct}></c-custom-order-search>
 
-		<div class="row" style="width: 100%;" if:true={showBaseProducts}>
-			<template for:each={baseProducts} for:item="prod">
-				<div key={prod.Id} class="card">
-					<div class="container">
-						<div class="card-01">
-							<p class="product-name">{prod.Name}</p>
-							<p><b>Grupo:</b> {prod.productGroupName}</p>
-							<p><b>Princípio ativo:</b> {prod.activePrinciple}</p>
-						</div>
-						<div class="card-02">
-							<button class="include-button" data-target-id={prod.Id} onclick={showProductModal}>Incluir</button>
+		<div style="width: 100%;">
+			<div class="product-column product-left"><span class="arrow-style" if:true={showArrows} onclick={backProductScreen}>&#8249;</span></div>
+			<div class="product-column middle" style="width: 90%; float: left;" if:true={showBaseProducts}>
+				<template for:each={baseProducts} for:item="prod">
+					<div key={prod.Id} class="card">
+						<div class="container">
+							<div class="card-01">
+								<p class="product-name">{prod.Name}</p>
+								<p><b>Grupo:</b> {prod.productGroupName}</p>
+								<p><b>Princípio ativo:</b> {prod.activePrinciple}</p>
+							</div>
+							<div class="card-02">
+								<button class="include-button" data-target-id={prod.Id} onclick={showProductModal}>Incluir</button>
+							</div>
 						</div>
 					</div>
-				</div>
-			</template>
+				</template>
+			</div>
+			<div class="product-column product-right"><span class="arrow-style" if:true={showArrows} onclick={nextProductScreen}>&#8250;</span></div>
 		</div>
 	</template>
 
