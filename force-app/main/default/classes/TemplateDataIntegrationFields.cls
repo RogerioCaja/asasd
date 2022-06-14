@@ -181,7 +181,7 @@ global with sharing class TemplateDataIntegrationFields {
 
             //Returning Object with Fields.
             return new OrgVProduct__c(
-                OrgVExternal__c = this.OrgProduct + '|' + this.OrgVId,
+                OrgVExternal__c = this.OrganizacaoVendas + '|' + this.OrgProduct + '|' + this.centroFilial,
                 SalesOrg__c = lookups.containsKey('SalesOrg__c' + this.OrganizacaoVendas) ? lookups.get('SalesOrg__c' + this.OrganizacaoVendas) : null,
                 Product__c = lookups.containsKey('Product2' + this.OrgProduct) ? lookups.get('Product2' + this.OrgProduct) : null,
                 Department__c = this.SetorAtividade,
