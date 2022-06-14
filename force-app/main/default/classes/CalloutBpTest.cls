@@ -66,8 +66,6 @@
             CalloutBP.processIntegration();
             Test.stopTest();
             Account accountResult = [SELECT Id, ExternalId__c, CPF__c FROM Account WHERE ExternalId__c = '11111'];
-            List<ObjectTerritory2Association> objObjectTerritory2Association = new List<ObjectTerritory2Association>([SELECT Id, ObjectId, Territory2Id  FROM ObjectTerritory2Association]);
-            System.debug('objObjectTerritory2Association: '+ objObjectTerritory2Association);
             System.debug('accountResult: '+ accountResult);
         } 
     }
