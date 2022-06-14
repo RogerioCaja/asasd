@@ -169,6 +169,7 @@ global with sharing class TemplateDataIntegrationFields {
         
         //JSON fields Example
         public String OrgVId;
+        public String centroFilial;
         public String OrganizacaoVendas;
         public String SetorAtividade;
         public String OrgProduct;
@@ -183,6 +184,7 @@ global with sharing class TemplateDataIntegrationFields {
                 SalesOrg__c = lookups.containsKey('SalesOrg__c' + this.OrganizacaoVendas) ? lookups.get('SalesOrg__c' + this.OrganizacaoVendas) : null,
                 Product__c = lookups.containsKey('Product2' + this.OrgProduct) ? lookups.get('Product2' + this.OrgProduct) : null,
                 Department__c = this.SetorAtividade,
+                SupplierCenter__c = this.centroFilial,
                 Status__c = this.Status
             );
         }
