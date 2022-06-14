@@ -70,6 +70,12 @@
                 <default>false</default>
                 <label>PIX</label>
             </value>
+            <value>
+                <fullName>Bonificação</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Bonificação</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>
