@@ -135,7 +135,7 @@ global with sharing class TemplateDataIntegrationFields {
                 ProductSubgroup2__c = this.SubgrupoMercadoria2,
                 MarcadoEliminacao__c = this.MarcadoEliminacao,
                 QuantityUnitOfMeasure = this.UnidadePeso,
-                ExternalId__c = this.CodigoControle,
+                ExternalId__c = this.ProductCode,
                 ClasseAvaliacao__c = this.ClasseAvaliacao,
                 OrigemMaterial__c = this.OrigemMaterial,
                 Brand__c = this.Marca,
