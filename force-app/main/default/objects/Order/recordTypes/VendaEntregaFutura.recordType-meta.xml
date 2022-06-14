@@ -122,7 +122,51 @@
     <picklistValues>
         <picklist>PaymentForm__c</picklist>
         <values>
-            <fullName>Bonificação</fullName>
+            <fullName>A</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>B</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>C</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>D</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>E</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>H</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>L</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>P</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>S</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>T</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>V</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>X</fullName>
             <default>false</default>
         </values>
     </picklistValues>
