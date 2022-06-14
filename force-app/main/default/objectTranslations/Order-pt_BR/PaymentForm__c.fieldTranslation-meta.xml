@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
-    <label><!-- Forma de Pagamento --></label>
-    <name>PaymentForm__c</name>
-    <picklistValues>
-        <masterLabel>Bonificação</masterLabel>
-        <translation><!-- Bonificação --></translation>
-    </picklistValues>
-</CustomFieldTranslation>
