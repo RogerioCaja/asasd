@@ -60,6 +60,7 @@ public without sharing class CustomLookupController {
             salesResult.salesOfficeId = productParams.salesOfficeId;
             salesResult.salesTeamId = productParams.salesTeamId;
             salesResult.segmento = [SELECT Industry FROM Account WHERE Id =: productParams.accountId].Industry;
+            salesResult.searchString = searchString;
             result.salesResult = salesResult;
 
             Set<String> priceFields = new Set<String>{'Id', 'UnitPrice__c', 'Cost__c', 'Product__c', 'Currency__c', 'SalesOrg__c', 'SalesTeam__c', 'SalesOffice__c', 'Account__c', 'Culture__c'};
@@ -109,6 +110,7 @@ public without sharing class CustomLookupController {
             Set<String> normalSale = new Set<String>{'HAWA', 'FERT'};
             String productType = isCommodity ? 'ZCOM' : (productParams.orderType == 'Venda de Serviço' ? 'DIEN' : (productParams.orderType == 'Venda Barter' ? 'HAWA' : ''));
             
+            Integer numberOfRowsToSkip = productParams.numberOfRowsToSkip;
             String productQuery = 'SELECT Id, Name, ExternalId__c, QuantityUnitOfMeasure, ProductGroup__c, ProductGroup__r.Name, ProductSubgroup__c, PrincipleActive__c, Multiplicity__c, ProductHierarchy__c' +
                                   '  FROM Product2' +
                                   ' WHERE Id IN:prodsId' +
@@ -122,7 +124,9 @@ public without sharing class CustomLookupController {
                                   '         OR ProductGroup__r.Name LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\'' +
                                   '         OR PrincipleActive__c LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\'' +
                                   '       )' +
-                                  ' LIMIT 49999';
+                                  ' ORDER BY Name' +
+                                  ' LIMIT 9' +
+                                  ' OFFSET :numberOfRowsToSkip';
             
             List<SObject> queryResult = Database.query(productQuery);
             Set<Id> prodGroupIds = new Set<Id>();
@@ -294,17 +298,18 @@ public without sharing class CustomLookupController {
     }
 
     public class ProductParams {
-        public String salesConditionId;
-        public String accountId;
-        public String ctvId;
-        public String safra;
-        public String productCurrency;
-        public String culture;
-        public String orderType;
-        public String supplierCenter;
-        public String salesOrgId;
-        public String salesOfficeId;
-        public String salesTeamId;
+        public String  salesConditionId;
+        public String  accountId;
+        public String  ctvId;
+        public String  safra;
+        public String  productCurrency;
+        public String  culture;
+        public String  orderType;
+        public String  supplierCenter;
+        public String  salesOrgId;
+        public String  salesOfficeId;
+        public String  salesTeamId;
+        public Integer numberOfRowsToSkip;
     }
 
     public class ProductDataResult {
@@ -318,5 +323,6 @@ public without sharing class CustomLookupController {
         @AuraEnabled public Id salesOfficeId;
         @AuraEnabled public Id salesTeamId;
         @AuraEnabled public String segmento;
+        @AuraEnabled public String searchString;
     }
 }

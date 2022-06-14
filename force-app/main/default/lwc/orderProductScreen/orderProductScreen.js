@@ -7,7 +7,7 @@ import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getSafraInfos from '@salesforce/apex/OrderScreenController.getSafraInfos';
 import getFinancialInfos from '@salesforce/apex/OrderScreenController.getFinancialInfos';
 import getAccountCompanies from '@salesforce/apex/OrderScreenController.getAccountCompanies';
-
+import fetchOrderRecords from '@salesforce/apex/CustomLookupController.fetchProductsRecords';
 
 let actions = [];
 let commodityActions = [{label: 'Excluir', name: 'delete'}];
@@ -40,6 +40,7 @@ export default class OrderProductScreen extends LightningElement {
 
     baseProducts = [];
     showBaseProducts = false;
+    showArrows = false;
     showIncludedProducts = false;
     message = false;
     createNewProduct = false;
@@ -82,6 +83,7 @@ export default class OrderProductScreen extends LightningElement {
     visualizeCommodityColumns = [];
 
     disabled=false;
+    numberOfRowsToSkip=0;
 
     // haScreen = false;
     /* haData = [{
@@ -220,6 +222,7 @@ export default class OrderProductScreen extends LightningElement {
                     initialDate: safraResult.initialDate,
                     endDate: safraResult.endDate
                 };
+
                 this.productParams = {
                     salesConditionId: this.headerData.condicao_venda.Id,
                     accountId: this.accountData.Id,
@@ -231,8 +234,10 @@ export default class OrderProductScreen extends LightningElement {
                     supplierCenter: this.selectedCompany.supplierCenter,
                     salesOrgId: this.selectedCompany.salesOrgId != null ? this.selectedCompany.salesOrgId : '',
                     salesOfficeId: this.selectedCompany.salesOfficeId != null ? this.selectedCompany.salesOfficeId : '',
-                    salesTeamId: this.selectedCompany.salesTeamId != null ? this.selectedCompany.salesTeamId : ''
+                    salesTeamId: this.selectedCompany.salesTeamId != null ? this.selectedCompany.salesTeamId : '',
+                    numberOfRowsToSkip: this.numberOfRowsToSkip
                 };
+
                 let orderData = {
                     paymentDate: this.headerData.data_pagamento != null ? this.headerData.data_pagamento : '',
                     salesOrg: this.selectedCompany.salesOrgId != null ? this.selectedCompany.salesOrgId : '',
@@ -241,32 +246,40 @@ export default class OrderProductScreen extends LightningElement {
                     safra: this.headerData.safra.Id != null ? this.headerData.safra.Id : '',
                     culture: this.headerData.cultura.Id != null ? this.headerData.cultura.Id : ''
                 };
+
                 if (!this.headerData.IsOrderChild) {
                     getFinancialInfos({data: JSON.stringify(orderData)})
                     .then((result) => {
                         this.financialInfos = JSON.parse(result);
+                        
                         if (this.products.length > 0) {
                             let showPriceChange = false;
                             let showQuantityChange = false;
                             let priceChangeMessage = '';
                             let currentProducts = this.products;
+                            
                             for (let index = 0; index < currentProducts.length; index++) {
                                 this.recalculatePrice = true;
                                 this.editProduct(currentProducts[index].position, true);
                                 let oldQUantity = currentProducts[index].quantity;
                                 this.addProduct.quantity = this.calculateMultiplicity(this.addProduct.dosage * this.hectares);
+                                
                                 if (this.addProduct.quantity != oldQUantity) {
                                     showQuantityChange = true;
                                 }
+
                                 let oldPrice = currentProducts[index].unitPrice;
                                 this.calculateTotalPrice(true);
                                 let newPrice = this.changeProduct();
+                                
                                 if (oldPrice != newPrice) {
                                     showPriceChange = true;
                                     priceChangeMessage += 'O preço do ' + currentProducts[index].name + ' foi alterado de ' + oldPrice + ' para ' + newPrice + '.\n';
                                 }
                             }
+                            
                             this.recalculatePrice = false;
+                            
                             if (showPriceChange) {
                                 if (currentProducts.length > 1) {
                                     priceChangeMessage = 'Os preços foram recalculados devido a alteração de data de pagamento. Verifique-os.';
@@ -1032,6 +1045,9 @@ export default class OrderProductScreen extends LightningElement {
         this.productsPriceMap = event.results.recordsDataMap;
         this.salesInfos = event.results.salesResult;
         this.message = this.baseProducts.length > 0 ? false : event.message;
+        if (this.baseProducts.length >= 9) {
+            this.showArrows = true;
+        }
     }
 
     openCommodities(event) {
@@ -1205,6 +1221,36 @@ export default class OrderProductScreen extends LightningElement {
                 this.showToast('success', 'Sucesso!', 'Commodity removida.');
             break;
         }
+    }
+
+    backProductScreen(event) {
+        this.productParams.numberOfRowsToSkip = this.productParams.numberOfRowsToSkip > 0 ? this.productParams.numberOfRowsToSkip - 9 : 0;
+        this.getProducts();
+    }
+
+    nextProductScreen(event) {
+        if (this.baseProducts.length == 9) {
+            this.productParams.numberOfRowsToSkip += 9;
+            this.getProducts();
+        }
+    }
+
+    getProducts() {
+        fetchOrderRecords({
+            searchString: this.salesInfos.searchString,
+            data: JSON.stringify(this.productParams),
+            isCommodity: false
+        })
+        .then(result => {
+            this.showBaseProducts = result.recordsDataList.length > 0;
+            this.baseProducts = result.recordsDataList;
+            this.productsPriceMap = result.recordsDataMap;
+            this.salesInfos = result.salesResult;
+            this.message = this.baseProducts.length > 0 ? false : result.message;
+            if (this.baseProducts.length >= 9) {
+                this.showArrows = true;
+            }
+        });
     }
 
     showToast(type, title, message) {
