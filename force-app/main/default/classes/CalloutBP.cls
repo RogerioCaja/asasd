@@ -33,7 +33,7 @@ public with sharing class CalloutBP {
                 }
                 Account ac = new Account(
                 Name = valor.Nome,
-                Company = valor.Nome,    
+                Company__c = valor.Nome,    
                 ExternalId__c = valor.CodigoExterno,
                 ParentId = lookups.containsKey('Account__c'+valor.ContaPai) ? lookups.get('Account__c'+valor.ContaPai) : null,
                 CNPJ__c = valor.CNPJ,
