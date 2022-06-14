@@ -55,11 +55,8 @@ public with sharing class CalloutBP {
                 accountList.add(ac);
             }
             for(CompanyINData company : companyList){
-                for(ItemsPartner partner : company.Partner){
-                    userCodigoSapList.add(partner.BU_Partner);
-                }
+                userCodigoSapList.add(company.Partner);
             }
-            System.debug('accountList: '+ accountList);
                        
             if (!accountList.isEmpty()) {
                 upsert accountList ExternalId__c;
@@ -170,12 +167,10 @@ public with sharing class CalloutBP {
 
         List<ObjectTerritory2Association> objectTerritoryList = new List<ObjectTerritory2Association>();
         for(CompanyINData company : companyList){
-            for(ItemsPartner partner : company.Partner){
-                UserTerritory2Association userTerrytory = userTerrytoryMap.get(partner.BU_Partner);
-                String accountId = accountExternalIdMap.get(company.CodigoExternoAccount);
-                ObjectTerritory2Association objObjectTerritory2Association = new ObjectTerritory2Association(ObjectId = accountId, Territory2Id = userTerrytory.Territory2Id, AssociationCause='Territory2Manual');
-                objectTerritoryList.add(objObjectTerritory2Association);
-            }
+            UserTerritory2Association userTerrytory = userTerrytoryMap.get(company.Partner);
+            String accountId = accountExternalIdMap.get(company.CodigoExternoAccount);
+            ObjectTerritory2Association objObjectTerritory2Association = new ObjectTerritory2Association(ObjectId = accountId, Territory2Id = userTerrytory.Territory2Id, AssociationCause='Territory2Manual');
+            objectTerritoryList.add(objObjectTerritory2Association);
         }
         System.debug('objectTerritoryList'+ objectTerritoryList);
         if (!objectTerritoryList.isEmpty()) {
@@ -366,7 +361,7 @@ public with sharing class CalloutBP {
 
     public class CompanyINData{
     
-    public List<ItemsPartner> Partner;
+    public String Partner;
     public String CodigoExternoAccount;    
     public String OrganizacaoVendas;
     public String SetorAtividade;
@@ -378,9 +373,6 @@ public with sharing class CalloutBP {
     public String GrupoClientes;
     public String Status;
     public String SetorVendas;
-    }
-    public class ItemsPartner{
-        public String BU_Partner;
     }
 
 }
