@@ -173,16 +173,21 @@ public with sharing class OrderHelper {
 
     @AuraEnabled
     public static String sendToIntegrationTest(String orderId){
-        Id profileId = [SELECT Id FROM Profile WHERE NAME='System Administrator'][0].Id;
+        try{
+            Id profileId = [SELECT Id FROM Profile WHERE Name='System Administrator' OR Name='Administrador do sistema'][0].Id;
 
-        Id userProfileId = [SELECT ProfileId FROM User WHERE Id =: UserInfo.getUserId() ][0].ProfileId;
-
-        if(profileId != userProfileId)
-            return '';
-        
-        List<Order> orderList = [SELECT Id, OrderNumber, StatusSF__c, CodigoSap__c FROM Order WHERE Id =: orderId];
-        calloutOrderToSAPTest(orderList);
-        return 'O pedido ' + orderList[0].OrderNumber + ' foi enviado para integração';
+            Id userProfileId = [SELECT ProfileId FROM User WHERE Id =: UserInfo.getUserId() ][0].ProfileId;
+    
+            if(profileId != userProfileId)
+                return '';
+            
+            List<Order> orderList = [SELECT Id, OrderNumber, StatusSF__c, CodigoSap__c FROM Order WHERE Id =: orderId];
+            calloutOrderToSAPTest(orderList);
+            return 'O pedido ' + orderList[0].OrderNumber + ' foi enviado para integração';
+        }
+        catch(Exception e){
+            return 'Um erro inesperado aconteceu!';
+        }
         
     }
 }
