@@ -51,6 +51,35 @@ public with sharing class OrderHelper {
         Orderhelper.enableTrigger(); 
     }
 
+    public static void calloutOrderToSAPTest(List<Order> newRecords){
+        Set<Id> orderIds = new Set<Id>();
+        for(Order order : newRecords){
+            orderIds.add(order.Id);
+        }
+        Map<Id, Order> orderMap = new Map<Id, Order>([
+            SELECT Account.ExternalId__c, ShippingAccount__r.ExternalId__c, SalesCTV__r.CodigoSap__c
+            FROM Order
+            WHERE Id IN: orderIds
+        ]);
+
+        Orderhelper.disableTrigger();
+        for(Order order : newRecords){
+            if(order.StatusSF__c != 'Integrado'){
+                CalloutOrder.callIntegration(order.Id);
+                CalloutOrderDatalake.callIntegration(order.Id);
+            }
+            if(order.CodigoSap__c != null && order.StatusSF__c == 'Integrado' && orderMap != null){
+                
+                System.debug('Account.ExternalId__c => ' + orderMap.get(order.Id).Account.ExternalId__c);
+                String rmCode = orderMap.get(order.Id).ShippingAccount__r.ExternalId__c;
+                String agCode = orderMap.get(order.Id).Account.ExternalId__c;
+                String zcCode = orderMap.get(order.Id).SalesCTV__r.CodigoSap__c;
+                CalloutOrderUpdate.callIntegration(order.Id, rmCode , agCode , zcCode);
+            }  
+        }
+        Orderhelper.enableTrigger(); 
+    }
+
     public static void sendApprovalProccess(List<Order> newRecords){
 
         Set<Id> orderToUpdate = new Set<Id>();
@@ -140,5 +169,20 @@ public with sharing class OrderHelper {
             System.debug(e);
         }
             
+    }
+
+    @AuraEnabled
+    public static String sendToIntegrationTest(String orderId){
+        Id profileId = [SELECT Id FROM Profile WHERE NAME='System Administrator'][0].Id;
+
+        Id userProfileId = [SELECT ProfileId FROM User WHERE Id =: UserInfo.getUserId() ][0].ProfileId;
+
+        if(profileId != userProfileId)
+            return '';
+        
+        List<Order> orderList = [SELECT Id, OrderNumber, StatusSF__c, CodigoSap__c FROM Order WHERE Id =: orderId];
+        calloutOrderToSAPTest(orderList);
+        return 'O pedido ' + orderList[0].OrderNumber + ' foi enviado para integração';
+        
     }
 }
