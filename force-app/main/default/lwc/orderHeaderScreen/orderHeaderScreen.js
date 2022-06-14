@@ -185,9 +185,64 @@ export default class OrderHeaderScreen extends LightningElement {
     ];
 
     formasPagamento = [{
-            label: 'Bonificação',
-            value: 'Bonificação',
-            description: 'Bonificação'
+            label: 'Cessão Crédito ',
+            value: 'A',
+            description: 'Cessão Crédito'
+        },
+        {
+            label: 'Boleto',
+            value: 'B',
+            description: 'Boleto'
+        },
+        {
+            label: 'Operação Barter',
+            value: 'C',
+            description: 'Operação Barter'
+        },
+        {
+            label: 'Dinheiro/Adiantamento',
+            value: 'D',
+            description: 'Dinheiro/Adiantamento'
+        },
+        {
+            label: 'Encontro de Contas',
+            value: 'E',
+            description: 'Encontro de Contas'
+        },
+        {
+            label: 'Cheque Recebido',
+            value: 'H',
+            description: 'Cheque Recebido'
+        },
+        {
+            label: 'DOC',
+            value: 'L',
+            description: 'DOC'
+        },
+        {
+            label: 'Operação CRA',
+            value: 'P',
+            description: 'Operação CRA'
+        },
+        {
+            label: 'TED',
+            value: 'S',
+            description: 'TED'
+        },
+        {
+            label: 'DOC/TED',
+            value: 'T',
+            description: 'DOC/TED'
+        },
+        {
+            label: 'Transferência',
+            value: 'V',
+            description: 'Transferência'
+        },
+        {
+            label: 'PIX',
+            value: 'X',
+            description: 'PIX'
         },
     ];
 
