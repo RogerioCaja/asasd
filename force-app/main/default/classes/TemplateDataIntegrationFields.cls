@@ -124,6 +124,7 @@ global with sharing class TemplateDataIntegrationFields {
             //Returning Object with Fields
             return new Product2(
                 Name = this.TextoBreveMaterial,
+                IsActive = true,
                 ProductCode__c = this.ProductCode,
                 ProductCode = this.ProductCode,
                 Description = this.DescricaoMaterial,
