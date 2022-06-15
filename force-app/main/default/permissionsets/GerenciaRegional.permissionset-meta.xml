@@ -1315,16 +1315,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>CondicaoPagamento__c.BarterCondition__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>CondicaoPagamento__c.CashPayment__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
         <field>OrgVProduct__c.Channel__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1868,6 +1858,15 @@
         <allowEdit>false</allowEdit>
         <allowRead>true</allowRead>
         <modifyAllRecords>false</modifyAllRecords>
+        <object>Commodity__c</object>
+        <viewAllRecords>false</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>false</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>false</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
         <object>Company__c</object>
         <viewAllRecords>false</viewAllRecords>
     </objectPermissions>
@@ -2197,6 +2196,10 @@
     </tabSettings>
     <tabSettings>
         <tab>Cadastro_ClientedaVisita__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Commodity__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
     <tabSettings>
