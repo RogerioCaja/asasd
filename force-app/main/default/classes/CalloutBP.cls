@@ -61,6 +61,7 @@ public with sharing class CalloutBP {
             }
                        
             if (!accountList.isEmpty()) {
+                System.debug('accountList: '+accountList);
                 upsert accountList ExternalId__c;
             }
             creatyAccountTerrytoryAssossiation(accountList, userCodigoSapList, resp, companyList);
@@ -166,13 +167,18 @@ public with sharing class CalloutBP {
         for(UserTerritory2Association userTerrytory : userTerrytoryList){
             userTerrytoryMap.put(userTerrytory.User.CodigoSap__c, userTerrytory);
         }
-
+        System.debug('userTerrytoryMap: '+userTerrytoryMap);
         List<ObjectTerritory2Association> objectTerritoryList = new List<ObjectTerritory2Association>();
         for(CompanyINData company : companyList){
             UserTerritory2Association userTerrytory = userTerrytoryMap.get(company.Partner);
             String accountId = accountExternalIdMap.get(company.CodigoExternoAccount);
-            ObjectTerritory2Association objObjectTerritory2Association = new ObjectTerritory2Association(ObjectId = accountId, Territory2Id = userTerrytory.Territory2Id, AssociationCause='Territory2Manual');
-            objectTerritoryList.add(objObjectTerritory2Association);
+            System.debug('accountId: '+accountId);
+            System.debug('userTerrytory: '+userTerrytory);
+            if(userTerrytory != null){
+                ObjectTerritory2Association objObjectTerritory2Association = new ObjectTerritory2Association(ObjectId = accountId, Territory2Id = userTerrytory.Territory2Id, AssociationCause='Territory2Manual');
+            	objectTerritoryList.add(objObjectTerritory2Association);
+            }
+            
         }
         System.debug('objectTerritoryList'+ objectTerritoryList);
         if (!objectTerritoryList.isEmpty()) {
@@ -216,19 +222,22 @@ public with sharing class CalloutBP {
             if(valor.Bloqueado == 'true'){
                 blocked = true;
             }
-            System.debug('valor.CodigoExternoAccount' + valor.CodigoExternoAccount);
-            System.debug('lookups.get(Account__c+valor.CodigoExternoAccount)' + lookups.get('Account__c'+valor.CodigoExternoAccount));
-            LimiteCredito__c credit = new LimiteCredito__c(
-            Account__c = lookups.containsKey('Account__c'+valor.CodigoExternoAccount) ? lookups.get('Account__c'+valor.CodigoExternoAccount) : null,
-            OrganizacaoVendas__c = lookups.containsKey('SalesOrg__c'+valor.OrganizacaoVendas) ? lookups.get('SalesOrg__c'+valor.OrganizacaoVendas) : null,
-            Culture__c = lookups.containsKey('Culture__c'+valor.Cultura) ? lookups.get('Culture__c'+valor.Cultura) : null,
-            LimitValue__c = valor.Valor,
-            BlockedCredit__c = blocked,
-            LimitBalance__c = valor.Saldo,
-            Safra__c = lookups.containsKey('Safra__c'+String.valueOf(valor.Safra)) ? lookups.get('Safra__c'+String.valueOf(valor.Safra)) : null,
-            ExternalId__c = valor.CodigoExternoAccount + valor.Safra + valor.Cultura);
-            creditListToUpsert.add(credit);
+            if(valor.Safra != null && valor.Saldo != null && valor.Valor != null){
+            	System.debug('valor.CodigoExternoAccount' + valor.CodigoExternoAccount);
+            	System.debug('lookups.get(Account__c+valor.CodigoExternoAccount)' + lookups.get('Account__c'+valor.CodigoExternoAccount));
+            	LimiteCredito__c credit = new LimiteCredito__c(
+            	Account__c = lookups.containsKey('Account__c'+valor.CodigoExternoAccount) ? lookups.get('Account__c'+valor.CodigoExternoAccount) : null,
+            	OrganizacaoVendas__c = lookups.containsKey('SalesOrg__c'+valor.OrganizacaoVendas) ? lookups.get('SalesOrg__c'+valor.OrganizacaoVendas) : null,
+            	Culture__c = lookups.containsKey('Culture__c'+valor.Cultura) ? lookups.get('Culture__c'+valor.Cultura) : null,
+            	LimitValue__c = valor.Valor,
+            	BlockedCredit__c = blocked,
+            	LimitBalance__c = valor.Saldo,
+            	Safra__c = lookups.containsKey('Safra__c'+String.valueOf(valor.Safra)) ? lookups.get('Safra__c'+String.valueOf(valor.Safra)) : null,
+            	ExternalId__c = valor.CodigoExternoAccount + valor.Safra + valor.Cultura);
+            	creditListToUpsert.add(credit);
+            }
         }
+        System.debug('creditListToUpsert'+ creditListToUpsert);
         if (!creditListToUpsert.isEmpty()) {
             upsert creditListToUpsert ExternalId__c;
         }
