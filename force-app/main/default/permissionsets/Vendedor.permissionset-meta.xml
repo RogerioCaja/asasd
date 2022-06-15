@@ -405,6 +405,66 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>CommodityPrice__c.Commodity__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>CommodityPrice__c.CreatedByUser__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>CommodityPrice__c.Currency__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>CommodityPrice__c.MarketIdentifierCode__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>CommodityPrice__c.MaturityKeyDate__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>CommodityPrice__c.PriceQuotationCurrency__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>CommodityPrice__c.PriceQuotationTime__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>CommodityPrice__c.PriceQuotationType__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>CommodityPrice__c.QuotationDate__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>CommodityPrice__c.TimeToMaturity__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>CommodityPrice__c.UnitOfMeasure__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>CommodityPrice__c.ValidityStart_DateTime__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Commodity__c.ExternalId__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1150,6 +1210,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>OrderCommodity__c.BagMargin__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>OrderCommodity__c.BagQuantity__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1311,16 +1376,6 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>OrderItem.UnitMeasure__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>CondicaoPagamento__c.BarterCondition__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>CondicaoPagamento__c.CashPayment__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -1868,6 +1923,24 @@
         <allowEdit>false</allowEdit>
         <allowRead>true</allowRead>
         <modifyAllRecords>false</modifyAllRecords>
+        <object>CommodityPrice__c</object>
+        <viewAllRecords>false</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>false</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>false</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>Commodity__c</object>
+        <viewAllRecords>false</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>false</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>false</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
         <object>Company__c</object>
         <viewAllRecords>false</viewAllRecords>
     </objectPermissions>
@@ -1977,6 +2050,15 @@
         <allowRead>true</allowRead>
         <modifyAllRecords>false</modifyAllRecords>
         <object>Order</object>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>false</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>false</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>OrderCommodity__c</object>
         <viewAllRecords>false</viewAllRecords>
     </objectPermissions>
     <objectPermissions>
@@ -2148,15 +2230,11 @@
         <visible>true</visible>
     </recordTypeVisibilities>
     <recordTypeVisibilities>
-        <recordType>Order.VendaAmostraGratis</recordType>
+        <recordType>Order.EntregaArmazemGeral</recordType>
         <visible>true</visible>
     </recordTypeVisibilities>
     <recordTypeVisibilities>
-        <recordType>Order.VendaBonificacao</recordType>
-        <visible>true</visible>
-    </recordTypeVisibilities>
-    <recordTypeVisibilities>
-        <recordType>Order.VendaOrdemSimplesFaturamento</recordType>
+        <recordType>Order.RemessasPromocionais</recordType>
         <visible>true</visible>
     </recordTypeVisibilities>
     <recordTypeVisibilities>
@@ -2172,11 +2250,15 @@
         <visible>true</visible>
     </recordTypeVisibilities>
     <recordTypeVisibilities>
-        <recordType>Order.VendaNormal</recordType>
+        <recordType>Order.VendaInsumos</recordType>
         <visible>true</visible>
     </recordTypeVisibilities>
     <recordTypeVisibilities>
         <recordType>Order.VendaServico</recordType>
+        <visible>true</visible>
+    </recordTypeVisibilities>
+    <recordTypeVisibilities>
+        <recordType>Order.VendaSucata</recordType>
         <visible>true</visible>
     </recordTypeVisibilities>
     <recordTypeVisibilities>
@@ -2189,6 +2271,14 @@
     </tabSettings>
     <tabSettings>
         <tab>Cadastro_ClientedaVisita__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>CommodityPrice__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Commodity__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
     <tabSettings>
