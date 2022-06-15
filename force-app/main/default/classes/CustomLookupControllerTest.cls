@@ -21,6 +21,61 @@ public class CustomLookupControllerTest {
         accountList.add(childAccount);
         insert accountList;
 
+        SalesCondition__c salesCondition = new SalesCondition__c(
+            Name = 'Condição',
+            ExternalId__c = '001'
+        );
+        insert salesCondition;
+
+        Safra__c crop = new Safra__c(
+            Name = 'Safra 01',
+            Code__c = '001',
+            BillingStartDate__c = System.today(),
+            StartDateOrderInsertion__c = System.today(),
+            EndDateBilling__c = System.today().addDays(90),
+            EndDateInsertionOrders__c = System.today().addDays(90),
+            NumberOfDaysAfterPayment__c = System.today().addDays(10),
+            ReleaseStatus__c = 'Ativo'
+        );
+        insert crop;
+
+        Cultura__c culture = new Cultura__c(
+            Name = 'Culture 01',
+            Name__c = 'Culture 01',
+            Codigo__c = '001'
+        );
+        insert culture;
+
+        SalesOrg__c salesOrg = new SalesOrg__c(
+            Name = 'Sales Organization',
+            SalesOrganizationCode__c = '001'
+        );
+        insert salesOrg;
+
+        SalesOffice__c salesOffice = new SalesOffice__c(
+            Name = 'Sales Office',
+            Codigo__c = '001'
+        );
+        insert salesOffice;
+
+        SalesTeam__c salesTeam = new SalesTeam__c(
+            Name = 'Sales team'
+        );
+        insert salesTeam;
+
+        Company__c company = new Company__c(
+            Name = 'Company',
+            Blocked__c = false,
+            ClientGroup__c = 'NÃO SEGMENTADO',
+            Conta__c = parentAccount.Id,
+            SalesOrg__c = salesOrg.Id,
+            SalesOffice__c = salesOffice.Id,
+            SalesTeam__c = salesTeam.Id,
+            ExternalID__c = '001',
+            SupplierCenter__c = '1010'
+        );
+        insert company;
+
         Order order = new Order(
             AccountId = parentAccount.Id,
             Status = 'Draft',
@@ -43,12 +98,20 @@ public class CustomLookupControllerTest {
         );
         insert productGroup;
 
+        ProductHierarchy__c productHierarchy = new ProductHierarchy__c(
+            Name = 'Hierarquia',
+            External_Id__c = '001'
+        );
+        insert productHierarchy;
+
+        List<Product2> lstProducts = new List<Product2>();
         Product2 product = new Product2(
             Name = 'Milho',
             ExternalId__c = '001',
             ProductCode = '001',
             CurrencyIsoCode = 'BRL',
             IsActive = true,
+            ProductType__c = 'HAWA',
             PrincipleActive__c = 'Salicilina',
             ProductGroup__c = productGroup.Id,
             Multiplicity__c = 5,
@@ -57,44 +120,122 @@ public class CustomLookupControllerTest {
             MarcadoEliminacao__c = 'S',
             NCM__c = 'S',
             NumeroRegistro__c = '0001',
-            OrigemMaterial__c = 'Himalaia',
-            UnidadeMedida__c = 'KG'
+            OrigemMaterial__c = 'Himalaia', 
+            UnidadeMedida__c = 'KG',
+            ProductHierarchy__c = productHierarchy.Id
         );
-        insert product;
+        lstProducts.add(product);
 
-        PricebookEntry pricebookEntry = new PricebookEntry(
+        Product2 commodity = new Product2(
+            Name = 'Soja',
+            ExternalId__c = '002',
+            ProductCode = '002',
+            CurrencyIsoCode = 'BRL',
+            IsActive = true,
+            ProductType__c = 'ZCOM',
+            PrincipleActive__c = 'Salicilina',
+            ProductGroup__c = productGroup.Id,
+            Multiplicity__c = 5,
+            ClasseAvaliacao__c = 'chucrute',
+            GrupoQuimico__c = 'Só o quimico',
+            MarcadoEliminacao__c = 'S',
+            NCM__c = 'S',
+            NumeroRegistro__c = '0002',
+            OrigemMaterial__c = 'Himalaia', 
+            UnidadeMedida__c = 'KG',
+            ProductHierarchy__c = productHierarchy.Id
+        );
+        lstProducts.add(commodity);
+
+        Product2Helper.disableTrigger();
+        insert lstProducts;
+        Product2Helper.enableTrigger();
+
+        List<JurosDescontoAntecipao__c> prices = new List<JurosDescontoAntecipao__c>();
+        JurosDescontoAntecipao__c productPrice = new JurosDescontoAntecipao__c(
+            RecordTypeId = Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get('ZPR0').getRecordTypeId(),
+            Account__c = parentAccount.Id,
+            Product__c = product.Id,
+            ProductGroup__c = productGroup.Id,
+            SalesOrg__c = salesOrg.Id,
+            SalesOffice__c = salesOffice.Id,
+            SalesTeam__c = salesTeam.Id,
+            Culture__c = culture.Id,
+            harvest__c = crop.Id,
+            SalesCondition__c = salesCondition.Id,
+            Currency__c = 'BRL',
+            IsActive__c = true,
+            StartDate__c = System.today().addDays(-5),
+            EndDate__c = System.today().addDays(5),
+            ExternalId__c = '001'
+        );
+        prices.add(productPrice);
+
+        JurosDescontoAntecipao__c commodityPrice = new JurosDescontoAntecipao__c(
+            RecordTypeId = Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get('ZPR0').getRecordTypeId(),
+            Account__c = parentAccount.Id,
+            Product__c = commodity.Id,
+            ProductGroup__c = productGroup.Id,
+            SalesOrg__c = salesOrg.Id,
+            SalesOffice__c = salesOffice.Id,
+            SalesTeam__c = salesTeam.Id,
+            Culture__c = culture.Id,
+            harvest__c = crop.Id,
+            SalesCondition__c = salesCondition.Id,
+            Currency__c = 'BRL',
+            IsActive__c = true,
+            StartDate__c = System.today().addDays(-5),
+            EndDate__c = System.today().addDays(5),
+            ExternalId__c = '002'
+        );
+        prices.add(commodityPrice);
+        insert prices;
+
+        List<OrgVProduct__c> orgVList = new List<OrgVProduct__c>();
+        OrgVProduct__c orgV = new OrgVProduct__c(
+            Product__c = product.Id,
+            SalesOrg__c = salesOrg.Id,
+            Status__c = 'Adicionada',
+            SupplierCenter__c = '1010'
+        );
+        orgVList.add(orgV);
+
+        OrgVProduct__c commodityOrgV = new OrgVProduct__c(
+            Product__c = commodity.Id,
+            SalesOrg__c = salesOrg.Id,
+            Status__c = 'Adicionada',
+            SupplierCenter__c = '1010'
+        );
+        orgVList.add(commodityOrgV);
+        insert orgVList;
+
+        List<PricebookEntry> lstEntries = new List<PricebookEntry>();
+        PricebookEntry productPricebookEntry = new PricebookEntry(
             Pricebook2Id = Test.getStandardPricebookId(),
             Product2Id = product.Id,
             UnitPrice = 150,
             CostPrice__c = 112,
             IsActive = true
         );
-        insert pricebookEntry;
+        lstEntries.add(productPricebookEntry);
 
-        OrderItem orderItem = new OrderItem(
-            OrderId = order.Id,
-            PricebookEntryId = pricebookEntry.Id,
-            Product2Id = product.Id,
-            ExternalId__c = 'texto',
-            ListPrice = 150,
-            ServiceDate = System.today(),
-            Quantity = 10,
-            UnitPrice = 160,
-            Status__c = '5',
-            UnitMeasure__c = 'Each',
-            FinalTotalValue__c = 1600,
-            DiscountPercent__c = 0,
-            DiscountValue__c = 0,
-            CommercialAdditionPercent__c = 6.6666,
-            CommercialAdditionValue__c = 100,
-            FinancialAdditionPercent__c = 0,
-            FinancialAdditionValue__c = 0,
-            FinancialDiscountPercent__c = 0,
-            FinancialDiscountValue__c = 0,
-            ComissionValue__c = 0,
-            CommercialMargin__c = 2
+        PricebookEntry commodityPricebookEntry = new PricebookEntry(
+            Pricebook2Id = Test.getStandardPricebookId(),
+            Product2Id = commodity.Id,
+            UnitPrice = 150,
+            CostPrice__c = 112,
+            IsActive = true
         );
-        insert orderItem;
+        lstEntries.add(commodityPricebookEntry);
+        insert lstEntries;
+
+        Comissao__c comission = new Comissao__c(
+            ProductHierarchy__c = productHierarchy.Id,
+            CommissionPercentage__c = 3,
+            SellerType__c = 'CTV',
+            ProductGroup__c = productGroup.Id
+        );
+        insert comission;
     }
 
     @isTest
@@ -104,5 +245,31 @@ public class CustomLookupControllerTest {
 
         CustomLookupController.fetchRecords('Account', 'Name', 'Parent Account', null);
         CustomLookupController.fetchRecords('Account', 'Name', 'Child Account', acc.Id);
+    }
+
+    @isTest
+    public static void fetchProductsRecordsTest(){
+        Id accountId = [SELECT Id FROM Account WHERE Name = 'Parent Account' LIMIT 1].Id;
+        Id scId = [SELECT Id FROM SalesCondition__c LIMIT 1].Id;
+        Id cropId = [SELECT Id FROM Safra__c LIMIT 1].Id;
+        Id cultureId = [SELECT Id FROM Cultura__c LIMIT 1].Id;
+        Id salesOrgId = [SELECT Id FROM SalesOrg__c LIMIT 1].Id;
+        Id salesOfficeId = [SELECT Id FROM SalesOffice__c LIMIT 1].Id;
+        Id salesTeamId = [SELECT Id FROM SalesTeam__c LIMIT 1].Id;
+
+        CustomLookupController.fetchProductsRecords('Milho', '{"salesConditionId":"' + scId + '","accountId":"' + accountId + '","ctvId":"' + UserInfo.getUserId() + '","safra":"' + cropId +'","productCurrency":"BRL","culture":"' + cultureId + '","orderType":"Venda Normal","supplierCenter":"1010","salesOrgId":"' + salesOrgId + '","salesOfficeId":"' + salesOfficeId + '","salesTeamId":"' + salesTeamId + '","numberOfRowsToSkip":0}', false);
+    }
+
+    @isTest
+    public static void fetchCommodityRecordsTest(){
+        Id accountId = [SELECT Id FROM Account WHERE Name = 'Parent Account' LIMIT 1].Id;
+        Id scId = [SELECT Id FROM SalesCondition__c LIMIT 1].Id;
+        Id cropId = [SELECT Id FROM Safra__c LIMIT 1].Id;
+        Id cultureId = [SELECT Id FROM Cultura__c LIMIT 1].Id;
+        Id salesOrgId = [SELECT Id FROM SalesOrg__c LIMIT 1].Id;
+        Id salesOfficeId = [SELECT Id FROM SalesOffice__c LIMIT 1].Id;
+        Id salesTeamId = [SELECT Id FROM SalesTeam__c LIMIT 1].Id;
+
+        CustomLookupController.fetchProductsRecords('Soja', '{"salesConditionId":"' + scId + '","accountId":"' + accountId + '","ctvId":"' + UserInfo.getUserId() + '","safra":"' + cropId +'","productCurrency":"BRL","culture":"' + cultureId + '","orderType":"Venda Normal","supplierCenter":"1010","salesOrgId":"' + salesOrgId + '","salesOfficeId":"' + salesOfficeId + '","salesTeamId":"' + salesTeamId + '","numberOfRowsToSkip":0}', true);
     }
 }

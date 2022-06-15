@@ -149,7 +149,7 @@ public with sharing class Lookup {
 
         for (RelationDTO relation : differentRelations) {
             relationsBase += ' AND ' + relation.parentRelationField +
-                ' <> ' + relation.parentRecord;
+                ' <> ' + '\'' + relation.parentRecord + '\'';
         }
 
         return relationsBase;
