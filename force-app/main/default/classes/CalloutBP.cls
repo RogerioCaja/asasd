@@ -32,6 +32,8 @@ public with sharing class CalloutBP {
                     companyList.add(company);
                 }
                 Account ac = new Account(
+                Name = valor.Nome,
+                Company__c = valor.Nome,    
                 ExternalId__c = valor.CodigoExterno,
                 ParentId = lookups.containsKey('Account__c'+valor.ContaPai) ? lookups.get('Account__c'+valor.ContaPai) : null,
                 CNPJ__c = valor.CNPJ,
@@ -329,6 +331,7 @@ public with sharing class CalloutBP {
         }
     }
     public class ResponseParametersWrapper {
+        public String Nome;
         public String CodigoExterno;
         public String RuaEntrega;
         public String CidadeEntrega;

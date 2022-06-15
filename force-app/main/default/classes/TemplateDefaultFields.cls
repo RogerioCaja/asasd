@@ -272,7 +272,8 @@ public  class TemplateDefaultFields {
             Culture__c = cultura.Id,
             PaymentForm__c =  'Bonificação',
             SalesOrg__c =  so.Id,
-            DistributionChannel__c =  distributionChannel.Id,
+            DistributionChannel__c =  'Venda Direta',
+            ActivitySector__c =  '',
             Currency__c =  'BRL',
             SalesCTV__c =  u.Id,
             StatusSF__c = 'Em digitação',
@@ -282,7 +283,7 @@ public  class TemplateDefaultFields {
 
         INSERT order;
 
-        Product2 prod2 = new Product2(
+        Product2 prod = new Product2(
             Name = 'Laptop X200', 
             Family = 'Hardware',
             ExternalId__c = '0001',
@@ -295,25 +296,25 @@ public  class TemplateDefaultFields {
             UnidadeMedida__c = 'KG'
         );
 
-        INSERT prod2;
+        INSERT prod;
 
-        // PricebookEntry standardPrice = new PricebookEntry(
-        //     Pricebook2Id = Test.getStandardPricebookId(), 
-        //     Product2Id = prod2.Id,
-        //     UnitPrice = 1000000,
-        //     IsActive = true);
+        PricebookEntry standardPrice = new PricebookEntry(
+            Pricebook2Id = Test.getStandardPricebookId(), 
+            Product2Id = prod.Id,
+            UnitPrice = 10000,
+            IsActive = true);
         
-        // INSERT standardPrice;
+        INSERT standardPrice;
 
         OrderItem orderItem = new OrderItem(
             OrderId = order.Id,
-            Product2Id = prod2.Id,
+            Product2Id = prod.Id,
             NumeroSap__c = '123',
             UnitMeasure__c = 'L',
             UnitPrice = 10000,
             Quantity = 1,
             ExternalId__c = 'texto',
-            PricebookEntryId = [SELECT Id FROM PricebookEntry WHERE Product2Id =: prod2.Id][0].Id
+            PricebookEntryId = standardPrice.Id
         );
 
         INSERT orderItem;

@@ -179,14 +179,14 @@ public with sharing class CalloutOrder {
                 dateF = String.valueOf(order.Crop__r.StartDateOrderInsertion__c).replace('-', '');
             }
             
-            IS_HEADER_IN.DOC_TYPE = getCodeTypeOrder(String.valueOf([SELECT DeveloperName FROM RecordType WHERE Name =: order.Type][0].DeveloperName), IV_TYPE == 'G' ? true : false); 
+            IS_HEADER_IN.DOC_TYPE = getCodeTypeOrder(String.valueOf([SELECT DeveloperName FROM RecordType WHERE Id =: order.RecordTypeId][0].DeveloperName), IV_TYPE == 'G' ? true : false); 
             IS_HEADER_IN.SALES_ORG = order.SalesOrg__r.SalesOrganizationCode__c;
             IS_HEADER_IN.DISTR_CHAN =order.DistributionChannel__r.Codigo__c;
             IS_HEADER_IN.DIVISION = order.ActivitySector__r.Codigo__c;
             IS_HEADER_IN.INCOTERMS1 = order.Incoterms__c;
             IS_HEADER_IN.INCOTERMS2 = order.Incoterms2__c;
             IS_HEADER_IN.PMNTTRMS = order.PaymentCondition__r.Code__c;
-            IS_HEADER_IN.PYMT_METH = 'B';//order.PaymentForm__c;
+            IS_HEADER_IN.PYMT_METH = order.PaymentForm__c;
             
             IS_HEADER_IN.CT_VALID_F = IV_TYPE == 'G'  ? dateF :  '';
             IS_HEADER_IN.CT_VALID_T = IV_TYPE == 'G' ? String.valueOf(order.Crop__r.EndDateInsertionOrders__c).replace('-', '') : '';
