@@ -81,6 +81,10 @@ global with sharing class IntegrationINPricebook2 {
 
         for(TemplateDataIntegrationFields.JurosDescontoAntecipaoINData interestDiscount : request){
 
+            if(interestDiscount.product != null){
+            	interestDiscount.product = String.valueOf(valueToTransform).leftPad(18, '0');
+            }
+
             if(interestDiscount.typeCondition == 'ZPRS'){
                 interestDiscount = getRecord(interestDiscount);
                 if(errorCostPrice){
@@ -89,14 +93,12 @@ global with sharing class IntegrationINPricebook2 {
                 }
                 
             }
+            
             if(interestDiscount.accountCode != null){
                 valueToTransform = Integer.valueOf(interestDiscount.accountCode);
             	interestDiscount.accountCode = String.valueOf(valueToTransform);
             }
-         	if(interestDiscount.product != null){
-                valueToTransform = Integer.valueOf(interestDiscount.product);
-            	interestDiscount.product = String.valueOf(valueToTransform);
-            }
+         	
             if(Date.valueOf(interestDiscount.endDate) < Date.today()){
                 isValidMap.put(interestDiscount.externalId, false);
             }
