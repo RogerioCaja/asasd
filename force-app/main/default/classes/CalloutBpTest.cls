@@ -41,6 +41,17 @@
             LocaleSidKey='en_US', ProfileId = p.Id, 
             TimeZoneSidKey='America/Los_Angeles', UserName='tes2@testes.com',CodigoSap__c = 'test2');
             INSERT u2;
+
+            SalesOrg__c salesOrg = new SalesOrg__c(
+            Name = 'AgroGalaxy',
+            SalesOrganizationCode__c = '2222'
+            );
+            insert salesOrg;
+            SalesTeam__c salesTeam = new SalesTeam__c(
+                Name = 'Equipe Teste',
+                ExternalId__c = '2222'
+            );
+            insert salesTeam;
         }
 
         @isTest
