@@ -206,7 +206,8 @@ public with sharing class CalloutOrder {
             }
 
             Map<Id, OrderItem> orderItemMap = new Map<Id, OrderItem>([
-                SELECT Id, NumeroSap__c, Product2.ExternalId__c, Product2.DistributionCenter__r.Code__c, Quantity, UnitPrice, DiscountValue__c, FinancialAdditionValue__c, FinancialDiscountValue__c, CommercialAdditionValue__c
+                SELECT Id, NumeroSap__c, Product2.ExternalId__c, Product2.DistributionCenter__r.Code__c, Quantity, UnitPrice, ListCost__c, DiscountValue__c, FinancialAdditionValue__c, FinancialDiscountValue__c, CommercialAdditionValue__c,
+                FinancialAdditionPercent__c, FinancialDiscountPercent__c
                 FROM OrderItem
                 WHERE Id IN: orderItemIds
             ]);
@@ -239,9 +240,10 @@ public with sharing class CalloutOrder {
                 else{
                     IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDEC', String.valueOf(orderItem.DiscountValue__c != 0 ? orderItem.DiscountValue__c*-1 : orderItem.DiscountValue__c), order.Currency__c));
                 }
-                // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDEC', String.valueOf(orderItem.CommercialAdditionValue__c), order.Currency__c));
-                // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZJUR', String.valueOf(orderItem.FinancialAdditionValue__c), order.Currency__c));
-                // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDAN', String.valueOf(orderItem.FinancialDiscountValue__c), order.Currency__c));
+                // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZPRS', String.valueOf(orderItem.ListCost__c), order.Currency__c));
+                // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZPR0', String.valueOf(orderItem.UnitPrice), order.Currency__c));
+                // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZJUR', String.valueOf(orderItem.FinancialAdditionPercent__c), '%'));
+                // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDAN', String.valueOf(orderItem.FinancialDiscountPercent__c), '%'));
             }
         }
     }
