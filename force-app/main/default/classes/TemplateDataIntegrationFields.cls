@@ -67,7 +67,7 @@ global with sharing class TemplateDataIntegrationFields {
                 UnitMeasurement__c = this.unitMeasurement != null ? this.unitMeasurement : null,
                 UnitPrice__c = (this.typeCurrency == 'BRL' || this.typeCurrency == 'USD' && this.typeCondition == 'ZPR0') ? Decimal.valueOf(this.unitPrice.trim()) : null,
                 Percentage__c = this.typeCurrency == '%' ? Decimal.valueOf(this.unitPrice.trim()) : null,
-                Cost__c = this.typeCondition = 'ZPRS' ?  Decimal.valueOf(this.unitPrice.trim()) : 0
+                Cost__c = this.typeCondition == 'ZPRS' ?  Decimal.valueOf(this.unitPrice.trim()) : 0
             );
             
         }
