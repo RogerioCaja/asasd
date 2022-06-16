@@ -34,7 +34,7 @@ public without sharing class OrderScreenController {
         ShippingAccount__r.BillingCity, ShippingAccount__r.BillingState ,ShippingAccount__r.CPF__c, ShippingAccount__r.CNPJ__c , SalesCondition__c, SalesCondition__r.Name, 
         Pricebook2.InitialDate__c, Pricebook2.EndDate__c, PaymentDate__c,  CustomerOrderNumber__c, Crop__c , Crop__r.Name, Culture__c , Culture__r.Name, OrderMargin__c,
         PaymentForm__c, StatusSF__c, CodigoSAP__c, SalesOrg__c, SalesOrg__r.Name, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, SalesCTV__r.Name, OrderType__c,
-        PaymentCondition__c, PaymentCondition__r.Name, ShippingDate__c, Incoterms__c, OrderReference__c, OrderReference__r.Name, IsOrderMother__c, Company__c, Hectare__c
+        PaymentCondition__c, PaymentCondition__r.Name, ShippingDate__c, Incoterms__c, OrderReference__c, OrderReference__r.Name, IsOrderMother__c, Company__c, Hectare__c, Status
         FROM Order 
         WHERE Id = :orderId LIMIT 1];
         return new HeaderSerialize(order, cloneOrder);
@@ -945,6 +945,8 @@ public without sharing class OrderScreenController {
         public String  orderMargin;
         public String  companyId;
         public Boolean pedido_mae_check;
+        public Boolean pre_pedido;
+        public Boolean firstTime;
         public Decimal hectares;
         public AccountSerialize  cliente_entrega;
         public InformationFields safra;
@@ -1137,6 +1139,8 @@ public without sharing class OrderScreenController {
         public String  orderMargin;
         public String  companyId;
         public Boolean pedido_mae_check;
+        public Boolean pre_pedido;
+        public Boolean firstTime;
         public Decimal hectares;
         public InformationFields safra;
         public InformationFields cultura;
@@ -1171,6 +1175,8 @@ public without sharing class OrderScreenController {
             this.cultura = new InformationFields(order.Culture__c, order.Culture__r.Name);
             this.forma_pagamento = order.PaymentForm__c;
             this.status_pedido = order.StatusSF__c;
+            this.pre_pedido = order.Status == '0' ? true : false;
+            this.firstTime = true;
             this.tipo_pedido = order.OrderType__c;
             this.codigo_sap = order.CodigoSAP__c;
             this.organizacao_vendas = new InformationFields(order.SalesOrg__c, order.SalesOrg__r.Name);

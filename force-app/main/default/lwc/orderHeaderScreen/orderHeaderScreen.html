@@ -201,6 +201,7 @@
                                 search-fields={redispatchCondicaoPagamentoSearchFields}
                                 standard-form-layout={booleanTrue}
                                 list-item-options={redispatchCondicaoPagamentoListItemOptions} 
+                                barter-sale={barterSale}
                                 onclearselectedrecord={removeItemRegister}
                                 onselectrecord={selectItemRegister}
                                 new-record-button={booleanTrue} 
@@ -254,7 +255,7 @@
                                     date-style="short" 
                                     onchange={selectItemRegister} 
                                     type="date" 
-                                    disabled={disabled}
+                                    disabled={paymentDisabled}
                                     required="true"
                                     min={currentDate}
                                     max={dateLimit}>
