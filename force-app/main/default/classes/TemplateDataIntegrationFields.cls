@@ -36,7 +36,6 @@ global with sharing class TemplateDataIntegrationFields {
         public String initialDate;
         public String endDate;
 
-        public String costPrice;
 
         public String typeCurrency;
         public String externalId;
@@ -47,7 +46,7 @@ global with sharing class TemplateDataIntegrationFields {
             return new JurosDescontoAntecipao__c(
                 ClientGroup__c = this.accountGroup,
                 ConditionType__c = this.typeCondition == 'ZPR0' ||  this.typeCondition == 'ZPRS' ? 'Preço' : this.typeCondition == 'ZDAN'? 'Desconto' : 'Juros',
-                RecordTypeId = [SELECT Id FROM RecordType WHERE DeveloperName =: this.typeCondition == 'ZPRS' ? 'ZPR0' :  this.typeCondition ][0].Id,
+                RecordTypeId = Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get(this.typeCondition == 'ZPRS' ? 'ZPR0' :  this.typeCondition).getRecordTypeId(),
                 Culture__c = lookups.containsKey('Cultura__c'+this.cultureCode) ? lookups.get('Cultura__c'+this.cultureCode) : null,
                 DistributionCenter__c =lookups.containsKey('DistributionCenter__c'+this.center) ? lookups.get('DistributionCenter__c'+this.center) : null,
                 EndDate__c = this.endDate != null ? (Date.valueOf(this.endDate.contains('9999') ? this.endDate.replace('9999','2999') : this.endDate )) : null,
@@ -66,9 +65,9 @@ global with sharing class TemplateDataIntegrationFields {
                 SalesCondition__c = lookups.containsKey('SalesCondition__c'+this.salesCondition) ? lookups.get('SalesCondition__c'+this.salesCondition) : null, 
                 ProductMultiplier__c = Decimal.valueOf(this.multiplicationFactor.trim()),
                 UnitMeasurement__c = this.unitMeasurement != null ? this.unitMeasurement : null,
-                UnitPrice__c = (this.typeCurrency == 'BRL' || this.typeCurrency == 'USD') ? Decimal.valueOf(this.unitPrice.trim()) : null,
+                UnitPrice__c = (this.typeCurrency == 'BRL' || this.typeCurrency == 'USD' && this.typeCondition == 'ZPR0') ? Decimal.valueOf(this.unitPrice.trim()) : null,
                 Percentage__c = this.typeCurrency == '%' ? Decimal.valueOf(this.unitPrice.trim()) : null,
-                Cost__c = this.costPrice != null ?  Decimal.valueOf(this.costPrice.trim()) : 0
+                Cost__c = this.typeCondition == 'ZPRS' ?  Decimal.valueOf(this.unitPrice.trim()) : 0
             );
             
         }
