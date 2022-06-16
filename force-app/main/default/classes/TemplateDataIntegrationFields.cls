@@ -571,12 +571,13 @@ global with sharing class TemplateDataIntegrationFields {
         public String naturezaOperacao;
         public Decimal descontoNF;
         public Decimal valorUnitarioNF;
-
+        public String NameProduct;
         public ItensNotaFiscal__c serialize(Map<String, Id> lookups){
-
+        
+     
             //Returning Object with Fields.
             return new ItensNotaFiscal__c(
-                Name = 'Nota Fiscal' + ' - ' + this.notaFiscal, //Pegar descrição do produto e number NF
+                Name = 'NFe ' + this.notaFiscal + ' - ' + this.NameProduct, //Pegar descrição do produto e number NF
                 ExternalID__c = this.codigoMaterial + '|' + this.notaFiscal + '|' + this.lote,
                 Invoice__c = lookups.containsKey('NotaFiscal__c' + this.notaFiscal) ? lookups.get('NotaFiscal__c' + this.notaFiscal) : null,
                 Productcode__c = lookups.containsKey('Product2'+this.codigoMaterial) ? lookups.get('Product2' + this.codigoMaterial) : null,
