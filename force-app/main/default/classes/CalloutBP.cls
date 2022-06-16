@@ -69,11 +69,12 @@ public with sharing class CalloutBP {
             }
 
             Map<String, Id> newLookups = creatyNewLookup(companyList, creditoList, lookups);
+            Map<String, String> nameLookups = creatyNameLookup(companyList, creditoList);
             System.debug('creditoList: '+ creditoList);
             System.debug('companyList: '+ companyList);
             System.debug('newLookups: '+ newLookups);
             creatyCredit(creditoList, newLookups);
-            creatyCompany(companyList, newLookups);
+            creatyCompany(companyList, newLookups, nameLookups);
             System.debug('integração foi um sucesso');
         }
         
@@ -148,6 +149,30 @@ public with sharing class CalloutBP {
         }
         return lookups;
     }
+    public static Map<String, String> creatyNameLookup(List<CompanyINData> companyList, List<LimiteCreditoINData> creditoList){
+        Map<String, String> lookups = new Map<String, String>();
+        Set<String> salesOrganizationIdList = new Set<String>();
+        Set<String> salesTeamIdList = new Set<String>();
+        for(LimiteCreditoINData valor : creditoList){
+            salesOrganizationIdList.add(valor.OrganizacaoVendas);
+        }
+        for(CompanyINData valor : companyList){
+            salesOrganizationIdList.add(valor.OrganizacaoVendas);
+            salesTeamIdList.add(valor.EquipeVendas);
+        }
+        //Get SalesOrg
+        List<SalesOrg__c> salesList = new List<SalesOrg__c>([SELECT Id, Name, SalesOrganizationCode__c FROM SalesOrg__c WHERE SalesOrganizationCode__c =: salesOrganizationIdList]);
+        for (SalesOrg__c sales : salesList) {
+            lookups.put('SalesOrg__c' + sales.SalesOrganizationCode__c, sales.Name);
+        }
+        //Get salesTeam
+        List<SalesTeam__c> salesTeamList = new List<SalesTeam__c>([SELECT Id,Name, ExternalId__c FROM SalesTeam__c WHERE ExternalId__c =: salesTeamIdList]);
+        for (SalesTeam__c team : salesTeamList) {
+            lookups.put('SalesTeam__c' + team.ExternalId__c, team.Name);
+        }
+        return lookups;
+    }
+
     public static void creatyAccountTerrytoryAssossiation(List<Account> accountList, List<String> userCodigoSapList, ResponseParameters resp, List<CompanyINData> companyList){
         Map<String, Id> accountExternalIdMap = new Map<String, Id>();
         for(Account acc : accountList){
@@ -183,12 +208,14 @@ public with sharing class CalloutBP {
             upsert objectTerritoryList;
         }
     }
-    public static void creatyCompany(List<CompanyINData> companyList, Map<String, Id> lookups){
+    public static void creatyCompany(List<CompanyINData> companyList, Map<String, Id> lookups, Map<String, String> nameLookups){
         
         List<Company__c> companyListToUpsert = new List<Company__c>();
         for(CompanyINData valor : companyList){
-            
+            String salesOrgName = nameLookups.containsKey('SalesOrg__c'+valor.OrganizacaoVendas) ? nameLookups.get('SalesOrg__c'+valor.OrganizacaoVendas) : '';
+            String salesTeamName = nameLookups.containsKey('SalesTeam__c'+valor.EquipeVendas) ? nameLookups.get('SalesTeam__c'+valor.EquipeVendas) : '';
             Company__c company = new Company__c(
+            Name = salesOrgName + ' - ' + salesTeamName,
             Conta__c = lookups.containsKey('Account__c'+valor.CodigoExternoAccount) ? lookups.get('Account__c'+valor.CodigoExternoAccount) : null,
             SalesOrg__c = lookups.containsKey('SalesOrg__c'+valor.OrganizacaoVendas) ? lookups.get('SalesOrg__c'+valor.OrganizacaoVendas) : null,
             ActivitySector__c = lookups.containsKey('ActivitySector__c'+valor.SetorAtividade) ? lookups.get('ActivitySector__c'+valor.SetorAtividade) : null,
@@ -204,6 +231,7 @@ public with sharing class CalloutBP {
             );
             companyListToUpsert.add(company);
         }
+        System.debug('companyListToUpsert: '+ companyListToUpsert);
         if (!companyListToUpsert.isEmpty()) {
             upsert companyListToUpsert ExternalId__c;
         }
@@ -221,8 +249,6 @@ public with sharing class CalloutBP {
                 blocked = true;
             }
             if(valor.Safra != null && valor.Saldo != null && valor.Valor != null){
-            	System.debug('valor.CodigoExternoAccount' + valor.CodigoExternoAccount);
-            	System.debug('lookups.get(Account__c+valor.CodigoExternoAccount)' + lookups.get('Account__c'+valor.CodigoExternoAccount));
             	LimiteCredito__c credit = new LimiteCredito__c(
             	Account__c = lookups.containsKey('Account__c'+valor.CodigoExternoAccount) ? lookups.get('Account__c'+valor.CodigoExternoAccount) : null,
             	OrganizacaoVendas__c = lookups.containsKey('SalesOrg__c'+valor.OrganizacaoVendas) ? lookups.get('SalesOrg__c'+valor.OrganizacaoVendas) : null,
