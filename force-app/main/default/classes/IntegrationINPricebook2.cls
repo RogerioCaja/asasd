@@ -252,7 +252,7 @@ global with sharing class IntegrationINPricebook2 {
             pricesMap.put(externalId, prices.Cost__c);
         }
 
-        if(priceMap.isEmpty()) return new List<JurosDescontoAntecipao__c>();
+        if(pricesMap.isEmpty()) return new List<JurosDescontoAntecipao__c>();
 
         for(JurosDescontoAntecipao__c prices : [ SELECT Id, ExternalId__c, UnitPrice__c, DescriptionExternalId__c
                                                 FROM JurosDescontoAntecipao__c
