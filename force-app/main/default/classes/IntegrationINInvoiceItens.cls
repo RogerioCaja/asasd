@@ -5,10 +5,11 @@ global with sharing class IntegrationINInvoiceItens {
     global static Map<String, List<TemplateDataIntegrationFields.Response>> upsertInvoiceItens(List<TemplateDataIntegrationFields.ItensNotaFiscalINData> request) {
         // Guarda as relações de order e product de preço com OrderItem
         Map<String, Id> lookups = new Map<String, Id>();
-
+        Map<String, String> lookupsName = new Map<String, String>();
         //Set<String> orderLookups = new Set<String>();
         Set<String> productLookups = new Set<String>();
         Set<String> invoiceLookups = new Set<String>();
+        Set<String> productLookupsName = new Set<String>();
         // Guarda um mapa com uma lista de respostas
         Map<String, List<TemplateDataIntegrationFields.Response>> responseMap = new Map<String, List<TemplateDataIntegrationFields.Response>>();
         // Guarda uma lista com os OrderItem para fazer o upsert
@@ -25,6 +26,7 @@ global with sharing class IntegrationINInvoiceItens {
             //Getting product parameters to search
             productLookups.add(itensNotaFiscal.codigoMaterial);
             invoiceLookups.add(itensNotaFiscal.notaFiscal);
+            productLookupsName.add(itensNotaFiscal.codigoMaterial);
         }
 
         // Pega o produto com base no ExternalID recebido
@@ -35,6 +37,15 @@ global with sharing class IntegrationINInvoiceItens {
         }
         for (NotaFiscal__c invoice : [SELECT Id, invoiceNumber__c, ExternalID__c FROM NotaFiscal__c WHERE invoiceNumber__c IN: invoiceLookups]){
           lookups.put('NotaFiscal__c' + invoice.invoiceNumber__c, invoice.Id);
+        }
+
+        for (Product2 product : [SELECT Id,ProductCode, Name FROM Product2 WHERE ProductCode IN: productLookupsName ]) {
+            //Map structure for the model -> object name + parameter to record id
+            lookupsName.put('Product2' + product.ProductCode, product.Name);     
+        }
+
+        for (TemplateDataIntegrationFields.ItensNotaFiscalINData productNameInvoice : request){
+            productNameInvoice.NameProduct = lookupsName.containsKey('Product2'+productNameInvoice.codigoMaterial) ? lookupsName.get('Product2' + productNameInvoice.codigoMaterial) : 'Nota Fiscal';
         }
         // Pega o pedido com base no ExternalId recebido
         //Order search based on ExternalId__c field sent
