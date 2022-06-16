@@ -14,6 +14,7 @@ export default class Lookup extends LightningElement {
 	@api noRepeats = 'Id';
 	@api required;
 	@api disabled;
+	@api barterSale;
 
 	@api parentRecordList; // Valor do WHERE =
 	@api parentRelationFieldList; // Campo do WHERE =
@@ -193,8 +194,6 @@ export default class Lookup extends LightningElement {
 			accountId: this.accountId
 		};
 
-		//console.log('this.parentRelationFieldList =>', this.parentRelationFieldList ? JSON.parse(JSON.stringify(this.parentRelationFieldList)) : this.parentRelationFieldList);
-		//console.log('this.parentRecordList =>', this.parentRecordList ? JSON.parse(JSON.stringify(this.parentRecordList)) : this.parentRecordList);
 		if (this.parentRelationFieldList && this.parentRecordList) {
 			var relationList = [];
 			var cont = 0;
@@ -244,7 +243,7 @@ export default class Lookup extends LightningElement {
 		}
 
 		try {
-			const data = await getRecords({ data: JSON.stringify(requestData) });
+			const data = await getRecords({ data: JSON.stringify(requestData), barterSale: this.barterSale });
 			//console.log('data lookup fon =>', JSON.parse(JSON.stringify(data)));
 
 			var dataResult = [];
