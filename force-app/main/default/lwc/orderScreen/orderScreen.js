@@ -70,10 +70,12 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         pedido_mae: {},
         IsOrderChild : false,
         pedido_mae_check : true,
+        pre_pedido : false,
         frete: "CIF",
         org: {Name: " "},
         aprovation: " ",
-        companyId: null
+        companyId: null,
+        firstTime: true
     };
     @track productData;
     @track divisionData;
@@ -271,38 +273,6 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         });
     }
 
-    /* getOrderMother(id, name){
-        console.log('getOrder');
-        if(this.headerData.Id != " ")
-            return;
-
-        this.isLoading = true;
-        getOrder({recordId: id, cloneOrder: this.clone.cloneOrder})
-        .then((result) =>{
-            const data = JSON.parse(result);
-            this.accountData = data.accountData;
-            this.headerData = data.headerData;
-            this.headerData.pedido_mae_check = false;
-            this.headerData.pedido_mae = {Id: id, Name: name};
-            this.productData = data.productData;
-            this.divisionData = data.divisionData;
-            this.summaryData['observation'] = this.headerData.observation;
-            this.summaryData['billing_sale_observation'] = this.headerData.billing_sale_observation;
-            this.enableScreens([0, 1, 2, 3]);
-            this.completeScreens([0, 1, 2, 3]);
-            this.isLoading = false;
-            this.cloneData.cloneOrder = this.clone.cloneOrder;
-            this.headerData.condicao_venda = this.headerData.condicao_venda != null ? this.headerData.condicao_venda : ' ';
-            // this.cloneData.pricebookListId = this.headerData.condicao_venda != ' ' ?  this.headerData.condicao_venda.Id : '';
-        })
-        .catch((err)=>{
-            console.log(err);
-            this.showNotification(err.message, 'Ocorreu algum erro');
-            this.isLoading = false;
-        })
-    } */
-
-
     connectedCallback() {
         //Importando estilo para esconder header padrão de página
         loadStyle(this, NoHeader);
@@ -314,9 +284,20 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     }
 
     async saveOrder(event){
+        let today = new Date();
+        let dd = String(today.getDate()).padStart(2, '0');
+        let mm = String(today.getMonth() + 1).padStart(2, '0');
+        let yyyy = today.getFullYear();
+        let currentDate = yyyy + '-' + mm + '-' + dd;
+
         if (this.headerData.status_pedido == 'Em aprovação - Gerente Filial' || this.headerData.status_pedido == 'Em aprovação - Gerente Regional' ||
             this.headerData.status_pedido == 'Em aprovação - Diretor' || this.headerData.status_pedido == 'Em aprovação - Comitê Margem' || this.headerData.status_pedido == 'Em aprovação - Mesa de Grãos') {
             this.showNotification('O pedido está Em Aprovação, portanto não pode ser alterado', 'Atenção', 'warning');
+            return;
+        } else if (this.headerData.pre_pedido && event.detail == 'gerarpedido' && this.headerData.condicao_pagamento.CashPayment && this.headerData.data_pagamento != currentDate) {
+            this.headerData.condicao_pagamento = {Id: null, Name: null, CashPayment: null};
+            this.headerData.data_pagamento = " ";
+            this.showNotification('Informe a condição de pagamento novamente', 'Atenção', 'warning');
             return;
         }
 
