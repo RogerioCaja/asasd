@@ -43,7 +43,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String multiplicationFactor;
         // Chave(ExternalId__c): (orgVendas) | (safra) | (moeda) | (Material)(Lista de preço) | (Grupo de produtos)(Escritório de vendas)(Equipe de Vendas)(Cultura)(Segmento do Cliente)(Cliente) | (Material)(Equipe de vendas) | (Material)
         public JurosDescontoAntecipao__c serialize(Map<String, Id> lookups){
-            return new JurosDescontoAntecipao__c(
+            JurosDescontoAntecipao__c lists = new JurosDescontoAntecipao__c(
                 ClientGroup__c = this.accountGroup,
                 ConditionType__c = this.typeCondition == 'ZPR0' ||  this.typeCondition == 'ZPRS' ? 'Preço' : this.typeCondition == 'ZDAN'? 'Desconto' : 'Juros',
                 RecordTypeId = Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get(this.typeCondition == 'ZPRS' ? 'ZPR0' :  this.typeCondition).getRecordTypeId(),
@@ -64,11 +64,18 @@ global with sharing class TemplateDataIntegrationFields {
                 Currency__c = this.typeCurrency,
                 SalesCondition__c = lookups.containsKey('SalesCondition__c'+this.salesCondition) ? lookups.get('SalesCondition__c'+this.salesCondition) : null, 
                 ProductMultiplier__c = Decimal.valueOf(this.multiplicationFactor.trim()),
-                UnitMeasurement__c = this.unitMeasurement != null ? this.unitMeasurement : null,
-                UnitPrice__c = (this.typeCurrency == 'BRL' || this.typeCurrency == 'USD' && this.typeCondition == 'ZPR0') ? Decimal.valueOf(this.unitPrice.trim()) : null,
-                Percentage__c = this.typeCurrency == '%' ? Decimal.valueOf(this.unitPrice.trim()) : null,
-                Cost__c = this.typeCondition == 'ZPRS' ?  Decimal.valueOf(this.unitPrice.trim()) : 0
+                UnitMeasurement__c = this.unitMeasurement != null ? this.unitMeasurement : null
             );
+            if(this.typeCondition == 'ZPRS'){
+                lists.Cost__c = Decimal.valueOf(this.unitPrice.trim());
+            }
+            else if(this.typeCondition == 'ZPR0'){
+                lists.UnitPrice__c = Decimal.valueOf(this.unitPrice.trim());
+            }
+            else{
+                lists.Percentage__c = Decimal.valueOf(this.unitPrice.trim());
+            }
+            return lists;
             
         }
     
