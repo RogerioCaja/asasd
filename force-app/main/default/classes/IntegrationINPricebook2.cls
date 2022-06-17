@@ -161,6 +161,7 @@ global with sharing class IntegrationINPricebook2 {
         hasError = false;
         setResponses(responseList);
         
+        Set<String> externalIdSet = new Set<String>();
         List<TemplateDataIntegrationFields.ResponseParent> removeToDataList = new List<TemplateDataIntegrationFields.ResponseParent>();
         Map<String, TemplateDataIntegrationFields.ResponseParent> permitToDataMap = new Map<String, TemplateDataIntegrationFields.ResponseParent>();
         for(TemplateDataIntegrationFields.ResponseParent response : responseList){
