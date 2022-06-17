@@ -57,8 +57,8 @@ public with sharing class CalloutBP {
                 accountList.add(ac);
             }
             for(CompanyINData company : companyList){
-                for(ItemsPartner partner : company.Partner){
-                    userCodigoSapList.add(partner.BU_Partner);
+                for(ItemsPartner partner : company.Partners){
+                    userCodigoSapList.add(partner.Partner);
                 }
             }           
             if (!accountList.isEmpty()) {
@@ -196,8 +196,8 @@ public with sharing class CalloutBP {
         System.debug('userTerrytoryMap: '+userTerrytoryMap);
         List<ObjectTerritory2Association> objectTerritoryList = new List<ObjectTerritory2Association>();
         for(CompanyINData company : companyList){
-            for(ItemsPartner partner : company.Partner){
-                UserTerritory2Association userTerrytory = userTerrytoryMap.get(partner.BU_Partner);
+            for(ItemsPartner partner : company.Partners){
+                UserTerritory2Association userTerrytory = userTerrytoryMap.get(partner.Partner);
                 String accountId = accountExternalIdMap.get(company.CodigoExternoAccount);
                 if(userTerrytory != null){
                     ObjectTerritory2Association objObjectTerritory2Association = new ObjectTerritory2Association(ObjectId = accountId, Territory2Id = userTerrytory.Territory2Id, AssociationCause='Territory2Manual');
@@ -399,7 +399,7 @@ public with sharing class CalloutBP {
 
     public class CompanyINData{
     
-    public List<ItemsPartner> Partner;
+    public List<ItemsPartner> Partners;
     public String CodigoExternoAccount;    
     public String OrganizacaoVendas;
     public String SetorAtividade;
@@ -413,6 +413,6 @@ public with sharing class CalloutBP {
     public String SetorVendas;
     }
     public class ItemsPartner{
-        public String BU_Partner;
+        public String Partner;
     }
 }
