@@ -160,7 +160,30 @@ global with sharing class IntegrationINPricebook2 {
 
         hasError = false;
         setResponses(responseList);
-            
+        
+        List<TemplateDataIntegrationFields.ResponseParent> removeToDataList = new List<TemplateDataIntegrationFields.ResponseParent>();
+        Map<String, TemplateDataIntegrationFields.ResponseParent> permitToDataMap = new Map<String, TemplateDataIntegrationFields.ResponseParent>();
+        for(TemplateDataIntegrationFields.ResponseParent response : responseList){
+            if(response.idSalesforce != ''){
+                permitToDataMap.put(response.externalCode, response);
+            }
+            if(!externalIdSet.contains(response.externalCode)){
+                externalIdSet.add(response.externalCode);
+                
+            }   
+            else{
+                removeToDataList.add(response);
+            }
+            	
+        }
+        
+        for(TemplateDataIntegrationFields.ResponseParent response : removeToDataList){
+            responseList.remove(responseList.indexOf(response));
+        }
+        
+        for(TemplateDataIntegrationFields.ResponseParent response : responseList){
+            responseList[responseList.indexOf(response)] = permitToDataMap.containsKey(response.externalCode) ? permitToDataMap.get(response.externalCode) : response;
+        }
         
         //Creating integration log
         IntegrationLog.createLog('Lista de Preço, Juros e Descontos de Antecipação IN', 'IN', JSON.serialize(request), JSON.serialize(responseList), hasError);
