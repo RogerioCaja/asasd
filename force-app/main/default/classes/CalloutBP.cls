@@ -57,9 +57,10 @@ public with sharing class CalloutBP {
                 accountList.add(ac);
             }
             for(CompanyINData company : companyList){
-                userCodigoSapList.add(company.Partner);
-            }
-                       
+                for(ItemsPartner partner : company.Partners){
+                    userCodigoSapList.add(partner.Partner);
+                }
+            }           
             if (!accountList.isEmpty()) {
                 System.debug('accountList: '+accountList);
                 upsert accountList ExternalId__c;
@@ -195,15 +196,14 @@ public with sharing class CalloutBP {
         System.debug('userTerrytoryMap: '+userTerrytoryMap);
         List<ObjectTerritory2Association> objectTerritoryList = new List<ObjectTerritory2Association>();
         for(CompanyINData company : companyList){
-            UserTerritory2Association userTerrytory = userTerrytoryMap.get(company.Partner);
-            String accountId = accountExternalIdMap.get(company.CodigoExternoAccount);
-            System.debug('accountId: '+accountId);
-            System.debug('userTerrytory: '+userTerrytory);
-            if(userTerrytory != null){
-                ObjectTerritory2Association objObjectTerritory2Association = new ObjectTerritory2Association(ObjectId = accountId, Territory2Id = userTerrytory.Territory2Id, AssociationCause='Territory2Manual');
-            	objectTerritoryList.add(objObjectTerritory2Association);
+            for(ItemsPartner partner : company.Partners){
+                UserTerritory2Association userTerrytory = userTerrytoryMap.get(partner.Partner);
+                String accountId = accountExternalIdMap.get(company.CodigoExternoAccount);
+                if(userTerrytory != null){
+                    ObjectTerritory2Association objObjectTerritory2Association = new ObjectTerritory2Association(ObjectId = accountId, Territory2Id = userTerrytory.Territory2Id, AssociationCause='Territory2Manual');
+                	objectTerritoryList.add(objObjectTerritory2Association);
+                }
             }
-            
         }
         System.debug('objectTerritoryList'+ objectTerritoryList);
         if (!objectTerritoryList.isEmpty()) {
@@ -399,7 +399,7 @@ public with sharing class CalloutBP {
 
     public class CompanyINData{
     
-    public String Partner;
+    public List<ItemsPartner> Partners;
     public String CodigoExternoAccount;    
     public String OrganizacaoVendas;
     public String SetorAtividade;
@@ -412,5 +412,7 @@ public with sharing class CalloutBP {
     public String Status;
     public String SetorVendas;
     }
-
+    public class ItemsPartner{
+        public String Partner;
+    }
 }
