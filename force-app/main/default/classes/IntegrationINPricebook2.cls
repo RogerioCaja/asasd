@@ -212,12 +212,53 @@ global with sharing class IntegrationINPricebook2 {
 
     global static List<JurosDescontoAntecipao__c> removeZPRSData(List<JurosDescontoAntecipao__c> context){
         List<JurosDescontoAntecipao__c> newContext = new List<JurosDescontoAntecipao__c>();
+        Map<String, Decimal> pricesMap = new Map<String, Decimal>();
+        Map<String, String> externalIdMap = new Map<String, String>();
+        List<JurosDescontoAntecipao__c> pricesList = new List<JurosDescontoAntecipao__c>();
         for(JurosDescontoAntecipao__c interest : context){
             if(interest.Cost__c == null){
                 newContext.add(interest);
             }
         }
-        return newContext;
+        for(JurosDescontoAntecipao__c prices : newContext){
+            String externalId = (
+                String.valueOf(prices.StartDate__c)+'_'+
+                String.valueOf(prices.EndDate__c)+'_'+
+                String.valueOf(prices.SalesOrg__c).subString(0, 15)+'_'+
+                String.valueOf(prices.harvest__c).subString(0, 15)+'_'+
+                (prices.Currency__c == null ? '' : String.valueOf(prices.Currency__c)+'_')+
+                (prices.SalesCondition__c == null ? '' : String.valueOf(prices.SalesCondition__c).subString(0, 15)+'_')+
+                (prices.ProductGroup__c == null ? '' : String.valueOf(prices.ProductGroup__c).subString(0, 15)+'_')+
+                (prices.SalesOffice__c == null ? '' : String.valueOf(prices.SalesOffice__c).subString(0, 15)+'_')+
+                (prices.Culture__c == null ? '' : String.valueOf(prices.Culture__c).subString(0, 15)+'_')+
+                (prices.ClientGroup__c == null ? '' : String.valueOf(prices.ClientGroup__c).subString(0, 15)+'_')+
+                (prices.Account__c == null ? '' : String.valueOf(prices.Account__c).subString(0, 15)+'_')+
+                (prices.SalesTeam__c == null ? '' : String.valueOf(prices.SalesTeam__c).subString(0, 15)+'_')+
+                (prices.Product__c == null ? '' : String.valueOf(prices.Product__c).subString(0, 15))
+            );
+            System.debug(externalId);
+            externalIdMap.put(externalId,prices.ExternalId__c);
+            pricesMap.put(externalId, prices.UnitPrice__c);
+        }
+        
+        for(JurosDescontoAntecipao__c prices : [ SELECT Id, ExternalId__c, UnitPrice__c, DescriptionExternalId__c
+                                                FROM JurosDescontoAntecipao__c
+                                                WHERE DescriptionExternalId__c IN: pricesMap.keySet()
+                                                AND RecordType.DeveloperName = 'ZPR0']){ 
+            externalIdMap.remove(prices.DescriptionExternalId__c);    
+            pricesList.add(new JurosDescontoAntecipao__c(UnitPrice__c = pricesMap.get(prices.DescriptionExternalId__c), ExternalId__c = prices.ExternalId__c));
+        }
+        Set<String> externalIdSet = new Set<String>();
+        for(String value : externalIdMap.values()){
+        	externalIdSet.add(value);
+        }
+        for(JurosDescontoAntecipao__c interest : newContext){
+            if(externalIdSet.contains(interest.ExternalId__c)){
+                pricesList.add(interest);
+            }
+        }
+ 
+        return pricesList;
     }
 
     global static List<JurosDescontoAntecipao__c> onlyZPRSData(List<JurosDescontoAntecipao__c> context){
@@ -233,6 +274,7 @@ global with sharing class IntegrationINPricebook2 {
     global static List<JurosDescontoAntecipao__c> ZPRSData(List<JurosDescontoAntecipao__c> context){
         Map<String, Decimal> pricesMap = new Map<String, Decimal>();
         List<JurosDescontoAntecipao__c> pricesList = new List<JurosDescontoAntecipao__c>();
+        Map<String, String> externalIdMap = new Map<String, String>();
         System.debug('cZPRS => ' + onlyZPRSData(context));
         for(JurosDescontoAntecipao__c prices : onlyZPRSData(context)){
             String externalId = (
@@ -251,6 +293,7 @@ global with sharing class IntegrationINPricebook2 {
                 (prices.Product__c == null ? '' : String.valueOf(prices.Product__c).subString(0, 15))
             );
             System.debug(externalId);
+            externalIdMap.put(externalId,prices.ExternalId__c);
             pricesMap.put(externalId, prices.Cost__c);
         }
  		
@@ -259,14 +302,20 @@ global with sharing class IntegrationINPricebook2 {
         for(JurosDescontoAntecipao__c prices : [ SELECT Id, ExternalId__c, UnitPrice__c, DescriptionExternalId__c
                                                 FROM JurosDescontoAntecipao__c
                                                 WHERE DescriptionExternalId__c IN: pricesMap.keySet()
-                                                AND RecordType.DeveloperName = 'ZPR0']){
-           
+                                                AND RecordType.DeveloperName = 'ZPR0']){ 
+            externalIdMap.remove(prices.DescriptionExternalId__c);
             pricesList.add(new JurosDescontoAntecipao__c(Cost__c = pricesMap.get(prices.DescriptionExternalId__c), ExternalId__c = prices.ExternalId__c));
         }
-        
-        
-        
-        
+       	Set<String> externalIdSet = new Set<String>();
+        for(String value : externalIdMap.values()){
+        	externalIdSet.add(value);
+        }
+        for(JurosDescontoAntecipao__c interest : interestList){
+            if(externalIdSet.contains(interest.ExternalId__c)){
+                pricesList.add(interest);
+            }
+            
+        }
         return pricesList;
     }
 
