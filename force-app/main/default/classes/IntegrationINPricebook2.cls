@@ -248,12 +248,13 @@ global with sharing class IntegrationINPricebook2 {
             externalIdMap.remove(prices.DescriptionExternalId__c);    
             pricesList.add(new JurosDescontoAntecipao__c(UnitPrice__c = pricesMap.get(prices.DescriptionExternalId__c), ExternalId__c = prices.ExternalId__c));
         }
-        
+        Set<String> externalIdSet = new Set<String>();
+        for(String value : externalIdMap.values()){
+        	externalIdSet.add(value);
+        }
         for(JurosDescontoAntecipao__c interest : newContext){
-            for(String value : externalIdMap.values()){
-                if(value == interest.ExternalId__c){
-                    pricesList.add(interest);
-                }
+            if(externalIdSet.contains(interest.ExternalId__c)){
+                pricesList.add(interest);
             }
         }
  
@@ -302,16 +303,18 @@ global with sharing class IntegrationINPricebook2 {
                                                 FROM JurosDescontoAntecipao__c
                                                 WHERE DescriptionExternalId__c IN: pricesMap.keySet()
                                                 AND RecordType.DeveloperName = 'ZPR0']){ 
-                                                    externalIdMap.remove(prices.DescriptionExternalId__c);
+            externalIdMap.remove(prices.DescriptionExternalId__c);
             pricesList.add(new JurosDescontoAntecipao__c(Cost__c = pricesMap.get(prices.DescriptionExternalId__c), ExternalId__c = prices.ExternalId__c));
         }
-       	
+       	Set<String> externalIdSet = new Set<String>();
+        for(String value : externalIdMap.values()){
+        	externalIdSet.add(value);
+        }
         for(JurosDescontoAntecipao__c interest : interestList){
-            for(String value : externalIdMap.values()){
-                if(value == interest.ExternalId__c){
-                    pricesList.add(interest);
-                }
+            if(externalIdSet.contains(interest.ExternalId__c)){
+                pricesList.add(interest);
             }
+            
         }
         return pricesList;
     }
