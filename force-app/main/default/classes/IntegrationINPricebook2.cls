@@ -183,14 +183,14 @@ global with sharing class IntegrationINPricebook2 {
         // A934 => Org.vendas/Safra
 
         Map<String, List<String>> response = new Map<String, List<String>>();
-        response.put('A930', new List<String>{'SalesOrg__c', 'harvest__c', 'AccountType__c','Product__c'});
+        response.put('A930', new List<String>{'SalesOrg__c', 'harvest__c', 'ClientGroup__c','Product__c'});
         response.put('A945', new List<String>{'SalesOrg__c', 'harvest__c','SalesTeam__c' ,'Product__c'});
         response.put('A946', new List<String>{'SalesOrg__c', 'harvest__c','SalesTeam__c' ,'ProductGroup__c'});
         response.put('A933', new List<String>{'SalesOrg__c', 'harvest__c','DistributionCenter__c' ,'Product__c'});
         response.put('A934', new List<String>{'SalesOrg__c', 'harvest__c'});
 
         response.put('A935', new List<String>{'SalesOrg__c', 'Currency__c' ,'harvest__c', 'SalesCondition__c', 'Account__c','Product__c'});
-        response.put('A936', new List<String>{'SalesOrg__c', 'Currency__c' ,'harvest__c', 'SalesCondition__c', 'AccountType__c', 'Product__c'});
+        response.put('A936', new List<String>{'SalesOrg__c', 'Currency__c' ,'harvest__c', 'SalesCondition__c', 'ClientGroup__c', 'Product__c'});
         response.put('A937', new List<String>{'SalesOrg__c', 'Currency__c' ,'harvest__c', 'SalesCondition__c', 'Culture__c', 'SalesTeam__c' ,'Product__c'});
         response.put('A938', new List<String>{'SalesOrg__c', 'Currency__c' ,'harvest__c', 'SalesCondition__c', 'SalesTeam__c' ,'Product__c'});
         response.put('A939', new List<String>{'SalesOrg__c', 'Currency__c' ,'harvest__c', 'SalesCondition__c', 'SalesOffice__c' ,'Product__c'});
