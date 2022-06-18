@@ -241,7 +241,6 @@ global with sharing class IntegrationINPricebook2 {
         for(JurosDescontoAntecipao__c prices : newContext){
             String externalId = (
                 String.valueOf(prices.StartDate__c)+'_'+
-                String.valueOf(prices.EndDate__c)+'_'+
                 String.valueOf(prices.SalesOrg__c).subString(0, 15)+'_'+
                 (prices.harvest__c == null ? '' : String.valueOf(prices.harvest__c).subString(0, 15)+'_')+
                 (prices.Currency__c == null ? '' : String.valueOf(prices.Currency__c)+'_')+
@@ -305,7 +304,6 @@ global with sharing class IntegrationINPricebook2 {
         for(JurosDescontoAntecipao__c prices : onlyZPRSData(context)){
             String externalId = (
                 String.valueOf(prices.StartDate__c)+'_'+
-                String.valueOf(prices.EndDate__c)+'_'+
                 String.valueOf(prices.SalesOrg__c).subString(0, 15)+'_'+
                 (prices.harvest__c == null ? '' : String.valueOf(prices.harvest__c).subString(0, 15)+'_')+
                 (prices.Currency__c == null ? '' : String.valueOf(prices.Currency__c)+'_')+
