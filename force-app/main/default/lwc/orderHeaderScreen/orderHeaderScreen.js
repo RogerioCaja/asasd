@@ -44,6 +44,7 @@ export default class OrderHeaderScreen extends LightningElement {
     disabled = false;
     currentDate;
     dateLimit;
+    dateStartBilling;
     dateLimitBilling;
 
     @api accountData;
@@ -386,7 +387,7 @@ export default class OrderHeaderScreen extends LightningElement {
             if(this.isFilled(event)){
                 var field = event.target.name;
                 if(event.target.value || event.target.checked){
-                    if ((field == 'data_pagamento' || (field == 'data_entrega')) && (this.currentDate > event.detail.value || (field == 'data_pagamento' && this.dateLimit < event.detail.value) || (field == 'data_entrega' && this.dateLimitBilling < event.detail.value))) 
+                    if ((field == 'data_pagamento' || (field == 'data_entrega')) && ((field == 'data_pagamento' && this.currentDate) > event.detail.value || (field == 'data_pagamento' && this.dateLimit < event.detail.value) || (field == 'data_entrega' && this.dateLimitBilling < event.detail.value) || (field == 'data_entrega' && this.dateStartBilling > event.detail.value))) 
                     {
                         this.headerDictLocale[field] = null;
                         let headerValues = JSON.parse(JSON.stringify(this.headerData));
@@ -451,6 +452,7 @@ export default class OrderHeaderScreen extends LightningElement {
                 const data = JSON.parse(result);
                 this.dateLimit = data.paymentDate;
                 this.dateLimitBilling = data.endDateBilling;
+                this.dateStartBilling = data.startDateBilling;
             })
             .catch((err)=>{
                 console.log(err);
