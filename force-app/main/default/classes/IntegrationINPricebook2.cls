@@ -90,9 +90,6 @@ global with sharing class IntegrationINPricebook2 {
             if(interestDiscount.accountCode != null){
                 valueToTransform = Integer.valueOf(interestDiscount.accountCode);
             	interestDiscount.accountCode = String.valueOf(valueToTransform);
-            }
-
-            if(interestDiscount.accountCode != null){
                 lookupMap.get('accountLookups').add(interestDiscount.accountCode);
             }
             if(interestDiscount.orgVendas != null){
