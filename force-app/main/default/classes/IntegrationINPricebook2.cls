@@ -160,7 +160,31 @@ global with sharing class IntegrationINPricebook2 {
 
         hasError = false;
         setResponses(responseList);
-            
+        
+        Set<String> externalIdSet = new Set<String>();
+        List<TemplateDataIntegrationFields.ResponseParent> removeToDataList = new List<TemplateDataIntegrationFields.ResponseParent>();
+        Map<String, TemplateDataIntegrationFields.ResponseParent> permitToDataMap = new Map<String, TemplateDataIntegrationFields.ResponseParent>();
+        for(TemplateDataIntegrationFields.ResponseParent response : responseList){
+            if(response.idSalesforce != ''){
+                permitToDataMap.put(response.externalCode, response);
+            }
+            if(!externalIdSet.contains(response.externalCode)){
+                externalIdSet.add(response.externalCode);
+                
+            }   
+            else{
+                removeToDataList.add(response);
+            }
+            	
+        }
+        
+        for(TemplateDataIntegrationFields.ResponseParent response : removeToDataList){
+            responseList.remove(responseList.indexOf(response));
+        }
+        
+        for(TemplateDataIntegrationFields.ResponseParent response : responseList){
+            responseList[responseList.indexOf(response)] = permitToDataMap.containsKey(response.externalCode) ? permitToDataMap.get(response.externalCode) : response;
+        }
         
         //Creating integration log
         IntegrationLog.createLog('Lista de Preço, Juros e Descontos de Antecipação IN', 'IN', JSON.serialize(request), JSON.serialize(responseList), hasError);
@@ -183,14 +207,14 @@ global with sharing class IntegrationINPricebook2 {
         // A934 => Org.vendas/Safra
 
         Map<String, List<String>> response = new Map<String, List<String>>();
-        response.put('A930', new List<String>{'SalesOrg__c', 'harvest__c', 'AccountType__c','Product__c'});
+        response.put('A930', new List<String>{'SalesOrg__c', 'harvest__c', 'ClientGroup__c','Product__c'});
         response.put('A945', new List<String>{'SalesOrg__c', 'harvest__c','SalesTeam__c' ,'Product__c'});
         response.put('A946', new List<String>{'SalesOrg__c', 'harvest__c','SalesTeam__c' ,'ProductGroup__c'});
         response.put('A933', new List<String>{'SalesOrg__c', 'harvest__c','DistributionCenter__c' ,'Product__c'});
         response.put('A934', new List<String>{'SalesOrg__c', 'harvest__c'});
 
         response.put('A935', new List<String>{'SalesOrg__c', 'Currency__c' ,'harvest__c', 'SalesCondition__c', 'Account__c','Product__c'});
-        response.put('A936', new List<String>{'SalesOrg__c', 'Currency__c' ,'harvest__c', 'SalesCondition__c', 'AccountType__c', 'Product__c'});
+        response.put('A936', new List<String>{'SalesOrg__c', 'Currency__c' ,'harvest__c', 'SalesCondition__c', 'ClientGroup__c', 'Product__c'});
         response.put('A937', new List<String>{'SalesOrg__c', 'Currency__c' ,'harvest__c', 'SalesCondition__c', 'Culture__c', 'SalesTeam__c' ,'Product__c'});
         response.put('A938', new List<String>{'SalesOrg__c', 'Currency__c' ,'harvest__c', 'SalesCondition__c', 'SalesTeam__c' ,'Product__c'});
         response.put('A939', new List<String>{'SalesOrg__c', 'Currency__c' ,'harvest__c', 'SalesCondition__c', 'SalesOffice__c' ,'Product__c'});
@@ -217,7 +241,6 @@ global with sharing class IntegrationINPricebook2 {
         for(JurosDescontoAntecipao__c prices : newContext){
             String externalId = (
                 String.valueOf(prices.StartDate__c)+'_'+
-                String.valueOf(prices.EndDate__c)+'_'+
                 String.valueOf(prices.SalesOrg__c).subString(0, 15)+'_'+
                 (prices.harvest__c == null ? '' : String.valueOf(prices.harvest__c).subString(0, 15)+'_')+
                 (prices.Currency__c == null ? '' : String.valueOf(prices.Currency__c)+'_')+
@@ -281,7 +304,6 @@ global with sharing class IntegrationINPricebook2 {
         for(JurosDescontoAntecipao__c prices : onlyZPRSData(context)){
             String externalId = (
                 String.valueOf(prices.StartDate__c)+'_'+
-                String.valueOf(prices.EndDate__c)+'_'+
                 String.valueOf(prices.SalesOrg__c).subString(0, 15)+'_'+
                 (prices.harvest__c == null ? '' : String.valueOf(prices.harvest__c).subString(0, 15)+'_')+
                 (prices.Currency__c == null ? '' : String.valueOf(prices.Currency__c)+'_')+
