@@ -86,7 +86,12 @@ global with sharing class IntegrationINPricebook2 {
             else{
                 isValidMap.put(interestDiscount.externalId, true);
             }
-           
+            
+            if(interestDiscount.accountCode != null){
+                valueToTransform = Integer.valueOf(interestDiscount.accountCode);
+            	interestDiscount.accountCode = String.valueOf(valueToTransform);
+            }
+
             if(interestDiscount.accountCode != null){
                 lookupMap.get('accountLookups').add(interestDiscount.accountCode);
             }
