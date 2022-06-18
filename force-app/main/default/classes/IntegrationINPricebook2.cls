@@ -255,7 +255,7 @@ global with sharing class IntegrationINPricebook2 {
             );
             System.debug(externalId);
             externalIdMap.put(externalId,prices.ExternalId__c);
-            if(pricesMap.containsKey(externalId))  repetitons.add(prices.ExternalId__c);
+            repetitons.add(prices.ExternalId__c);
             pricesMap.put(externalId, prices.UnitPrice__c);
         }
         
@@ -318,7 +318,7 @@ global with sharing class IntegrationINPricebook2 {
             );
             System.debug(externalId);
             externalIdMap.put(externalId,prices.ExternalId__c);
-            if(pricesMap.containsKey(externalId))  repetitonsZPRS.add(prices.ExternalId__c);
+            repetitonsZPRS.add(prices.ExternalId__c);
             pricesMap.put(externalId, prices.Cost__c);
         }
  		
@@ -345,7 +345,7 @@ global with sharing class IntegrationINPricebook2 {
         for(String repetiton : repetitonsZPRS){
             TemplateDataIntegrationFields.ResponseParent response = new TemplateDataIntegrationFields.ResponseParent();
             response.status = true;
-            response.success('', repetiton, 'JurosDescontoAntecipao__c');
+            response.success('ZPRS', repetiton, 'JurosDescontoAntecipao__c');
             responseList.add(response);
         }
         return pricesList;
