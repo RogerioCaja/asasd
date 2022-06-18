@@ -207,7 +207,7 @@ public with sharing class CalloutOrder {
 
             Map<Id, OrderItem> orderItemMap = new Map<Id, OrderItem>([
                 SELECT Id, NumeroSap__c, Product2.ExternalId__c, Product2.DistributionCenter__r.Code__c, Quantity, UnitPrice, ListCost__c, DiscountValue__c, FinancialAdditionValue__c, FinancialDiscountValue__c, CommercialAdditionValue__c,
-                FinancialAdditionPercent__c, FinancialDiscountPercent__c, CommercialMargin__c
+                FinancialAdditionPercent__c, FinancialDiscountPercent__c
                 FROM OrderItem
                 WHERE Id IN: orderItemIds
             ]);
@@ -244,7 +244,6 @@ public with sharing class CalloutOrder {
                 // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZPR0', String.valueOf(orderItem.UnitPrice), order.Currency__c));
                 // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZJUR', String.valueOf(orderItem.FinancialAdditionPercent__c), '%'));
                 // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDAN', String.valueOf(orderItem.FinancialDiscountPercent__c), '%'));
-                // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZMAR', String.valueOf(orderItem.CommercialMargin__c), '%'));
             }
         }
     }

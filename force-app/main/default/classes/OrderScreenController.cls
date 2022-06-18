@@ -833,7 +833,6 @@ public without sharing class OrderScreenController {
                                  StartDateOrderInsertion__c,
                                  EndDateInsertionOrders__c,
                                  NumberOfDaysAfterPayment__c,
-                                 BillingStartDate__c,
                                  EndDateBilling__c
                             FROM Safra__c
                            WHERE Id =: safraId];
@@ -1322,7 +1321,6 @@ public without sharing class OrderScreenController {
         public String endDate;
         public String paymentDate;
         public String endDateBilling;
-        public String startDateBilling;
     }
 
     public class SafraDataSerialize {
@@ -1330,7 +1328,6 @@ public without sharing class OrderScreenController {
         public String endDate;
         public String paymentDate;
         public String endDateBilling;
-        public String startDateBilling;
 
         SafraDataSerialize() {}
 
@@ -1339,7 +1336,6 @@ public without sharing class OrderScreenController {
             this.endDate = String.valueOf(safra.EndDateInsertionOrders__c);
             this.paymentDate = String.valueOf(safra.NumberOfDaysAfterPayment__c);
             this.endDateBilling = String.valueOf(safra.EndDateBilling__c);
-            this.startDateBilling = String.valueOf(safra.BillingStartDate__c);
         }
     }
 
