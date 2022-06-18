@@ -228,7 +228,7 @@ global with sharing class IntegrationINPricebook2 {
     global static List<JurosDescontoAntecipao__c> removeZPRSData(List<JurosDescontoAntecipao__c> context, List<TemplateDataIntegrationFields.ResponseParent> responseList){
         
         List<JurosDescontoAntecipao__c> newContext = new List<JurosDescontoAntecipao__c>();
-        Map<String, Decimal> pricesMap = new Map<String, Decimal>();
+        Map<String, String> pricesMap = new Map<String, String>();
         Map<String, String> externalIdMap = new Map<String, String>();
         Set<String> repetitons = new Set<String>();
 
@@ -256,7 +256,8 @@ global with sharing class IntegrationINPricebook2 {
             System.debug(externalId);
             externalIdMap.put(externalId,prices.ExternalId__c);
             repetitons.add(prices.ExternalId__c);
-            pricesMap.put(externalId, prices.UnitPrice__c);
+            prices.EndDate__c = prices.EndDate__c != null ? String.valueOf(prices.EndDate__c).contains('9999') ? Date.valueOf(String.valueOf(prices.EndDate__c).replace('9999', '2999')) : prices.EndDate__c : null;
+            pricesMap.put(externalId, prices.UnitPrice__c + '|' + prices.EndDate__c);
         }
         
         for(JurosDescontoAntecipao__c prices : [ SELECT Id, ExternalId__c, UnitPrice__c, DescriptionExternalId__c
@@ -264,7 +265,7 @@ global with sharing class IntegrationINPricebook2 {
                                                 WHERE DescriptionExternalId__c IN: pricesMap.keySet()
                                                 AND RecordType.DeveloperName = 'ZPR0']){ 
             if(externalIdMap.containsKey(prices.DescriptionExternalId__c)) externalIdMap.remove(prices.DescriptionExternalId__c);    
-            pricesList.add(new JurosDescontoAntecipao__c(UnitPrice__c = pricesMap.get(prices.DescriptionExternalId__c), ExternalId__c = prices.ExternalId__c));
+            pricesList.add(new JurosDescontoAntecipao__c(IsActive__c = Date.valueOf(pricesMap.get(prices.DescriptionExternalId__c).substringAfter('|')) < Date.today() ? false : true ,EndDate__c = Date.valueOf(pricesMap.get(prices.DescriptionExternalId__c).substringAfter('|')), UnitPrice__c = Decimal.valueOf(pricesMap.get(prices.DescriptionExternalId__c).substringBefore('|')), ExternalId__c = prices.ExternalId__c));
         }
         Set<String> externalIdSet = new Set<String>();
         for(String value : externalIdMap.values()){
