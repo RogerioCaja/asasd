@@ -3,7 +3,6 @@
     <fullName>DescriptionExternalId__c</fullName>
     <externalId>false</externalId>
     <formula>TEXT(StartDate__c)+'_'+
-        TEXT(EndDate__c)+'_'+
         IF(ISBLANK(SalesOrg__c ), &apos;&apos;, SalesOrg__c+&apos;_&apos;)+
 IF(ISBLANK(harvest__c ), &apos;&apos;, harvest__c +&apos;_&apos;)+
 IF(ISBLANK(TEXT(Currency__c)), &apos;&apos;, TEXT(Currency__c)+&apos;_&apos;)+

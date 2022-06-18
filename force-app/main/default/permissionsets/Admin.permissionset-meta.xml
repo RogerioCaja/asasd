@@ -820,6 +820,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>JurosDescontoAntecipao__c.DescriptionExternalId__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>JurosDescontoAntecipao__c.ActivitySector__c</field>
         <readable>true</readable>
     </fieldPermissions>
