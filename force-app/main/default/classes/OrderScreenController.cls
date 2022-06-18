@@ -1333,7 +1333,7 @@ public without sharing class OrderScreenController {
             this.endDate = String.valueOf(safra.EndDateInsertionOrders__c);
             this.paymentDate = String.valueOf(safra.NumberOfDaysAfterPayment__c);
             this.endDateBilling = String.valueOf(safra.EndDateBilling__c);
-            this.startDateBilling = StringvalueOf(safra.BillingStartDate__c);
+            this.startDateBilling = String.valueOf(safra.BillingStartDate__c);
         }
     }
 
