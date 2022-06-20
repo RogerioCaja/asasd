@@ -45,8 +45,8 @@ global with sharing class TemplateDataIntegrationFields {
         public JurosDescontoAntecipao__c serialize(Map<String, Id> lookups){
             JurosDescontoAntecipao__c lists = new JurosDescontoAntecipao__c(
                 ClientGroup__c = this.accountGroup,
-                ConditionType__c = this.typeCondition == 'ZPR0' ||  this.typeCondition == 'ZPRS' ? 'Preço' : this.typeCondition == 'ZDAN'? 'Desconto' : 'Juros',
-                RecordTypeId = Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get(this.typeCondition == 'ZPRS' ? 'ZPR0' :  this.typeCondition).getRecordTypeId(),
+                ConditionType__c = this.typeCondition == 'ZPR0' ||  this.typeCondition == 'ZPRS' || this.typeCondition == 'ZCPE' ? 'Preço' : this.typeCondition == 'ZDAN'? 'Desconto' : 'Juros',
+                RecordTypeId = Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get(this.typeCondition == 'ZPRS' || this.typeCondition == 'ZCPE' ? 'ZPR0' :  this.typeCondition).getRecordTypeId(),
                 Culture__c = lookups.containsKey('Cultura__c'+this.cultureCode) ? lookups.get('Cultura__c'+this.cultureCode) : null,
                 DistributionCenter__c =lookups.containsKey('DistributionCenter__c'+this.center) ? lookups.get('DistributionCenter__c'+this.center) : null,
                 EndDate__c = this.endDate != null ? (Date.valueOf(this.endDate.contains('9999') ? this.endDate.replace('9999','2999') : this.endDate )) : null,
@@ -69,7 +69,7 @@ global with sharing class TemplateDataIntegrationFields {
             if(this.typeCondition == 'ZPRS'){
                 lists.Cost__c = Decimal.valueOf(this.unitPrice.trim());
             }
-            else if(this.typeCondition == 'ZPR0'){
+            else if(this.typeCondition == 'ZPR0' || this.typeCondition == 'ZCPE'){
                 lists.UnitPrice__c = Decimal.valueOf(this.unitPrice.trim());
             }
             else{
@@ -121,6 +121,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String IngredienteAtivo;
         public String NumeroRegistro;
         public Decimal PesoBruto;
+        public Decimal multiplicidade;
         public List<TemplateDataIntegrationFields.OrgVProductINData> orgVProductItems;
         //public List<TemplateDataIntegrationFields.ProductINData> product2Entries;
 
@@ -151,7 +152,8 @@ global with sharing class TemplateDataIntegrationFields {
                 GrupoQuimico__c = this.GrupoQuimico,
                 PrincipleActive__c = this.IngredienteAtivo, 
                 NumeroRegistro__c = this.NumeroRegistro,
-                GrossWeight__c = this.PesoBruto
+                GrossWeight__c = this.PesoBruto,
+                Multiplicity__c = this.multiplicidade
 
             );
         }
@@ -583,7 +585,7 @@ global with sharing class TemplateDataIntegrationFields {
      
             //Returning Object with Fields.
             return new ItensNotaFiscal__c(
-                Name = 'NFe ' + this.notaFiscal + ' - ' + this.NameProduct, //Pegar descrição do produto e number NF
+                Name = 'Nota Fiscal ' + this.notaFiscal + ' - ' + this.NameProduct, //Pegar descrição do produto e number NF
                 ExternalID__c = this.codigoMaterial + '|' + this.notaFiscal + '|' + this.lote,
                 Invoice__c = lookups.containsKey('NotaFiscal__c' + this.notaFiscal) ? lookups.get('NotaFiscal__c' + this.notaFiscal) : null,
                 Productcode__c = lookups.containsKey('Product2'+this.codigoMaterial) ? lookups.get('Product2' + this.codigoMaterial) : null,
