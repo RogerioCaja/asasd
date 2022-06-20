@@ -211,9 +211,9 @@ public with sharing class CalloutBP {
         }
         Set<sobject> removeDuplicates = new Set<sobject>();
         List<ObjectTerritory2Association> resultList = new List<ObjectTerritory2Association>();
-        for (ObjectTerritory2Association object : objectTerritoryList) {
-            if (removeDuplicates.add(object)) {
-                resultList.add(object);
+        for (ObjectTerritory2Association objectTerritory : objectTerritoryList) {
+            if (removeDuplicates.add(objectTerritory)) {
+                resultList.add(objectTerritory);
             }
         }
         System.debug('resultList'+ resultList);
