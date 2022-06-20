@@ -950,16 +950,22 @@ export default class OrderProductScreen extends LightningElement {
         let fieldValue = event.target.value;
         let currentProduct;
 
+        let today = new Date();
+        let dd = String(today.getDate()).padStart(2, '0');
+        let mm = String(today.getMonth() + 1).padStart(2, '0');
+        let yyyy = today.getFullYear();
+        let currentDate = yyyy + '-' + mm + '-' + dd;
+
         if (this.isFilled(fieldValue)) {
             if (fieldId.includes('deliveryId-')) {
                 currentProduct = allDivisions.find(e => e.deliveryId == fieldId);
-                if (fieldValue >= this.safraData.initialDate && fieldValue <= this.safraData.endDate) {
+                if (fieldValue >= currentDate && fieldValue >= this.safraData.initialDate && fieldValue <= this.safraData.endDate) {
                     currentProduct.deliveryDate = fieldValue;
                 } else {
                     currentProduct.deliveryDate = null;
                     let formatInitialDate = this.safraData.initialDate.split('-')[2] + '/' + this.safraData.initialDate.split('-')[1] + '/' + this.safraData.initialDate.split('-')[0];
                     let formatEndDate = this.safraData.endDate.split('-')[2] + '/' + this.safraData.endDate.split('-')[1] + '/' + this.safraData.endDate.split('-')[0];
-                    this.showToast('warning', 'Atenção!', 'A data tem que estar na vigêngia da safra(' + formatInitialDate + '-' + formatEndDate + ').');
+                    this.showToast('warning', 'Atenção!', 'A data de remessa precisa ser maior que a atual e estar entre a vigência de entrega da Safra: ' + formatInitialDate + '-' + formatEndDate + '.');
                 }
             } else if (fieldId.includes('quantityId-')) {
                 let productQuantity = 0;
