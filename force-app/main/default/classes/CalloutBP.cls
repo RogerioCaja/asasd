@@ -15,6 +15,7 @@ public with sharing class CalloutBP {
             List<String> userCodigoSapList = new List<String>();
             for(ResponseParametersWrapper valor : resp.responses){
                 accountIdsList.add(valor.CodigoExterno);
+                accountIdsList.add(valor.ContaPai);
             }
             System.debug('accountIdsList: '+ accountIdsList);
             List<Account> accountListExternalId = new List<Account>([SELECT Id, ExternalId__c FROM Account WHERE ExternalId__c =: accountIdsList]);
@@ -31,18 +32,24 @@ public with sharing class CalloutBP {
                     company.CodigoExternoAccount = valor.CodigoExterno;
                     companyList.add(company);
                 }
+                String statusType;
+                if(valor.Status == ''){
+                    statusType = 'Ativo';
+                }else{
+                    statusType = 'Bloqueado';
+                }
                 Account ac = new Account(
                 Name = valor.Nome,
                 Company__c = valor.Nome,    
                 ExternalId__c = valor.CodigoExterno,
-                ParentId = lookups.containsKey('Account__c'+valor.ContaPai) ? lookups.get('Account__c'+valor.ContaPai) : null,
+                ParentId = lookups.containsKey('Account'+valor.ContaPai) ? lookups.get('Account'+valor.ContaPai) : null,
                 CNPJ__c = valor.CNPJ,
                 CPF__c = valor.CPF,
                 MunicipalRegistration__c = valor.InscricaoMunicipal,
                 StateRegistration__c = valor.InscricaoEstadual,
                 Email__c = valor.Email,
                 Phone = valor.Telefone,
-                Status__c = valor.Status);
+                Status__c = statusType);
                 
                 ac.ShippingStreet = valor.RuaEntrega;
                 ac.ShippingCity = valor.CidadeEntrega;
@@ -322,7 +329,6 @@ public with sharing class CalloutBP {
     			System.debug('Line number: ' + e.getLineNumber());
     			System.debug('Stack trace: ' + e.getStackTraceString());
             }
-            
         }
     } 
 
