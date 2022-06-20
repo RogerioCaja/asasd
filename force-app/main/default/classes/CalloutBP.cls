@@ -31,6 +31,12 @@ public with sharing class CalloutBP {
                     company.CodigoExternoAccount = valor.CodigoExterno;
                     companyList.add(company);
                 }
+                String statusType;
+                if(valor.Status = ''){
+                    statusType = 'Ativo';
+                }else{
+                    statusType = 'Bloqueado';
+                }
                 Account ac = new Account(
                 ExternalId__c = valor.CodigoExterno,
                 ParentId = lookups.containsKey('Account__c'+valor.ContaPai) ? lookups.get('Account__c'+valor.ContaPai) : null,
@@ -40,7 +46,7 @@ public with sharing class CalloutBP {
                 StateRegistration__c = valor.InscricaoEstadual,
                 Email__c = valor.Email,
                 Phone = valor.Telefone,
-                Status__c = valor.Status);
+                Status__c = statusType);
                 
                 ac.ShippingStreet = valor.RuaEntrega;
                 ac.ShippingCity = valor.CidadeEntrega;
