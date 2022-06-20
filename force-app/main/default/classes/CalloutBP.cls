@@ -31,6 +31,12 @@ public with sharing class CalloutBP {
                     company.CodigoExternoAccount = valor.CodigoExterno;
                     companyList.add(company);
                 }
+                String statusType;
+                if(valor.Status = ''){
+                    statusType = 'Ativo';
+                }else{
+                    statusType = 'Bloqueado';
+                }
                 Account ac = new Account(
                 Name = valor.Nome,
                 Company__c = valor.Nome,    
@@ -42,7 +48,7 @@ public with sharing class CalloutBP {
                 StateRegistration__c = valor.InscricaoEstadual,
                 Email__c = valor.Email,
                 Phone = valor.Telefone,
-                Status__c = valor.Status);
+                Status__c = statusType);
                 
                 ac.ShippingStreet = valor.RuaEntrega;
                 ac.ShippingCity = valor.CidadeEntrega;
@@ -322,7 +328,6 @@ public with sharing class CalloutBP {
     			System.debug('Line number: ' + e.getLineNumber());
     			System.debug('Stack trace: ' + e.getStackTraceString());
             }
-            
         }
     } 
 
