@@ -32,7 +32,7 @@ public with sharing class CalloutBP {
                     companyList.add(company);
                 }
                 String statusType;
-                if(valor.Status = ''){
+                if(valor.Status == ''){
                     statusType = 'Ativo';
                 }else{
                     statusType = 'Bloqueado';
