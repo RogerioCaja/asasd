@@ -197,28 +197,53 @@ public with sharing class CalloutBP {
         }
         System.debug('userTerrytoryMap: '+userTerrytoryMap);
         List<ObjectTerritory2Association> objectTerritoryList = new List<ObjectTerritory2Association>();
+        List<String> objectTerritoryObjectIdList = new List<String>();
+        List<String> objectTerritoryTerritory2IdList = new List<String>();
         for(CompanyINData company : companyList){
             for(ItemsPartner partner : company.Partners){
                 UserTerritory2Association userTerrytory = userTerrytoryMap.get(partner.Partner);
                 String accountId = accountExternalIdMap.get(company.CodigoExternoAccount);
                 if(userTerrytory != null){
+                    objectTerritoryTerritory2IdList.add(userTerrytory.Territory2Id);
+                    objectTerritoryObjectIdList.add(accountId);
                     ObjectTerritory2Association objObjectTerritory2Association = new ObjectTerritory2Association(ObjectId = accountId, Territory2Id = userTerrytory.Territory2Id, AssociationCause='Territory2Manual');
                 	objectTerritoryList.add(objObjectTerritory2Association);
                 }
             }
         }
-        Set<sobject> removeDuplicates = new Set<sobject>();
+        Set<ObjectTerritory2Association> removeDuplicates = new Set<ObjectTerritory2Association>();
         List<ObjectTerritory2Association> resultList = new List<ObjectTerritory2Association>();
-        for (ObjectTerritory2Association object : objectTerritoryList) {
-            if (removeDuplicates.add(object)) {
-                resultList.add(object);
+        List<ObjectTerritory2Association> resultBaseList = new List<ObjectTerritory2Association>([SELECT ObjectId, Territory2Id, AssociationCause  FROM ObjectTerritory2Association WHERE ObjectId IN: objectTerritoryObjectIdList AND Territory2Id IN: objectTerritoryTerritory2IdList]);
+        Map<String,String> resultBaseMap = new  Map<String,String>();
+        System.debug('resultBaseList: '+resultBaseList);
+        for (ObjectTerritory2Association records : resultBaseList) {
+            String keyName = String.valueOf(records.ObjectId) + String.valueOf(records.Territory2Id);
+            resultBaseMap.put(keyName, '');
+        }
+        System.debug('resultBaseMap: '+resultBaseMap);
+        for (ObjectTerritory2Association newRecords : objectTerritoryList) {
+            if (removeDuplicates.add(newRecords)) {
+                String keyName = String.valueOf(newRecords.ObjectId) + String.valueOf(newRecords.Territory2Id);
+                System.debug('keyName: '+keyName);
+                if(!resultBaseMap.containsKey(keyName)){
+                    resultList.add(newRecords);
+                }
             }
         }
         removeDuplicates.addAll(objectTerritoryList);
         resultList.addAll(removeDuplicates);
         System.debug('resultList'+ resultList);
         if (!resultList.isEmpty()) {
-            upsert resultList;
+            Try{
+                upsert resultList;
+             } 
+             Catch(System.Exception e){
+                System.debug('Exception type caught: ' + e.getTypeName());
+    			System.debug('Message: ' + e.getMessage());
+    			System.debug('Cause: ' + e.getCause());    // returns null
+    			System.debug('Line number: ' + e.getLineNumber());
+    			System.debug('Stack trace: ' + e.getStackTraceString());
+            }
         }
     }
     public static void creatyCompany(List<CompanyINData> companyList, Map<String, Id> lookups, Map<String, String> nameLookups){
