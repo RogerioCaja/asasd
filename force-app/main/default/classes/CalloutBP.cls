@@ -207,9 +207,18 @@ public with sharing class CalloutBP {
                 }
             }
         }
-        System.debug('objectTerritoryList'+ objectTerritoryList);
-        if (!objectTerritoryList.isEmpty()) {
-            upsert objectTerritoryList;
+        Set<sobject> removeDuplicates = new Set<sobject>();
+        List<ObjectTerritory2Association> resultList = new List<ObjectTerritory2Association>();
+        for (ObjectTerritory2Association object : objectTerritoryList) {
+            if (removeDuplicates.add(object)) {
+                resultList.add(object);
+            }
+        }
+        removeDuplicates.addAll(objectTerritoryList);
+        resultList.addAll(removeDuplicates);
+        System.debug('resultList'+ resultList);
+        if (!resultList.isEmpty()) {
+            upsert resultList;
         }
     }
     public static void creatyCompany(List<CompanyINData> companyList, Map<String, Id> lookups, Map<String, String> nameLookups){
