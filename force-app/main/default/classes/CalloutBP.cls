@@ -216,11 +216,14 @@ public with sharing class CalloutBP {
                 resultList.add(object);
             }
         }
-        removeDuplicates.addAll(objectTerritoryList);
-        resultList.addAll(removeDuplicates);
         System.debug('resultList'+ resultList);
         if (!resultList.isEmpty()) {
-            upsert resultList;
+            Try{    
+                upsert resultList;
+            } 
+            Catch(System.QueryException e){
+                System.debug('Erro');
+            }
         }
     }
     public static void creatyCompany(List<CompanyINData> companyList, Map<String, Id> lookups, Map<String, String> nameLookups){
