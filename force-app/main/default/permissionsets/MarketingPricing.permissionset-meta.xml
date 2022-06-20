@@ -1350,6 +1350,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Order.Hectare__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Order.Incoterms2__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1379,6 +1384,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>false</editable>
+        <field>Order.NumeroPedidoApp__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>true</editable>
         <field>Order.OpportunityId</field>
         <readable>true</readable>
@@ -1401,6 +1411,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Order.OrderReference__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Order.OrderType__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -1476,6 +1491,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Order.ShippingDate__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Order.StatusRecusa__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -2550,15 +2570,11 @@
         <visible>true</visible>
     </recordTypeVisibilities>
     <recordTypeVisibilities>
-        <recordType>Order.VendaBonificacao</recordType>
-        <visible>true</visible>
-    </recordTypeVisibilities>
-    <recordTypeVisibilities>
-        <recordType>Order.VendaOrdemSimplesFaturamento</recordType>
-        <visible>true</visible>
-    </recordTypeVisibilities>
-    <recordTypeVisibilities>
         <recordType>Order.VendaBarter</recordType>
+        <visible>true</visible>
+    </recordTypeVisibilities>
+    <recordTypeVisibilities>
+        <recordType>Order.VendaBonificacao</recordType>
         <visible>true</visible>
     </recordTypeVisibilities>
     <recordTypeVisibilities>
@@ -2571,6 +2587,10 @@
     </recordTypeVisibilities>
     <recordTypeVisibilities>
         <recordType>Order.VendaNormal</recordType>
+        <visible>true</visible>
+    </recordTypeVisibilities>
+    <recordTypeVisibilities>
+        <recordType>Order.VendaOrdemSimplesFaturamento</recordType>
         <visible>true</visible>
     </recordTypeVisibilities>
     <recordTypeVisibilities>
