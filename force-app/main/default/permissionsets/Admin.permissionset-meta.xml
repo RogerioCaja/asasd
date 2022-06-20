@@ -830,11 +830,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>JurosDescontoAntecipao__c.ClientGroup__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
         <field>JurosDescontoAntecipao__c.ConditionNumberRegister__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -926,6 +921,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>JurosDescontoAntecipao__c.SalesTeam__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>JurosDescontoAntecipao__c.StartDate__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -1481,6 +1481,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>OrderItem.InvoicedQuantity__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>OrderItem.ListCost__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
