@@ -271,7 +271,16 @@ public with sharing class CalloutBP {
         }
         System.debug('companyListToUpsert: '+ companyListToUpsert);
         if (!companyListToUpsert.isEmpty()) {
-            upsert companyListToUpsert ExternalId__c;
+            Try{
+                upsert companyListToUpsert ExternalId__c;
+             } 
+             Catch(System.Exception e){
+                System.debug('Exception type caught: ' + e.getTypeName());
+    			System.debug('Message: ' + e.getMessage());
+    			System.debug('Cause: ' + e.getCause());    // returns null
+    			System.debug('Line number: ' + e.getLineNumber());
+    			System.debug('Stack trace: ' + e.getStackTraceString());
+            }
         }
 
     }
@@ -301,7 +310,16 @@ public with sharing class CalloutBP {
         }
         System.debug('creditListToUpsert'+ creditListToUpsert);
         if (!creditListToUpsert.isEmpty()) {
-            upsert creditListToUpsert ExternalId__c;
+            Try{
+                upsert creditListToUpsert ExternalId__c;
+             } 
+             Catch(System.Exception e){
+                System.debug('Exception type caught: ' + e.getTypeName());
+    			System.debug('Message: ' + e.getMessage());
+    			System.debug('Cause: ' + e.getCause());    // returns null
+    			System.debug('Line number: ' + e.getLineNumber());
+    			System.debug('Stack trace: ' + e.getStackTraceString());
+            }
         }
     } 
 
