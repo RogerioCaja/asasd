@@ -166,12 +166,16 @@ public with sharing class CalloutBP {
         //Get SalesOrg
         List<SalesOrg__c> salesList = new List<SalesOrg__c>([SELECT Id, Name, SalesOrganizationCode__c FROM SalesOrg__c WHERE SalesOrganizationCode__c =: salesOrganizationIdList]);
         for (SalesOrg__c sales : salesList) {
-            lookups.put('SalesOrg__c' + sales.SalesOrganizationCode__c, sales.Name);
+            if(!lookups.containsKey('SalesOrg__c' + sales.SalesOrganizationCode__c)){
+                lookups.put('SalesOrg__c' + sales.SalesOrganizationCode__c, sales.Name);
+            }
         }
         //Get salesTeam
         List<SalesTeam__c> salesTeamList = new List<SalesTeam__c>([SELECT Id,Name, ExternalId__c FROM SalesTeam__c WHERE ExternalId__c =: salesTeamIdList]);
         for (SalesTeam__c team : salesTeamList) {
-            lookups.put('SalesTeam__c' + team.ExternalId__c, team.Name);
+            if(!lookups.containsKey('SalesTeam__c' + team.ExternalId__c)){
+                lookups.put('SalesTeam__c' + team.ExternalId__c, team.Name);
+            }
         }
         return lookups;
     }
@@ -195,19 +199,53 @@ public with sharing class CalloutBP {
         }
         System.debug('userTerrytoryMap: '+userTerrytoryMap);
         List<ObjectTerritory2Association> objectTerritoryList = new List<ObjectTerritory2Association>();
+        List<String> objectTerritoryObjectIdList = new List<String>();
+        List<String> objectTerritoryTerritory2IdList = new List<String>();
         for(CompanyINData company : companyList){
             for(ItemsPartner partner : company.Partners){
                 UserTerritory2Association userTerrytory = userTerrytoryMap.get(partner.Partner);
                 String accountId = accountExternalIdMap.get(company.CodigoExternoAccount);
                 if(userTerrytory != null){
+                    objectTerritoryTerritory2IdList.add(userTerrytory.Territory2Id);
+                    objectTerritoryObjectIdList.add(accountId);
                     ObjectTerritory2Association objObjectTerritory2Association = new ObjectTerritory2Association(ObjectId = accountId, Territory2Id = userTerrytory.Territory2Id, AssociationCause='Territory2Manual');
                 	objectTerritoryList.add(objObjectTerritory2Association);
                 }
             }
         }
-        System.debug('objectTerritoryList'+ objectTerritoryList);
-        if (!objectTerritoryList.isEmpty()) {
-            upsert objectTerritoryList;
+        Set<ObjectTerritory2Association> removeDuplicates = new Set<ObjectTerritory2Association>();
+        List<ObjectTerritory2Association> resultList = new List<ObjectTerritory2Association>();
+        List<ObjectTerritory2Association> resultBaseList = new List<ObjectTerritory2Association>([SELECT ObjectId, Territory2Id, AssociationCause  FROM ObjectTerritory2Association WHERE ObjectId IN: objectTerritoryObjectIdList AND Territory2Id IN: objectTerritoryTerritory2IdList]);
+        Map<String,String> resultBaseMap = new  Map<String,String>();
+        System.debug('resultBaseList: '+resultBaseList);
+        for (ObjectTerritory2Association records : resultBaseList) {
+            String keyName = String.valueOf(records.ObjectId) + String.valueOf(records.Territory2Id);
+            resultBaseMap.put(keyName, '');
+        }
+        System.debug('resultBaseMap: '+resultBaseMap);
+        for (ObjectTerritory2Association newRecords : objectTerritoryList) {
+            if (removeDuplicates.add(newRecords)) {
+                String keyName = String.valueOf(newRecords.ObjectId) + String.valueOf(newRecords.Territory2Id);
+                System.debug('keyName: '+keyName);
+                if(!resultBaseMap.containsKey(keyName)){
+                    resultList.add(newRecords);
+                }
+            }
+        }
+        removeDuplicates.addAll(objectTerritoryList);
+        resultList.addAll(removeDuplicates);
+        System.debug('resultList'+ resultList);
+        if (!resultList.isEmpty()) {
+            Try{
+                upsert resultList;
+             } 
+             Catch(System.Exception e){
+                System.debug('Exception type caught: ' + e.getTypeName());
+    			System.debug('Message: ' + e.getMessage());
+    			System.debug('Cause: ' + e.getCause());    // returns null
+    			System.debug('Line number: ' + e.getLineNumber());
+    			System.debug('Stack trace: ' + e.getStackTraceString());
+            }
         }
     }
     public static void creatyCompany(List<CompanyINData> companyList, Map<String, Id> lookups, Map<String, String> nameLookups){
@@ -235,7 +273,16 @@ public with sharing class CalloutBP {
         }
         System.debug('companyListToUpsert: '+ companyListToUpsert);
         if (!companyListToUpsert.isEmpty()) {
-            upsert companyListToUpsert ExternalId__c;
+            Try{
+                upsert companyListToUpsert ExternalId__c;
+             } 
+             Catch(System.Exception e){
+                System.debug('Exception type caught: ' + e.getTypeName());
+    			System.debug('Message: ' + e.getMessage());
+    			System.debug('Cause: ' + e.getCause());    // returns null
+    			System.debug('Line number: ' + e.getLineNumber());
+    			System.debug('Stack trace: ' + e.getStackTraceString());
+            }
         }
 
     }
@@ -265,7 +312,17 @@ public with sharing class CalloutBP {
         }
         System.debug('creditListToUpsert'+ creditListToUpsert);
         if (!creditListToUpsert.isEmpty()) {
-            upsert creditListToUpsert ExternalId__c;
+            Try{
+                upsert creditListToUpsert ExternalId__c;
+             } 
+             Catch(System.Exception e){
+                System.debug('Exception type caught: ' + e.getTypeName());
+    			System.debug('Message: ' + e.getMessage());
+    			System.debug('Cause: ' + e.getCause());    // returns null
+    			System.debug('Line number: ' + e.getLineNumber());
+    			System.debug('Stack trace: ' + e.getStackTraceString());
+            }
+            
         }
     } 
 
