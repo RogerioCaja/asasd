@@ -1375,17 +1375,12 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Order.CodigoSap__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>OrderItem.UnitMeasure__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>CondicaoPagamento__c.BarterCondition__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>CondicaoPagamento__c.CashPayment__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

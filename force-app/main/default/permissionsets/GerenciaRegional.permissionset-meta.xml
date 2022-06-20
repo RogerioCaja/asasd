@@ -1315,16 +1315,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>CondicaoPagamento__c.BarterCondition__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>CondicaoPagamento__c.CashPayment__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
         <field>OrgVProduct__c.Channel__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1786,6 +1776,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>User.CodigoSap__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Order.CodigoSap__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
