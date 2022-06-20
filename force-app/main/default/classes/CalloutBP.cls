@@ -166,12 +166,16 @@ public with sharing class CalloutBP {
         //Get SalesOrg
         List<SalesOrg__c> salesList = new List<SalesOrg__c>([SELECT Id, Name, SalesOrganizationCode__c FROM SalesOrg__c WHERE SalesOrganizationCode__c =: salesOrganizationIdList]);
         for (SalesOrg__c sales : salesList) {
-            lookups.put('SalesOrg__c' + sales.SalesOrganizationCode__c, sales.Name);
+            if(!lookups.containsKey('SalesOrg__c' + sales.SalesOrganizationCode__c)){
+                lookups.put('SalesOrg__c' + sales.SalesOrganizationCode__c, sales.Name);
+            }
         }
         //Get salesTeam
         List<SalesTeam__c> salesTeamList = new List<SalesTeam__c>([SELECT Id,Name, ExternalId__c FROM SalesTeam__c WHERE ExternalId__c =: salesTeamIdList]);
         for (SalesTeam__c team : salesTeamList) {
-            lookups.put('SalesTeam__c' + team.ExternalId__c, team.Name);
+            if(!lookups.containsKey('SalesTeam__c' + team.ExternalId__c)){
+                lookups.put('SalesTeam__c' + team.ExternalId__c, team.Name);
+            }
         }
         return lookups;
     }
@@ -205,9 +209,18 @@ public with sharing class CalloutBP {
                 }
             }
         }
-        System.debug('objectTerritoryList'+ objectTerritoryList);
-        if (!objectTerritoryList.isEmpty()) {
-            upsert objectTerritoryList;
+        Set<sobject> removeDuplicates = new Set<sobject>();
+        List<ObjectTerritory2Association> resultList = new List<ObjectTerritory2Association>();
+        for (ObjectTerritory2Association object : objectTerritoryList) {
+            if (removeDuplicates.add(object)) {
+                resultList.add(object);
+            }
+        }
+        removeDuplicates.addAll(objectTerritoryList);
+        resultList.addAll(removeDuplicates);
+        System.debug('resultList'+ resultList);
+        if (!resultList.isEmpty()) {
+            upsert resultList;
         }
     }
     public static void creatyCompany(List<CompanyINData> companyList, Map<String, Id> lookups, Map<String, String> nameLookups){
