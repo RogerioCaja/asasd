@@ -886,7 +886,7 @@ export default class OrderProductScreen extends LightningElement {
         }
 
         let currentProduct = this.products.find(e => e.position == position);
-        let availableQuantity = currentProduct.quantity - distributedQuantity;
+        let availableQuantity = Number(currentProduct.quantity) - Number(distributedQuantity);
 
         this.productPosition = position;
         this.multiplicity = currentProduct.multiplicity;
@@ -983,7 +983,7 @@ export default class OrderProductScreen extends LightningElement {
                     this.showToast('warning', 'Atenção!', 'A quantidade foi arredondada para ' + currentProduct.quantity + ' para não exceder.');
                 }
 
-                this.currentDivisionProduct.availableQuantity = this.currentDivisionProduct.quantity - ((Number(productQuantity) + Number(currentProduct.quantity)));
+                this.currentDivisionProduct.availableQuantity = Number(this.currentDivisionProduct.quantity) - ((Number(productQuantity) + Number(currentProduct.quantity)));
                 if (this.currentDivisionProduct.availableQuantity < 0) {
                     this.currentDivisionProduct.showRed = true;
                 } else {
