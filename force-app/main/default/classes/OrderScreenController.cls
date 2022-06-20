@@ -838,11 +838,9 @@ public without sharing class OrderScreenController {
     @AuraEnabled
     public static String getSafraInfos(String safraId){
         Safra__c safra = [SELECT Id,
-                                 StartDateOrderInsertion__c,
-                                 EndDateInsertionOrders__c,
-                                 NumberOfDaysAfterPayment__c,
                                  BillingStartDate__c,
-                                 EndDateBilling__c
+                                 EndDateBilling__c,
+                                 NumberOfDaysAfterPayment__c
                             FROM Safra__c
                            WHERE Id =: safraId];
         return JSON.serialize(new SafraDataSerialize(safra));
@@ -1343,8 +1341,8 @@ public without sharing class OrderScreenController {
         SafraDataSerialize() {}
 
         SafraDataSerialize(Safra__c safra) {
-            this.initialDate = String.valueOf(safra.StartDateOrderInsertion__c);
-            this.endDate = String.valueOf(safra.EndDateInsertionOrders__c);
+            this.initialDate = String.valueOf(safra.BillingStartDate__c);
+            this.endDate = String.valueOf(safra.EndDateBilling__c);
             this.paymentDate = String.valueOf(safra.NumberOfDaysAfterPayment__c);
             this.endDateBilling = String.valueOf(safra.EndDateBilling__c);
             this.startDateBilling = String.valueOf(safra.BillingStartDate__c);
