@@ -241,25 +241,30 @@ global with sharing class IntegrationINPricebook2 {
             }
         }
         for(JurosDescontoAntecipao__c prices : newContext){
-            String externalId = (
-                String.valueOf(prices.StartDate__c)+'_'+
-                String.valueOf(prices.SalesOrg__c).subString(0, 15)+'_'+
-                (prices.harvest__c == null ? '' : String.valueOf(prices.harvest__c).subString(0, 15)+'_')+
-                (prices.Currency__c == null ? '' : String.valueOf(prices.Currency__c)+'_')+
-                (prices.SalesCondition__c == null ? '' : String.valueOf(prices.SalesCondition__c).subString(0, 15)+'_')+
-                (prices.ProductGroup__c == null ? '' : String.valueOf(prices.ProductGroup__c).subString(0, 15)+'_')+
-                (prices.SalesOffice__c == null ? '' : String.valueOf(prices.SalesOffice__c).subString(0, 15)+'_')+
-                (prices.Culture__c == null ? '' : String.valueOf(prices.Culture__c).subString(0, 15)+'_')+
-                (prices.ClientGroup__c == null ? '' : String.valueOf(prices.ClientGroup__c)+'_')+
-                (prices.Account__c == null ? '' : String.valueOf(prices.Account__c).subString(0, 15)+'_')+
-                (prices.SalesTeam__c == null ? '' : String.valueOf(prices.SalesTeam__c).subString(0, 15)+'_')+
-                (prices.Product__c == null ? '' : String.valueOf(prices.Product__c).subString(0, 15))
-            );
-            System.debug(externalId);
-            externalIdMap.put(externalId,prices.ExternalId__c);
-            repetitons.add(prices.ExternalId__c);
-            prices.EndDate__c = prices.EndDate__c != null ? String.valueOf(prices.EndDate__c).contains('9999') ? Date.valueOf(String.valueOf(prices.EndDate__c).replace('9999', '2999')) : prices.EndDate__c : null;
-            pricesMap.put(externalId, prices.UnitPrice__c + '|' + prices.EndDate__c);
+            if(prices.Currency__c != '%'){
+                String externalId = (
+                    String.valueOf(prices.StartDate__c)+'_'+
+                    String.valueOf(prices.SalesOrg__c).subString(0, 15)+'_'+
+                    (prices.harvest__c == null ? '' : String.valueOf(prices.harvest__c).subString(0, 15)+'_')+
+                    (prices.Currency__c == null ? '' : String.valueOf(prices.Currency__c)+'_')+
+                    (prices.SalesCondition__c == null ? '' : String.valueOf(prices.SalesCondition__c).subString(0, 15)+'_')+
+                    (prices.ProductGroup__c == null ? '' : String.valueOf(prices.ProductGroup__c).subString(0, 15)+'_')+
+                    (prices.SalesOffice__c == null ? '' : String.valueOf(prices.SalesOffice__c).subString(0, 15)+'_')+
+                    (prices.Culture__c == null ? '' : String.valueOf(prices.Culture__c).subString(0, 15)+'_')+
+                    (prices.ClientGroup__c == null ? '' : String.valueOf(prices.ClientGroup__c)+'_')+
+                    (prices.Account__c == null ? '' : String.valueOf(prices.Account__c).subString(0, 15)+'_')+
+                    (prices.SalesTeam__c == null ? '' : String.valueOf(prices.SalesTeam__c).subString(0, 15)+'_')+
+                    (prices.Product__c == null ? '' : String.valueOf(prices.Product__c).subString(0, 15))
+                );
+                System.debug(externalId);
+                externalIdMap.put(externalId,prices.ExternalId__c);
+                repetitons.add(prices.ExternalId__c);
+                prices.EndDate__c = prices.EndDate__c != null ? String.valueOf(prices.EndDate__c).contains('9999') ? Date.valueOf(String.valueOf(prices.EndDate__c).replace('9999', '2999')) : prices.EndDate__c : null;
+                pricesMap.put(externalId, prices.UnitPrice__c + '|' + prices.EndDate__c);
+            }
+            else{
+                pricesList.add(prices);
+            }
         }
         
         for(JurosDescontoAntecipao__c prices : [ SELECT Id, ExternalId__c, UnitPrice__c, DescriptionExternalId__c
