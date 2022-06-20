@@ -121,6 +121,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String IngredienteAtivo;
         public String NumeroRegistro;
         public Decimal PesoBruto;
+        public Decimal multiplicidade;
         public List<TemplateDataIntegrationFields.OrgVProductINData> orgVProductItems;
         //public List<TemplateDataIntegrationFields.ProductINData> product2Entries;
 
@@ -151,7 +152,8 @@ global with sharing class TemplateDataIntegrationFields {
                 GrupoQuimico__c = this.GrupoQuimico,
                 PrincipleActive__c = this.IngredienteAtivo, 
                 NumeroRegistro__c = this.NumeroRegistro,
-                GrossWeight__c = this.PesoBruto
+                GrossWeight__c = this.PesoBruto,
+                Multiplicity__c = this.multiplicidade
 
             );
         }
@@ -583,7 +585,7 @@ global with sharing class TemplateDataIntegrationFields {
      
             //Returning Object with Fields.
             return new ItensNotaFiscal__c(
-                Name = 'NFe ' + this.notaFiscal + ' - ' + this.NameProduct, //Pegar descrição do produto e number NF
+                Name = 'Nota Fiscal ' + this.notaFiscal + ' - ' + this.NameProduct, //Pegar descrição do produto e number NF
                 ExternalID__c = this.codigoMaterial + '|' + this.notaFiscal + '|' + this.lote,
                 Invoice__c = lookups.containsKey('NotaFiscal__c' + this.notaFiscal) ? lookups.get('NotaFiscal__c' + this.notaFiscal) : null,
                 Productcode__c = lookups.containsKey('Product2'+this.codigoMaterial) ? lookups.get('Product2' + this.codigoMaterial) : null,
