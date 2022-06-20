@@ -15,6 +15,7 @@ public with sharing class CalloutBP {
             List<String> userCodigoSapList = new List<String>();
             for(ResponseParametersWrapper valor : resp.responses){
                 accountIdsList.add(valor.CodigoExterno);
+                accountIdsList.add(valor.ContaPai);
             }
             System.debug('accountIdsList: '+ accountIdsList);
             List<Account> accountListExternalId = new List<Account>([SELECT Id, ExternalId__c FROM Account WHERE ExternalId__c =: accountIdsList]);
@@ -41,7 +42,7 @@ public with sharing class CalloutBP {
                 Name = valor.Nome,
                 Company__c = valor.Nome,    
                 ExternalId__c = valor.CodigoExterno,
-                ParentId = lookups.containsKey('Account__c'+valor.ContaPai) ? lookups.get('Account__c'+valor.ContaPai) : null,
+                ParentId = lookups.containsKey('Account'+valor.ContaPai) ? lookups.get('Account'+valor.ContaPai) : null,
                 CNPJ__c = valor.CNPJ,
                 CPF__c = valor.CPF,
                 MunicipalRegistration__c = valor.InscricaoMunicipal,
