@@ -36,19 +36,48 @@ global with sharing class IntegrationINPricebook2 {
     @HttpPost
     global static ResponseModel upsertPricebook2(List<TemplateDataIntegrationFields.JurosDescontoAntecipaoINData> request){
         
-        Map<String, Id> lookups = new Map<String, Id>();
+        try{
+            Map<String, Id> lookups = new Map<String, Id>();
 
-        Map<String, List<String>> lookupMap = new Map<String, List<String>>();
-        lookupMap = prepareData();
+            Map<String, List<String>> lookupMap = new Map<String, List<String>>();
+            lookupMap = prepareData();
 
-        List<TemplateDataIntegrationFields.ResponseParent> responseList = new List<TemplateDataIntegrationFields.ResponseParent>();
-        List<JurosDescontoAntecipao__c> interestDicountListToUpsert = new List<JurosDescontoAntecipao__c>();
-		
-        upsertInterestDiscount(lookupMap, lookups, request, responseList, interestDicountListToUpsert);
-         
-        ResponseModel modelo = new ResponseModel();
-        modelo.response = responseList;
-        return modelo;
+            List<TemplateDataIntegrationFields.ResponseParent> responseList = new List<TemplateDataIntegrationFields.ResponseParent>();
+            List<JurosDescontoAntecipao__c> interestDicountListToUpsert = new List<JurosDescontoAntecipao__c>();
+            
+            upsertInterestDiscount(lookupMap, lookups, request, responseList, interestDicountListToUpsert);
+            
+            ResponseModel modelo = new ResponseModel();
+            modelo.response = responseList;
+            return modelo;
+        }
+        catch(Exception e){
+
+            List<TemplateDataIntegrationFields.ResponseParent> responseList = new List<TemplateDataIntegrationFields.ResponseParent>();
+            TemplateDataIntegrationFields.ResponseParent response = new TemplateDataIntegrationFields.ResponseParent();
+
+            
+            // Description Exception...
+            String errorMessage = 'Tipo de Exceção: ' + e.getTypeName();
+            errorMessage += '------------------------------';
+            errorMessage += 'Mensagem: ' + e.getMessage();
+            errorMessage += '------------------------------';
+            errorMessage += 'Causa: ' + e.getCause();
+            errorMessage += '------------------------------';
+            errorMessage += 'Número da Linha: ' + e.getLineNumber();
+            errorMessage += '------------------------------';
+            errorMessage += 'Stack trace: ' + e.getStackTraceString();
+
+            // Sending error Standard
+            response.error('Exception', errorMessage, 'JurosDescontoAntecipao__c');
+            responseList.add(response);
+
+            //Creating integration log
+            IntegrationLog.createLog('Lista de Preço, Juros e Descontos de Antecipação IN', 'IN', JSON.serialize(request), JSON.serialize(responseList), true);
+            ResponseModel modelo = new ResponseModel();
+            modelo.response = responseList;
+            return modelo;
+        }
     }
 
     global static Map<String, List<String>> prepareData(){
@@ -163,6 +192,8 @@ global with sharing class IntegrationINPricebook2 {
         hasError = false;
         setResponses(responseList);
         
+
+        // reorganizer responseList
         Set<String> externalIdSet = new Set<String>();
         List<TemplateDataIntegrationFields.ResponseParent> removeToDataList = new List<TemplateDataIntegrationFields.ResponseParent>();
         Map<String, TemplateDataIntegrationFields.ResponseParent> permitToDataMap = new Map<String, TemplateDataIntegrationFields.ResponseParent>();
