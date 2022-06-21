@@ -111,7 +111,7 @@ public without sharing class CustomLookupController {
             String productType = isCommodity ? 'ZCOM' : (productParams.orderType == 'Venda de Serviço' ? 'DIEN' : (productParams.orderType == 'Venda Barter' ? 'HAWA' : ''));
             
             Integer numberOfRowsToSkip = productParams.numberOfRowsToSkip;
-            String productQuery = 'SELECT Id, Name, ExternalId__c, QuantityUnitOfMeasure, ProductGroup__c, ProductGroup__r.Name, ProductSubgroup__c, PrincipleActive__c, Multiplicity__c, ProductHierarchy__c' +
+            String productQuery = 'SELECT Id, Name, ExternalId__c, UnidadeMedida__c, ProductGroup__c, ProductGroup__r.Name, ProductSubgroup__c, PrincipleActive__c, Multiplicity__c, ProductHierarchy__c' +
                                   '  FROM Product2' +
                                   ' WHERE Id IN:prodsId' +
                                   (
@@ -161,9 +161,9 @@ public without sharing class CustomLookupController {
                         SELECT Id,
                                ProductHierarchy__c,
                                CommissionPercentage__c 
-                        FROM Comissao__c
-                       WHERE ProductHierarchy__c IN: prodHierarchyIds
-                         AND SellerType__c =: sellerType
+                          FROM Comissao__c
+                         WHERE ProductHierarchy__c IN: prodHierarchyIds
+                           AND SellerType__c =: sellerType
                     ]) {
                         if (!commissionByHierarchy.containsKey(commission.ProductHierarchy__c)) {
                             commissionByHierarchy.put(commission.ProductHierarchy__c, commission.CommissionPercentage__c);
@@ -193,7 +193,7 @@ public without sharing class CustomLookupController {
                     }
     
                     Decimal commissionPercentage = commissionByHierarchy.get(productHierarchyId) != null ? commissionByHierarchy.get(productHierarchyId) : 0;
-                    ProductData productData = new ProductData((String)s.get('Id'), (String)s.get('Name'), (String)s.get('ExternalId__c'), (String)s.get('QuantityUnitOfMeasure'), (String)s.get('PrincipleActive__c'), (Decimal)s.get('Multiplicity__c'), productGroupId, productHierarchyId, productGroupName, productSubgroupId, productSubgroupName, jda.Currency__c, jda.Id, jda.UnitPrice__c, jda.Cost__c, commissionPercentage);
+                    ProductData productData = new ProductData((String)s.get('Id'), (String)s.get('Name'), (String)s.get('ExternalId__c'), (String)s.get('UnidadeMedida__c'), (String)s.get('PrincipleActive__c'), (Decimal)s.get('Multiplicity__c'), productGroupId, productHierarchyId, productGroupName, productSubgroupId, productSubgroupName, jda.Currency__c, jda.Id, jda.UnitPrice__c, jda.Cost__c, commissionPercentage);
                     if (!productIncluded) {
                         result.recordsDataList.add(productData);
                         productIncluded = true;
