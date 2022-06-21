@@ -99,7 +99,7 @@ public with sharing class CalloutOrder {
 
 			HttpResponse response = responseObject.response;
 
-            IntegrationLog.createLog('Pedido OUT', 'OUT', response.getBody(), payload, false);
+            IntegrationLog.createLog('Pedido OUT - SAP', 'OUT', response.getBody(), payload, false);
 			// .WSLog('Pedido', 'OUTBOUND', response.getBody(), payload, false);
 			try {
 
