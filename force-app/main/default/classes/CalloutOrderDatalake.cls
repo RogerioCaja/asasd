@@ -93,7 +93,7 @@ public with sharing class CalloutOrderDatalake {
 			}
 		} else {
 
-            IntegrationLog.createLog('Pedido OUT', 'OUT', responseObject.exceptionObject.getMessage(), payload, true);
+            IntegrationLog.createLog('Pedido OUT - DataLake', 'OUT', responseObject.exceptionObject.getMessage(), payload, true);
 			return new IntegrationUtils.CalloutDatalakeResponse(responseObject.exceptionObject.getMessage());
 		}
     }
