@@ -63,7 +63,7 @@ public without sharing class CustomLookupController {
             salesResult.searchString = searchString;
             result.salesResult = salesResult;
 
-            Set<String> priceFields = new Set<String>{'Id', 'UnitPrice__c', 'Cost__c', 'Product__c', 'Currency__c', 'SalesOrg__c', 'SalesTeam__c', 'SalesOffice__c', 'Account__c', 'Culture__c', 'ProductMultiplier__c'};
+            Set<String> priceFields = new Set<String>{'Id', 'UnitPrice__c', 'Cost__c', 'Product__c', 'Currency__c', 'SalesOrg__c', 'SalesTeam__c', 'SalesOffice__c', 'Account__c', 'Culture__c'};
             String priceQuery = new Q(JurosDescontoAntecipao__c.SObjectType)
                                 .selectFields(priceFields)
                                 .add(Q.condition('RecordTypeId').equalsTo(commodityRecType))
@@ -111,7 +111,7 @@ public without sharing class CustomLookupController {
             String productType = isCommodity ? 'ZCOM' : (productParams.orderType == 'Venda de Serviço' ? 'DIEN' : (productParams.orderType == 'Venda Barter' ? 'HAWA' : ''));
             
             Integer numberOfRowsToSkip = productParams.numberOfRowsToSkip;
-            String productQuery = 'SELECT Id, Name, ExternalId__c, UnidadeMedida__c, ProductGroup__c, ProductGroup__r.Name, ProductSubgroup__c, PrincipleActive__c, Multiplicity__c, ProductHierarchy__c' +
+            String productQuery = 'SELECT Id, Name, ExternalId__c, QuantityUnitOfMeasure, ProductGroup__c, ProductGroup__r.Name, ProductSubgroup__c, PrincipleActive__c, Multiplicity__c, ProductHierarchy__c' +
                                   '  FROM Product2' +
                                   ' WHERE Id IN:prodsId' +
                                   (
@@ -161,9 +161,9 @@ public without sharing class CustomLookupController {
                         SELECT Id,
                                ProductHierarchy__c,
                                CommissionPercentage__c 
-                          FROM Comissao__c
-                         WHERE ProductHierarchy__c IN: prodHierarchyIds
-                           AND SellerType__c =: sellerType
+                        FROM Comissao__c
+                       WHERE ProductHierarchy__c IN: prodHierarchyIds
+                         AND SellerType__c =: sellerType
                     ]) {
                         if (!commissionByHierarchy.containsKey(commission.ProductHierarchy__c)) {
                             commissionByHierarchy.put(commission.ProductHierarchy__c, commission.CommissionPercentage__c);
@@ -193,7 +193,7 @@ public without sharing class CustomLookupController {
                     }
     
                     Decimal commissionPercentage = commissionByHierarchy.get(productHierarchyId) != null ? commissionByHierarchy.get(productHierarchyId) : 0;
-                    ProductData productData = new ProductData((String)s.get('Id'), (String)s.get('Name'), (String)s.get('ExternalId__c'), (String)s.get('UnidadeMedida__c'), (String)s.get('PrincipleActive__c'), (Decimal)s.get('Multiplicity__c'), productGroupId, productHierarchyId, productGroupName, productSubgroupId, productSubgroupName, jda.Currency__c, jda.Id, jda.UnitPrice__c, jda.Cost__c, commissionPercentage, jda.ProductMultiplier__c);
+                    ProductData productData = new ProductData((String)s.get('Id'), (String)s.get('Name'), (String)s.get('ExternalId__c'), (String)s.get('QuantityUnitOfMeasure'), (String)s.get('PrincipleActive__c'), (Decimal)s.get('Multiplicity__c'), productGroupId, productHierarchyId, productGroupName, productSubgroupId, productSubgroupName, jda.Currency__c, jda.Id, jda.UnitPrice__c, jda.Cost__c, commissionPercentage);
                     if (!productIncluded) {
                         result.recordsDataList.add(productData);
                         productIncluded = true;
@@ -277,8 +277,7 @@ public without sharing class CustomLookupController {
         @AuraEnabled public Decimal costPrice;
         @AuraEnabled public Decimal commissionPercentage;
         
-        public ProductData(String Id, String Name, String sapProductCode, String unity, String activePrinciple, Decimal multiplicity, String productGroup, String productHierarchy, String productGroupName, String productSubgroup, String productSubgroupName, String productCurrency, Id entryId, Decimal listPrice, Decimal costPrice, Decimal commissionPercentage, Decimal multiplier) {
-            multiplier = multiplier != null ? multiplier : 1;
+        public ProductData(String Id, String Name, String sapProductCode, String unity, String activePrinciple, Decimal multiplicity, String productGroup, String productHierarchy, String productGroupName, String productSubgroup, String productSubgroupName, String productCurrency, Id entryId, Decimal listPrice, Decimal costPrice, Decimal commissionPercentage) {
             this.Id = Id;
             this.Name = Name;
             this.sapProductCode = sapProductCode != null ? sapProductCode : '';
@@ -292,8 +291,8 @@ public without sharing class CustomLookupController {
             this.productCurrency = productCurrency != null ? productCurrency : '';
             this.multiplicity = multiplicity != null ? multiplicity : 1;
             this.entryId = entryId;
-            this.listPrice = listPrice != null ? listPrice / multiplier : 0;
-            this.costPrice = costPrice != null ? costPrice / multiplier : 0;
+            this.listPrice = listPrice != null ? listPrice : 0;
+            this.costPrice = costPrice != null ? costPrice : 0;
             this.commissionPercentage = commissionPercentage != null ? commissionPercentage : 0;
         }
     }
