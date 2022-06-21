@@ -9,16 +9,6 @@
         <type>owner</type>
     </allowedSubmitters>
     <approvalPageFields>
-        <field>OrderNumber</field>
-        <field>FinalTotalValue__c</field>
-        <field>RecordTypeId</field>
-        <field>Crop__c</field>
-        <field>Culture__c</field>
-        <field>OrderMargin__c</field>
-        <field>PaymentDate__c</field>
-        <field>SalesCTV__c</field>
-        <field>PaymentCondition__c</field>
-        <field>OwnerId</field>
     </approvalPageFields>
     <approvalStep>
         <allowDelegate>true</allowDelegate>
