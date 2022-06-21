@@ -215,5 +215,5 @@
         </action>
     </recallActions>
     <recordEditability>AdminOnly</recordEditability>
-    <showApprovalHistory>false</showApprovalHistory>
+    <showApprovalHistory>true</showApprovalHistory>
 </ApprovalProcess>
