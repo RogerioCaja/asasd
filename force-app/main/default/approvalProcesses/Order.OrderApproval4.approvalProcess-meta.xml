@@ -9,17 +9,17 @@
         <type>owner</type>
     </allowedSubmitters>
     <approvalPageFields>
+        <field>AccountId</field>
         <field>OrderNumber</field>
-        <field>Owner</field>
-        <field>CodigoSap__c</field>
+        <field>FinalTotalValue__c</field>
+        <field>RecordTypeId</field>
         <field>Crop__c</field>
         <field>Culture__c</field>
-        <field>Pricebook2</field>
-        <field>CustomerOrderNumber__c</field>
         <field>OrderMargin__c</field>
-        <field>TotalAmount</field>
         <field>PaymentDate__c</field>
-        <field>PaymentForm__c</field>
+        <field>SalesCTV__c</field>
+        <field>PaymentCondition__c</field>
+        <field>OwnerId</field>
     </approvalPageFields>
     <approvalStep>
         <allowDelegate>true</allowDelegate>
