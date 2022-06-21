@@ -9,7 +9,7 @@
         <type>owner</type>
     </allowedSubmitters>
     <approvalPageFields>
-        <field>AccountId__c</field>
+        <field>AccountId</field>
         <field>OrderNumber</field>
         <field>FinalTotalValue__c</field>
         <field>RecordTypeId</field>
