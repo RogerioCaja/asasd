@@ -66,6 +66,7 @@ public without sharing class OrderScreenController {
                    ListPrice__c,
                    UnitPrice,
                    FinalTotalValue__c,
+                   PracticedPrice__c,
                    ListCost__c,
                    PracticedCost__c,
                    Dosage__c,
@@ -531,8 +532,7 @@ public without sharing class OrderScreenController {
                           FROM OrderItem
                          WHERE Id IN: itemsIds
                     ]) {
-                        String key = orderItem.Product2Id + '-' + String.valueOf(orderItem.Quantity) + '-' + String.valueOf(orderItem.UnitPrice);
-                        mapOrderItems.put(key, orderItem.Id);
+                        mapOrderItems.put(orderItem.Product2Id, orderItem.Id);
                     }
 
                     Map<String, DivisionDeserialize> divisionsByKey = new Map<String, DivisionDeserialize>();
@@ -1281,7 +1281,7 @@ public without sharing class OrderScreenController {
             this.invoicedQuantity = orderItem.InvoicedQuantity__c;
             this.motherAvailableQuantity = orderItem.AmountUsed__c != null ? orderItem.Quantity - orderItem.AmountUsed__c : null;
             this.listPrice = orderItem.ListPrice__c;
-            this.unitPrice = orderItem.UnitPrice;
+            this.unitPrice = orderItem.PracticedPrice__c;
             this.totalPrice = orderItem.FinalTotalValue__c;
             this.listCost = orderItem.ListCost__c;
             this.practicedCost = orderItem.PracticedCost__c;
@@ -1322,7 +1322,7 @@ public without sharing class OrderScreenController {
             this.deliveryId = 'deliveryId-' + divisionPosition;
             this.quantityId = 'quantityId-' + divisionPosition;
             this.orderItemId = shippingDivison.OrderItem__c;
-            this.orderItemKey = shippingDivison.OrderItem__r.Product2Id + '-' + shippingDivison.OrderItem__r.Quantity + '-' + shippingDivison.OrderItem__r.UnitPrice;
+            this.orderItemKey = shippingDivison.OrderItem__r.Product2Id;
             this.quantity = shippingDivison.Quantity__c;
             this.externalId = shippingDivison.ExternalId__c;
             this.confirmedQuantity = shippingDivison.ConfirmedQuantity__c;
