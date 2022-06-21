@@ -102,6 +102,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String ProductCode;
         public String TextoBreveMaterial;
         public String DescricaoMaterial;
+        public Decimal multiplicidade;
         public String hierarquiaProduto;
         public String UnidadeMedida;
         public String UnidadeMedidaRemessa;
@@ -121,7 +122,6 @@ global with sharing class TemplateDataIntegrationFields {
         public String IngredienteAtivo;
         public String NumeroRegistro;
         public Decimal PesoBruto;
-        public Decimal multiplicidade;
         public List<TemplateDataIntegrationFields.OrgVProductINData> orgVProductItems;
         //public List<TemplateDataIntegrationFields.ProductINData> product2Entries;
 
