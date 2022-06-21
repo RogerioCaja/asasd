@@ -361,7 +361,7 @@ export default class OrderHeaderScreen extends LightningElement {
                     this.disabled = true;
                     this.paymentDisabled = true;
                 }
-                
+
                 this.pass = false;
                 if(this.headerDictLocale.tipo_venda != " "){
                     // this.headerDataTitleLocale.tipo_venda = this.tiposVenda.find(element => element.value == this.headerData.tipo_venda).label;
@@ -466,6 +466,10 @@ export default class OrderHeaderScreen extends LightningElement {
 
             if (field == 'condicao_pagamento') {
                 this.paymentDisabled = false;
+            } else if (field == 'safra' && this.barterSale) {
+                this.headerData = JSON.parse(JSON.stringify(this.headerDictLocale));
+                this.paymentDisabled = false;
+                this._verifyFieldsToSave();
             }
             this._setData();
         }catch(err){
@@ -481,6 +485,13 @@ export default class OrderHeaderScreen extends LightningElement {
                 this.dateLimit = data.paymentDate;
                 this.dateLimitBilling = data.endDateBilling;
                 this.dateStartBilling = data.startDateBilling;
+
+                if (this.barterSale) {
+                    this.headerDictLocale.data_pagamento = data.paymentBaseDate;
+                    this.headerData = JSON.parse(JSON.stringify(this.headerDictLocale));
+                    this.paymentDisabled = true;
+                    this._verifyFieldsToSave();
+                }
             })
             .catch((err)=>{
                 console.log(err);
@@ -530,8 +541,12 @@ export default class OrderHeaderScreen extends LightningElement {
     _setData() {
         const setHeaderData = new CustomEvent('setheaderdata');
         setHeaderData.data = this.headerDictLocale;
-        // this.headerDictLocale.IsOrderChild = false;
         this.dispatchEvent(setHeaderData);
+
+        if (this.headerData.IsOrderChild) {
+            this.disabled = true;
+            this.paymentDisabled = true;
+        }
     }
 
     showToast(type, title, message) {
