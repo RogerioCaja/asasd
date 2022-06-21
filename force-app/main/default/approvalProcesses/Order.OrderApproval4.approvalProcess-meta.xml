@@ -9,17 +9,6 @@
         <type>owner</type>
     </allowedSubmitters>
     <approvalPageFields>
-        <field>OrderNumber</field>
-        <field>Owner</field>
-        <field>CodigoSap__c</field>
-        <field>Crop__c</field>
-        <field>Culture__c</field>
-        <field>Pricebook2</field>
-        <field>CustomerOrderNumber__c</field>
-        <field>OrderMargin__c</field>
-        <field>TotalAmount</field>
-        <field>PaymentDate__c</field>
-        <field>PaymentForm__c</field>
     </approvalPageFields>
     <approvalStep>
         <allowDelegate>true</allowDelegate>
