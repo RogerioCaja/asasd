@@ -220,7 +220,7 @@ export default class OrderProductScreen extends LightningElement {
                 let safraResult = JSON.parse(result);
                 this.safraData = {
                     initialDate: safraResult.initialDate,
-                    endDate: safraResult.endDate
+                    endDate: safraResult.endDateBilling
                 };
 
                 this.productParams = {
