@@ -1,4 +1,4 @@
-public with sharing class Lookup {
+public without sharing class Lookup {
     @AuraEnabled(cacheable=true)
     public static List<SObject> getRecords(String data, Boolean barterSale) {
         RequestDTO requestData = (RequestDTO) JSON.deserialize(data, RequestDTO.class);
