@@ -1,0 +1,7 @@
+<aura:component implements="force:lightningQuickActionWithoutHeader,force:hasRecordId,lightning:actionOverride,lightning:hasPageReference" access="global" controller="OrderHelper">
+    <!-- <c:orderScreen recordId="{!v.recordId}"></c:orderScreen> -->
+    <aura:attribute name="recordId" type="Id"/>
+    <aura:attribute name="responseData" type="String" />
+    <div style="text-align:center; font-weight:bold">{!v.responseData}</div>
+    <aura:handler name="init" action="{!c.sendIntegration}" value="{!this}"/>
+</aura:component>

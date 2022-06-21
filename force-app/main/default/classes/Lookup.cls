@@ -1,6 +1,6 @@
-public with sharing class Lookup {
+public without sharing class Lookup {
     @AuraEnabled(cacheable=true)
-    public static List<SObject> getRecords(String data) {
+    public static List<SObject> getRecords(String data, Boolean barterSale) {
         RequestDTO requestData = (RequestDTO) JSON.deserialize(data, RequestDTO.class);
 
         System.debug(requestData);
@@ -68,6 +68,8 @@ public with sharing class Lookup {
             }
 
             query += ' AND Id IN: relatedUsers';
+        } else if (requestData.targetObject == 'CondicaoPagamento__c') {
+            query += ' AND BarterCondition__c =: barterSale';
         }
 
         System.debug(query);
@@ -121,13 +123,15 @@ public with sharing class Lookup {
         String searchBase = '';
 
         for (Integer i=0; i<searchFields.size(); i++) {
-            if (i>0) {
-                searchBase += ' OR ' + searchFields[i];
-            } else {
-                searchBase +=  searchFields[i];
-            }
+            if (searchFields[i] != 'CashPayment__c') {
+                if (i>0) {
+                    searchBase += ' OR ' + searchFields[i];
+                } else {
+                    searchBase +=  searchFields[i];
+                }
 
-            searchBase += ' LIKE \'%#SEARCH_VALUE#%\' ';
+                searchBase += ' LIKE \'%#SEARCH_VALUE#%\' ';
+            }
         }
 
         return searchBase;

@@ -43,6 +43,8 @@ public with sharing class CalloutBP {
                     statusType = 'Bloqueado';
                 }
                 Account ac = new Account(
+                Name = valor.Nome,
+                Company__c = valor.Nome,    
                 ExternalId__c = valor.CodigoExterno,
                 ParentId = lookups.containsKey('Account'+valor.ContaPai) ? lookups.get('Account'+valor.ContaPai) : null,
                 CNPJ__c = valor.CNPJ,
@@ -441,6 +443,7 @@ public with sharing class CalloutBP {
         }
     }
     public class ResponseParametersWrapper {
+        public String Nome;
         public String CodigoExterno;
         public String RuaEntrega;
         public String CidadeEntrega;

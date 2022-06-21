@@ -6,42 +6,42 @@
         <label>NÃO SEGMENTADO</label>
     </customValue>
     <customValue>
-        <fullName>7</fullName>
+        <fullName>07</fullName>
         <default>false</default>
         <label>REDISTRIBUIÇÃO</label>
     </customValue>
     <customValue>
-        <fullName>1</fullName>
+        <fullName>01</fullName>
         <default>false</default>
         <label>MODULAR</label>
     </customValue>
     <customValue>
-        <fullName>4</fullName>
+        <fullName>04</fullName>
         <default>false</default>
         <label>CLÁSSICO</label>
     </customValue>
     <customValue>
-        <fullName>3</fullName>
+        <fullName>03</fullName>
         <default>false</default>
         <label>INOVADOR</label>
     </customValue>
     <customValue>
-        <fullName>2</fullName>
+        <fullName>02</fullName>
         <default>false</default>
         <label>CLUBE A</label>
     </customValue>
     <customValue>
-        <fullName>5</fullName>
+        <fullName>05</fullName>
         <default>false</default>
         <label>CONECTA</label>
     </customValue>
     <customValue>
-        <fullName>6</fullName>
+        <fullName>06</fullName>
         <default>false</default>
         <label>DINÂMICO</label>
     </customValue>
     <customValue>
-        <fullName>8</fullName>
+        <fullName>08</fullName>
         <default>false</default>
         <label>FORNECEDOR</label>
     </customValue>

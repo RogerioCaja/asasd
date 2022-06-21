@@ -99,7 +99,7 @@ public with sharing class CalloutOrder {
 
 			HttpResponse response = responseObject.response;
 
-            IntegrationLog.createLog('Pedido OUT', 'OUT', response.getBody(), payload, false);
+            IntegrationLog.createLog('Pedido OUT - SAP', 'OUT', response.getBody(), payload, false);
 			// .WSLog('Pedido', 'OUTBOUND', response.getBody(), payload, false);
 			try {
 
@@ -179,14 +179,14 @@ public with sharing class CalloutOrder {
                 dateF = String.valueOf(order.Crop__r.StartDateOrderInsertion__c).replace('-', '');
             }
             
-            IS_HEADER_IN.DOC_TYPE = getCodeTypeOrder(String.valueOf([SELECT DeveloperName FROM RecordType WHERE Name =: order.Type][0].DeveloperName), IV_TYPE == 'G' ? true : false); 
+            IS_HEADER_IN.DOC_TYPE = getCodeTypeOrder(String.valueOf([SELECT DeveloperName FROM RecordType WHERE Id =: order.RecordTypeId][0].DeveloperName), IV_TYPE == 'G' ? true : false); 
             IS_HEADER_IN.SALES_ORG = order.SalesOrg__r.SalesOrganizationCode__c;
             IS_HEADER_IN.DISTR_CHAN =order.DistributionChannel__r.Codigo__c;
             IS_HEADER_IN.DIVISION = order.ActivitySector__r.Codigo__c;
             IS_HEADER_IN.INCOTERMS1 = order.Incoterms__c;
             IS_HEADER_IN.INCOTERMS2 = order.Incoterms2__c;
             IS_HEADER_IN.PMNTTRMS = order.PaymentCondition__r.Code__c;
-            IS_HEADER_IN.PYMT_METH = 'B';//order.PaymentForm__c;
+            IS_HEADER_IN.PYMT_METH = order.PaymentForm__c;
             
             IS_HEADER_IN.CT_VALID_F = IV_TYPE == 'G'  ? dateF :  '';
             IS_HEADER_IN.CT_VALID_T = IV_TYPE == 'G' ? String.valueOf(order.Crop__r.EndDateInsertionOrders__c).replace('-', '') : '';
@@ -206,7 +206,8 @@ public with sharing class CalloutOrder {
             }
 
             Map<Id, OrderItem> orderItemMap = new Map<Id, OrderItem>([
-                SELECT Id, NumeroSap__c, Product2.ExternalId__c, Product2.DistributionCenter__r.Code__c, Quantity, UnitPrice, DiscountValue__c, FinancialAdditionValue__c, FinancialDiscountValue__c, CommercialAdditionValue__c
+                SELECT Id, NumeroSap__c, Product2.ExternalId__c, Product2.DistributionCenter__r.Code__c, Quantity, UnitPrice, ListCost__c, DiscountValue__c, FinancialAdditionValue__c, FinancialDiscountValue__c, CommercialAdditionValue__c,
+                FinancialAdditionPercent__c, FinancialDiscountPercent__c, CommercialMargin__c
                 FROM OrderItem
                 WHERE Id IN: orderItemIds
             ]);
@@ -239,9 +240,11 @@ public with sharing class CalloutOrder {
                 else{
                     IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDEC', String.valueOf(orderItem.DiscountValue__c != 0 ? orderItem.DiscountValue__c*-1 : orderItem.DiscountValue__c), order.Currency__c));
                 }
-                // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDEC', String.valueOf(orderItem.CommercialAdditionValue__c), order.Currency__c));
-                // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZJUR', String.valueOf(orderItem.FinancialAdditionValue__c), order.Currency__c));
-                // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDAN', String.valueOf(orderItem.FinancialDiscountValue__c), order.Currency__c));
+                // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZPRS', String.valueOf(orderItem.ListCost__c), order.Currency__c));
+                // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZPR0', String.valueOf(orderItem.UnitPrice), order.Currency__c));
+                // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZJUR', String.valueOf(orderItem.FinancialAdditionPercent__c), '%'));
+                // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDAN', String.valueOf(orderItem.FinancialDiscountPercent__c), '%'));
+                // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZMAR', String.valueOf(orderItem.CommercialMargin__c), '%'));
             }
         }
     }

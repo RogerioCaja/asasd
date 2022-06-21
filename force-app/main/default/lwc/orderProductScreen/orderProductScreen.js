@@ -142,7 +142,7 @@ export default class OrderProductScreen extends LightningElement {
         });
 
         actions = [];
-        if (this.disabled)  actions.push({ label: 'Visualizar', name: 'visualize' })
+        if (this.disabled) actions.push({ label: 'Visualizar', name: 'visualize' })
         else if(this.headerData.IsOrderChild) actions.push({ label: 'Editar', name: 'edit' }, { label: 'Divisão de Remessas', name: 'shippingDivision' }, { label: 'Excluir', name: 'delete' });
         else if (this.headerData.pedido_mae_check) actions.push({ label: 'Editar', name: 'edit' }, { label: 'Excluir', name: 'delete' });
         else actions.push({ label: 'Editar', name: 'edit' }, { label: 'Divisão de Remessas', name: 'shippingDivision' }, { label: 'Excluir', name: 'delete' });
@@ -220,7 +220,7 @@ export default class OrderProductScreen extends LightningElement {
                 let safraResult = JSON.parse(result);
                 this.safraData = {
                     initialDate: safraResult.initialDate,
-                    endDate: safraResult.endDate
+                    endDate: safraResult.endDateBilling
                 };
 
                 this.productParams = {
@@ -343,7 +343,6 @@ export default class OrderProductScreen extends LightningElement {
             } else {
                 let currentProduct = this.baseProducts.find(e => e.Id == event.target.dataset.targetId);
                 let priorityInfos = this.getProductByPriority(currentProduct);
-                console.log('priorityInfos: ' + JSON.stringify(priorityInfos));
     
                 this.multiplicity = currentProduct.multiplicity;
                 this.costPrice = priorityInfos.costPrice;
@@ -509,7 +508,7 @@ export default class OrderProductScreen extends LightningElement {
 
     calculateMultiplicity(quantity) {
         if (this.isFilled(this.multiplicity)) {
-            let remainder = quantity % this.multiplicity;
+            let remainder = (quantity * 100) % (this.multiplicity * 100);
             if (this.headerData.IsOrderChild && this.addProduct.motherAvailableQuantity != null && quantity > this.addProduct.motherAvailableQuantity) {
                 this.showToast('warning', 'Atenção!', 'A quantidade não pode ultrapassar ' + this.addProduct.motherAvailableQuantity + '.');
                 return this.addProduct.motherAvailableQuantity;
@@ -678,7 +677,7 @@ export default class OrderProductScreen extends LightningElement {
             this.showIncludedProducts = true;
             this.addProduct = {};
             this.products = JSON.parse(JSON.stringify(allProducts));
-            this.message = false
+            this.message = false;
 
             this.showToast('success', 'Sucesso!', 'Produto incluído.');
             this._verifyFieldsToSave();
@@ -791,7 +790,7 @@ export default class OrderProductScreen extends LightningElement {
 
             for (let index = 0; index < filledDivisions.length; index++) {
                 if (filledDivisions[index].productPosition == this.productPosition) {
-                    filledDivisions[index].orderItemKey = this.currentDivisionProduct.productId + '-' + this.fixDecimalPlaces(Number(this.currentDivisionProduct.quantity)) + '-' + this.fixDecimalPlaces(Number(this.currentDivisionProduct.unitPrice));
+                    filledDivisions[index].orderItemKey = this.currentDivisionProduct.productId;
                 }
             }
 
@@ -862,7 +861,6 @@ export default class OrderProductScreen extends LightningElement {
             invoicedQuantity: currentProduct.invoicedQuantity,
             position: currentProduct.position
         }
-        console.log('this.addProduct: ' + this.addProduct.listCost);
         console.log('this.addProduct: ' + JSON.stringify(this.addProduct));
 
         if (recalculateFinancialValues) {
@@ -886,7 +884,7 @@ export default class OrderProductScreen extends LightningElement {
         }
 
         let currentProduct = this.products.find(e => e.position == position);
-        let availableQuantity = currentProduct.quantity - distributedQuantity;
+        let availableQuantity = Number(currentProduct.quantity) - Number(distributedQuantity);
 
         this.productPosition = position;
         this.multiplicity = currentProduct.multiplicity;
@@ -938,7 +936,7 @@ export default class OrderProductScreen extends LightningElement {
         let divPosition = this.isFilled(allDivisions) ? allDivisions.length : 0;
         let deliveryId = 'deliveryId-' + divPosition;
         let quantityId = 'quantityId-' + divPosition;
-        let orderItemKey = this.currentDivisionProduct.productId + '-' + this.fixDecimalPlaces(Number(this.currentDivisionProduct.quantity)) + '-' + this.fixDecimalPlaces(Number(this.currentDivisionProduct.unitPrice));
+        let orderItemKey = this.currentDivisionProduct.productId;
         
         allDivisions.push({productId: this.currentDivisionProduct.productId, deliveryDate: null, quantity: null, position: divPosition, deliveryId: deliveryId, quantityId: quantityId, orderItemKey: orderItemKey, productPosition: this.productPosition, showInfos: true});
         this.divisionProducts = JSON.parse(JSON.stringify(allDivisions));
@@ -950,16 +948,22 @@ export default class OrderProductScreen extends LightningElement {
         let fieldValue = event.target.value;
         let currentProduct;
 
+        let today = new Date();
+        let dd = String(today.getDate()).padStart(2, '0');
+        let mm = String(today.getMonth() + 1).padStart(2, '0');
+        let yyyy = today.getFullYear();
+        let currentDate = yyyy + '-' + mm + '-' + dd;
+
         if (this.isFilled(fieldValue)) {
             if (fieldId.includes('deliveryId-')) {
                 currentProduct = allDivisions.find(e => e.deliveryId == fieldId);
-                if (fieldValue >= this.safraData.initialDate && fieldValue <= this.safraData.endDate) {
+                if (fieldValue >= currentDate && fieldValue >= this.safraData.initialDate && fieldValue <= this.safraData.endDate) {
                     currentProduct.deliveryDate = fieldValue;
                 } else {
                     currentProduct.deliveryDate = null;
                     let formatInitialDate = this.safraData.initialDate.split('-')[2] + '/' + this.safraData.initialDate.split('-')[1] + '/' + this.safraData.initialDate.split('-')[0];
                     let formatEndDate = this.safraData.endDate.split('-')[2] + '/' + this.safraData.endDate.split('-')[1] + '/' + this.safraData.endDate.split('-')[0];
-                    this.showToast('warning', 'Atenção!', 'A data tem que estar na vigêngia da safra(' + formatInitialDate + '-' + formatEndDate + ').');
+                    this.showToast('warning', 'Atenção!', 'A data de remessa precisa ser maior que a atual e estar entre a vigência de entrega da Safra: ' + formatInitialDate + '-' + formatEndDate + '.');
                 }
             } else if (fieldId.includes('quantityId-')) {
                 let productQuantity = 0;
@@ -977,7 +981,7 @@ export default class OrderProductScreen extends LightningElement {
                     this.showToast('warning', 'Atenção!', 'A quantidade foi arredondada para ' + currentProduct.quantity + ' para não exceder.');
                 }
 
-                this.currentDivisionProduct.availableQuantity = this.currentDivisionProduct.quantity - ((Number(productQuantity) + Number(currentProduct.quantity)));
+                this.currentDivisionProduct.availableQuantity = Number(this.currentDivisionProduct.quantity) - ((Number(productQuantity) + Number(currentProduct.quantity)));
                 if (this.currentDivisionProduct.availableQuantity < 0) {
                     this.currentDivisionProduct.showRed = true;
                 } else {
