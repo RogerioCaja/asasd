@@ -421,6 +421,7 @@ public without sharing class OrderScreenController {
             order.OrderType__c = orderData.headerData.pedido_mae.Id != null ? 'Pedido Filho' : (order.IsOrderMother__c ? 'Pedido Mãe' : 'Pedido Normal');
             order.OrderMargin__c = orderData.summaryData.orderMargin != null ? (orderData.summaryData.orderMargin.contains(' sacas') ?
                                      stringToDecimal(orderData.summaryData.orderMargin.replace(' sacas', '')) : stringToDecimal((orderData.summaryData.orderMargin))) : 0;
+            order.ApprovalJustification__c = orderData.summaryData.justification;
 
             Map<Id, OrderItem> motherItems = new Map<Id, OrderItem>();
             Boolean newDivision = false;
@@ -1044,12 +1045,14 @@ public without sharing class OrderScreenController {
         public String observation;
         public String billing_sale_observation;
         public String orderMargin;
+        public String justification;
     }
 
     public class SummarySerialize{
         public String observation;
         public String billing_sale_observation;
         public String orderMargin;
+        public String justification;
 
         public SummarySerialize(){}
         public SummarySerialize(String observation, String billing_sale_observation){
