@@ -29,7 +29,7 @@
                 <div>
                     <section><apex:image value="{!If(orderToPage.currencyOrder == 'BRL', '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}"/> Reais</section>
                     <section><apex:image value="{!If(orderToPage.currencyOrder == 'USD', '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}"/> Dólar</section>
-                    <section><apex:image value="{!If(orderToPage.currencyOrder == 'Bartner', '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}"/> Bartner</section>
+                    <section><apex:image value="{!If(orderToPage.currencyOrder == 'Barter', '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}"/> Barter</section>
                 </div>
                 <div>
                     Data de emissão: {! Datetime}
@@ -42,6 +42,12 @@
 <!-- SEGUNDA PARTE -->
 <table >
     <tbody class="information_order">
+        <tr>
+            <td><strong> Cód. Consultor</strong></td>
+            <td>{! orderToPage.codCTV }</td>
+            <td><strong>Consultor</strong></td>
+            <td colspan="3">{! orderToPage.nameCTV }</td>
+        </tr>
         <tr>
             <td><strong> Cód. Comprador</strong></td>
             <td>{! orderToPage.codeSap }</td>
@@ -86,7 +92,7 @@
             <th style="width: 30%;">Descrição</th>
             <th>Cultura</th>
             <th>Unid. Medida</th>
-            <th>Quant.</th>
+            <th>Data de Entrega(s) - Quant.</th>
             <th>Preço Unit.</th>
             <th>Valor Total</th>
         </tr>
@@ -107,11 +113,14 @@
                 <td>
                     {! oI.unitOfMeasure}
                 </td>
+                
                 <td>
-                    {! oI.unitPrice}
+                    <apex:repeat value="{! oI.divisonList }" var='dV'>
+                        {! dV.deliveryDate} - {! dV.quantity} <br/>
+                    </apex:repeat>
                 </td>
                 <td>
-                    {! oI.quantity}
+                    {! oI.unitPrice}
                 </td>
                 <td>
                     {! oI.totalAmount}
@@ -147,11 +156,11 @@
 <table class="total_amount">
     <tbody>
         <tr>
-            <td>
+            <td style="padding-right: 10px">
                 Valor total do Pedido:
             </td>
-            <td style="width: 120px;">
-                R$ {! orderToPage.totalAmount}
+            <td style="width: 120px; text-align: center;">
+                {! orderToPage.totalAmount}
             </td>
         </tr>
     </tbody>

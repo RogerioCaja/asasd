@@ -50,7 +50,7 @@ global with sharing class IntegrationINOrderAppdigital {
                 // Adiciona todos os External Id e o catalogo de preço de order nos orderItem
                 //Putting the Order's ExternalId parameter in the OrderItem
                 for (TemplateDataIntegrationFields.OrderItemINData orderItem : order.orderItems){
-                    orderItem.orderExternalId = order.CodigoSap;
+                    orderItem.orderExternalId = order.numeroPedidoApp;
                 }
                 // Adiciona os orderItem na lista para upsert
                 //Getting list of order items
@@ -58,7 +58,7 @@ global with sharing class IntegrationINOrderAppdigital {
                 System.debug('orderItemListToUpsert' + orderItemListToUpsert); 
             }
             for(TemplateDataIntegrationFields.ShippingDivisonINData shippingDivison : order.shippingDivison){
-                shippingDivison.orderExternalId = order.CodigoSap;
+                shippingDivison.orderExternalId = order.numeroPedidoApp;
             }
             shippingDivisonListToUpsert.addAll(order.shippingDivison);
             System.debug('shippingDivisonListToUpsert' + shippingDivisonListToUpsert);
@@ -73,7 +73,7 @@ global with sharing class IntegrationINOrderAppdigital {
             //Example
             lookups.put('Account' + account.ExternalId__c, account.Id);
         }
-
+// Pega o WE 
         for (Account account : [SELECT Id, ExternalId__c FROM Account WHERE ExternalId__c IN : shippingAccountLookups]) {
             lookups.put('Account' + account.ExternalId__c, account.Id);
         }
@@ -121,10 +121,10 @@ global with sharing class IntegrationINOrderAppdigital {
           
         //Upserting records (Order)
 		IntegrationUtils.upsertRecords(
-            Database.upsert(orderListToUpsert, Order.CodigoSap__c, false), 
+            Database.upsert(orderListToUpsert, Order.NumeroPedidoApp__c, false), 
             responseList, 
             orderListToUpsert, 
-            Order.CodigoSap__c
+            Order.NumeroPedidoApp__c
         );
         
         //Upserting records (OrderItem)
@@ -134,7 +134,6 @@ global with sharing class IntegrationINOrderAppdigital {
             orderItemsResponse.putAll(
                 IntegrationINOrderItemAppdigital.upsertOrderItem(orderItemListToUpsert)
             );
-            System.debug('orderItemsResponse' + orderItemsResponse);
         }
 
         Map<String, List<TemplateDataIntegrationFields.Response>> shippingDivisonResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
@@ -142,7 +141,6 @@ global with sharing class IntegrationINOrderAppdigital {
             shippingDivisonResponse.putAll(
                 IntegrationINShippingDivisonAppdigital.upsertShippingDivison(shippingDivisonListToUpsert)
             );
-            System.debug('shippingDivisonResponse' + shippingDivisonResponse);
         }
 
         //Associating child object's response with object response
@@ -154,8 +152,6 @@ global with sharing class IntegrationINOrderAppdigital {
                 for(TemplatedataIntegrationFields.Response orderItem : orderItemsResponse.get(response.idSalesforce)){
                     response.items.addAll(shippingDivisonResponse.get(orderItem.idSalesforce)); 
                 }
-                System.debug('orderItemsResponse' + orderItemsResponse);
-                System.debug('shippingDivisonResponse' + shippingDivisonResponse);
             } 
             else if(orderItemsResponse.size() != 0 && orderItemsResponse.containsKey(response.externalCode)){
                 response.items.addAll(orderItemsResponse.get(response.externalCode));
@@ -184,7 +180,7 @@ global with sharing class IntegrationINOrderAppdigital {
         }
 		
         //Creating integration log
-        IntegrationLog.createLog('Order', 'Inbound', JSON.serialize(request), JSON.serialize(responseList), hasError);
+        IntegrationLog.createLog('Order', 'IN', JSON.serialize(request), JSON.serialize(responseList), hasError);
         
         //Returning response
          // Retorna a resposta Outbound

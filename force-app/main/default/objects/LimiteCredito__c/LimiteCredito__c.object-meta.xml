@@ -161,13 +161,14 @@
     <externalSharingModel>ControlledByParent</externalSharingModel>
     <label>Limite de Crédito</label>
     <nameField>
+        <displayFormat>L-{0000}</displayFormat>
         <label>Nome do Limite</label>
         <trackFeedHistory>false</trackFeedHistory>
         <trackHistory>false</trackHistory>
-        <type>Text</type>
+        <type>AutoNumber</type>
     </nameField>
     <pluralLabel>Limites de Créditos</pluralLabel>
-    <searchLayouts/>
+    <searchLayouts></searchLayouts>
     <sharingModel>ControlledByParent</sharingModel>
     <visibility>Public</visibility>
 </CustomObject>

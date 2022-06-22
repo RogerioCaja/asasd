@@ -86,7 +86,7 @@ public with sharing class CalloutOrderDatalakeTest {
             Currency__c =  'BRL',
             SalesCTV__c =  u.Id,
             StatusSF__c = 'Em digitação',
-            Incoterms__c = 'CIF'    
+            Incoterms__c = 'CIF'
         );
 
         INSERT order;

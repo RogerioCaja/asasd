@@ -36,68 +36,120 @@ global with sharing class IntegrationINPricebook2 {
     @HttpPost
     global static ResponseModel upsertPricebook2(List<TemplateDataIntegrationFields.JurosDescontoAntecipaoINData> request){
         
-        Map<String, Id> lookups = new Map<String, Id>();
+        try{
+            Map<String, Id> lookups = new Map<String, Id>();
 
-        Map<String, List<String>> lookupMap = new Map<String, List<String>>();
-        lookupMap = prepareData();
+            Map<String, List<String>> lookupMap = new Map<String, List<String>>();
+            lookupMap = prepareData();
 
-        List<TemplateDataIntegrationFields.ResponseParent> responseList = new List<TemplateDataIntegrationFields.ResponseParent>();
-        List<JurosDescontoAntecipao__c> interestDicountListToUpsert = new List<JurosDescontoAntecipao__c>();
+            List<TemplateDataIntegrationFields.ResponseParent> responseList = new List<TemplateDataIntegrationFields.ResponseParent>();
+            List<JurosDescontoAntecipao__c> interestDicountListToUpsert = new List<JurosDescontoAntecipao__c>();
+            
+            upsertInterestDiscount(lookupMap, lookups, request, responseList, interestDicountListToUpsert);
+            
+            ResponseModel modelo = new ResponseModel();
+            modelo.response = responseList;
+            return modelo;
+        }
+        catch(Exception e){
 
-        upsertInterestDiscount(lookupMap, lookups, request, responseList, interestDicountListToUpsert);
-         
-        ResponseModel modelo = new ResponseModel();
-        modelo.response = responseList;
-        return modelo;
+            List<TemplateDataIntegrationFields.ResponseParent> responseList = new List<TemplateDataIntegrationFields.ResponseParent>();
+            TemplateDataIntegrationFields.ResponseParent response = new TemplateDataIntegrationFields.ResponseParent();
+
+            
+            // Description Exception...
+            String errorMessage = 'Tipo de Exceção: ' + e.getTypeName();
+            errorMessage += '------------------------------';
+            errorMessage += 'Mensagem: ' + e.getMessage();
+            errorMessage += '------------------------------';
+            errorMessage += 'Causa: ' + e.getCause();
+            errorMessage += '------------------------------';
+            errorMessage += 'Número da Linha: ' + e.getLineNumber();
+            errorMessage += '------------------------------';
+            errorMessage += 'Stack trace: ' + e.getStackTraceString();
+
+            // Sending error Standard
+            response.error('Exception', errorMessage, 'JurosDescontoAntecipao__c');
+            responseList.add(response);
+
+            //Creating integration log
+            IntegrationLog.createLog('Lista de Preço, Juros e Descontos de Antecipação IN', 'IN', JSON.serialize(request), JSON.serialize(responseList), true);
+            ResponseModel modelo = new ResponseModel();
+            modelo.response = responseList;
+            return modelo;
+        }
     }
 
     global static Map<String, List<String>> prepareData(){
-        List<String> salesOrgLookups       = new List<String>();
-        List<String> cropLookups           = new List<String>();
-        List<String> cultureLookups        = new List<String>();
-        List<String> accountLookups        = new List<String>();
-        List<String> salesOfficeLookups    = new List<String>();
-        List<String> salesTeamLookups      = new List<String>();
-        List<String> productGroupLookups   = new List<String>();
-        List<String> productLookups        = new List<String>();
-        List<String> salesConditionLookups = new List<String>();
-        List<String> centerLookups         = new List<String>();
-
         Map<String, List<String>> response = new Map<String, List<String>>();
-        response.put('salesOrgLookups', salesOrgLookups);
-        response.put('cropLookups', cropLookups);
-        response.put('cultureLookups', cultureLookups);
-        response.put('accountLookups', accountLookups);
-        response.put('salesOfficeLookups', salesOfficeLookups);
-        response.put('salesTeamLookups', salesTeamLookups);
-        response.put('productGroupLookups', productGroupLookups);
-        response.put('productLookups', productLookups);
-        response.put('salesConditionLookups', salesConditionLookups);
-        response.put('centerLookups', centerLookups);
-
+        response.put('salesOrgLookups',       new List<String>());
+        response.put('cropLookups',           new List<String>());
+        response.put('cultureLookups',        new List<String>());
+        response.put('accountLookups',        new List<String>());
+        response.put('salesOfficeLookups',    new List<String>());
+        response.put('salesTeamLookups',      new List<String>());
+        response.put('productGroupLookups',   new List<String>());
+        response.put('productLookups',        new List<String>());
+        response.put('salesConditionLookups', new List<String>());
+        response.put('centerLookups',         new List<String>());
+        
         return response;
     }
 
     global static void upsertInterestDiscount(Map<String, List<String>> lookupMap, Map<String, Id> lookups, List<TemplateDataIntegrationFields.JurosDescontoAntecipaoINData> request, List<TemplateDataIntegrationFields.ResponseParent> responseList, 
     List<JurosDescontoAntecipao__c> interestDicountListToUpsert){
-
+        
+        Integer valueToTransform;
+        Map<String, List<String>> requirementsMap = prepareRequirements();
+        Map<String, Boolean> isValidMap = new Map<String, Boolean>();
+    
         for(TemplateDataIntegrationFields.JurosDescontoAntecipaoINData interestDiscount : request){
 
-            if(interestDiscount.typeCondition == 'ZPRS'){
-                interestDiscount = getRecord(interestDiscount);
+            if(interestDiscount.product != null){
+            	interestDiscount.product = String.valueOf(interestDiscount.product).leftPad(18, '0');
             }
-            lookupMap.get('accountLookups').add(interestDiscount.accountCode);
-            lookupMap.get('salesOrgLookups').add(interestDiscount.orgVendas);
-            lookupMap.get('cropLookups').add(interestDiscount.cropCode);
-            lookupMap.get('cultureLookups').add(interestDiscount.cultureCode);
-            lookupMap.get('salesOfficeLookups').add(interestDiscount.salesOffice);
-            lookupMap.get('salesTeamLookups').add(interestDiscount.salesTeam);
-            lookupMap.get('productGroupLookups').add(interestDiscount.productGroup);
-            lookupMap.get('productLookups').add(interestDiscount.product);
-            lookupMap.get('salesConditionLookups').add(interestDiscount.salesCondition);
-            lookupMap.get('centerLookups').add(interestDiscount.center);
-        }
 
+            if(Date.valueOf(interestDiscount.endDate) < Date.today()){
+                isValidMap.put(interestDiscount.externalId, false);
+            }
+            else{
+                isValidMap.put(interestDiscount.externalId, true);
+            }
+            
+            if(interestDiscount.accountCode != null){
+                valueToTransform = Integer.valueOf(interestDiscount.accountCode);
+            	interestDiscount.accountCode = String.valueOf(valueToTransform);
+                lookupMap.get('accountLookups').add(interestDiscount.accountCode);
+            }
+            if(interestDiscount.orgVendas != null){
+                lookupMap.get('salesOrgLookups').add(interestDiscount.orgVendas);
+            }
+            if(interestDiscount.cropCode != null){
+                lookupMap.get('cropLookups').add(interestDiscount.cropCode);
+            }
+            if(interestDiscount.cultureCode != null){
+                lookupMap.get('cultureLookups').add(interestDiscount.cultureCode);
+            }
+            if(interestDiscount.salesOffice != null){
+                 lookupMap.get('salesOfficeLookups').add(interestDiscount.salesOffice);
+            }
+            if(interestDiscount.salesTeam != null){
+                lookupMap.get('salesTeamLookups').add(interestDiscount.salesTeam);
+            }
+            if(interestDiscount.productGroup != null){
+                lookupMap.get('productGroupLookups').add(interestDiscount.productGroup);
+            }
+            if(interestDiscount.product != null){
+               lookupMap.get('productLookups').add(interestDiscount.product);
+            }
+            if(interestDiscount.salesCondition != null){
+                lookupMap.get('salesConditionLookups').add(interestDiscount.salesCondition);
+            }
+            if(interestDiscount.center != null){
+                lookupMap.get('centerLookups').add(interestDiscount.center);
+            }
+        }
+		
         IntegrationUtils.setLookup(new SalesOrg__c(), new Set<String>{'Id', 'SalesOrganizationCode__c'}, 'SalesOrganizationCode__c', lookupMap.get('salesOrgLookups'), lookups);
         
         IntegrationUtils.setLookup(new Safra__c(), new Set<String>{'Id', 'Code__c'}, 'Code__c', lookupMap.get('cropLookups'), lookups);
@@ -110,7 +162,7 @@ global with sharing class IntegrationINPricebook2 {
 
         IntegrationUtils.setLookup(new ProductGroup__c(), new Set<String>{'Id', 'ExternalId__c'}, 'ExternalId__c', lookupMap.get('productGroupLookups'), lookups);
 
-        IntegrationUtils.setLookup(new Product2(), new Set<String>{'Id', 'ExternalId__c'}, 'ExternalId__c', lookupMap.get('productLookups'), lookups);
+        IntegrationUtils.setLookup(new Product2(), new Set<String>{'Id', 'ProductCode__c'}, 'ProductCode__c', lookupMap.get('productLookups'), lookups);
 
         IntegrationUtils.setLookup(new Account(), new Set<String>{'Id', 'ExternalId__c'}, 'ExternalId__c', lookupMap.get('accountLookups'), lookups);
 
@@ -118,51 +170,227 @@ global with sharing class IntegrationINPricebook2 {
 
         IntegrationUtils.setLookup(new DistributionCenter__c(), new Set<String>{'Id', 'Code__c'}, 'Code__c', lookupMap.get('centerLookups'), lookups);
 
-
-        FactoryDataIntegration.convertSObject(new JurosDescontoAntecipao__c(), 'IN', request, responseList, interestDicountListToUpsert, lookups);
-
+		
+        FactoryDataIntegration.convertSObject(new JurosDescontoAntecipao__c(), 'IN', request, responseList, interestDicountListToUpsert, lookups, requirementsMap, isValidMap);
+        
+        List<JurosDescontoAntecipao__c> priceWithoutZPRS = removeZPRSData(interestDicountListToUpsert, responseList);
+        System.debug(priceWithoutZPRS);
         IntegrationUtils.upsertRecords(
-            Database.upsert(interestDicountListToUpsert, JurosDescontoAntecipao__c.ExternalId__c, false), 
+            Database.upsert(priceWithoutZPRS, JurosDescontoAntecipao__c.ExternalId__c, false), 
             responseList, 
-            interestDicountListToUpsert, 
+            priceWithoutZPRS, 
+            JurosDescontoAntecipao__c.ExternalId__c);
+
+        List<JurosDescontoAntecipao__c> priceWithZPRS = ZPRSData(interestDicountListToUpsert, responseList);
+        System.debug('Aqui => '+ priceWithZPRS);
+        IntegrationUtils.upsertRecords(
+            Database.upsert(priceWithZPRS, JurosDescontoAntecipao__c.ExternalId__c, false), 
+            responseList, 
+            priceWithZPRS, 
             JurosDescontoAntecipao__c.ExternalId__c);
 
         hasError = false;
         setResponses(responseList);
-            
+        
+
+        // reorganizer responseList
+        Set<String> externalIdSet = new Set<String>();
+        List<TemplateDataIntegrationFields.ResponseParent> removeToDataList = new List<TemplateDataIntegrationFields.ResponseParent>();
+        Map<String, TemplateDataIntegrationFields.ResponseParent> permitToDataMap = new Map<String, TemplateDataIntegrationFields.ResponseParent>();
+        for(TemplateDataIntegrationFields.ResponseParent response : responseList){
+            if(response.idSalesforce != ''){
+                permitToDataMap.put(response.externalCode, response);
+            }
+            if(!externalIdSet.contains(response.externalCode)){
+                externalIdSet.add(response.externalCode);
+                
+            }   
+            else{
+                removeToDataList.add(response);
+            }
+            	
+        }
+        
+        for(TemplateDataIntegrationFields.ResponseParent response : removeToDataList){
+            responseList.remove(responseList.indexOf(response));
+        }
+        
+        for(TemplateDataIntegrationFields.ResponseParent response : responseList){
+            responseList[responseList.indexOf(response)] = permitToDataMap.containsKey(response.externalCode) ? permitToDataMap.get(response.externalCode) : response;
+        }
         
         //Creating integration log
         IntegrationLog.createLog('Lista de Preço, Juros e Descontos de Antecipação IN', 'IN', JSON.serialize(request), JSON.serialize(responseList), hasError);
     }
 
-    global static TemplateDataIntegrationFields.JurosDescontoAntecipaoINData getRecord(TemplateDataIntegrationFields.JurosDescontoAntecipaoINData data){
-        String externalId = data.orgVendas != ''  ? data.orgVendas + '_' : '';
-        externalId = externalId + (data.cropCode != ''  ? data.cropCode + '_' : '');
-        externalId = externalId + (data.typeCurrency != ''  ? data.typeCurrency + '_' : '');
-        externalId = externalId + (data.salesCondition != ''  ? data.salesCondition + '_' : '');
-        externalId = externalId + (data.productGroup != ''  ? data.productGroup + '_' : '');
-        externalId = externalId + (data.salesOffice != ''  ? data.salesOffice + '_' : '');
-        externalId = externalId + (data.cultureCode != ''  ? data.cultureCode + '_' : '');
-        externalId = externalId + (data.accountGroup != ''  ? data.accountGroup + '_' : '');
-        externalId = externalId + (data.accountCode != ''  ? data.accountCode + '_' : '');
-        externalId = externalId + (data.salesTeam != ''  ? data.salesTeam + '_' : '');
-        externalId = externalId + (data.product != ''  ? data.product : '');
-        JurosDescontoAntecipao__c condition;
-        try{
-            condition = [SELECT ExternalId__c FROM JurosDescontoAntecipao__c WHERE DescriptionExternalId__c =: externalId];
-        }
-        catch(Exception e){
-            condition = null;
-        }
+
+    global static Map<String, List<String>> prepareRequirements(){
+        // A935 => Org.vendas/Moeda/Safra/Lst.preços/Cliente/Material
+        // A936 => Org.vendas/Moeda/Safra/Lst.preços/GrpClients/Material
+        // A937 => Org.vendas/Moeda/Safra/Lst.preços/Cód Cult./Eq.vendas/Material
+        // A938 => Org.vendas/Moeda/Safra/Lst.preços/Eq.vendas/Material
+        // A939 => Org.vendas/Moeda/Safra/Lst.preços/EscrVendas/Material
+        // A940 => Org.vendas/Moeda/Safra/Lst.preços/Grp.merc
+        // A941 => Org.vendas/Moeda/Safra/Material
         
+        // A930 => Org.vendas/Safra/GrpClients/Material
+        // A931 => Org.vendas/Safra/Centro/Material
+        // A932 => Org.vendas/Safra/Centro/Grp.merc.
+        // A933 => Org.vendas/Safra/Centro/Material
+        // A934 => Org.vendas/Safra
+
+        Map<String, List<String>> response = new Map<String, List<String>>();
+        response.put('A930', new List<String>{'SalesOrg__c', 'harvest__c', 'ClientGroup__c','Product__c'});
+        response.put('A945', new List<String>{'SalesOrg__c', 'harvest__c','SalesTeam__c' ,'Product__c'});
+        response.put('A946', new List<String>{'SalesOrg__c', 'harvest__c','SalesTeam__c' ,'ProductGroup__c'});
+        response.put('A933', new List<String>{'SalesOrg__c', 'harvest__c','DistributionCenter__c' ,'Product__c'});
+        response.put('A934', new List<String>{'SalesOrg__c', 'harvest__c'});
+
+        response.put('A935', new List<String>{'SalesOrg__c', 'Currency__c' ,'harvest__c', 'SalesCondition__c', 'Account__c','Product__c'});
+        response.put('A936', new List<String>{'SalesOrg__c', 'Currency__c' ,'harvest__c', 'SalesCondition__c', 'ClientGroup__c', 'Product__c'});
+        response.put('A937', new List<String>{'SalesOrg__c', 'Currency__c' ,'harvest__c', 'SalesCondition__c', 'Culture__c', 'SalesTeam__c' ,'Product__c'});
+        response.put('A938', new List<String>{'SalesOrg__c', 'Currency__c' ,'harvest__c', 'SalesCondition__c', 'SalesTeam__c' ,'Product__c'});
+        response.put('A939', new List<String>{'SalesOrg__c', 'Currency__c' ,'harvest__c', 'SalesCondition__c', 'SalesOffice__c' ,'Product__c'});
+        response.put('A940', new List<String>{'SalesOrg__c', 'Currency__c' ,'harvest__c', 'SalesCondition__c', 'ProductGroup__c' });
+        response.put('A941', new List<String>{'SalesOrg__c', 'Currency__c' ,'harvest__c','Product__c'});
         
-        if(condition != null)
-            data.externalId = condition.ExternalId__c;
-            
-        
-        return data;
+        return response;
     }
 
+
+    global static List<JurosDescontoAntecipao__c> removeZPRSData(List<JurosDescontoAntecipao__c> context, List<TemplateDataIntegrationFields.ResponseParent> responseList){
+        
+        List<JurosDescontoAntecipao__c> newContext = new List<JurosDescontoAntecipao__c>();
+        Map<String, String> pricesMap = new Map<String, String>();
+        Map<String, String> externalIdMap = new Map<String, String>();
+        Set<String> repetitons = new Set<String>();
+
+        List<JurosDescontoAntecipao__c> pricesList = new List<JurosDescontoAntecipao__c>();
+        for(JurosDescontoAntecipao__c interest : context){
+            if(interest.Cost__c == null){
+                newContext.add(interest);
+            }
+        }
+        for(JurosDescontoAntecipao__c prices : newContext){
+            if(prices.Currency__c != '%'){
+                String externalId = (
+                    String.valueOf(prices.StartDate__c)+'_'+
+                    String.valueOf(prices.SalesOrg__c).subString(0, 15)+'_'+
+                    (prices.harvest__c == null ? '' : String.valueOf(prices.harvest__c).subString(0, 15)+'_')+
+                    (prices.Currency__c == null ? '' : String.valueOf(prices.Currency__c)+'_')+
+                    (prices.SalesCondition__c == null ? '' : String.valueOf(prices.SalesCondition__c).subString(0, 15)+'_')+
+                    (prices.ProductGroup__c == null ? '' : String.valueOf(prices.ProductGroup__c).subString(0, 15)+'_')+
+                    (prices.SalesOffice__c == null ? '' : String.valueOf(prices.SalesOffice__c).subString(0, 15)+'_')+
+                    (prices.Culture__c == null ? '' : String.valueOf(prices.Culture__c).subString(0, 15)+'_')+
+                    (prices.ClientGroup__c == null ? '' : String.valueOf(prices.ClientGroup__c)+'_')+
+                    (prices.Account__c == null ? '' : String.valueOf(prices.Account__c).subString(0, 15)+'_')+
+                    (prices.SalesTeam__c == null ? '' : String.valueOf(prices.SalesTeam__c).subString(0, 15)+'_')+
+                    (prices.Product__c == null ? '' : String.valueOf(prices.Product__c).subString(0, 15))
+                );
+                System.debug(externalId);
+                externalIdMap.put(externalId,prices.ExternalId__c);
+                repetitons.add(prices.ExternalId__c);
+                prices.EndDate__c = prices.EndDate__c != null ? String.valueOf(prices.EndDate__c).contains('9999') ? Date.valueOf(String.valueOf(prices.EndDate__c).replace('9999', '2999')) : prices.EndDate__c : null;
+                pricesMap.put(externalId, prices.UnitPrice__c + '|' + prices.EndDate__c);
+            }
+            else{
+                pricesList.add(prices);
+            }
+        }
+        
+        for(JurosDescontoAntecipao__c prices : [ SELECT Id, ExternalId__c, UnitPrice__c, DescriptionExternalId__c
+                                                FROM JurosDescontoAntecipao__c
+                                                WHERE DescriptionExternalId__c IN: pricesMap.keySet()
+                                                AND RecordType.DeveloperName = 'ZPR0']){ 
+            if(externalIdMap.containsKey(prices.DescriptionExternalId__c)) externalIdMap.remove(prices.DescriptionExternalId__c);    
+            pricesList.add(new JurosDescontoAntecipao__c(IsActive__c = Date.valueOf(pricesMap.get(prices.DescriptionExternalId__c).substringAfter('|')) < Date.today() ? false : true ,EndDate__c = Date.valueOf(pricesMap.get(prices.DescriptionExternalId__c).substringAfter('|')), UnitPrice__c = Decimal.valueOf(pricesMap.get(prices.DescriptionExternalId__c).substringBefore('|')), ExternalId__c = prices.ExternalId__c));
+        }
+        Set<String> externalIdSet = new Set<String>();
+        for(String value : externalIdMap.values()){
+        	externalIdSet.add(value);
+        }
+        for(JurosDescontoAntecipao__c interest : newContext){
+            if(externalIdSet.contains(interest.ExternalId__c)){
+                pricesList.add(interest);
+            }
+        }
+        
+         for(String repetiton : repetitons){
+            TemplateDataIntegrationFields.ResponseParent response = new TemplateDataIntegrationFields.ResponseParent();
+            response.status = true;
+            response.success('', repetiton, 'JurosDescontoAntecipao__c');
+            responseList.add(response);
+        }
+ 
+        return pricesList;
+    }
+
+    global static List<JurosDescontoAntecipao__c> onlyZPRSData(List<JurosDescontoAntecipao__c> context){
+        List<JurosDescontoAntecipao__c> newContext = new List<JurosDescontoAntecipao__c>();
+        for(JurosDescontoAntecipao__c interest : context){
+            if(interest.Cost__c != null){
+                newContext.add(interest);
+            }
+        }
+        return newContext;
+    }
+
+    global static List<JurosDescontoAntecipao__c> ZPRSData(List<JurosDescontoAntecipao__c> context, List<TemplateDataIntegrationFields.ResponseParent> responseList){
+        Map<String, Decimal> pricesMap = new Map<String, Decimal>();
+        List<JurosDescontoAntecipao__c> pricesList = new List<JurosDescontoAntecipao__c>();
+        Set<String> repetitonsZPRS = new Set<String>();
+        Map<String, String> externalIdMap = new Map<String, String>();
+        for(JurosDescontoAntecipao__c prices : onlyZPRSData(context)){
+            String externalId = (
+                String.valueOf(prices.StartDate__c)+'_'+
+                String.valueOf(prices.SalesOrg__c).subString(0, 15)+'_'+
+                (prices.harvest__c == null ? '' : String.valueOf(prices.harvest__c).subString(0, 15)+'_')+
+                (prices.Currency__c == null ? '' : String.valueOf(prices.Currency__c)+'_')+
+                (prices.SalesCondition__c == null ? '' : String.valueOf(prices.SalesCondition__c).subString(0, 15)+'_')+
+                (prices.ProductGroup__c == null ? '' : String.valueOf(prices.ProductGroup__c).subString(0, 15)+'_')+
+                (prices.SalesOffice__c == null ? '' : String.valueOf(prices.SalesOffice__c).subString(0, 15)+'_')+
+                (prices.Culture__c == null ? '' : String.valueOf(prices.Culture__c).subString(0, 15)+'_')+
+                (prices.ClientGroup__c == null ? '' : String.valueOf(prices.ClientGroup__c)+'_')+
+                (prices.Account__c == null ? '' : String.valueOf(prices.Account__c).subString(0, 15)+'_')+
+                (prices.SalesTeam__c == null ? '' : String.valueOf(prices.SalesTeam__c).subString(0, 15)+'_')+
+                (prices.Product__c == null ? '' : String.valueOf(prices.Product__c).subString(0, 15))
+            );
+            System.debug(externalId);
+            externalIdMap.put(externalId,prices.ExternalId__c);
+            repetitonsZPRS.add(prices.ExternalId__c);
+            pricesMap.put(externalId, prices.Cost__c);
+        }
+ 		
+        if(pricesMap.isEmpty()) return new List<JurosDescontoAntecipao__c>();
+		List<JurosDescontoAntecipao__c> interestList =  onlyZPRSData(context);
+        for(JurosDescontoAntecipao__c prices : [ SELECT Id, ExternalId__c, UnitPrice__c, DescriptionExternalId__c
+                                                FROM JurosDescontoAntecipao__c
+                                                WHERE DescriptionExternalId__c IN: pricesMap.keySet()
+                                                AND RecordType.DeveloperName = 'ZPR0']){ 
+            if(externalIdMap.containsKey(prices.DescriptionExternalId__c)) externalIdMap.remove(prices.DescriptionExternalId__c);
+            pricesList.add(new JurosDescontoAntecipao__c(Cost__c = pricesMap.get(prices.DescriptionExternalId__c), ExternalId__c = prices.ExternalId__c));
+        }
+       	Set<String> externalIdSet = new Set<String>();
+        for(String value : externalIdMap.values()){
+        	externalIdSet.add(value);
+        }
+        for(JurosDescontoAntecipao__c interest : interestList){
+            if(externalIdSet.contains(interest.ExternalId__c)){
+                pricesList.add(interest);
+            }
+            
+        }
+        
+        for(String repetiton : repetitonsZPRS){
+            TemplateDataIntegrationFields.ResponseParent response = new TemplateDataIntegrationFields.ResponseParent();
+            response.status = true;
+            response.success('ZPRS', repetiton, 'JurosDescontoAntecipao__c');
+            responseList.add(response);
+        }
+        return pricesList;
+    }
+
+    
     global static void setResponses(List<TemplateDataIntegrationFields.ResponseParent> responseList){
 
         for(TemplateDataIntegrationFields.ResponseParent responseListPrice : responseList){

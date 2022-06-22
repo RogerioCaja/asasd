@@ -12,10 +12,11 @@ public with sharing class CalloutOrderDatalake {
 		Order parentOrder = [SELECT Id, CodigoSap__c, ShippingAccount__r.ExternalId__c, Account.ExternalId__c, Type, SalesOrg__r.SalesOrganizationCode__c, DistributionChannel__c, 
                             ActivitySector__c, Incoterms__c, Incoterms2__c, PaymentCondition__c, OrderReason__c , 
                             OrderNumber, Crop__r.Code__c, Culture__r.Codigo__c, EndDate, TotalAmount, 
-                            Currency__c, StatusSAP__c, (SELECT Id FROM OrderItems) 
+                            Currency__c, StatusSAP__c, AccountId, (SELECT Id FROM OrderItems) 
                             FROM Order WHERE Id = :orderId];
 		System.debug('parentOrder' + parentOrder);
 		List<Order> allOrders = new List<Order>{parentOrder};
+        
 		
 		IntegrationUtils.CalloutDatalakeResponse calloutResponse = sendOrder(allOrders);
 
@@ -92,71 +93,28 @@ public with sharing class CalloutOrderDatalake {
 			}
 		} else {
 
-            IntegrationLog.createLog('Pedido OUT', 'OUT', responseObject.exceptionObject.getMessage(), payload, true);
+            IntegrationLog.createLog('Pedido OUT - DataLake', 'OUT', responseObject.exceptionObject.getMessage(), payload, true);
 			return new IntegrationUtils.CalloutDatalakeResponse(responseObject.exceptionObject.getMessage());
 		}
     }
 
     //! Preparing data to Callout
     public class RequestParameters{
-        public Object header; // criar public list
-        //public List<CalloutOrderDatalake.PartnerParameters> partner;
-        public List<CalloutOrderDatalake.PartnerParameters> partnerList;
-        public List<CalloutOrderDatalake.ScheduleParameters> scheduleList;
-        public List<CalloutOrderDatalake.ConditionParameters> conditionList;
-        public List<CalloutOrderDatalake.OrderItemParameters> orderItemList;
-
-       // List<CalloutOrderDatalake.ShippingParameters> Shipping;
-        //public List<CalloutOrderDatalake.ConditionParameters> condition;
-        // List<CalloutOrderDatalake.OrderItemParameters> orderItems;
+        
+        public Object header; 
+        
 
         public RequestParameters(Order order){
             System.debug('orders' + order);
-            partnerList = new List<CalloutOrderDatalake.PartnerParameters>();
-            scheduleList = new List<CalloutOrderDatalake.ScheduleParameters>();
-            orderItemList = new List<CalloutOrderDatalake.OrderItemParameters>();
-            conditionList = new List<CalloutOrderDatalake.ConditionParameters>();
-            //partner.add(new CalloutOrder.PartnerParameters(order.Account.ExternalId__c, 'EO'));
-            //partner.add(new CalloutOrder.PartnerParameters(order.ShippingAccount__r.ExternalId__c, 'RM'));
+            
 
             Set<Id> orderItemIds = new Set<Id>();
-
-            if(order.CodigoSap__c != null){
-                CalloutOrderDatalake.HeaderInsert header = new CalloutOrderDatalake.HeaderInsert();
-                header.orderSalesType = order.Type; // Não esquecer de mudar isso
-                header.salesOrg = order.SalesOrg__r.SalesOrganizationCode__c;
-                header.distributionChannel = order.DistributionChannel__c;
-                header.activitySector = order.ActivitySector__c;
-                header.incoterms1 = order.Incoterms__c;
-                header.incoterms2 = order.Incoterms2__c;
-                header.paymentCondition = order.PaymentCondition__c;
-                header.orderReason = order.OrderReason__c;
-                header.codSap = order.OrderNumber;
-                header.crop = order.Crop__r.Code__c;
-                if(order.Culture__c != null){
-                    header.culture = Integer.valueOf(order.Culture__r.Codigo__c);
-                }else{
-                    header.culture = null;
-                }
-                header.orderType = order.Type;
-                header.codSalesforce = order.OrderNumber;
-                header.expiredDate = order.EndDate;
-                this.header = header;
-                system.debug('header' + header);
-                system.debug('Order' + order);
-                //orderDatalake.salesCTV = AccountId.ShippingAccount__c.SalesCTV__c; --> Verificar CTV
-            }
-            else {
-                CalloutOrderDatalake.HeaderUpdate header = new CalloutOrderDatalake.HeaderUpdate();
-                header.codSap = order.CodigoSap__c;
-                header.codSalesforce = order.OrderNumber;
-                header.expiredDate = order.EndDate;
-            }
-
+            List<CalloutOrderDatalake.ScheduleParameters> scheduleList = new List<CalloutOrderDatalake.ScheduleParameters>();
+            List<CalloutOrderDatalake.OrderItemParameters> orderItemList = new List<CalloutOrderDatalake.OrderItemParameters>();
             for(OrderItem orderItem : order.OrderItems){
                 orderItemIds.add(orderItem.Id);
             }
-
+            
             Map<Id, OrderItem> orderItemMap = new Map<Id, OrderItem>([
                 SELECT Id, NumeroSap__c, Product2.ExternalId__c, Product2.DistributionCenter__r.Code__c, Quantity
                 FROM OrderItem
@@ -187,6 +145,48 @@ public with sharing class CalloutOrderDatalake {
                 orderItemList.add(new CalloutOrderDatalake.OrderItemParameters(orderItem, shippingCodesList));
                 //System.debug('order' + orders);
             }
+
+            if(order.CodigoSap__c != null){
+                CalloutOrderDatalake.HeaderInsert header = new CalloutOrderDatalake.HeaderInsert();
+                header.orderSalesType = order.Type; // Não esquecer de mudar isso
+                header.salesOrg = order.SalesOrg__r.SalesOrganizationCode__c;
+                header.distributionChannel = order.DistributionChannel__c;
+                header.activitySector = order.ActivitySector__c;
+                header.incoterms1 = order.Incoterms__c;
+                header.incoterms2 = order.Incoterms2__c;
+                header.paymentCondition = order.PaymentCondition__c;
+                header.orderReason = order.OrderReason__c;
+                header.codSap = order.OrderNumber;
+                header.crop = order.Crop__r.Code__c;
+                if(order.Culture__c != null){
+                    header.culture = Integer.valueOf(order.Culture__r.Codigo__c);
+                }else{
+                    header.culture = null;
+                }
+                header.orderType = order.Type;
+                header.codSalesforce = order.OrderNumber;
+                header.expiredDate = order.EndDate;
+                header.paymentAccount = order.AccountId;
+                header.shippingAccount = order.ShippingAccount__c;
+                header.orderItemList = orderItemList;
+                header.scheduleList = scheduleList;
+                this.header = header;
+
+                
+
+                system.debug('header' + header);
+                system.debug('Order' + order);
+                //orderDatalake.salesCTV = AccountId.ShippingAccount__c.SalesCTV__c; --> Verificar CTV
+            }
+            else {
+                CalloutOrderDatalake.HeaderUpdate header = new CalloutOrderDatalake.HeaderUpdate();
+                header.codSap = order.CodigoSap__c;
+                header.codSalesforce = order.OrderNumber;
+                header.expiredDate = order.EndDate;
+                this.header = header;
+            }
+
+            
             
             //condition.add(new CalloutOrderDatalake.ConditionParameters(Integer.valueOf(order.Culture__r.Codigo__c), 'PR00', order.TotalAmount, order.Currency__c)); 
             //this.orders = orders;
@@ -212,7 +212,10 @@ public with sharing class CalloutOrderDatalake {
         public String codSalesforce;
         public Date  expiredDate;
         public String salesCTV;
-
+        public String paymentAccount;
+        public String shippingAccount;
+        public List<CalloutOrderDatalake.ScheduleParameters> scheduleList;
+        public List<CalloutOrderDatalake.OrderItemParameters> orderItemList;
         public HeaderInsert(){}
     }
 
@@ -223,16 +226,6 @@ public with sharing class CalloutOrderDatalake {
 
         //public OrderUpdate(){}
     }
-
-    public class PartnerParameters{
-        public String partnerFunc;
-        public String partnerCode;
-
-        public PartnerParameters(String partnerCode, String partnerFunc){
-            this.partnerCode = partnerCode;
-            this.partnerFunc = partnerFunc;
-        }
-    } 
 
     public class ScheduleParameters{
         public Integer incrementItem;

@@ -63,7 +63,7 @@ lightning-datatable.dt-outer-container {
 
 .card {
 	float: left;
-    width: 25%;
+    width: 33.3%;
 	padding: 10px;
 }
 
@@ -304,15 +304,17 @@ lightning-datatable.dt-outer-container {
     margin-top: 25px;
 }
 
-@media screen and (max-width: 1000px) {
-	.card {
-		width: 33%;
-	}
+.arrow-style {
+	width: 5%;
+	float: left;
+	font-size: 50px;
+	cursor: pointer;
+	color: #2a9676;
 }
 
 @media screen and (max-width: 750px) {
 	.card {
-		width: 50%;
+		width: 45%;
 	}
 
 	.modal-content {
@@ -322,7 +324,7 @@ lightning-datatable.dt-outer-container {
 
 @media screen and (max-width: 520px) {
 	.card {
-		width: 100%;
+		width: 90%;
 	}
 
 	.modal-content {
@@ -372,4 +374,18 @@ lightning-datatable.dt-outer-container {
 	.column-25 {
 		width: 100%;
 	}
+}
+
+.product-column {
+	float: left;
+	padding: 10px;
+}
+
+.product-left, .product-right {
+	width: 5%;
+	margin-top: 110px;
+}
+  
+.product-middle {
+	width: 90%;
 }

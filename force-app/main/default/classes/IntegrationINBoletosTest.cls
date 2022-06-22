@@ -41,7 +41,6 @@ public with sharing class IntegrationINBoletosTest {
         TimeZoneSidKey='America/Los_Angeles', UserName='testes@testes.com');
 
         insert u;
-        UserHelper.enableTrigger();
         
     }
     @isTest

@@ -36,6 +36,22 @@
             LocaleSidKey='en_US', ProfileId = p.Id, 
             TimeZoneSidKey='America/Los_Angeles', UserName='testes@testes.com',CodigoSap__c = 'test1');
             INSERT u;
+            User u2 = new User(Alias = 'standt', Email='standarduser@testorg.com', 
+            EmailEncodingKey='UTF-8', LastName='Testing2', LanguageLocaleKey='en_US', 
+            LocaleSidKey='en_US', ProfileId = p.Id, 
+            TimeZoneSidKey='America/Los_Angeles', UserName='tes2@testes.com',CodigoSap__c = 'test2');
+            INSERT u2;
+
+            SalesOrg__c salesOrg = new SalesOrg__c(
+            Name = 'AgroGalaxy',
+            SalesOrganizationCode__c = '2222'
+            );
+            insert salesOrg;
+            SalesTeam__c salesTeam = new SalesTeam__c(
+                Name = 'Equipe Teste',
+                ExternalId__c = '2222'
+            );
+            insert salesTeam;
         }
 
         @isTest
@@ -51,7 +67,7 @@
                 objTerr.Territory2TypeId = terrModel.Id;
                 objTerr.Territory2ModelId = model.Id;
             insert objTerr;
-    
+
             UserTerritory2Association userTerrAssociation = new UserTerritory2Association(Territory2Id= objTerr.Id, UserId= u.Id, RoleInTerritory2='Sales / Marketing Manager');
             insert userTerrAssociation;
             Test.setMock(HttpCalloutMock.class, new CalloutBPMock(true));
@@ -61,8 +77,6 @@
             CalloutBP.processIntegration();
             Test.stopTest();
             Account accountResult = [SELECT Id, ExternalId__c, CPF__c FROM Account WHERE ExternalId__c = '11111'];
-            List<ObjectTerritory2Association> objObjectTerritory2Association = new List<ObjectTerritory2Association>([SELECT Id, ObjectId, Territory2Id  FROM ObjectTerritory2Association]);
-            System.debug('objObjectTerritory2Association: '+ objObjectTerritory2Association);
             System.debug('accountResult: '+ accountResult);
         } 
     }

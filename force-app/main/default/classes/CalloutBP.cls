@@ -14,7 +14,12 @@ public with sharing class CalloutBP {
             List<String> accountIdsList = new List<String>();
             List<String> userCodigoSapList = new List<String>();
             for(ResponseParametersWrapper valor : resp.responses){
-                accountIdsList.add(valor.CodigoExterno);
+                if(valor.CodigoExterno != null){
+                    accountIdsList.add(valor.CodigoExterno);
+                }
+                if(valor.ContaPai != null){
+                    accountIdsList.add(valor.ContaPai);
+                }
             }
             System.debug('accountIdsList: '+ accountIdsList);
             List<Account> accountListExternalId = new List<Account>([SELECT Id, ExternalId__c FROM Account WHERE ExternalId__c =: accountIdsList]);
@@ -28,20 +33,27 @@ public with sharing class CalloutBP {
                     creditoList.add(cred);
                 }
                 for(CompanyINData company : valor.EstruturaOrganizacional){
-                    userCodigoSapList.add(company.Partner);
                     company.CodigoExternoAccount = valor.CodigoExterno;
                     companyList.add(company);
                 }
+                String statusType;
+                if(valor.Status == ''){
+                    statusType = 'Ativo';
+                }else{
+                    statusType = 'Bloqueado';
+                }
                 Account ac = new Account(
+                Name = valor.Nome,
+                Company__c = valor.Nome,    
                 ExternalId__c = valor.CodigoExterno,
-                ParentId = lookups.containsKey('Account__c'+valor.ContaPai) ? lookups.get('Account__c'+valor.ContaPai) : null,
+                ParentId = lookups.containsKey('Account'+valor.ContaPai) ? lookups.get('Account'+valor.ContaPai) : null,
                 CNPJ__c = valor.CNPJ,
                 CPF__c = valor.CPF,
                 MunicipalRegistration__c = valor.InscricaoMunicipal,
                 StateRegistration__c = valor.InscricaoEstadual,
                 Email__c = valor.Email,
                 Phone = valor.Telefone,
-                Status__c = valor.Status);
+                Status__c = statusType);
                 
                 ac.ShippingStreet = valor.RuaEntrega;
                 ac.ShippingCity = valor.CidadeEntrega;
@@ -55,23 +67,28 @@ public with sharing class CalloutBP {
                 ac.BillingPostalCode = valor.CEPCobranca;
                 accountList.add(ac);
             }
-            System.debug('accountList: '+ accountList);
-                       
+            for(CompanyINData company : companyList){
+                for(ItemsPartner partner : company.Partners){
+                    userCodigoSapList.add(partner.Partner);
+                }
+            }           
             if (!accountList.isEmpty()) {
+                System.debug('accountList: '+accountList);
                 upsert accountList ExternalId__c;
             }
-            creatyAccountTerrytoryAssossiation(accountList, userCodigoSapList, resp);
+            creatyAccountTerrytoryAssossiation(accountList, userCodigoSapList, resp, companyList);
 
             for(Account acc : accountList){
                 lookups.put('Account__c' + acc.ExternalId__c, acc.Id);
             }
 
             Map<String, Id> newLookups = creatyNewLookup(companyList, creditoList, lookups);
+            Map<String, String> nameLookups = creatyNameLookup(companyList, creditoList);
             System.debug('creditoList: '+ creditoList);
             System.debug('companyList: '+ companyList);
             System.debug('newLookups: '+ newLookups);
             creatyCredit(creditoList, newLookups);
-            creatyCompany(companyList, newLookups);
+            creatyCompany(companyList, newLookups, nameLookups);
             System.debug('integração foi um sucesso');
         }
         
@@ -88,19 +105,38 @@ public with sharing class CalloutBP {
         List<String> safraIdsList = new List<String>();
 
         for(LimiteCreditoINData valor : creditoList){
-            accountIdList.add(valor.CodigoExternoAccount);
-            salesOrganizationIdList.add(valor.OrganizacaoVendas);
-            cultureIdsList.add(valor.Cultura);
-            safraIdsList.add(String.valueOf(valor.Safra));
-            System.debug('safraIdsList'+safraIdsList);
+            if(valor.CodigoExternoAccount != null){
+                accountIdList.add(valor.CodigoExternoAccount);
+            }
+            if(valor.OrganizacaoVendas != null){
+                salesOrganizationIdList.add(valor.OrganizacaoVendas);
+            }
+            if(valor.Cultura != null){
+                cultureIdsList.add(valor.Cultura);
+            }
+            if(valor.Safra != null){
+                safraIdsList.add(String.valueOf(valor.Safra));
+            }
         }
         for(CompanyINData valor : companyList){
-            accountIdList.add(valor.CodigoExternoAccount);
-            salesOrganizationIdList.add(valor.OrganizacaoVendas);
-            activitySectorIdList.add(valor.SetorAtividade);
-            distributionChannelIdList.add(valor.CanalDistribuicao);
-            salesOfficeIdList.add(valor.EscritorioVendas);
-            salesTeamIdList.add(valor.EquipeVendas);
+            if(valor.CodigoExternoAccount != null){
+                accountIdList.add(valor.CodigoExternoAccount);
+            }
+            if(valor.OrganizacaoVendas != null){
+                salesOrganizationIdList.add(valor.OrganizacaoVendas);
+            }
+            if(valor.SetorAtividade != null){
+                activitySectorIdList.add(valor.SetorAtividade);
+            }
+            if(valor.CanalDistribuicao != null){
+                distributionChannelIdList.add(valor.CanalDistribuicao);
+            }
+            if(valor.EscritorioVendas != null){
+                salesOfficeIdList.add(valor.EscritorioVendas);
+            }
+            if(valor.EquipeVendas != null){
+                salesTeamIdList.add(valor.EquipeVendas);
+            }
         }
         //Get Account
         List<Account> accountListExternalId = new List<Account>([SELECT Id, ExternalId__c FROM Account WHERE ExternalId__c =: accountIdList]);
@@ -146,7 +182,35 @@ public with sharing class CalloutBP {
         }
         return lookups;
     }
-    public static void creatyAccountTerrytoryAssossiation(List<Account> accountList, List<String> userCodigoSapList, ResponseParameters resp){
+    public static Map<String, String> creatyNameLookup(List<CompanyINData> companyList, List<LimiteCreditoINData> creditoList){
+        Map<String, String> lookups = new Map<String, String>();
+        Set<String> salesOrganizationIdList = new Set<String>();
+        Set<String> salesTeamIdList = new Set<String>();
+        for(LimiteCreditoINData valor : creditoList){
+            salesOrganizationIdList.add(valor.OrganizacaoVendas);
+        }
+        for(CompanyINData valor : companyList){
+            salesOrganizationIdList.add(valor.OrganizacaoVendas);
+            salesTeamIdList.add(valor.EquipeVendas);
+        }
+        //Get SalesOrg
+        List<SalesOrg__c> salesList = new List<SalesOrg__c>([SELECT Id, Name, SalesOrganizationCode__c FROM SalesOrg__c WHERE SalesOrganizationCode__c =: salesOrganizationIdList]);
+        for (SalesOrg__c sales : salesList) {
+            if(!lookups.containsKey('SalesOrg__c' + sales.SalesOrganizationCode__c)){
+                lookups.put('SalesOrg__c' + sales.SalesOrganizationCode__c, sales.Name);
+            }
+        }
+        //Get salesTeam
+        List<SalesTeam__c> salesTeamList = new List<SalesTeam__c>([SELECT Id,Name, ExternalId__c FROM SalesTeam__c WHERE ExternalId__c =: salesTeamIdList]);
+        for (SalesTeam__c team : salesTeamList) {
+            if(!lookups.containsKey('SalesTeam__c' + team.ExternalId__c)){
+                lookups.put('SalesTeam__c' + team.ExternalId__c, team.Name);
+            }
+        }
+        return lookups;
+    }
+
+    public static void creatyAccountTerrytoryAssossiation(List<Account> accountList, List<String> userCodigoSapList, ResponseParameters resp, List<CompanyINData> companyList){
         Map<String, Id> accountExternalIdMap = new Map<String, Id>();
         for(Account acc : accountList){
             accountExternalIdMap.put(acc.ExternalId__c, acc.Id);
@@ -163,32 +227,63 @@ public with sharing class CalloutBP {
         for(UserTerritory2Association userTerrytory : userTerrytoryList){
             userTerrytoryMap.put(userTerrytory.User.CodigoSap__c, userTerrytory);
         }
-
+        System.debug('userTerrytoryMap: '+userTerrytoryMap);
         List<ObjectTerritory2Association> objectTerritoryList = new List<ObjectTerritory2Association>();
-        for(ResponseParametersWrapper valor : resp.responses){
-            for(CompanyINData company : valor.EstruturaOrganizacional){
-                UserTerritory2Association userTerrytory = userTerrytoryMap.get(company.Partner);
-                String accountId = accountExternalIdMap.get(valor.CodigoExterno);
-                ObjectTerritory2Association objObjectTerritory2Association = new ObjectTerritory2Association(ObjectId = accountId, Territory2Id = userTerrytory.Territory2Id, AssociationCause='Territory2Manual');
-                objectTerritoryList.add(objObjectTerritory2Association);
+        List<String> objectTerritoryObjectIdList = new List<String>();
+        List<String> objectTerritoryTerritory2IdList = new List<String>();
+        for(CompanyINData company : companyList){
+            for(ItemsPartner partner : company.Partners){
+                UserTerritory2Association userTerrytory = userTerrytoryMap.get(partner.Partner);
+                String accountId = accountExternalIdMap.get(company.CodigoExternoAccount);
+                if(userTerrytory != null){
+                    objectTerritoryTerritory2IdList.add(userTerrytory.Territory2Id);
+                    objectTerritoryObjectIdList.add(accountId);
+                    ObjectTerritory2Association objObjectTerritory2Association = new ObjectTerritory2Association(ObjectId = accountId, Territory2Id = userTerrytory.Territory2Id, AssociationCause='Territory2Manual');
+                	objectTerritoryList.add(objObjectTerritory2Association);
+                }
             }
         }
-        if (!objectTerritoryList.isEmpty()) {
-            upsert objectTerritoryList;
+        Set<ObjectTerritory2Association> removeDuplicates = new Set<ObjectTerritory2Association>();
+        List<ObjectTerritory2Association> resultList = new List<ObjectTerritory2Association>();
+        List<ObjectTerritory2Association> resultBaseList = new List<ObjectTerritory2Association>([SELECT ObjectId, Territory2Id, AssociationCause  FROM ObjectTerritory2Association WHERE ObjectId IN: objectTerritoryObjectIdList AND Territory2Id IN: objectTerritoryTerritory2IdList]);
+        Map<String,String> resultBaseMap = new  Map<String,String>();
+        System.debug('resultBaseList: '+resultBaseList);
+        for (ObjectTerritory2Association records : resultBaseList) {
+            String keyName = String.valueOf(records.ObjectId) + String.valueOf(records.Territory2Id);
+            resultBaseMap.put(keyName, '');
+        }
+        System.debug('resultBaseMap: '+resultBaseMap);
+        for (ObjectTerritory2Association newRecords : objectTerritoryList) {
+            if (removeDuplicates.add(newRecords)) {
+                String keyName = String.valueOf(newRecords.ObjectId) + String.valueOf(newRecords.Territory2Id);
+                System.debug('keyName: '+keyName);
+                if(!resultBaseMap.containsKey(keyName)){
+                    resultList.add(newRecords);
+                }
+            }
+        }
+        System.debug('resultList'+ resultList);
+        if (!resultList.isEmpty()) {
+            Try{
+                upsert resultList;
+             } 
+             Catch(System.Exception e){
+                System.debug('Exception type caught: ' + e.getTypeName());
+    			System.debug('Message: ' + e.getMessage());
+    			System.debug('Cause: ' + e.getCause());    // returns null
+    			System.debug('Line number: ' + e.getLineNumber());
+    			System.debug('Stack trace: ' + e.getStackTraceString());
+            }
         }
     }
-    public static void creatyCompany(List<CompanyINData> companyList, Map<String, Id> lookups){
-        
+    public static void creatyCompany(List<CompanyINData> companyList, Map<String, Id> lookups, Map<String, String> nameLookups){
+        String statusName = 'Adicionada';
         List<Company__c> companyListToUpsert = new List<Company__c>();
         for(CompanyINData valor : companyList){
-            Boolean blocked = false;
-            if(valor.Bloqueado == null){
-                blocked = false;
-            }
-            if(valor.Bloqueado == 'true'){
-                blocked = true;
-            }
+            String salesOrgName = nameLookups.containsKey('SalesOrg__c'+valor.OrganizacaoVendas) ? nameLookups.get('SalesOrg__c'+valor.OrganizacaoVendas) : '';
+            String salesTeamName = nameLookups.containsKey('SalesTeam__c'+valor.EquipeVendas) ? nameLookups.get('SalesTeam__c'+valor.EquipeVendas) : '';
             Company__c company = new Company__c(
+            Name = salesOrgName + ' - ' + salesTeamName,
             Conta__c = lookups.containsKey('Account__c'+valor.CodigoExternoAccount) ? lookups.get('Account__c'+valor.CodigoExternoAccount) : null,
             SalesOrg__c = lookups.containsKey('SalesOrg__c'+valor.OrganizacaoVendas) ? lookups.get('SalesOrg__c'+valor.OrganizacaoVendas) : null,
             ActivitySector__c = lookups.containsKey('ActivitySector__c'+valor.SetorAtividade) ? lookups.get('ActivitySector__c'+valor.SetorAtividade) : null,
@@ -197,15 +292,25 @@ public with sharing class CalloutBP {
             SalesOffice__c = lookups.containsKey('SalesOffice__c'+valor.EscritorioVendas) ? lookups.get('SalesOffice__c'+valor.EscritorioVendas) : null,
             SalesTeam__c = lookups.containsKey('SalesTeam__c'+valor.EquipeVendas) ? lookups.get('SalesTeam__c'+valor.EquipeVendas) : null,
             ClientGroup__c = valor.GrupoClientes,
-            Blocked__c = blocked,
-            Status__c = valor.Status,
+            SupplierCenter__c = valor.CentroFornecedor,
+            Status__c = statusName,
             SalesSector__c = valor.SetorVendas,
             ExternalId__c = valor.CodigoExternoAccount + valor.OrganizacaoVendas + valor.SetorAtividade + valor.CanalDistribuicao + valor.EscritorioVendas + valor.EquipeVendas
             );
             companyListToUpsert.add(company);
         }
+        System.debug('companyListToUpsert: '+ companyListToUpsert);
         if (!companyListToUpsert.isEmpty()) {
-            upsert companyListToUpsert ExternalId__c;
+            Try{
+                upsert companyListToUpsert ExternalId__c;
+             } 
+             Catch(System.Exception e){
+                System.debug('Exception type caught: ' + e.getTypeName());
+    			System.debug('Message: ' + e.getMessage());
+    			System.debug('Cause: ' + e.getCause());    // returns null
+    			System.debug('Line number: ' + e.getLineNumber());
+    			System.debug('Stack trace: ' + e.getStackTraceString());
+            }
         }
 
     }
@@ -220,25 +325,31 @@ public with sharing class CalloutBP {
             if(valor.Bloqueado == 'true'){
                 blocked = true;
             }
-            System.debug('valor.CodigoExternoAccount' + valor.CodigoExternoAccount);
-            System.debug('lookups.get(Account__c+valor.CodigoExternoAccount)' + lookups.get('Account__c'+valor.CodigoExternoAccount));
-            LimiteCredito__c credit = new LimiteCredito__c(
-            Account__c = lookups.containsKey('Account__c'+valor.CodigoExternoAccount) ? lookups.get('Account__c'+valor.CodigoExternoAccount) : null,
-            OrganizacaoVendas__c = lookups.containsKey('SalesOrg__c'+valor.OrganizacaoVendas) ? lookups.get('SalesOrg__c'+valor.OrganizacaoVendas) : null,
-            Culture__c = lookups.containsKey('Culture__c'+valor.Cultura) ? lookups.get('Culture__c'+valor.Cultura) : null,
-            Guarantee__c = valor.Garantia,
-            LimitValue__c = valor.Valor,
-            BlockedCredit__c = blocked,
-            LimitBalance__c = valor.Saldo,
-            ConcessionDate__c = valor.DataConcessao != '' ? Date.valueOf(valor.DataConcessao) : null,
-            EndDate__c = valor.DataVencimento != '' ? Date.valueOf(valor.DataVencimento) : null,
-            MaintenanceDate__c = valor.DataManutencao != '' ? Date.valueOf(valor.DataManutencao) : null,
-            Safra__c = lookups.containsKey('Safra__c'+String.valueOf(valor.Safra)) ? lookups.get('Safra__c'+String.valueOf(valor.Safra)) : null,
-            ExternalId__c = valor.CodigoExternoAccount + valor.Safra + valor.Cultura + valor.Garantia);
-            creditListToUpsert.add(credit);
+            if(valor.Safra != null && valor.Saldo != null && valor.Valor != null){
+            	LimiteCredito__c credit = new LimiteCredito__c(
+            	Account__c = lookups.containsKey('Account__c'+valor.CodigoExternoAccount) ? lookups.get('Account__c'+valor.CodigoExternoAccount) : null,
+            	OrganizacaoVendas__c = lookups.containsKey('SalesOrg__c'+valor.OrganizacaoVendas) ? lookups.get('SalesOrg__c'+valor.OrganizacaoVendas) : null,
+            	Culture__c = lookups.containsKey('Culture__c'+valor.Cultura) ? lookups.get('Culture__c'+valor.Cultura) : null,
+            	LimitValue__c = valor.Valor,
+            	BlockedCredit__c = blocked,
+            	LimitBalance__c = valor.Saldo,
+            	Safra__c = lookups.containsKey('Safra__c'+String.valueOf(valor.Safra)) ? lookups.get('Safra__c'+String.valueOf(valor.Safra)) : null,
+            	ExternalId__c = valor.CodigoExternoAccount + valor.Safra + valor.Cultura);
+            	creditListToUpsert.add(credit);
+            }
         }
+        System.debug('creditListToUpsert'+ creditListToUpsert);
         if (!creditListToUpsert.isEmpty()) {
-            upsert creditListToUpsert ExternalId__c;
+            Try{
+                upsert creditListToUpsert ExternalId__c;
+             } 
+             Catch(System.Exception e){
+                System.debug('Exception type caught: ' + e.getTypeName());
+    			System.debug('Message: ' + e.getMessage());
+    			System.debug('Cause: ' + e.getCause());    // returns null
+    			System.debug('Line number: ' + e.getLineNumber());
+    			System.debug('Stack trace: ' + e.getStackTraceString());
+            }
         }
     } 
 
@@ -272,7 +383,7 @@ public with sharing class CalloutBP {
 
             HttpResponse response = responseObject.response;
 
-            IntegrationLog.createLog('Pedido OUT', 'OUT', response.getBody(), payload, false);
+            IntegrationLog.createLog('Bp OUT', 'OUT', response.getBody(), payload, false);
             // .WSLog('Pedido', 'OUTBOUND', response.getBody(), payload, false);
             System.debug('response.getBody(): '+ response.getBody());
             try {
@@ -288,7 +399,7 @@ public with sharing class CalloutBP {
             }
         } else {
 
-            IntegrationLog.createLog('Pedido OUT', 'OUT', responseObject.exceptionObject.getMessage(), payload, true);
+            IntegrationLog.createLog('Bp OUT', 'OUT', responseObject.exceptionObject.getMessage(), payload, true);
             return new IntegrationUtils.CalloutBpResponse(responseObject.exceptionObject.getMessage());
         }
     }
@@ -330,6 +441,7 @@ public with sharing class CalloutBP {
         }
     }
     public class ResponseParametersWrapper {
+        public String Nome;
         public String CodigoExterno;
         public String RuaEntrega;
         public String CidadeEntrega;
@@ -365,28 +477,26 @@ public with sharing class CalloutBP {
         public Decimal Valor;
         public String Bloqueado;
         public String Cultura;
-        public String Garantia;
         public Decimal Saldo;
-        public String DataConcessao;
-        public String DataVencimento;
-        public String DataManutencao;
         public Decimal Safra;
     }
 
     public class CompanyINData{
     
-    public String Partner;
+    public List<ItemsPartner> Partners;
     public String CodigoExternoAccount;    
     public String OrganizacaoVendas;
     public String SetorAtividade;
     public String CanalDistribuicao;
     public String DomicilioFiscal;
     public String EscritorioVendas;
+    public String CentroFornecedor;
     public String EquipeVendas;
     public String GrupoClientes;
-    public String Bloqueado;
     public String Status;
     public String SetorVendas;
     }
-    
+    public class ItemsPartner{
+        public String Partner;
+    }
 }

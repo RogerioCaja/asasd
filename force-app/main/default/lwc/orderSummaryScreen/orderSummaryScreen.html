@@ -133,8 +133,10 @@
               <th>Produto(Código-Nome)</th>
               <th>U. M.</th>
               <th>Quantidade</th>
-              <th>Preço de Lista</th>
-              <th>Preço Total</th>
+              <th if:false={isBarter}>Preço de Lista</th>
+              <th if:true={isBarter}>Preço por saca</th>
+              <th if:false={isBarter}>Preço Total</th>
+              <th if:true={isBarter}>Preço Total em saca</th>
               <th>Valor Desconto Comercial</th>
               <th>Grupo de Produtos</th>
               <th>% de Desconto</th>
@@ -211,7 +213,12 @@
                     <div class="triangle"></div>
                     </button> -->
                 </span>
-                <textarea data-id="observacao" rows="5" placeholder="Observações sobre o pedido" onkeyup={changeObservation} disabled={headerData.IsOrderChild}>{summaryDataLocale.observation}</textarea>
+                <template if:true={headerData.IsOrderChild}>
+                    <textarea data-id="observacao" rows="5" placeholder="Observações sobre o pedido" onkeyup={changeObservation} disabled>{summaryDataLocale.observation}</textarea>
+                </template>
+                <template if:false={headerData.IsOrderChild}>
+                    <textarea data-id="observacao" rows="5" placeholder="Observações sobre o pedido" onkeyup={changeObservation} disabled={disabled}>{summaryDataLocale.observation}</textarea>
+                </template>
             </div>
             <div>
                 <span class="titulo">Observações de Nota:
@@ -219,7 +226,7 @@
                     <div class="triangle"></div>
                     </button> -->
                 </span>
-                <textarea data-id="observacao" rows="5" placeholder="Observações sobre a nota do pedido" onkeyup={changeObservationSale}>{summaryDataLocale.billing_sale_observation}</textarea>
+                <textarea data-id="observacao" rows="5" placeholder="Observações sobre a nota do pedido" onkeyup={changeObservationSale} disabled={disabled}>{summaryDataLocale.billing_sale_observation}</textarea>
             </div>
           </div>
           

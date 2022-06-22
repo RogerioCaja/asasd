@@ -33,6 +33,7 @@ public with sharing class Product2Helper {
                     pricebook2Id = STANDARD_PRICEBOOK_ID,
                     product2Id = product2.id,
                     unitPrice = 0,
+                    IsActive = true,
                     CurrencyIsoCode = 'BRL'
                 )
             );  

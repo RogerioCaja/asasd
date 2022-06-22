@@ -110,7 +110,7 @@ public with sharing class CalloutOrderUpdate {
 			}
 		} else {
 
-            IntegrationLog.createLog('Pedido OUT', 'OUT', responseObject.exceptionObject.getMessage(), payload, true);
+            IntegrationLog.createLog('Pedido OUT - SAP', 'OUT', responseObject.exceptionObject.getMessage(), payload, true);
 			return new IntegrationUtils.CalloutUpdateResponse(responseObject.exceptionObject.getMessage());
 		}
     }
