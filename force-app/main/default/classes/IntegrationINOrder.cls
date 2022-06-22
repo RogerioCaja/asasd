@@ -24,6 +24,7 @@ global with sharing class IntegrationINOrder {
         List<TemplateDataIntegrationFields.OrderItemINData> orderItemListToUpsert = new List<TemplateDataIntegrationFields.OrderItemINData>();
 
         List<TemplateDataIntegrationFields.ShippingDivisonINData> shippingDivisonListToUpsert = new List<TemplateDataIntegrationFields.ShippingDivisonINData>();
+        
         // Guarda uma lista de pedidos para fazer o upsert
         List<Order> orderListToUpsert = new List<Order>();
 
@@ -31,12 +32,12 @@ global with sharing class IntegrationINOrder {
         for (TemplateDataIntegrationFields.OrderINData order : request){
             // Pega a relação da conta com o pedido
             //Getting account parameters to search
-            accountLookups.add(order.paymentAccount);
-            shippingAccountLookups.add(order.shippingAccount);
+            //accountLookups.add(order.paymentAccount);
+            //shippingAccountLookups.add(order.shippingAccount);
             cropLookups.add(order.crop);
             cultureLookups.add(order.culture);
             salesOrgLookups.add(order.salesOrg);
-            salesCTVLookups.add(order.salesCTV);
+            //salesCTVLookups.add(order.salesCTV);
             pricebook2IdLookups.add(order.pricebook2Id);
             paymentConditionLookups.add(order.paymentCondition);
             
@@ -49,8 +50,30 @@ global with sharing class IntegrationINOrder {
             for (TemplateDataIntegrationFields.ShippingDivisonINData shippingDivisonItem : order.shippingDivison) {
                 shippingDivisonItem.orderExternalId = order.CodigoSap;
             }
-
             shippingDivisonListToUpsert.addAll(order.shippingDivison);
+            
+            for (TemplateDataIntegrationFields.PartnerInsert partnerList : order.partners){
+                
+                    if(partnerList.PARVW == 'AG'){ // Cliente Emissor da ordem
+                        accountLookups.add(partnerList.KUNNR);
+                        order.PaymentAccount = partnerList.KUNNR;
+                    }
+                    else if (partnerList.PARVW == 'RE'){ // Recebedor da Fatura
+                        
+                    }
+                    else if (partnerList.PARVW == 'RG'){ // Tipo Parceiro RG - Pagador
+
+                    }
+                    else if (partnerList.PARVW == 'WE'){ // Recebedor da Mercadoria
+                        shippingAccountLookups.add(partnerList.KUNNR);
+                        order.ShippingAccount = partnerList.KUNNR;
+                    }
+                    else if (partnerList.PARVW == 'ZC'){ // CTV Consultor
+                        salesCTVLookups.add(partnerList.KUNNR);
+                        order.salesCTV = partnerList.KUNNR;
+                    }
+            }
+            System.debug('accountLookups' + accountLookups);
             
             if(order != null) {
                 // Adiciona todos os External Id e o catalogo de preço de order nos orderItem
@@ -78,6 +101,8 @@ global with sharing class IntegrationINOrder {
 
         for (Account account : [SELECT Id, ExternalId__c FROM Account WHERE ExternalId__c IN : accountLookups]) {
             lookups.put('Account' + account.ExternalId__c, account.Id);
+            system.debug('account.ExternalId__c' + account.ExternalId__c);
+            system.debug('lookups' + lookups);
         }
 
         for (Safra__c crop : [SELECT Id, Code__c FROM Safra__c WHERE Code__c IN : cropLookups]) {
@@ -140,9 +165,11 @@ global with sharing class IntegrationINOrder {
             System.debug('orderItemResponse=>'+orderItemsResponse);
             System.debug('responseList=>'+responseList);
             
+            
             if(orderItemsResponse.size() != 0 && orderItemsResponse.containsKey(response.idSalesforce)){
                 response.items.addAll(orderItemsResponse.get(response.idSalesforce));
                 for(TemplatedataIntegrationFields.Response orderItem : orderItemsResponse.get(response.idSalesforce)){
+                    System.debug('orderItem'+orderItem);
                     response.items.addAll(shippingDivisonResponse.get(orderItem.idSalesforce)); 
                 }
             } 
@@ -173,7 +200,7 @@ global with sharing class IntegrationINOrder {
         }
 		
         //Creating integration log
-        //IntegrationLog.createLog('Order', 'Inbound', JSON.serialize(request), JSON.serialize(responseList), hasError);
+        IntegrationLog.createLog('Order', 'IN', JSON.serialize(request), JSON.serialize(responseList), hasError);
         
         //Returning response
          // Retorna a resposta Outbound

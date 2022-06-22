@@ -110,7 +110,7 @@ public with sharing class CalloutOrderUpdate {
 			}
 		} else {
 
-            IntegrationLog.createLog('Pedido OUT', 'OUT', responseObject.exceptionObject.getMessage(), payload, true);
+            IntegrationLog.createLog('Pedido OUT - SAP', 'OUT', responseObject.exceptionObject.getMessage(), payload, true);
 			return new IntegrationUtils.CalloutUpdateResponse(responseObject.exceptionObject.getMessage());
 		}
     }
@@ -121,7 +121,7 @@ public with sharing class CalloutOrderUpdate {
         public CalloutOrderUpdate.Header IS_HEADER_IN;
         public List<CalloutOrderUpdate.PartnerParameters> IT_PARTNERS;
         public List<CalloutOrderUpdate.ScheduleParameters> IT_ORDER_SCHEDULES_IN;
-        public List<CalloutOrderUpdate.ConditionParameters> IT_CONDITIONS_IN;
+        // public List<CalloutOrderUpdate.ConditionParameters> IT_CONDITIONS_IN;
         public List<CalloutOrderUpdate.OrderItemParameters> IT_ITEMS_IN;
 
         public RequestParameters(Order order, String rmCode, String agCode, String zcCode){
@@ -133,7 +133,7 @@ public with sharing class CalloutOrderUpdate {
             IT_PARTNERS = new List<CalloutOrderUpdate.PartnerParameters>();
             IT_ORDER_SCHEDULES_IN = new List<CalloutOrderUpdate.ScheduleParameters>();
             IT_ITEMS_IN = new List<CalloutOrderUpdate.OrderItemParameters>();
-            IT_CONDITIONS_IN = new List<CalloutOrderUpdate.ConditionParameters>();
+            // IT_CONDITIONS_IN = new List<CalloutOrderUpdate.ConditionParameters>();
 
           
             if(rmCode != order.ShippingAccount__r.ExternalId__c){
@@ -221,9 +221,9 @@ public with sharing class CalloutOrderUpdate {
                 }
                 
                 IT_ITEMS_IN.add(new CalloutOrderUpdate.OrderItemParameters(orderItem));
-                IT_CONDITIONS_IN.add(new CalloutOrderUpdate.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZPR0', String.valueOf(orderItem.Quantity * orderItem.UnitPrice), order.Currency__c));
-                IT_CONDITIONS_IN.add(new CalloutOrderUpdate.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZJUR', String.valueOf(orderItem.FinancialAdditionValue__c), order.Currency__c));
-                IT_CONDITIONS_IN.add(new CalloutOrderUpdate.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDAN', String.valueOf(orderItem.FinancialDiscountValue__c), order.Currency__c));
+                // IT_CONDITIONS_IN.add(new CalloutOrderUpdate.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZPR0', String.valueOf(orderItem.Quantity * orderItem.UnitPrice), order.Currency__c));
+                // IT_CONDITIONS_IN.add(new CalloutOrderUpdate.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZJUR', String.valueOf(orderItem.FinancialAdditionValue__c), order.Currency__c));
+                // IT_CONDITIONS_IN.add(new CalloutOrderUpdate.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDAN', String.valueOf(orderItem.FinancialDiscountValue__c), order.Currency__c));
             }
         }
     }

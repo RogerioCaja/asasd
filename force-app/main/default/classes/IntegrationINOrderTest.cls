@@ -4,7 +4,6 @@ public with sharing class IntegrationINOrderTest {
     @TestSetup
     static void makeData(){
 
-        AccountHelper.disableTrigger();
         Account account = new Account (
             Name = 'Teste 12',
             BillingStreet = ' ',
@@ -18,7 +17,6 @@ public with sharing class IntegrationINOrderTest {
             Company__c = 'Empresa 012'
         );
         insert account;
-        AccountHelper.enableTrigger();
 
         Safra__c safra = new Safra__c(
             Code__c = '12234',
@@ -61,13 +59,11 @@ public with sharing class IntegrationINOrderTest {
         insert sales;
 
         Profile p = [SELECT Id FROM Profile WHERE Name='Standard User']; 
-        UserHelper.disableTrigger();
         User u = new User(Alias = 'standt', Email='standarduser@testorg.com', 
             EmailEncodingKey='UTF-8', LastName='Testing', LanguageLocaleKey='en_US', 
             LocaleSidKey='en_US', ProfileId = p.Id, 
             TimeZoneSidKey='America/Los_Angeles', UserName='tetedogas@testorg.com');
             insert u;
-        UserHelper.enableTrigger();
 
             Order order = new Order(
                 AccountId =  account.Id,

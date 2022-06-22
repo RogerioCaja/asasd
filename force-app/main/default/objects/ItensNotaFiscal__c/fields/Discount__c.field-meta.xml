@@ -4,7 +4,7 @@
     <externalId>false</externalId>
     <label>Desconto</label>
     <precision>18</precision>
-    <required>true</required>
+    <required>false</required>
     <scale>0</scale>
     <trackFeedHistory>false</trackFeedHistory>
     <trackHistory>false</trackHistory>

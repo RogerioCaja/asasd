@@ -10,7 +10,7 @@ global with sharing class IntegrationINProduct {
 
         Set<String> productGroupLookups = new Set<String>();
         Set<String> productSubGroupLookups = new Set<String>();
-        
+        Set<String> productHierarchyLookups = new Set<String>();
 
     
         List<TemplateDataIntegrationFields.ResponseParent> responseList = new List<TemplateDataIntegrationFields.ResponseParent>();
@@ -25,6 +25,7 @@ global with sharing class IntegrationINProduct {
             //Getting account parameters to search
             productGroupLookups.add(product.GrupoMercadoria);
             productSubGroupLookups.add(product.SubgrupoMercadoria);
+            productHierarchyLookups.add(product.hierarquiaProduto);
 
             orgVProductListToUpsert.addAll(product.orgVProductItems);
             System.debug('orgVProductListToUpsert --->' + orgVProductListToUpsert);
@@ -42,6 +43,11 @@ global with sharing class IntegrationINProduct {
             lookups.put('ProductSubgroup__c' + productSubGroup.ExternalId__c, productSubGroup.Id);
             
         }
+        
+        for (ProductHierarchy__c productHierarchy : [SELECT Id, External_Id__c FROM ProductHierarchy__c WHERE  External_Id__c IN : productHierarchyLookups]){
+            lookups.put('ProductHierarchy__c' + productHierarchy.External_Id__c, productHierarchy.Id);
+            
+        }
        
 
         
@@ -51,10 +57,10 @@ global with sharing class IntegrationINProduct {
           
         //Upserting records (Product)
 		IntegrationUtils.upsertRecords(
-            Database.upsert(productListToUpsert, Product2.ExternalId__c, false), 
+            Database.upsert(productListToUpsert, Product2.ProductCode__c, false), 
             responseList, 
             productListToUpsert, 
-            Product2.ExternalId__c
+            Product2.ProductCode__c
         );
         
         //Upserting records (OrderItem)
@@ -100,7 +106,7 @@ global with sharing class IntegrationINProduct {
         }
 		
         //Creating integration log
-        IntegrationLog.createLog('Product2', 'Inbound', JSON.serialize(request), JSON.serialize(responseList), hasError);
+        IntegrationLog.createLog('Product2', 'IN', JSON.serialize(request), JSON.serialize(responseList), hasError);
         
         //Returning response
          // Retorna a resposta Outbound

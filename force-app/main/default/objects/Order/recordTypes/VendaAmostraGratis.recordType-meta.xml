@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>VendaSucata</fullName>
+    <fullName>VendaAmostraGratis</fullName>
     <active>true</active>
     <compactLayoutAssignment>AgroGalaxyOrder</compactLayoutAssignment>
-    <label>Venda Sucata</label>
+    <label>Venda Amostra Grátis</label>
     <picklistValues>
         <picklist>Currency__c</picklist>
         <values>
@@ -122,7 +122,51 @@
     <picklistValues>
         <picklist>PaymentForm__c</picklist>
         <values>
-            <fullName>Bonificação</fullName>
+            <fullName>A</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>B</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>C</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>D</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>E</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>H</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>L</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>P</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>S</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>T</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>V</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>X</fullName>
             <default>false</default>
         </values>
     </picklistValues>
@@ -166,6 +210,13 @@
         </values>
     </picklistValues>
     <picklistValues>
+        <picklist>StatusRecusa__c</picklist>
+        <values>
+            <fullName>Teste</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
         <picklist>StatusSAP__c</picklist>
         <values>
             <fullName>1</fullName>
@@ -203,7 +254,19 @@
             <default>false</default>
         </values>
         <values>
-            <fullName>Em aprovação</fullName>
+            <fullName>Em Aprovação - Diretor</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Em Aprovação - Gerente Regional</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Em Aprovação - Mesa de Grãos</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Em aprovação - Gerente Filial</fullName>
             <default>false</default>
         </values>
         <values>

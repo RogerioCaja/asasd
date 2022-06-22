@@ -8,23 +8,7 @@
     <trackTrending>false</trackTrending>
     <type>Picklist</type>
     <valueSet>
-        <valueSetDefinition>
-            <sorted>false</sorted>
-            <value>
-                <fullName>A</fullName>
-                <default>false</default>
-                <label>A</label>
-            </value>
-            <value>
-                <fullName>B</fullName>
-                <default>false</default>
-                <label>B</label>
-            </value>
-            <value>
-                <fullName>C</fullName>
-                <default>false</default>
-                <label>C</label>
-            </value>
-        </valueSetDefinition>
+        <restricted>true</restricted>
+        <valueSetName>GrupoCliente</valueSetName>
     </valueSet>
 </CustomField>

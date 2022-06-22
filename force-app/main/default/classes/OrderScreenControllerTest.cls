@@ -178,7 +178,7 @@ public class OrderScreenControllerTest {
             harvest__c = crop.Id,
             StartDate__c = System.today().addDays(-5),
             EndDate__c = System.today().addDays(5),
-            AccountType__c = 'A',
+            ClientGroup__c = 'A',
             ConditionType__c = 'Desconto',
             ExternalId__c = '001'
         );
@@ -188,7 +188,7 @@ public class OrderScreenControllerTest {
     @isTest
     public static void getOrderDataTest() {
         Id orderId = [SELECT Id FROM Order LIMIT 1].Id;
-        OrderScreenController.getOrder(orderId, false);
+        OrderScreenController.getOrder(orderId, false, false);
     }
 
     @isTest
@@ -197,7 +197,7 @@ public class OrderScreenControllerTest {
 
         OrderScreenController.HeaderSerialize order = OrderScreenController.getOrderData(ord.Id, false);
         OrderScreenController.AccountSerialize account = OrderScreenController.getOrderAccountData(ord.AccountId);
-        List<OrderScreenController.ProductSerialize> ordItemList = OrderScreenController.getOrderItemData(ord.Id);
+        List<OrderScreenController.ProductSerialize> ordItemList = OrderScreenController.getOrderItemData(ord.Id, false);
         List<OrderScreenController.DivisionSerialize> divisionList = OrderScreenController.getShippingDivison();
         OrderScreenController.SummarySerialize summary = new OrderScreenController.SummarySerialize('Observation', 'Observation Sales');
 
@@ -228,19 +228,14 @@ public class OrderScreenControllerTest {
     public static void getFinancialInfosTest() {
         OrderScreenController.OrderDataDeserialize orderData = new OrderScreenController.OrderDataDeserialize();
         orderData.paymentDate = String.valueOf(System.today());
-        orderData.accountId = [SELECT Id FROM Account LIMIT 1].Id;
+        // orderData.accountId = [SELECT Id FROM Account LIMIT 1].Id;
         orderData.salesOrg = '';
-        orderData.pricebookId = Test.getStandardPricebookId();
+        // orderData.pricebookId = Test.getStandardPricebookId();
         orderData.safra = [SELECT Id FROM Safra__c LIMIT 1].Id;
-        orderData.ctv = UserInfo.getUserId();
+        // orderData.ctv = UserInfo.getUserId();
         orderData.culture = [SELECT Id FROM Cultura__c LIMIT 1].Id;
 
         String data = JSON.serialize(orderData);
         OrderScreenController.getFinancialInfos(data);
-    }
-
-    @isTest
-    public static void getOrderMothersTest() {
-        OrderScreenController.getOrderMothers();
     }
 }

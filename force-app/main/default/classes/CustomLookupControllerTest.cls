@@ -105,14 +105,4 @@ public class CustomLookupControllerTest {
         CustomLookupController.fetchRecords('Account', 'Name', 'Parent Account', null);
         CustomLookupController.fetchRecords('Account', 'Name', 'Child Account', acc.Id);
     }
-
-    @isTest
-    public static void fetchAccountRecordsTest(){
-        CustomLookupController.fetchAccountRecords('Child Account');
-    }
-
-    /* @isTest
-    public static void fetchProductsRecordsTest(){
-        CustomLookupController.fetchProductsRecords('Milho', Test.getStandardPricebookId(), null, null);
-    } */
 }

@@ -26,7 +26,7 @@ global with sharing class IntegrationINInvoice {
             // Pega a relação da conta com o pedido
             //Getting account parameters to search
             accountLookups.add(invoice.cliente);
-            orderLookups.add(invoice.cpfCnpjCliente);
+            orderLookups.add(invoice.numeroPedido);
             companyLookups.add(invoice.codigoEmpresa);
             receiverLookups.add(invoice.propriedade);
 
@@ -112,7 +112,7 @@ global with sharing class IntegrationINInvoice {
         }
 		
         //Creating integration log
-        //IntegrationLog.createLog('Nota Fiscal', 'Inbound', JSON.serialize(request), JSON.serialize(responseList), hasError);
+        IntegrationLog.createLog('Nota Fiscal', 'IN', JSON.serialize(request), JSON.serialize(responseList), hasError);
         
         //Returning response
          // Retorna a resposta Outbound

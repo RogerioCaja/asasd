@@ -16,6 +16,7 @@ import saveOrder from '@salesforce/apex/OrderScreenController.saveOrder';
 // import calloutOrder from '@salesforce/apex/OrderScreenController.callout';
 import getOrder from '@salesforce/apex/OrderScreenController.getOrder';
 import getAccount from '@salesforce/apex/OrderScreenController.getAccount';
+import checkMotherQuantities from '@salesforce/apex/OrderScreenController.checkMotherQuantities';
 import { NavigationMixin } from 'lightning/navigation';
 
 export default class OrderScreen extends NavigationMixin(LightningElement) {
@@ -63,13 +64,18 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         canal_distribuicao: " ",
         setor_atividade: " ",
         forma_pagamento: " ",
+        tipo_pedido: " ",
         moeda: " ",
         ctv_venda: " ",
         pedido_mae: {},
-        pedido_mae_check : false,
+        IsOrderChild : false,
+        pedido_mae_check : true,
+        pre_pedido : false,
         frete: "CIF",
         org: {Name: " "},
-        aprovation: " "
+        aprovation: " ",
+        companyId: null,
+        firstTime: true
     };
     @track productData;
     @track divisionData;
@@ -80,8 +86,8 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     };
 
     qtdItens = 0;
-    valorTotal = 0;
-    frete = '';
+    @api valorTotal = 0.0;
+    frete = '-----';
 
     currentTab = 0;
 
@@ -189,7 +195,27 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             const data = JSON.parse(result);
             this.accountData = data.accountData;
             this.headerData = data.headerData;
+
+            if (this.childOrder) {
+                this.headerData.status_pedido = 'Em digitação'
+            }
+
             this.productData = data.productData;
+            this.qtdItens = data.productData.length;
+            this.valorTotal = 0;
+            try
+            {
+                this.productData.forEach(product =>{
+                    this.valorTotal  += parseFloat(product.totalPrice);
+                })
+                this.valorTotal = parseFloat(this.valorTotal).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
+
+            }
+            catch(e)
+            {
+                console.log(e);
+            }
+           
             this.divisionData = data.divisionData;
             this.summaryData['observation'] = this.headerData.observation;
             this.summaryData['billing_sale_observation'] = this.headerData.billing_sale_observation;
@@ -197,20 +223,34 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.completeScreens([0, 1, 2, 3]);
             this.isLoading = false;
             this.cloneData.cloneOrder = this.clone.cloneOrder;
+            if(this.cloneData.cloneOrder){
+                this.headerData.ctv_venda.Id = null;
+                this.headerData.status_pedido = 'Em digitação';
+                this.headerData.cliente_entrega.Id = null;
+            }
             this.headerData.condicao_venda = this.headerData.condicao_venda != null ? this.headerData.condicao_venda : ' ';
             
             if (this.childOrder) {
-                console.log('this.headerData.pedido_mae_check: ' + this.headerData.pedido_mae_check);
                 if (!this.headerData.pedido_mae_check) {
                     this.showNotification('Só é possível gerar pedidos filhos a partir de um pedido mãe', 'Atenção!', 'warning');
-                    this[NavigationMixin.Navigate]({
-                        type: 'standard__recordPage',
-                        attributes: {
-                            recordId: this.recordId,
-                            objectApiName: 'Order',
-                            actionName: 'view'
+                    this.redirectToOrder();
+                } else {
+                    checkMotherQuantities({orderId: this.recordId})
+                    .then((motherResult) =>{
+                        if (!motherResult) {
+                            this.showNotification('Todos os produtos já foram distribuídos', 'Atenção!', 'warning');
+                            this.redirectToOrder();
+                        } else {
+                            let availableProducts = [];
+                            for (let index = 0; index < this.productData.length; index++) {
+                                if (this.productData[index].quantity > 0) {
+                                    availableProducts.push(this.productData[index]);
+                                }
+                            }
+                            this.productData = JSON.parse(JSON.stringify(availableProducts));
+                            console.log('this.productData: ' + JSON.stringify(this.productData));
                         }
-                    });
+                    })
                 }
             }
             // this.cloneData.pricebookListId = this.headerData.condicao_venda != ' ' ?  this.headerData.condicao_venda.Id : '';
@@ -222,37 +262,16 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         })
     }
 
-    getOrderMother(id, name){
-        console.log('getOrder');
-        if(this.headerData.Id != " ")
-            return;
-
-        this.isLoading = true;
-        getOrder({recordId: id, cloneOrder: this.clone.cloneOrder})
-        .then((result) =>{
-            const data = JSON.parse(result);
-            this.accountData = data.accountData;
-            this.headerData = data.headerData;
-            this.headerData.pedido_mae_check = false;
-            this.headerData.pedido_mae = {Id: id, Name: name};
-            this.productData = data.productData;
-            this.divisionData = data.divisionData;
-            this.summaryData['observation'] = this.headerData.observation;
-            this.summaryData['billing_sale_observation'] = this.headerData.billing_sale_observation;
-            this.enableScreens([0, 1, 2, 3]);
-            this.completeScreens([0, 1, 2, 3]);
-            this.isLoading = false;
-            this.cloneData.cloneOrder = this.clone.cloneOrder;
-            this.headerData.condicao_venda = this.headerData.condicao_venda != null ? this.headerData.condicao_venda : ' ';
-            // this.cloneData.pricebookListId = this.headerData.condicao_venda != ' ' ?  this.headerData.condicao_venda.Id : '';
-        })
-        .catch((err)=>{
-            console.log(err);
-            this.showNotification(err.message, 'Ocorreu algum erro');
-            this.isLoading = false;
-        })
+    redirectToOrder() {
+        this[NavigationMixin.Navigate]({
+            type: 'standard__recordPage',
+            attributes: {
+                recordId: this.recordId,
+                objectApiName: 'Order',
+                actionName: 'view'
+            }
+        });
     }
-
 
     connectedCallback() {
         //Importando estilo para esconder header padrão de página
@@ -265,6 +284,23 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     }
 
     async saveOrder(event){
+        let today = new Date();
+        let dd = String(today.getDate()).padStart(2, '0');
+        let mm = String(today.getMonth() + 1).padStart(2, '0');
+        let yyyy = today.getFullYear();
+        let currentDate = yyyy + '-' + mm + '-' + dd;
+
+        if (this.headerData.status_pedido == 'Em aprovação - Gerente Filial' || this.headerData.status_pedido == 'Em aprovação - Gerente Regional' ||
+            this.headerData.status_pedido == 'Em aprovação - Diretor' || this.headerData.status_pedido == 'Em aprovação - Comitê Margem' || this.headerData.status_pedido == 'Em aprovação - Mesa de Grãos') {
+            this.showNotification('O pedido está Em Aprovação, portanto não pode ser alterado', 'Atenção', 'warning');
+            return;
+        } else if (this.headerData.pre_pedido && event.detail == 'gerarpedido' && this.headerData.condicao_pagamento.CashPayment && this.headerData.data_pagamento != currentDate) {
+            this.headerData.condicao_pagamento = {Id: null, Name: null, CashPayment: null};
+            this.headerData.data_pagamento = " ";
+            this.showNotification('Informe a condição de pagamento novamente', 'Atenção', 'warning');
+            return;
+        }
+
         const mode = event.detail;
         await this.recordId;
         const data = {accountData: this.accountData, headerData: this.headerData, productData: this.productData, divisionData: this.divisionData, commodityData: this.commodityData, summaryData: this.summaryData};
@@ -324,20 +360,45 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
     _setHeaderData(event) {
         this.headerData = event.data;
-        this.headerData.IsOrderChild = this.childOrder;
-        // if(this.headerData.IsOrderChild) this.getOrderMother(this.headerData.pedido_mae.Id, this.headerData.pedido_mae.Name);
+        this.headerData.IsOrderChild = this.childOrder || this.headerData.tipo_pedido == 'Pedido Filho';
         console.log('header data setted:', this.headerData);
-        this.enableNextScreen();
-        this.completeCurrentScreen();
+        if(this.headerData.isCompleted){
+            this.enableNextScreen();
+            this.completeCurrentScreen();
+        }
+        else{
+            this.disableNextScreen();
+        }
+    }
+
+    _setHeaderValues(event) {
+        this.headerData = event.data;
     }
 
     _setProductData(event) {
         this.productData = event.data;
+        this.qtdItens = this.productData.length;
+        this.valorTotal = 0;
+        try
+        {
+            this.productData.forEach(product =>{
+                this.valorTotal  = parseFloat(this.valorTotal) + parseFloat(product.totalPrice);
+            })
+            this.valorTotal = parseFloat(this.valorTotal).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
+        }
+        catch(e)
+        {
+            console.log(e);
+        }
+        
         console.log('this.productData: ' + this.productData);
         console.log('acproductcount data setted:', this.productData, event.detail, event.data, event);
-        //this.qtdItens = this.productData.length;
-        this.enableNextScreen();
-        this.completeCurrentScreen();
+        if(this.headerData.tipo_venda != 'Venda Barter'){
+            this.enableNextScreen();
+            this.completeCurrentScreen();
+        }
+      
+        
     }
 
     _setDivisionData(event) {
@@ -346,6 +407,13 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
     _setCommodityData(event) {
         this.commodityData = event.data;
+        if(this.commodityData.length > 0){
+            this.enableNextScreen();
+            this.completeCurrentScreen();
+        }
+        else{
+            this.disableNextScreen();
+        }
     }
 
     _setSummaryData(event) {
@@ -397,10 +465,13 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         if (this.currentTab !== 0) {
             if (this.tabs[this.currentTab - 1].enable == true) {
                 this.tabs[this.currentTab].current = false;
+                if(this.currentTab == 2)
+                    this.tabs[this.currentTab].enable = false;
                 this.currentTab = this.currentTab - 1;
                 this.tabs[this.currentTab].current = true;
                 this.changeTab();
                 this.changeStyle();
+
             } else {
                 this.showNotification(this.tabs[this.currentTab].message, 'Não é possível voltar uma etapa');
             }
@@ -409,13 +480,21 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
     handleNext() {
         if (this.currentTab !== 3) {
-            if (this.tabs[this.currentTab + 1].enable == true) {
-                this.tabs[this.currentTab].current = false;
-                this.currentTab = this.currentTab + 1;
-                this.tabs[this.currentTab].current = true;
-                this.changeTab();
+            if(this.template.querySelector(this.tabs[this.currentTab].component).verifyMandatoryFields()){
+                if (this.tabs[this.currentTab + 1].enable == true) {
+                    this.tabs[this.currentTab].current = false;
+                    this.currentTab = this.currentTab + 1;
+                    this.tabs[this.currentTab].current = true;
+                    this.changeTab();
+                    this.changeStyle();
+                }
+                else {
+                    this.showNotification(this.tabs[this.currentTab].message, 'Não é possível avançar uma etapa');
+                }
+            }
+            else{
+                this.disableNextScreen();
                 this.changeStyle();
-            } else {
                 this.showNotification(this.tabs[this.currentTab].message, 'Não é possível avançar uma etapa');
             }
         }
@@ -499,6 +578,15 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         if ((this.currentTab + 1) <= 3) {
             if (this.tabs[this.currentTab + 1].enable == false) {
                 this.tabs[this.currentTab + 1].enable = true;
+            }
+        }
+    }
+
+    disableNextScreen() {
+        console.log('disableNextScreen');
+        if ((this.currentTab + 1) <= 3) {
+            if (this.tabs[this.currentTab + 1].enable == true) {
+                this.tabs[this.currentTab + 1].enable = false;
             }
         }
     }

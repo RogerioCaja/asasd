@@ -63,7 +63,7 @@ lightning-datatable.dt-outer-container {
 
 .card {
 	float: left;
-    width: 25%;
+    width: 33.3%;
 	padding: 10px;
 }
 
@@ -77,6 +77,40 @@ lightning-datatable.dt-outer-container {
 	float: left;
     width: 30%;
     padding: 10px;
+}
+
+.company-card {
+	width: 50%;
+    padding: 10px;
+    flex-direction: column;
+    display: inline-flex;
+}
+
+.company-card-01 {
+	float: left;
+    width: 85%;
+    padding: 10px;
+}
+
+.company-card-02 {
+	float: left;
+    width: 15%;
+    padding: 40px 0px;
+}
+
+.checkbox-round {
+	width: 1.3em;
+    height: 1.3em;
+    border-radius: 50%;
+    vertical-align: middle;
+    border: 2px solid #ccc;
+    -webkit-appearance: none;
+    outline: none;
+    cursor: pointer;
+}
+
+.checkbox-round:checked {
+    background-color: #2a9676;
 }
   
 .container {
@@ -189,6 +223,7 @@ lightning-datatable.dt-outer-container {
 	font-size: 20px;
     font-weight: bold;
     text-align: center;
+	margin-bottom: 20px;
 }
 
 .row {
@@ -304,24 +339,30 @@ lightning-datatable.dt-outer-container {
     margin-top: 25px;
 }
 
-@media screen and (max-width: 1000px) {
-	.card {
-		width: 33%;
-	}
+.arrow-style {
+	width: 5%;
+	float: left;
+	font-size: 50px;
+	cursor: pointer;
+	color: #2a9676;
 }
 
 @media screen and (max-width: 750px) {
 	.card {
-		width: 50%;
+		width: 45%;
 	}
 
 	.modal-content {
-		width: 90%;
+		width: 90% !important;
 	}
 }
 
 @media screen and (max-width: 520px) {
 	.card {
+		width: 90%;
+	}
+
+	.company-card {
 		width: 100%;
 	}
 
@@ -369,7 +410,29 @@ lightning-datatable.dt-outer-container {
 		width: 100%;
 	}
 
+	.company-card-01 {
+		width: 90%;
+	}
+	
+	.company-card-02 {
+		width: 10%;
+	}
+
 	.column-25 {
 		width: 100%;
 	}
+}
+
+.product-column {
+	float: left;
+	padding: 10px;
+}
+
+.product-left, .product-right {
+	width: 5%;
+	margin-top: 110px;
+}
+  
+.product-middle {
+	width: 90%;
 }
