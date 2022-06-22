@@ -921,6 +921,18 @@ public without sharing class OrderScreenController {
         return approval;
     }
 
+    @AuraEnabled
+    public static Boolean needJustification(){
+        try {
+            String profileName = [SELECT Name FROM Profile WHERE Id =: UserInfo.getProfileId()].Name;
+            Boolean isNeed = [SELECT NeedJustification__c FROM ApprovalProfiles__c WHERE Name =: profileName].NeedJustification__c;
+
+            return isNeed;
+        } catch (Exception e) {
+            throw new AuraHandledException(e.getMessage());
+        }
+    }
+
     public static Decimal stringToDecimal(String value) {
         if (value.contains(',')) value = value.replaceAll(',', '.');
         if (value.contains('%')) value = value.replaceAll('%', '');

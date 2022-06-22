@@ -1,5 +1,5 @@
-import { LightningElement, api } from 'lwc';
-
+import { LightningElement, api, track } from 'lwc';
+import needJustification from '@salesforce/apex/OrderScreenController.needJustification';
 export default class OrderScreenFooter extends LightningElement {
     @api valorTotal;
     @api qtdItens;
@@ -19,20 +19,36 @@ export default class OrderScreenFooter extends LightningElement {
         this.dispatchEvent(order);
     }
 
-    openOrCloseJustification(event){
-        
+     openOrCloseJustification(event){
+        this.summaryDataLocale = {... this.summaryData};
+        if(this.summaryDataLocale.approval != 'Não precisa de aprovação'){
+            needJustification().then((result) =>{
+                if(result == true){
+                    this.question = !this.question;
+                }else{
+                    this.saveOrderReal();
+                }
+            })
+        }
+        else{
+            this.saveOrderReal();
+        }
+    }
+
+    closeJustification(){
         this.question = !this.question;
-        
     }
 
     saveOrderReal(event){
-        this.summaryDataLocale = {... this.summaryData};
-        this.summaryDataLocale.justification = event.detail;
-        const setSummaryData = new CustomEvent('setsummarydata');
-        setSummaryData.data = this.summaryDataLocale;
-      
-        this.dispatchEvent(setSummaryData);
-        
+        if(event != undefined){
+            this.summaryDataLocale = {... this.summaryData};
+            this.summaryDataLocale.justification = event.detail;
+            const setSummaryData = new CustomEvent('setsummarydata');
+            setSummaryData.data = this.summaryDataLocale;
+          
+            this.dispatchEvent(setSummaryData);
+        }
+       
         const order = new CustomEvent('saveorder', {
             detail: "gerarpedido"
         });
