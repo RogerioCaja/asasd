@@ -28,10 +28,15 @@ export default class OrderSummaryScreen extends LightningElement {
         approval({
             data: JSON.stringify(data)
         }).then((result) => {
-            if(result)
+            if(result){
                 this.approval = result;
-            else
+                this.summaryDataLocale.approval = this.approval;
+            } 
+            else{
                 this.approval = 'Não precisa de aprovação'
+                this.summaryDataLocale.approval = this.approval;
+            }
+            this.defineApproval();  
         }).catch((err)=>{
             console.log(JSON.stringify(err));
         });
@@ -146,6 +151,13 @@ export default class OrderSummaryScreen extends LightningElement {
     }
 
     defineOrderMargin(event){
+        const setSummaryData = new CustomEvent('setsummarydata');
+        setSummaryData.data = this.summaryDataLocale;
+      
+        this.dispatchEvent(setSummaryData);
+    }
+
+    defineApproval(event){
         const setSummaryData = new CustomEvent('setsummarydata');
         setSummaryData.data = this.summaryDataLocale;
       
