@@ -69,21 +69,23 @@
         <div class="campos">
             <fieldset class="slds-form-element slds-form-element_compound">
                 <div class="slds-form-element__control">
-                    <div if:false={headerData.IsOrderChild} class="slds-form-element__row">
-                        <div class="slds-size_1-of-4">
-                            <p>
-                                <label>Pedido Mãe:</label>
-                                <template if:true={disabled}>
-                                    <input if:true={headerData.pedido_mae_check} type="checkbox" id="check0" name="pedido_mae_check" value="yes" onchange={selectItemRegister} checked disabled>
-                                    <input if:false={headerData.pedido_mae_check} type="checkbox" id="check1" name="pedido_mae_check" value="no" onchange={selectItemRegister} disabled>
-                                </template>
-                                <template if:false={disabled}>
-                                    <input if:true={headerData.pedido_mae_check} type="checkbox" id="check2" name="pedido_mae_check" value="yes" onchange={selectItemRegister} checked>
-                                    <input if:false={headerData.pedido_mae_check} type="checkbox" id="check3" name="pedido_mae_check" value="no" onchange={selectItemRegister} disabled={headerDictLocale.IsOrderChild}>
-                                </template>
-                            </p>
+                    <template if:true={allowMotherOrder}>
+                        <div if:false={headerData.IsOrderChild} class="slds-form-element__row">
+                            <div class="slds-size_1-of-4">
+                                <p>
+                                    <label>Pedido Mãe:</label>
+                                    <template if:true={disabled}>
+                                        <input if:true={headerData.pedido_mae_check} type="checkbox" id="check0" name="pedido_mae_check" value="yes" onchange={selectItemRegister} checked disabled>
+                                        <input if:false={headerData.pedido_mae_check} type="checkbox" id="check1" name="pedido_mae_check" value="no" onchange={selectItemRegister} disabled>
+                                    </template>
+                                    <template if:false={disabled}>
+                                        <input if:true={headerData.pedido_mae_check} type="checkbox" id="check2" name="pedido_mae_check" value="yes" onchange={selectItemRegister} checked>
+                                        <input if:false={headerData.pedido_mae_check} type="checkbox" id="check3" name="pedido_mae_check" value="no" onchange={selectItemRegister} disabled={headerDictLocale.IsOrderChild}>
+                                    </template>
+                                </p>
+                            </div>
                         </div>
-                    </div>
+                    </template>
 
                     <div class="slds-form-element__row">
                         <div class="slds-form-element slds-size_1-of-4">
