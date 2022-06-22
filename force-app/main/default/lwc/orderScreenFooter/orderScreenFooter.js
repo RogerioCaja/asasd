@@ -5,9 +5,11 @@ export default class OrderScreenFooter extends LightningElement {
     @api qtdItens;
     @api frete;
     @api summary;
-    finalizar(event){
-        console.log('finalizar');
-    }
+    @api summaryDataLocale;
+    @api summaryData;
+    @api justification;
+    question = false;
+  
 
     saveOrderPre(event){
       
@@ -17,7 +19,19 @@ export default class OrderScreenFooter extends LightningElement {
         this.dispatchEvent(order);
     }
 
-    saveOrder(event){
+    openOrCloseJustification(event){
+        
+        this.question = !this.question;
+        
+    }
+
+    saveOrderReal(event){
+        this.summaryDataLocale = {... this.summaryData};
+        this.summaryDataLocale.justification = event.detail;
+        const setSummaryData = new CustomEvent('setsummarydata');
+        setSummaryData.data = this.summaryDataLocale;
+      
+        this.dispatchEvent(setSummaryData);
         
         const order = new CustomEvent('saveorder', {
             detail: "gerarpedido"
