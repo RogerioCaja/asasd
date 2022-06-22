@@ -43,6 +43,8 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     product = false;
     @track summary = false;
 
+    customErrorMessage = '';
+
     @api accountData;
     @api headerDataTitle = {};
     @api headerData = {
@@ -234,6 +236,9 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
                 if (!this.headerData.pedido_mae_check) {
                     this.showNotification('Só é possível gerar pedidos filhos a partir de um pedido mãe', 'Atenção!', 'warning');
                     this.redirectToOrder();
+                } else if (this.headerData.codigo_sap == undefined || this.headerData.codigo_sap == null || this.headerData.codigo_sap == '') {
+                    this.showNotification('Só é possível gerar pedidos filhos após o pedido ser integrado com o SAP', 'Atenção!', 'warning');
+                    this.redirectToOrder();
                 } else {
                     checkMotherQuantities({orderId: this.recordId})
                     .then((motherResult) =>{
@@ -393,25 +398,61 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         
         console.log('this.productData: ' + this.productData);
         console.log('acproductcount data setted:', this.productData, event.detail, event.data, event);
-        if(this.headerData.tipo_venda != 'Venda Barter'){
+        if (!this.checkProductDivisionAndCommodities()) {
+            this.disableNextScreen();
+        } else {
             this.enableNextScreen();
             this.completeCurrentScreen();
         }
-      
+    }
+
+    checkProductDivisionAndCommodities() {
+        let enableScreen = true;
+        if (this.headerData.IsOrderChild) {
+            for (let index = 0; index < this.productData.length; index++) {
+                let productDivisionQuantity = 0;
+                for (let i = 0; i < this.divisionData.length; i++) {
+                    if (this.divisionData[i].productId == this.productData[index].productId) {
+                        productDivisionQuantity += Number(this.divisionData[i].quantity);
+                    }
+                }
+
+                if (productDivisionQuantity != this.productData[index].quantity) {
+                    enableScreen = false;
+                    this.customErrorMessage = 'É preciso criar remessa para todos os produtos selecionados';
+                    break;
+                }
+            }
+        }
         
+        if (this.headerData.tipo_venda == 'Venda Barter' && (this.commodityData == undefined || this.commodityData == null || this.commodityData.length == 0)) {
+            enableScreen = false;
+            this.customErrorMessage = 'É necessário selecionar uma commodity';
+        }
+
+        return enableScreen;
     }
 
     _setDivisionData(event) {
         this.divisionData = event.data;
+        let enableScreen = this.checkProductDivisionAndCommodities();
+
+        if (enableScreen) {
+            this.enableNextScreen();
+            this.completeCurrentScreen();
+        } else {
+            this.disableNextScreen();
+        }
     }
 
     _setCommodityData(event) {
         this.commodityData = event.data;
-        if(this.commodityData.length > 0){
+        let enableScreen = this.checkProductDivisionAndCommodities();
+
+        if (enableScreen) {
             this.enableNextScreen();
             this.completeCurrentScreen();
-        }
-        else{
+        } else {
             this.disableNextScreen();
         }
     }
@@ -480,6 +521,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
     handleNext() {
         if (this.currentTab !== 3) {
+            let errorMessage = this.customErrorMessage != '' ? this.customErrorMessage : this.tabs[this.currentTab].message;
             if(this.template.querySelector(this.tabs[this.currentTab].component).verifyMandatoryFields()){
                 if (this.tabs[this.currentTab + 1].enable == true) {
                     this.tabs[this.currentTab].current = false;
@@ -489,13 +531,13 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
                     this.changeStyle();
                 }
                 else {
-                    this.showNotification(this.tabs[this.currentTab].message, 'Não é possível avançar uma etapa');
+                    this.showNotification(errorMessage, 'Não é possível avançar uma etapa');
                 }
             }
             else{
                 this.disableNextScreen();
                 this.changeStyle();
-                this.showNotification(this.tabs[this.currentTab].message, 'Não é possível avançar uma etapa');
+                this.showNotification(errorMessage, 'Não é possível avançar uma etapa');
             }
         }
     }
