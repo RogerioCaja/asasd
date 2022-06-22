@@ -1319,6 +1319,7 @@ public without sharing class OrderScreenController {
 
     public class DivisionSerialize{
         public String  divisionId;
+        public String  productId;
         public String  deliveryDate;
         public String  deliveryId;
         public String  quantityId;
@@ -1334,6 +1335,7 @@ public without sharing class OrderScreenController {
 
         DivisionSerialize(ShippingDivison__c shippingDivison, Integer divisionPosition, Integer productPosition){
             this.divisionId = shippingDivison.Id;
+            this.productId = shippingDivison.OrderItem__r.Product2Id;
             this.deliveryDate = String.valueOf(shippingDivison.DeliveryDate__c);
             this.deliveryId = 'deliveryId-' + divisionPosition;
             this.quantityId = 'quantityId-' + divisionPosition;
