@@ -329,6 +329,7 @@ export default class OrderHeaderScreen extends LightningElement {
         description: 'Name'
     };
 
+    allowMotherOrder = false;
     
     connectedCallback(){
         let today = new Date();
@@ -355,6 +356,13 @@ export default class OrderHeaderScreen extends LightningElement {
 
             if(this.headerData){
                 this.headerDictLocale = JSON.parse(JSON.stringify(this.headerData));
+                if (this.headerDictLocale.tipo_venda == 'Venda Conta e Ordem' || this.headerDictLocale.tipo_venda == 'Venda Entrega Futura' || this.headerDictLocale.tipo_venda == 'Venda Normal') {
+                    this.allowMotherOrder = true;
+                } else {
+                    this.headerDictLocale.pedido_mae_check = false;
+                    this.allowMotherOrder = false;
+                }
+
                 this.barterSale = this.headerDictLocale.tipo_venda == 'Venda Barter' ? true : false;
                 if (this.headerData.status_pedido == 'Em aprovação - Gerente Filial' || this.headerData.status_pedido == 'Em aprovação - Gerente Regional' ||
                     this.headerData.status_pedido == 'Em aprovação - Diretor' || this.headerData.status_pedido == 'Em aprovação - Comitê Margem' || this.headerData.status_pedido == 'Em aprovação - Mesa de Grãos') {

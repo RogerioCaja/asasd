@@ -108,7 +108,7 @@ public without sharing class CustomLookupController {
             }
 
             Set<String> normalSale = new Set<String>{'HAWA', 'FERT'};
-            String productType = isCommodity ? 'ZCOM' : (productParams.orderType == 'Venda de Serviço' ? 'DIEN' : (productParams.orderType == 'Venda Barter' ? 'HAWA' : ''));
+            String productType = isCommodity ? 'ZCOM' : (productParams.orderType == 'Venda Serviços' ? 'DIEN' : (productParams.orderType == 'Venda Barter' ? 'HAWA' : ''));
             
             Integer numberOfRowsToSkip = productParams.numberOfRowsToSkip;
             String productQuery = 'SELECT Id, Name, ExternalId__c, UnidadeMedida__c, ProductGroup__c, ProductGroup__r.Name, ProductSubgroup__c, PrincipleActive__c, Multiplicity__c, ProductHierarchy__c' +
@@ -120,9 +120,9 @@ public without sharing class CustomLookupController {
                                         ' AND ProductType__c =: productType'
                                   ) +
                                   '   AND ('+
-                                  '            Name LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\'' +
-                                  '         OR ProductGroup__r.Name LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\'' +
-                                  '         OR PrincipleActive__c LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\'' +
+                                  '            Name LIKE \'%' + String.escapeSingleQuotes(searchString.trim()) + '%\'' +
+                                  '         OR ProductGroup__r.Name LIKE \'%' + String.escapeSingleQuotes(searchString.trim()) + '%\'' +
+                                  '         OR PrincipleActive__c LIKE \'%' + String.escapeSingleQuotes(searchString.trim()) + '%\'' +
                                   '       )' +
                                   ' ORDER BY Name' +
                                   ' LIMIT 9' +
