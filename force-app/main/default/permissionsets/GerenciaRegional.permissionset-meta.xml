@@ -350,6 +350,16 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>CondicaoPagamento__c.BarterCondition__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>CondicaoPagamento__c.CashPayment__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Boletos__c.Drawee__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -853,6 +863,7 @@
         <field>JurosDescontoAntecipao__c.SalesTeam__c</field>
         <readable>true</readable>
     </fieldPermissions>
+    
     <fieldPermissions>
         <editable>false</editable>
         <field>JurosDescontoAntecipao__c.StartDate__c</field>
@@ -2252,6 +2263,15 @@
         <modifyAllRecords>false</modifyAllRecords>
         <object>Order</object>
         <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>false</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>false</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>SalesCondition__c</object>
+        <viewAllRecords>false</viewAllRecords>
     </objectPermissions>
     <objectPermissions>
         <allowCreate>false</allowCreate>
