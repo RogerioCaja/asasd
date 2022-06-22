@@ -126,6 +126,8 @@ export default class OrderProductScreen extends LightningElement {
             this.allDivisionProducts = this.isFilled(this.divisionData) ? this.divisionData : [];
         }
         
+        if(this.headerData.IsOrderChild) this._setData();
+        
         if (this.headerData.status_pedido == 'Em aprovação - Gerente Filial' || this.headerData.status_pedido == 'Em aprovação - Gerente Regional' ||
             this.headerData.status_pedido == 'Em aprovação - Diretor' || this.headerData.status_pedido == 'Em aprovação - Comitê Margem' || this.headerData.status_pedido == 'Em aprovação - Mesa de Grãos') {
             this.disabled = true;
@@ -156,7 +158,6 @@ export default class OrderProductScreen extends LightningElement {
             accountId: this.accountData.Id != null ? this.accountData.Id : '',
             approvalNumber: 1
         }
-
 
         getAccountCompanies({data: JSON.stringify(getCompanyData)})
         .then((result) => {
@@ -344,7 +345,7 @@ export default class OrderProductScreen extends LightningElement {
                 let currentProduct = this.baseProducts.find(e => e.Id == event.target.dataset.targetId);
                 let priorityInfos = this.getProductByPriority(currentProduct);
     
-                this.multiplicity = currentProduct.multiplicity;
+                this.multiplicity = this.isFilled(currentProduct.multiplicity) ? currentProduct.multiplicity : 1;
                 this.costPrice = priorityInfos.costPrice;
                 this.addProduct = {
                     entryId: currentProduct.entryId,
@@ -712,7 +713,7 @@ export default class OrderProductScreen extends LightningElement {
             this._verifyFieldsToSave();
             return this.addProduct.unitPrice;
         } else {
-            this.updateProduct = !this.updateProduct;
+            this.updateProduct = false;
             this.createNewProduct = !this.createNewProduct;
             let allDivisions = JSON.parse(JSON.stringify(this.allDivisionProducts));
             if (allDivisions.length > 0) {
@@ -825,7 +826,7 @@ export default class OrderProductScreen extends LightningElement {
         this.productPosition = position;
         let currentProduct = this.products.find(e => e.position == position);
         console.log('currentProduct: ' + JSON.stringify(currentProduct));
-        this.multiplicity = currentProduct.multiplicity;
+        this.multiplicity = this.isFilled(currentProduct.multiplicity) ? currentProduct.multiplicity : 1;
 
         this.addProduct = {
             orderItemId: currentProduct.orderItemId,
@@ -867,7 +868,7 @@ export default class OrderProductScreen extends LightningElement {
             this.calculateFinancialInfos();
         } else {
             this.createNewProduct = !this.createNewProduct;
-            this.updateProduct = !this.updateProduct;
+            this.updateProduct = true;
         }
     }
 
@@ -887,7 +888,9 @@ export default class OrderProductScreen extends LightningElement {
         let availableQuantity = Number(currentProduct.quantity) - Number(distributedQuantity);
 
         this.productPosition = position;
-        this.multiplicity = currentProduct.multiplicity;
+        this.multiplicity = this.isFilled(currentProduct.multiplicity) ? currentProduct.multiplicity : 1;
+        let allowChange = (this.headerData.tipo_pedido != 'Pedido Filho' && !this.headerData.IsOrderChild && this.isFilled(this.headerData.codigo_sap)) ||
+                          (this.headerData.tipo_pedido == 'Pedido Filho' && this.isFilled(this.headerData.codigo_sap)) ? true : false;
         this.currentDivisionProduct = {
             productId: currentProduct.productId,
             unitPrice: currentProduct.unitPrice,
@@ -896,7 +899,7 @@ export default class OrderProductScreen extends LightningElement {
             quantity: currentProduct.quantity,
             availableQuantity: availableQuantity,
             showRed : availableQuantity < 0 ? true : false,
-            dontAllowChange : this.isFilled(this.headerData.codigo_sap) ? true : false
+            dontAllowChange : allowChange
         };
 
         console.log('this.currentDivisionProduct: ' + JSON.stringify(this.currentDivisionProduct));
@@ -1038,7 +1041,6 @@ export default class OrderProductScreen extends LightningElement {
 
     _setHeaderValues() {
         const setHeaderValues = new CustomEvent('setheadervalues');
-        console.log('this.headerData: ' + JSON.stringify(this.headerData));
         setHeaderValues.data = this.headerData;
         this.dispatchEvent(setHeaderValues);
     }
