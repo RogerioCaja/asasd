@@ -4,8 +4,6 @@ public with sharing class CalloutCTVCarteira {
     public static void processIntegration(){
         List<Territory2> territoryList = new List<Territory2>([SELECT id, DeveloperName, lastmodifieddate, ParentTerritory2.DeveloperName, name, Territory2Type.DeveloperName FROM territory2]);
         sendOrder(territoryList);
-
-        
     }
 
     public static void sendOrder(List<Territory2> territoryList) {
