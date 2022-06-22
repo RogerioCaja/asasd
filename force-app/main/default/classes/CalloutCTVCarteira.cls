@@ -35,10 +35,10 @@ public with sharing class CalloutCTVCarteira {
 
             HttpResponse response = responseObject.response;
 
-            IntegrationLog.createLog('Pedido OUT', 'OUT', response.getBody(), payload, false);
+            IntegrationLog.createLog('CTV OUT', 'OUT', response.getBody(), payload, false);
             System.debug('response.getBody(): '+ response.getBody());
         } else {
-            IntegrationLog.createLog('Pedido OUT', 'OUT', responseObject.exceptionObject.getMessage(), payload, true);
+            IntegrationLog.createLog('CTV OUT', 'OUT', responseObject.exceptionObject.getMessage(), payload, true);
         }
     }
     public static String getAcessCode(){
