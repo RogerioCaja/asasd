@@ -14,8 +14,12 @@ public with sharing class CalloutBP {
             List<String> accountIdsList = new List<String>();
             List<String> userCodigoSapList = new List<String>();
             for(ResponseParametersWrapper valor : resp.responses){
-                accountIdsList.add(valor.CodigoExterno);
-                accountIdsList.add(valor.ContaPai);
+                if(valor.CodigoExterno != null){
+                    accountIdsList.add(valor.CodigoExterno);
+                }
+                if(valor.ContaPai != null){
+                    accountIdsList.add(valor.ContaPai);
+                }
             }
             System.debug('accountIdsList: '+ accountIdsList);
             List<Account> accountListExternalId = new List<Account>([SELECT Id, ExternalId__c FROM Account WHERE ExternalId__c =: accountIdsList]);
@@ -101,19 +105,38 @@ public with sharing class CalloutBP {
         List<String> safraIdsList = new List<String>();
 
         for(LimiteCreditoINData valor : creditoList){
-            accountIdList.add(valor.CodigoExternoAccount);
-            salesOrganizationIdList.add(valor.OrganizacaoVendas);
-            cultureIdsList.add(valor.Cultura);
-            safraIdsList.add(String.valueOf(valor.Safra));
-            System.debug('safraIdsList'+safraIdsList);
+            if(valor.CodigoExternoAccount != null){
+                accountIdList.add(valor.CodigoExternoAccount);
+            }
+            if(valor.OrganizacaoVendas != null){
+                salesOrganizationIdList.add(valor.OrganizacaoVendas);
+            }
+            if(valor.Cultura != null){
+                cultureIdsList.add(valor.Cultura);
+            }
+            if(valor.Safra != null){
+                safraIdsList.add(String.valueOf(valor.Safra));
+            }
         }
         for(CompanyINData valor : companyList){
-            accountIdList.add(valor.CodigoExternoAccount);
-            salesOrganizationIdList.add(valor.OrganizacaoVendas);
-            activitySectorIdList.add(valor.SetorAtividade);
-            distributionChannelIdList.add(valor.CanalDistribuicao);
-            salesOfficeIdList.add(valor.EscritorioVendas);
-            salesTeamIdList.add(valor.EquipeVendas);
+            if(valor.CodigoExternoAccount != null){
+                accountIdList.add(valor.CodigoExternoAccount);
+            }
+            if(valor.OrganizacaoVendas != null){
+                salesOrganizationIdList.add(valor.OrganizacaoVendas);
+            }
+            if(valor.SetorAtividade != null){
+                activitySectorIdList.add(valor.SetorAtividade);
+            }
+            if(valor.CanalDistribuicao != null){
+                distributionChannelIdList.add(valor.CanalDistribuicao);
+            }
+            if(valor.EscritorioVendas != null){
+                salesOfficeIdList.add(valor.EscritorioVendas);
+            }
+            if(valor.EquipeVendas != null){
+                salesTeamIdList.add(valor.EquipeVendas);
+            }
         }
         //Get Account
         List<Account> accountListExternalId = new List<Account>([SELECT Id, ExternalId__c FROM Account WHERE ExternalId__c =: accountIdList]);
@@ -362,7 +385,7 @@ public with sharing class CalloutBP {
 
             HttpResponse response = responseObject.response;
 
-            IntegrationLog.createLog('Pedido OUT', 'OUT', response.getBody(), payload, false);
+            IntegrationLog.createLog('Bp OUT', 'OUT', response.getBody(), payload, false);
             // .WSLog('Pedido', 'OUTBOUND', response.getBody(), payload, false);
             System.debug('response.getBody(): '+ response.getBody());
             try {
@@ -378,7 +401,7 @@ public with sharing class CalloutBP {
             }
         } else {
 
-            IntegrationLog.createLog('Pedido OUT', 'OUT', responseObject.exceptionObject.getMessage(), payload, true);
+            IntegrationLog.createLog('Bp OUT', 'OUT', responseObject.exceptionObject.getMessage(), payload, true);
             return new IntegrationUtils.CalloutBpResponse(responseObject.exceptionObject.getMessage());
         }
     }
