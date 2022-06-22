@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ApprovalProcess xmlns="http://soap.sforce.com/2006/04/metadata">
-    <active>false</active>
+    <active>true</active>
     <allowRecall>true</allowRecall>
     <allowedSubmitters>
         <type>creator</type>
@@ -9,7 +9,16 @@
         <type>owner</type>
     </allowedSubmitters>
     <approvalPageFields>
+        <field>Account</field>
         <field>OrderNumber</field>
+        <field>FinalTotalValue__c</field>
+        <field>RecordType</field>
+        <field>Crop__c</field>
+        <field>Culture__c</field>
+        <field>OrderMargin__c</field>
+        <field>PaymentDate__c</field>
+        <field>SalesCTV__c</field>
+        <field>PaymentCondition__c</field>
         <field>Owner</field>
     </approvalPageFields>
     <approvalStep>
