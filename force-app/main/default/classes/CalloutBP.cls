@@ -279,9 +279,14 @@ public with sharing class CalloutBP {
         }
     }
     public static void creatyCompany(List<CompanyINData> companyList, Map<String, Id> lookups, Map<String, String> nameLookups){
-        String statusName = 'Adicionada';
+        String statusName;
         List<Company__c> companyListToUpsert = new List<Company__c>();
         for(CompanyINData valor : companyList){
+            if(valor.Status == ''){
+                statusName = 'Adicionada';
+            }else{
+                statusName = 'Removida';
+            }
             String salesOrgName = nameLookups.containsKey('SalesOrg__c'+valor.OrganizacaoVendas) ? nameLookups.get('SalesOrg__c'+valor.OrganizacaoVendas) : '';
             String salesTeamName = nameLookups.containsKey('SalesTeam__c'+valor.EquipeVendas) ? nameLookups.get('SalesTeam__c'+valor.EquipeVendas) : '';
             Company__c company = new Company__c(
