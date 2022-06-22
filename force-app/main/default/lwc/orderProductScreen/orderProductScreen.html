@@ -354,7 +354,6 @@
 								<div class="container">
 									<div class="card-01">
 										<p class="product-name">{commodity.Name}</p>
-										<p><b>Preço:</b> {commodity.productCurrency}{commodity.listPrice}</p>
 									</div>
 									<div class="card-02">
 										<button class="include-button" data-target-id={commodity.Id} onclick={selectCommodity}>Escolher</button>
@@ -371,10 +370,6 @@
 						<div class="column">
 							<label>Commodity</label><br>
 							<input class="input-design" type="text" value={selectedCommodity.name} disabled/> 
-						</div>
-						<div class="column">
-							<label>Valor</label><br>
-							<input class="input-design" type="number" value={selectedCommodity.cotation} data-target-id="cotation" onchange={commodityChange} disabled/>
 						</div>
 					</div>
 
