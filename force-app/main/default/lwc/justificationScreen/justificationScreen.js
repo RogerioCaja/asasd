@@ -1,7 +1,7 @@
 import { LightningElement, api } from 'lwc';
 
 export default class JustificationScreen extends LightningElement {
-    @api justification;
+    @api justification = '';
     changeTextJustification(event){
         this.justification = event.target.value;
     }
