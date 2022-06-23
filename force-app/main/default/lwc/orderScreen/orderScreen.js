@@ -16,6 +16,7 @@ import saveOrder from '@salesforce/apex/OrderScreenController.saveOrder';
 // import calloutOrder from '@salesforce/apex/OrderScreenController.callout';
 import getOrder from '@salesforce/apex/OrderScreenController.getOrder';
 import getAccount from '@salesforce/apex/OrderScreenController.getAccount';
+import getOrderByOrderItem from '@salesforce/apex/OrderScreenController.getOrderByOrderItem';
 import checkMotherQuantities from '@salesforce/apex/OrderScreenController.checkMotherQuantities';
 import { NavigationMixin } from 'lightning/navigation';
 
@@ -154,13 +155,17 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     renderedCallback() {
         this.checkPreviousNextBtn();
         this.changeStyle();
-        if(this.originScreen.includes('Order')){
+        if(this.originScreen.includes('OrderItem')){
+            this.getOrderItem();
+        }else if(this.originScreen.includes('Order')){
             if(this.recordId) {
                 this.headerData.pedido_mae = this.childOrder ? {Id: this.recordId, Name: ''} : {};
                 this.getOrder();
             }
-        }else if(this.originScreen.includes('Account')){
+        }
+        else if(this.originScreen.includes('Account')){
             this.getAccount();
+           
         }
         //console.log(this.recordId, this.originScreen);
 
@@ -184,6 +189,87 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.showNotification(err.message, 'Ocorreu algum erro');
             this.isLoading = false;
         });
+    }
+
+    getOrderItem(){
+        console.log('getOrderItem');
+        if(this.headerData.Id != " ")
+            return;
+
+        this.isLoading = true;
+        getOrderByOrderItem({recordId: this.recordId})
+        .then((result) =>{
+            const data = JSON.parse(result);
+            this.accountData = data.accountData;
+            this.headerData = data.headerData;
+
+            if (this.childOrder) {
+                this.headerData.status_pedido = 'Em digitação'
+            }
+
+            this.productData = data.productData;
+            this.qtdItens = data.productData.length;
+            this.valorTotal = 0;
+            try
+            {
+                this.productData.forEach(product =>{
+                    this.valorTotal  += parseFloat(product.totalPrice);
+                })
+                this.valorTotal = parseFloat(this.valorTotal).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
+
+            }
+            catch(e)
+            {
+                console.log(e);
+            }
+           
+            this.divisionData = data.divisionData;
+            this.summaryData['observation'] = this.headerData.observation;
+            this.summaryData['billing_sale_observation'] = this.headerData.billing_sale_observation;
+            this.enableScreens([0, 1, 2, 3]);
+            this.completeScreens([0, 1, 2, 3]);
+            this.isLoading = false;
+            this.cloneData.cloneOrder = this.clone.cloneOrder;
+            if(this.cloneData.cloneOrder){
+                this.headerData.ctv_venda.Id = null;
+                this.headerData.status_pedido = 'Em digitação';
+                this.headerData.cliente_entrega.Id = null;
+            }
+            this.headerData.condicao_venda = this.headerData.condicao_venda != null ? this.headerData.condicao_venda : ' ';
+            
+            if (this.childOrder) {
+                if (!this.headerData.pedido_mae_check) {
+                    this.showNotification('Só é possível gerar pedidos filhos a partir de um pedido mãe', 'Atenção!', 'warning');
+                    this.redirectToOrder();
+                } else if (this.headerData.codigo_sap == undefined || this.headerData.codigo_sap == null || this.headerData.codigo_sap == '') {
+                    this.showNotification('Só é possível gerar pedidos filhos após o pedido ser integrado com o SAP', 'Atenção!', 'warning');
+                    this.redirectToOrder();
+                } else {
+                    checkMotherQuantities({orderId: this.recordId})
+                    .then((motherResult) =>{
+                        if (!motherResult) {
+                            this.showNotification('Todos os produtos já foram distribuídos', 'Atenção!', 'warning');
+                            this.redirectToOrder();
+                        } else {
+                            let availableProducts = [];
+                            for (let index = 0; index < this.productData.length; index++) {
+                                if (this.productData[index].quantity > 0) {
+                                    availableProducts.push(this.productData[index]);
+                                }
+                            }
+                            this.productData = JSON.parse(JSON.stringify(availableProducts));
+                            console.log('this.productData: ' + JSON.stringify(this.productData));
+                        }
+                    })
+                }
+            }
+            // this.cloneData.pricebookListId = this.headerData.condicao_venda != ' ' ?  this.headerData.condicao_venda.Id : '';
+        })
+        .catch((err)=>{
+            console.log(err);
+            this.showNotification(err.message, 'Ocorreu algum erro');
+            this.isLoading = false;
+        })
     }
 
     getOrder(){
