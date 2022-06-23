@@ -107,8 +107,20 @@ public without sharing class CustomLookupController {
                 prodsId.add(orgVProduct.Product__c);
             }
 
+            String recTypeDevName = '';
+            for (RecordType orderRecType : [
+                SELECT Id,
+                       DeveloperName
+                  FROM RecordType
+                 WHERE SobjectType = 'Order'
+                   AND IsActive = true
+                   AND Name =: productParams.orderType
+            ]) {
+                recTypeDevName = orderRecType.DeveloperName;
+            }
+
             Set<String> normalSale = new Set<String>{'HAWA', 'FERT'};
-            String productType = isCommodity ? 'ZCOM' : (productParams.orderType == 'Venda Serviços' ? 'DIEN' : (productParams.orderType == 'Venda Barter' ? 'HAWA' : ''));
+            String productType = isCommodity ? 'ZCOM' : (recTypeDevName == 'VendaServico' ? 'DIEN' : (recTypeDevName == 'VendaBarter' ? 'HAWA' : ''));
             
             Integer numberOfRowsToSkip = productParams.numberOfRowsToSkip;
             String productQuery = 'SELECT Id, Name, ExternalId__c, UnidadeMedida__c, ProductGroup__c, ProductGroup__r.Name, ProductSubgroup__c, PrincipleActive__c, Multiplicity__c, ProductHierarchy__c' +
