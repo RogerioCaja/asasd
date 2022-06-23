@@ -280,14 +280,17 @@ export default class Lookup extends LightningElement {
 
 	handleOnFocus() {
 		this.handleGetRecords();
+		this.focusAnchor();
 	}
 
 	handleCloseList() {
 		this.records = null;
 	}
-
+	focusAnchor() {
+		setTimeout(()=>this.template.querySelector('[data-id="list"]').focus());
+	  }
 	handleSelectRecord(event) {
-		const { value } = event.target.dataset;
+		const { value } = event.currentTarget.dataset;
 		const record = this.records.find(item => item.Id === value);
 
 		var recordTitle;
