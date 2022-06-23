@@ -226,14 +226,18 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.divisionData = data.divisionData;
             this.summaryData['observation'] = this.headerData.observation;
             this.summaryData['billing_sale_observation'] = this.headerData.billing_sale_observation;
-            this.enableScreens([0, 1, 2, 3]);
-            this.completeScreens([0, 1, 2, 3]);
+            
             this.isLoading = false;
             this.cloneData.cloneOrder = this.clone.cloneOrder;
             if(this.cloneData.cloneOrder){
                 this.headerData.ctv_venda.Id = null;
                 this.headerData.status_pedido = 'Em digitação';
                 this.headerData.cliente_entrega.Id = null;
+                this.enableScreens([0, 1]);
+                this.completeScreens([0]);
+            }else{
+                this.enableScreens([0, 1, 2, 3]);
+                this.completeScreens([0, 1, 2, 3]);
             }
             this.headerData.condicao_venda = this.headerData.condicao_venda != null ? this.headerData.condicao_venda : ' ';
             
@@ -307,14 +311,17 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.divisionData = data.divisionData;
             this.summaryData['observation'] = this.headerData.observation;
             this.summaryData['billing_sale_observation'] = this.headerData.billing_sale_observation;
-            this.enableScreens([0, 1, 2, 3]);
-            this.completeScreens([0, 1, 2, 3]);
             this.isLoading = false;
             this.cloneData.cloneOrder = this.clone.cloneOrder;
             if(this.cloneData.cloneOrder){
                 this.headerData.ctv_venda.Id = null;
                 this.headerData.status_pedido = 'Em digitação';
                 this.headerData.cliente_entrega.Id = null;
+                this.enableScreens([0, 1]);
+                this.completeScreens([0]);
+            }else{
+                this.enableScreens([0, 1, 2, 3]);
+                this.completeScreens([0, 1, 2, 3]);
             }
             this.headerData.condicao_venda = this.headerData.condicao_venda != null ? this.headerData.condicao_venda : ' ';
             
