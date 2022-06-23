@@ -19,7 +19,7 @@
 		<template if:true={recordsList}>
 			<div class="bg-list-full" onclick={handleCloseList}></div>
 
-			<div class="container-records-list slds-container_fluid slds-is-absolute">
+			<div class="container-records-list slds-container_fluid slds-is-absolute" data-id="list">
 				<ul>
 				  <template for:each={recordsList} for:item="record">
 					<li key={record.Id}
