@@ -267,6 +267,7 @@ public without sharing class OrderScreenController {
                 }
             }
 
+            order.MarginCommittee__c = false;
             for (String groupId : smallerMarginByProductGroup.keySet()) {
                 if (orderMarginMap.get(groupId) >= smallerMarginByProductGroup.get(groupId)) {
                     order.MarginCommittee__c = true;
@@ -384,6 +385,13 @@ public without sharing class OrderScreenController {
                 ]) {
                     approvalsByTerritory.put(userAssociation.Territory2Id, userAssociation.UserId);
                 }
+
+                order.ApprovalBranchManager__c = null;
+                order.Manager_BranchOffice__c = false;
+                order.ApprovalRegionalManager__c = null;
+                order.Gerente_Regional__c = false;
+                order.ApprovalDirector__c = null;
+                order.Director__c = false;
 
                 if (approvalNumber >= 1) {
                     order.ApprovalBranchManager__c = approvalsByTerritory.get(approvalByCounter.get(0));
