@@ -263,7 +263,7 @@ export default class OrderProductScreen extends LightningElement {
                                 this.recalculatePrice = true;
                                 this.editProduct(currentProducts[index].position, true);
                                 let oldQUantity = currentProducts[index].quantity;
-                                this.addProduct.quantity = this.calculateMultiplicity(this.addProduct.dosage * this.hectares);
+                                this.addProduct.quantity = this.calculateMultiplicity(this.addProduct.dosage * this.hectares, false);
                                 
                                 if (this.addProduct.quantity != oldQUantity) {
                                     showQuantityChange = true;
@@ -488,13 +488,13 @@ export default class OrderProductScreen extends LightningElement {
                 this.calculateTotalPrice(true);
             } else if (fieldId == 'dosage') {
                 if (this.isFilled(this.hectares)) {
-                    this.addProduct.quantity = this.calculateMultiplicity(this.addProduct.dosage * this.hectares);
+                    this.addProduct.quantity = this.calculateMultiplicity(this.addProduct.dosage * this.hectares, false);
                     this.listTotalPrice = this.addProduct.listPrice * this.addProduct.quantity;
                     this.calculateDiscountOrAddition();
                     this.calculateTotalPrice(true);
                 }
             } else if (fieldId == 'quantity') {
-                this.addProduct.quantity = this.calculateMultiplicity(this.addProduct.quantity);
+                this.addProduct.quantity = this.calculateMultiplicity(this.addProduct.quantity, false);
                 if (!this.headerData.IsOrderChild) {
                     this.addProduct.dosage = this.isFilled(this.hectares) ? this.addProduct.quantity / this.hectares : 0
                     this.listTotalPrice = this.addProduct.listPrice * this.addProduct.quantity;
@@ -507,10 +507,13 @@ export default class OrderProductScreen extends LightningElement {
         }
     }
 
-    calculateMultiplicity(quantity) {
+    calculateMultiplicity(quantity, isDivision) {
         if (this.isFilled(this.multiplicity)) {
             let remainder = (quantity * 100) % (this.multiplicity * 100);
-            if (this.headerData.IsOrderChild && this.addProduct.motherAvailableQuantity != null && quantity > this.addProduct.motherAvailableQuantity) {
+            if (isDivision && quantity > this.currentDivisionProduct.availableQuantity) {
+                this.showToast('warning', 'Atenção!', 'A quantidade não pode ultrapassar ' + this.currentDivisionProduct.availableQuantity + '.');
+                return this.currentDivisionProduct.availableQuantity;
+            } else if (!isDivision && this.headerData.IsOrderChild && this.addProduct.motherAvailableQuantity != null && quantity > this.addProduct.motherAvailableQuantity) {
                 this.showToast('warning', 'Atenção!', 'A quantidade não pode ultrapassar ' + this.addProduct.motherAvailableQuantity + '.');
                 return this.addProduct.motherAvailableQuantity;
             }
@@ -977,8 +980,9 @@ export default class OrderProductScreen extends LightningElement {
                 }
 
                 currentProduct = allDivisions.find(e => e.quantityId == fieldId);
-                if ((Number(productQuantity) + Number(fieldValue)) <= this.currentDivisionProduct.quantity) {
-                    currentProduct.quantity = this.calculateMultiplicity(fieldValue);
+                this.currentDivisionProduct.availableQuantity = Number(this.currentDivisionProduct.quantity) - ((Number(productQuantity)));
+                if ((parseFloat(fieldValue) + parseFloat(productQuantity)) <= parseFloat(this.currentDivisionProduct.quantity)) {
+                    currentProduct.quantity = this.calculateMultiplicity(fieldValue, true);
                 } else {
                     currentProduct.quantity = this.currentDivisionProduct.quantity - Number(productQuantity);
                     this.showToast('warning', 'Atenção!', 'A quantidade foi arredondada para ' + currentProduct.quantity + ' para não exceder.');
