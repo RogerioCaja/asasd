@@ -93,7 +93,6 @@ public with sharing class OrderHelper {
                         try{
                             Approval.ProcessSubmitRequest administrationRequest = new Approval.ProcessSubmitRequest();
                             administrationRequest.setProcessDefinitionNameOrId('OrderApproval5');
-                            administrationRequest.setComments(order.ApprovalJustification__c);
                             administrationRequest.setObjectId(order.Id);
                             Approval.ProcessResult approvalResult = Approval.process(administrationRequest);
                             System.debug('pedido submetido para aprovação com sucesso: '+ approvalResult.isSuccess());
@@ -125,8 +124,8 @@ public with sharing class OrderHelper {
     }
 
     public static void sendApprovalProccess(Map<Id, Order> oldMap, Map<Id, Order> newMap){
-
         Set<Id> orderIds = new Set<Id>();
+        Set<Id> orderToUpdate = new Set<Id>();
 
         for(Id order : newMap.keySet()){
             orderIds.add(order);
@@ -138,6 +137,7 @@ public with sharing class OrderHelper {
                 if(oldMap.get(id).Status == '0' && newMap.get(id).Status == '001'){
                     if(newMap.get(id).MarginCommittee__c || newMap.get(id).Manager_BranchOffice__c || newMap.get(id).Gerente_Regional__c || newMap.get(id).Director__c || orderMap.get(newMap.get(id).RecordTypeId).getName() == 'Venda Barter')
                     {
+                        
                         try{
                             Approval.ProcessSubmitRequest administrationRequest = new Approval.ProcessSubmitRequest();
                             administrationRequest.setProcessDefinitionNameOrId('OrderApproval5');
@@ -151,16 +151,23 @@ public with sharing class OrderHelper {
                         }
                     }
                     else{
-                        newMap.get(id).StatusSF__c = 'Aprovado';
+                        orderToUpdate.add(id);
                     }
                 }
             }
-            
+            if(orderToUpdate.size() > 0){
+                List<Order> orderList = [SELECT Id, StatusSF__c FROM Order WHERE Id IN: orderToUpdate];
+                List<Order> orderToUpdateList = new List<Order>();
+                for(Order order : orderList){
+                    order.StatusSF__c = 'Aprovado';
+                    orderToUpdateList.add(order);
+                }
+                update orderToUpdateList;
+            }
         }
         catch(Exception e){
             System.debug(e);
-        }
-            
+        } 
     }
 
     @AuraEnabled
