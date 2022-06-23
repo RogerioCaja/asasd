@@ -1,4 +1,4 @@
-public with sharing class OrderHelper {
+public without sharing class OrderHelper {
     public OrderHelper() {
 
     }
