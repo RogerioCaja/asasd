@@ -21,12 +21,12 @@ public without sharing class OrderTriggerHandler {
     }
     
     public void OnBeforeUpdate(){
-        OrderHelper.calloutOrderToSAP(this.newRecords);
-        OrderHelper.sendApprovalProccess(this.oldMap, this.newMap);
+        
     }
     
     public void OnAfterUpdate(){
-        
+        OrderHelper.calloutOrderToSAP(this.newRecords);
+        OrderHelper.sendApprovalProccess(this.oldMap, this.newMap);
     }
     
     public void OnBeforeDelete(){}
