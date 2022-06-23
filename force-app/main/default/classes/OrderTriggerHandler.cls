@@ -1,4 +1,4 @@
-public with sharing class OrderTriggerHandler {
+public without sharing class OrderTriggerHandler {
 
     List<Order> oldRecords {get; set;} // Trigger.old 
     List<Order> newRecords {get; set;} // Trigger.new
