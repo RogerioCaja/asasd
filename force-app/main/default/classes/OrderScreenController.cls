@@ -7,7 +7,7 @@ public without sharing class OrderScreenController {
         AccountSerialize account;
         List<ProductSerialize> ordItemList = new List<ProductSerialize>();
         List<DivisionSerialize> divisionList = new List<DivisionSerialize>();
-
+        
         order = getOrderData(recordId, cloneOrder);
         if (order.condicao_venda != null) {
             ordItemList = getOrderItemData(order.Id, cloneOrder);
@@ -16,6 +16,17 @@ public without sharing class OrderScreenController {
         account = getOrderAccountData(order.AccountId);
 
         return JSON.serialize(new OrderSerialize(order, ordItemList, divisionList, account));
+    }
+
+    @AuraEnabled
+    public static String getOrderByOrderItem(String recordId){
+        String orderId = getOrderId(recordId);
+        return getOrder(orderId, false, false);
+    }
+
+    public static String getOrderId(String recordId){
+        String orderId = [SELECT OrderId FROM OrderItem WHERE Id =: recordId].OrderId;
+        return orderId;
     }
 
     @AuraEnabled
