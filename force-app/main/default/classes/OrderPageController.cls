@@ -18,13 +18,21 @@ public with sharing class OrderPageController {
         Order order = getOrderById(orderId);
         this.orderToPage = new OrderDAO(order);
         List<OrderItem> orderItemList = getOrderItemByOrderId(orderId);
+        OrderCommodity__c commodity;
+        if(this.orderToPage.currencyOrder == 'Barter'){
+            commodity = getCommodityByOrderId(orderId)[0];
+        }
         
         Map<Id, List<DivisonDAO>> divisonMap = getDivisonByList(orderItemList);
 
         for(OrderItem orderItem : orderItemList){
-            this.orderToPage.orderItemList.add(new OrderItemDAO(orderItem, this.orderToPage.culture, this.orderToPage.currencyOrder, divisonMap.get(orderItem.Id)));
+            this.orderToPage.orderItemList.add(new OrderItemDAO(orderItem, this.orderToPage.culture, this.orderToPage.currencyOrder, divisonMap.get(orderItem.Id), commodity));
         }
-
+        Decimal totalValue = 0;
+        for(OrderItemDAO orderItem : this.orderToPage.orderItemList){
+            totalValue += Decimal.valueOf(orderItem.totalAmount.replace(' sacas', ''));
+        }
+        this.orderToPage.totalAmount = this.orderToPage.currencyOrder == 'Barter' ? String.valueOf(totalValue) + ' sacas' : String.valueOf(totalValue);
        
         String downloadingFileName = 'Pedido de Venda-' + this.orderToPage.codeSap + '.pdf';
         Apexpages.currentPage().getHeaders().put( 'content-disposition', 'inline; filename=' + downloadingFileName );
@@ -54,7 +62,7 @@ public with sharing class OrderPageController {
     public static List<OrderItem> getOrderItemByOrderId(Id orderId){
 
         Set<String> fieldSet = new Set<String>{
-            'Product2Id','Product2.ProductCode' ,'Description', 'UnitMeasure__c', 
+            'Product2Id','Product2.ProductCode' ,'Description', 'UnitMeasure__c', 'FinalTotalValue__c',
             'UnitPrice','Quantity','TotalPrice' , 'Product2.Name', 'Product2.GrossWeightUnitOfMeasure__c'
         };
 
@@ -195,13 +203,13 @@ public with sharing class OrderPageController {
         public String totalAmount {get; set;}
         public List<DivisonDAO> divisonList {get; set;}
 
-        public OrderItemDAO(OrderItem orderItem, String culture, String currencyCode, List<DivisonDAO> divisonList){
+        public OrderItemDAO(OrderItem orderItem, String culture, String currencyCode, List<DivisonDAO> divisonList, OrderCommodity__c commodity){
             this.productCode = orderItem.Product2.ProductCode;
             this.description = orderItem.Product2.Name;
             this.unitOfMeasure = orderItem.Product2.GrossWeightUnitOfMeasure__c;
-            this.unitPrice = formatCurrency(orderItem.UnitPrice, currencyCode);
+            this.unitPrice = commodity != null ? formatCurrency((orderItem.UnitPrice/commodity.CommodityPrice__c), currencyCode) + ' por saca': formatCurrency((orderItem.UnitPrice), currencyCode);
             this.quantity =  String.valueOf(orderItem.Quantity);
-            this.totalAmount = formatCurrency(orderItem.TotalPrice, currencyCode) ;
+            this.totalAmount = commodity != null ? formatCurrency(Decimal.valueOf(this.unitPrice.replace(' por saca', '')) * orderItem.Quantity, currencyCode) + ' sacas' : formatCurrency(orderItem.FinalTotalValue__c, currencyCode) ;
             this.culture = culture;
             this.divisonList = divisonList;
         }
