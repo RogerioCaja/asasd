@@ -686,21 +686,42 @@ public without sharing class OrderScreenController {
                 }
 
                 if (orderData.commodityData != null && orderData.commodityData.size() > 0) {
-                    List<OrderCommodity__c> insCommodities = new List<OrderCommodity__c>();
+                    List<OrderCommodity__c> upsCommodities = new List<OrderCommodity__c>();
+                    Set<Id> setCommodityIds = new Set<Id>();
                     for (CommodityDeserialize commodity : orderData.commodityData) {
-                        OrderCommodity__c orderCommodity = new OrderCommodity__c();
+                        setCommodityIds.add(commodity.commodityId);
+                    }
+
+                    Map<Id, OrderCommodity__c> commoditiesById = new Map<Id, OrderCommodity__c>();
+                    for (OrderCommodity__c commodity : [
+                        SELECT Id
+                          FROM OrderCommodity__c
+                         WHERE Id IN: setCommodityIds
+                    ]) {
+                        commoditiesById.put(commodity.Id, commodity);
+                    }
+
+                    for (CommodityDeserialize commodity : orderData.commodityData) {
+                        OrderCommodity__c orderCommodity;
+                        if (!newOrder && !cloneOrder && commoditiesById.containsKey(commodity.commodityId)) {
+                            orderCommodity = commoditiesById.get(commodity.commodityId);
+                        } else {
+                            orderCommodity = new OrderCommodity__c();
+                            orderCommodity.Order__c = order.Id;
+                        }
+
                         orderCommodity.Name = commodity.product;
                         orderCommodity.BagQuantity__c = Decimal.valueOf(commodity.totalDelivery.replace(' sacas', ''));
                         orderCommodity.BagMargin__c = Decimal.valueOf(commodity.marginValue.replace(' sacas', ''));
                         orderCommodity.CommodityPrice__c = commodity.commodityPrice;
-                        orderCommodity.Order__c = order.Id;
                         orderCommodity.Product__c = commodity.productId;
-                        insCommodities.add(orderCommodity);
+                        upsCommodities.add(orderCommodity);
                     }
-                    if (insCommodities.size() > 0) {
+                    
+                    if (upsCommodities.size() > 0) {
                         String commodityErrors = '';
-                        List<Database.UpsertResult> insCommoditiesResults = Database.upsert(insCommodities, false);
-                        for (Database.UpsertResult result : insCommoditiesResults){
+                        List<Database.UpsertResult> upsCommoditiesResults = Database.upsert(upsCommodities, false);
+                        for (Database.UpsertResult result : upsCommoditiesResults){
                             if(!result.isSuccess()){
                                 for (Database.error error: insResults.getErrors()){
                                     commodityErrors += '\n' + error.getMessage();
@@ -1095,6 +1116,7 @@ public without sharing class OrderScreenController {
     }
 
     public class CommodityDeserialize {
+        public String  commodityId;
         public String  product;
         public String  productId;
         public String  desage;
@@ -1411,6 +1433,7 @@ public without sharing class OrderScreenController {
     }
 
     public class CommoditySerialize {
+        public String  commodityId;
         public String  product;
         public String  productId;
         public String  discount;
@@ -1427,6 +1450,7 @@ public without sharing class OrderScreenController {
 
         CommoditySerialize(OrderCommodity__c ordercommodity) {
             Decimal margin = ((1 - (totalCost / orderCommodity.Order__r.FinalTotalValue__c)) * 100);
+            this.commodityId = orderCommodity.Id;
             this.product = orderCommodity.Product__r.Name;
             this.productId = orderCommodity.Product__c;
             this.discount = (totalDiscount / orderCommodity.CommodityPrice__c) + ' sacas';
