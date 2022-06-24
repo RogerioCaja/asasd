@@ -177,6 +177,30 @@ export default class OrderHeaderScreen extends LightningElement {
             label: 'Em Aprovação - Comitê Margem',
             description: 'Em Aprovação - Comitê Margem',
         },
+        ,
+        {
+            value: 'Em aprovação - Gerente Filial',
+            label: 'Em aprovação - Gerente Filial',
+            description: 'Em aprovação - Gerente Filial',
+        },
+        ,
+        {
+            value: 'Em Aprovação - Gerente Regional',
+            label: 'Em Aprovação - Gerente Regional',
+            description: 'Em Aprovação - Gerente Regional',
+        },
+        ,
+        {
+            value: 'Em Aprovação - Diretor',
+            label: 'Em Aprovação - Diretor',
+            description: 'Em Aprovação - Diretor',
+        },
+        ,
+        {
+            value: 'Em Aprovação - Mesa de Grãos',
+            label: 'Em Aprovação - Mesa de Grãos',
+            description: 'Em Aprovação - Mesa de Grãos',
+        },
         {
             value: 'Aprovado',
             label: 'Aprovado',
