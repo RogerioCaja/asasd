@@ -293,6 +293,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             }
 
             this.productData = data.productData;
+            this.commodityData = data.commodityData;
             this.qtdItens = data.productData.length;
             this.valorTotal = 0;
             try
