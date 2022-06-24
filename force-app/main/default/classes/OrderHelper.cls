@@ -93,6 +93,7 @@ public without sharing class OrderHelper {
                         try{
                             Approval.ProcessSubmitRequest administrationRequest = new Approval.ProcessSubmitRequest();
                             administrationRequest.setProcessDefinitionNameOrId('OrderApproval5');
+                            administrationRequest.setComments(order.ApprovalJustification__c);
                             administrationRequest.setObjectId(order.Id);
                             Approval.ProcessResult approvalResult = Approval.process(administrationRequest);
                             System.debug('pedido submetido para aprovação com sucesso: '+ approvalResult.isSuccess());
@@ -168,6 +169,7 @@ public without sharing class OrderHelper {
         catch(Exception e){
             System.debug(e);
         } 
+            
     }
 
     @AuraEnabled
