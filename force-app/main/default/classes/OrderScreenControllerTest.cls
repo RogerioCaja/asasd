@@ -201,7 +201,7 @@ public class OrderScreenControllerTest {
         List<OrderScreenController.DivisionSerialize> divisionList = OrderScreenController.getShippingDivison();
         OrderScreenController.SummarySerialize summary = new OrderScreenController.SummarySerialize('Observation', 'Observation Sales');
 
-        String data = JSON.serialize(new OrderScreenController.OrderSerializeAll(order, ordItemList, divisionList, account, summary));
+        String data = JSON.serialize(new OrderScreenController.OrderSerializeAll(order, ordItemList, divisionList, account, summary, null));
         OrderScreenController.saveOrder(null, false, data, 'prepedido');
         OrderScreenController.approvals(data);
     }
