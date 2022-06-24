@@ -1,8 +1,5 @@
 import { LightningElement, api, track } from 'lwc';
 import needJustification from '@salesforce/apex/OrderScreenController.needJustification';
-import {
-    ShowToastEvent
-} from 'lightning/platformShowToastEvent';
 export default class OrderScreenFooter extends LightningElement {
     @api valorTotal;
     @api qtdItens;
@@ -16,15 +13,11 @@ export default class OrderScreenFooter extends LightningElement {
   
 
     saveOrderPre(event){
-        if(this.headerData.pre_pedido != false){
-            const order = new CustomEvent('saveorder', {
-                detail: "prepedido"
-            });
-            this.dispatchEvent(order);
-        }
-        else{
-            this.showNotification('Pedido já foi efetivado, logo não pode haver modificações', 'Pedido Efetivado');
-        }
+      
+        const order = new CustomEvent('saveorder', {
+            detail: "prepedido"
+        });
+        this.dispatchEvent(order);
     }
 
      openOrCloseJustification(event){
@@ -56,24 +49,11 @@ export default class OrderScreenFooter extends LightningElement {
           
             this.dispatchEvent(setSummaryData);
         }
-        if(this.headerData.pre_pedido != false){
-            const order = new CustomEvent('saveorder', {
-                detail: "gerarpedido"
-            });
-            this.dispatchEvent(order);
-        }
-        else{
-            this.showNotification('Pedido já foi efetivado, logo não pode haver modificações', 'Pedido Efetivado');
-        }
-        
+       
+        const order = new CustomEvent('saveorder', {
+            detail: "gerarpedido"
+        });
+        this.dispatchEvent(order);
     }
 
-    showNotification(message, title, variant = 'warning') {
-        const evt = new ShowToastEvent({
-            title: title,
-            message: `${message}`,
-            variant: variant,
-        });
-        this.dispatchEvent(evt);
-    }
 }

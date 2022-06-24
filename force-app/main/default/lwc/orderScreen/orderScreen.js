@@ -397,6 +397,9 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.headerData.data_pagamento = " ";
             this.showNotification('Informe a condição de pagamento novamente', 'Atenção', 'warning');
             return;
+        } else if (!this.headerData.pre_pedido){
+            this.showNotification('Pedidos Efetivados não podem ser alterados', 'Atenção', 'warning');
+            return;
         }
 
         const mode = event.detail;
