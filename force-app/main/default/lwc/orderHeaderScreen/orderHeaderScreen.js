@@ -412,22 +412,21 @@ export default class OrderHeaderScreen extends LightningElement {
     }
 
     nextEnableEvent(index){
-        let dict = {}
         index = Number(Number(index) + 1)
         if(Number(index) > 5){
             this.sequentialDict = this.invertDict();
-            
             return;
-        }else if(this.headerDictLocale[this.sequentialDict[index]] != ' ' && this.headerDictLocale[this.sequentialDict[index]] != null && this.headerDictLocale[this.sequentialDict[index]] != dict){
+        }else if(this.headerDictLocale[this.sequentialDict[index]] != ' ' && this.headerDictLocale[this.sequentialDict[index]] != null){
             let name = this.sequentialDict[index];
-       
-            if(name == 'moeda' && this.headerData['moeda'] != ' ' && this.headerDictLocale['safra'] != null && this.headerDictLocale['safra'] != dict){
+            if(name == 'condicao_venda'  && this.headerData['moeda'] != ' ' && this.headerDictLocale['safra'].hasOwnProperty("Id")){
                 let condition = "condicao_venda";
                 setTimeout(()=>this.template.querySelector(`[data-name="${condition}"]`).disabled = false);
             }
-           
+
+            if(name != "condicao_venda"){
+                setTimeout(()=>this.template.querySelector(`[data-name="${name}"]`).disabled = false);
+            }
             
-            setTimeout(()=>this.template.querySelector(`[data-name="${name}"]`).disabled = false);
             return this.nextEnableEvent(Number(index))
         }
         else{
@@ -449,6 +448,7 @@ export default class OrderHeaderScreen extends LightningElement {
         try{
 
             if(this.headerData){
+                this.fieldKey = true;
                 this.headerDictLocale = JSON.parse(JSON.stringify(this.headerData));
                 if (this.headerDictLocale.tipo_venda == 'Venda Conta e Ordem' || this.headerDictLocale.tipo_venda == 'Venda Entrega Futura' || this.headerDictLocale.tipo_venda == 'Venda Normal') {
                     this.allowMotherOrder = true;
@@ -473,6 +473,8 @@ export default class OrderHeaderScreen extends LightningElement {
                     this.headerDictLocale.data_entrega = this.headerData.data_entrega ? this.headerData.data_entrega : null;
                 }
                 this.currencyOption = this.headerData.moeda;
+                
+               
             }
             else{
                 this.pass = true;
