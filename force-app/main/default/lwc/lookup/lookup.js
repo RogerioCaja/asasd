@@ -15,6 +15,9 @@ export default class Lookup extends LightningElement {
 	@api required;
 	@api disabled;
 	@api barterSale;
+	@api safraName = null;
+	@api salesOrg = null;
+	@api currencyOption = null;
 
 	@api parentRecordList; // Valor do WHERE =
 	@api parentRelationFieldList; // Campo do WHERE =
@@ -243,7 +246,12 @@ export default class Lookup extends LightningElement {
 		}
 
 		try {
-			const data = await getRecords({ data: JSON.stringify(requestData), barterSale: this.barterSale });
+			let salesConditionData = {
+				salesOrgId: this.salesOrg  != null ? this.salesOrg  : '',
+				safraName:  this.safraName != null ?  this.safraName : '',
+				currencyGet: this.currencyOption != null ? this.currencyOption : ''
+			}
+			const data = await getRecords({ data: JSON.stringify(requestData), barterSale: this.barterSale, salesConditionData: JSON.stringify(salesConditionData) });
 			//console.log('data lookup fon =>', JSON.parse(JSON.stringify(data)));
 
 			var dataResult = [];
