@@ -695,7 +695,7 @@ public without sharing class OrderScreenController {
     }
 
     @AuraEnabled
-    public static String getAccountCompanies(String data) {
+    public static String getAccountCompanies(String data, Boolean isHeader) {
         GetCompanyInfos companyInfos = (GetCompanyInfos) JSON.deserialize(data, GetCompanyInfos.class);
         Id userTerritoryId;
         for (UserTerritory2Association userAssociation : [
@@ -778,7 +778,10 @@ public without sharing class OrderScreenController {
                 companyList.add(company);
             }
         }
-        return JSON.serialize(new CompanyInfosSerialize(companyList));
+        if(isHeader)
+            return companyList[0].salesOrgId;
+        else
+            return JSON.serialize(new CompanyInfosSerialize(companyList));
     }
 
     @AuraEnabled

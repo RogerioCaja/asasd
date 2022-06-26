@@ -90,7 +90,7 @@
                     <div class="slds-form-element__row">
                         <div class="slds-form-element slds-size_1-of-4">
                            
-                            <c-lookup-account name="cliente_entrega" record-id={headerData.cliente_entrega.Id} onclearselectedrecord={removeItemRegister} onselectrecord={selectItemRegister} account-list={accountChildData} disabled={disabled}></c-lookup-account>
+                            <c-lookup-account data-name="cliente_entrega" name="cliente_entrega" record-id={headerData.cliente_entrega.Id} onclearselectedrecord={removeItemRegister} onselectrecord={selectItemRegister} account-list={accountChildData} disabled={disabled}></c-lookup-account>
                         </div>
                         <div class="slds-form-element slds-size_1-of-4">
                             <lightning-input
@@ -115,6 +115,7 @@
                         <div class="slds-form-element slds-size_1-of-4">
                             <c-lookup 
                                 name="ctv_venda"
+                                data-name="ctv_venda"
                                 input-label="CTV da Venda" 
                                 object-icon-name="standard:action_list_component"
                                 target-object={redispatchCtvVendaObject}
@@ -129,7 +130,7 @@
                                 placeholder="Pesquisar CTV da Venda"
                                 style="width: 100%;" 
                                 required="true"
-                                disabled={disabled}>
+                                disabled={fieldKey}>
                             </c-lookup>
                         </div>  
                     </div>
@@ -137,6 +138,7 @@
                         <div class="slds-form-element slds-size_1-of-4">
                             <c-lookup 
                                 name="safra"
+                                data-name="safra"
                                 input-label="Safras" 
                                 object-icon-name="standard:action_list_component"
                                 target-object={redispatchSafraObject} 
@@ -150,35 +152,34 @@
                                 placeholder="Pesquisar Safras" 
                                 style="width: 100%;"
                                 required="true"
-                                disabled={disabled}>
+                                disabled={fieldKey}>
                             </c-lookup>
                         </div>
                         <div class="slds-form-element slds-size_1-of-4">
-                            <c-lookup 
-                                name="cultura"
-                                input-label="Culturas" 
-                                object-icon-name="standard:action_list_component"
-                                target-object={redispatchCulturaObject} 
-                                record-id={headerData.cultura.Id}
-                                search-fields={redispatchCulturaSearchFields}
-                                list-item-options={redispatchCulturaListItemOptions} 
-                                new-record-button={booleanTrue}
-                                onclearselectedrecord={removeItemRegister}
-                                onselectrecord={selectItemRegister} 
-                                standard-form-layout={booleanTrue} 
-                                placeholder="Pesquisar Culturas" 
-                                style="width: 100%;"
+                            <lightning-combobox 
+                                name="moeda" 
+                                data-name="moeda"
+                                label="Moeda" 
+                                placeholder="Escolha a Moeda"
+                                value={headerData.moeda} 
+                                onchange={selectItemRegister} 
+                                options={moedas} 
                                 required="true"
-                                disabled={disabled}>
-                            </c-lookup>
+                                disabled={fieldKey}>
+                            </lightning-combobox>
+                            
                         </div>
                         <div class="slds-form-element slds-size_1-of-4">
                             <c-lookup 
                                 name="condicao_venda"
+                                data-name="condicao_venda"
                                 input-label="Tabela de Preços" 
                                 object-icon-name="standard:action_list_component"
                                 target-object={redispatchCondicaoVendaObject}
                                 record-id={headerData.condicao_venda.Id}
+                                safra-name={safraName}
+                                currency-option={currencyOption}
+                                sales-org={salesOrgId}
                                 search-fields={redispatchCondicaoVendaSearchFields}
                                 list-item-options={redispatchCondicaoVendaListItemOptions} 
                                 standard-form-layout={booleanTrue}
@@ -188,7 +189,7 @@
                                 placeholder="Pesquisar Tabela de Preços"
                                 style="width: 100%;" 
                                 required="true"
-                                disabled={disabled}>
+                                disabled={fieldKey}>
                             </c-lookup>
                         </div>
                     </div>
@@ -306,16 +307,23 @@
                             </lightning-combobox>
                         </div>
                         <div class="slds-size_1-of-4">
-                            <lightning-combobox 
-                                name="moeda" 
-                                label="Moeda" 
-                                placeholder="Escolha a Moeda"
-                                value={headerData.moeda} 
-                                onchange={selectItemRegister} 
-                                options={moedas} 
+                            <c-lookup 
+                                name="cultura"
+                                input-label="Culturas" 
+                                object-icon-name="standard:action_list_component"
+                                target-object={redispatchCulturaObject} 
+                                record-id={headerData.cultura.Id}
+                                search-fields={redispatchCulturaSearchFields}
+                                list-item-options={redispatchCulturaListItemOptions} 
+                                new-record-button={booleanTrue}
+                                onclearselectedrecord={removeItemRegister}
+                                onselectrecord={selectItemRegister} 
+                                standard-form-layout={booleanTrue} 
+                                placeholder="Pesquisar Culturas" 
+                                style="width: 100%;"
                                 required="true"
                                 disabled={disabled}>
-                            </lightning-combobox>
+                            </c-lookup>
                         </div>
                         <div class="slds-size_1-of-4">
                             <lightning-input 
