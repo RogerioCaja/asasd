@@ -553,7 +553,7 @@ export default class OrderHeaderScreen extends LightningElement {
 
                     if(field == 'ctv_venda'){
                         let getCompanyData = {
-                            ctvId: this.headerData.ctv_venda.Id != null ? this.headerData.ctv_venda.Id : '',
+                            ctvId: this.headerDictLocale.ctv_venda.Id != null ? this.headerDictLocale.ctv_venda.Id : '',
                             accountId: this.accountData.Id != null ? this.accountData.Id : '',
                             approvalNumber: 1
                         }
