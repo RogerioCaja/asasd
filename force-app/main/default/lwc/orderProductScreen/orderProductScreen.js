@@ -126,29 +126,15 @@ export default class OrderProductScreen extends LightningElement {
             this.allDivisionProducts = this.isFilled(this.divisionData) ? this.divisionData : [];
         }
         
-        if(this.headerData.IsOrderChild) {
-            let allProducts = JSON.parse(JSON.stringify(this.products));
-            for (let index = 0; index < allProducts.length; index++) {
-                allProducts[index].commercialDiscountPercentage = '0%';
-                allProducts[index].commercialDiscountPercentageFront = '0%';
-                allProducts[index].commercialAdditionPercentage = '0%';
-                allProducts[index].commercialAdditionPercentageFront = '0%';
-                allProducts[index].financialAdditionPercentage = '0%';
-                allProducts[index].financialAdditionPercentageFront = '0%';
-                allProducts[index].financialDecreasePercentage = '0%';
-                allProducts[index].financialDecreasePercentageFront = '0%';
-                allProducts[index].commercialDiscountValueFront = 0,
-                allProducts[index].commercialAdditionValueFront = 0,
-                allProducts[index].financialAdditionValueFront = 0,
-                allProducts[index].financialDecreaseValueFront = 0,
-                allProducts[index].listPriceFront = this.fixDecimalPlacesFront(allProducts[index].listPrice),
-                allProducts[index].unitPriceFront = this.fixDecimalPlacesFront(allProducts[index].unitPrice),
-                allProducts[index].totalPriceFront = this.fixDecimalPlacesFront((allProducts[index].unitPrice * allProducts[index].quantity))
-            }
-            this.products = JSON.parse(JSON.stringify(allProducts));
-
-            this._setData();
+        let allProducts = JSON.parse(JSON.stringify(this.products));
+        let newProducts = [];
+        for (let index = 0; index < allProducts.length; index++) {
+            newProducts.push(this.newProduct(allProducts[index]));
         }
+        console.log('allProducts: ' + JSON.stringify(allProducts));
+        this.products = JSON.parse(JSON.stringify(allProducts));
+
+        if(this.headerData.IsOrderChild) this._setData();
 
         if (this.headerData.status_pedido == 'Em aprovação - Gerente Filial' || this.headerData.status_pedido == 'Em aprovação - Gerente Regional' ||
             this.headerData.status_pedido == 'Em aprovação - Diretor' || this.headerData.status_pedido == 'Em aprovação - Comitê Margem' || this.headerData.status_pedido == 'Em aprovação - Mesa de Grãos') {
@@ -204,6 +190,55 @@ export default class OrderProductScreen extends LightningElement {
                 }
             }
         });
+    }
+
+    newProduct(currentProduct) {
+        let newProduct = {
+            orderItemId: currentProduct.orderItemId,
+            name: currentProduct.name,
+            entryId: currentProduct.entryId,
+            productId: currentProduct.productId,
+            unity: currentProduct.unity,
+            productGroupId: currentProduct.productGroupId,
+            productGroupName: currentProduct.productGroupName,
+            productSubgroupName: currentProduct.productSubgroupName,
+            productHierarchyId: currentProduct.productHierarchyId,
+            sapStatus: currentProduct.sapStatus,
+            sapProductCode: currentProduct.sapProductCode,
+            activePrinciple: currentProduct.activePrinciple,
+            commercialDiscountPercentage: this.headerData.IsOrderChild ? '0%' : currentProduct.commercialDiscountPercentage,
+            commercialDiscountPercentageFront: this.headerData.IsOrderChild ? '0%' : this.fixDecimalPlacesPercentage(currentProduct.commercialDiscountPercentage),
+            commercialAdditionPercentage: this.headerData.IsOrderChild ? '0%' : currentProduct.commercialAdditionPercentage,
+            commercialAdditionPercentageFront: this.headerData.IsOrderChild ? '0%' : this.fixDecimalPlacesPercentage(currentProduct.commercialAdditionPercentage),
+            financialAdditionPercentage: this.headerData.IsOrderChild ? '0%' : currentProduct.financialAdditionPercentage,
+            financialAdditionPercentageFront: this.headerData.IsOrderChild ? '0%' : this.fixDecimalPlacesPercentage(currentProduct.financialAdditionPercentage),
+            financialDecreasePercentage: this.headerData.IsOrderChild ? '0%' : currentProduct.financialDecreasePercentage,
+            financialDecreasePercentageFront: this.headerData.IsOrderChild ? '0%' : this.fixDecimalPlacesPercentage(currentProduct.financialDecreasePercentage),
+            commercialDiscountValue: this.headerData.IsOrderChild ? 0 : currentProduct.commercialDiscountValue,
+            commercialDiscountValueFront: this.headerData.IsOrderChild ? 0 : this.fixDecimalPlacesFront(currentProduct.commercialDiscountValue),
+            commercialAdditionValue: this.headerData.IsOrderChild ? 0 : currentProduct.commercialAdditionValue,
+            commercialAdditionValueFront: this.headerData.IsOrderChild ? 0 : this.fixDecimalPlacesFront(currentProduct.commercialAdditionValue),
+            financialAdditionValue: this.headerData.IsOrderChild ? 0 : currentProduct.financialAdditionValue,
+            financialAdditionValueFront: this.headerData.IsOrderChild ? 0 : this.fixDecimalPlacesFront(currentProduct.financialAdditionValue),
+            financialDecreaseValue: this.headerData.IsOrderChild ? 0 : currentProduct.financialDecreaseValue,
+            financialDecreaseValueFront: this.headerData.IsOrderChild ? 0 : this.fixDecimalPlacesFront(currentProduct.financialDecreaseValue),
+            listPrice: currentProduct.listPrice,
+            listPriceFront: this.fixDecimalPlacesFront(currentProduct.listPrice),
+            unitPrice: currentProduct.unitPrice,
+            unitPriceFront: this.fixDecimalPlacesFront(currentProduct.unitPrice),
+            totalPrice: this.headerData.IsOrderChild ? this.fixDecimalPlaces((currentProduct.unitPrice * currentProduct.quantity)) : currentProduct.totalPrice,
+            totalPriceFront: this.headerData.IsOrderChild ? this.fixDecimalPlacesFront((currentProduct.unitPrice * currentProduct.quantity)) : this.fixDecimalPlacesFront(currentProduct.totalPrice),
+            costPrice: currentProduct.listCost,
+            listCost: currentProduct.listCost,
+            practicedCost: currentProduct.practicedCost,
+            initialTotalValue: currentProduct.initialTotalValue,
+            dosage: currentProduct.dosage,
+            quantity: currentProduct.quantity,
+            motherAvailableQuantity: currentProduct.motherAvailableQuantity,
+            invoicedQuantity: currentProduct.invoicedQuantity,
+            position: currentProduct.position
+        };
+        return newProduct;
     }
 
     chooseCompany(event) {
@@ -902,51 +937,7 @@ export default class OrderProductScreen extends LightningElement {
         console.log('currentProduct: ' + JSON.stringify(currentProduct));
         this.multiplicity = this.isFilled(currentProduct.multiplicity) ? currentProduct.multiplicity : 1;
 
-        this.addProduct = {
-            orderItemId: currentProduct.orderItemId,
-            name: currentProduct.name,
-            entryId: currentProduct.entryId,
-            productId: currentProduct.productId,
-            unity: currentProduct.unity,
-            productGroupId: currentProduct.productGroupId,
-            productGroupName: currentProduct.productGroupName,
-            productSubgroupName: currentProduct.productSubgroupName,
-            productHierarchyId: currentProduct.productHierarchyId,
-            sapStatus: currentProduct.sapStatus,
-            sapProductCode: currentProduct.sapProductCode,
-            activePrinciple: currentProduct.activePrinciple,
-            commercialDiscountPercentage: this.headerData.IsOrderChild ? '0%' : currentProduct.commercialDiscountPercentage,
-            commercialDiscountPercentageFront: this.headerData.IsOrderChild ? '0%' : this.fixDecimalPlacesPercentage(currentProduct.commercialDiscountPercentage),
-            commercialAdditionPercentage: this.headerData.IsOrderChild ? '0%' : currentProduct.commercialAdditionPercentage,
-            commercialAdditionPercentageFront: this.headerData.IsOrderChild ? '0%' : this.fixDecimalPlacesPercentage(currentProduct.commercialAdditionPercentage),
-            financialAdditionPercentage: this.headerData.IsOrderChild ? '0%' : currentProduct.financialAdditionPercentage,
-            financialAdditionPercentageFront: this.headerData.IsOrderChild ? '0%' : this.fixDecimalPlacesPercentage(currentProduct.financialAdditionPercentage),
-            financialDecreasePercentage: this.headerData.IsOrderChild ? '0%' : currentProduct.financialDecreasePercentage,
-            financialDecreasePercentageFront: this.headerData.IsOrderChild ? '0%' : this.fixDecimalPlacesPercentage(currentProduct.financialDecreasePercentage),
-            commercialDiscountValue: this.headerData.IsOrderChild ? 0 : currentProduct.commercialDiscountValue,
-            commercialDiscountValueFront: this.headerData.IsOrderChild ? 0 : this.fixDecimalPlacesFront(currentProduct.commercialDiscountValue),
-            commercialAdditionValue: this.headerData.IsOrderChild ? 0 : currentProduct.commercialAdditionValue,
-            commercialAdditionValueFront: this.headerData.IsOrderChild ? 0 : this.fixDecimalPlacesFront(currentProduct.commercialAdditionValue),
-            financialAdditionValue: this.headerData.IsOrderChild ? 0 : currentProduct.financialAdditionValue,
-            financialAdditionValueFront: this.headerData.IsOrderChild ? 0 : this.fixDecimalPlacesFront(currentProduct.financialAdditionValue),
-            financialDecreaseValue: this.headerData.IsOrderChild ? 0 : currentProduct.financialDecreaseValue,
-            financialDecreaseValueFront: this.headerData.IsOrderChild ? 0 : this.fixDecimalPlacesFront(currentProduct.financialDecreaseValue),
-            listPrice: currentProduct.listPrice,
-            listPriceFront: this.fixDecimalPlacesFront(currentProduct.listPrice),
-            unitPrice: this.headerData.IsOrderChild ? currentProduct.listPrice : currentProduct.unitPrice,
-            unitPriceFront: this.headerData.IsOrderChild ? this.fixDecimalPlacesFront(currentProduct.listPrice) : this.fixDecimalPlacesFront(currentProduct.unitPrice),
-            totalPrice: this.headerData.IsOrderChild ? this.fixDecimalPlaces((currentProduct.listPrice * currentProduct.quantity)) : currentProduct.totalPrice,
-            totalPriceFront: this.headerData.IsOrderChild ? this.fixDecimalPlacesFront((currentProduct.listPrice * currentProduct.quantity)) : this.fixDecimalPlacesFront(currentProduct.totalPrice),
-            costPrice: currentProduct.listCost,
-            listCost: currentProduct.listCost,
-            practicedCost: currentProduct.practicedCost,
-            initialTotalValue: currentProduct.initialTotalValue,
-            dosage: currentProduct.dosage,
-            quantity: currentProduct.quantity,
-            motherAvailableQuantity: currentProduct.motherAvailableQuantity,
-            invoicedQuantity: currentProduct.invoicedQuantity,
-            position: currentProduct.position
-        }
+        this.addProduct = this.newProduct(currentProduct);
         console.log('this.addProduct: ' + JSON.stringify(this.addProduct));
 
         if (recalculateFinancialValues) {
