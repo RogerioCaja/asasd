@@ -235,6 +235,7 @@ export default class OrderProductScreen extends LightningElement {
             quantity: currentProduct.quantity,
             motherAvailableQuantity: currentProduct.motherAvailableQuantity,
             invoicedQuantity: currentProduct.invoicedQuantity,
+            multiplicity: currentProduct.multiplicity,
             position: currentProduct.position
         };
         return newProduct;
@@ -934,7 +935,9 @@ export default class OrderProductScreen extends LightningElement {
         this.productPosition = position;
         let currentProduct = this.products.find(e => e.position == position);
         console.log('currentProduct: ' + JSON.stringify(currentProduct));
+        console.log('currentProduct.multiplicity: ' + JSON.stringify(currentProduct.multiplicity));
         this.multiplicity = this.isFilled(currentProduct.multiplicity) ? currentProduct.multiplicity : 1;
+        console.log('this.multiplicity: ' + this.multiplicity);
 
         this.addProduct = this.newProduct(currentProduct);
         console.log('this.addProduct: ' + JSON.stringify(this.addProduct));
