@@ -296,7 +296,7 @@ global with sharing class TemplateDataIntegrationFields {
                 CodigoSap__c = this.CodigoSap,
                 NumeroPedidoApp__c = this.numeroPedidoApp,
                 Pricebook2Id = lookups.containsKey('Pricebook2Id'+this.pricebook2Id) ? lookups.get('Pricebook2Id'+this.pricebook2Id) : null,
-                ShippingAccount__c = lookups.containsKey('ShippingAccount__c'+this.shippingAccount) ? lookups.get('ShippingAccount__c'+this.shippingAccount) : null,
+                ShippingAccount__c = lookups.containsKey('Account'+this.shippingAccount) ? lookups.get('Account'+this.shippingAccount) : null,
                 AccountId = lookups.containsKey('Account'+ this.PaymentAccount) ? lookups.get('Account'+this.PaymentAccount) : null,
                 Crop__c = lookups.containsKey('Safra__c'+this.crop) ? lookups.get('Safra__c'+this.crop) : null,
                 Culture__c = lookups.containsKey('Cultura__c'+this.culture) ? lookups.get('Cultura__c'+this.culture) : null,
