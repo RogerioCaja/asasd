@@ -6,6 +6,7 @@ export default class OrderScreenFooter extends LightningElement {
     @api frete;
     @api summary;
     @api summaryDataLocale;
+    @api headerData;
     @api summaryData;
     @api justification;
     question = false;
@@ -21,7 +22,7 @@ export default class OrderScreenFooter extends LightningElement {
 
      openOrCloseJustification(event){
         this.summaryDataLocale = {... this.summaryData};
-        if(this.summaryDataLocale.approval != 'Não precisa de aprovação'){
+        if(this.summaryDataLocale.approval != 'Não precisa de aprovação' && this.headerData.pre_pedido != false){
             needJustification().then((result) =>{
                 if(result == true){
                     this.question = !this.question;
@@ -54,4 +55,5 @@ export default class OrderScreenFooter extends LightningElement {
         });
         this.dispatchEvent(order);
     }
+
 }

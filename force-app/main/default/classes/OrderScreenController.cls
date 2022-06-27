@@ -1,5 +1,8 @@
 public without sharing class OrderScreenController {
     public static Map<Id, Integer> orderItemsPosition;
+    public static Decimal totalCost;
+    public static Decimal totalDiscount;
+    public static Decimal totalQuantity;
 
     @AuraEnabled
     public static String getOrder(String recordId, Boolean cloneOrder, Boolean checkQuantities) {
@@ -7,15 +10,20 @@ public without sharing class OrderScreenController {
         AccountSerialize account;
         List<ProductSerialize> ordItemList = new List<ProductSerialize>();
         List<DivisionSerialize> divisionList = new List<DivisionSerialize>();
+        List<CommoditySerialize> commodityList = new List<CommoditySerialize>();
         
         order = getOrderData(recordId, cloneOrder);
         if (order.condicao_venda != null) {
             ordItemList = getOrderItemData(order.Id, cloneOrder);
             divisionList = getShippingDivison();
         }
+
+        if (order.recTypeId == Schema.SObjectType.Order.getRecordTypeInfosByDeveloperName().get('VendaBarter').getRecordTypeId()) {
+            commodityList = getCommodityData(order.Id);
+        }
         account = getOrderAccountData(order.AccountId);
 
-        return JSON.serialize(new OrderSerialize(order, ordItemList, divisionList, account));
+        return JSON.serialize(new OrderSerialize(order, ordItemList, divisionList, account, commodityList));
     }
 
     @AuraEnabled
@@ -43,7 +51,7 @@ public without sharing class OrderScreenController {
     public static HeaderSerialize getOrderData(Id orderId, Boolean cloneOrder){
         Order order = [SELECT Id, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c , ShippingAccount__r.Phone,  ShippingAccount__r.Name, 
         ShippingAccount__r.BillingCity, ShippingAccount__r.BillingState ,ShippingAccount__r.CPF__c, ShippingAccount__r.CNPJ__c , SalesCondition__c, SalesCondition__r.Name, 
-        Pricebook2.InitialDate__c, Pricebook2.EndDate__c, PaymentDate__c,  CustomerOrderNumber__c, Crop__c , Crop__r.Name, Culture__c , Culture__r.Name, OrderMargin__c,
+        Pricebook2.InitialDate__c, Pricebook2.EndDate__c, PaymentDate__c,  CustomerOrderNumber__c, Crop__c , Crop__r.Name, Culture__c , Culture__r.Name, OrderMargin__c, RecordTypeId,
         PaymentForm__c, StatusSF__c, CodigoSAP__c, SalesOrg__c, SalesOrg__r.Name, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, SalesCTV__r.Name, OrderType__c,
         PaymentCondition__c, PaymentCondition__r.Name, ShippingDate__c, Incoterms__c, OrderReference__c, OrderReference__r.Name, IsOrderMother__c, Company__c, Hectare__c, Status
         FROM Order 
@@ -54,6 +62,9 @@ public without sharing class OrderScreenController {
     public static List<ProductSerialize> getOrderItemData(Id orderId, Boolean cloneOrder) {
         List<ProductSerialize> prods = new List<ProductSerialize>();
         orderItemsPosition = new Map<Id, Integer>();
+        totalCost = 0;
+        totalDiscount = 0;
+        totalQuantity = 0;
         Integer counter = 0;
         for(OrderItem item : [
             SELECT Id,
@@ -97,6 +108,9 @@ public without sharing class OrderScreenController {
               FROM OrderItem
              WHERE OrderId =: orderId
         ]){
+            totalCost += item.PracticedCost__c * item.Quantity;
+            totalDiscount += item.DiscountValue__c;
+            totalQuantity += item.Quantity;
             prods.add(new ProductSerialize(item, counter, cloneOrder));
             orderItemsPosition.put(item.Id, counter);
             counter++;
@@ -126,6 +140,28 @@ public without sharing class OrderScreenController {
         }
 
         return divisions;
+    }
+
+    public static List<CommoditySerialize> getCommodityData(Id orderId) {
+        List<CommoditySerialize> commodities = new List<CommoditySerialize>();
+        for (OrderCommodity__c orderCommodity : [
+            SELECT Id,
+                   Name,
+                   BagQuantity__c,
+                   BagMargin__c,
+                   CommodityPrice__c,
+                   Order__c,
+                   Order__r.Hectare__c,
+                   Order__r.FinalTotalValue__c,
+                   Product__c,
+                   Product__r.Name
+              FROM OrderCommodity__c
+             WHERE Order__c =: orderId
+        ]) {
+            commodities.add(new CommoditySerialize(orderCommodity));
+        }
+
+        return commodities;
     }
 
     public static AccountSerialize getOrderAccountData(Id accountId) {
@@ -241,7 +277,7 @@ public without sharing class OrderScreenController {
                     setProductHierarchyIds.add(orderProduct.productHierarchyId);
                 }
 
-                Decimal currentDiscount = orderProduct.commercialDiscountPercentage != '' ? (stringToDecimal(orderProduct.commercialDiscountPercentage) != null ? stringToDecimal(orderProduct.commercialDiscountPercentage).setScale(2) : 0) : 0;
+                Decimal currentDiscount = orderProduct.commercialDiscountPercentage != '' ? (stringToDecimal(orderProduct.commercialDiscountPercentage) != null ? stringToDecimal(orderProduct.commercialDiscountPercentage) : 0) : 0;
                 if (biggerDiscount < currentDiscount) {
                     biggerDiscount = currentDiscount;
                     productGroupId = orderProduct.productGroupId;
@@ -496,31 +532,31 @@ public without sharing class OrderScreenController {
 
                     
                     orderItem.Quantity = orderProduct.quantity;
-                    orderItem.ListPrice__c = orderProduct.listPrice != null ? orderProduct.listPrice.setScale(2) : 0;
-                    orderItem.PracticedPrice__c = orderProduct.unitPrice != null ? orderProduct.unitPrice.setScale(2) : 0;
+                    orderItem.ListPrice__c = orderProduct.listPrice != null ? orderProduct.listPrice : 0;
+                    orderItem.PracticedPrice__c = orderProduct.unitPrice != null ? orderProduct.unitPrice : 0;
                     orderItem.Dosage__c = orderProduct.dosage != null ? orderProduct.dosage.setScale(2) : 0;
                     orderItem.Status__c = orderProduct.sapStatus != null ? statusValueByLabel.get(orderProduct.sapStatus) : null;
                     orderItem.UnitMeasure__c = orderProduct.unity;
                     orderItem.FinalTotalValue__c = orderProduct.totalPrice;
-                    orderItem.ListCost__c = orderProduct.listCost != null ? orderProduct.listCost.setScale(2) : 0;
-                    orderItem.PracticedCost__c = orderProduct.practicedCost != null ? orderProduct.practicedCost.setScale(2) : 0;
-                    orderItem.DiscountPercent__c = orderProduct.commercialDiscountPercentage != '' ? (stringToDecimal(orderProduct.commercialDiscountPercentage) != null ? stringToDecimal(orderProduct.commercialDiscountPercentage).setScale(2) : 0) : 0;
-                    orderItem.DiscountValue__c = orderProduct.commercialDiscountValue != null ? orderProduct.commercialDiscountValue.setScale(2) : 0;
-                    orderItem.CommercialAdditionPercent__c = orderProduct.commercialAdditionPercentage != '' ? (stringToDecimal(orderProduct.commercialAdditionPercentage) != null ? stringToDecimal(orderProduct.commercialAdditionPercentage).setScale(2) : 0) : 0;
-                    orderItem.CommercialAdditionValue__c = orderProduct.commercialAdditionValue != null ? orderProduct.commercialAdditionValue.setScale(2) : 0;
-                    orderItem.FinancialAdditionPercent__c = orderProduct.financialAdditionPercentage != '' ? (stringToDecimal(orderProduct.financialAdditionPercentage) != null ? stringToDecimal(orderProduct.financialAdditionPercentage).setScale(2) : 0) : 0;
-                    orderItem.FinancialAdditionValue__c = orderProduct.financialAdditionValue != null ? orderProduct.financialAdditionValue.setScale(2) : 0;
-                    orderItem.FinancialDiscountPercent__c = orderProduct.financialDecreasePercentage != '' ? (stringToDecimal(orderProduct.financialDecreasePercentage) != null ? stringToDecimal(orderProduct.financialDecreasePercentage).setScale(2) : 0) : 0;
-                    orderItem.FinancialDiscountValue__c = orderProduct.financialDecreaseValue != null ? orderProduct.financialDecreaseValue.setScale(2) : 0;
-                    orderItem.ComissionValue__c = orderProduct.comissionValue != null ? orderProduct.comissionValue.setScale(2) : 0;
-                    orderItem.CommercialMargin__c = orderProduct.commercialMarginPercentage != null ? orderProduct.commercialMarginPercentage.setScale(2) : 0;
+                    orderItem.ListCost__c = orderProduct.listCost != null ? orderProduct.listCost : 0;
+                    orderItem.PracticedCost__c = orderProduct.practicedCost != null ? orderProduct.practicedCost : 0;
+                    orderItem.DiscountPercent__c = orderProduct.commercialDiscountPercentage != '' ? (stringToDecimal(orderProduct.commercialDiscountPercentage) != null ? stringToDecimal(orderProduct.commercialDiscountPercentage) : 0) : 0;
+                    orderItem.DiscountValue__c = orderProduct.commercialDiscountValue != null ? orderProduct.commercialDiscountValue : 0;
+                    orderItem.CommercialAdditionPercent__c = orderProduct.commercialAdditionPercentage != '' ? (stringToDecimal(orderProduct.commercialAdditionPercentage) != null ? stringToDecimal(orderProduct.commercialAdditionPercentage) : 0) : 0;
+                    orderItem.CommercialAdditionValue__c = orderProduct.commercialAdditionValue != null ? orderProduct.commercialAdditionValue : 0;
+                    orderItem.FinancialAdditionPercent__c = orderProduct.financialAdditionPercentage != '' ? (stringToDecimal(orderProduct.financialAdditionPercentage) != null ? stringToDecimal(orderProduct.financialAdditionPercentage) : 0) : 0;
+                    orderItem.FinancialAdditionValue__c = orderProduct.financialAdditionValue != null ? orderProduct.financialAdditionValue : 0;
+                    orderItem.FinancialDiscountPercent__c = orderProduct.financialDecreasePercentage != '' ? (stringToDecimal(orderProduct.financialDecreasePercentage) != null ? stringToDecimal(orderProduct.financialDecreasePercentage) : 0) : 0;
+                    orderItem.FinancialDiscountValue__c = orderProduct.financialDecreaseValue != null ? orderProduct.financialDecreaseValue : 0;
+                    orderItem.ComissionValue__c = orderProduct.comissionValue != null ? orderProduct.comissionValue : 0;
+                    orderItem.CommercialMargin__c = orderProduct.commercialMarginPercentage != null ? orderProduct.commercialMarginPercentage : 0;
                     orderItem.PercentComission__c = orderProduct.productHierarchyId != null && orderProduct.productHierarchyId != '' ?
                                                     (commissionByHierarchy.get(orderProduct.productHierarchyId) != null ?
                                                         (commissionByHierarchy.get(orderProduct.productHierarchyId).CommissionPercentage__c != null ? commissionByHierarchy.get(orderProduct.productHierarchyId).CommissionPercentage__c : 0) :
                                                         0
                                                     ) :
                                                     0;
-                    orderItem.ComissionValue__c = orderItem.PercentComission__c != 0 ? ((orderItem.FinalTotalValue__c * orderItem.PercentComission__c) / 100).setScale(2) : 0;
+                    orderItem.ComissionValue__c = orderItem.PercentComission__c != 0 ? ((orderItem.FinalTotalValue__c * orderItem.PercentComission__c) / 100) : 0;
                     listOrderItems.add(orderItem);
                 }
                 update motherItems.values();
@@ -650,21 +686,42 @@ public without sharing class OrderScreenController {
                 }
 
                 if (orderData.commodityData != null && orderData.commodityData.size() > 0) {
-                    List<OrderCommodity__c> insCommodities = new List<OrderCommodity__c>();
+                    List<OrderCommodity__c> upsCommodities = new List<OrderCommodity__c>();
+                    Set<Id> setCommodityIds = new Set<Id>();
                     for (CommodityDeserialize commodity : orderData.commodityData) {
-                        OrderCommodity__c orderCommodity = new OrderCommodity__c();
+                        setCommodityIds.add(commodity.commodityId);
+                    }
+
+                    Map<Id, OrderCommodity__c> commoditiesById = new Map<Id, OrderCommodity__c>();
+                    for (OrderCommodity__c commodity : [
+                        SELECT Id
+                          FROM OrderCommodity__c
+                         WHERE Id IN: setCommodityIds
+                    ]) {
+                        commoditiesById.put(commodity.Id, commodity);
+                    }
+
+                    for (CommodityDeserialize commodity : orderData.commodityData) {
+                        OrderCommodity__c orderCommodity;
+                        if (!newOrder && !cloneOrder && commoditiesById.containsKey(commodity.commodityId)) {
+                            orderCommodity = commoditiesById.get(commodity.commodityId);
+                        } else {
+                            orderCommodity = new OrderCommodity__c();
+                            orderCommodity.Order__c = order.Id;
+                        }
+
                         orderCommodity.Name = commodity.product;
                         orderCommodity.BagQuantity__c = Decimal.valueOf(commodity.totalDelivery.replace(' sacas', ''));
                         orderCommodity.BagMargin__c = Decimal.valueOf(commodity.marginValue.replace(' sacas', ''));
                         orderCommodity.CommodityPrice__c = commodity.commodityPrice;
-                        orderCommodity.Order__c = order.Id;
                         orderCommodity.Product__c = commodity.productId;
-                        insCommodities.add(orderCommodity);
+                        upsCommodities.add(orderCommodity);
                     }
-                    if (insCommodities.size() > 0) {
+                    
+                    if (upsCommodities.size() > 0) {
                         String commodityErrors = '';
-                        List<Database.UpsertResult> insCommoditiesResults = Database.upsert(insCommodities, false);
-                        for (Database.UpsertResult result : insCommoditiesResults){
+                        List<Database.UpsertResult> upsCommoditiesResults = Database.upsert(upsCommodities, false);
+                        for (Database.UpsertResult result : upsCommoditiesResults){
                             if(!result.isSuccess()){
                                 for (Database.error error: insResults.getErrors()){
                                     commodityErrors += '\n' + error.getMessage();
@@ -695,7 +752,7 @@ public without sharing class OrderScreenController {
     }
 
     @AuraEnabled
-    public static String getAccountCompanies(String data) {
+    public static String getAccountCompanies(String data, Boolean isHeader) {
         GetCompanyInfos companyInfos = (GetCompanyInfos) JSON.deserialize(data, GetCompanyInfos.class);
         Id userTerritoryId;
         for (UserTerritory2Association userAssociation : [
@@ -778,7 +835,10 @@ public without sharing class OrderScreenController {
                 companyList.add(company);
             }
         }
-        return JSON.serialize(new CompanyInfosSerialize(companyList));
+        if(isHeader)
+            return companyList[0].salesOrgId;
+        else
+            return JSON.serialize(new CompanyInfosSerialize(companyList));
     }
 
     @AuraEnabled
@@ -897,7 +957,7 @@ public without sharing class OrderScreenController {
         for (ProductDeserialize orderProduct : orderData.productData) {
             orderTotalValue += orderProduct.totalPrice;
 
-            Decimal currentDiscount = orderProduct.commercialDiscountPercentage != '' ? (stringToDecimal(orderProduct.commercialDiscountPercentage) != null ? stringToDecimal(orderProduct.commercialDiscountPercentage).setScale(2) : 0) : 0;
+            Decimal currentDiscount = orderProduct.commercialDiscountPercentage != '' ? (stringToDecimal(orderProduct.commercialDiscountPercentage) != null ? stringToDecimal(orderProduct.commercialDiscountPercentage) : 0) : 0;
             if (biggerDiscount < currentDiscount) {
                 biggerDiscount = currentDiscount;
                 productGroupId = orderProduct.productGroupId;
@@ -1059,6 +1119,7 @@ public without sharing class OrderScreenController {
     }
 
     public class CommodityDeserialize {
+        public String  commodityId;
         public String  product;
         public String  productId;
         public String  desage;
@@ -1100,6 +1161,7 @@ public without sharing class OrderScreenController {
         public AccountSerialize accountData;
         public List<ProductSerialize> productData;
         public List<DivisionSerialize> divisionData;
+        public List<CommoditySerialize> commodityData;
 
         OrderSerialize(){}       
 
@@ -1107,11 +1169,12 @@ public without sharing class OrderScreenController {
             this.accountData = account;
         }  
 
-        OrderSerialize(HeaderSerialize order, List<ProductSerialize> products, List<DivisionSerialize> divisions, AccountSerialize account){
+        OrderSerialize(HeaderSerialize order, List<ProductSerialize> products, List<DivisionSerialize> divisions, AccountSerialize account, List<CommoditySerialize> commodities){
             this.headerData = order;
             this.productData = products;
             this.divisionData = divisions;
             this.accountData = account;
+            this.commodityData = commodities;
         }
     }
 
@@ -1121,6 +1184,7 @@ public without sharing class OrderScreenController {
         public List<DivisionSerialize> divisionData;
         public AccountSerialize accountData;
         public SummarySerialize summaryData;
+        public List<CommoditySerialize> commodityData;
 
         OrderSerializeAll(){}       
 
@@ -1128,12 +1192,13 @@ public without sharing class OrderScreenController {
             this.accountData = account;
         }  
 
-        public OrderSerializeAll(HeaderSerialize order, List<ProductSerialize> products, List<DivisionSerialize> divisions, AccountSerialize account, SummarySerialize summaryData){
+        public OrderSerializeAll(HeaderSerialize order, List<ProductSerialize> products, List<DivisionSerialize> divisions, AccountSerialize account, SummarySerialize summaryData, List<CommoditySerialize> commodities){
             this.headerData = order;
             this.productData = products;
             this.divisionData = divisions;
             this.accountData = account;
             this.summaryData = summaryData;
+            this.commodityData = commodities;
         }
     }
     
@@ -1188,6 +1253,7 @@ public without sharing class OrderScreenController {
         public String  billing_sale_observation;
         public String  orderMargin;
         public String  companyId;
+        public String  recTypeId;
         public Boolean pedido_mae_check;
         public Boolean pre_pedido;
         public Boolean firstTime;
@@ -1243,6 +1309,7 @@ public without sharing class OrderScreenController {
             this.billing_sale_observation = order.DescriptionBillingSale__c;
             this.orderMargin = String.valueOf(order.OrderMargin__c) + '%';
             this.companyId = order.Company__c;
+            this.recTypeId = order.RecordTypeId;
         }
     }
 
@@ -1323,13 +1390,13 @@ public without sharing class OrderScreenController {
             this.dosage = orderItem.Dosage__c;
             this.sapStatus = orderItem.Status__c;
             this.unity = orderItem.UnitMeasure__c;
-            this.commercialDiscountPercentage = String.valueOf(orderItem.DiscountPercent__c) + '%';
+            this.commercialDiscountPercentage = orderItem.DiscountPercent__c == 0 ? '0%' : String.valueOf(orderItem.DiscountPercent__c) + '%';
             this.commercialDiscountValue = orderItem.DiscountValue__c;
-            this.commercialAdditionPercentage = String.valueOf(orderItem.CommercialAdditionPercent__c) + '%';
+            this.commercialAdditionPercentage = orderItem.CommercialAdditionPercent__c == 0 ? '0%' : String.valueOf(orderItem.CommercialAdditionPercent__c) + '%';
             this.commercialAdditionValue = orderItem.CommercialAdditionValue__c;
-            this.financialAdditionPercentage = String.valueOf(orderItem.FinancialAdditionPercent__c) + '%';
+            this.financialAdditionPercentage = orderItem.FinancialAdditionPercent__c == 0 ? '0%' : String.valueOf(orderItem.FinancialAdditionPercent__c) + '%';
             this.financialAdditionValue = orderItem.FinancialAdditionValue__c;
-            this.financialDecreasePercentage = String.valueOf(orderItem.FinancialDiscountPercent__c) + '%';
+            this.financialDecreasePercentage = orderItem.FinancialDiscountPercent__c == 0 ? '0%' : String.valueOf(orderItem.FinancialDiscountPercent__c) + '%';
             this.financialDecreaseValue = orderItem.FinancialDiscountValue__c;
             this.comissionValue = orderItem.ComissionValue__c;
             this.commercialMarginPercentage = orderItem.CommercialMargin__c;
@@ -1365,6 +1432,39 @@ public without sharing class OrderScreenController {
             this.confirmedQuantity = shippingDivison.ConfirmedQuantity__c;
             this.productPosition = productPosition;
             this.showInfos = true;
+        }
+    }
+
+    public class CommoditySerialize {
+        public String  commodityId;
+        public String  product;
+        public String  productId;
+        public String  discount;
+        public String  margin;
+        public String  marginValue;
+        public String  totalDelivery;
+        public Decimal commodityPrice;
+        public Decimal area;
+        public Decimal quantity;
+        public Decimal cotation;
+        public Boolean saved;
+
+        CommoditySerialize(){}
+
+        CommoditySerialize(OrderCommodity__c ordercommodity) {
+            Decimal margin = ((1 - (totalCost / orderCommodity.Order__r.FinalTotalValue__c)) * 100);
+            this.commodityId = orderCommodity.Id;
+            this.product = orderCommodity.Product__r.Name;
+            this.productId = orderCommodity.Product__c;
+            this.discount = (totalDiscount / orderCommodity.CommodityPrice__c) + ' sacas';
+            this.commodityPrice = orderCommodity.CommodityPrice__c;
+            this.area = orderCommodity.Order__r.Hectare__c;
+            this.quantity = totalQuantity;
+            this.margin = margin.setScale(4) + '%';
+            this.marginValue = (((orderCommodity.Order__r.FinalTotalValue__c * margin) / 100) / this.commodityPrice).setScale(4) + ' sacas';
+            this.totalDelivery = orderCommodity.BagQuantity__c + ' sacas';
+            this.cotation = orderCommodity.CommodityPrice__c;
+            this.saved = true;
         }
     }
 

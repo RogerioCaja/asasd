@@ -35,6 +35,8 @@ import getAccountDataChild from '@salesforce/apex/OrderScreenController.getAccou
 
 import getDateLimit from '@salesforce/apex/OrderScreenController.getSafraInfos';
 
+import getAccountCompanies from '@salesforce/apex/OrderScreenController.getAccountCompanies';
+
 //import FILIAL_OBJECT from '@salesforce/schema/';
 //import FILIAL_NAME from '@salesforce/schema/';
 
@@ -42,8 +44,11 @@ export default class OrderHeaderScreen extends LightningElement {
     readonly = false;
     booleanTrue = true;
     disabled = false;
+    fieldKey = true;
     paymentDisabled = false;
     barterSale = false;
+    safraName = null;
+    currencyOption = null;
     currentDate;
     dateLimit;
     dateStartBilling;
@@ -87,6 +92,7 @@ export default class OrderHeaderScreen extends LightningElement {
         firstTime: true
     };
 
+    @api salesOrgId;
     @api productData;
     @api divisionData;
     @api commodityData;
@@ -176,6 +182,26 @@ export default class OrderHeaderScreen extends LightningElement {
             value: 'Em Aprovação - Comitê Margem',
             label: 'Em Aprovação - Comitê Margem',
             description: 'Em Aprovação - Comitê Margem',
+        },
+        {
+            value: 'Em aprovação - Gerente Filial',
+            label: 'Em aprovação - Gerente Filial',
+            description: 'Em aprovação - Gerente Filial',
+        },
+        {
+            value: 'Em Aprovação - Gerente Regional',
+            label: 'Em Aprovação - Gerente Regional',
+            description: 'Em Aprovação - Gerente Regional',
+        },
+        {
+            value: 'Em Aprovação - Diretor',
+            label: 'Em Aprovação - Diretor',
+            description: 'Em Aprovação - Diretor',
+        },
+        {
+            value: 'Em Aprovação - Mesa de Grãos',
+            label: 'Em Aprovação - Mesa de Grãos',
+            description: 'Em Aprovação - Mesa de Grãos',
         },
         {
             value: 'Aprovado',
@@ -340,6 +366,7 @@ export default class OrderHeaderScreen extends LightningElement {
         this.currentDate = yyyy + '-' + mm + '-' + dd;
 
         this.loadDataHeader();
+        this._setData();
         getAccountDataChild({accountId: this.accountData.Id})
         .then((result) =>{
             console.log(result);
@@ -350,11 +377,78 @@ export default class OrderHeaderScreen extends LightningElement {
         });
     }
 
+    @api sequentialDict ={
+        "cliente_entrega": '1',
+        "ctv_venda" : '2',
+        "safra" : '3',
+        "moeda" : '4',
+        "condicao_venda" : '5'
+    }
+
+    fieldKeyList = ["cliente_entrega", "ctv_venda", "safra", "moeda", "condicao_venda"];
+    nextEnable(field){
+        let index = this.sequentialDict[field];
+        this.sequentialDict = this.invertDict();
+        index = String(Number(index) + 1)
+        let name = this.sequentialDict[index];
+        setTimeout(()=>this.template.querySelector(`[data-name="${name}"]`).disabled = false);
+        this.nextEnableEvent(Number(index));
+
+    }
+
+
+    previousDisable(index){
+        index = Number(Number(index) + 1)
+        if(Number(index) > 5){
+            this.sequentialDict = this.invertDict();
+            return;
+        }else{
+            let name = this.sequentialDict[index];
+            if(name == "condicao_venda") this.removeItemRegisterByField("condicao_venda");
+            setTimeout(()=>this.template.querySelector(`[data-name="${name}"]`).disabled = true);
+            return this.previousDisable(index)
+        }
+
+    }
+
+    nextEnableEvent(index){
+        index = Number(Number(index) + 1)
+        if(Number(index) > 5){
+            this.sequentialDict = this.invertDict();
+            return;
+        }else if(this.headerDictLocale[this.sequentialDict[index]] != ' ' && this.headerDictLocale[this.sequentialDict[index]] != null){
+            let name = this.sequentialDict[index];
+            if(name == 'condicao_venda'  && this.headerData['moeda'] != ' ' && this.headerDictLocale['safra'].hasOwnProperty("Id")){
+                let condition = "condicao_venda";
+                setTimeout(()=>this.template.querySelector(`[data-name="${condition}"]`).disabled = false);
+            }
+
+            if(name != "condicao_venda"){
+                setTimeout(()=>this.template.querySelector(`[data-name="${name}"]`).disabled = false);
+            }
+            
+            return this.nextEnableEvent(Number(index))
+        }
+        else{
+            return this.nextEnableEvent(Number(index))
+        }
+    }
+
+    invertDict(){
+        var invert = {}
+        for(var key in this.sequentialDict){
+            invert[this.sequentialDict[key]] = key;
+        }
+
+        return invert;
+    }
+
     loadDataHeader(){
 
         try{
 
             if(this.headerData){
+                this.fieldKey = true;
                 this.headerDictLocale = JSON.parse(JSON.stringify(this.headerData));
                 if (this.headerDictLocale.tipo_venda == 'Venda Conta e Ordem' || this.headerDictLocale.tipo_venda == 'Venda Entrega Futura' || this.headerDictLocale.tipo_venda == 'Venda Normal') {
                     this.allowMotherOrder = true;
@@ -364,10 +458,12 @@ export default class OrderHeaderScreen extends LightningElement {
                 }
 
                 this.barterSale = this.headerDictLocale.tipo_venda == 'Venda Barter' ? true : false;
-                if (this.headerData.status_pedido == 'Em aprovação - Gerente Filial' || this.headerData.status_pedido == 'Em aprovação - Gerente Regional' ||
-                    this.headerData.status_pedido == 'Em aprovação - Diretor' || this.headerData.status_pedido == 'Em aprovação - Comitê Margem' || this.headerData.status_pedido == 'Em aprovação - Mesa de Grãos') {
+                if (this.headerData.status_pedido.toLowerCase() == 'em aprovação - gerente filial' || this.headerData.status_pedido.toLowerCase() == 'em aprovação - gerente regional' ||
+                this.headerData.status_pedido.toLowerCase() == 'em aprovação - diretor' || this.headerData.status_pedido.toLowerCase() == 'em aprovação - comitê margem' || this.headerData.status_pedido.toLowerCase() == 'em aprovação - mesa de grãos') {
                     this.disabled = true;
                     this.paymentDisabled = true;
+                }else{
+                    setTimeout(()=>this.template.querySelector('[data-name="cliente_entrega"]').disabled = false);
                 }
 
                 this.pass = false;
@@ -376,6 +472,9 @@ export default class OrderHeaderScreen extends LightningElement {
                     this.headerDictLocale.data_pagamento = this.headerData.data_pagamento;
                     this.headerDictLocale.data_entrega = this.headerData.data_entrega ? this.headerData.data_entrega : null;
                 }
+                this.currencyOption = this.headerData.moeda;
+                
+               
             }
             else{
                 this.pass = true;
@@ -419,6 +518,10 @@ export default class OrderHeaderScreen extends LightningElement {
                     } else {
                         this.headerDictLocale[field] = field != 'pedido_mae_check' ? event.detail.value : event.target.checked;
                     }
+
+                    if(field == 'moeda'){
+                        this.currencyOption = event.target.value;
+                    }
                 }
                 else{
                     const { record } = event.detail;
@@ -443,13 +546,32 @@ export default class OrderHeaderScreen extends LightningElement {
 
                     if(field == 'safra'){
                         this.setDateLimit(record.Id);
+                        this.safraName = record.Name;
+                    }
+
+                   
+
+                    if(field == 'ctv_venda'){
+                        let getCompanyData = {
+                            ctvId: this.headerDictLocale.ctv_venda.Id != null ? this.headerDictLocale.ctv_venda.Id : '',
+                            accountId: this.accountData.Id != null ? this.accountData.Id : '',
+                            approvalNumber: 1
+                        }
+                
+                        getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: true})
+                        .then((result) => {
+                           this.salesOrgId = result;
+                        });
                     }
                 }
+                if(this.fieldKeyList.includes(field))
+                    this.nextEnable(field);
             }  
         }
         catch(err){
             console.log(err);
         }
+        
         this._verifyFieldsToSave();
     }
 
@@ -465,7 +587,7 @@ export default class OrderHeaderScreen extends LightningElement {
             UF:record.UF
         }
     }
-  
+
     removeItemRegister(event){
         try{
             var field = event.target.name;
@@ -478,11 +600,26 @@ export default class OrderHeaderScreen extends LightningElement {
                 this.headerData = JSON.parse(JSON.stringify(this.headerDictLocale));
                 this.paymentDisabled = false;
                 this._verifyFieldsToSave();
+            }else if (field == 'safra'){
+                this.safraName = null;
             }
+            if(this.fieldKeyList.includes(field)){
+                let index = this.sequentialDict[field];
+                this.sequentialDict = this.invertDict();
+                this.previousDisable(index);
+            }
+            
             this._setData();
         }catch(err){
             console.log(err);
         }
+    }
+
+    removeItemRegisterByField(field){
+        this.headerDictLocale[field] = {};
+        this.headerDictLocale.isCompleted = false;
+        this.template.querySelector(`[data-name="${field}"]`).clearAll();
+        this._setData();
     }
 
     setDateLimit(){

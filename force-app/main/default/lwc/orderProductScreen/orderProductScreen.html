@@ -62,7 +62,7 @@
 					</div>
 					<div class="column">
 						<label>Preço Lista (un)</label><br>
-						<input class="input-design" type="number" value={addProduct.listPrice} disabled/>
+						<input class="input-design" type="number" value={addProduct.listPriceFront} disabled/>
 					</div>
 				</div>
 
@@ -87,15 +87,15 @@
 					<div class="column">
 						<label>Preço Praticado (un)</label><br>
 						<template if:true={headerData.IsOrderChild}>
-							<input class="input-design" type="number" value={addProduct.unitPrice} onchange={changeValue} data-target-id="unitPrice" disabled/>
+							<input class="input-design" type="number" value={addProduct.unitPriceFront} onchange={changeValue} data-target-id="unitPrice" disabled/>
 						</template>
 						<template if:false={headerData.IsOrderChild}>
-							<input class="input-design" type="number" value={addProduct.unitPrice} onchange={changeValue} data-target-id="unitPrice" disabled={disabled}/>
+							<input class="input-design" type="number" value={addProduct.unitPriceFront} onchange={changeValue} data-target-id="unitPrice" disabled={disabled}/>
 						</template>
 					</div>
 					<div class="column">
 						<label>Preço Total</label><br>
-						<input class="input-design" type="number" value={addProduct.totalPrice} disabled/>
+						<input class="input-design" type="number" value={addProduct.totalPriceFront} disabled/>
 					</div>
 				</div>
 
@@ -106,22 +106,22 @@
 					<div class="row">
 						<div class="column">
 							<label>% Desconto Comercial</label><br>
-							<input class="input-design" type="text" value={addProduct.commercialDiscountPercentage} maxlength="8" onkeypress={changeToPercentage} onchange={changeValue} data-target-id="commercialDiscountPercentage" disabled/>
+							<input class="input-design" type="text" value={addProduct.commercialDiscountPercentageFront} maxlength="8" onkeypress={changeToPercentage} onchange={changeValue} data-target-id="commercialDiscountPercentage" disabled/>
 						</div>
 						<div class="column">
 							<label>Valor de Desconto Comercial</label><br>
-							<input class="input-design" type="number" value={addProduct.commercialDiscountValue} onchange={changeValue} data-target-id="commercialDiscountValue" disabled/>
+							<input class="input-design" type="number" value={addProduct.commercialDiscountValueFront} onchange={changeValue} data-target-id="commercialDiscountValue" disabled/>
 						</div>
 					</div>
 
 					<div class="row">
 						<div class="column">
 							<label>% Acréscimo Comercial</label><br>
-							<input class="input-design" type="text" value={addProduct.commercialAdditionPercentage} maxlength="8" onkeypress={changeToPercentage} onchange={changeValue} data-target-id="commercialAdditionPercentage" disabled/>
+							<input class="input-design" type="text" value={addProduct.commercialAdditionPercentageFront} maxlength="8" onkeypress={changeToPercentage} onchange={changeValue} data-target-id="commercialAdditionPercentage" disabled/>
 						</div>
 						<div class="column">
 							<label>Valor de Acréscimo Comercial</label><br>
-							<input class="input-design" type="number" value={addProduct.commercialAdditionValue} onchange={changeValue} data-target-id="commercialAdditionValue" disabled/>
+							<input class="input-design" type="number" value={addProduct.commercialAdditionValueFront} onchange={changeValue} data-target-id="commercialAdditionValue" disabled/>
 						</div>
 					</div>
 				</template>
@@ -130,22 +130,22 @@
 					<div class="row">
 						<div class="column">
 							<label>% Desconto Comercial</label><br>
-							<input class="input-design" type="text" value={addProduct.commercialDiscountPercentage} maxlength="8" onkeypress={changeToPercentage} onchange={changeValue} data-target-id="commercialDiscountPercentage" disabled={disabled}/>
+							<input class="input-design" type="text" value={addProduct.commercialDiscountPercentageFront} maxlength="8" onkeypress={changeToPercentage} onchange={changeValue} data-target-id="commercialDiscountPercentage" disabled={disabled}/>
 						</div>
 						<div class="column">
 							<label>Valor de Desconto Comercial</label><br>
-							<input class="input-design" type="number" value={addProduct.commercialDiscountValue} onchange={changeValue} data-target-id="commercialDiscountValue" disabled={disabled}/>
+							<input class="input-design" type="number" value={addProduct.commercialDiscountValueFront} onchange={changeValue} data-target-id="commercialDiscountValue" disabled={disabled}/>
 						</div>
 					</div>
 
 					<div class="row">
 						<div class="column">
 							<label>% Acréscimo Comercial</label><br>
-							<input class="input-design" type="text" value={addProduct.commercialAdditionPercentage} maxlength="8" onkeypress={changeToPercentage} onchange={changeValue} data-target-id="commercialAdditionPercentage" disabled={disabled}/>
+							<input class="input-design" type="text" value={addProduct.commercialAdditionPercentageFront} maxlength="8" onkeypress={changeToPercentage} onchange={changeValue} data-target-id="commercialAdditionPercentage" disabled={disabled}/>
 						</div>
 						<div class="column">
 							<label>Valor de Acréscimo Comercial</label><br>
-							<input class="input-design" type="number" value={addProduct.commercialAdditionValue} onchange={changeValue} data-target-id="commercialAdditionValue" disabled={disabled}/>
+							<input class="input-design" type="number" value={addProduct.commercialAdditionValueFront} onchange={changeValue} data-target-id="commercialAdditionValue" disabled={disabled}/>
 						</div>
 					</div>
 				</template>
@@ -157,22 +157,22 @@
 				<div class="row">
 					<div class="column">
 						<label>% Acréscimo Financeiro</label><br>
-						<input class="input-design" type="text" value={addProduct.financialAdditionPercentage} maxlength="8" data-target-id="financialAdditionPercentage" disabled/>
+						<input class="input-design" type="text" value={addProduct.financialAdditionPercentageFront} maxlength="8" data-target-id="financialAdditionPercentage" disabled/>
 					</div>
 					<div class="column">
 						<label>Valor de Acréscimo Financeiro</label><br>
-						<input class="input-design" type="number" value={addProduct.financialAdditionValue} data-target-id="financialAdditionValue" disabled/>
+						<input class="input-design" type="number" value={addProduct.financialAdditionValueFront} data-target-id="financialAdditionValue" disabled/>
 					</div>
 				</div>
 
 				<div class="row">
 					<div class="column">
 						<label>% Decréscimo Financeiro</label><br>
-						<input class="input-design" type="text" value={addProduct.financialDecreasePercentage} maxlength="8" data-target-id="financialDecreasePercentage" disabled/>
+						<input class="input-design" type="text" value={addProduct.financialDecreasePercentageFront} maxlength="8" data-target-id="financialDecreasePercentage" disabled/>
 					</div>
 					<div class="column">
 						<label>Valor de Decréscimo Financeiro</label><br>
-						<input class="input-design" type="number" value={addProduct.financialDecreaseValue} data-target-id="financialDecreaseValue" disabled/>
+						<input class="input-design" type="number" value={addProduct.financialDecreaseValueFront} data-target-id="financialDecreaseValue" disabled/>
 					</div>
 				</div>
 
@@ -387,7 +387,7 @@
 					<div class="row">
 						<div class="column">
 							<label>Quantidade a Entregar</label><br>
-							<input class="input-design" type="text" value={selectedCommodity.deliveryQuantity} disabled/> 
+							<input class="input-design" type="text" value={selectedCommodity.deliveryQuantityFront} disabled/> 
 						</div>
 						<div class="column">
 							<label>Valor PTAX Pós-Fixado</label><br>
@@ -438,11 +438,11 @@
 
 						<div class="column-25">
 							<label>Margem Total (%)</label><br>
-							<input class="input-design" type="text" value={selectedCommodity.totalMarginPercent} disabled/> 
+							<input class="input-design" type="text" value={selectedCommodity.totalMarginPercentFront} disabled/> 
 						</div>
 						<div class="column-25">
 							<label>Margem Total</label><br>
-							<input class="input-design" type="text" value={selectedCommodity.totalMarginValue} disabled/> 
+							<input class="input-design" type="text" value={selectedCommodity.totalMarginValueFront} disabled/> 
 						</div>
 					</div>
 				</div>
