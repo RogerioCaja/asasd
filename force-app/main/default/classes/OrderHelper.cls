@@ -115,9 +115,8 @@ public without sharing class OrderHelper {
                     order.StatusSF__c = 'Aprovado';
                     orderToUpdateList.add(order);
                 }
-                OrderHelper.disableTrigger();
                 update orderToUpdateList;
-                OrderHelper.enableTrigger();
+
             }
         }
         catch(Exception e){
@@ -128,7 +127,6 @@ public without sharing class OrderHelper {
 
     public static void sendApprovalProccess(Map<Id, Order> oldMap, Map<Id, Order> newMap){
         Set<Id> orderIds = new Set<Id>();
-        Set<Id> orderToUpdate = new Set<Id>();
 
         for(Id order : newMap.keySet()){
             orderIds.add(order);
@@ -154,19 +152,11 @@ public without sharing class OrderHelper {
                         }
                     }
                     else{
-                        orderToUpdate.add(id);
+                       newMap.get(id).StatusSF__c = 'Aprovado';
                     }
                 }
             }
-            if(orderToUpdate.size() > 0){
-                List<Order> orderList = [SELECT Id, StatusSF__c FROM Order WHERE Id IN: orderToUpdate];
-                List<Order> orderToUpdateList = new List<Order>();
-                for(Order order : orderList){
-                    order.StatusSF__c = 'Aprovado';
-                    orderToUpdateList.add(order);
-                }
-                update orderToUpdateList;
-            }
+            
         }
         catch(Exception e){
             System.debug(e);
