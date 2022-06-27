@@ -166,7 +166,7 @@ export default class OrderProductScreen extends LightningElement {
             approvalNumber: 1
         }
 
-        getAccountCompanies({data: JSON.stringify(getCompanyData)})
+        getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: false})
         .then((result) => {
             this.companyResult = JSON.parse(result).listCompanyInfos;
             if (this.headerData.companyId != null) {
