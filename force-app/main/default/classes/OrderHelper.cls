@@ -109,13 +109,15 @@ public without sharing class OrderHelper {
                 
             }
             if(orderToUpdate.size() > 0){
-                List<Order> orderList = [SELECT Id, StatusSF__c FROM Order WHERE Id IN: orderToUpdate];
+                List<Order> orderList = [SELECT Id, StatusSF__c FROM Order WHERE Id IN: orderToUpdate AND StatusSF__c != 'Aprovado'];
                 List<Order> orderToUpdateList = new List<Order>();
                 for(Order order : orderList){
                     order.StatusSF__c = 'Aprovado';
                     orderToUpdateList.add(order);
                 }
+                OrderHelper.disableTrigger();
                 update orderToUpdateList;
+                OrderHelper.enableTrigger();
             }
         }
         catch(Exception e){
