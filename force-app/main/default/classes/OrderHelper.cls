@@ -116,7 +116,7 @@ public without sharing class OrderHelper {
                     order.StatusSF__c = 'Aprovado';
                     orderToUpdateList.add(order);
                 }
-                System.debug('5');
+                System.debug('4');
                 update orderToUpdateList;
             }
         }
