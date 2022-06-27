@@ -244,7 +244,7 @@ public with sharing class CalloutOrder {
                     IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDEC', String.valueOf(CalloutOrder.isNotation(orderItem.CommercialAdditionValue__c)), order.Currency__c));
                 }
                 else{
-                    IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDEC', String.valueOf(CalloutOrder.isNotation(orderItem.DiscountValue__c)), order.Currency__c));
+                    IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDEC', String.valueOf(CalloutOrder.isNotation(orderItem.DiscountValue__c)*-1), order.Currency__c));
                 }
                 // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZPRS', String.valueOf(CalloutOrder.isNotation(orderItem.ListCost__c)), order.Currency__c));
                 // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZPR0', String.valueOf(CalloutOrder.isNotation(orderItem.UnitPrice)), order.Currency__c));
