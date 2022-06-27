@@ -34,7 +34,7 @@ public without sharing class OrderHelper {
         ]);
 
         Orderhelper.disableTrigger();
-        for(Order order : newRecords){
+        for(Order order : newRecords){ 
             if(order.StatusSF__c == 'Aprovado'){
                 CalloutOrder.callIntegration(order.Id);
                 CalloutOrderDatalake.callIntegration(order.Id);
@@ -115,9 +115,7 @@ public without sharing class OrderHelper {
                     order.StatusSF__c = 'Aprovado';
                     orderToUpdateList.add(order);
                 }
-                OrderHelper.disableTrigger();
                 update orderToUpdateList;
-                OrderHelper.enableTrigger();
             }
         }
         catch(Exception e){
@@ -165,9 +163,7 @@ public without sharing class OrderHelper {
                     order.StatusSF__c = 'Aprovado';
                     orderToUpdateList.add(order);
                 }
-                OrderHelper.disableTrigger();
                 update orderToUpdateList;
-                OrderHelper.enableTrigger();
             }
         }
         catch(Exception e){
