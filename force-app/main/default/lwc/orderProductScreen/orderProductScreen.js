@@ -131,8 +131,7 @@ export default class OrderProductScreen extends LightningElement {
         for (let index = 0; index < allProducts.length; index++) {
             newProducts.push(this.newProduct(allProducts[index]));
         }
-        console.log('allProducts: ' + JSON.stringify(allProducts));
-        this.products = JSON.parse(JSON.stringify(allProducts));
+        this.products = JSON.parse(JSON.stringify(newProducts));
 
         if(this.headerData.IsOrderChild) this._setData();
 
