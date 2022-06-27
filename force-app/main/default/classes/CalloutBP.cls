@@ -361,7 +361,7 @@ public with sharing class CalloutBP {
     public static IntegrationUtils.CalloutBpResponse sendOrder() {
 
         List<RequestParameters> request = new List<RequestParameters>();
-        Datetime UTC = System.now().addHours(-1); 
+        Datetime UTC = System.now().addMinutes(-10); 
         Organization orgDetails = [SELECT Id, TimeZoneSidKey FROM Organization WHERE Id = :UserInfo.getOrganizationId()]; 
         Timezone tz = Timezone.getTimeZone(orgDetails.TimeZoneSidKey);
         Datetime orgTime = UTC.addSeconds((tz.getOffset(UTC)/1000)); 
