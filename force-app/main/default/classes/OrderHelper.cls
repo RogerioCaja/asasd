@@ -35,7 +35,6 @@ public without sharing class OrderHelper {
 
         Orderhelper.disableTrigger();
         for(Order order : newRecords){ 
-            System.debug(order.StatusSF__c);
             if(order.StatusSF__c == 'Aprovado'){
                 CalloutOrder.callIntegration(order.Id);
                 CalloutOrderDatalake.callIntegration(order.Id);
@@ -110,14 +109,15 @@ public without sharing class OrderHelper {
                 
             }
             if(orderToUpdate.size() > 0){
-                List<Order> orderList = [SELECT Id, StatusSF__c FROM Order WHERE Id IN: orderToUpdate];
+                List<Order> orderList = [SELECT Id, StatusSF__c FROM Order WHERE Id IN: orderToUpdate AND StatusSF__c != 'Aprovado'];
                 List<Order> orderToUpdateList = new List<Order>();
                 for(Order order : orderList){
                     order.StatusSF__c = 'Aprovado';
                     orderToUpdateList.add(order);
                 }
-                System.debug('4');
+                OrderHelper.disableTrigger();
                 update orderToUpdateList;
+                OrderHelper.enableTrigger();
             }
         }
         catch(Exception e){
@@ -165,7 +165,6 @@ public without sharing class OrderHelper {
                     order.StatusSF__c = 'Aprovado';
                     orderToUpdateList.add(order);
                 }
-                System.debug('5');
                 update orderToUpdateList;
             }
         }
