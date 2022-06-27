@@ -3,6 +3,18 @@
     <fullName>Trava_Status_do_Pedido</fullName>
     <active>true</active>
     <description>O campo status do Pedido não pode ser alterado por nenhum perfil com exceção do Administrador de Sistema.</description>
-    <errorConditionFormula>AND( ISCHANGED(  Status  ), $Profile.Name &lt;&gt; &quot;System Administrator&quot; )</errorConditionFormula>
+    <errorConditionFormula>AND(
+ISCHANGED( Status ),
+$Profile.Name &lt;&gt; &quot;System Administrator&quot;,
+OR(
+ISPICKVAL(StatusSF__c, &apos;Integrado&apos; ),
+ISPICKVAL(StatusSF__c, &apos;Aprovado&apos; ),
+ISPICKVAL(StatusSF__c, &apos;Em Aprovação - Mesa de Grãos&apos; ),
+ISPICKVAL(StatusSF__c, &apos;Em Aprovação - Comitê Margem&apos; ),
+ISPICKVAL(StatusSF__c, &apos;Em Aprovação - Diretor&apos; ),
+ISPICKVAL(StatusSF__c, &apos;Em Aprovação - Gerente Regional &apos; ),
+ISPICKVAL(StatusSF__c, &apos;Em aprovação - Gerente Filial&apos; )
+)
+)</errorConditionFormula>
     <errorMessage>Você não tem permissão para alterar o campo de Status do Pedido.</errorMessage>
 </ValidationRule>
