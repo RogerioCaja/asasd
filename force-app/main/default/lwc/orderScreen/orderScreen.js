@@ -293,6 +293,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             }
 
             this.productData = data.productData;
+            this.commodityData = data.commodityData;
             this.qtdItens = data.productData.length;
             this.valorTotal = 0;
             try
@@ -397,7 +398,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.headerData.data_pagamento = " ";
             this.showNotification('Informe a condição de pagamento novamente', 'Atenção', 'warning');
             return;
-        } else if (!this.headerData.pre_pedido){
+        } else if (!this.headerData.pre_pedido && !this.cloneData.cloneOrder && !this.headerData.IsOrderChild){
             this.showNotification('Pedidos Efetivados não podem ser alterados', 'Atenção', 'warning');
             return;
         }
