@@ -17,16 +17,14 @@ public without sharing class OrderTriggerHandler {
     
     public void OnAfterInsert(){
         OrderHelper.sendApprovalProccess(this.newRecords);
-        OrderHelper.calloutOrderToSAP(this.newRecords);
     }
     
     public void OnBeforeUpdate(){
-        
+        OrderHelper.calloutOrderToSAP(this.newRecords);
     }
     
     public void OnAfterUpdate(){
         OrderHelper.sendApprovalProccess(this.oldMap, this.newMap);
-        OrderHelper.calloutOrderToSAP(this.newRecords);
     }
     
     public void OnBeforeDelete(){}
