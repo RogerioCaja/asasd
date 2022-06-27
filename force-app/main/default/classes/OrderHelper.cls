@@ -35,6 +35,7 @@ public without sharing class OrderHelper {
 
         Orderhelper.disableTrigger();
         for(Order order : newRecords){ 
+            System.debug(order.StatusSF__c);
             if(order.StatusSF__c == 'Aprovado'){
                 CalloutOrder.callIntegration(order.Id);
                 CalloutOrderDatalake.callIntegration(order.Id);
@@ -115,6 +116,7 @@ public without sharing class OrderHelper {
                     order.StatusSF__c = 'Aprovado';
                     orderToUpdateList.add(order);
                 }
+                System.debug('4');
                 update orderToUpdateList;
             }
         }
@@ -163,6 +165,7 @@ public without sharing class OrderHelper {
                     order.StatusSF__c = 'Aprovado';
                     orderToUpdateList.add(order);
                 }
+                System.debug('5');
                 update orderToUpdateList;
             }
         }
