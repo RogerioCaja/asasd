@@ -173,13 +173,13 @@ public with sharing class OrderPageController {
         }
 
         public String currencyLogic(Order order){
-            Id recType = [SELECT Id, Name FROM RecordType WHERE Name = 'Venda Barter'].Id;
+            Id recType = Schema.SObjectType.Order.getRecordTypeInfosByDeveloperName().get('VendaBarter').getRecordTypeId();
             String response = recType == order.RecordTypeId ? 'Barter' : order.Currency__c;
             return response;
         }
 
         public String formatCurrency(Decimal value, String currencyCode){
-            String valueToFormat = String.valueOf(value);
+            String valueToFormat = String.valueOf(value.setScale(2));
             if(currencyCode == 'BRL'){
                 valueToFormat = valueToFormat.replace('.', ',');
                 valueToFormat = 'R$ ' + valueToFormat;
@@ -207,15 +207,15 @@ public with sharing class OrderPageController {
             this.productCode = orderItem.Product2.ProductCode;
             this.description = orderItem.Product2.Name;
             this.unitOfMeasure = orderItem.Product2.GrossWeightUnitOfMeasure__c;
-            this.unitPrice = commodity != null ? formatCurrency((orderItem.UnitPrice/commodity.CommodityPrice__c), currencyCode) + ' por saca': formatCurrency((orderItem.UnitPrice), currencyCode);
+            this.unitPrice = commodity != null ? formatCurrency(((orderItem.UnitPrice*100)/(commodity.CommodityPrice__c * 100)), currencyCode) + ' por saca': formatCurrency((orderItem.UnitPrice), currencyCode);
             this.quantity =  String.valueOf(orderItem.Quantity);
-            this.totalAmount = commodity != null ? formatCurrency(Decimal.valueOf(this.unitPrice.replace(' por saca', '')) * orderItem.Quantity, currencyCode) + ' sacas' : formatCurrency(orderItem.FinalTotalValue__c, currencyCode) ;
+            this.totalAmount = commodity != null ? formatCurrency(((orderItem.UnitPrice*100)/(commodity.CommodityPrice__c * 100)) * orderItem.Quantity, currencyCode) + ' sacas' : formatCurrency(orderItem.FinalTotalValue__c, currencyCode) ;
             this.culture = culture;
             this.divisonList = divisonList;
         }
 
         public String formatCurrency(Decimal value, String currencyCode){
-            String valueToFormat = String.valueOf(value);
+            String valueToFormat = String.valueOf((value).setScale(2));
             if(currencyCode == 'BRL'){
                 valueToFormat = valueToFormat.replace('.', ',');
                 valueToFormat = 'R$ ' + valueToFormat;
@@ -234,7 +234,7 @@ public with sharing class OrderPageController {
 
         public DivisonDAO(ShippingDivison__c divison){
             this.deliveryDate =  divison.DeliveryDate__c.format();
-            this.quantity = String.valueOf(divison.Quantity__c);
+            this.quantity = String.valueOf(divison.Quantity__c.setScale(2));
         }
     }
 

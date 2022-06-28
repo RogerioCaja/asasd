@@ -44,7 +44,9 @@ public with sharing class CalloutOrderDatalake {
 			}
 
 			if (!orderList.isEmpty()) {
+                OrderHelper.disableTrigger();
 				update orderList;
+                OrderHelper.enableTrigger();
 			}
 		}
 		
