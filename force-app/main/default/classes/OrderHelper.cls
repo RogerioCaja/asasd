@@ -160,6 +160,7 @@ public without sharing class OrderHelper {
             }
             if(orderToUpdate.size() > 0){
                 List<Order> orderList = [SELECT Id, StatusSF__c FROM Order WHERE Id IN: orderToUpdate];
+                System.debug('orderList => ' + orderList);
                 List<Order> orderToUpdateList = new List<Order>();
                 for(Order order : orderList){
                     order.StatusSF__c = 'Aprovado';
@@ -172,6 +173,14 @@ public without sharing class OrderHelper {
             System.debug(e);
         } 
             
+    }
+
+    public static void verifyStatus(List<Order> newRecords){
+        for(Order order : newRecords){
+            if(order.StatusSF__c == 'Integrado' && order.CodigoSap__c != null){
+                order.addError('Não é permitido alterar um Pedido que esteja integrado com o SAP');
+            }
+        }
     }
 
     @AuraEnabled
