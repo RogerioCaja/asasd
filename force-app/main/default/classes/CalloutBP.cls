@@ -51,7 +51,7 @@ public with sharing class CalloutBP {
                 CPF__c = valor.CPF,
                 MunicipalRegistration__c = valor.InscricaoMunicipal,
                 StateRegistration__c = valor.InscricaoEstadual,
-                Email__c = valor.Email,
+                Email__c = !valor.Email.contains('.com') ? valor.Email + '.com' : valor.Email,
                 Phone = valor.Telefone,
                 Status__c = statusType);
                 
