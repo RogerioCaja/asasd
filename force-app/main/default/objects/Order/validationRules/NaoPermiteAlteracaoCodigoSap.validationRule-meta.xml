@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>NaoPermiteAlteracaoCodigoSap</fullName>
+    <active>true</active>
+    <errorConditionFormula>AND(
+CodigoSap__c!=null,
+ISPICKVAL( StatusSF__c , &apos;Integrado&apos;) 
+)</errorConditionFormula>
+    <errorMessage>Não é permitido alterar um Pedido que esteja integrado com o SAP.</errorMessage>
+</ValidationRule>
