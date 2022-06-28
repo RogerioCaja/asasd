@@ -71,12 +71,14 @@
             UserTerritory2Association userTerrAssociation = new UserTerritory2Association(Territory2Id= objTerr.Id, UserId= u.Id, RoleInTerritory2='Sales / Marketing Manager');
             insert userTerrAssociation;
             Test.setMock(HttpCalloutMock.class, new CalloutBPMock(true));
-            Account accountBefore = [SELECT Id, CPF__c FROM Account WHERE ExternalId__c = '11111'];
+            Account accountBefore = [SELECT Id, Email__c, CPF__c FROM Account WHERE ExternalId__c = '11111'];
             System.debug('accountBefore'+ accountBefore);
             Test.startTest();
             CalloutBP.processIntegration();
             Test.stopTest();
-            Account accountResult = [SELECT Id, ExternalId__c, CPF__c FROM Account WHERE ExternalId__c = '11111'];
+            Account accountResult = [SELECT Id, ExternalId__c, Email__c, CPF__c FROM Account WHERE ExternalId__c = '11111'];
+            List<ObjectTerritory2Association> objObjectTerritory2Association = new List<ObjectTerritory2Association>([SELECT Id, ObjectId, Territory2Id  FROM ObjectTerritory2Association]);
+            System.debug('objObjectTerritory2Association: '+ objObjectTerritory2Association);
             System.debug('accountResult: '+ accountResult);
         } 
     }
