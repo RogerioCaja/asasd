@@ -1,4 +1,4 @@
-public with sharing class OrderTriggerHandler {
+public without sharing class OrderTriggerHandler {
 
     List<Order> oldRecords {get; set;} // Trigger.old 
     List<Order> newRecords {get; set;} // Trigger.new
@@ -17,16 +17,14 @@ public with sharing class OrderTriggerHandler {
     
     public void OnAfterInsert(){
         OrderHelper.sendApprovalProccess(this.newRecords);
-        // OrderHelper.calloutOrderToSAP(this.newRecords);
     }
     
     public void OnBeforeUpdate(){
         OrderHelper.calloutOrderToSAP(this.newRecords);
-        OrderHelper.sendApprovalProccess(this.oldMap, this.newMap);
     }
     
     public void OnAfterUpdate(){
-        
+        OrderHelper.sendApprovalProccess(this.oldMap, this.newMap);
     }
     
     public void OnBeforeDelete(){}

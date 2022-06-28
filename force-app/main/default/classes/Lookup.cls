@@ -1,12 +1,30 @@
 public without sharing class Lookup {
     @AuraEnabled(cacheable=true)
-    public static List<SObject> getRecords(String data, Boolean barterSale) {
+    public static List<SObject> getRecords(String data, Boolean barterSale, String salesConditionData) {
         RequestDTO requestData = (RequestDTO) JSON.deserialize(data, RequestDTO.class);
-
+        SalesConditionDTO requestSalesCondition = (SalesConditionDTO) JSON.deserialize(salesConditionData, SalesConditionDTO.class);
+        
         System.debug(requestData);
 
         String query = getQueryBase(requestData);
+        Set<Id> availableSalesCondition = new Set<Id>();
 
+        if(requestData.targetObject == 'SalesCondition__c'){
+            Id recTypeZPR0 = Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get('ZPR0').getRecordTypeId();
+            
+            for(JurosDescontoAntecipao__c listPrice : [SELECT Id, SalesCondition__c
+                                                        FROM JurosDescontoAntecipao__c
+                                                        WHERE RecordTypeId =: String.escapeSingleQuotes(recTypeZPR0)
+                                                        AND StartDate__c <=: System.today()
+                                                        AND EndDate__c >=: System.today()
+                                                        AND SalesOrg__C =: requestSalesCondition.salesOrgId
+                                                        AND harvest__r.Name =: requestSalesCondition.safraName 
+                                                        AND Currency__c =: requestSalesCondition.currencyGet]){
+
+                availableSalesCondition.add(listPrice.SalesCondition__c);
+            }
+            query += ' AND Id IN: availableSalesCondition';
+        }
         Set<Id> availableCtvs = new Set<Id>();
         if (requestData.targetObject == 'User') {
             Boolean userRelatedToTerritory = false;
@@ -174,5 +192,11 @@ public without sharing class Lookup {
     public class RelationDTO {
         public String parentRelationField;
         public String parentRecord;
+    }
+
+    public class SalesConditionDTO{
+        public String safraName;
+        public String SalesOrgId;
+        public String currencyGet;
     }
 }
