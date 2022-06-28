@@ -202,7 +202,7 @@
     </actionOverrides>
     <compactLayoutAssignment>AgroGalaxyOrder</compactLayoutAssignment>
     <enableFeeds>false</enableFeeds>
-    <externalSharingModel>ControlledByParent</externalSharingModel>
+    <externalSharingModel>Private</externalSharingModel>
     <recordTypeTrackHistory>false</recordTypeTrackHistory>
     <searchLayouts>
         <customTabListAdditionalFields>ORDERS.ORDER_NUMBER</customTabListAdditionalFields>
@@ -226,5 +226,5 @@
         <searchResultsAdditionalFields>Crop__c</searchResultsAdditionalFields>
         <searchResultsAdditionalFields>SalesOrg__c</searchResultsAdditionalFields>
     </searchLayouts>
-    <sharingModel>ControlledByParent</sharingModel>
+    <sharingModel>Private</sharingModel>
 </CustomObject>
