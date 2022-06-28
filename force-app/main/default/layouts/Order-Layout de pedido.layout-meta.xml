@@ -344,11 +344,6 @@
             <actionType>StandardButton</actionType>
             <sortOrder>16</sortOrder>
         </platformActionListItems>
-        <platformActionListItems>
-            <actionName>ChangeOwnerOne</actionName>
-            <actionType>StandardButton</actionType>
-            <sortOrder>17</sortOrder>
-        </platformActionListItems>
     </platformActionList>
     <relatedLists>
         <excludeButtons>AddOrderProduct</excludeButtons>
@@ -414,7 +409,7 @@
     <showRunAssignmentRulesCheckbox>false</showRunAssignmentRulesCheckbox>
     <showSubmitAndAttachButton>false</showSubmitAndAttachButton>
     <summaryLayout>
-        <masterLabel>00h0U000004RqA2</masterLabel>
+        <masterLabel>00h0U000004SIQ0</masterLabel>
         <sizeX>4</sizeX>
         <sizeY>0</sizeY>
         <summaryLayoutStyle>Default</summaryLayoutStyle>
