@@ -42,6 +42,14 @@ public with sharing class CalloutBP {
                 }else{
                     statusType = 'Bloqueado';
                 }
+                String email = null;
+                if(!valor.Email.contains('.com')){
+                    if(valor.Email != '' && valor.Email != null){
+                        email = valor.Email + '.com';
+                    }
+                }else{
+                    email = valor.Email;
+                }
                 Account ac = new Account(
                 Name = valor.Nome,
                 Company__c = valor.Nome,    
@@ -51,7 +59,7 @@ public with sharing class CalloutBP {
                 CPF__c = valor.CPF,
                 MunicipalRegistration__c = valor.InscricaoMunicipal,
                 StateRegistration__c = valor.InscricaoEstadual,
-                Email__c = !valor.Email.contains('.com') ? valor.Email + '.com' : valor.Email,
+                Email__c = email,
                 Phone = valor.Telefone,
                 Status__c = statusType);
                 
