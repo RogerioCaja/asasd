@@ -209,7 +209,7 @@ public with sharing class OrderPageController {
             this.unitOfMeasure = orderItem.Product2.GrossWeightUnitOfMeasure__c;
             this.unitPrice = commodity != null ? formatCurrency(((orderItem.UnitPrice*100)/(commodity.CommodityPrice__c * 100)), currencyCode) + ' por saca': formatCurrency((orderItem.UnitPrice), currencyCode);
             this.quantity =  String.valueOf(orderItem.Quantity);
-            this.totalAmount = commodity != null ? formatCurrency(((orderItem.UnitPrice*100)/(commodity.CommodityPrice__c * 100)) * orderItem.Quantity, currencyCode) + ' sacas' : formatCurrency(orderItem.FinalTotalValue__c, currencyCode) ;
+            this.totalAmount = commodity != null ? formatCurrency(((orderItem.UnitPrice*100)/(commodity.CommodityPrice__c * 100)).setScale(2) * orderItem.Quantity, currencyCode) + ' sacas' : formatCurrency(orderItem.FinalTotalValue__c, currencyCode) ;
             this.culture = culture;
             this.divisonList = divisonList;
         }
