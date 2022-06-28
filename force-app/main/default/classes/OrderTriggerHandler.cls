@@ -20,6 +20,7 @@ public without sharing class OrderTriggerHandler {
     }
     
     public void OnBeforeUpdate(){
+        OrderHelper.verifyStatus(this.newRecords);
     }
     
     public void OnAfterUpdate(){
