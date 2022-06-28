@@ -36,8 +36,10 @@ global with sharing class IntegrationINShippingDivison {
 
         for (OrderItem OrderItem : [SELECT Id, ExternalId__c, Product2.ProductCode FROM OrderItem WHERE ExternalId__c IN : orderItemLookups]) {
             //Map structure for the model -> object name + parameter to record id
-            lookups.put('OrderItem__c' + orderItem.Product2.ProductCode, orderItem.Id);
+            lookups.put('OrderItem__c' + orderItem.ExternalId__c, orderItem.Id);
         }
+
+        System.debug('lookups=>'+lookups);
         
         
         // Associa as respostas do OrderItem com Order

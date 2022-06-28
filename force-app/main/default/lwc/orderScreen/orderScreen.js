@@ -16,6 +16,7 @@ import saveOrder from '@salesforce/apex/OrderScreenController.saveOrder';
 // import calloutOrder from '@salesforce/apex/OrderScreenController.callout';
 import getOrder from '@salesforce/apex/OrderScreenController.getOrder';
 import getAccount from '@salesforce/apex/OrderScreenController.getAccount';
+import getOrderByOrderItem from '@salesforce/apex/OrderScreenController.getOrderByOrderItem';
 import checkMotherQuantities from '@salesforce/apex/OrderScreenController.checkMotherQuantities';
 import { NavigationMixin } from 'lightning/navigation';
 
@@ -72,7 +73,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         pedido_mae: {},
         IsOrderChild : false,
         pedido_mae_check : true,
-        pre_pedido : false,
+        pre_pedido : true,
         frete: "CIF",
         org: {Name: " "},
         aprovation: " ",
@@ -154,13 +155,17 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     renderedCallback() {
         this.checkPreviousNextBtn();
         this.changeStyle();
-        if(this.originScreen.includes('Order')){
+        if(this.originScreen.includes('OrderItem')){
+            this.getOrderItem();
+        }else if(this.originScreen.includes('Order')){
             if(this.recordId) {
                 this.headerData.pedido_mae = this.childOrder ? {Id: this.recordId, Name: ''} : {};
                 this.getOrder();
             }
-        }else if(this.originScreen.includes('Account')){
+        }
+        else if(this.originScreen.includes('Account')){
             this.getAccount();
+           
         }
         //console.log(this.recordId, this.originScreen);
 
@@ -186,13 +191,13 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         });
     }
 
-    getOrder(){
-        console.log('getOrder');
+    getOrderItem(){
+        console.log('getOrderItem');
         if(this.headerData.Id != " ")
             return;
 
         this.isLoading = true;
-        getOrder({recordId: this.recordId, cloneOrder: this.clone.cloneOrder})
+        getOrderByOrderItem({recordId: this.recordId})
         .then((result) =>{
             const data = JSON.parse(result);
             this.accountData = data.accountData;
@@ -221,14 +226,103 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.divisionData = data.divisionData;
             this.summaryData['observation'] = this.headerData.observation;
             this.summaryData['billing_sale_observation'] = this.headerData.billing_sale_observation;
-            this.enableScreens([0, 1, 2, 3]);
-            this.completeScreens([0, 1, 2, 3]);
+            
             this.isLoading = false;
             this.cloneData.cloneOrder = this.clone.cloneOrder;
             if(this.cloneData.cloneOrder){
                 this.headerData.ctv_venda.Id = null;
                 this.headerData.status_pedido = 'Em digitação';
                 this.headerData.cliente_entrega.Id = null;
+                this.enableScreens([0, 1]);
+                this.completeScreens([0]);
+            }else{
+                this.enableScreens([0, 1, 2, 3]);
+                this.completeScreens([0, 1, 2, 3]);
+            }
+            this.headerData.condicao_venda = this.headerData.condicao_venda != null ? this.headerData.condicao_venda : ' ';
+            
+            if (this.childOrder) {
+                if (!this.headerData.pedido_mae_check) {
+                    this.showNotification('Só é possível gerar pedidos filhos a partir de um pedido mãe', 'Atenção!', 'warning');
+                    this.redirectToOrder();
+                } else if (this.headerData.codigo_sap == undefined || this.headerData.codigo_sap == null || this.headerData.codigo_sap == '') {
+                    this.showNotification('Só é possível gerar pedidos filhos após o pedido ser integrado com o SAP', 'Atenção!', 'warning');
+                    this.redirectToOrder();
+                } else {
+                    checkMotherQuantities({orderId: this.recordId})
+                    .then((motherResult) =>{
+                        if (!motherResult) {
+                            this.showNotification('Todos os produtos já foram distribuídos', 'Atenção!', 'warning');
+                            this.redirectToOrder();
+                        } else {
+                            let availableProducts = [];
+                            for (let index = 0; index < this.productData.length; index++) {
+                                if (this.productData[index].quantity > 0) {
+                                    availableProducts.push(this.productData[index]);
+                                }
+                            }
+                            this.productData = JSON.parse(JSON.stringify(availableProducts));
+                            console.log('this.productData: ' + JSON.stringify(this.productData));
+                        }
+                    })
+                }
+            }
+            // this.cloneData.pricebookListId = this.headerData.condicao_venda != ' ' ?  this.headerData.condicao_venda.Id : '';
+        })
+        .catch((err)=>{
+            console.log(err);
+            this.showNotification(err.message, 'Ocorreu algum erro');
+            this.isLoading = false;
+        })
+    }
+
+    getOrder(){
+        console.log('getOrder');
+        if(this.headerData.Id != " ")
+            return;
+
+        this.isLoading = true;
+        getOrder({recordId: this.recordId, cloneOrder: this.clone.cloneOrder})
+        .then((result) =>{
+            const data = JSON.parse(result);
+            this.accountData = data.accountData;
+            this.headerData = data.headerData;
+
+            if (this.childOrder) {
+                this.headerData.status_pedido = 'Em digitação'
+            }
+
+            this.productData = data.productData;
+            this.commodityData = data.commodityData;
+            this.qtdItens = data.productData.length;
+            this.valorTotal = 0;
+            try
+            {
+                this.productData.forEach(product =>{
+                    this.valorTotal  += parseFloat(product.totalPrice);
+                })
+                this.valorTotal = parseFloat(this.valorTotal).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
+
+            }
+            catch(e)
+            {
+                console.log(e);
+            }
+           
+            this.divisionData = data.divisionData;
+            this.summaryData['observation'] = this.headerData.observation;
+            this.summaryData['billing_sale_observation'] = this.headerData.billing_sale_observation;
+            this.isLoading = false;
+            this.cloneData.cloneOrder = this.clone.cloneOrder;
+            if(this.cloneData.cloneOrder){
+                this.headerData.ctv_venda.Id = null;
+                this.headerData.status_pedido = 'Em digitação';
+                this.headerData.cliente_entrega.Id = null;
+                this.enableScreens([0, 1]);
+                this.completeScreens([0]);
+            }else{
+                this.enableScreens([0, 1, 2, 3]);
+                this.completeScreens([0, 1, 2, 3]);
             }
             this.headerData.condicao_venda = this.headerData.condicao_venda != null ? this.headerData.condicao_venda : ' ';
             
@@ -295,14 +389,17 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         let yyyy = today.getFullYear();
         let currentDate = yyyy + '-' + mm + '-' + dd;
 
-        if (this.headerData.status_pedido == 'Em aprovação - Gerente Filial' || this.headerData.status_pedido == 'Em aprovação - Gerente Regional' ||
-            this.headerData.status_pedido == 'Em aprovação - Diretor' || this.headerData.status_pedido == 'Em aprovação - Comitê Margem' || this.headerData.status_pedido == 'Em aprovação - Mesa de Grãos') {
+        if (this.headerData.status_pedido.toLowerCase() == 'em aprovação - gerente filial' || this.headerData.status_pedido.toLowerCase() == 'em aprovação - gerente regional' ||
+            this.headerData.status_pedido.toLowerCase() == 'em aprovação - diretor' || this.headerData.status_pedido.toLowerCase() == 'em aprovação - comitê margem' || this.headerData.status_pedido.toLowerCase() == 'em aprovação - mesa de grãos') {
             this.showNotification('O pedido está Em Aprovação, portanto não pode ser alterado', 'Atenção', 'warning');
             return;
         } else if (this.headerData.pre_pedido && event.detail == 'gerarpedido' && this.headerData.condicao_pagamento.CashPayment && this.headerData.data_pagamento != currentDate) {
             this.headerData.condicao_pagamento = {Id: null, Name: null, CashPayment: null};
             this.headerData.data_pagamento = " ";
             this.showNotification('Informe a condição de pagamento novamente', 'Atenção', 'warning');
+            return;
+        } else if (!this.headerData.pre_pedido && !this.cloneData.cloneOrder && !this.headerData.IsOrderChild){
+            this.showNotification('Pedidos Efetivados não podem ser alterados', 'Atenção', 'warning');
             return;
         }
 

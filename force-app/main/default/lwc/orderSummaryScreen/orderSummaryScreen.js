@@ -65,13 +65,14 @@ export default class OrderSummaryScreen extends LightningElement {
             if(this.headerData.tipo_venda == 'Venda Barter'){
                 for(var i= 0; i< this.productDataLocale.length; i++){
                     this.isBarter = true;
-                    this.orderMargin = this.commodityDataLocale[0].marginValue;
-                    this.productDataLocale[i]['unitPrice'] = (Number(this.productDataLocale[i].unitPrice) / Number(this.commodityDataLocale[0].commodityPrice)).toFixed(4).toString() + ' por saca';
-                    this.productDataLocale[i]['totalPrice']  = Number(Number(this.productDataLocale[i]['unitPrice'].toString().replace(' por saca', '')) * Number(this.productDataLocale[i].quantity)).toFixed(2).toString() + ' sacas';
-                    this.productDataLocale[i]['commercialDiscountValue']  =  this.commodityDataLocale[0].discount;
-                    let totalProductPrice = Number(this.productDataLocale[i].unitPrice.replace(' por saca', '')) * Number(this.productDataLocale[i].quantity);
-                    this.productDataLocale[i]['commercialDiscountPercentage']  =  this.productDataLocale[i].commercialDiscountPercentage;
-                    this.productDataLocale[i]['commercialMarginPercentage']  = Number((Number(this.productDataLocale[i].commercialMarginPercentage) / 100) * Number(totalProductPrice)).toFixed(2).toString() + ' sacas';
+                    this.orderMargin = this.commodityDataLocale[0].marginValueFront;
+                    let unitPrice = Number(this.productDataLocale[i].unitPrice) / Number(this.commodityDataLocale[0].commodityPrice);
+                    this.productDataLocale[i]['unitPrice'] = this.fixDecimalPlacesFront(unitPrice).toString() + ' por saca';
+                    this.productDataLocale[i]['totalPrice']  = this.fixDecimalPlacesFront(Number(Number(this.productDataLocale[i]['unitPrice'].toString().replace(' por saca', '')) * Number(this.productDataLocale[i].quantity))).toString() + ' sacas';
+                    this.productDataLocale[i]['commercialDiscountValue']  =  this.commodityDataLocale[0].discountFront;
+                    let totalProductPrice = Number(unitPrice) * Number(this.productDataLocale[i].quantity);
+                    this.productDataLocale[i]['commercialDiscountPercentage']  =  this.productDataLocale[i].commercialDiscountPercentageFront;
+                    this.productDataLocale[i]['commercialMarginPercentage']  = this.fixDecimalPlacesFront(Number((Number(this.productDataLocale[i].commercialMarginPercentage) / 100) * Number(totalProductPrice))).toString() + ' sacas';
                     this.productDataLocale[i]['divisionData'] = [];
                     if(this.divisionData){
                         for(var j=0; j< this.divisionData.length; j++){
@@ -85,11 +86,11 @@ export default class OrderSummaryScreen extends LightningElement {
                 for(var i= 0; i< this.productDataLocale.length; i++){
                     orderTotalPrice += Number(this.productDataLocale[i].unitPrice) * Number(this.productDataLocale[i].quantity);
                     orderTotalCost += Number(this.productDataLocale[i].practicedCost) * Number(this.productDataLocale[i].quantity);
-                    this.productDataLocale[i]['unitPrice'] = this.formatCurrency(this.productDataLocale[i].unitPrice);
-                    this.productDataLocale[i]['totalPrice']  = this.formatCurrency(this.productDataLocale[i].totalPrice);
-                    this.productDataLocale[i]['commercialDiscountValue']  =  this.formatCurrency(this.productDataLocale[i].commercialDiscountValue);
-                    this.productDataLocale[i]['commercialDiscountPercentage']  =  this.productDataLocale[i].commercialDiscountPercentage;
-                    this.productDataLocale[i]['commercialMarginPercentage']  = this.productDataLocale[i].commercialMarginPercentage + '%';
+                    this.productDataLocale[i]['unitPrice'] = this.formatCurrency(this.productDataLocale[i].unitPriceFront);
+                    this.productDataLocale[i]['totalPrice']  = this.formatCurrency(this.productDataLocale[i].totalPriceFront);
+                    this.productDataLocale[i]['commercialDiscountValue']  =  this.formatCurrency(this.productDataLocale[i].commercialDiscountValueFront);
+                    this.productDataLocale[i]['commercialDiscountPercentage']  =  this.productDataLocale[i].commercialDiscountPercentageFront;
+                    this.productDataLocale[i]['commercialMarginPercentage']  = this.fixDecimalPlacesFront(this.productDataLocale[i].commercialMarginPercentage) + '%';
                     this.productDataLocale[i]['divisionData'] = [];
                     if(this.divisionData){
                         for(var j=0; j< this.divisionData.length; j++){
@@ -102,7 +103,7 @@ export default class OrderSummaryScreen extends LightningElement {
             
             if(this.headerData.tipo_venda != 'Venda Barter')
             {
-                this.orderMargin = ((1 - (orderTotalCost / orderTotalPrice)) * 100).toFixed(2) + '%';
+                this.orderMargin = this.fixDecimalPlacesFront((1 - (orderTotalCost / orderTotalPrice)) * 100) + '%';
             }
             this.summaryDataLocale.orderMargin = this.orderMargin;
             this.defineOrderMargin();
@@ -132,6 +133,10 @@ export default class OrderSummaryScreen extends LightningElement {
         }
         //num = parseFloat(num).toFixed()+'%';
 
+    }
+
+    fixDecimalPlacesFront(value) {
+        return Number(Math.round(value + 'e' + 2) + 'e-' + 2);
     }
 
     changeObservation(event){

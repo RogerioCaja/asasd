@@ -1,4 +1,4 @@
-public with sharing class OrderHelper {
+public without sharing class OrderHelper {
     public OrderHelper() {
 
     }
@@ -34,7 +34,7 @@ public with sharing class OrderHelper {
         ]);
 
         Orderhelper.disableTrigger();
-        for(Order order : newRecords){
+        for(Order order : newRecords){ 
             if(order.StatusSF__c == 'Aprovado'){
                 CalloutOrder.callIntegration(order.Id);
                 CalloutOrderDatalake.callIntegration(order.Id);
@@ -109,13 +109,15 @@ public with sharing class OrderHelper {
                 
             }
             if(orderToUpdate.size() > 0){
-                List<Order> orderList = [SELECT Id, StatusSF__c FROM Order WHERE Id IN: orderToUpdate];
+                List<Order> orderList = [SELECT Id, StatusSF__c FROM Order WHERE Id IN: orderToUpdate AND StatusSF__c != 'Aprovado'];
                 List<Order> orderToUpdateList = new List<Order>();
                 for(Order order : orderList){
                     order.StatusSF__c = 'Aprovado';
                     orderToUpdateList.add(order);
                 }
+                OrderHelper.disableTrigger();
                 update orderToUpdateList;
+                OrderHelper.enableTrigger();
             }
         }
         catch(Exception e){
@@ -125,7 +127,6 @@ public with sharing class OrderHelper {
     }
 
     public static void sendApprovalProccess(Map<Id, Order> oldMap, Map<Id, Order> newMap){
-
         Set<Id> orderIds = new Set<Id>();
         Set<Id> orderToUpdate = new Set<Id>();
 
@@ -139,6 +140,7 @@ public with sharing class OrderHelper {
                 if(oldMap.get(id).Status == '0' && newMap.get(id).Status == '001'){
                     if(newMap.get(id).MarginCommittee__c || newMap.get(id).Manager_BranchOffice__c || newMap.get(id).Gerente_Regional__c || newMap.get(id).Director__c || orderMap.get(newMap.get(id).RecordTypeId).getName() == 'Venda Barter')
                     {
+                        
                         try{
                             Approval.ProcessSubmitRequest administrationRequest = new Approval.ProcessSubmitRequest();
                             administrationRequest.setProcessDefinitionNameOrId('OrderApproval5');
@@ -156,7 +158,6 @@ public with sharing class OrderHelper {
                     }
                 }
             }
-            
             if(orderToUpdate.size() > 0){
                 List<Order> orderList = [SELECT Id, StatusSF__c FROM Order WHERE Id IN: orderToUpdate];
                 List<Order> orderToUpdateList = new List<Order>();
@@ -169,7 +170,7 @@ public with sharing class OrderHelper {
         }
         catch(Exception e){
             System.debug(e);
-        }
+        } 
             
     }
 

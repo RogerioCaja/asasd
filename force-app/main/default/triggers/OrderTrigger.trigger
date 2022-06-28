@@ -12,7 +12,7 @@ trigger OrderTrigger on Order (after insert, before insert, before update, after
                 //BEFORE INSERT Method
             }
             when AFTER_UPDATE{
-                // handler.OnAfterUpdate();
+                handler.OnAfterUpdate();
             }
             when BEFORE_UPDATE{
                 handler.OnBeforeUpdate();

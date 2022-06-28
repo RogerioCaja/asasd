@@ -30,7 +30,6 @@ global with sharing class IntegrationINProduct {
             orgVProductListToUpsert.addAll(product.orgVProductItems);
             System.debug('orgVProductListToUpsert --->' + orgVProductListToUpsert);
         }
-            System.debug('orgVProductListToUpsert2 --->' + orgVProductListToUpsert);
         // Pega o Id da conta com base no CNPJ da conta
         //Account search based on CNPJ field sent
         for (ProductGroup__c productGroup : [SELECT Id, ExternalId__c FROM ProductGroup__c WHERE ExternalId__c IN : productGroupLookups]) {
@@ -84,7 +83,6 @@ global with sharing class IntegrationINProduct {
                 response.items.addAll(orgVproductResponse.get(response.externalCode));
             }
         }
-        //Verificar se o responselist está de acordo com o ExternalCode 
 
         //Checking integration errors to log
         // Verifica erros de integração para o log
@@ -122,6 +120,7 @@ global with sharing class IntegrationINProduct {
         public ResponseModel(List<TemplateDataIntegrationFields.ResponseParent> response) {
 
             this.response = response;
+            
         }
         public ResponseModel() {   
             this.response = new List<TemplateDataIntegrationFields.ResponseParent>();         

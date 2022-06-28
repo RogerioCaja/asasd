@@ -148,6 +148,8 @@ global with sharing class IntegrationINOrder {
 
         }
 
+        System.debug('shippingDivisonListToUpsert=>'+shippingDivisonListToUpsert);
+
         Map<String, List<TemplateDataIntegrationFields.Response>> shippingDivisonResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
         if(shippingDivisonListToUpsert.size() != 0){
             shippingDivisonResponse.putAll(
@@ -176,7 +178,9 @@ global with sharing class IntegrationINOrder {
             else if(orderItemsResponse.size() != 0 && orderItemsResponse.containsKey(response.externalCode)){
                 response.items.addAll(orderItemsResponse.get(response.externalCode));
                 for(TemplatedataIntegrationFields.Response orderItem : orderItemsResponse.get(response.externalCode)){
-                    response.items.addAll(shippingDivisonResponse.get(orderItem.externalCode)); 
+                    if(shippingDivisonResponse.size() != 0 && shippingDivisonResponse.containsKey(orderItem.externalCode)){
+                        response.items.addAll(shippingDivisonResponse.get(orderItem.externalCode)); 
+                    }
                 }
             }
         }
