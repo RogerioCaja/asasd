@@ -173,13 +173,13 @@ public with sharing class OrderPageController {
         }
 
         public String currencyLogic(Order order){
-            Id recType = [SELECT Id, Name FROM RecordType WHERE Name = 'Venda Barter'].Id;
+            Id recType = Schema.SObjectType.Order.getRecordTypeInfosByDeveloperName().get('VendaBarter').getRecordTypeId();
             String response = recType == order.RecordTypeId ? 'Barter' : order.Currency__c;
             return response;
         }
 
         public String formatCurrency(Decimal value, String currencyCode){
-            String valueToFormat = String.valueOf(value);
+            String valueToFormat = String.valueOf(value.setScale(2));
             if(currencyCode == 'BRL'){
                 valueToFormat = valueToFormat.replace('.', ',');
                 valueToFormat = 'R$ ' + valueToFormat;
@@ -215,7 +215,7 @@ public with sharing class OrderPageController {
         }
 
         public String formatCurrency(Decimal value, String currencyCode){
-            String valueToFormat = String.valueOf(value);
+            String valueToFormat = String.valueOf(value.setScale(2));
             if(currencyCode == 'BRL'){
                 valueToFormat = valueToFormat.replace('.', ',');
                 valueToFormat = 'R$ ' + valueToFormat;
@@ -234,7 +234,7 @@ public with sharing class OrderPageController {
 
         public DivisonDAO(ShippingDivison__c divison){
             this.deliveryDate =  divison.DeliveryDate__c.format();
-            this.quantity = String.valueOf(divison.Quantity__c);
+            this.quantity = String.valueOf(divison.Quantity__c.setScale(2));
         }
     }
 
