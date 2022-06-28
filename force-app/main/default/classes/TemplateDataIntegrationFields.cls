@@ -252,6 +252,13 @@ global with sharing class TemplateDataIntegrationFields {
         public Date ShippingDate;
         public String DescriptionBillingSale;
         public String OrderReference;
+
+        public String condicaoVenda;
+        public Boolean pedidoMae;
+        public Decimal valorFinalTotal;
+        public Decimal hectare;
+        public Decimal margemPedido;
+        public String orderType;
         //public String clienteCode; 
         public List<TemplateDataIntegrationFields.OrderItemINData> orderItems;
         public List<TemplateDataIntegrationFields.ShippingDivisonINData> shippingDivison;
@@ -318,7 +325,15 @@ global with sharing class TemplateDataIntegrationFields {
                 Incoterms__c = this.incoterms,
                 Incoterms2__c = this.incoterms,
                 Description = this.description,
-                DescriptionBillingSale__c = this.descriptionBillingSale
+                DescriptionBillingSale__c = this.descriptionBillingSale,
+                FinalTotalValue__c = this.valorFinalTotal,
+                Hectare__c = this.hectare,
+                OrderMargin__c = this.margemPedido,
+                OrderType__c = this.orderType,
+                //RecordTypeId
+                SalesCondition__c = this.condicaoVenda,
+                IsOrderMother__c = this.pedidoMae
+                //Company__c
             );
         }
 
@@ -357,7 +372,12 @@ global with sharing class TemplateDataIntegrationFields {
         public Decimal valorDescontoFin;
         public Decimal porcentagemAcrescFin;
         public Decimal valorAcrescFin;
-
+        public Decimal porcentagemAcrescComercial;
+        public Decimal valorAcrescComercial;
+        public Decimal dosagem;
+        public Decimal custoLista;
+        public Decimal custoPreco;
+        public Decimal precoPraticado;
         public OrderItem serialize(Map<String, Id> lookups){
 
             return new OrderItem(
@@ -367,7 +387,7 @@ global with sharing class TemplateDataIntegrationFields {
                 ExternalId__c = this.orderExternalId + '|' + this.orderItemCode,
                 Quantity = this.quantidade,
                 UnitMeasure__c = this.unidadeMedida,
-                UnitPrice = this.listaPreco,
+                ListPrice = this.listaPreco,
                 PercentComission__c = this.porcentagemComissao,
                 DiscountPercent__c = this.porcentagemDesconto,
                 ComissionValue__c = this.comissaoValor,
@@ -377,8 +397,14 @@ global with sharing class TemplateDataIntegrationFields {
                 FinancialDiscountPercent__c = this.porcentagemDescontoFin,
                 FinancialDiscountValue__c = this.valorDescontoFin,
                 FinancialAdditionPercent__c = this.porcentagemAcrescFin,
-                FinancialAdditionValue__c = this.valorAcrescFin 
-                 
+                FinancialAdditionValue__c = this.valorAcrescFin,
+                CommercialAdditionPercent__c = this.porcentagemAcrescComercial,
+                CommercialAdditionValue__c = this.valorAcrescComercial,
+                Dosage__c = this.dosagem,
+                ListCost__c = this.custoLista,
+                NumeroSap__c = this.orderItemCode,
+                PracticedCost__c = this.custoPreco,
+                PracticedPrice__c = this.precoPraticado
             );
         }
         public List<String> getRequiredFields(){
