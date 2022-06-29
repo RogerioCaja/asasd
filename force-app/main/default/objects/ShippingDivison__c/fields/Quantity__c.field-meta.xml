@@ -5,7 +5,7 @@
     <label>Quantidade</label>
     <precision>18</precision>
     <required>false</required>
-    <scale>7</scale>
+    <scale>6</scale>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>
     <type>Number</type>

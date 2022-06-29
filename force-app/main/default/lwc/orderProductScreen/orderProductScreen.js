@@ -720,7 +720,7 @@ export default class OrderProductScreen extends LightningElement {
     }
 
     fixDecimalPlaces(value) {
-        return (+(Math.trunc(+(value + 'e' + 7)) + 'e' + -7)).toFixed(7);
+        return (+(Math.trunc(+(value + 'e' + 6)) + 'e' + -6)).toFixed(6);
     }
 
     calculatePercentage(valueToBeCalculated, total) {

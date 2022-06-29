@@ -925,13 +925,16 @@ public without sharing class OrderScreenController {
 
     @AuraEnabled
     public static String getSafraInfos(String safraId){
-        Safra__c safra = [SELECT Id,
-                                 BillingStartDate__c,
-                                 EndDateBilling__c,
-                                 NumberOfDaysAfterPayment__c,
-                                 PaymentBaseDate__c
-                            FROM Safra__c
-                           WHERE Id =: safraId];
+        Safra__c safra = [
+            SELECT Id,
+                   BillingStartDate__c,
+                   EndDateBilling__c,
+                   NumberOfDaysAfterPayment__c,
+                   PaymentBaseDate__c
+              FROM Safra__c
+             WHERE Id =: safraId
+        ];
+
         return JSON.serialize(new SafraDataSerialize(safra));
     }
 
