@@ -200,7 +200,7 @@ global with sharing class IntegrationINOrder {
         }
 		
         //Creating integration log
-        IntegrationLog.createLog('Order', 'IN', JSON.serialize(request), JSON.serialize(responseList), hasError);
+        IntegrationLog.createLog('Order - Alteração OV', 'IN', JSON.serialize(request), JSON.serialize(responseList), hasError);
         
         //Returning response
          // Retorna a resposta Outbound
