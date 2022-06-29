@@ -231,6 +231,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.cloneData.cloneOrder = this.clone.cloneOrder;
             if(this.cloneData.cloneOrder){
                 this.headerData.ctv_venda.Id = null;
+                this.headerData.companyId = null;
                 this.headerData.status_pedido = 'Em digitação';
                 this.headerData.cliente_entrega.Id = null;
                 this.enableScreens([0, 1]);
@@ -316,6 +317,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.cloneData.cloneOrder = this.clone.cloneOrder;
             if(this.cloneData.cloneOrder){
                 this.headerData.ctv_venda.Id = null;
+                this.headerData.companyId = null;
                 this.headerData.status_pedido = 'Em digitação';
                 this.headerData.cliente_entrega.Id = null;
                 this.enableScreens([0, 1]);
