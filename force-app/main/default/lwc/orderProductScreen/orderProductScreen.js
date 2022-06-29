@@ -205,21 +205,21 @@ export default class OrderProductScreen extends LightningElement {
             sapStatus: currentProduct.sapStatus,
             sapProductCode: currentProduct.sapProductCode,
             activePrinciple: currentProduct.activePrinciple,
-            commercialDiscountPercentage: this.headerData.IsOrderChild ? '0%' : currentProduct.commercialDiscountPercentage,
+            commercialDiscountPercentage: currentProduct.commercialDiscountPercentage,
             commercialDiscountPercentageFront: this.headerData.IsOrderChild ? '0%' : this.fixDecimalPlacesPercentage(currentProduct.commercialDiscountPercentage),
-            commercialAdditionPercentage: this.headerData.IsOrderChild ? '0%' : currentProduct.commercialAdditionPercentage,
+            commercialAdditionPercentage: currentProduct.commercialAdditionPercentage,
             commercialAdditionPercentageFront: this.headerData.IsOrderChild ? '0%' : this.fixDecimalPlacesPercentage(currentProduct.commercialAdditionPercentage),
-            financialAdditionPercentage: this.headerData.IsOrderChild ? '0%' : currentProduct.financialAdditionPercentage,
+            financialAdditionPercentage: currentProduct.financialAdditionPercentage,
             financialAdditionPercentageFront: this.headerData.IsOrderChild ? '0%' : this.fixDecimalPlacesPercentage(currentProduct.financialAdditionPercentage),
-            financialDecreasePercentage: this.headerData.IsOrderChild ? '0%' : currentProduct.financialDecreasePercentage,
+            financialDecreasePercentage: currentProduct.financialDecreasePercentage,
             financialDecreasePercentageFront: this.headerData.IsOrderChild ? '0%' : this.fixDecimalPlacesPercentage(currentProduct.financialDecreasePercentage),
-            commercialDiscountValue: this.headerData.IsOrderChild ? 0 : currentProduct.commercialDiscountValue,
+            commercialDiscountValue: currentProduct.commercialDiscountValue,
             commercialDiscountValueFront: this.headerData.IsOrderChild ? 0 : this.fixDecimalPlacesFront(currentProduct.commercialDiscountValue),
-            commercialAdditionValue: this.headerData.IsOrderChild ? 0 : currentProduct.commercialAdditionValue,
+            commercialAdditionValue: currentProduct.commercialAdditionValue,
             commercialAdditionValueFront: this.headerData.IsOrderChild ? 0 : this.fixDecimalPlacesFront(currentProduct.commercialAdditionValue),
-            financialAdditionValue: this.headerData.IsOrderChild ? 0 : currentProduct.financialAdditionValue,
+            financialAdditionValue: currentProduct.financialAdditionValue,
             financialAdditionValueFront: this.headerData.IsOrderChild ? 0 : this.fixDecimalPlacesFront(currentProduct.financialAdditionValue),
-            financialDecreaseValue: this.headerData.IsOrderChild ? 0 : currentProduct.financialDecreaseValue,
+            financialDecreaseValue: currentProduct.financialDecreaseValue,
             financialDecreaseValueFront: this.headerData.IsOrderChild ? 0 : this.fixDecimalPlacesFront(currentProduct.financialDecreaseValue),
             listPrice: currentProduct.listPrice,
             listPriceFront: this.fixDecimalPlacesFront(currentProduct.listPrice),
@@ -584,8 +584,8 @@ export default class OrderProductScreen extends LightningElement {
                     this.calculateDiscountOrAddition();
                     this.calculateTotalPrice(true);
                 } else {
-                    this.addProduct.totalPrice = this.fixDecimalPlaces((this.addProduct.listPrice * this.addProduct.quantity));
-                    this.addProduct.totalPriceFront = this.fixDecimalPlacesFront((this.addProduct.listPrice * this.addProduct.quantity));
+                    this.addProduct.totalPrice = this.fixDecimalPlaces((this.addProduct.unitPrice * this.addProduct.quantity));
+                    this.addProduct.totalPriceFront = this.fixDecimalPlacesFront((this.addProduct.unitPrice * this.addProduct.quantity));
                 }
             }
         }
