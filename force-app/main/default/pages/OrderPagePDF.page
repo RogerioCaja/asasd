@@ -24,8 +24,9 @@
                 <div>INSCRIÇÃO ESTADUAL 136445977</div>
             </td>
             <td class="information_monetary">
-                <div> {! orderToPage.codeSapOrder } </div><br/>
-                <div> PEDIDO DE VENDA </div>
+                <div> {! orderToPage.codeSapOrder } </div>
+                <div> Codigo SF: {! orderToPage.orderNumber } </div>
+                <div> Pedido Salesforce</div>
                 <div>
                     <section><apex:image value="{!If(orderToPage.currencyOrder == 'BRL', '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}"/> Reais</section>
                     <section><apex:image value="{!If(orderToPage.currencyOrder == 'USD', '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}"/> Dólar</section>

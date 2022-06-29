@@ -1,4 +1,8 @@
 /* Estilos globais */
+@page { 
+    size: a4;
+} 
+
 table {
     margin-top: 10px;
     width: 100%;
@@ -36,14 +40,11 @@ th{
     width: 250px;
 }
 .information_monetary > div:first-child{
-    /* padding-bottom: 15px; */
-    text-transform: uppercase;
-    color: red;
-    font-size: 10pt;
+    padding-top: 10px;
 }
 
 .information_monetary > div{
-    padding-bottom: 5px;
+    padding-bottom: 10px;
 }
 /* ------------------------------ */
 
