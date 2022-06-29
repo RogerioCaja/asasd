@@ -6,7 +6,7 @@
             </div>
         <div if:false={isLoading} class="conteudo">
             <div class="title">
-                <span>Nova Venda</span>
+                <span>Nova Venda</span><span if:true={headerData.orderNumber}> - {headerData.orderNumber}</span>
                 <hr>
             </div>
             <!--COMEÇO NAVBAR-->
@@ -19,19 +19,19 @@
                     </svg>
                     Voltar
                 </a>
-                <a class="current" onclick={handleTab} data-tab-name="account" data-tab="0">
+                <a class="current" data-tab-name="account" data-tab="0">
                     <input type="checkbox" name="" disabled>
                     Seleção da Conta
                 </a>
-                <a class="" onclick={handleTab} data-tab-name="header" data-tab="1">
+                <a class="" data-tab-name="header" data-tab="1">
                     <input type="checkbox" name="" disabled>
                     Detalhes da Venda
                 </a>
-                <a class="" onclick={handleTab} data-tab-name="product" data-tab="2">
+                <a class="" data-tab-name="product" data-tab="2">
                     <input type="checkbox" name="" disabled>
                     Seleção de Produtos
                 </a>
-                <a class="" onclick={handleTab} data-tab-name="summary" data-tab="3">
+                <a class="" data-tab-name="summary" data-tab="3">
                     <input type="checkbox" name="" disabled>
                     Resumo da Venda
                 </a>
