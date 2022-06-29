@@ -88,8 +88,8 @@ export default class OrderSummaryScreen extends LightningElement {
                     orderTotalCost += Number(this.productDataLocale[i].practicedCost) * Number(this.productDataLocale[i].quantity);
                     this.productDataLocale[i]['unitPrice'] = this.formatCurrency(this.productDataLocale[i].unitPriceFront);
                     this.productDataLocale[i]['totalPrice']  = this.formatCurrency(this.productDataLocale[i].totalPriceFront);
-                    this.productDataLocale[i]['commercialDiscountValue']  =  this.formatCurrency(this.productDataLocale[i].commercialDiscountValueFront);
-                    this.productDataLocale[i]['commercialDiscountPercentage']  =  this.productDataLocale[i].commercialDiscountPercentageFront;
+                    this.productDataLocale[i]['commercialDiscountValue']  =  this.formatCurrency(this.fixDecimalPlacesFront(this.productDataLocale[i].commercialDiscountValue));
+                    this.productDataLocale[i]['commercialDiscountPercentage']  =  this.fixDecimalPlacesPercentage(this.productDataLocale[i].commercialDiscountPercentage);
                     this.productDataLocale[i]['commercialMarginPercentage']  = this.fixDecimalPlacesFront(this.productDataLocale[i].commercialMarginPercentage) + '%';
                     this.productDataLocale[i]['divisionData'] = [];
                     if(this.divisionData){
@@ -137,6 +137,12 @@ export default class OrderSummaryScreen extends LightningElement {
 
     fixDecimalPlacesFront(value) {
         return Number(Math.round(value + 'e' + 2) + 'e-' + 2);
+    }
+
+    fixDecimalPlacesPercentage(value) {
+        value = value.toString().includes(',') ? value.toString().replace(',', '.') : value.toString();
+        value = value.includes('%') ? Number(value.replace('%', '')) : Number(value);
+        return Number(Math.round(value + 'e' + 2) + 'e-' + 2).toString().replace('.', ',') + '%';
     }
 
     changeObservation(event){
