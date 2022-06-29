@@ -384,6 +384,7 @@ global with sharing class TemplateDataIntegrationFields {
         public Decimal custoLista;
         public Decimal custoPreco;
         public Decimal precoPraticado;
+        public Decimal precoUnitario;
         public OrderItem serialize(Map<String, Id> lookups){
 
             return new OrderItem(
@@ -410,7 +411,8 @@ global with sharing class TemplateDataIntegrationFields {
                 ListCost__c = this.custoLista,
                 NumeroSap__c = this.orderItemCode,
                 PracticedCost__c = this.custoPreco,
-                PracticedPrice__c = this.precoPraticado
+                PracticedPrice__c = this.precoPraticado,
+                UnitPrice = this.precoUnitario
             );
         }
         public List<String> getRequiredFields(){
