@@ -49,7 +49,7 @@ public without sharing class OrderScreenController {
     }
 
     public static HeaderSerialize getOrderData(Id orderId, Boolean cloneOrder){
-        Order order = [SELECT Id, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c , ShippingAccount__r.Phone,  ShippingAccount__r.Name, 
+        Order order = [SELECT Id, OrderNumber, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c , ShippingAccount__r.Phone,  ShippingAccount__r.Name, 
         ShippingAccount__r.BillingCity, ShippingAccount__r.BillingState ,ShippingAccount__r.CPF__c, ShippingAccount__r.CNPJ__c , SalesCondition__c, SalesCondition__r.Name, 
         Pricebook2.InitialDate__c, Pricebook2.EndDate__c, PaymentDate__c,  CustomerOrderNumber__c, Crop__c , Crop__r.Name, Culture__c , Culture__r.Name, OrderMargin__c, RecordTypeId,
         PaymentForm__c, StatusSF__c, CodigoSAP__c, SalesOrg__c, SalesOrg__r.Name, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, SalesCTV__r.Name, OrderType__c,
@@ -715,6 +715,9 @@ public without sharing class OrderScreenController {
                         orderCommodity.BagMargin__c = Decimal.valueOf(commodity.marginValue.replace(' sacas', ''));
                         orderCommodity.CommodityPrice__c = commodity.commodityPrice;
                         orderCommodity.Product__c = commodity.productId;
+                        orderCommodity.StartDate__c = Date.valueOf(commodity.startDate);
+                        orderCommodity.EndDate__c = Date.valueOf(commodity.endDate);
+                        orderCommodity.DeliveryAddress__c = commodity.deliveryAddress;
                         upsCommodities.add(orderCommodity);
                     }
                     
@@ -1128,6 +1131,9 @@ public without sharing class OrderScreenController {
         public String  margin;
         public String  marginValue;
         public String  totalDelivery;
+        public String  startDate;
+        public String  endDate;
+        public String  deliveryAddress;
         public Decimal quantity;
         public Decimal commodityPrice;
         public Boolean saved;
@@ -1234,6 +1240,7 @@ public without sharing class OrderScreenController {
     
     public class HeaderSerialize {
         public String  Id;
+        public String  orderNumber;
         public String  AccountId;
         public String  tipo_venda;
         public String  filial;
@@ -1271,6 +1278,7 @@ public without sharing class OrderScreenController {
         HeaderSerialize(){}
         HeaderSerialize(Order order, Boolean cloneOrder){
             this.Id = order.Id;
+            this.orderNumber = order.OrderNumber;
             this.AccountId = order.AccountId;
             this.tipo_venda = order.Type;
 

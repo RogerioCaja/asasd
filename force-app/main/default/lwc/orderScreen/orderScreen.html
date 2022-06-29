@@ -6,7 +6,7 @@
             </div>
         <div if:false={isLoading} class="conteudo">
             <div class="title">
-                <span>Nova Venda</span>
+                <span>Nova Venda</span><span if:true={headerData.orderNumber}> - {headerData.orderNumber}</span>
                 <hr>
             </div>
             <!--COMEÇO NAVBAR-->

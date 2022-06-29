@@ -1208,6 +1208,9 @@ export default class OrderProductScreen extends LightningElement {
             totalDelivery: this.selectedCommodity.deliveryQuantity,
             totalDeliveryFront: this.selectedCommodity.deliveryQuantityFront,
             cotation: this.selectedCommodity.cotation,
+            startDate: this.selectedCommodity.startDate,
+            endDate: this.selectedCommodity.endDate,
+            deliveryAddress : this.selectedCommodity.deliveryAddress,
             saved: false
         });
     }
@@ -1248,10 +1251,21 @@ export default class OrderProductScreen extends LightningElement {
         this.summaryScreen = false;
         // this.haScreen = false;
 
+        //Validation
+        if(this.currentScreen== 'fillCommodity' && this.commodityScreens[this.commodityScreens.indexOf(this.currentScreen) + 1] == 'negotiationDetails'){
+            if(!(this.isFilled(this.selectedCommodity.startDate) && this.isFilled(this.selectedCommodity.endDate) && this.selectedCommodity.deliveryAddress != "")){
+                this.showToast('warning', 'Atenção', 'Campos Obrigatórios não preenchidos.');
+                this.commoditySelected = true;
+                return;
+            }
+        }
+
         this.currentScreen = this.commodityScreens[this.commodityScreens.indexOf(this.currentScreen) + 1];
         if (this.currentScreen == 'chooseCommodity') {this.selectCommodityScreen = true;this.chooseCommodities = true;}
-        if (this.currentScreen == 'fillCommodity') this.commoditySelected = true;
+        if (this.currentScreen == 'fillCommodity')  this.commoditySelected = true;
         if (this.currentScreen == 'negotiationDetails') this.fillCommodity();
+     
+
         // if (this.currentScreen == 'haScreen') this.haScreen = true;
     }
 

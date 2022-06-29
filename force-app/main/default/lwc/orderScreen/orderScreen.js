@@ -50,6 +50,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     @api headerDataTitle = {};
     @api headerData = {
         Id: " ",
+        orderNumber: null,
         AccountId: " ",
         tipo_venda: " ",
         filial: " ",
@@ -233,6 +234,10 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
                 this.headerData.ctv_venda.Id = null;
                 this.headerData.status_pedido = 'Em digitação';
                 this.headerData.cliente_entrega.Id = null;
+                this.headerData.orderNumber = null;
+                this.enableScreens([0, 1]);
+                this.completeScreens([0]);
+            }else if(this.childOrder){
                 this.enableScreens([0, 1]);
                 this.completeScreens([0]);
             }else{
@@ -318,6 +323,11 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
                 this.headerData.ctv_venda.Id = null;
                 this.headerData.status_pedido = 'Em digitação';
                 this.headerData.cliente_entrega.Id = null;
+                this.headerData.orderNumber = null;
+                this.enableScreens([0, 1]);
+                this.completeScreens([0]);
+            }else if(this.childOrder){
+                this.headerData.orderNumber = null;
                 this.enableScreens([0, 1]);
                 this.completeScreens([0]);
             }else{
