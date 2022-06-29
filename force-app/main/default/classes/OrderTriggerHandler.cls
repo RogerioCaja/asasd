@@ -17,6 +17,7 @@ public with sharing class OrderTriggerHandler {
     
     public void OnAfterInsert(){
         OrderHelper.sendApprovalProccess(this.newRecords);
+        OrderHelper.creatyShareRecord(this.newRecords);
         // OrderHelper.calloutOrderToSAP(this.newRecords);
     }
     

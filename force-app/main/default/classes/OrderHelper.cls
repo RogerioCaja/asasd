@@ -1,4 +1,4 @@
-public with sharing class OrderHelper {
+public without sharing class OrderHelper {
     public OrderHelper() {
 
     }
@@ -140,5 +140,20 @@ public with sharing class OrderHelper {
             System.debug(e);
         }
             
+    }
+
+    //  Trigger para preenchimento de OrderShare
+    public static void creatyShareRecord(List<Order> orderList){//after insert,update
+        List<OrderShare> orderShareList = new List<OrderShare>();
+        for(Order ord : orderList){
+            if(ord.SalesCTV__c != null && ord.SalesCTV__c != ord.OwnerId){
+                OrderShare orderShare = new OrderShare (OrderAccessLevel = 'Edit', RowCause = 'Manual', UserOrGroupId = ord.SalesCTV__c, OrderId = ord.Id);
+                orderShareList.add(orderShare);
+            }
+            
+        }
+        if (!orderShareList.isEmpty()) {
+            upsert orderShareList;
+        }
     }
 }
