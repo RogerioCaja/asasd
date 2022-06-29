@@ -44,7 +44,7 @@ public with sharing class OrderPageController {
     public static Order getOrderById(Id orderId){
   
         Set<String> fieldSet = new Set<String>{
-            'Id', 'Account.ExternalId__c', 'Account.Name', 'Account.BillingStreet',
+            'Id', 'Account.ExternalId__c', 'Account.Name', 'Account.BillingStreet', 'OrderNumber',
             'ShippingAccount__r.Name','Account.BillingCity', 'Account.StateRegistration__c',
             'Account.CPF__c', 'Account.CNPJ__c', 'TotalAmount', 'Description',
             'Account.BillingPostalCode', 'Crop__r.Name', 'PaymentForm__c', 'PaymentDate__c', 'RecordTypeId',
@@ -131,6 +131,7 @@ public with sharing class OrderPageController {
         //Cód. Pessoa, Pessoa, Local, Fazenda, municipio, CPF/CNPJ, I.E., CEP
         //safra, Cond. de Pagamento, Vencimento
         public String codCTV {get; set;}
+        public String orderNumber {get; set;}
         public String nameCTV {get; set;}
         public String codeSap {get; set;}
         public String codeSapOrder {get; set;}
@@ -152,7 +153,8 @@ public with sharing class OrderPageController {
 
         public OrderDAO(Order order){
             this.codeSap = order.Account.ExternalId__c;
-            this.codeSapOrder = order.CodigoSap__c;
+            this.orderNumber = order.OrderNumber;
+            this.codeSapOrder = order.CodigoSap__c != null ? 'Codigo SAP: ' + order.CodigoSap__c : '';
             this.account = order.Account.Name;
             this.accountAddress = order.Account.BillingStreet;
             this.ranch = order.ShippingAccount__r.Name;
@@ -209,7 +211,7 @@ public with sharing class OrderPageController {
             this.unitOfMeasure = orderItem.Product2.GrossWeightUnitOfMeasure__c;
             this.unitPrice = commodity != null ? formatCurrency(((orderItem.UnitPrice*100)/(commodity.CommodityPrice__c * 100)), currencyCode) + ' por saca': formatCurrency((orderItem.UnitPrice), currencyCode);
             this.quantity =  String.valueOf(orderItem.Quantity);
-            this.totalAmount = commodity != null ? formatCurrency(((orderItem.UnitPrice*100)/(commodity.CommodityPrice__c * 100)) * orderItem.Quantity, currencyCode) + ' sacas' : formatCurrency(orderItem.FinalTotalValue__c, currencyCode) ;
+            this.totalAmount = commodity != null ? formatCurrency(((orderItem.UnitPrice*100)/(commodity.CommodityPrice__c * 100)).setScale(2) * orderItem.Quantity, currencyCode) + ' sacas' : formatCurrency(orderItem.FinalTotalValue__c, currencyCode) ;
             this.culture = culture;
             this.divisonList = divisonList;
         }
