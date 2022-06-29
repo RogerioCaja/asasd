@@ -347,6 +347,11 @@ lightning-datatable.dt-outer-container {
 	color: #2a9676;
 }
 
+.required::after{
+	content: ' \002A';
+	color: red;
+}
+
 @media screen and (max-width: 750px) {
 	.card {
 		width: 45%;
