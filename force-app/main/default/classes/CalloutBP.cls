@@ -287,7 +287,7 @@ public with sharing class CalloutBP {
     public static void creatyCompany(List<CompanyINData> companyList, Map<String, Id> lookups, Map<String, String> nameLookups){
         String statusName;
         List<Company__c> companyListToUpsert = new List<Company__c>();
-        Map<String,String> arrumar = new Map<String,String>();
+        Map<String,String> checkExternalId = new Map<String,String>();
         for(CompanyINData valor : companyList){
             if(valor.Status == ''){
                 statusName = 'Adicionada';
@@ -311,8 +311,8 @@ public with sharing class CalloutBP {
             SalesSector__c = valor.SetorVendas,
             ExternalId__c = valor.CodigoExternoAccount + valor.CentroFornecedor + valor.OrganizacaoVendas + valor.SetorAtividade + valor.CanalDistribuicao + valor.EscritorioVendas + valor.EquipeVendas
             );
-            if(!arrumar.containsKey(company.ExternalId__c)){
-                arrumar.put(company.ExternalId__c,company.ExternalId__c);
+            if(!checkExternalId.containsKey(company.ExternalId__c)){
+                checkExternalId.put(company.ExternalId__c,company.ExternalId__c);
                 companyListToUpsert.add(company);
             }
             
