@@ -271,6 +271,10 @@ global with sharing class TemplateDataIntegrationFields {
         public List<TemplateDataIntegrationFields.PartnerInsert> partners;
         public Order serialize(Map<String, Id> lookups){
 
+            if(pedidoMae == null){
+                pedidoMae = false;
+            }
+
             if(CodigoSap == '' || CodigoSap == null){
                 CodigoSap = 'Inserção AppDigital';
             }
