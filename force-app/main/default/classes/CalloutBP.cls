@@ -50,6 +50,7 @@ public with sharing class CalloutBP {
                 }else{
                     email = valor.Email;
                 }
+                
                 Account ac = new Account(
                 Name = valor.Nome,
                 Company__c = valor.Nome,    
