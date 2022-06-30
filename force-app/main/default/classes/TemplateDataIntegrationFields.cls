@@ -271,6 +271,10 @@ global with sharing class TemplateDataIntegrationFields {
         public List<TemplateDataIntegrationFields.PartnerInsert> partners;
         public Order serialize(Map<String, Id> lookups){
 
+            if(CodigoSap == '' || CodigoSap == null){
+                CodigoSap = 'Inserção AppDigital';
+            }
+
             switch on Status {
                 when 'Em análise de Crédito' {
                     Status = '1';
@@ -367,7 +371,6 @@ global with sharing class TemplateDataIntegrationFields {
         public Decimal quantidade;
         //public String centro;
         public String unidadeMedida;
-        public Decimal listaPreco;
         public Decimal porcentagemComissao;
         public Decimal porcentagemDesconto;
         public Decimal comissaoValor;
@@ -394,7 +397,6 @@ global with sharing class TemplateDataIntegrationFields {
                 ExternalId__c = this.orderExternalId + '|' + this.orderItemCode,
                 Quantity = this.quantidade,
                 UnitMeasure__c = this.unidadeMedida,
-                ListPrice = this.listaPreco,
                 PercentComission__c = this.porcentagemComissao,
                 DiscountPercent__c = this.porcentagemDesconto,
                 ComissionValue__c = this.comissaoValor,
