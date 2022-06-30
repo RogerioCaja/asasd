@@ -1,5 +1,5 @@
 @RestResource(urlMapping='/upsertINOrder/*')
-global with sharing class IntegrationINOrder {
+global without sharing class IntegrationINOrder {
     public IntegrationINOrder() {
 
     }
