@@ -82,7 +82,7 @@ public with sharing class CalloutBP {
             }           
             if (!accountList.isEmpty()) {
                 System.debug('accountList: '+accountList);
-                upsert accountList ExternalId__c;
+                Database.upsert(accountList, Account.ExternalId__c, false);
             }
             creatyAccountTerrytoryAssossiation(accountList, userCodigoSapList, resp, companyList);
 
@@ -273,7 +273,7 @@ public with sharing class CalloutBP {
         System.debug('resultList'+ resultList);
         if (!resultList.isEmpty()) {
             Try{
-                upsert resultList;
+                Database.upsert(resultList, false);
              } 
              Catch(System.Exception e){
                 System.debug('Exception type caught: ' + e.getTypeName());
@@ -287,6 +287,7 @@ public with sharing class CalloutBP {
     public static void creatyCompany(List<CompanyINData> companyList, Map<String, Id> lookups, Map<String, String> nameLookups){
         String statusName;
         List<Company__c> companyListToUpsert = new List<Company__c>();
+        Map<String,String> checkExternalId = new Map<String,String>();
         for(CompanyINData valor : companyList){
             if(valor.Status == ''){
                 statusName = 'Adicionada';
@@ -308,14 +309,18 @@ public with sharing class CalloutBP {
             SupplierCenter__c = valor.CentroFornecedor,
             Status__c = statusName,
             SalesSector__c = valor.SetorVendas,
-            ExternalId__c = valor.CodigoExternoAccount + valor.OrganizacaoVendas + valor.SetorAtividade + valor.CanalDistribuicao + valor.EscritorioVendas + valor.EquipeVendas
+            ExternalId__c = valor.CodigoExternoAccount + valor.CentroFornecedor + valor.OrganizacaoVendas + valor.SetorAtividade + valor.CanalDistribuicao + valor.EscritorioVendas + valor.EquipeVendas
             );
-            companyListToUpsert.add(company);
+            if(!checkExternalId.containsKey(company.ExternalId__c)){
+                checkExternalId.put(company.ExternalId__c,company.ExternalId__c);
+                companyListToUpsert.add(company);
+            }
+            
         }
         System.debug('companyListToUpsert: '+ companyListToUpsert);
         if (!companyListToUpsert.isEmpty()) {
             Try{
-                upsert companyListToUpsert ExternalId__c;
+                Database.upsert(companyListToUpsert, Company__c.ExternalId__c, false);
              } 
              Catch(System.Exception e){
                 System.debug('Exception type caught: ' + e.getTypeName());
@@ -354,7 +359,7 @@ public with sharing class CalloutBP {
         System.debug('creditListToUpsert'+ creditListToUpsert);
         if (!creditListToUpsert.isEmpty()) {
             Try{
-                upsert creditListToUpsert ExternalId__c;
+                Database.upsert(creditListToUpsert, LimiteCredito__c.ExternalId__c, false);
              } 
              Catch(System.Exception e){
                 System.debug('Exception type caught: ' + e.getTypeName());
