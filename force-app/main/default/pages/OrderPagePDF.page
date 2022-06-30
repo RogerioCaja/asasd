@@ -16,12 +16,12 @@
                 <apex:image url="{!URLFOR($Resource.Images_logo, 'ImageToPDF/imgs/agro3-960x540.jpg')}" width="160" height="90" alt="Description of image here"/>
             </td>
             <td class="information_org">
-                <div>RURAL BRASIL - PRIMAVERA</div>
-                <div>RUA OLIVEIRO PORTA PRIMAVERA II</div>
-                <div>CEP 7885000 - PRIMAVERA DO LERSTE = MT</div>
-                <div>FONE (66) 3498-2139</div>
-                <div>CNPJ 149479000001470</div>
-                <div>INSCRIÇÃO ESTADUAL 136445977</div>
+                <div>{! orderToPage.salesTeamName }</div>
+                <div>{! orderToPage.salesTeamLocale }</div>
+                <div>{! orderToPage.salesTeamLocation }</div>
+                <div>FONE {! orderToPage.salesTeamPhone }</div>
+                <div>CNPJ {! orderToPage.salesTeamCNPJ }</div>
+                <div>INSCRIÇÃO ESTADUAL {! orderToPage.salesTeamIE }</div>
             </td>
             <td class="information_monetary">
                 <div> {! orderToPage.codeSapOrder } </div>
