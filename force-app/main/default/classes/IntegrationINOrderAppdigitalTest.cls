@@ -140,7 +140,6 @@ public with sharing class IntegrationINOrderAppdigitalTest {
         //listOrderItem.productCode = '100';
         listOrderItem.quantidade = 1;
         listOrderItem.unidadeMedida = '1';
-        listOrderItem.listaPreco = 2;
         listOrderItem.porcentagemComissao = 2;
         listOrderItem.porcentagemDesconto = 2;
         listOrderItem.comissaoValor = 4;
