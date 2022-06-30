@@ -1,5 +1,5 @@
 @RestResource(urlMapping='/upsertOrderAppdigital/*')
-global with sharing class IntegrationINOrderAppdigital {
+global without sharing class IntegrationINOrderAppdigital {
     public IntegrationINOrderAppdigital() {
 
     }
@@ -104,7 +104,7 @@ global with sharing class IntegrationINOrderAppdigital {
         for (User salesCTV : [SELECT Id, CodigoSap__c FROM User WHERE CodigoSap__c IN: salesCTVLookups]){
             lookups.put('User' + salesCTV.CodigoSap__c, salesCTV.Id);
        }
-
+       
         for (CondicaoPagamento__c paymentCondition : [SELECT Id, Name from CondicaoPagamento__c WHERE Name IN: paymentConditionLookups]){
             lookups.put('CondicaoPagamento__c' + paymentCondition.Code__c, paymentCondition.Id);
         }
