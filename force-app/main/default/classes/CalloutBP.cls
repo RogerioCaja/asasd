@@ -50,7 +50,6 @@ public with sharing class CalloutBP {
                 }else{
                     email = valor.Email;
                 }
-                
                 Account ac = new Account(
                 Name = valor.Nome,
                 Company__c = valor.Nome,    
@@ -77,13 +76,13 @@ public with sharing class CalloutBP {
                 accountList.add(ac);
             }
             for(CompanyINData company : companyList){
-                for(ItemsPartner partner : company.Partners){
-                    userCodigoSapList.add(partner.Partner);
+                if(company.Partner != null && company.Partner != ''){
+                    userCodigoSapList.add(company.Partner);
                 }
             }           
             if (!accountList.isEmpty()) {
                 System.debug('accountList: '+accountList);
-                upsert accountList ExternalId__c;
+                Database.upsert(accountList, Account.ExternalId__c, false);
             }
             creatyAccountTerrytoryAssossiation(accountList, userCodigoSapList, resp, companyList);
 
@@ -241,15 +240,13 @@ public with sharing class CalloutBP {
         List<String> objectTerritoryObjectIdList = new List<String>();
         List<String> objectTerritoryTerritory2IdList = new List<String>();
         for(CompanyINData company : companyList){
-            for(ItemsPartner partner : company.Partners){
-                UserTerritory2Association userTerrytory = userTerrytoryMap.get(partner.Partner);
-                String accountId = accountExternalIdMap.get(company.CodigoExternoAccount);
-                if(userTerrytory != null){
-                    objectTerritoryTerritory2IdList.add(userTerrytory.Territory2Id);
-                    objectTerritoryObjectIdList.add(accountId);
-                    ObjectTerritory2Association objObjectTerritory2Association = new ObjectTerritory2Association(ObjectId = accountId, Territory2Id = userTerrytory.Territory2Id, AssociationCause='Territory2Manual');
-                	objectTerritoryList.add(objObjectTerritory2Association);
-                }
+            UserTerritory2Association userTerrytory = userTerrytoryMap.get(company.Partner);
+            String accountId = accountExternalIdMap.get(company.CodigoExternoAccount);
+            if(userTerrytory != null){
+                objectTerritoryTerritory2IdList.add(userTerrytory.Territory2Id);
+                objectTerritoryObjectIdList.add(accountId);
+                ObjectTerritory2Association objObjectTerritory2Association = new ObjectTerritory2Association(ObjectId = accountId, Territory2Id = userTerrytory.Territory2Id, AssociationCause='Territory2Manual');
+            	objectTerritoryList.add(objObjectTerritory2Association);
             }
         }
         Set<ObjectTerritory2Association> removeDuplicates = new Set<ObjectTerritory2Association>();
@@ -271,10 +268,12 @@ public with sharing class CalloutBP {
                 }
             }
         }
+        removeDuplicates.addAll(objectTerritoryList);
+        resultList.addAll(removeDuplicates);
         System.debug('resultList'+ resultList);
         if (!resultList.isEmpty()) {
             Try{
-                upsert resultList;
+                Database.upsert(resultList, false);
              } 
              Catch(System.Exception e){
                 System.debug('Exception type caught: ' + e.getTypeName());
@@ -288,6 +287,7 @@ public with sharing class CalloutBP {
     public static void creatyCompany(List<CompanyINData> companyList, Map<String, Id> lookups, Map<String, String> nameLookups){
         String statusName;
         List<Company__c> companyListToUpsert = new List<Company__c>();
+        Map<String,String> checkExternalId = new Map<String,String>();
         for(CompanyINData valor : companyList){
             if(valor.Status == ''){
                 statusName = 'Adicionada';
@@ -309,14 +309,18 @@ public with sharing class CalloutBP {
             SupplierCenter__c = valor.CentroFornecedor,
             Status__c = statusName,
             SalesSector__c = valor.SetorVendas,
-            ExternalId__c = valor.CodigoExternoAccount + valor.OrganizacaoVendas + valor.SetorAtividade + valor.CanalDistribuicao + valor.EscritorioVendas + valor.EquipeVendas
+            ExternalId__c = valor.CodigoExternoAccount + valor.CentroFornecedor + valor.OrganizacaoVendas + valor.SetorAtividade + valor.CanalDistribuicao + valor.EscritorioVendas + valor.EquipeVendas
             );
-            companyListToUpsert.add(company);
+            if(!checkExternalId.containsKey(company.ExternalId__c)){
+                checkExternalId.put(company.ExternalId__c,company.ExternalId__c);
+                companyListToUpsert.add(company);
+            }
+            
         }
         System.debug('companyListToUpsert: '+ companyListToUpsert);
         if (!companyListToUpsert.isEmpty()) {
             Try{
-                upsert companyListToUpsert ExternalId__c;
+                Database.upsert(companyListToUpsert, Company__c.ExternalId__c, false);
              } 
              Catch(System.Exception e){
                 System.debug('Exception type caught: ' + e.getTypeName());
@@ -355,7 +359,7 @@ public with sharing class CalloutBP {
         System.debug('creditListToUpsert'+ creditListToUpsert);
         if (!creditListToUpsert.isEmpty()) {
             Try{
-                upsert creditListToUpsert ExternalId__c;
+                Database.upsert(creditListToUpsert, LimiteCredito__c.ExternalId__c, false);
              } 
              Catch(System.Exception e){
                 System.debug('Exception type caught: ' + e.getTypeName());
@@ -370,7 +374,7 @@ public with sharing class CalloutBP {
     public static IntegrationUtils.CalloutBpResponse sendOrder() {
 
         List<RequestParameters> request = new List<RequestParameters>();
-        Datetime UTC = System.now().addMinutes(-10); 
+        Datetime UTC = System.now().addMinutes(-10);  
         Organization orgDetails = [SELECT Id, TimeZoneSidKey FROM Organization WHERE Id = :UserInfo.getOrganizationId()]; 
         Timezone tz = Timezone.getTimeZone(orgDetails.TimeZoneSidKey);
         Datetime orgTime = UTC.addSeconds((tz.getOffset(UTC)/1000)); 
@@ -497,7 +501,7 @@ public with sharing class CalloutBP {
 
     public class CompanyINData{
     
-    public List<ItemsPartner> Partners;
+    public String Partner;
     public String CodigoExternoAccount;    
     public String OrganizacaoVendas;
     public String SetorAtividade;
@@ -509,8 +513,5 @@ public with sharing class CalloutBP {
     public String GrupoClientes;
     public String Status;
     public String SetorVendas;
-    }
-    public class ItemsPartner{
-        public String Partner;
     }
 }
