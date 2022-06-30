@@ -241,10 +241,10 @@ public with sharing class CalloutOrder {
                 
                 IT_ITEMS_IN.add(new CalloutOrder.OrderItemParameters(orderItem));
                 if(orderItem.FinancialAdditionValue__c > 0){
-                    IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDEC', String.valueOf(CalloutOrder.isNotation(orderItem.CommercialAdditionPercent__c)), '%'));
+                    IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDEC', String.valueOf(CalloutOrder.isNotation(orderItem.CommercialAdditionPercent__c)), ''));
                 }
                 else{
-                    IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDEC', String.valueOf(CalloutOrder.isNotation(orderItem.DiscountPercent__c)*-1), '%'));
+                    IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDEC', String.valueOf(CalloutOrder.isNotation(orderItem.DiscountPercent__c)*-1), ''));
                 }
                 // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZPRS', String.valueOf(CalloutOrder.isNotation(orderItem.ListCost__c)), order.Currency__c));
                 // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZPR0', String.valueOf(CalloutOrder.isNotation(orderItem.UnitPrice)), order.Currency__c));
