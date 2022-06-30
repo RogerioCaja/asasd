@@ -50,7 +50,6 @@ public with sharing class CalloutBP {
                 }else{
                     email = valor.Email;
                 }
-                
                 Account ac = new Account(
                 Name = valor.Nome,
                 Company__c = valor.Nome,    
@@ -77,8 +76,8 @@ public with sharing class CalloutBP {
                 accountList.add(ac);
             }
             for(CompanyINData company : companyList){
-                for(ItemsPartner partner : company.Partners){
-                    userCodigoSapList.add(partner.Partner);
+                if(company.Partner != null && company.Partner != ''){
+                    userCodigoSapList.add(company.Partner);
                 }
             }           
             if (!accountList.isEmpty()) {
@@ -241,15 +240,13 @@ public with sharing class CalloutBP {
         List<String> objectTerritoryObjectIdList = new List<String>();
         List<String> objectTerritoryTerritory2IdList = new List<String>();
         for(CompanyINData company : companyList){
-            for(ItemsPartner partner : company.Partners){
-                UserTerritory2Association userTerrytory = userTerrytoryMap.get(partner.Partner);
-                String accountId = accountExternalIdMap.get(company.CodigoExternoAccount);
-                if(userTerrytory != null){
-                    objectTerritoryTerritory2IdList.add(userTerrytory.Territory2Id);
-                    objectTerritoryObjectIdList.add(accountId);
-                    ObjectTerritory2Association objObjectTerritory2Association = new ObjectTerritory2Association(ObjectId = accountId, Territory2Id = userTerrytory.Territory2Id, AssociationCause='Territory2Manual');
-                	objectTerritoryList.add(objObjectTerritory2Association);
-                }
+            UserTerritory2Association userTerrytory = userTerrytoryMap.get(company.Partner);
+            String accountId = accountExternalIdMap.get(company.CodigoExternoAccount);
+            if(userTerrytory != null){
+                objectTerritoryTerritory2IdList.add(userTerrytory.Territory2Id);
+                objectTerritoryObjectIdList.add(accountId);
+                ObjectTerritory2Association objObjectTerritory2Association = new ObjectTerritory2Association(ObjectId = accountId, Territory2Id = userTerrytory.Territory2Id, AssociationCause='Territory2Manual');
+            	objectTerritoryList.add(objObjectTerritory2Association);
             }
         }
         Set<ObjectTerritory2Association> removeDuplicates = new Set<ObjectTerritory2Association>();
@@ -271,6 +268,8 @@ public with sharing class CalloutBP {
                 }
             }
         }
+        removeDuplicates.addAll(objectTerritoryList);
+        resultList.addAll(removeDuplicates);
         System.debug('resultList'+ resultList);
         if (!resultList.isEmpty()) {
             Try{
@@ -370,7 +369,7 @@ public with sharing class CalloutBP {
     public static IntegrationUtils.CalloutBpResponse sendOrder() {
 
         List<RequestParameters> request = new List<RequestParameters>();
-        Datetime UTC = System.now().addMinutes(-10); 
+        Datetime UTC = System.now().addMinutes(-10);  
         Organization orgDetails = [SELECT Id, TimeZoneSidKey FROM Organization WHERE Id = :UserInfo.getOrganizationId()]; 
         Timezone tz = Timezone.getTimeZone(orgDetails.TimeZoneSidKey);
         Datetime orgTime = UTC.addSeconds((tz.getOffset(UTC)/1000)); 
@@ -497,7 +496,7 @@ public with sharing class CalloutBP {
 
     public class CompanyINData{
     
-    public List<ItemsPartner> Partners;
+    public String Partner;
     public String CodigoExternoAccount;    
     public String OrganizacaoVendas;
     public String SetorAtividade;
@@ -509,8 +508,5 @@ public with sharing class CalloutBP {
     public String GrupoClientes;
     public String Status;
     public String SetorVendas;
-    }
-    public class ItemsPartner{
-        public String Partner;
     }
 }
