@@ -82,7 +82,7 @@ public with sharing class CalloutBP {
             }           
             if (!accountList.isEmpty()) {
                 System.debug('accountList: '+accountList);
-                upsert accountList ExternalId__c;
+                Database.upsert(accountList, Account.ExternalId__c, false);
             }
             creatyAccountTerrytoryAssossiation(accountList, userCodigoSapList, resp, companyList);
 
@@ -273,7 +273,7 @@ public with sharing class CalloutBP {
         System.debug('resultList'+ resultList);
         if (!resultList.isEmpty()) {
             Try{
-                upsert resultList;
+                Database.upsert(resultList, false);
              } 
              Catch(System.Exception e){
                 System.debug('Exception type caught: ' + e.getTypeName());
@@ -320,7 +320,7 @@ public with sharing class CalloutBP {
         System.debug('companyListToUpsert: '+ companyListToUpsert);
         if (!companyListToUpsert.isEmpty()) {
             Try{
-                upsert companyListToUpsert ExternalId__c;
+                Database.upsert(companyListToUpsert, Company__c.ExternalId__c, false);
              } 
              Catch(System.Exception e){
                 System.debug('Exception type caught: ' + e.getTypeName());
@@ -359,7 +359,7 @@ public with sharing class CalloutBP {
         System.debug('creditListToUpsert'+ creditListToUpsert);
         if (!creditListToUpsert.isEmpty()) {
             Try{
-                upsert creditListToUpsert ExternalId__c;
+                Database.upsert(creditListToUpsert, LimiteCredito__c.ExternalId__c, false);
              } 
              Catch(System.Exception e){
                 System.debug('Exception type caught: ' + e.getTypeName());
