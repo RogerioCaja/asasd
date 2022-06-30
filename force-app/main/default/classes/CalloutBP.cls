@@ -76,7 +76,9 @@ public with sharing class CalloutBP {
                 accountList.add(ac);
             }
             for(CompanyINData company : companyList){
-                userCodigoSapList.add(company.Partner);
+                if(company.Partner != null && company.Partner != ''){
+                    userCodigoSapList.add(company.Partner);
+                }
             }           
             if (!accountList.isEmpty()) {
                 System.debug('accountList: '+accountList);
