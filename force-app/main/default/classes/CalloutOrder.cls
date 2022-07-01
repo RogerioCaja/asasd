@@ -12,8 +12,8 @@ public with sharing class CalloutOrder {
 
     public static IntegrationUtils.CalloutResponse processIntegration(Id orderId){
 
-		Order parentOrder = [SELECT Id, CodigoSap__c, ShippingAccount__r.ExternalId__c, Account.ExternalId__c, Type, SalesOrg__r.SalesOrganizationCode__c, DistributionChannel__c, DistributionChannel__r.Codigo__c,
-                            ActivitySector__c, ActivitySector__r.Codigo__c, Incoterms__c, Incoterms2__c, PaymentCondition__r.Code__c, OrderReason__c , SalesCTV__r.CodigoSap__c, PaymentDate__c,EffectiveDate, OrderReference__r.CodigoSap__c,
+		Order parentOrder = [SELECT Id, CodigoSap__c, ShippingAccount__r.ExternalId__c, Account.ExternalId__c, Type, SalesOrg__r.SalesOrganizationCode__c, DistributionChannel__c, DistributionChannel__r.Codigo__c, SalesCondition__r.ExternalId__c,
+                            ActivitySector__c, ActivitySector__r.Codigo__c, CondicaoPagamento__r.CashPayment__c, Incoterms__c, Incoterms2__c, PaymentCondition__r.Code__c, OrderReason__c , SalesCTV__r.CodigoSap__c, PaymentDate__c,EffectiveDate, OrderReference__r.CodigoSap__c,
                             OrderNumber, Crop__r.Code__c, Crop__r.StartDateOrderInsertion__c, Crop__r.EndDateInsertionOrders__c ,Culture__r.Codigo__c, EndDate, TotalAmount, PaymentForm__c, OrderReference__c, CustomerOrderNumber__c,
                             Currency__c, Crop__r.PaymentBaseDate__c,IsOrderMother__c, RecordTypeId, (SELECT Id FROM OrderItems) 
                             FROM Order WHERE Id = :orderId];
@@ -186,6 +186,7 @@ public with sharing class CalloutOrder {
             }
             
             IS_HEADER_IN.DOC_TYPE = getCodeTypeOrder(String.valueOf([SELECT DeveloperName FROM RecordType WHERE Id =: order.RecordTypeId][0].DeveloperName), IV_TYPE == 'G' ? true : false); 
+            if(IS_HEADER_IN.DOC_TYPE == 'ZVNO' && order.CondicaoPagamento__r.CashPayment__c) IS_HEADER_IN.DOC_TYPE = 'ZVNB';
             IS_HEADER_IN.SALES_ORG = order.SalesOrg__r.SalesOrganizationCode__c;
             IS_HEADER_IN.DISTR_CHAN =order.DistributionChannel__r.Codigo__c;
             IS_HEADER_IN.DIVISION = order.ActivitySector__r.Codigo__c;
@@ -204,6 +205,7 @@ public with sharing class CalloutOrder {
             IS_HEADER_IN.ZZPED_CRM = order.OrderNumber;
             IS_HEADER_IN.ZZDATA_CARENCIA = String.valueOf(order.Crop__r.PaymentBaseDate__c).replace('-', '');
             IS_HEADER_IN.ZZDATA_VENCTO = String.valueOf(order.PaymentDate__c).replace('-', '');
+            IS_HEADER_IN.PRICE_LIST = String.valueOf(order.SalesCondition__r.ExternalId__c);
             IS_HEADER_IN.REF_DOC = order.OrderReference__c != null ? order.OrderReference__r.CodigoSap__c : '';
 
             Map<String, String> referenceItemMotherMap = new Map<String, String>();
@@ -283,6 +285,7 @@ public with sharing class CalloutOrder {
         public String ZZDATA_CARENCIA;
         public String ZZDATA_VENCTO;
         public String REF_DOC;
+        public String PRICE_LIST;
 
         public Header(){}
     }
