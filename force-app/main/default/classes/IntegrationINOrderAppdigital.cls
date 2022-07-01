@@ -136,7 +136,7 @@ global without sharing class IntegrationINOrderAppdigital {
             orderListToUpsert, 
             Order.NumeroPedidoApp__c
         );
-        IntegrationINOrderAppdigital.approvalDiscountOrder(orderListToUpsert[0]); //Confirmar com o Helder
+       
         //Upserting records (OrderItem)
         // Upsert OrderItem
         Map<String, List<TemplateDataIntegrationFields.Response>> orderItemsResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
@@ -154,7 +154,8 @@ global without sharing class IntegrationINOrderAppdigital {
             );
             System.debug('shippingDivisonResponse' + shippingDivisonResponse);
         }
-
+ 		System.debug('Teste Entrada Método');
+        IntegrationINOrderAppdigital.approvalDiscountOrder(orderListToUpsert[0]); //Confirmar com o Helder
         //Associating child object's response with object response
         // Pega todas as respostas dos OrderItem
         for(TemplateDataIntegrationFields.ResponseParent response : responseList){
@@ -218,7 +219,7 @@ global without sharing class IntegrationINOrderAppdigital {
     }
 
     public static void approvalDiscountOrder(Order orderDiscount){
-    
+    System.debug('Teste Entrada');
     List<OrderItem> orderItemList = [SELECT Id, OrderId,
     Product2Id,
     Product2.ProductGroup__c,
@@ -242,9 +243,10 @@ global without sharing class IntegrationINOrderAppdigital {
     ListCost__c, 
     NumeroSap__c, 
     PracticedCost__c, 
-    PracticedPrice__c, 
+    PracticedPrice__c,
     UnitPrice FROM OrderItem WHERE OrderId =: orderDiscount.Id];
-
+	System.debug('orderItemList ' + orderItemList);
+    System.debug('orderDiscount.Company__c ' + orderDiscount.Company__c);    
             if (orderDiscount.Company__c != null) {
                 Id userTerritoryId;
                 for (UserTerritory2Association userAssociation : [
@@ -272,22 +274,28 @@ global without sharing class IntegrationINOrderAppdigital {
                 List<String> productGroupId = new List<String>();
                 for(OrderItem ordItems : orderItemList){   
                     productGroupId.add(ordItems.Product2.ProductGroup__c);
+                    System.debug('Product2.ProductGroup__c' + ordItems.Product2Id);
+                    System.debug('ordItems.Product2.ProductGroup__c' + ordItems.Product2.ProductGroup__c);
                     currentDiscount = ordItems.DiscountPercent__c;
                     if(currentDiscount > biggerDiscount){
                         biggerDiscount = ordItems.DiscountPercent__c;
 
                     }
-                    
+                   
                 }
-
+	
+                System.debug('productGroupId' + productGroupId);
+                System.debug('biggerDiscount' + biggerDiscount);
                 
+                Order orders = [SELECT Id, Company__r.ClientGroup__c FROM Order WHERE Id =: orderDiscount.Id];
+                System.debug('orders' + orders);
                 Discount__c orderDisc = new Discount__c();
                 for (Discount__c discount : [
                     SELECT Id,
                            Approver__c
                       FROM Discount__c
                      WHERE Status__c = 'Aprovado'
-                       AND ClientGroup__c =: orderDiscount.Company__r.ClientGroup__c
+                       AND ClientGroup__c =: orders.Company__r.ClientGroup__c
                        AND ProductGroup__c =: productGroupId //Vamos rever esse daqui
                        AND InitialDate__c <=: System.today()
                        AND EndDate__c >=: System.today()
@@ -297,7 +305,7 @@ global without sharing class IntegrationINOrderAppdigital {
                 ]) {
                     orderDisc = discount;
                 }
-    
+    			System.debug('orderDisc' + orderDisc);
                 Map<String, Integer> approvalLevels = new Map<String, Integer>{
                     'GerenteFilial' => 1,
                     'GerenteRegional' => 2,
@@ -306,6 +314,7 @@ global without sharing class IntegrationINOrderAppdigital {
     
                 Integer counter = 0;
                 Integer approvalNumber = approvalLevels.get(orderDisc.Approver__c);
+                System.debug('approvalNumber ' + approvalNumber);
                 Map<Integer, Id> approvalByCounter = new Map<Integer, Id>();
                 while (counter < approvalNumber) {
                     Territory2 territory = territoryAndParents.containsKey(userTerritoryId) ? territoryAndParents.get(userTerritoryId) : new Territory2();
@@ -347,8 +356,7 @@ global without sharing class IntegrationINOrderAppdigital {
                     orderDiscount.ApprovalDirector__c = approvalsByTerritory.get(approvalByCounter.get(2));
                     orderDiscount.Director__c = true;
                 }
-            
+            update orderDiscount;
         }
         }
 }
-
