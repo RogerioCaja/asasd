@@ -68,7 +68,7 @@ export default class OrderSummaryScreen extends LightningElement {
                     this.orderMargin = this.commodityDataLocale[0].marginValueFront;
                     let unitPrice = Number(this.productDataLocale[i].unitPrice) / Number(this.commodityDataLocale[0].commodityPrice);
                     this.productDataLocale[i]['unitPrice'] = this.fixDecimalPlacesFront(unitPrice).toString() + ' por saca';
-                    this.productDataLocale[i]['totalPrice']  = this.fixDecimalPlacesFront(Number(Number(this.productDataLocale[i]['unitPrice'].toString().replace(' por saca', '')) * Number(this.productDataLocale[i].quantity))).toString() + ' sacas';
+                    this.productDataLocale[i]['totalPrice']  = this.fixDecimalPlacesFront(Number(unitPrice * Number(this.productDataLocale[i].quantity))).toString() + ' sacas';
                     this.productDataLocale[i]['commercialDiscountValue']  =  this.commodityDataLocale[0].discountFront;
                     let totalProductPrice = Number(unitPrice) * Number(this.productDataLocale[i].quantity);
                     this.productDataLocale[i]['commercialDiscountPercentage']  =  this.productDataLocale[i].commercialDiscountPercentageFront;
@@ -136,7 +136,8 @@ export default class OrderSummaryScreen extends LightningElement {
     }
 
     fixDecimalPlacesFront(value) {
-        return Number(Math.round(value + 'e' + 2) + 'e-' + 2);
+        let formatNumber = new Intl.NumberFormat('de-DE').format(Number(Math.round(value + 'e' + 2) + 'e-' + 2));
+        return formatNumber;
     }
 
     fixDecimalPlacesPercentage(value) {
