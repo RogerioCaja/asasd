@@ -137,7 +137,7 @@ public without sharing class OrderHelper {
         {
             Map<ID,Schema.RecordTypeInfo> orderMap = Order.sObjectType.getDescribe().getRecordTypeInfosById();
             for(Id id : orderIds){
-                if(oldMap.get(id).Status == '0' && newMap.get(id).Status == '001'){
+                if((oldMap.get(id).Status == '0' && newMap.get(id).Status == '001') || (newMap.get(id).Status == '001' && newMap.get(id).StatusSF__c != 'Integrado' )){
                     if(newMap.get(id).MarginCommittee__c || newMap.get(id).Manager_BranchOffice__c || newMap.get(id).Gerente_Regional__c || newMap.get(id).Director__c || orderMap.get(newMap.get(id).RecordTypeId).getName() == 'Venda Barter')
                     {
                         
