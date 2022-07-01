@@ -182,6 +182,12 @@ global with sharing class TemplateDataIntegrationFields {
 
         public OrgVProduct__c serialize(Map<String, Id> lookups){
 
+            if(Status == '' || Status == null){
+                Status = 'Adicionada';
+            }
+            else if (Status != null){
+                Status = 'Removida';
+            }
             //Returning Object with Fields.
             return new OrgVProduct__c(
                 OrgVExternal__c = this.OrganizacaoVendas + '|' + this.OrgProduct + '|' + this.centroFilial,
@@ -259,6 +265,15 @@ global with sharing class TemplateDataIntegrationFields {
         public Decimal hectare;
         public Decimal margemPedido;
         public String orderType;
+        public String centroFornecedor;
+        public String escritorioVendas;
+        public String equipeVendas;
+        public String company;
+        /* Verificar parâmetros com o Lake - 30.06.22
+        public String CodigoExternoAccount; 
+        public String EscritorioVendas;
+        public String EquipeVendas;
+        */
         //public String clienteCode; 
         public List<TemplateDataIntegrationFields.OrderItemINData> orderItems;
         public List<TemplateDataIntegrationFields.ShippingDivisonINData> shippingDivison;
@@ -267,10 +282,6 @@ global with sharing class TemplateDataIntegrationFields {
 
             if(pedidoMae == null){
                 pedidoMae = false;
-            }
-
-            if(CodigoSap == '' || CodigoSap == null){
-                CodigoSap = 'Inserção AppDigital';
             }
 
             switch on Status {
@@ -319,8 +330,8 @@ global with sharing class TemplateDataIntegrationFields {
                 SalesCTV__c = lookups.containsKey('User'+this.salesCTV) ? lookups.get('User'+this.salesCTV) : null,
                 PaymentCondition__c = lookups.containsKey('CondicaoPagamento__c'+this.paymentCondition) ? lookups.get('CondicaoPagamento__c'+this.paymentCondition) : null,
                 OrderReference__c = lookups.containsKey('OrderReference__c'+this.orderReference) ? lookups.get('OrderReference__c'+this.orderReference) : null,
-                DistributionChannel__c = lookups.containsKey('DistributionChannel__c' + this.distributionChannel)? lookups.get ('' + this.distributionChannel) : null,
-                ActivitySector__c = lookups.containsKey('ActivitySector__c' + this.activitySector)? lookups.get ('' + this.activitySector) : null,
+                DistributionChannel__c = lookups.containsKey('DistributionChannel__c' + this.distributionChannel)? lookups.get ('DistributionChannel__c' + this.distributionChannel) : null,
+                ActivitySector__c = lookups.containsKey('ActivitySector__c' + this.activitySector)? lookups.get ('ActivitySector__c' + this.activitySector) : null,
                 PaymentDate__c = Date.valueOf(paymentDate),
                 EffectiveDate = Date.valueOf(effectiveDate),
                 ShippingDate__c = Date.valueOf(ShippingDate),
@@ -340,14 +351,14 @@ global with sharing class TemplateDataIntegrationFields {
                 OrderType__c = this.orderType,
                 //RecordTypeId
                 SalesCondition__c = this.condicaoVenda,
-                IsOrderMother__c = this.pedidoMae
-                //Company__c
+                IsOrderMother__c = this.pedidoMae,
+                Company__c = lookups.containsKey('Company__c' + this.company) ? lookups.get('Company__c' + this.company):null
             );
         }
 
         public List<String> getRequiredFields(){
             return new List<String>{
-                'CodigoSap__c'
+                //'CodigoSap__c'
                 //'AccountId'
      
             };
