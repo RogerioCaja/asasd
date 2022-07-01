@@ -62,7 +62,7 @@
 					</div>
 					<div class="column">
 						<label>Preço Lista (un)</label><br>
-						<input class="input-design" type="number" value={addProduct.listPriceFront} disabled/>
+						<input class="input-design" type="text" value={addProduct.listPriceFront} disabled/>
 					</div>
 				</div>
 
@@ -70,16 +70,16 @@
 					<div class="column">
 						<label>Dosagem</label><br>
 						<template if:true={headerData.IsOrderChild}>
-							<input class="input-design" type="number" value={addProduct.dosage} onchange={changeValue} data-target-id="dosage" disabled/>
+							<input class="input-design" type="text" value={addProduct.dosage} onchange={changeValue} data-target-id="dosage" disabled/>
 						</template>
 						<template if:false={headerData.IsOrderChild}>
-							<input class="input-design" type="number" value={addProduct.dosage} onchange={changeValue} data-target-id="dosage" disabled={disabled}/>
+							<input class="input-design" type="text" value={addProduct.dosage} onchange={changeValue} data-target-id="dosage" disabled={disabled}/>
 						</template>
 					</div>
 
 					<div class="column">
 						<label>Qtd</label><br>
-						<input class="input-design" type="number" value={addProduct.quantity} onchange={changeValue} data-target-id="quantity" disabled={disabled}/>
+						<input class="input-design" type="text" value={addProduct.quantity} onchange={changeValue} data-target-id="quantity" disabled={disabled}/>
 					</div>
 				</div>
 
@@ -87,15 +87,15 @@
 					<div class="column">
 						<label>Preço Praticado (un)</label><br>
 						<template if:true={headerData.IsOrderChild}>
-							<input class="input-design" type="number" value={addProduct.unitPriceFront} onchange={changeValue} data-target-id="unitPrice" disabled/>
+							<input class="input-design" type="text" value={addProduct.unitPriceFront} onchange={changeValue} data-target-id="unitPrice" disabled/>
 						</template>
 						<template if:false={headerData.IsOrderChild}>
-							<input class="input-design" type="number" value={addProduct.unitPriceFront} onchange={changeValue} data-target-id="unitPrice" disabled={disabled}/>
+							<input class="input-design" type="text" value={addProduct.unitPriceFront} onchange={changeValue} data-target-id="unitPrice" disabled={disabled}/>
 						</template>
 					</div>
 					<div class="column">
 						<label>Preço Total</label><br>
-						<input class="input-design" type="number" value={addProduct.totalPriceFront} disabled/>
+						<input class="input-design" type="text" value={addProduct.totalPriceFront} disabled/>
 					</div>
 				</div>
 
@@ -110,7 +110,7 @@
 						</div>
 						<div class="column">
 							<label>Valor de Desconto Comercial</label><br>
-							<input class="input-design" type="number" value={addProduct.commercialDiscountValueFront} onchange={changeValue} data-target-id="commercialDiscountValue" disabled/>
+							<input class="input-design" type="text" value={addProduct.commercialDiscountValueFront} onchange={changeValue} data-target-id="commercialDiscountValue" disabled/>
 						</div>
 					</div>
 
@@ -121,7 +121,7 @@
 						</div>
 						<div class="column">
 							<label>Valor de Acréscimo Comercial</label><br>
-							<input class="input-design" type="number" value={addProduct.commercialAdditionValueFront} onchange={changeValue} data-target-id="commercialAdditionValue" disabled/>
+							<input class="input-design" type="text" value={addProduct.commercialAdditionValueFront} onchange={changeValue} data-target-id="commercialAdditionValue" disabled/>
 						</div>
 					</div>
 				</template>
@@ -134,7 +134,7 @@
 						</div>
 						<div class="column">
 							<label>Valor de Desconto Comercial</label><br>
-							<input class="input-design" type="number" value={addProduct.commercialDiscountValueFront} onchange={changeValue} data-target-id="commercialDiscountValue" disabled={disabled}/>
+							<input class="input-design" type="text" value={addProduct.commercialDiscountValueFront} onchange={changeValue} data-target-id="commercialDiscountValue" disabled={disabled}/>
 						</div>
 					</div>
 
@@ -145,7 +145,7 @@
 						</div>
 						<div class="column">
 							<label>Valor de Acréscimo Comercial</label><br>
-							<input class="input-design" type="number" value={addProduct.commercialAdditionValueFront} onchange={changeValue} data-target-id="commercialAdditionValue" disabled={disabled}/>
+							<input class="input-design" type="text" value={addProduct.commercialAdditionValueFront} onchange={changeValue} data-target-id="commercialAdditionValue" disabled={disabled}/>
 						</div>
 					</div>
 				</template>
@@ -161,7 +161,7 @@
 					</div>
 					<div class="column">
 						<label>Valor de Acréscimo Financeiro</label><br>
-						<input class="input-design" type="number" value={addProduct.financialAdditionValueFront} data-target-id="financialAdditionValue" disabled/>
+						<input class="input-design" type="text" value={addProduct.financialAdditionValueFront} data-target-id="financialAdditionValue" disabled/>
 					</div>
 				</div>
 
@@ -172,7 +172,7 @@
 					</div>
 					<div class="column">
 						<label>Valor de Decréscimo Financeiro</label><br>
-						<input class="input-design" type="number" value={addProduct.financialDecreaseValueFront} data-target-id="financialDecreaseValue" disabled/>
+						<input class="input-design" type="text" value={addProduct.financialDecreaseValueFront} data-target-id="financialDecreaseValue" disabled/>
 					</div>
 				</div>
 
@@ -182,7 +182,7 @@
 				<div class="row">
 					<div class="column">
 						<label>Quantidade Faturada</label><br>
-						<input class="input-design" type="number" value={addProduct.invoicedQuantity} disabled/> 
+						<input class="input-design" type="text" value={addProduct.invoicedQuantity} disabled/> 
 					</div>
 					<div class="column">
 						<label>Princípio Ativo</label><br>
