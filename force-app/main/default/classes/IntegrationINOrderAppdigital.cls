@@ -21,6 +21,7 @@ global without sharing class IntegrationINOrderAppdigital {
         Set<String> orderReferenceLookups = new Set<String>();
         Set<String> activitySectorLookups = new Set<String>();
         Set<String> distributionChannelLookups = new Set<String>();
+        Set<String> companyLookups = new Set<String>();
         //Set<String> pricebookLookups = new Set<String>();
         // Guarda uma lista de respostas
         List<TemplateDataIntegrationFields.ResponseParent> responseList = new List<TemplateDataIntegrationFields.ResponseParent>();
@@ -30,6 +31,7 @@ global without sharing class IntegrationINOrderAppdigital {
         List<TemplateDataINtegrationFields.ShippingDivisonINData> shippingDivisonListToUpsert = new List<TemplateDataIntegrationFields.ShippingDivisonINData>();
         List<Order> orderListToUpsert = new List<Order>();
 
+        
         //Application of business rules
         for (TemplateDataIntegrationFields.OrderINData order : request){
             // Pega a relação da conta com o pedido
@@ -46,6 +48,9 @@ global without sharing class IntegrationINOrderAppdigital {
             orderReferenceLookups.add(order.orderReference);
             activitySectorLookups.add(order.ActivitySector);
             distributionChannelLookups.add(order.DistributionChannel);
+            order.company = order.PaymentAccount + order.CentroFornecedor + order.salesOrg + order.activitySector + order.distributionChannel + order.EscritorioVendas + order.EquipeVendas;
+            companyLookups.add(order.company);
+            System.debug('companyLookups ' + companyLookups);
             if(order.orderItems != null) {
                 // Adiciona todos os External Id e o catalogo de preço de order nos orderItem
                 //Putting the Order's ExternalId parameter in the OrderItem
@@ -115,6 +120,11 @@ global without sharing class IntegrationINOrderAppdigital {
         for (Order orderReference: [SELECT Id, CodigoSap__c FROM Order WHERE CodigoSap__c IN : orderReferenceLookups]){
             lookups.put('Order' + orderReference.CodigoSap__c, orderReference.Id);
         }
+
+        for (Company__c companyOrd: [SELECT Id, ExternalID__c FROM Company__c WHERE ExternalID__c IN : companyLookups]){
+            lookups.put('Company__c' + companyOrd.ExternalID__c, companyOrd.Id);
+            System.debug('Lookup Company ' + lookups);
+        }
         //Converting template to object list and validating required fields
         // Valida e adiciona objeto na lista para upsert
         FactoryDataIntegration.convertSObject(new Order(), 'IN', request, responseList, orderListToUpsert, lookups);
@@ -126,7 +136,7 @@ global without sharing class IntegrationINOrderAppdigital {
             orderListToUpsert, 
             Order.NumeroPedidoApp__c
         );
-        
+        IntegrationINOrderAppdigital.approvalDiscountOrder(orderListToUpsert[0]); //Confirmar com o Helder
         //Upserting records (OrderItem)
         // Upsert OrderItem
         Map<String, List<TemplateDataIntegrationFields.Response>> orderItemsResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
@@ -184,7 +194,7 @@ global without sharing class IntegrationINOrderAppdigital {
         }
 		
         //Creating integration log
-        IntegrationLog.createLog('Order', 'IN', JSON.serialize(request), JSON.serialize(responseList), hasError);
+        IntegrationLog.createLog('Order - AppDigital', 'IN', JSON.serialize(request), JSON.serialize(responseList), hasError);
         
         //Returning response
          // Retorna a resposta Outbound
@@ -206,5 +216,139 @@ global without sharing class IntegrationINOrderAppdigital {
             this.response = new List<TemplateDataIntegrationFields.ResponseParent>();         
         }
     }
+
+    public static void approvalDiscountOrder(Order orderDiscount){
+    
+    List<OrderItem> orderItemList = [SELECT Id, OrderId,
+    Product2Id,
+    Product2.ProductGroup__c,
+    PricebookEntryId, 
+    ExternalId__c, 
+    Quantity,
+    UnitMeasure__c,
+    PercentComission__c, 
+    DiscountPercent__c, 
+    ComissionValue__c, 
+    CommercialMargin__c, 
+    DiscountValue__c, 
+    FinalTotalValue__c, 
+    FinancialDiscountPercent__c, 
+    FinancialDiscountValue__c, 
+    FinancialAdditionPercent__c,
+    FinancialAdditionValue__c, 
+    CommercialAdditionPercent__c,  
+    CommercialAdditionValue__c, 
+    Dosage__c, 
+    ListCost__c, 
+    NumeroSap__c, 
+    PracticedCost__c, 
+    PracticedPrice__c, 
+    UnitPrice FROM OrderItem WHERE OrderId =: orderDiscount.Id];
+
+            if (orderDiscount.Company__c != null) {
+                Id userTerritoryId;
+                for (UserTerritory2Association userAssociation : [
+                    SELECT Id,
+                           UserId,
+                           Territory2Id
+                      FROM UserTerritory2Association
+                     WHERE UserId =: orderDiscount.SalesCTV__c
+                     LIMIT 1
+                ]) {
+                    userTerritoryId = userAssociation.Territory2Id;
+                }
+    
+                Map<Id, Territory2> territoryAndParents = new Map<Id, Territory2>();
+                for(Territory2 territory : [
+                    SELECT Id,
+                           DeveloperName,
+                           ParentTerritory2Id
+                      FROM Territory2
+                ]){
+                    territoryAndParents.put(territory.Id, territory);
+                }
+                Decimal currentDiscount = 0;
+                Decimal biggerDiscount = 0;
+                List<String> productGroupId = new List<String>();
+                for(OrderItem ordItems : orderItemList){   
+                    productGroupId.add(ordItems.Product2.ProductGroup__c);
+                    currentDiscount = ordItems.DiscountPercent__c;
+                    if(currentDiscount > biggerDiscount){
+                        biggerDiscount = ordItems.DiscountPercent__c;
+
+                    }
+                    
+                }
+
+                
+                Discount__c orderDisc = new Discount__c();
+                for (Discount__c discount : [
+                    SELECT Id,
+                           Approver__c
+                      FROM Discount__c
+                     WHERE Status__c = 'Aprovado'
+                       AND ClientGroup__c =: orderDiscount.Company__r.ClientGroup__c
+                       AND ProductGroup__c =: productGroupId //Vamos rever esse daqui
+                       AND InitialDate__c <=: System.today()
+                       AND EndDate__c >=: System.today()
+                       AND MinPercentage__c <=: biggerDiscount
+                       AND MaxPercentage__c >=: biggerDiscount
+                  ORDER BY MinPercentage__c, MaxPercentage__c
+                ]) {
+                    orderDisc = discount;
+                }
+    
+                Map<String, Integer> approvalLevels = new Map<String, Integer>{
+                    'GerenteFilial' => 1,
+                    'GerenteRegional' => 2,
+                    'Diretor' => 3
+                };
+    
+                Integer counter = 0;
+                Integer approvalNumber = approvalLevels.get(orderDisc.Approver__c);
+                Map<Integer, Id> approvalByCounter = new Map<Integer, Id>();
+                while (counter < approvalNumber) {
+                    Territory2 territory = territoryAndParents.containsKey(userTerritoryId) ? territoryAndParents.get(userTerritoryId) : new Territory2();
+    
+                    if (territory != null && territory.ParentTerritory2Id != null) {
+                        userTerritoryId = territory.ParentTerritory2Id;
+                        approvalByCounter.put(counter, userTerritoryId);
+                    }
+                    counter++;
+                }
+    
+                Map<Id, Id> approvalsByTerritory = new Map<Id, Id>();
+                for (UserTerritory2Association userAssociation : [
+                    SELECT Id,
+                           UserId,
+                           Territory2Id
+                      FROM UserTerritory2Association
+                     WHERE Territory2Id IN: approvalByCounter.values()
+                ]) {
+                    approvalsByTerritory.put(userAssociation.Territory2Id, userAssociation.UserId);
+                }
+    
+                orderDiscount.ApprovalBranchManager__c = null;
+                orderDiscount.Manager_BranchOffice__c = false;
+                orderDiscount.ApprovalRegionalManager__c = null;
+                orderDiscount.Gerente_Regional__c = false;
+                orderDiscount.ApprovalDirector__c = null;
+                orderDiscount.Director__c = false;
+    
+                if (approvalNumber >= 1) {
+                    orderDiscount.ApprovalBranchManager__c = approvalsByTerritory.get(approvalByCounter.get(0));
+                    orderDiscount.Manager_BranchOffice__c = true;
+                }
+                if (approvalNumber >= 2) {
+                    orderDiscount.ApprovalRegionalManager__c = approvalsByTerritory.get(approvalByCounter.get(1));
+                    orderDiscount.Gerente_Regional__c = true;
+                }
+                if (approvalNumber >= 3) {
+                    orderDiscount.ApprovalDirector__c = approvalsByTerritory.get(approvalByCounter.get(2));
+                    orderDiscount.Director__c = true;
+                }
+            
+        }
+        }
 }
 
