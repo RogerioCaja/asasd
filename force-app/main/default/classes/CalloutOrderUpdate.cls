@@ -137,7 +137,7 @@ public with sharing class CalloutOrderUpdate {
             IT_PARTNERS = new List<CalloutOrderUpdate.PartnerParameters>();
             IT_ORDER_SCHEDULES_IN = new List<CalloutOrderUpdate.ScheduleParameters>();
             IT_ITEMS_IN = new List<CalloutOrderUpdate.OrderItemParameters>();
-            IT_CONDITIONS_IN = new List<CalloutOrderUpdate.ConditionParameters>();
+            // IT_CONDITIONS_IN = new List<CalloutOrderUpdate.ConditionParameters>();
 
           
             if(rmCode != order.ShippingAccount__r.ExternalId__c){
