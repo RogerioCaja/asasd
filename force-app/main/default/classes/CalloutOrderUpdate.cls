@@ -125,7 +125,7 @@ public with sharing class CalloutOrderUpdate {
         public CalloutOrderUpdate.Header IS_HEADER_IN;
         public List<CalloutOrderUpdate.PartnerParameters> IT_PARTNERS;
         public List<CalloutOrderUpdate.ScheduleParameters> IT_ORDER_SCHEDULES_IN;
-        public List<CalloutOrderUpdate.ConditionParameters> IT_CONDITIONS_IN;
+        // public List<CalloutOrderUpdate.ConditionParameters> IT_CONDITIONS_IN;
         public List<CalloutOrderUpdate.OrderItemParameters> IT_ITEMS_IN;
 
         public RequestParameters(Order order, String rmCode, String agCode, String zcCode){
