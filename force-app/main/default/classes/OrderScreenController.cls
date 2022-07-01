@@ -564,7 +564,9 @@ public without sharing class OrderScreenController {
                 String orderItemErrors = '';
                 Set<Id> itemsIds = new Set<Id>();
                 List<Database.UpsertResult> insOrderItemResults = Database.upsert(listOrderItems, false);
+                
                 for (Database.UpsertResult result : insOrderItemResults){
+                    System.debug('result => ' + result);
                     if(!result.isSuccess()){
                         for (Database.error error: insResults.getErrors()){
                             orderItemErrors += '\n' + error.getMessage();
