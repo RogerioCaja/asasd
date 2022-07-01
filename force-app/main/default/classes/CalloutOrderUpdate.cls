@@ -114,7 +114,11 @@ public with sharing class CalloutOrderUpdate {
 			return new IntegrationUtils.CalloutUpdateResponse(responseObject.exceptionObject.getMessage());
 		}
     }
-
+    public static Decimal isNotation(Decimal value){
+        if(value == 0) return 0;
+        else return value;
+        
+    }
     //! Preparing data to Callout
     public class RequestParameters{
         public String IV_SALES_DOC;
@@ -185,7 +189,15 @@ public with sharing class CalloutOrderUpdate {
             IS_HEADER_IN.ZZPED_CRM = order.OrderNumber;
             IS_HEADER_IN.ZZDATA_CARENCIA = String.valueOf(order.Crop__r.PaymentBaseDate__c).replace('-', '');
             IS_HEADER_IN.ZZDATA_VENCTO = String.valueOf(order.PaymentDate__c).replace('-', '');
-                
+            IS_HEADER_IN.REF_DOC = order.OrderReference__c != null ? order.OrderReference__r.CodigoSap__c : '';
+
+            Map<String, String> referenceItemMotherMap = new Map<String, String>();
+            if(order.OrderReference__c != null){
+                List<OrderItem> orderItemReferenceList = [SELECT Product2.ExternalId__c, NumeroSap__c FROM OrderItem WHERE OrderId =:  order.OrderReference__c];
+                for(OrderItem orderItem : orderItemReferenceList){
+                    referenceItemMotherMap.put(orderItem.Product2.ExternalId__c, orderItem.NumeroSap__c);
+                }
+            }   
           
 
             for(OrderItem orderItem : order.OrderItems){
@@ -254,6 +266,7 @@ public with sharing class CalloutOrderUpdate {
         public String ZZPED_CRM; //orderType;
         public String ZZDATA_CARENCIA;
         public String ZZDATA_VENCTO;
+        public String REF_DOC;
 
     }
 
@@ -302,13 +315,15 @@ public with sharing class CalloutOrderUpdate {
         public String PLANT;
         public String REASON_REJ;
         public String TARGET_QTY;
+        public String REF_DOC_IT;
 
-        public OrderItemParameters(OrderItem orderItem){
+        public OrderItemParameters(OrderItem orderItem, String numReference){
             this.ITM_NUMBER = String.valueOf(orderItem.NumeroSap__c).leftPad(6, '0');
             this.MATERIAL = orderItem.Product2.ExternalId__c;
             this.REASON_REJ = orderItem.ReasonRefuse__c;
             this.PLANT = orderItem.Product2.DistributionCenter__r.Code__c;
             this.TARGET_QTY =  String.valueOf(orderItem.Quantity);
+            this.REF_DOC_IT = numReference != '' ? numReference.leftPad(6, '0') : '';
         }
     }
 
