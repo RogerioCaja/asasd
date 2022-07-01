@@ -1314,7 +1314,6 @@ export default class OrderProductScreen extends LightningElement {
 
         //Validation
         if(this.currentScreen== 'fillCommodity' && this.commodityScreens[this.commodityScreens.indexOf(this.currentScreen) + 1] == 'negotiationDetails'){
-            console.log(JSON.stringify(this.selectedCommodity));
             if(!this.verifyConditions(this.selectedCommodity.startDate, this.selectedCommodity.endDate, this.selectedCommodity.deliveryAddress)){
                 this.commoditySelected = true;
                 return;

@@ -564,7 +564,7 @@ export default class OrderHeaderScreen extends LightningElement {
                         });
                     }
                 }
-                if(this.fieldKeyList.includes(field))
+                if(this.fieldKeyList.includes(field) && !this.headerData.IsOrderChild)
                     this.nextEnable(field);
             }  
         }
@@ -603,7 +603,7 @@ export default class OrderHeaderScreen extends LightningElement {
             }else if (field == 'safra'){
                 this.safraName = null;
             }
-            if(this.fieldKeyList.includes(field)){
+            if(this.fieldKeyList.includes(field) && !this.headerData.IsOrderChild){
                 let index = this.sequentialDict[field];
                 this.sequentialDict = this.invertDict();
                 this.previousDisable(index);
@@ -691,6 +691,7 @@ export default class OrderHeaderScreen extends LightningElement {
         if (this.headerData.IsOrderChild) {
             this.disabled = true;
             this.paymentDisabled = true;
+            setTimeout(()=>this.template.querySelector('[data-name="cliente_entrega"]').disabled = true);
         }
     }
 
