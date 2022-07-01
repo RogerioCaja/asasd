@@ -214,7 +214,7 @@ public without sharing class OrderScreenController {
     @AuraEnabled
     public static String saveOrder(Id orderId, Boolean cloneOrder, String data, string typeOrder) {
         Savepoint sp = Database.setSavepoint();
-        try{
+        try {
             Order order;
             String msg;
             Boolean newOrder = true;
@@ -351,8 +351,7 @@ public without sharing class OrderScreenController {
                 }
             }
             System.debug('commissionByHierarchy => ' + commissionByHierarchy);
-            Territory2 salesTeamTerritory;
-            if (company != null) {
+            if (company != null && orderData.headerData.pedido_mae.Id == null) {
                 Id userTerritoryId;
                 for (UserTerritory2Association userAssociation : [
                     SELECT Id,
@@ -505,6 +504,14 @@ public without sharing class OrderScreenController {
                     'Crédito Liberado' => '3',
                     'Cancelado' => 'X'
                 };
+
+                Decimal commodityPrice = 0;
+                if (orderData.commodityData != null && orderData.commodityData.size() > 0) {
+                    for (CommodityDeserialize commodity : orderData.commodityData) {
+                        commodityPrice = commodity.commodityPrice;
+                    }
+                }
+
                 Integer itemCounter = 1;
                 for (ProductDeserialize orderProduct : orderData.productData) {
                     OrderItem orderItem;
@@ -530,7 +537,8 @@ public without sharing class OrderScreenController {
                         motherItems.put(orderProduct.orderItemId, motherItem);
                     }
 
-                    
+                    orderItem.UnitPricePerBag__c = commodityPrice > 0 ? (orderProduct.unitPrice / commodityPrice) : null;
+                    orderItem.TotalPricePerBag__c = commodityPrice > 0 ? (orderItem.UnitPricePerBag__c * orderProduct.quantity) : null;
                     orderItem.Quantity = orderProduct.quantity;
                     orderItem.ListPrice__c = orderProduct.listPrice != null ? orderProduct.listPrice : 0;
                     orderItem.PracticedPrice__c = orderProduct.unitPrice != null ? orderProduct.unitPrice : 0;
