@@ -17,6 +17,7 @@ export default class OrderProductScreen extends LightningElement {
     multiplicity;
     listTotalPrice;
     productPosition;
+    currentDate;
 
     selectedColumns={
         columnUnity: true,
@@ -112,6 +113,12 @@ export default class OrderProductScreen extends LightningElement {
     @api cloneData;
     
     connectedCallback(event) {
+        let today = new Date();
+        let dd = String(today.getDate()).padStart(2, '0');
+        let mm = String(today.getMonth() + 1).padStart(2, '0');
+        let yyyy = today.getFullYear();
+
+        this.currentDate = yyyy + '-' + mm + '-' + dd;
         this.paymentDate = this.headerData.data_pagamento;
         this.hectares = this.headerData.hectares;
         this.salesConditionId = this.headerData.condicao_venda.Id;
@@ -1274,6 +1281,30 @@ export default class OrderProductScreen extends LightningElement {
         }
     }
 
+    verifyConditions(startDate, endDate, deliveryAddress){
+        if((this.isFilled(startDate)  && startDate != "") && (this.isFilled(endDate) && endDate != "")){
+            var start = new Date(startDate);
+            var end = new Date(endDate);
+            console.log(start.getTime());
+            console.log(end.getTime());
+            if(end.getTime() < start.getTime()) {
+                this.showToast('warning', 'Atenção', 'Intervalo de datas não permitido.');
+                return false;
+            }
+        }else {
+            this.showToast('warning', 'Atenção', 'Campos Obrigatórios não preenchidos.');
+            return false;
+        }
+
+
+        if(deliveryAddress.trim() == "") {
+            this.showToast('warning', 'Atenção', 'Campos Obrigatórios não preenchidos.');
+            return false;
+        }
+
+        return true;
+    }
+
     nextScreen(event) {
         this.selectCommodityScreen = false;
         this.chooseCommodities = false;
@@ -1283,8 +1314,8 @@ export default class OrderProductScreen extends LightningElement {
 
         //Validation
         if(this.currentScreen== 'fillCommodity' && this.commodityScreens[this.commodityScreens.indexOf(this.currentScreen) + 1] == 'negotiationDetails'){
-            if(!(this.isFilled(this.selectedCommodity.startDate) && this.isFilled(this.selectedCommodity.endDate) && this.selectedCommodity.deliveryAddress != "")){
-                this.showToast('warning', 'Atenção', 'Campos Obrigatórios não preenchidos.');
+            console.log(JSON.stringify(this.selectedCommodity));
+            if(!this.verifyConditions(this.selectedCommodity.startDate, this.selectedCommodity.endDate, this.selectedCommodity.deliveryAddress)){
                 this.commoditySelected = true;
                 return;
             }
