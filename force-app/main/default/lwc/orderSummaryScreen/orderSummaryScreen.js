@@ -86,9 +86,12 @@ export default class OrderSummaryScreen extends LightningElement {
                 for(var i= 0; i< this.productDataLocale.length; i++){
                     orderTotalPrice += Number(this.productDataLocale[i].unitPrice) * Number(this.productDataLocale[i].quantity);
                     orderTotalCost += Number(this.productDataLocale[i].practicedCost) * Number(this.productDataLocale[i].quantity);
-                    this.productDataLocale[i]['unitPrice'] = this.formatCurrency(this.productDataLocale[i].unitPriceFront);
-                    this.productDataLocale[i]['totalPrice']  = this.formatCurrency(this.productDataLocale[i].totalPriceFront);
-                    this.productDataLocale[i]['commercialDiscountValue']  =  this.formatCurrency(this.fixDecimalPlacesFront(this.productDataLocale[i].commercialDiscountValue));
+                    // this.productDataLocale[i]['unitPrice'] = this.formatCurrency(this.productDataLocale[i].unitPriceFront);
+                    this.productDataLocale[i]['unitPrice'] = 'R$ ' + this.productDataLocale[i].unitPriceFront;
+                    // this.productDataLocale[i]['totalPrice']  = this.formatCurrency(this.productDataLocale[i].totalPriceFront);
+                    this.productDataLocale[i]['totalPrice']  = 'R$ ' + this.productDataLocale[i].totalPriceFront;
+                    // this.productDataLocale[i]['commercialDiscountValue']  =  this.formatCurrency(this.fixDecimalPlacesFront(this.productDataLocale[i].commercialDiscountValue));
+                    this.productDataLocale[i]['commercialDiscountValue']  = 'R$ ' +  this.fixDecimalPlacesFront(this.productDataLocale[i].commercialDiscountValue);
                     this.productDataLocale[i]['commercialDiscountPercentage']  =  this.fixDecimalPlacesPercentage(this.productDataLocale[i].commercialDiscountPercentage);
                     this.productDataLocale[i]['commercialMarginPercentage']  = this.fixDecimalPlacesFront(this.productDataLocale[i].commercialMarginPercentage) + '%';
                     this.productDataLocale[i]['divisionData'] = [];
