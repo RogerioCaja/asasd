@@ -1287,10 +1287,20 @@ export default class OrderProductScreen extends LightningElement {
             var end = new Date(endDate);
             console.log(start.getTime());
             console.log(end.getTime());
-            if(end.getTime() < start.getTime()) return false;
-        }else return false;
+            if(end.getTime() < start.getTime()) {
+                this.showToast('warning', 'Atenção', 'Intervalo de datas não permitido.');
+                return false;
+            }
+        }else {
+            this.showToast('warning', 'Atenção', 'Campos Obrigatórios não preenchidos.');
+            return false;
+        }
 
-        if(deliveryAddress.trim() == "") return false;
+
+        if(deliveryAddress.trim() == "") {
+            this.showToast('warning', 'Atenção', 'Campos Obrigatórios não preenchidos.');
+            return false;
+        }
 
         return true;
     }
@@ -1306,7 +1316,6 @@ export default class OrderProductScreen extends LightningElement {
         if(this.currentScreen== 'fillCommodity' && this.commodityScreens[this.commodityScreens.indexOf(this.currentScreen) + 1] == 'negotiationDetails'){
             console.log(JSON.stringify(this.selectedCommodity));
             if(!this.verifyConditions(this.selectedCommodity.startDate, this.selectedCommodity.endDate, this.selectedCommodity.deliveryAddress)){
-                this.showToast('warning', 'Atenção', 'Campos Obrigatórios não preenchidos.');
                 this.commoditySelected = true;
                 return;
             }
