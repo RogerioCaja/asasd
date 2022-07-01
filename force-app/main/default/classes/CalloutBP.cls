@@ -268,8 +268,6 @@ public with sharing class CalloutBP {
                 }
             }
         }
-        removeDuplicates.addAll(objectTerritoryList);
-        resultList.addAll(removeDuplicates);
         System.debug('resultList'+ resultList);
         if (!resultList.isEmpty()) {
             Try{
