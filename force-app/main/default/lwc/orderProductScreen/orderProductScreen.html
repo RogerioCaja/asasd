@@ -376,11 +376,11 @@
 					<div class="row">
 						<div class="column">
 							<label><span class="required"></span>Data de Início da Entrega</label><br>
-							<input class="input-design" type="date" value={selectedCommodity.startDate} data-target-id="startDate" onchange={commodityChange} /> 
+							<input class="input-design" type="date" min={currentDate} value={selectedCommodity.startDate} data-target-id="startDate" onchange={commodityChange} /> 
 						</div>
 						<div class="column">
 							<label><span class="required"></span>Data de Fim da Entrega</label><br>
-							<input class="input-design" type="date" value={selectedCommodity.endDate} data-target-id="endDate" onchange={commodityChange}/> 
+							<input class="input-design" type="date" min={currentDate} value={selectedCommodity.endDate} data-target-id="endDate" onchange={commodityChange}/> 
 						</div>
 					</div>
 
