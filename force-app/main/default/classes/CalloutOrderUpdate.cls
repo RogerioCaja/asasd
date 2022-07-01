@@ -125,7 +125,7 @@ public with sharing class CalloutOrderUpdate {
         public CalloutOrderUpdate.Header IS_HEADER_IN;
         public List<CalloutOrderUpdate.PartnerParameters> IT_PARTNERS;
         public List<CalloutOrderUpdate.ScheduleParameters> IT_ORDER_SCHEDULES_IN;
-        public List<CalloutOrderUpdate.ConditionParameters> IT_CONDITIONS_IN;
+        // public List<CalloutOrderUpdate.ConditionParameters> IT_CONDITIONS_IN;
         public List<CalloutOrderUpdate.OrderItemParameters> IT_ITEMS_IN;
 
         public RequestParameters(Order order, String rmCode, String agCode, String zcCode){
@@ -234,17 +234,17 @@ public with sharing class CalloutOrderUpdate {
                 }
                 
                 IT_ITEMS_IN.add(new CalloutOrderUpdate.OrderItemParameters(orderItem, referenceItemMotherMap.containsKey(orderItem.Product2.ExternalId__c) ?  referenceItemMotherMap.get(orderItem.Product2.ExternalId__c) : '' ));
-                if(orderItem.FinancialAdditionValue__c > 0){
-                    IT_CONDITIONS_IN.add(new CalloutOrderUpdate.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDEC', String.valueOf(CalloutOrderUpdate.isNotation(orderItem.CommercialAdditionPercent__c)), ''));
-                }
-                else{
-                    IT_CONDITIONS_IN.add(new CalloutOrderUpdate.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDEC', String.valueOf(CalloutOrderUpdate.isNotation(orderItem.DiscountPercent__c)*-1), ''));
-                }
-                // IT_CONDITIONS_IN.add(new CalloutOrderUpdate.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZPRS', String.valueOf(CalloutOrderUpdate.isNotation(orderItem.ListCost__c)), order.Currency__c));
-                // IT_CONDITIONS_IN.add(new CalloutOrderUpdate.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZPR0', String.valueOf(CalloutOrderUpdate.isNotation(orderItem.UnitPrice)), order.Currency__c));
-                // IT_CONDITIONS_IN.add(new CalloutOrderUpdate.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZJUR', String.valueOf(CalloutOrderUpdate.isNotation(orderItem.FinancialAdditionPercent__c)), '%'));
-                // IT_CONDITIONS_IN.add(new CalloutOrderUpdate.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDAN', String.valueOf(CalloutOrderUpdate.isNotation(orderItem.FinancialDiscountPercent__c)), '%'));
-                IT_CONDITIONS_IN.add(new CalloutOrderUpdate.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZMAR', String.valueOf(CalloutOrderUpdate.isNotation(orderItem.CommercialMargin__c)), '%'));
+                // if(orderItem.FinancialAdditionValue__c > 0){
+                //     IT_CONDITIONS_IN.add(new CalloutOrderUpdate.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDEC', String.valueOf(CalloutOrderUpdate.isNotation(orderItem.CommercialAdditionPercent__c)), ''));
+                // }
+                // else{
+                //     IT_CONDITIONS_IN.add(new CalloutOrderUpdate.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDEC', String.valueOf(CalloutOrderUpdate.isNotation(orderItem.DiscountPercent__c)*-1), ''));
+                // }
+                // // IT_CONDITIONS_IN.add(new CalloutOrderUpdate.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZPRS', String.valueOf(CalloutOrderUpdate.isNotation(orderItem.ListCost__c)), order.Currency__c));
+                // // IT_CONDITIONS_IN.add(new CalloutOrderUpdate.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZPR0', String.valueOf(CalloutOrderUpdate.isNotation(orderItem.UnitPrice)), order.Currency__c));
+                // // IT_CONDITIONS_IN.add(new CalloutOrderUpdate.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZJUR', String.valueOf(CalloutOrderUpdate.isNotation(orderItem.FinancialAdditionPercent__c)), '%'));
+                // // IT_CONDITIONS_IN.add(new CalloutOrderUpdate.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDAN', String.valueOf(CalloutOrderUpdate.isNotation(orderItem.FinancialDiscountPercent__c)), '%'));
+                // IT_CONDITIONS_IN.add(new CalloutOrderUpdate.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZMAR', String.valueOf(CalloutOrderUpdate.isNotation(orderItem.CommercialMargin__c)), '%'));
             }
         }
     }
