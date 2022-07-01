@@ -527,18 +527,20 @@ export default class OrderHeaderScreen extends LightningElement {
                     const { record } = event.detail;
                     if (field == 'condicao_pagamento') {
                         this.headerDictLocale[field] = {Id: record.Id, Name: record.Name, CashPayment: record.CashPayment__c};
-                        if (record.CashPayment__c) {
-                            if (this.headerDictLocale.firstTime) {
-                                this.headerDictLocale.data_pagamento = this.headerDictLocale['data_pagamento'];
-                                this.headerDictLocale.firstTime = false;
-                            } else {
-                                this.headerDictLocale.data_pagamento = this.currentDate;
-                            }
+                        if (!this.barterSale) {
+                            if (record.CashPayment__c) {
+                                if (this.headerDictLocale.firstTime) {
+                                    this.headerDictLocale.data_pagamento = this.headerDictLocale['data_pagamento'];
+                                    this.headerDictLocale.firstTime = false;
+                                } else {
+                                    this.headerDictLocale.data_pagamento = this.currentDate;
+                                }
 
-                            this.headerData = JSON.parse(JSON.stringify(this.headerDictLocale));
-                            this.paymentDisabled = true;
-                        } else {
-                            this.paymentDisabled = false;
+                                this.headerData = JSON.parse(JSON.stringify(this.headerDictLocale));
+                                this.paymentDisabled = true;
+                            } else {
+                                this.paymentDisabled = false;
+                            }
                         }
                     } else {
                         this.headerDictLocale[field] = (this.registerDetails.includes(field) ? this.resolveRegister(record)  : {Id: record.Id, Name: record.Name});
@@ -594,7 +596,7 @@ export default class OrderHeaderScreen extends LightningElement {
             this.headerDictLocale[field] = {};
             this.headerDictLocale.isCompleted = false;
 
-            if (field == 'condicao_pagamento') {
+            if (field == 'condicao_pagamento' && !this.barterSale) {
                 this.paymentDisabled = false;
             } else if (field == 'safra' && this.barterSale) {
                 this.headerData = JSON.parse(JSON.stringify(this.headerDictLocale));

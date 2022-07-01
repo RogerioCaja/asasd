@@ -238,10 +238,10 @@ export default class OrderProductScreen extends LightningElement {
             listCost: currentProduct.listCost,
             practicedCost: currentProduct.practicedCost,
             initialTotalValue: currentProduct.initialTotalValue,
-            dosage: currentProduct.dosage,
+            dosage: this.isFilled(currentProduct.dosage) ? currentProduct.dosage : '',
             quantity: currentProduct.quantity,
             motherAvailableQuantity: currentProduct.motherAvailableQuantity,
-            invoicedQuantity: currentProduct.invoicedQuantity,
+            invoicedQuantity: this.isFilled(currentProduct.invoicedQuantity) ? currentProduct.invoicedQuantity : 0,
             multiplicity: currentProduct.multiplicity,
             position: currentProduct.position,
             commercialMarginPercentage: currentProduct.commercialMarginPercentage,
@@ -426,7 +426,7 @@ export default class OrderProductScreen extends LightningElement {
                     listPriceFront: this.isFilled(priorityInfos.listPrice) ? this.fixDecimalPlacesFront(priorityInfos.listPrice) : 0,
                     listCost: this.isFilled(priorityInfos.costPrice) ? this.fixDecimalPlaces(priorityInfos.costPrice) : 0,
                     practicedCost: this.isFilled(priorityInfos.costPrice) ? this.fixDecimalPlaces(priorityInfos.costPrice) : 0,
-                    dosage: currentProduct.dosage,
+                    dosage: this.isFilled(currentProduct.dosage) ? currentProduct.dosage : '',
                     quantity: null,
                     unitPrice: this.isFilled(priorityInfos.listPrice) ? this.fixDecimalPlaces(priorityInfos.listPrice) : 0,
                     unitPriceFront: this.isFilled(priorityInfos.listPrice) ? this.fixDecimalPlacesFront(priorityInfos.listPrice) : 0,
@@ -449,7 +449,7 @@ export default class OrderProductScreen extends LightningElement {
                     financialDecreasePercentageFront: null,
                     financialDecreaseValue: null,
                     financialDecreaseValueFront: null,
-                    invoicedQuantity: currentProduct.invoicedQuantity,
+                    invoicedQuantity: this.isFilled(currentProduct.invoicedQuantity) ? currentProduct.invoicedQuantity : 0,
                     motherAvailableQuantity: currentProduct.motherAvailableQuantity,
                     activePrinciple: currentProduct.activePrinciple != null ? currentProduct.activePrinciple : '',
                     productGroupId: currentProduct.productGroupId != null ? currentProduct.productGroupId : '',
@@ -531,6 +531,8 @@ export default class OrderProductScreen extends LightningElement {
         let fieldValue = event.target.value;
         
         if (this.isFilled(fieldValue)) {
+            fieldValue = fieldValue.toString().includes('.') ? fieldValue.toString().replace('.', '') : fieldValue;
+            fieldValue = fieldValue.toString().includes(',') ? fieldValue.replace(',', '.') : fieldValue;
             this.addProduct[fieldId] = fieldValue;
             if (fieldId == 'unitPrice') {
                 this.recalculateValuesByUnitPrice();
@@ -716,8 +718,9 @@ export default class OrderProductScreen extends LightningElement {
         }
     }
 
-    fixDecimalPlacesFront(value) {
-        return Number(Math.round(value + 'e' + 2) + 'e-' + 2);
+    fixDecimalPlacesFront(value, frontOrigin) {
+        let formatNumber = new Intl.NumberFormat('de-DE').format(Number(Math.round(value + 'e' + 2) + 'e-' + 2));
+        return formatNumber;
     }
 
     fixDecimalPlacesPercentage(value) {
@@ -738,6 +741,7 @@ export default class OrderProductScreen extends LightningElement {
 
     calculateValue(percentage, total) {
         percentage = percentage.includes(',') ? percentage.replace(',', '.').replace('%', '') : percentage.replace('%', '');
+        percentage = percentage != '' ? percentage : 0;
         let value = this.fixDecimalPlaces(((parseFloat(percentage) / 100) * total));
         return value;
     }
@@ -843,7 +847,7 @@ export default class OrderProductScreen extends LightningElement {
             if (includedProducts[index].position == this.productPosition) {
                 if (this.checkRequiredFields(this.addProduct)) {
                     let margin = this.isFilled(this.addProduct.practicedCost) ? this.fixDecimalPlaces(((1 - (Number(this.addProduct.practicedCost) / (Number(this.addProduct.totalPrice) / Number(this.addProduct.quantity)))) * 100)) : null;
-                    this.addProduct.commercialMarginPercentage = margin;
+                    this.addProduct.commercialMarginPercentage = this.headerData.IsOrderChild ? this.addProduct.commercialMarginPercentage : margin;
                     this.addProduct.multiplicity = this.multiplicity;
                     includedProducts[index] = JSON.parse(JSON.stringify(this.addProduct));
                     break;
