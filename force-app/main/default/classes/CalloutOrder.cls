@@ -186,7 +186,7 @@ public with sharing class CalloutOrder {
             }
             
             IS_HEADER_IN.DOC_TYPE = getCodeTypeOrder(String.valueOf([SELECT DeveloperName FROM RecordType WHERE Id =: order.RecordTypeId][0].DeveloperName), IV_TYPE == 'G' ? true : false); 
-            if(IS_HEADER_IN.DOC_TYPE == 'ZVNO' && order.PaymentCondition__r.CashPayment__c) IS_HEADER_IN.DOC_TYPE = 'ZVNB';
+            if(IS_HEADER_IN.DOC_TYPE == 'ZVNO' && order.PaymentCondition__r.CashPayment__c) IS_HEADER_IN.DOC_TYPE = 'ZVAB';
             IS_HEADER_IN.SALES_ORG = order.SalesOrg__r.SalesOrganizationCode__c;
             IS_HEADER_IN.DISTR_CHAN =order.DistributionChannel__r.Codigo__c;
             IS_HEADER_IN.DIVISION = order.ActivitySector__r.Codigo__c;

@@ -13,10 +13,19 @@
             </svg>   
          <span class="Agro">Agrogalaxy</span> 
         </section>
-        <section>
-            <span>Condição de Vendas: </span>
-            <span>{ headerData.condicao_venda.Name}</span>
+        <section style="display: flex; flex-direction:column; gap:0em;">
+            <section>
+                <span>Condição de Vendas: </span>
+                <span>{ headerData.condicao_venda.Name}</span>
+            </section>
+            <section>
+                <span>OrgV: </span>
+                <span>{headerData.organizacao_vendas.Name}</span>
+            </section>
+            
         </section>
+        
+
         
     </span>
         <!-- Parte que engloba todos os dados -->
@@ -109,12 +118,13 @@
                 </div>
 
                 <div>
+                   
                     <section>
-                        <span>OrgV: </span>
-                        <span>{headerData.organizacao_vendas.Name}</span>
+                        <span>Aprovação Comitê Margem: </span>
+                        <span>{approvalMargin}</span>
                     </section>
                     <section>
-                        <span>Aprovação: </span>
+                        <span>Aprovação Comercial: </span>
                         <span>{approval}</span>
                     </section>
                     <section>

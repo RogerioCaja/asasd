@@ -16,6 +16,7 @@ export default class Lookup extends LightningElement {
 	@api disabled;
 	@api barterSale;
 	@api safraName = null;
+	@api salesType = null;
 	@api salesOrg = null;
 	@api currencyOption = null;
 
@@ -249,7 +250,8 @@ export default class Lookup extends LightningElement {
 			let salesConditionData = {
 				salesOrgId: this.salesOrg  != null ? this.salesOrg  : '',
 				safraName:  this.safraName != null ?  this.safraName : '',
-				currencyGet: this.currencyOption != null ? this.currencyOption : ''
+				currencyGet: this.currencyOption != null ? this.currencyOption : '',
+				typeOrder: this.salesType != null ? this.salesType : ''
 			}
 			const data = await getRecords({ data: JSON.stringify(requestData), barterSale: this.barterSale, salesConditionData: JSON.stringify(salesConditionData) });
 			//console.log('data lookup fon =>', JSON.parse(JSON.stringify(data)));
