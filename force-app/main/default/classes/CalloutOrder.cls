@@ -12,7 +12,7 @@ public with sharing class CalloutOrder {
 
     public static IntegrationUtils.CalloutResponse processIntegration(Id orderId){
 
-		Order parentOrder = [SELECT Id, CodigoSap__c, ShippingAccount__r.ExternalId__c, Account.ExternalId__c, Type, SalesOrg__r.SalesOrganizationCode__c, DistributionChannel__c, DistributionChannel__r.Codigo__c, SalesCondition__r.ExternalId__c,
+		Order parentOrder = [SELECT Id, CodigoSap__c, ShippingAccount__r.ExternalId__c, Company__r.SupplierCenter__c, Account.ExternalId__c, Type, SalesOrg__r.SalesOrganizationCode__c, DistributionChannel__c, DistributionChannel__r.Codigo__c, SalesCondition__r.ExternalId__c,
                             ActivitySector__c, ActivitySector__r.Codigo__c, PaymentCondition__r.CashPayment__c, Incoterms__c, Incoterms2__c, PaymentCondition__r.Code__c, OrderReason__c , SalesCTV__r.CodigoSap__c, PaymentDate__c,EffectiveDate, OrderReference__r.CodigoSap__c,
                             OrderNumber, Crop__r.Code__c, Crop__r.StartDateOrderInsertion__c, Crop__r.EndDateInsertionOrders__c ,Culture__r.Codigo__c, EndDate, TotalAmount, PaymentForm__c, OrderReference__c, CustomerOrderNumber__c,
                             Currency__c, Crop__r.PaymentBaseDate__c,IsOrderMother__c, RecordTypeId, (SELECT Id FROM OrderItems) 
@@ -186,7 +186,7 @@ public with sharing class CalloutOrder {
             }
             
             IS_HEADER_IN.DOC_TYPE = getCodeTypeOrder(String.valueOf([SELECT DeveloperName FROM RecordType WHERE Id =: order.RecordTypeId][0].DeveloperName), IV_TYPE == 'G' ? true : false); 
-            if(IS_HEADER_IN.DOC_TYPE == 'ZVNO' && order.PaymentCondition__r.CashPayment__c) IS_HEADER_IN.DOC_TYPE = 'ZVNB';
+            if(IS_HEADER_IN.DOC_TYPE == 'ZVNO' && order.PaymentCondition__r.CashPayment__c) IS_HEADER_IN.DOC_TYPE = 'ZVAB';
             IS_HEADER_IN.SALES_ORG = order.SalesOrg__r.SalesOrganizationCode__c;
             IS_HEADER_IN.DISTR_CHAN =order.DistributionChannel__r.Codigo__c;
             IS_HEADER_IN.DIVISION = order.ActivitySector__r.Codigo__c;
@@ -249,7 +249,7 @@ public with sharing class CalloutOrder {
                     }
                 }
                 
-                IT_ITEMS_IN.add(new CalloutOrder.OrderItemParameters(orderItem, referenceItemMotherMap.containsKey(orderItem.Product2.ExternalId__c) ?  referenceItemMotherMap.get(orderItem.Product2.ExternalId__c) : '' ));
+                IT_ITEMS_IN.add(new CalloutOrder.OrderItemParameters(orderItem, referenceItemMotherMap.containsKey(orderItem.Product2.ExternalId__c) ?  referenceItemMotherMap.get(orderItem.Product2.ExternalId__c) : '', order.Company__r.SupplierCenter__c ));
                 if(orderItem.FinancialAdditionValue__c > 0){
                     IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDEC', String.valueOf(CalloutOrder.isNotation(orderItem.CommercialAdditionPercent__c)), ''));
                 }
@@ -335,10 +335,10 @@ public with sharing class CalloutOrder {
         public String REF_DOC_IT;
 
 
-        public OrderItemParameters(OrderItem orderItem, String numReference){
+        public OrderItemParameters(OrderItem orderItem, String numReference, String plant){
             this.ITM_NUMBER = String.valueOf(orderItem.NumeroSap__c).leftPad(6, '0');
             this.MATERIAL = orderItem.Product2.ExternalId__c;
-            this.PLANT = orderItem.Product2.DistributionCenter__r.Code__c != null ? orderItem.Product2.DistributionCenter__r.Code__c : '';
+            this.PLANT = plant;
             this.TARGET_QTY =  String.valueOf(orderItem.Quantity);
             this.REF_DOC_IT = numReference != '' ? numReference.leftPad(6, '0') : '';
         }
