@@ -10,14 +10,22 @@ public without sharing class Lookup {
         Set<Id> availableSalesCondition = new Set<Id>();
 
         if(requestData.targetObject == 'SalesCondition__c'){
+            List<String> typeProducts;
+            if( requestSalesCondition.typeOrder == 'Venda de Serviço'){
+                typeProducts = new List<String>{'DIEN'};
+            }else{
+                typeProducts = new List<String>{'FERT', 'HAWA', 'ZCOM'};
+            }
+           
             Id recTypeZPR0 = Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get('ZPR0').getRecordTypeId();
             
             for(JurosDescontoAntecipao__c listPrice : [SELECT Id, SalesCondition__c
                                                         FROM JurosDescontoAntecipao__c
                                                         WHERE RecordTypeId =: String.escapeSingleQuotes(recTypeZPR0)
+                                                        AND Product__r.ProductType__c IN: typeProducts
                                                         AND StartDate__c <=: System.today()
                                                         AND EndDate__c >=: System.today()
-                                                        AND SalesOrg__C =: requestSalesCondition.salesOrgId
+                                                        AND SalesOrg__c =: requestSalesCondition.salesOrgId
                                                         AND harvest__r.Name =: requestSalesCondition.safraName 
                                                         AND Currency__c =: requestSalesCondition.currencyGet]){
 
@@ -198,5 +206,6 @@ public without sharing class Lookup {
         public String safraName;
         public String SalesOrgId;
         public String currencyGet;
+        public String typeOrder;
     }
 }

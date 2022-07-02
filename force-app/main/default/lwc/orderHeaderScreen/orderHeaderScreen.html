@@ -122,7 +122,6 @@
                                 search-fields={redispatchCtvSearchFields} 
                                 record-id={headerData.ctv_venda.Id}
                                 list-item-options={redispatchCtvVendaListItemOptions} 
-                                new-record-button="true"
                                 standard-form-layout={booleanTrue}
                                 account-id={accountData.Id}
                                 onclearselectedrecord={removeItemRegister}
@@ -145,7 +144,6 @@
                                 record-id={headerData.safra.Id}
                                 search-fields={redispatchSafraSearchFields}
                                 list-item-options={redispatchSafraListItemOptions} 
-                                new-record-button={booleanTrue}
                                 standard-form-layout={booleanTrue}
                                 onclearselectedrecord={removeItemRegister}
                                 onselectrecord={selectItemRegister} 
@@ -178,12 +176,12 @@
                                 target-object={redispatchCondicaoVendaObject}
                                 record-id={headerData.condicao_venda.Id}
                                 safra-name={safraName}
+                                sales-type={headerData.tipo_venda}
                                 currency-option={currencyOption}
                                 sales-org={salesOrgId}
                                 search-fields={redispatchCondicaoVendaSearchFields}
                                 list-item-options={redispatchCondicaoVendaListItemOptions} 
                                 standard-form-layout={booleanTrue}
-                                new-record-button={booleanTrue}
                                 onclearselectedrecord={removeItemRegister}
                                 onselectrecord={selectItemRegister} 
                                 placeholder="Pesquisar Tabela de Preços"
@@ -207,7 +205,6 @@
                                 barter-sale={barterSale}
                                 onclearselectedrecord={removeItemRegister}
                                 onselectrecord={selectItemRegister}
-                                new-record-button={booleanTrue} 
                                 placeholder="Pesquisar Condições de Pagamento"
                                 style="width: 100%;" 
                                 required="true"
@@ -315,7 +312,6 @@
                                 record-id={headerData.cultura.Id}
                                 search-fields={redispatchCulturaSearchFields}
                                 list-item-options={redispatchCulturaListItemOptions} 
-                                new-record-button={booleanTrue}
                                 onclearselectedrecord={removeItemRegister}
                                 onselectrecord={selectItemRegister} 
                                 standard-form-layout={booleanTrue} 

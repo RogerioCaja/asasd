@@ -25,6 +25,8 @@ global without sharing class IntegrationINOrder {
 
         List<TemplateDataIntegrationFields.ShippingDivisonINData> shippingDivisonListToUpsert = new List<TemplateDataIntegrationFields.ShippingDivisonINData>();
         
+        List<String> idOrders = new List<String>();
+
         // Guarda uma lista de pedidos para fazer o upsert
         List<Order> orderListToUpsert = new List<Order>();
 
@@ -40,6 +42,8 @@ global without sharing class IntegrationINOrder {
             //salesCTVLookups.add(order.salesCTV);
             pricebook2IdLookups.add(order.pricebook2Id);
             paymentConditionLookups.add(order.paymentCondition);
+
+            idOrders.add(order.CodigoSap);
             
             for (TemplateDataIntegrationFields.OrderItemINData orderItem : order.orderItems) {
                 orderItem.orderExternalId = order.CodigoSap;
@@ -85,6 +89,70 @@ global without sharing class IntegrationINOrder {
                 //Getting list of order items
                 //orderItemListToUpsert.addAll(order.orderItems);
             //}
+        }
+
+        Map<String, Order> ordersIdsMap = new Map<String, Order>();
+        List<Order> orderSelectList = new List<Order>([SELECT Id, NumeroPedidoApp__c,PaymentDate__c,ShippingDate__c,Type,CustomerOrderNumber__c,
+        Currency__c,Description,DescriptionBillingSale__c,FinalTotalValue__c,Hectare__c,OrderMargin__c,OrderType__c,SalesCondition__c,IsOrderMother__c,
+        CodigoSap__c, Pricebook2Id, Pricebook2.Name, Crop__r.Code__c, Crop__c, Culture__c, Culture__r.Codigo__c, SalesOrg__r.SalesOrganizationCode__c, SalesOrg__c,
+        SalesCTV__r.CodigoSap__c, SalesCTV__c, PaymentCondition__r.Code__c, PaymentCondition__c
+        FROM Order WHERE CodigoSap__c  IN : idOrders]);
+
+        for (Order ord : orderSelectList){
+            ordersIdsMap.put(ord.CodigoSap__c, ord);
+        }
+        for (TemplateDataIntegrationFields.OrderINData order : request){
+            Order ord = ordersIdsMap.get(order.CodigoSap);
+            order.numeroPedidoApp = ord.NumeroPedidoApp__c;
+            order.paymentDate = ord.PaymentDate__c;
+            order.ShippingDate = ord.ShippingDate__c;
+            order.type = ord.Type;
+            order.customerOrderNumber = ord.CustomerOrderNumber__c;
+            order.CurrencyOrder = ord.Currency__c;
+            order.description = ord.Description;
+            order.descriptionBillingSale = ord.DescriptionBillingSale__c;
+            order.valorFinalTotal = ord.FinalTotalValue__c;
+            order.hectare = ord.Hectare__c; 
+            order.margemPedido = ord.OrderMargin__c;
+            order.orderType = ord.OrderType__c;
+            order.condicaoVenda = ord.SalesCondition__c;
+            order.pedidoMae = ord.IsOrderMother__c;
+
+            if(ord.Pricebook2Id != null){
+                order.pricebook2Id = ord.Pricebook2.Name;
+                lookups.put('Pricebook2Id' + ord.Pricebook2.Name, ord.Pricebook2Id);
+            }
+            
+            order.CodigoSap = ord.CodigoSap__c;
+            //lookups.put('Order' + order.CodigoSap__c, order.Id);
+
+            if(ord.Crop__c != null){
+                order.crop = ord.Crop__r.Code__c;
+                lookups.put('Safra' + ord.Crop__r.Code__c, ord.Crop__c);
+            }
+
+
+            if(ord.SalesOrg__c != null){
+                order.culture = ord.Culture__r.Codigo__c;
+                lookups.put('Cultura' + ord.Culture__r.Codigo__c, ord.Culture__c);
+            }
+
+
+            if(ord.SalesOrg__c != null){
+                order.salesOrg = ord.SalesOrg__r.SalesOrganizationCode__c;
+                lookups.put('SalesOrg' + ord.SalesOrg__r.SalesOrganizationCode__c, ord.SalesOrg__c);
+            }
+            
+            
+            if(ord.SalesCTV__c != null){
+                order.salesCTV = ord.SalesCTV__r.CodigoSap__c;
+                lookups.put('User' + ord.SalesCTV__r.CodigoSap__c, ord.SalesCTV__c);
+            }
+            
+            if(ord.PaymentCondition__c != null){
+                order.paymentCondition = ord.PaymentCondition__r.Code__c;
+                lookups.put('PaymentCondition__c' + ord.PaymentCondition__r.Code__c, ord.PaymentCondition__c);    
+            }
         }
 
         for (Pricebook2 pricebook2Id : [SELECT Id, ExternalId__c FROM Pricebook2 WHERE ExternalId__c IN : pricebook2IdLookups ]){

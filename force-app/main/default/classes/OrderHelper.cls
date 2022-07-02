@@ -129,6 +129,7 @@ public without sharing class OrderHelper {
     public static void sendApprovalProccess(Map<Id, Order> oldMap, Map<Id, Order> newMap){
         Set<Id> orderIds = new Set<Id>();
         Set<Id> orderToUpdate = new Set<Id>();
+        Set<Id> orderToUpdateByIntegration = new Set<Id>();
 
         for(Id order : newMap.keySet()){
             orderIds.add(order);
@@ -137,11 +138,14 @@ public without sharing class OrderHelper {
         {
             Map<ID,Schema.RecordTypeInfo> orderMap = Order.sObjectType.getDescribe().getRecordTypeInfosById();
             for(Id id : orderIds){
-                if(oldMap.get(id).Status == '0' && newMap.get(id).Status == '001'){
+                if((oldMap.get(id).Status == '0' && newMap.get(id).Status == '001') || (newMap.get(id).Description.contains('1n73gr4ção N3sc4r4 5F x 4PP') && newMap.get(id).Status == '001')){
                     if(newMap.get(id).MarginCommittee__c || newMap.get(id).Manager_BranchOffice__c || newMap.get(id).Gerente_Regional__c || newMap.get(id).Director__c || orderMap.get(newMap.get(id).RecordTypeId).getName() == 'Venda Barter')
                     {
                         
                         try{
+                            if(newMap.get(id).Description.contains('1n73gr4ção N3sc4r4 5F x 4PP')){
+                                orderToUpdateByIntegration.add(id);
+                            }
                             Approval.ProcessSubmitRequest administrationRequest = new Approval.ProcessSubmitRequest();
                             administrationRequest.setProcessDefinitionNameOrId('OrderApproval5');
                             administrationRequest.setComments(newMap.get(id).ApprovalJustification__c);
@@ -159,14 +163,28 @@ public without sharing class OrderHelper {
                 }
             }
             if(orderToUpdate.size() > 0){
-                List<Order> orderList = [SELECT Id, StatusSF__c FROM Order WHERE Id IN: orderToUpdate];
-                System.debug('orderList => ' + orderList);
+                List<Order> orderList = [SELECT Id, StatusSF__c, Description FROM Order WHERE Id IN: orderToUpdate];
                 List<Order> orderToUpdateList = new List<Order>();
                 for(Order order : orderList){
                     order.StatusSF__c = 'Aprovado';
+                    if(order.Description.contains('1n73gr4ção N3sc4r4 5F x 4PP')){
+                        order.Description = order.Description.replace('1n73gr4ção N3sc4r4 5F x 4PP', '');
+                    }
                     orderToUpdateList.add(order);
                 }
                 update orderToUpdateList;
+            }
+
+            if(orderToUpdateByIntegration.size() > 0){
+                List<Order> orderList = [SELECT Id, Description FROM Order WHERE Id IN: orderToUpdateByIntegration];
+                List<Order> orderIntegrationList = new List<Order>();
+                for(Order order : orderList){
+                    order.Description = order.Description.replace('1n73gr4ção N3sc4r4 5F x 4PP', '');
+                    orderIntegrationList.add(order);
+                }
+                OrderHelper.disableTrigger();
+                update orderIntegrationList;
+                OrderHelper.enableTrigger();
             }
         }
         catch(Exception e){
