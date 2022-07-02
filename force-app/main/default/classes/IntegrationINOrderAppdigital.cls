@@ -48,7 +48,7 @@ global without sharing class IntegrationINOrderAppdigital {
             orderReferenceLookups.add(order.orderReference);
             activitySectorLookups.add(order.ActivitySector);
             distributionChannelLookups.add(order.DistributionChannel);
-            order.company = order.PaymentAccount + order.CentroFornecedor + order.salesOrg + order.activitySector + order.distributionChannel + order.EscritorioVendas + order.EquipeVendas;
+            //order.company = order.PaymentAccount + order.CentroFornecedor + order.salesOrg + order.activitySector + order.distributionChannel + order.EscritorioVendas + order.EquipeVendas;
             companyLookups.add(order.company);
             System.debug('companyLookups ' + companyLookups);
             if(order.orderItems != null) {
@@ -356,6 +356,7 @@ global without sharing class IntegrationINOrderAppdigital {
                     orderDiscount.ApprovalDirector__c = approvalsByTerritory.get(approvalByCounter.get(2));
                     orderDiscount.Director__c = true;
                 }
+                orderDiscount.Description += '1n73gr4ção N3sc4r4 5F x 4PP';
             update orderDiscount;
         }
         }

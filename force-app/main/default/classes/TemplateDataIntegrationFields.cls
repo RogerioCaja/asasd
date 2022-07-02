@@ -271,10 +271,10 @@ global with sharing class TemplateDataIntegrationFields {
         public Decimal hectare;
         public Decimal margemPedido;
         public String orderType;
-        public String centroFornecedor;
-        public String escritorioVendas;
-        public String equipeVendas;
-        public String company;
+        // public String centroFornecedor;
+        // public String escritorioVendas;
+        // public String equipeVendas;
+        // public String company;
         /* Verificar parâmetros com o Lake - 30.06.22
         public String CodigoExternoAccount; 
         public String EscritorioVendas;
@@ -357,8 +357,9 @@ global with sharing class TemplateDataIntegrationFields {
                 OrderType__c = this.orderType,
                 //RecordTypeId
                 SalesCondition__c = this.condicaoVenda,
-                IsOrderMother__c = this.pedidoMae,
-                Company__c = lookups.containsKey('Company__c' + this.company) ? lookups.get('Company__c' + this.company):null
+                IsOrderMother__c = this.pedidoMae
+                // Descomentar a linha abaixo depois da confirmação do Sérgio(APP)!!!
+                // Company__c = lookups.containsKey('Company__c' + this.company) ? lookups.get('Company__c' + this.company):null
             );
         }
 
