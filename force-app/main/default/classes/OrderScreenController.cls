@@ -285,7 +285,7 @@ public without sharing class OrderScreenController {
             }
 
             Map<String, Decimal> orderMarginMap = new Map<String, Decimal>();
-            if (company != null && company.ClientGroup__c != null) {
+            if (orderData.headerData.pedido_mae.Id == null && company != null && company.ClientGroup__c != null) {
                 for (Discount__c discount : [
                     SELECT Id,
                            Margin__c,
