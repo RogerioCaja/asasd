@@ -179,9 +179,10 @@ public without sharing class OrderHelper {
             }
 
             if(orderToUpdateByIntegration.size() > 0){
-                List<Order> orderList = [SELECT Id, Description FROM Order WHERE Id IN: orderToUpdateByIntegration];
+                List<Order> orderList = [SELECT Id, StatusSF__c, Description FROM Order WHERE Id IN: orderToUpdateByIntegration];
                 List<Order> orderIntegrationList = new List<Order>();
                 for(Order order : orderList){
+                    order.StatusSF__c = 'Aprovado';
                     order.Description = order.Description.replace('1n73gr4ção N3sc4r4 5F x 4PP', '');
                     orderIntegrationList.add(order);
                 }

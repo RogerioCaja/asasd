@@ -7,7 +7,7 @@
     <columns>hasAttachment__c</columns>
     <columns>ExecutionDate__c</columns>
     <columns>Status__c</columns>
-    <filterScope>Mine</filterScope>
+    <filterScope>Everything</filterScope>
     <filters>
         <field>Flow__c</field>
         <operation>equals</operation>
