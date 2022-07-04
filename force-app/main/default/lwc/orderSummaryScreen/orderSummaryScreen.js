@@ -8,6 +8,7 @@ export default class OrderSummaryScreen extends LightningElement {
     isBarter = false;
     @track orderMargin = 0;
     @track approval = '';
+    @track approvalMargin = 'Dispensado';
     @api accountData;
     @api productData;
     @api divisionData;
@@ -30,6 +31,10 @@ export default class OrderSummaryScreen extends LightningElement {
         }).then((result) => {
             if(result){
                 this.approval = result;
+                if(this.approval.includes('- Comitê de Margem')){
+                    this.approval.replace('- Comitê de Margem', '');
+                    this.approvalMargin = 'Necessário';
+                }
                 this.summaryDataLocale.approval = this.approval;
             } 
             else{
