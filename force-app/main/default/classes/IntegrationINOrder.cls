@@ -94,8 +94,8 @@ global without sharing class IntegrationINOrder {
         Map<String, Order> ordersIdsMap = new Map<String, Order>();
         List<Order> orderSelectList = new List<Order>([SELECT Id, NumeroPedidoApp__c,PaymentDate__c,ShippingDate__c,Type,CustomerOrderNumber__c,
         Currency__c,Description,DescriptionBillingSale__c,FinalTotalValue__c,Hectare__c,OrderMargin__c,OrderType__c,SalesCondition__c,IsOrderMother__c,
-        CodigoSap__c, Pricebook2Id, Pricebook2.Name,EffectiveDate,Status,StatusRecusa__c,Incoterms__c,Incoterms2__c,PaymentForm__c, Crop__r.Code__c, Crop__c, Culture__c, Culture__r.Codigo__c, SalesOrg__r.SalesOrganizationCode__c, SalesOrg__c,
-        SalesCTV__r.CodigoSap__c, SalesCTV__c, PaymentCondition__r.Code__c, PaymentCondition__c,OrderReference__r.CodigoSap__c, OrderReference__c, Account.ExternalId__c, AccountId, ShippingAccount__r.ExternalId__c, ShippingAccount__c,Company__r.ExternalID__c,Company__c,DistributionChannel__r.Codigo__c,DistributionChannel__c
+        CodigoSap__c, Pricebook2Id, Pricebook2.Name, Crop__r.Code__c, Crop__c, Culture__c, Culture__r.Codigo__c, SalesOrg__r.SalesOrganizationCode__c, SalesOrg__c,
+        SalesCTV__r.CodigoSap__c, SalesCTV__c, PaymentCondition__r.Code__c, PaymentCondition__c
         FROM Order WHERE CodigoSap__c  IN : idOrders]);
 
         for (Order ord : orderSelectList){
@@ -103,143 +103,55 @@ global without sharing class IntegrationINOrder {
         }
         for (TemplateDataIntegrationFields.OrderINData order : request){
             Order ord = ordersIdsMap.get(order.CodigoSap);
-            if(order.numeroPedidoApp == null){
-                order.numeroPedidoApp = ord.NumeroPedidoApp__c;
-            }
-            if (order.paymentDate == null){
-                order.paymentDate = ord.PaymentDate__c;
-            }
-            if (order.effectiveDate == null){
-                order.effectiveDate = ord.EffectiveDate;
-            }
-            if(order.ShippingDate == null){
-                order.ShippingDate = ord.ShippingDate__c;
-            }
-            if(order.status == null){
-                order.status = ord.Status;
-            }
-            if(order.statusRecusa == null){
-                order.statusRecusa = ord.StatusRecusa__c;
-            }
-            if(order.type == null){
-                order.type = ord.Type;
-            }
-            if(order.customerOrderNumber == null){
-                order.customerOrderNumber = ord.CustomerOrderNumber__c;
-            }
-            if(order.paymentForm == null){
-                order.paymentForm = ord.PaymentForm__c;
-            }
-            if(order.CurrencyOrder == null){
-                order.CurrencyOrder = ord.Currency__c;
-            }
-            if(order.incoterms == null){
-                order.incoterms = ord.Incoterms__c;
-            }
-            if(order.incoterms2 == null){
-                order.incoterms2 = ord.Incoterms2__c;
-            }
-            if(order.description == null){
-                order.description = ord.Description;
-            }
-            if(order.descriptionBillingSale == null){
-                order.descriptionBillingSale = ord.DescriptionBillingSale__c;
-            }
-            if(order.valorFinalTotal == null){
-                order.valorFinalTotal = ord.FinalTotalValue__c;
-            }
-            if(order.hectare == null){
-                order.hectare = ord.Hectare__c; 
-            }
-            if(order.margemPedido == null){
-                order.margemPedido = ord.OrderMargin__c;
-            }
-            if(order.orderType == null){
-                order.orderType = ord.OrderType__c;
-            }
-            if(order.condicaoVenda == null){
-                order.condicaoVenda = ord.SalesCondition__c;
-            }
-            if(order.pedidoMae == null){
-                order.pedidoMae = ord.IsOrderMother__c;
+            order.numeroPedidoApp = ord.NumeroPedidoApp__c;
+            order.paymentDate = ord.PaymentDate__c;
+            order.ShippingDate = ord.ShippingDate__c;
+            order.type = ord.Type;
+            order.customerOrderNumber = ord.CustomerOrderNumber__c;
+            order.CurrencyOrder = ord.Currency__c;
+            order.description = ord.Description;
+            order.descriptionBillingSale = ord.DescriptionBillingSale__c;
+            order.valorFinalTotal = ord.FinalTotalValue__c;
+            order.hectare = ord.Hectare__c; 
+            order.margemPedido = ord.OrderMargin__c;
+            order.orderType = ord.OrderType__c;
+            order.condicaoVenda = ord.SalesCondition__c;
+            order.pedidoMae = ord.IsOrderMother__c;
+
+            if(ord.Pricebook2Id != null){
+                order.pricebook2Id = ord.Pricebook2.Name;
+                lookups.put('Pricebook2Id' + ord.Pricebook2.Name, ord.Pricebook2Id);
             }
             
+            order.CodigoSap = ord.CodigoSap__c;
+            //lookups.put('Order' + order.CodigoSap__c, order.Id);
+
+            if(ord.Crop__c != null){
+                order.crop = ord.Crop__r.Code__c;
+                lookups.put('Safra' + ord.Crop__r.Code__c, ord.Crop__c);
+            }
 
 
+            if(ord.SalesOrg__c != null){
+                order.culture = ord.Culture__r.Codigo__c;
+                lookups.put('Cultura' + ord.Culture__r.Codigo__c, ord.Culture__c);
+            }
 
-            /*
-            order.orderReference
-            */
-            if(order.shippingAccount == null){
-                if(ord.ShippingAccount__c != null){
-                    order.shippingAccount = ord.ShippingAccount__r.ExternalId__c;
-                    lookups.put('Account' + ord.ShippingAccount__r.ExternalId__c, ord.ShippingAccount__c);
-                }
-            }
-            if(order.PaymentAccount == null){
-                if(ord.AccountId != null){
-                    order.PaymentAccount = ord.AccountId;
-                    lookups.put('Account' + ord.Account.ExternalId__c, ord.AccountId);
-                }
-            }
-            if(order.orderReference == null){
-                if(ord.OrderReference__c != null){
-                    order.orderReference = ord.OrderReference__r.CodigoSap__c;
-                    lookups.put('Order' + ord.OrderReference__r.CodigoSap__c, ord.OrderReference__c);
-                }
-            }
-            if(order.pricebook2Id == null){
-                if(ord.Pricebook2Id != null){
-                    order.pricebook2Id = ord.Pricebook2.Name;
-                    lookups.put('Pricebook2Id' + ord.Pricebook2.Name, ord.Pricebook2Id);
-                }
+
+            if(ord.SalesOrg__c != null){
+                order.salesOrg = ord.SalesOrg__r.SalesOrganizationCode__c;
+                lookups.put('SalesOrg' + ord.SalesOrg__r.SalesOrganizationCode__c, ord.SalesOrg__c);
             }
             
-            if(order.crop == null){
-                if(ord.Crop__c != null){
-                    order.crop = ord.Crop__r.Code__c;
-                    lookups.put('Safra__c' + ord.Crop__r.Code__c, ord.Crop__c);
-                }
-            }
-
-            if(order.culture == null){
-                if(ord.Culture__c != null){
-                    order.culture = ord.Culture__r.Codigo__c;
-                    lookups.put('Cultura__c' + ord.Culture__r.Codigo__c, ord.Culture__c);
-                }
-            }
-
-            if(order.salesOrg == null){
-                if(ord.SalesOrg__c != null){
-                    order.salesOrg = ord.SalesOrg__r.SalesOrganizationCode__c;
-                    lookups.put('SalesOrg__c' + ord.SalesOrg__r.SalesOrganizationCode__c, ord.SalesOrg__c);
-                }
+            
+            if(ord.SalesCTV__c != null){
+                order.salesCTV = ord.SalesCTV__r.CodigoSap__c;
+                lookups.put('User' + ord.SalesCTV__r.CodigoSap__c, ord.SalesCTV__c);
             }
             
-            if(order.SalesCTV == null){
-                if(ord.SalesCTV__c != null){
-                    order.salesCTV = ord.SalesCTV__r.CodigoSap__c;
-                    lookups.put('User' + ord.SalesCTV__r.CodigoSap__c, ord.SalesCTV__c);
-                }
-            }
-            
-            if(order.paymentCondition == null){
-                if(ord.PaymentCondition__c != null){
-                    order.paymentCondition = ord.PaymentCondition__r.Code__c;
-                    lookups.put('PaymentCondition__c' + ord.PaymentCondition__r.Code__c, ord.PaymentCondition__c);    
-                }
-            } 
-            if (order.company == null){
-                if(ord.Company__c != null){
-                    order.company = ord.Company__r.ExternalID__c;
-                    lookups.put('Company__c' + ord.Company__r.ExternalID__c, ord.Company__c);
-                }
-            }
-            if(order.distributionChannel == null){
-                if(ord.DistributionChannel__c != null){
-                    order.distributionChannel = ord.DistributionChannel__r.Codigo__c;
-                    lookups.put('DistributionChannel__c' + ord.DistributionChannel__r.Codigo__c, ord.DistributionChannel__c);
-                }
+            if(ord.PaymentCondition__c != null){
+                order.paymentCondition = ord.PaymentCondition__r.Code__c;
+                lookups.put('PaymentCondition__c' + ord.PaymentCondition__r.Code__c, ord.PaymentCondition__c);    
             }
         }
 
@@ -262,15 +174,15 @@ global without sharing class IntegrationINOrder {
         }
 
         for (Safra__c crop : [SELECT Id, Code__c FROM Safra__c WHERE Code__c IN : cropLookups]) {
-            lookups.put('Safra__c' + crop.Code__c, crop.Id);
+            lookups.put('Safra' + crop.Code__c, crop.Id);
         }
 
         for (Cultura__c culture : [SELECT Id, Codigo__c FROM Cultura__c WHERE Codigo__c IN : cultureLookups]) {
-            lookups.put('Cultura__c' + culture.Codigo__c, culture.Id);
+            lookups.put('Cultura' + culture.Codigo__c, culture.Id);
         }
 
         for (SalesOrg__c salesOrg : [SELECT Id, SalesOrganizationCode__c FROM SalesOrg__c WHERE SalesOrganizationCode__c IN : salesOrgLookups]) {
-            lookups.put('SalesOrg__c' + salesOrg.SalesOrganizationCode__c, salesOrg.Id);
+            lookups.put('SalesOrg' + salesOrg.SalesOrganizationCode__c, salesOrg.Id);
         }
 
         for (User salesCTV : [SELECT Id, CodigoSap__c FROM User WHERE CodigoSap__c IN : salesCTVLookups]) {
@@ -293,28 +205,7 @@ global without sharing class IntegrationINOrder {
             orderListToUpsert, 
             Order.CodigoSap__c
         );
-        Map<String, String> orderUpMap = new Map<String, String>();
-        for(Order ordUp :orderListToUpsert){
-            orderUpMap.put(ordUp.CodigoSap__c, ordUp.Id);
-        }
-        for (TemplateDataIntegrationFields.OrderItemINData orderIt : orderItemListToUpsert){
-            String orderId;
-            
-                if(orderIt.orderExternalId != null){
-                    orderId = orderUpMap.get(orderIt.orderExternalId);
-                    
-                    orderIt.orderExternalId = orderId;
-                } 
-        }
-        for (TemplateDataIntegrationFields.ShippingDivisonINData shipIt : shippingDivisonListToUpsert){
-            String orderId;
-            
-                if(shipIt.orderExternalId != null){
-                    orderId = orderUpMap.get(shipIt.orderExternalId);
-                    
-                    shipIt.orderExternalId = orderId;
-                } 
-        }
+        
         //Upserting records (OrderItem)
         // Upsert OrderItem
         Map<String, List<TemplateDataIntegrationFields.Response>> orderItemsResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
