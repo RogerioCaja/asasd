@@ -813,24 +813,27 @@ public without sharing class OrderScreenController {
         if (salesTeamTerritory == null && territoryAndParents.get(userTerritoryId) != null && territoryAndParents.get(territoryAndParents.get(userTerritoryId).ParentTerritory2Id) != null) {
             salesTeamTerritory = territoryAndParents.get(territoryAndParents.get(userTerritoryId).ParentTerritory2Id);
         }
+        
+        Set<String> fieldSet = new Set<String>{
+            'Id','SalesOrg__c', 'SalesTeam__r.Name', 'SalesOffice__c',
+            'SupplierCenter__c','ActivitySector__c','ActivitySector__r.Name',
+             'DistributionChannel__c','DistributionChannel__r.Name'
+        };
+        Q proQuery = new Q(Company__c.SObjectType);
+        proQuery.selectFields(fieldSet);
+        proQuery.add(Q.condition('Conta__c').equalsTo(companyInfos.accountId));
+        
 
         List<CompanyInfos> companyList = new List<CompanyInfos>();
         if (salesTeamTerritory != null && salesTeamTerritory.DeveloperName != null) {
             String salesTeamDevName = salesTeamTerritory.DeveloperName.substring(0, 1) == 'X' ? salesTeamTerritory.DeveloperName.substring(1, salesTeamTerritory.DeveloperName.length()) : salesTeamTerritory.DeveloperName;
-            for (Company__c salesTeamCompany : [
-                SELECT Id,
-                       SalesOrg__c,
-                       SalesTeam__r.Name,
-                       SalesOffice__c,
-                       SupplierCenter__c,
-                       ActivitySector__c,
-                       ActivitySector__r.Name,
-                       DistributionChannel__c,
-                       DistributionChannel__r.Name
-                  FROM Company__c
-                 WHERE Conta__c =: companyInfos.accountId
-                   AND SalesTeam__r.ExternalId__c =: salesTeamDevName
-            ]) {
+            proQuery.add(Q.condition('SalesTeam__r.ExternalId__c').equalsTo(salesTeamDevName));
+            if(companyInfos.orderType != 'Venda de Serviço')
+                proQuery.add(Q.condition('ActivitySector__r.Codigo__c').notEqualsTo('40'));
+            else {
+                proQuery.add(Q.condition('ActivitySector__r.Codigo__c').equalsTo('40'));
+            }
+            for (Company__c salesTeamCompany : Database.query(proQuery.build())) {
                 CompanyInfos company = new CompanyInfos();
                 company.companyId = salesTeamCompany.Id;
                 company.salesOrgId = salesTeamCompany.SalesOrg__c;
@@ -1569,6 +1572,7 @@ public without sharing class OrderScreenController {
     public class GetCompanyInfos {
         public String  ctvId;
         public String  accountId;
+        public String  orderType;
         public Integer approvalNumber;
     }
 

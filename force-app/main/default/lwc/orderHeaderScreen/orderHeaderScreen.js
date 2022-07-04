@@ -557,9 +557,9 @@ export default class OrderHeaderScreen extends LightningElement {
                         let getCompanyData = {
                             ctvId: this.headerDictLocale.ctv_venda.Id != null ? this.headerDictLocale.ctv_venda.Id : '',
                             accountId: this.accountData.Id != null ? this.accountData.Id : '',
+                            orderType: this.headerData.tipo_venda,
                             approvalNumber: 1
                         }
-                
                         getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: true})
                         .then((result) => {
                            this.salesOrgId = result;
@@ -693,7 +693,6 @@ export default class OrderHeaderScreen extends LightningElement {
         if (this.headerData.IsOrderChild) {
             this.disabled = true;
             this.paymentDisabled = true;
-            setTimeout(()=>this.template.querySelector('[data-name="cliente_entrega"]').disabled = true);
         }
     }
 
