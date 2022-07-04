@@ -50,6 +50,8 @@ global without sharing class IntegrationINOrderAppdigital {
             distributionChannelLookups.add(order.DistributionChannel);
             order.company = order.PaymentAccount + order.CentroFornecedor + order.salesOrg + order.activitySector + order.distributionChannel + order.EscritorioVendas + order.EquipeVendas;
             companyLookups.add(order.company);
+
+            
             System.debug('companyLookups ' + companyLookups);
             if(order.orderItems != null) {
                 // Adiciona todos os External Id e o catalogo de preço de order nos orderItem
@@ -136,6 +138,29 @@ global without sharing class IntegrationINOrderAppdigital {
             orderListToUpsert, 
             Order.NumeroPedidoApp__c
         );
+        Map<String, String> orderUpMap = new Map<String, String>();
+        for(Order ordUp :orderListToUpsert){
+            orderUpMap.put(ordUp.NumeroPedidoApp__c, ordUp.Id);
+        }
+        for (TemplateDataIntegrationFields.OrderItemINData orderIt : orderItemListToUpsert){
+            String orderId;
+            
+                if(orderIt.orderExternalId != null){
+                    orderId = orderUpMap.get(orderIt.orderExternalId);
+                    
+                    orderIt.orderExternalId = orderId;
+                } 
+        }
+        for (TemplateDataIntegrationFields.ShippingDivisonINData shipIt : shippingDivisonListToUpsert){
+            String orderId;
+            
+                if(shipIt.orderExternalId != null){
+                    orderId = orderUpMap.get(shipIt.orderExternalId);
+                    
+                    shipIt.orderExternalId = orderId;
+                } 
+        }
+
         IntegrationINOrderAppdigital.approvalDiscountOrder(orderListToUpsert[0]); //Confirmar com o Helder
         //Upserting records (OrderItem)
         // Upsert OrderItem
@@ -347,7 +372,8 @@ global without sharing class IntegrationINOrderAppdigital {
                     orderDiscount.ApprovalDirector__c = approvalsByTerritory.get(approvalByCounter.get(2));
                     orderDiscount.Director__c = true;
                 }
-            
+                orderDiscount.Description += '1n73gr4ção N3sc4r4 5F x 4PP';
+                
         }
         }
 }
