@@ -14,6 +14,7 @@ global with sharing class IntegrationINShippingDivison {
         // Guarda uma lista com os OrderItem para fazer o upsert
         List<ShippingDivison__c> ShippingDivisonListToUpsert = new List<ShippingDivison__c>();
 
+        List<String> idShippings = new List<String>();
         //Application of business rules
         for(TemplateDataIntegrationFields.ShippingDivisonINData ShippingDivisonData : request){
 
@@ -22,9 +23,42 @@ global with sharing class IntegrationINShippingDivison {
             orderLookups.add(ShippingDivisonData.orderExternalId);
             orderItemLookups.add(ShippingDivisonData.orderExternalId+'|'+ ShippingDivisonData.OrderItemCode);
 
+            idShippings.add(ShippingDivisonData.orderExternalId + '|' + ShippingDivisonData.OrderItemCode + '|' + ShippingDivisonData.DivisaoRemessa);
             // Pega a relação do Product com o OrderItem
-            //Getting product parameters to search
+            //Getting product parameters to search  
         }
+
+        Map<String, ShippingDivison__c> shippingIdsMap = new Map<String, ShippingDivison__c>();
+            List<ShippingDivison__c> shippingSelectList = new List<ShippingDivison__c>([SELECT Id, DeliveryDate__c, 
+            Quantity__c, ConfirmedQuantity__c, 
+            OrderItem__r.Product2.ProductCode__c, OrderItem__r.Product2Id, ExternalId__c FROM ShippingDivison__c WHERE ExternalId__c IN : idShippings]);
+
+            for (ShippingDivison__c ship : shippingSelectList){
+                shippingIdsMap.put(ship.ExternalId__c, ship);
+            }
+
+            for (TemplateDataIntegrationFields.ShippingDivisonINData shipping : request){
+                ShippingDivison__c ship = shippingIdsMap.get(shipping.orderExternalId + '|' + shipping.OrderItemCode + '|' + shipping.DivisaoRemessa);
+                
+                if(shipping.material == null){
+                    if(ship.OrderItem__c != null){
+                        shipping.material = ship.OrderItem__r.Product2.ProductCode__c;
+                        lookups.put('OrderItem__c' + ship.OrderItem__r.Product2.ProductCode__c, ship.OrderItem__r.Product2Id);
+                    }
+                }
+                
+
+                if(shipping.DataDivisao == null){
+                    shipping.DataDivisao = ship.DeliveryDate__c;
+                }
+                if(shipping.Quantidade == null){
+                    shipping.Quantidade = ship.Quantity__c;
+                }
+                if(shipping.QuantidadeConfirmada == null){
+                    shipping.QuantidadeConfirmada = ship.ConfirmedQuantity__c;
+                }
+                
+            }
         // Pega o produto com base no ExternalID recebido
         //Product2 search based on ExternalId__c field sent
         // Pega o pedido com base no ExternalId recebido

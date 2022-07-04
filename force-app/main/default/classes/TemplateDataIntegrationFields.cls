@@ -275,6 +275,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String escritorioVendas;
         public String equipeVendas;
         public String company;
+        public String salesType;
         /* Verificar parâmetros com o Lake - 30.06.22
         public String CodigoExternoAccount; 
         public String EscritorioVendas;
@@ -322,7 +323,7 @@ global with sharing class TemplateDataIntegrationFields {
                     Status = '5';
                 }
             }
-
+            
             return new Order(
 
                 CodigoSap__c = this.CodigoSap,
@@ -355,17 +356,30 @@ global with sharing class TemplateDataIntegrationFields {
                 Hectare__c = this.hectare,
                 OrderMargin__c = this.margemPedido,
                 OrderType__c = this.orderType,
-                //RecordTypeId
+                
                 SalesCondition__c = this.condicaoVenda,
                 IsOrderMother__c = this.pedidoMae,
-                // Descomentar a linha abaixo depois da confirmação do Sérgio(APP)!!!
-                Company__c = lookups.containsKey('Company__c' + this.company) ? lookups.get('Company__c' + this.company):null
+                Company__c = lookups.containsKey('Company__c' + this.company) ? lookups.get('Company__c' + this.company):null,
+                
+                RecordTypeId = Schema.SObjectType.Order.getRecordTypeInfosByName().get(this.salesType).getRecordTypeId()
+
             );
         }
 
         public List<String> getRequiredFields(){
             return new List<String>{
-                //'CodigoSap__c'
+                //'ShippingAccount__c',
+                //'salesType',
+                //'SalesCTV__c',
+                //'Crop__c',
+                //'Currency__c',
+                //'PaymentCondition__c',
+                //'PaymentDate__c',
+                //'ShippingDate__c',
+                //'PaymentForm__c',
+                //'Culture__c',
+                //'Incoterms__c',
+                //'Hectare__c',
                 //'AccountId'
      
             };
@@ -407,7 +421,7 @@ global with sharing class TemplateDataIntegrationFields {
         public OrderItem serialize(Map<String, Id> lookups){
 
             return new OrderItem(
-                OrderId = lookups.containsKey('Order'+this.orderExternalId) ? lookups.get('Order'+this.orderExternalId) : null,
+                OrderId = this.orderExternalId,
                 Product2Id = lookups.containsKey('Product2'+this.material) ? lookups.get('Product2'+this.material) : null,
                 PricebookEntryId = lookups.containsKey('PricebookEntry'+ this.material) ? lookups.get('PricebookEntry' + this.material) : null,
                 //ProductCode = this.material,
