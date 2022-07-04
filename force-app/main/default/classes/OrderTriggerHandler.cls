@@ -4,6 +4,8 @@ public without sharing class OrderTriggerHandler {
     List<Order> newRecords {get; set;} // Trigger.new
     Map<Id, Order> oldMap {get; set;} // Trigger.oldMap
     Map<Id, Order> newMap {get; set;} // Trigger.newMap
+    public static Boolean isFirstTime = true;
+    public static Boolean isAfterInsert = false;
 
     public OrderTriggerHandler(List<Order> oldRecords, List<Order> newRecords, Map<Id, Order> oldMap, Map<Id, Order> newMap ) {
         this.oldRecords = oldRecords;

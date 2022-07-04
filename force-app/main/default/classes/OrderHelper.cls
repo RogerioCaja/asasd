@@ -115,9 +115,9 @@ public without sharing class OrderHelper {
                     order.StatusSF__c = 'Aprovado';
                     orderToUpdateList.add(order);
                 }
-                OrderHelper.disableTrigger();
+                //OrderHelper.disableTrigger();
                 update orderToUpdateList;
-                OrderHelper.enableTrigger();
+                //OrderHelper.enableTrigger();
             }
         }
         catch(Exception e){
