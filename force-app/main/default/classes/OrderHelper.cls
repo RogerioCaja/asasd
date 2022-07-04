@@ -115,9 +115,9 @@ public without sharing class OrderHelper {
                     order.StatusSF__c = 'Aprovado';
                     orderToUpdateList.add(order);
                 }
-                OrderHelper.disableTrigger();
+                //OrderHelper.disableTrigger();
                 update orderToUpdateList;
-                OrderHelper.enableTrigger();
+                //OrderHelper.enableTrigger();
             }
         }
         catch(Exception e){
@@ -185,9 +185,9 @@ public without sharing class OrderHelper {
                     order.Description = order.Description.replace('1n73gr4ção N3sc4r4 5F x 4PP', '');
                     orderIntegrationList.add(order);
                 }
-                //OrderHelper.disableTrigger();
+                OrderHelper.disableTrigger();
                 update orderIntegrationList;
-                //OrderHelper.enableTrigger();
+                OrderHelper.enableTrigger();
             }
         }
         catch(Exception e){
