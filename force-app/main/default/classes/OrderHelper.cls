@@ -87,7 +87,7 @@ public without sharing class OrderHelper {
         {
             Map<ID,Schema.RecordTypeInfo> orderMap = Order.sObjectType.getDescribe().getRecordTypeInfosById();
             for(Order order : newRecords){
-                if(order.Status != '0'){
+                if(order.Status != '0' /*&& !(order.Description != null ? order.Description.contains('1n73gr4ção N3sc4r4 5F x 4PP') : false)*/){
                     if(order.MarginCommittee__c || order.Manager_BranchOffice__c || order.Gerente_Regional__c || order.Director__c || orderMap.get(order.RecordTypeId).getName() == 'Venda Barter')
                     {
                         try{
@@ -233,8 +233,8 @@ public without sharing class OrderHelper {
         }
         
     }
-      //  Trigger para preenchimento de OrderShare
-      public static void creatyShareRecord(List<Order> orderList){//after insert,update
+    //  Trigger para preenchimento de OrderShare
+    public static void creatyShareRecord(List<Order> orderList){//after insert,update
         List<OrderShare> orderShareList = new List<OrderShare>();
         for(Order ord : orderList){
             if(ord.SalesCTV__c != null && ord.SalesCTV__c != ord.OwnerId){
