@@ -693,7 +693,7 @@ export default class OrderHeaderScreen extends LightningElement {
         if (this.headerData.IsOrderChild) {
             this.disabled = true;
             this.paymentDisabled = true;
-            setTimeout(()=>this.template.querySelector('[data-name="cliente_entrega"]').disabled = true);//
+            setTimeout(()=>this.template.querySelector('[data-name="cliente_entrega"]').disabled = true);////
         }
     }
 
