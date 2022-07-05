@@ -12,6 +12,8 @@ global with sharing class IntegrationINOrderItem {
         Map<String, List<TemplateDataIntegrationFields.Response>> responseMap = new Map<String, List<TemplateDataIntegrationFields.Response>>();
         // Guarda uma lista com os OrderItem para fazer o upsert
         List<OrderItem> orderItemListToUpsert = new List<OrderItem>();
+
+        List<String> idsOrderItem = new List<String>();
         //Application of business rules
         for(TemplateDataIntegrationFields.OrderItemINData OrderItemINData : request) {
             // Pega a relação do OrderItem com Order
@@ -20,6 +22,129 @@ global with sharing class IntegrationINOrderItem {
             // Pega a relação do Product com o OrderItem
             //Getting product parameters to search
             productLookups.add(OrderItemINData.material);
+
+            idsOrderItem.add(OrderItemINData.orderExternalId + '|' + OrderItemINData.orderItemCode);
+        }
+
+        Map<String, OrderItem> orderItemsIdsMap = new Map<String, OrderItem>();
+        List<OrderItem> orderItemSelectList = new List<OrderItem>([SELECT Id, Order.CodigoSap__c, Product2.ProductCode__c, Product2Id, OrderId,
+        Quantity, UnitMeasure__c, PercentComission__c, DiscountPercent__c, ComissionValue__c,
+        CommercialMargin__c, DiscountValue__c, ExternalId__c, FinalTotalValue__c, FinancialDiscountPercent__c,
+        FinancialDiscountValue__c, FinancialAdditionPercent__c, FinancialAdditionValue__c,
+        CommercialAdditionPercent__c, CommercialAdditionValue__c, Dosage__c, ListCost__c, NumeroSap__c,
+        PracticedCost__c, PracticedPrice__c, UnitPrice FROM OrderItem WHERE ExternalId__c IN: idsOrderItem]);
+
+        for(OrderItem ordItem : orderItemSelectList){
+            orderItemsIdsMap.put(ordItem.ExternalId__c, ordItem);
+        }
+        System.debug('orderItemsIdsMap ' + orderItemsIdsMap);
+        for (TemplateDataIntegrationFields.OrderItemINData orderItem : request){
+            OrderItem ordItem = orderItemsIdsMap.get(orderItem.orderExternalId + '|' + orderItem.orderItemCode);
+            System.debug('OrderItem ' + ordItem);
+            System.debug('orderExternalId ' + orderItem.orderExternalId);
+
+
+            if(orderItem.orderExternalId == null){
+                if(ordItem.OrderId != null){
+                    orderItem.orderExternalId = ordItem.Order.CodigoSap__c; 
+                    lookups.put('Order' + ordItem.Order.CodigoSap__c, ordItem.OrderId);
+                }
+            }
+            if(orderItem.material == null){
+                if(ordItem.Product2Id != null){
+                    orderItem.material = ordItem.Product2.ProductCode__c;
+                    lookups.put('PricebookEntry' + ordItem.Product2.ProductCode__c, ordItem.Product2Id);
+                } 
+            }
+            
+
+            if(orderItem.material == null){
+                if(ordItem.Product2Id != null){
+                    orderItem.material = ordItem.Product2.ProductCode__c;
+                    lookups.put('Product2' + ordItem.Product2.ProductCode__c, ordItem.Product2Id);
+                } 
+            }
+                              
+            
+            if(orderItem.quantidade == null){
+                orderItem.quantidade = ordItem.Quantity;
+            }
+
+            if(orderItem.unidadeMedida == null){
+                orderItem.unidadeMedida = ordItem.UnitMeasure__c;
+            }
+
+            if(orderItem.porcentagemComissao == null){
+                orderItem.porcentagemComissao = ordItem.PercentComission__c;
+            }
+
+            if(orderItem.porcentagemDesconto == null){
+                orderItem.porcentagemDesconto = ordItem.DiscountPercent__c;
+            }
+
+            if(orderItem.comissaoValor == null){
+                orderItem.comissaoValor = ordItem.ComissionValue__c;
+            }
+
+            if(orderItem.margemComercial == null){
+                orderItem.margemComercial = ordItem.CommercialMargin__c;
+            }
+
+            if(orderItem.descontoValor == null){
+                orderItem.descontoValor = ordItem.DiscountValue__c;
+            }
+
+            if(orderItem.valorTotal == null){
+                orderItem.valorTotal = ordItem.FinalTotalValue__c;
+            }
+
+            if(orderItem.porcentagemDescontoFin == null){
+                orderItem.porcentagemDescontoFin = ordItem.FinancialDiscountPercent__c;
+            }
+
+            if(orderItem.valorDescontoFin == null){
+                orderItem.valorDescontoFin = ordItem.FinancialDiscountValue__c;
+            }
+
+            if(orderItem.porcentagemAcrescFin == null){
+                orderItem.porcentagemAcrescFin = ordItem.FinancialAdditionPercent__c;
+            }
+
+            if(orderItem.valorAcrescFin == null){
+                orderItem.valorAcrescFin = ordItem.FinancialAdditionValue__c;
+            }
+
+            if(orderItem.porcentagemAcrescComercial == null){
+                orderItem.porcentagemAcrescComercial = ordItem.CommercialAdditionPercent__c;
+            }
+
+            if(orderItem.valorAcrescComercial == null){
+                orderItem.valorAcrescComercial = ordItem.CommercialAdditionValue__c;
+            }
+
+            if(orderItem.dosagem == null){
+                orderItem.dosagem = ordItem.Dosage__c;
+            }
+
+            if(orderItem.custoLista == null){
+                orderItem.custoLista = ordItem.ListCost__c;
+            }
+
+            if(orderItem.orderItemCode == null){
+               orderItem.orderItemCode = ordItem.NumeroSap__c;
+            }
+
+            if(orderItem.custoPreco == null){
+                orderItem.custoPreco = ordItem.PracticedCost__c;
+            }
+
+            if(orderItem.precoPraticado == null){
+                orderItem.precoPraticado = ordItem.PracticedPrice__c;
+            }
+
+            if(orderItem.precoUnitario == null){
+                orderItem.precoUnitario = ordItem.UnitPrice;
+            }    
         }
         // Pega o produto com base no ExternalID recebido
         //Product2 search based on ExternalId__c field sent
