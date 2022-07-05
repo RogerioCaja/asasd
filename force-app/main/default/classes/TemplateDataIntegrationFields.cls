@@ -269,7 +269,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String escritorioVendas;
         public String equipeVendas;
         public String company;
-        public String salesType;
+        //public String salesType;
         /* Verificar parâmetros com o Lake - 30.06.22
         public String CodigoExternoAccount; 
         public String EscritorioVendas;
@@ -353,9 +353,9 @@ global with sharing class TemplateDataIntegrationFields {
                 
                 SalesCondition__c = this.condicaoVenda,
                 IsOrderMother__c = this.pedidoMae,
-                Company__c = lookups.containsKey('Company__c' + this.company) ? lookups.get('Company__c' + this.company):null,
+                Company__c = lookups.containsKey('Company__c' + this.company) ? lookups.get('Company__c' + this.company):null
                 
-                RecordTypeId = Schema.SObjectType.Order.getRecordTypeInfosByName().get(this.salesType).getRecordTypeId()
+                //RecordTypeId = Schema.SObjectType.Order.getRecordTypeInfosByName().get(this.salesType).getRecordTypeId()
 
             );
         }
