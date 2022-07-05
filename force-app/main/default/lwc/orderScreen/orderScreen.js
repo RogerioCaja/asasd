@@ -248,7 +248,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.headerData.condicao_venda = this.headerData.condicao_venda != null ? this.headerData.condicao_venda : ' ';
             
             if (this.childOrder) {
-                if (!this.headerData.pedido_mae_check) {
+                if (!this.headerData.pedido_mae_check || this.headerData.tipo_pedido != 'Pedido Mãe') {
                     this.showNotification('Só é possível gerar pedidos filhos a partir de um pedido mãe', 'Atenção!', 'warning');
                     this.redirectToOrder();
                 } else if (this.headerData.codigo_sap == undefined || this.headerData.codigo_sap == null || this.headerData.codigo_sap == '') {

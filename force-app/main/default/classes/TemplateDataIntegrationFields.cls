@@ -275,11 +275,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String escritorioVendas;
         public String equipeVendas;
         public String company;
-        /* Verificar parâmetros com o Lake - 30.06.22
-        public String CodigoExternoAccount; 
-        public String EscritorioVendas;
-        public String EquipeVendas;
-        */
+        //public String salesType;
         //public String clienteCode; 
         public List<TemplateDataIntegrationFields.OrderItemINData> orderItems;
         public List<TemplateDataIntegrationFields.ShippingDivisonINData> shippingDivison;
@@ -358,8 +354,10 @@ global with sharing class TemplateDataIntegrationFields {
                 //RecordTypeId
                 SalesCondition__c = this.condicaoVenda,
                 IsOrderMother__c = this.pedidoMae,
-                // Descomentar a linha abaixo depois da confirmação do Sérgio(APP)!!!
                 Company__c = lookups.containsKey('Company__c' + this.company) ? lookups.get('Company__c' + this.company):null
+                
+                //RecordTypeId = Schema.SObjectType.Order.getRecordTypeInfosByName().get(this.salesType).getRecordTypeId()
+
             );
         }
 
@@ -407,9 +405,10 @@ global with sharing class TemplateDataIntegrationFields {
         public OrderItem serialize(Map<String, Id> lookups){
 
             return new OrderItem(
-                OrderId = lookups.containsKey('Order'+this.orderExternalId) ? lookups.get('Order'+this.orderExternalId) : null,
+                OrderId = this.orderExternalId,
                 Product2Id = lookups.containsKey('Product2'+this.material) ? lookups.get('Product2'+this.material) : null,
                 PricebookEntryId = lookups.containsKey('PricebookEntry'+ this.material) ? lookups.get('PricebookEntry' + this.material) : null,
+                //ProductCode = this.material,
                 ExternalId__c = this.orderExternalId + '|' + this.orderItemCode,
                 Quantity = this.quantidade,
                 UnitMeasure__c = this.unidadeMedida,
@@ -479,7 +478,6 @@ global with sharing class TemplateDataIntegrationFields {
                 ConfirmedQuantity__c = this.QuantidadeConfirmada
             );
         }
-        
         public List<String> getRequiredFields(){
             //Example
             return new List<String>{
@@ -502,8 +500,8 @@ global with sharing class TemplateDataIntegrationFields {
         public String getParentKey(){
             return 'OrderId';
         }
-        
     }
+
     
     global class NotaFiscalINData implements FieldData{
         //JSON fields Example
@@ -522,7 +520,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String propriedade;
         public Decimal valorTotalNf;
         public String naturezaOperacao;
-        public String numeroPedido;
+        public String numeroPedido; //
         public List<TemplateDataIntegrationFields.ItensNotaFiscalINData> itensNotaFiscal; 
         public NotaFiscal__c serialize(Map<String, Id> lookups){
 
@@ -532,7 +530,7 @@ global with sharing class TemplateDataIntegrationFields {
                 Name = this.invoiceName,
                 ExternalID__c = this.invoiceName + '|' + this.numeroNotaFiscal,
                 AccountCode__c = lookups.containsKey('Account'+this.cliente) ? lookups.get('Account' + this.cliente) : null,
-                OrderCode__c = lookups.containsKey('Order'+this.numeroPedido) ? lookups.get('Order'+ this.numeroPedido) : null,
+                OrderCode__c = lookups.containsKey('Order'+this.numeroPedido) ? lookups.get('Order'+ this.numeroPedido) : null, //
                 Company__c = lookups.containsKey('SalesOrg__c'+this.codigoEmpresa) ? lookups.get('SalesOrg__c'+this.codigoEmpresa) : null,
                 ReceiverAccountCode__c = lookups.containsKey('Account'+this.propriedade) ? lookups.get('Account'+this.propriedade) : null,
                 invoiceNumber__c = this.numeroNotaFiscal,
@@ -668,7 +666,6 @@ global with sharing class TemplateDataIntegrationFields {
         }
     }
 
-    
 
     global virtual class Response {
         public String  idSalesforce;
