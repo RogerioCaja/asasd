@@ -110,7 +110,7 @@ global without sharing class IntegrationINOrderAppdigital {
             lookups.put('User' + salesCTV.CodigoSap__c, salesCTV.Id);
        }
        
-        for (CondicaoPagamento__c paymentCondition : [SELECT Id, Name from CondicaoPagamento__c WHERE Name IN: paymentConditionLookups]){
+        for (CondicaoPagamento__c paymentCondition : [SELECT Id, Name,Code__c  from CondicaoPagamento__c WHERE Code__c IN: paymentConditionLookups]){
             lookups.put('CondicaoPagamento__c' + paymentCondition.Code__c, paymentCondition.Id);
         }
         for (Pricebook2 pricebook2Id : [SELECT Id, ExternalId__c, Name FROM Pricebook2 WHERE Name IN : pricebookLookups ]){
@@ -136,7 +136,32 @@ global without sharing class IntegrationINOrderAppdigital {
             orderListToUpsert, 
             Order.NumeroPedidoApp__c
         );
-       
+        Map<String, String> orderUpMap = new Map<String, String>();
+        for(Order ordUp :orderListToUpsert){
+            orderUpMap.put(ordUp.NumeroPedidoApp__c, ordUp.Id);
+        }
+        for (TemplateDataIntegrationFields.OrderItemINData orderIt : orderItemListToUpsert){
+            String orderId;
+            
+                if(orderIt.orderExternalId != null){
+                    orderId = orderUpMap.get(orderIt.orderExternalId);
+                    
+                    orderIt.orderExternalId = orderId;
+                } 
+        }
+        for (TemplateDataIntegrationFields.ShippingDivisonINData shipIt : shippingDivisonListToUpsert){
+            String orderId;
+            
+                if(shipIt.orderExternalId != null){
+                    orderId = orderUpMap.get(shipIt.orderExternalId);
+                    
+                    shipIt.orderExternalId = orderId;
+                } 
+        }
+        if(!orderListToUpsert.isEmpty()){
+            IntegrationINOrderAppdigital.approvalDiscountOrder(orderListToUpsert[0]);
+        }
+         //Confirmar com o Helder
         //Upserting records (OrderItem)
         // Upsert OrderItem
         Map<String, List<TemplateDataIntegrationFields.Response>> orderItemsResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
