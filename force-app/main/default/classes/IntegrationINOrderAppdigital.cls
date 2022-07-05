@@ -161,7 +161,6 @@ global without sharing class IntegrationINOrderAppdigital {
         if(!orderListToUpsert.isEmpty()){
             IntegrationINOrderAppdigital.approvalDiscountOrder(orderListToUpsert[0]);
         }
-         //Confirmar com o Helder
         //Upserting records (OrderItem)
         // Upsert OrderItem
         Map<String, List<TemplateDataIntegrationFields.Response>> orderItemsResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
