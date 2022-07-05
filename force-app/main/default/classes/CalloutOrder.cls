@@ -43,11 +43,6 @@ public with sharing class CalloutOrder {
             if(calloutResponse.success){
                 allOrders[0].CodigoSap__c = resp.responses.EV_SALES_DOC;
                 allOrders[0].StatusSF__c = 'Integrado';
-                if(allOrders[0].Description != null){
-                    if(allOrders[0].Description.contains('1n73gr4ção N3sc4r4 5F x 4PP')){
-                        allOrders[0].Description = order.Description.replace('1n73gr4ção N3sc4r4 5F x 4PP', '');
-                    }
-                }
                 orderList.add(allOrders[0]);
             }
             
