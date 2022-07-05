@@ -649,22 +649,24 @@ public without sharing class OrderScreenController {
                         }
                     }
 
-                    for (OrderItem item : listOrderItems) {
-                        if (quantityDistributedByItem.containsKey(item.Id)) {
-                            Decimal quantityUsed = quantityDistributedByItem.get(item.Id);
-                            if (item.Quantity > quantityUsed) {
+                    if (order.OrderType__c == 'Pedido Normal') {
+                        for (OrderItem item : listOrderItems) {
+                            if (quantityDistributedByItem.containsKey(item.Id)) {
+                                Decimal quantityUsed = quantityDistributedByItem.get(item.Id);
+                                if (item.Quantity > quantityUsed) {
+                                    ShippingDivison__c shippingDivision = new ShippingDivison__c();
+                                    shippingDivision.DeliveryDate__c = order.ShippingDate__c;
+                                    shippingDivision.Quantity__c = item.Quantity - quantityUsed;
+                                    shippingDivision.OrderItem__c = item.Id;
+                                    listShippingDivision.add(shippingDivision);
+                                }
+                            } else {
                                 ShippingDivison__c shippingDivision = new ShippingDivison__c();
                                 shippingDivision.DeliveryDate__c = order.ShippingDate__c;
-                                shippingDivision.Quantity__c = item.Quantity - quantityUsed;
+                                shippingDivision.Quantity__c = item.Quantity;
                                 shippingDivision.OrderItem__c = item.Id;
                                 listShippingDivision.add(shippingDivision);
                             }
-                        } else {
-                            ShippingDivison__c shippingDivision = new ShippingDivison__c();
-                            shippingDivision.DeliveryDate__c = order.ShippingDate__c;
-                            shippingDivision.Quantity__c = item.Quantity;
-                            shippingDivision.OrderItem__c = item.Id;
-                            listShippingDivision.add(shippingDivision);
                         }
                     }
                 } else if (order.OrderType__c != 'Pedido Mãe') {
