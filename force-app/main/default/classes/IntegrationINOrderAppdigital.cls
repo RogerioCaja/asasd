@@ -158,9 +158,7 @@ global without sharing class IntegrationINOrderAppdigital {
                     shipIt.orderExternalId = orderId;
                 } 
         }
-        if(!orderListToUpsert.isEmpty()){
-            IntegrationINOrderAppdigital.approvalDiscountOrder(orderListToUpsert[0]);
-        }
+       
          //Confirmar com o Helder
         //Upserting records (OrderItem)
         // Upsert OrderItem
@@ -179,8 +177,9 @@ global without sharing class IntegrationINOrderAppdigital {
             );
             System.debug('shippingDivisonResponse' + shippingDivisonResponse);
         }
- 		System.debug('Teste Entrada Método');
-        IntegrationINOrderAppdigital.approvalDiscountOrder(orderListToUpsert[0]); //Confirmar com o Helder
+        if(!orderListToUpsert.isEmpty()){
+            IntegrationINOrderAppdigital.approvalDiscountOrder(orderListToUpsert[0]);
+        }
         //Associating child object's response with object response
         // Pega todas as respostas dos OrderItem
         for(TemplateDataIntegrationFields.ResponseParent response : responseList){

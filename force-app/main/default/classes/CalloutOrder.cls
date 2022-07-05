@@ -15,7 +15,7 @@ public with sharing class CalloutOrder {
 		Order parentOrder = [SELECT Id, CodigoSap__c, ShippingAccount__r.ExternalId__c, Company__r.SupplierCenter__c, Account.ExternalId__c, Type, SalesOrg__r.SalesOrganizationCode__c, DistributionChannel__c, DistributionChannel__r.Codigo__c, SalesCondition__r.ExternalId__c,
                             ActivitySector__c, ActivitySector__r.Codigo__c, PaymentCondition__r.CashPayment__c, Incoterms__c, Incoterms2__c, PaymentCondition__r.Code__c, OrderReason__c , SalesCTV__r.CodigoSap__c, PaymentDate__c,EffectiveDate, OrderReference__r.CodigoSap__c,
                             OrderNumber, Crop__r.Code__c, Crop__r.StartDateOrderInsertion__c, Crop__r.EndDateInsertionOrders__c ,Culture__r.Codigo__c, EndDate, TotalAmount, PaymentForm__c, OrderReference__c, CustomerOrderNumber__c,
-                            Currency__c, Crop__r.PaymentBaseDate__c,IsOrderMother__c, RecordTypeId, (SELECT Id FROM OrderItems) 
+                            Currency__c, Crop__r.PaymentBaseDate__c,IsOrderMother__c, RecordTypeId,Description, (SELECT Id FROM OrderItems) 
                             FROM Order WHERE Id = :orderId];
 		
 		List<Order> allOrders = new List<Order>{parentOrder};
@@ -167,6 +167,7 @@ public with sharing class CalloutOrder {
             IT_CONDITIONS_IN = new List<CalloutOrder.ConditionParameters>();
 
             IT_PARTNERS.add(new CalloutOrder.PartnerParameters(order.Account.ExternalId__c, 'AG'));
+            System.debug('order.ShippingAccount__r.ExternalId__c =>' + order.ShippingAccount__r.ExternalId__c);
             IT_PARTNERS.add(new CalloutOrder.PartnerParameters(order.ShippingAccount__r.ExternalId__c, 'RM'));
             IT_PARTNERS.add(new CalloutOrder.PartnerParameters(order.SalesCTV__r.CodigoSap__c, 'ZC'));
 
