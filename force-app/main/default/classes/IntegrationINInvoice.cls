@@ -112,7 +112,7 @@ global with sharing class IntegrationINInvoice {
         }
 		
         //Creating integration log
-        IntegrationLog.createLog('Nota Fiscal', 'IN', JSON.serialize(request), JSON.serialize(responseList), hasError);
+        IntegrationLog.createLog('Nota Fiscal - DataLake', 'IN', JSON.serialize(request), JSON.serialize(responseList), hasError);
         
         //Returning response
          // Retorna a resposta Outbound
