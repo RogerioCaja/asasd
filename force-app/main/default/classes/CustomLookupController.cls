@@ -72,8 +72,8 @@ public without sharing class CustomLookupController {
                                 .add(Q.condition('Currency__c').equalsTo(productParams.productCurrency))
                                 .add(Q.condition('SalesOrg__c').equalsTo(salesResult.salesOrgId))
                                 .add(Q.condition('IsActive__c').equalsTo(true))
-                                .add(Q.condition('StartDate__c').isLessThan(System.today()))
-                                .add(Q.condition('EndDate__c').isGreaterThan(System.today()))
+                                .add(Q.condition('StartDate__c').isLessOrEquals(System.today()))
+                                .add(Q.condition('EndDate__c').isGreaterOrEquals(System.today()))
                                 .build();
 
             Map<Id, List<JurosDescontoAntecipao__c>> productsPriceById = new Map<Id, List<JurosDescontoAntecipao__c>>();
