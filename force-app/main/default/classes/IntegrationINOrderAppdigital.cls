@@ -136,7 +136,31 @@ global without sharing class IntegrationINOrderAppdigital {
             orderListToUpsert, 
             Order.NumeroPedidoApp__c
         );
-       
+        Map<String, String> orderUpMap = new Map<String, String>();
+        for(Order ordUp :orderListToUpsert){
+            orderUpMap.put(ordUp.NumeroPedidoApp__c, ordUp.Id);
+        }
+        for (TemplateDataIntegrationFields.OrderItemINData orderIt : orderItemListToUpsert){
+            String orderId;
+            
+                if(orderIt.orderExternalId != null){
+                    orderId = orderUpMap.get(orderIt.orderExternalId);
+                    
+                    orderIt.orderExternalId = orderId;
+                } 
+        }
+        for (TemplateDataIntegrationFields.ShippingDivisonINData shipIt : shippingDivisonListToUpsert){
+            String orderId;
+            
+                if(shipIt.orderExternalId != null){
+                    orderId = orderUpMap.get(shipIt.orderExternalId);
+                    
+                    shipIt.orderExternalId = orderId;
+                } 
+        }
+        if(!orderListToUpsert.isEmpty()){
+            IntegrationINOrderAppdigital.approvalDiscountOrder(orderListToUpsert[0]);
+        }
         //Upserting records (OrderItem)
         // Upsert OrderItem
         Map<String, List<TemplateDataIntegrationFields.Response>> orderItemsResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();

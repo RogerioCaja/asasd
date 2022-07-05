@@ -15,6 +15,7 @@ trigger OrderTrigger on Order (after insert, before insert, before update, after
             when AFTER_UPDATE{
                 if((OrderTriggerHandler.isFirstTime && OrderTriggerHandler.isAfterInsert) || !OrderTriggerHandler.isAfterInsert){
                     OrderTriggerHandler.isFirstTime = false;
+                    OrderTriggerHandler.isAfterInsert = false;
                     handler.OnAfterUpdate();
                 }
                 
