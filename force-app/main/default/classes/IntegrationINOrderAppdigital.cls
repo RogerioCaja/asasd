@@ -21,6 +21,7 @@ global without sharing class IntegrationINOrderAppdigital {
         Set<String> orderReferenceLookups = new Set<String>();
         Set<String> activitySectorLookups = new Set<String>();
         Set<String> distributionChannelLookups = new Set<String>();
+        Set<String> salesConditionLookups = new Set<String>();
         Set<String> companyLookups = new Set<String>();
         //Set<String> pricebookLookups = new Set<String>();
         // Guarda uma lista de respostas
@@ -48,6 +49,7 @@ global without sharing class IntegrationINOrderAppdigital {
             orderReferenceLookups.add(order.orderReference);
             activitySectorLookups.add(order.ActivitySector);
             distributionChannelLookups.add(order.DistributionChannel);
+            salesConditionLookups.add(order.condicaoVenda);
             order.company = order.PaymentAccount + order.CentroFornecedor + order.salesOrg + order.activitySector + order.distributionChannel + order.EscritorioVendas + order.EquipeVendas;
             companyLookups.add(order.company);
             System.debug('companyLookups ' + companyLookups);
@@ -124,6 +126,11 @@ global without sharing class IntegrationINOrderAppdigital {
         for (Company__c companyOrd: [SELECT Id, ExternalID__c FROM Company__c WHERE ExternalID__c IN : companyLookups]){
             lookups.put('Company__c' + companyOrd.ExternalID__c, companyOrd.Id);
             System.debug('Lookup Company ' + lookups);
+        }
+
+        for(SalesCondition__c salesCondition : [SELECT Id, ExternalId__c FROM SalesCondition__c WHERE ExternalId__c IN : salesConditionLookups]){
+            lookups.put('SalesCondition__c' + salesCondition.ExternalId__c, salesCondition.Id);
+
         }
         //Converting template to object list and validating required fields
         // Valida e adiciona objeto na lista para upsert
