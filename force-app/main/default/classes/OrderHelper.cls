@@ -143,6 +143,11 @@ public without sharing class OrderHelper {
                     {
                         
                         try{
+                            if(newMap.get(id).Description != null){
+                                if(newMap.get(id).Description.contains('1n73gr4ção N3sc4r4 5F x 4PP')){
+                                    orderToUpdateByIntegration.add(id);
+                                }
+                            }
                             Approval.ProcessSubmitRequest administrationRequest = new Approval.ProcessSubmitRequest();
                             administrationRequest.setProcessDefinitionNameOrId('OrderApproval5');
                             administrationRequest.setComments(newMap.get(id).ApprovalJustification__c);
@@ -174,6 +179,20 @@ public without sharing class OrderHelper {
                     orderToUpdateList.add(order);
                 }
                 update orderToUpdateList;
+            }
+            if(orderToUpdateByIntegration.size() > 0){
+                List<Order> orderList = [SELECT Id, StatusSF__c, Description FROM Order WHERE Id IN: orderToUpdateByIntegration];
+                List<Order> orderToUpdateList = new List<Order>();
+                for(Order order : orderList){
+                    
+                        
+                    order.Description = order.Description.replace('1n73gr4ção N3sc4r4 5F x 4PP', '');
+                      
+                    orderToUpdateList.add(order);
+                }
+                OrderHelper.disableTrigger();
+                update orderToUpdateList;
+                OrderHelper.enableTrigger();
             }
 
         
