@@ -85,6 +85,7 @@ export default class OrderProductScreen extends LightningElement {
 
     disabled=false;
     numberOfRowsToSkip=0;
+    showLoading=true;
 
     // haScreen = false;
     /* haData = [{
@@ -188,12 +189,14 @@ export default class OrderProductScreen extends LightningElement {
             } else {
                 if (this.companyResult.length == 0) {
                     this.showToast('warning', 'Atenção!', 'Não foi encontrado Área de Vendas no SAP. Contate o administrador do sistema.');
+                    this.showLoading = false;
                 } else if (this.companyResult.length == 1) {
                     this.selectedCompany = this.companyResult[0];
                     this.headerData.companyId = this.selectedCompany.companyId;
                     this.onSelectCompany();
                 } else if (this.companyResult.length > 1) {
                     this.selectCompany = true;
+                    this.showLoading = false;
                 }
             }
         });
@@ -366,10 +369,17 @@ export default class OrderProductScreen extends LightningElement {
                             if ((showPriceChange || showQuantityChange) && this.headerData.tipo_venda == 'Venda Barter') {
                                 this.recalculateCommodities();
                             }
+                            this.showLoading = false;
+                        } else {
+                            this.showLoading = false;
                         }
                     })
+                } else {
+                    this.showLoading = false;
                 }
             })
+        } else {
+            this.showLoading = false;
         }
     }
 
