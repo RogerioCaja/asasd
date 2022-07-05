@@ -87,7 +87,7 @@ public without sharing class OrderHelper {
         {
             Map<ID,Schema.RecordTypeInfo> orderMap = Order.sObjectType.getDescribe().getRecordTypeInfosById();
             for(Order order : newRecords){
-                if(order.Status != '0' /*&& !(order.Description != null ? order.Description.contains('1n73gr4ção N3sc4r4 5F x 4PP') : false)*/){
+                if(order.Status != '0' && !(order.Description != null ? order.Description.contains('1n73gr4ção N3sc4r4 5F x 4PP') : false)){
                     if(order.MarginCommittee__c || order.Manager_BranchOffice__c || order.Gerente_Regional__c || order.Director__c || orderMap.get(order.RecordTypeId).getName() == 'Venda Barter')
                     {
                         try{
@@ -143,9 +143,6 @@ public without sharing class OrderHelper {
                     {
                         
                         try{
-                            if((newMap.get(id).Description != null ? newMap.get(id).Description.contains('1n73gr4ção N3sc4r4 5F x 4PP') : false)){
-                                orderToUpdateByIntegration.add(id);
-                            }
                             Approval.ProcessSubmitRequest administrationRequest = new Approval.ProcessSubmitRequest();
                             administrationRequest.setProcessDefinitionNameOrId('OrderApproval5');
                             administrationRequest.setComments(newMap.get(id).ApprovalJustification__c);
@@ -158,7 +155,9 @@ public without sharing class OrderHelper {
                         }
                     }
                     else{
-                        orderToUpdate.add(id);
+                       orderToUpdate.add(id);
+                        
+                        
                     }
                 }
             }
@@ -168,28 +167,16 @@ public without sharing class OrderHelper {
                 for(Order order : orderList){
                     order.StatusSF__c = 'Aprovado';
                     if(order.Description != null){
-                           if(order.Description.contains('1n73gr4ção N3sc4r4 5F x 4PP')){
-                        		order.Description = order.Description.replace('1n73gr4ção N3sc4r4 5F x 4PP', '');
-                    	}
+                        if(order.Description.contains('1n73gr4ção N3sc4r4 5F x 4PP')){
+                            order.Description = order.Description.replace('1n73gr4ção N3sc4r4 5F x 4PP', '');
+                        }
                     }
-                 
                     orderToUpdateList.add(order);
                 }
                 update orderToUpdateList;
             }
 
-            if(orderToUpdateByIntegration.size() > 0){
-                List<Order> orderList = [SELECT Id, StatusSF__c, Description FROM Order WHERE Id IN: orderToUpdateByIntegration];
-                List<Order> orderIntegrationList = new List<Order>();
-                for(Order order : orderList){
-                    order.StatusSF__c = 'Aprovado';
-                    order.Description = order.Description.replace('1n73gr4ção N3sc4r4 5F x 4PP', '');
-                    orderIntegrationList.add(order);
-                }
-                OrderHelper.disableTrigger();
-                update orderIntegrationList;
-                OrderHelper.enableTrigger();
-            }
+        
         }
         catch(Exception e){
             String errorMessage = 'Tipo de Exceção: ' + e.getTypeName();
@@ -244,7 +231,9 @@ public without sharing class OrderHelper {
             
         }
         if (!orderShareList.isEmpty()) {
+            OrderHelper.disableTrigger();
             upsert orderShareList;
+            OrderHelper.enableTrigger();
         }
     }
 }
