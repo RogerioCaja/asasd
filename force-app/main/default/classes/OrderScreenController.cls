@@ -285,7 +285,7 @@ public without sharing class OrderScreenController {
             }
 
             Map<String, Decimal> orderMarginMap = new Map<String, Decimal>();
-            if (company != null && company.ClientGroup__c != null) {
+            if (orderData.headerData.pedido_mae.Id == null && company != null && company.ClientGroup__c != null) {
                 for (Discount__c discount : [
                     SELECT Id,
                            Margin__c,
@@ -572,7 +572,9 @@ public without sharing class OrderScreenController {
                 String orderItemErrors = '';
                 Set<Id> itemsIds = new Set<Id>();
                 List<Database.UpsertResult> insOrderItemResults = Database.upsert(listOrderItems, false);
+                
                 for (Database.UpsertResult result : insOrderItemResults){
+                    System.debug('result => ' + result);
                     if(!result.isSuccess()){
                         for (Database.error error: insResults.getErrors()){
                             orderItemErrors += '\n' + error.getMessage();

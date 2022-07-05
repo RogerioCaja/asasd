@@ -11,7 +11,7 @@ public with sharing class CalloutOrderUpdate {
     public static IntegrationUtils.CalloutUpdateResponse processIntegration(Id orderId, String rmCode, String agCode, String zcCode){
 
 		Order parentOrder = [SELECT Id, CodigoSap__c, ShippingAccount__r.ExternalId__c, Account.ExternalId__c, Type, SalesOrg__r.SalesOrganizationCode__c, DistributionChannel__c, DistributionChannel__r.Codigo__c,
-                            ActivitySector__c, ActivitySector__r.Codigo__c, Incoterms__c,ShippingDate__c, Incoterms2__c, PaymentCondition__r.Code__c, OrderReason__c , SalesCTV__r.CodigoSap__c, PaymentDate__c,EffectiveDate, OrderReference__r.CodigoSap__c,
+                            ActivitySector__c, ActivitySector__r.Codigo__c, ShippingDate__c, Incoterms__c, Incoterms2__c, PaymentCondition__r.Code__c, OrderReason__c , SalesCTV__r.CodigoSap__c, PaymentDate__c,EffectiveDate, OrderReference__r.CodigoSap__c,
                             OrderNumber, Crop__r.Code__c, Crop__r.StartDateOrderInsertion__c, Crop__r.EndDateInsertionOrders__c ,Culture__r.Codigo__c, EndDate, TotalAmount, PaymentForm__c, OrderReference__c, CustomerOrderNumber__c,
                             Currency__c, Crop__r.PaymentBaseDate__c,IsOrderMother__c, RecordTypeId, (SELECT Id FROM OrderItems) 
                             FROM Order WHERE Id = :orderId];

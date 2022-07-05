@@ -136,7 +136,31 @@ global without sharing class IntegrationINOrderAppdigital {
             orderListToUpsert, 
             Order.NumeroPedidoApp__c
         );
-       
+        Map<String, String> orderUpMap = new Map<String, String>();
+        for(Order ordUp :orderListToUpsert){
+            orderUpMap.put(ordUp.NumeroPedidoApp__c, ordUp.Id);
+        }
+        for (TemplateDataIntegrationFields.OrderItemINData orderIt : orderItemListToUpsert){
+            String orderId;
+            
+                if(orderIt.orderExternalId != null){
+                    orderId = orderUpMap.get(orderIt.orderExternalId);
+                    
+                    orderIt.orderExternalId = orderId;
+                } 
+        }
+        for (TemplateDataIntegrationFields.ShippingDivisonINData shipIt : shippingDivisonListToUpsert){
+            String orderId;
+            
+                if(shipIt.orderExternalId != null){
+                    orderId = orderUpMap.get(shipIt.orderExternalId);
+                    
+                    shipIt.orderExternalId = orderId;
+                } 
+        }
+        if(!orderListToUpsert.isEmpty()){
+            IntegrationINOrderAppdigital.approvalDiscountOrder(orderListToUpsert[0]);
+        }
         //Upserting records (OrderItem)
         // Upsert OrderItem
         Map<String, List<TemplateDataIntegrationFields.Response>> orderItemsResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
@@ -144,7 +168,6 @@ global without sharing class IntegrationINOrderAppdigital {
             orderItemsResponse.putAll(
                 IntegrationINOrderItemAppdigital.upsertOrderItem(orderItemListToUpsert)
             );
-            System.debug('orderItemsResponse' + orderItemsResponse);
         }
 
         Map<String, List<TemplateDataIntegrationFields.Response>> shippingDivisonResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
@@ -152,7 +175,6 @@ global without sharing class IntegrationINOrderAppdigital {
             shippingDivisonResponse.putAll(
                 IntegrationINShippingDivisonAppdigital.upsertShippingDivison(shippingDivisonListToUpsert)
             );
-            System.debug('shippingDivisonResponse' + shippingDivisonResponse);
         }
  		System.debug('Teste Entrada Método');
         IntegrationINOrderAppdigital.approvalDiscountOrder(orderListToUpsert[0]); //Confirmar com o Helder
@@ -165,8 +187,6 @@ global without sharing class IntegrationINOrderAppdigital {
                 for(TemplatedataIntegrationFields.Response orderItem : orderItemsResponse.get(response.idSalesforce)){
                     response.items.addAll(shippingDivisonResponse.get(orderItem.idSalesforce)); 
                 }
-                System.debug('orderItemsResponse' + orderItemsResponse);
-                System.debug('shippingDivisonResponse' + shippingDivisonResponse);
             } 
             else if(orderItemsResponse.size() != 0 && orderItemsResponse.containsKey(response.externalCode)){
                 response.items.addAll(orderItemsResponse.get(response.externalCode));
