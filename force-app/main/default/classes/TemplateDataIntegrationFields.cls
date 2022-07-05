@@ -356,9 +356,9 @@ global with sharing class TemplateDataIntegrationFields {
                 //RecordTypeId
                 SalesCondition__c = this.condicaoVenda,
                 IsOrderMother__c = this.pedidoMae,
-                Company__c = lookups.containsKey('Company__c' + this.company) ? lookups.get('Company__c' + this.company):null,
+                Company__c = lookups.containsKey('Company__c' + this.company) ? lookups.get('Company__c' + this.company):null
                 
-                RecordTypeId = Schema.SObjectType.Order.getRecordTypeInfosByName().get(this.salesType).getRecordTypeId()
+                //RecordTypeId = Schema.SObjectType.Order.getRecordTypeInfosByName().get(this.salesType).getRecordTypeId()
 
             );
         }
