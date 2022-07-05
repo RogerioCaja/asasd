@@ -245,8 +245,10 @@ public with sharing class CalloutOrder {
 
                 if(!divisionMap.isEmpty())
                 {
-                    for(ShippingDivison__c sd : divisionMap.get(orderItem.Id)){
-                        IT_ORDER_SCHEDULES_IN.add(new CalloutOrder.ScheduleParameters(String.valueOf(orderItem.NumeroSap__c).leftPad(6, '0'), String.valueOf(sd.Quantity__c), String.valueOf(sd.DeliveryDate__c)));
+                    if(divisionMap.containsKey(orderItem.Id)){
+                        for(ShippingDivison__c sd : divisionMap.get(orderItem.Id)){
+                            IT_ORDER_SCHEDULES_IN.add(new CalloutOrder.ScheduleParameters(String.valueOf(orderItem.NumeroSap__c).leftPad(6, '0'), String.valueOf(sd.Quantity__c), String.valueOf(sd.DeliveryDate__c)));
+                        }
                     }
                 }
                 

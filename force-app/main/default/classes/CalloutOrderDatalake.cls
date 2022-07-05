@@ -139,9 +139,11 @@ public with sharing class CalloutOrderDatalake {
                 shippingCodesList.clear();
                 if(!divisionMap.isEmpty())
                 {
-                    for(ShippingDivison__c sd : divisionMap.get(orderItem.Id)){
-                        shippingCodesList.add(Integer.valueOf(sd.Name));
-                        scheduleList.add(new CalloutOrderDatalake.ScheduleParameters(Integer.valueOf(sd.Name), sd.Quantity__c, sd.DeliveryDate__c));
+                    if(divisionMap.containsKey(orderItem.Id)){
+                        for(ShippingDivison__c sd : divisionMap.get(orderItem.Id)){
+                            shippingCodesList.add(Integer.valueOf(sd.Name));
+                            scheduleList.add(new CalloutOrderDatalake.ScheduleParameters(Integer.valueOf(sd.Name), sd.Quantity__c, sd.DeliveryDate__c));
+                        }
                     }
                 }
                 orderItemList.add(new CalloutOrderDatalake.OrderItemParameters(orderItem, shippingCodesList));
