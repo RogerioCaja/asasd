@@ -12,6 +12,7 @@ public with sharing class CalloutBP {
             System.debug('resp: '+ resp);
             Map<String, Id> lookups = new Map<String, Id>();
             List<String> accountIdsList = new List<String>();
+            List<String> accountFatherIdsList = new List<String>();
             List<String> userCodigoSapList = new List<String>();
             for(ResponseParametersWrapper valor : resp.responses){
                 if(valor.CodigoExterno != null){
@@ -19,6 +20,7 @@ public with sharing class CalloutBP {
                 }
                 if(valor.ContaPai != null){
                     accountIdsList.add(valor.ContaPai);
+                    accountFatherIdsList.add(valor.ContaPai);
                 }
             }
             System.debug('accountIdsList: '+ accountIdsList);
@@ -34,6 +36,7 @@ public with sharing class CalloutBP {
                 }
                 for(CompanyINData company : valor.EstruturaOrganizacional){
                     company.CodigoExternoAccount = valor.CodigoExterno;
+                    company.CodigoExternoFatherAccount = valor.ContaPai;
                     companyList.add(company);
                 }
                 String statusType;
@@ -84,7 +87,8 @@ public with sharing class CalloutBP {
                 System.debug('accountList: '+accountList);
                 Database.upsert(accountList, Account.ExternalId__c, false);
             }
-            creatyAccountTerrytoryAssossiation(accountList, userCodigoSapList, resp, companyList);
+            List<Account> accountFatherListExternalId = new List<Account>([SELECT Id, ExternalId__c FROM Account WHERE ExternalId__c =: accountFatherIdsList]);
+            creatyAccountTerrytoryAssossiation(accountList,accountFatherListExternalId, userCodigoSapList, resp, companyList);
 
             for(Account acc : accountList){
                 lookups.put('Account__c' + acc.ExternalId__c, acc.Id);
@@ -218,10 +222,14 @@ public with sharing class CalloutBP {
         return lookups;
     }
 
-    public static void creatyAccountTerrytoryAssossiation(List<Account> accountList, List<String> userCodigoSapList, ResponseParameters resp, List<CompanyINData> companyList){
+    public static void creatyAccountTerrytoryAssossiation(List<Account> accountList,List<Account> accountFatherListExternalId, List<String> userCodigoSapList, ResponseParameters resp, List<CompanyINData> companyList){
         Map<String, Id> accountExternalIdMap = new Map<String, Id>();
+        Map<String, Id> accountFatherExternalIdMap = new Map<String, Id>();
         for(Account acc : accountList){
             accountExternalIdMap.put(acc.ExternalId__c, acc.Id);
+        }
+        for(Account acc : accountFatherListExternalId){
+            accountFatherExternalIdMap.put(acc.ExternalId__c, acc.Id);
         }
         List<User> userList = new List<User>([SELECT Id, CodigoSap__c FROM User WHERE CodigoSap__c =: userCodigoSapList]);
         List<String> userIdsList = new List<String>();
@@ -242,11 +250,19 @@ public with sharing class CalloutBP {
         for(CompanyINData company : companyList){
             UserTerritory2Association userTerrytory = userTerrytoryMap.get(company.Partner);
             String accountId = accountExternalIdMap.get(company.CodigoExternoAccount);
+            String accountFatherId = accountFatherExternalIdMap.get(company.CodigoExternoFatherAccount);
             if(userTerrytory != null){
                 objectTerritoryTerritory2IdList.add(userTerrytory.Territory2Id);
                 objectTerritoryObjectIdList.add(accountId);
                 ObjectTerritory2Association objObjectTerritory2Association = new ObjectTerritory2Association(ObjectId = accountId, Territory2Id = userTerrytory.Territory2Id, AssociationCause='Territory2Manual');
-            	objectTerritoryList.add(objObjectTerritory2Association);
+                objectTerritoryList.add(objObjectTerritory2Association);
+
+                if(accountFatherId != null || accountFatherId != ''){
+                    objectTerritoryTerritory2IdList.add(userTerrytory.Territory2Id);
+                    objectTerritoryObjectIdList.add(accountFatherId);
+                    ObjectTerritory2Association objObjectTerritory2Association2 = new ObjectTerritory2Association(ObjectId = accountFatherId, Territory2Id = userTerrytory.Territory2Id, AssociationCause='Territory2Manual');
+                    objectTerritoryList.add(objObjectTerritory2Association2);
+                }
             }
         }
         Set<ObjectTerritory2Association> removeDuplicates = new Set<ObjectTerritory2Association>();
@@ -276,7 +292,7 @@ public with sharing class CalloutBP {
              Catch(System.Exception e){
                 System.debug('Exception type caught: ' + e.getTypeName());
     			System.debug('Message: ' + e.getMessage());
-    			System.debug('Cause: ' + e.getCause());    // returns null
+    			System.debug('Cause: ' + e.getCause());  
     			System.debug('Line number: ' + e.getLineNumber());
     			System.debug('Stack trace: ' + e.getStackTraceString());
             }
@@ -500,7 +516,8 @@ public with sharing class CalloutBP {
     public class CompanyINData{
     
     public String Partner;
-    public String CodigoExternoAccount;    
+    public String CodigoExternoAccount;
+    public String CodigoExternoFatherAccount;    
     public String OrganizacaoVendas;
     public String SetorAtividade;
     public String CanalDistribuicao;
