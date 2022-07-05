@@ -154,9 +154,9 @@ global with sharing class IntegrationINOrderItem {
         }
         // Pega o pedido com base no ExternalId recebido
         //Order search based on ExternalId__c field sent
-        for (Order order : [SELECT Id, CodigoSap__c FROM Order WHERE CodigoSap__c IN : orderLookups]) {
+        for (Order order : [SELECT Id, NumeroPedidoApp__c FROM Order WHERE NumeroPedidoApp__c IN : orderLookups]) {
             //Map structure for the model -> object name + parameter to record id
-            lookups.put('Order' + order.CodigoSap__c, order.Id);
+            lookups.put('Order' + order.NumeroPedidoApp__c, order.Id);
         }
         
         for (PricebookEntry pricebookEntry : [SELECT Id, Product2Id, productCode, Pricebook2.isStandard FROM PricebookEntry ]){
