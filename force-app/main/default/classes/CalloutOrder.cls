@@ -167,6 +167,7 @@ public with sharing class CalloutOrder {
             IT_CONDITIONS_IN = new List<CalloutOrder.ConditionParameters>();
 
             IT_PARTNERS.add(new CalloutOrder.PartnerParameters(order.Account.ExternalId__c, 'AG'));
+            System.debug('order.ShippingAccount__r.ExternalId__c ' + order.ShippingAccount__r.ExternalId__c);
             IT_PARTNERS.add(new CalloutOrder.PartnerParameters(order.ShippingAccount__r.ExternalId__c, 'RM'));
             IT_PARTNERS.add(new CalloutOrder.PartnerParameters(order.SalesCTV__r.CodigoSap__c, 'ZC'));
 
