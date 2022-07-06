@@ -959,6 +959,7 @@ public without sharing class OrderScreenController {
     @AuraEnabled
     public static String approvals(String data){
         OrderDeserialize orderData = (OrderDeserialize) JSON.deserialize(data, OrderDeserialize.class);
+        Map<String, Decimal> smallerMarginByProductGroup = new Map<String, Decimal>();
         Company__c company = new Company__c();
 
         for (Company__c accountCompany : [
@@ -983,6 +984,16 @@ public without sharing class OrderScreenController {
                 biggerDiscount = currentDiscount;
                 productGroupId = orderProduct.productGroupId;
             }
+
+            if (orderProduct.productGroupId != null) {
+                if (!smallerMarginByProductGroup.containsKey(orderProduct.productGroupId)) {
+                    smallerMarginByProductGroup.put(orderProduct.productGroupId, orderProduct.commercialMarginPercentage);
+                } else {
+                    Decimal currentMargin = smallerMarginByProductGroup.get(orderProduct.productGroupId);
+                    currentMargin = currentMargin > orderProduct.commercialMarginPercentage ? orderProduct.commercialMarginPercentage : currentMargin;
+                    smallerMarginByProductGroup.put(orderProduct.productGroupId, currentMargin);
+                }
+            }
         }
         
 
@@ -990,6 +1001,32 @@ public without sharing class OrderScreenController {
         String sellerType = user.SellerType__c != null ? user.SellerType__c : '';
 
         String approval = '';
+        Map<String, Decimal> orderMarginMap = new Map<String, Decimal>();
+            if (orderData.headerData.pedido_mae.Id == null && company != null && company.ClientGroup__c != null) {
+                for (Discount__c discount : [
+                    SELECT Id,
+                           Margin__c,
+                           ProductGroup__c
+                      FROM Discount__c
+                     WHERE Status__c = 'Aprovado'
+                       AND Approver__c = 'ComiteMargem'
+                       AND ClientGroup__c =: company.ClientGroup__c
+                       AND ProductGroup__c IN: smallerMarginByProductGroup.keySet()
+                       AND InitialDate__c <=: System.today()
+                       AND EndDate__c >=: System.today()
+                  ORDER BY Margin__c
+                ]) {
+                    orderMarginMap.put(discount.ProductGroup__c, discount.Margin__c);
+                }
+            }
+
+            for (String groupId : smallerMarginByProductGroup.keySet()) {
+                if (orderMarginMap.get(groupId) >= smallerMarginByProductGroup.get(groupId)) {
+                    approval += '- ' + 'Comitê de Margem';
+                }
+            }
+
+        
         if (company != null) {
             Discount__c orderDiscount = new Discount__c();
             for (Discount__c discount : [
@@ -1024,11 +1061,6 @@ public without sharing class OrderScreenController {
             if(orderDiscount.Approver__c == 'GerenteFilial'){
                 approval = approvalLevels.get(orderDiscount.Approver__c);
             }
-            if(orderDiscount.Approver__c == 'ComiteMargem'){
-                approval += '- ' + approvalLevels.get(orderDiscount.Approver__c);
-            }
-            
-            
         }
         return approval;
     }
