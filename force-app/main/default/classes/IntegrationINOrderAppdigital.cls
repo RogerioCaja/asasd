@@ -112,7 +112,7 @@ global without sharing class IntegrationINOrderAppdigital {
             lookups.put('User' + salesCTV.CodigoSap__c, salesCTV.Id);
        }
        
-        for (CondicaoPagamento__c paymentCondition : [SELECT Id, Name from CondicaoPagamento__c WHERE Name IN: paymentConditionLookups]){
+        for (CondicaoPagamento__c paymentCondition : [SELECT Id, Name, Code__c  from CondicaoPagamento__c WHERE Code__c IN: paymentConditionLookups]){//
             lookups.put('CondicaoPagamento__c' + paymentCondition.Code__c, paymentCondition.Id);
         }
         for (Pricebook2 pricebook2Id : [SELECT Id, ExternalId__c, Name FROM Pricebook2 WHERE Name IN : pricebookLookups ]){

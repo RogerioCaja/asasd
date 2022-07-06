@@ -64,8 +64,10 @@ global with sharing class IntegrationINOrderItemAppdigital {
         );
 
         //Upserting records
+        OrderHelper.disableTrigger();
         List<Database.UpsertResult> upsResults = Database.upsert(orderItemListToUpsert, OrderItem.ExternalId__c, false);
-
+        OrderHelper.enableTrigger();
+        
         IntegrationUtils.upsertChildRecords(upsResults, responseMap, orderItemListToUpsert, OrderItem.ExternalId__c); 
         System.debug('upsResults' + upsResults);
         System.debug('orderItemListToUpsert' + orderItemListToUpsert);
