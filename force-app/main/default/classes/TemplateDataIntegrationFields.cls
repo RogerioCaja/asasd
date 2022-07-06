@@ -264,7 +264,6 @@ global with sharing class TemplateDataIntegrationFields {
         public Date ShippingDate;
         public String DescriptionBillingSale;
         public String OrderReference;
-
         public String condicaoVenda;
         public Boolean pedidoMae;
         public Decimal valorFinalTotal;
@@ -275,7 +274,9 @@ global with sharing class TemplateDataIntegrationFields {
         public String escritorioVendas;
         public String equipeVendas;
         public String company;
+        /*ATUALIZAÇÃO 05.07.22*/
         public String salesType;
+        public String recordIdToUpdate;
         //public String clienteCode; 
         public List<TemplateDataIntegrationFields.OrderItemINData> orderItems;
         public List<TemplateDataIntegrationFields.ShippingDivisonINData> shippingDivison;
@@ -353,13 +354,14 @@ global with sharing class TemplateDataIntegrationFields {
                 Hectare__c = this.hectare,
                 OrderMargin__c = this.margemPedido,
                 OrderType__c = this.orderType,
-                //RecordTypeId
                 SalesCondition__c = lookups.containsKey('SalesCondition__c'+this.condicaoVenda) ? lookups.get('SalesCondition__c'+this.condicaoVenda) : null,
                 IsOrderMother__c = this.pedidoMae,
                 Company__c = lookups.containsKey('Company__c' + this.company) ? lookups.get('Company__c' + this.company):null,
                 
-                RecordTypeId = Schema.SObjectType.Order.getRecordTypeInfosByName().get(this.salesType).getRecordTypeId()
-
+                /* ATUALIZAÇÃO 05.07.2022*/
+                RecordTypeId = this.salesType != null ? Schema.SObjectType.Order.getRecordTypeInfosByName().get(this.salesType).getRecordTypeId() : this.recordIdToUpdate
+                
+                
             );
         }
 
@@ -575,6 +577,10 @@ global with sharing class TemplateDataIntegrationFields {
             public String Empresa;
             public Decimal ValorBoleto;
             public String LinhaDigitavel;
+            public String localNegocio;
+            public String instrucoes;
+            public String numeroBoleto;
+            public String bancoEmpresa;
             public Boletos__c serialize(Map<String, Id> lookups){
 
                 //Returning Object with Fields
@@ -585,7 +591,11 @@ global with sharing class TemplateDataIntegrationFields {
                 ExpirationDate__c = Date.valueOf(VencimentoBoleto),
                 IssueDate__c = Date.valueOf(DataBoleto),
                 Value__c = this.ValorBoleto,
-                WritableLine__c = this.LinhaDigitavel
+                WritableLine__c = this.LinhaDigitavel,
+                BankName__c = this.bancoEmpresa,
+                OurNumber__c = this.numeroBoleto,
+                BusinessLocation__c = this.localNegocio, 
+                Instructions__c = this.instrucoes
             );
         }
 
