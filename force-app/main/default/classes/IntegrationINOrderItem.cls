@@ -44,7 +44,7 @@ global with sharing class IntegrationINOrderItem {
             System.debug('orderExternalId ' + orderItem.orderExternalId);
 
             System.debug('orderItem.orderExternalId '+ orderItem.orderExternalId);
-            /*
+            
             if(orderItem.orderExternalId == null){
                 System.debug('ordItem.OrderId '+ ordItem.OrderId);
                 if(ordItem.OrderId != null){
@@ -53,7 +53,7 @@ global with sharing class IntegrationINOrderItem {
                     System.debug('lookups ' + lookups);
                 }
             }
-            */
+            
             if(orderItem.material == null){
                 if(ordItem.Product2Id != null){
                     orderItem.material = ordItem.Product2.ProductCode__c;
