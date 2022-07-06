@@ -278,11 +278,6 @@ global with sharing class TemplateDataIntegrationFields {
         /*ATUALIZAÇÃO 05.07.22*/
         public String salesType;
         public String recordIdToUpdate;
-        /* Verificar parâmetros com o Lake - 30.06.22
-        public String CodigoExternoAccount; 
-        public String EscritorioVendas;
-        public String EquipeVendas;
-        */
         //public String clienteCode; 
         public List<TemplateDataIntegrationFields.OrderItemINData> orderItems;
         public List<TemplateDataIntegrationFields.ShippingDivisonINData> shippingDivison;
@@ -360,14 +355,13 @@ global with sharing class TemplateDataIntegrationFields {
                 Hectare__c = this.hectare,
                 OrderMargin__c = this.margemPedido,
                 OrderType__c = this.orderType,
-                //RecordTypeId
                 SalesCondition__c = lookups.containsKey('SalesCondition__c'+this.condicaoVenda) ? lookups.get('SalesCondition__c'+this.condicaoVenda) : null,
                 IsOrderMother__c = this.pedidoMae,
                 Company__c = lookups.containsKey('Company__c' + this.company) ? lookups.get('Company__c' + this.company):null,
                 
                 /* ATUALIZAÇÃO 05.07.2022*/
                 RecordTypeId = this.salesType != null ? Schema.SObjectType.Order.getRecordTypeInfosByName().get(this.salesType).getRecordTypeId() : this.recordIdToUpdate
-                //RecordTypeId = 'Venda Normal'
+                
                 
             );
         }
