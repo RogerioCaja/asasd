@@ -54,9 +54,9 @@ global with sharing class IntegrationINShippingDivison {
                 if(shipping.Quantidade == null){
                     shipping.Quantidade = ship.Quantity__c;
                 }
-                if(shipping.QuantidadeConfirmada == null){
-                    shipping.QuantidadeConfirmada = ship.ConfirmedQuantity__c;
-                }
+                // if(shipping.QuantidadeConfirmada == null){
+                //     shipping.QuantidadeConfirmada = ship.ConfirmedQuantity__c;
+                // }
                 
             }
         // Pega o produto com base no ExternalID recebido

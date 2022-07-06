@@ -571,7 +571,9 @@ public without sharing class OrderScreenController {
 
                 String orderItemErrors = '';
                 Set<Id> itemsIds = new Set<Id>();
+                OrderHelper.disableTrigger();
                 List<Database.UpsertResult> insOrderItemResults = Database.upsert(listOrderItems, false);
+                OrderHelper.enableTrigger();
                 for (Database.UpsertResult result : insOrderItemResults){
                     if(!result.isSuccess()){
                         for (Database.error error: insResults.getErrors()){
