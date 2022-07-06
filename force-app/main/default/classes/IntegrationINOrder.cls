@@ -47,9 +47,12 @@ global without sharing class IntegrationINOrder {
             
             for (TemplateDataIntegrationFields.OrderItemINData orderItem : order.orderItems) {
                 orderItem.orderExternalId = order.CodigoSap;
+                System.debug('orderItem.orderExternalId ' + orderItem.orderExternalId);
+                System.debug('order.CodigoSap ' + order.CodigoSap);
             }
 
             orderItemListToUpsert.addAll(order.orderItems);
+            System.debug('orderItemListToUpsert ' + orderItemListToUpsert);
 
             for (TemplateDataIntegrationFields.ShippingDivisonINData shippingDivisonItem : order.shippingDivison) {
                 shippingDivisonItem.orderExternalId = order.CodigoSap;
@@ -79,6 +82,7 @@ global without sharing class IntegrationINOrder {
             }
             System.debug('accountLookups' + accountLookups);
             
+            /*
             if(order != null) {
                 // Adiciona todos os External Id e o catalogo de preço de order nos orderItem
                 //Putting the Order's ExternalId parameter in the OrderItem
@@ -89,20 +93,23 @@ global without sharing class IntegrationINOrder {
                 //Getting list of order items
                 //orderItemListToUpsert.addAll(order.orderItems);
             //}
+            */
         }
-
+        
         Map<String, Order> ordersIdsMap = new Map<String, Order>();
         List<Order> orderSelectList = new List<Order>([SELECT Id, NumeroPedidoApp__c,PaymentDate__c,ShippingDate__c,Type,CustomerOrderNumber__c,
-        Currency__c,Description,DescriptionBillingSale__c,FinalTotalValue__c,Hectare__c,OrderMargin__c,OrderType__c,SalesCondition__c,IsOrderMother__c,
+        Currency__c,Description,DescriptionBillingSale__c,FinalTotalValue__c,Hectare__c,OrderMargin__c,OrderType__c,SalesCondition__c,IsOrderMother__c, RecordTypeId,
         CodigoSap__c, Pricebook2Id, Pricebook2.Name,EffectiveDate,Status,StatusRecusa__c,Incoterms__c,Incoterms2__c,PaymentForm__c, Crop__r.Code__c, Crop__c, Culture__c, Culture__r.Codigo__c, SalesOrg__r.SalesOrganizationCode__c, SalesOrg__c,
         SalesCTV__r.CodigoSap__c, SalesCTV__c, PaymentCondition__r.Code__c, PaymentCondition__c,OrderReference__r.CodigoSap__c, OrderReference__c, Account.ExternalId__c, AccountId, ShippingAccount__r.ExternalId__c, ShippingAccount__c,Company__r.ExternalID__c,Company__c,DistributionChannel__r.Codigo__c,DistributionChannel__c
         FROM Order WHERE CodigoSap__c  IN : idOrders]);
 
         for (Order ord : orderSelectList){
             ordersIdsMap.put(ord.CodigoSap__c, ord);
+
         }
         for (TemplateDataIntegrationFields.OrderINData order : request){
             Order ord = ordersIdsMap.get(order.CodigoSap);
+
             if(order.numeroPedidoApp == null){
                 order.numeroPedidoApp = ord.NumeroPedidoApp__c;
             }
@@ -162,6 +169,12 @@ global without sharing class IntegrationINOrder {
             }
             if(order.pedidoMae == null){
                 order.pedidoMae = ord.IsOrderMother__c;
+            }
+
+            /* ATUALIZAÇÃO 05.07.22*/
+
+            if(order.salesType == null){
+                order.recordIdToUpdate = ord.RecordTypeId;
             }
             
 
@@ -293,15 +306,19 @@ global without sharing class IntegrationINOrder {
             orderListToUpsert, 
             Order.CodigoSap__c
         );
+
         Map<String, String> orderUpMap = new Map<String, String>();
+    
         for(Order ordUp :orderListToUpsert){
             orderUpMap.put(ordUp.CodigoSap__c, ordUp.Id);
+            System.debug('orderUpMap ' + orderUpMap);
+            System.debug('orderListToUpsert1111 ' + orderListToUpsert);
         }
         for (TemplateDataIntegrationFields.OrderItemINData orderIt : orderItemListToUpsert){
             String orderId;
             
                 if(orderIt.orderExternalId != null){
-                    orderId = orderUpMap.get(orderIt.orderExternalId);
+                    orderId = ordersIdsMap.get(orderIt.orderExternalId).Id;
                     
                     orderIt.orderExternalId = orderId;
                 } 
@@ -310,13 +327,14 @@ global without sharing class IntegrationINOrder {
             String orderId;
             
                 if(shipIt.orderExternalId != null){
-                    orderId = orderUpMap.get(shipIt.orderExternalId);
+                    orderId = ordersIdsMap.get(shipIt.orderExternalId).Id;
                     
                     shipIt.orderExternalId = orderId;
                 } 
         }
         //Upserting records (OrderItem)
         // Upsert OrderItem
+
         Map<String, List<TemplateDataIntegrationFields.Response>> orderItemsResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
         if(orderItemListToUpsert.size() != 0){
             orderItemsResponse.putAll(

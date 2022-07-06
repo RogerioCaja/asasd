@@ -275,7 +275,14 @@ global with sharing class TemplateDataIntegrationFields {
         public String escritorioVendas;
         public String equipeVendas;
         public String company;
+        /*ATUALIZAÇÃO 05.07.22*/
         public String salesType;
+        public String recordIdToUpdate;
+        /* Verificar parâmetros com o Lake - 30.06.22
+        public String CodigoExternoAccount; 
+        public String EscritorioVendas;
+        public String EquipeVendas;
+        */
         //public String clienteCode; 
         public List<TemplateDataIntegrationFields.OrderItemINData> orderItems;
         public List<TemplateDataIntegrationFields.ShippingDivisonINData> shippingDivison;
@@ -358,8 +365,10 @@ global with sharing class TemplateDataIntegrationFields {
                 IsOrderMother__c = this.pedidoMae,
                 Company__c = lookups.containsKey('Company__c' + this.company) ? lookups.get('Company__c' + this.company):null,
                 
-                RecordTypeId = Schema.SObjectType.Order.getRecordTypeInfosByName().get(this.salesType).getRecordTypeId()
-
+                /* ATUALIZAÇÃO 05.07.2022*/
+                RecordTypeId = this.salesType != null ? Schema.SObjectType.Order.getRecordTypeInfosByName().get(this.salesType).getRecordTypeId() : this.recordIdToUpdate
+                //RecordTypeId = 'Venda Normal'
+                
             );
         }
 
