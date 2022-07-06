@@ -264,7 +264,6 @@ global with sharing class TemplateDataIntegrationFields {
         public Date ShippingDate;
         public String DescriptionBillingSale;
         public String OrderReference;
-
         public String condicaoVenda;
         public Boolean pedidoMae;
         public Decimal valorFinalTotal;
@@ -578,6 +577,10 @@ global with sharing class TemplateDataIntegrationFields {
             public String Empresa;
             public Decimal ValorBoleto;
             public String LinhaDigitavel;
+            public String localNegocio;
+            public String instrucoes;
+            public String numeroBoleto;
+            public String bancoEmpresa;
             public Boletos__c serialize(Map<String, Id> lookups){
 
                 //Returning Object with Fields
@@ -588,7 +591,11 @@ global with sharing class TemplateDataIntegrationFields {
                 ExpirationDate__c = Date.valueOf(VencimentoBoleto),
                 IssueDate__c = Date.valueOf(DataBoleto),
                 Value__c = this.ValorBoleto,
-                WritableLine__c = this.LinhaDigitavel
+                WritableLine__c = this.LinhaDigitavel,
+                BankName__c = this.bancoEmpresa,
+                OurNumber__c = this.numeroBoleto,
+                BusinessLocation__c = this.localNegocio, 
+                Instructions__c = this.instrucoes
             );
         }
 
