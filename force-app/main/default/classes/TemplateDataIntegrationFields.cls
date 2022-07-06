@@ -351,7 +351,6 @@ global with sharing class TemplateDataIntegrationFields {
                 Hectare__c = this.hectare,
                 OrderMargin__c = this.margemPedido,
                 OrderType__c = this.orderType,
-                
                 SalesCondition__c = this.condicaoVenda,
                 IsOrderMother__c = this.pedidoMae,
                 Company__c = lookups.containsKey('Company__c' + this.company) ? lookups.get('Company__c' + this.company):null,
@@ -417,6 +416,9 @@ global with sharing class TemplateDataIntegrationFields {
         public Decimal precoUnitario;
         public OrderItem serialize(Map<String, Id> lookups){
 
+            
+            orderItemCode = orderItemCode.replaceFirst('^0+','');
+
             return new OrderItem(
                 OrderId = this.orderExternalId,
                 Product2Id = lookups.containsKey('Product2'+this.material) ? lookups.get('Product2'+this.material) : null,
@@ -481,7 +483,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String ExternalId;
 
         public ShippingDivison__c serialize(Map<String, Id> lookups){
-
+            orderItemCode = orderItemCode.replaceFirst('^0+','');
             return new ShippingDivison__c(
                 OrderItem__c = lookups.containsKey('OrderItem__c'+this.material) ? lookups.get('OrderItem__c'+this.material) : null,
                 ExternalId__c = this.orderExternalId + '|' + this.OrderItemCode + '|' + this.DivisaoRemessa,
