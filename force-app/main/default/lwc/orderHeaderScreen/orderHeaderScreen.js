@@ -530,7 +530,7 @@ export default class OrderHeaderScreen extends LightningElement {
                         if (!this.barterSale) {
                             if (record.CashPayment__c) {
                                 if (this.headerDictLocale.firstTime) {
-                                    this.headerDictLocale.data_pagamento = this.headerDictLocale['data_pagamento'];
+                                    this.headerDictLocale.data_pagamento = this.headerDictLocale['data_pagamento'] != ' ' ? this.headerDictLocale['data_pagamento'] : this.currentDate;
                                     this.headerDictLocale.firstTime = false;
                                 } else {
                                     this.headerDictLocale.data_pagamento = this.currentDate;
