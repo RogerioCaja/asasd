@@ -429,11 +429,12 @@ global with sharing class TemplateDataIntegrationFields {
                 CommercialAdditionPercent__c = this.porcentagemAcrescComercial,
                 CommercialAdditionValue__c = this.valorAcrescComercial,
                 Dosage__c = this.dosagem,
-                ListCost__c = this.custoLista,
+                ListCost__c = this.precoUnitario,
                 NumeroSap__c = this.orderItemCode,
                 PracticedCost__c = this.custoPreco,
                 PracticedPrice__c = this.precoPraticado,
-                UnitPrice = this.precoUnitario
+                UnitPrice = this.precoPraticado,
+                AmountUsed__c = 0
             );
         }
         public List<String> getRequiredFields(){
@@ -478,8 +479,8 @@ global with sharing class TemplateDataIntegrationFields {
                 OrderItem__c = lookups.containsKey('OrderItem__c'+this.material) ? lookups.get('OrderItem__c'+this.material) : null,
                 ExternalId__c = this.orderExternalId + '|' + this.OrderItemCode + '|' + this.DivisaoRemessa,
                 DeliveryDate__c = this.DataDivisao,
-                Quantity__c = this.Quantidade, 
-                ConfirmedQuantity__c = this.QuantidadeConfirmada
+                Quantity__c = this.Quantidade
+                // ConfirmedQuantity__c = this.QuantidadeConfirmada
             );
         }
         public List<String> getRequiredFields(){
