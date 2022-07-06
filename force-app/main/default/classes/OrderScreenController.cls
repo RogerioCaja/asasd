@@ -607,7 +607,7 @@ public without sharing class OrderScreenController {
                             setDivisionIds.add(division.divisionId);
                         }
 
-                        String key = division.deliveryDate + '-' + division.orderItemId;
+                        String key = division.deliveryDate + '-' + division.orderItemKey;
                         if (divisionsByKey.containsKey(key)) {
                             DivisionDeserialize existingDivision = divisionsByKey.get(key);
                             existingDivision.quantity += division.quantity;
