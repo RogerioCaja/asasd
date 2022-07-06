@@ -470,7 +470,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String NumeroDivisaoRemessa;
         public Date DataDivisao;
         public Decimal Quantidade;
-        // public Decimal QuantidadeConfirmada;
+        public Decimal QuantidadeConfirmada;
         public String ExternalId;
 
         public ShippingDivison__c serialize(Map<String, Id> lookups){
