@@ -434,7 +434,7 @@ global with sharing class TemplateDataIntegrationFields {
                 Dosage__c = this.dosagem,
                 ListPrice__c = this.precoUnitario,
                 ListCost__c = this.custoLista,
-                NumeroSap__c = this.orderItemCode,
+                NumeroSap__c = String.valueOf(Integer.valueOf(this.orderItemCode)),
                 PracticedCost__c = this.custoPreco,
                 PracticedPrice__c = this.precoPraticado,
                 UnitPrice = this.precoPraticado,
