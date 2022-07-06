@@ -470,7 +470,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String NumeroDivisaoRemessa;
         public Date DataDivisao;
         public Decimal Quantidade;
-        public Decimal QuantidadeConfirmada;
+        // public Decimal QuantidadeConfirmada;
         public String ExternalId;
 
         public ShippingDivison__c serialize(Map<String, Id> lookups){
@@ -479,8 +479,8 @@ global with sharing class TemplateDataIntegrationFields {
                 OrderItem__c = lookups.containsKey('OrderItem__c'+this.material) ? lookups.get('OrderItem__c'+this.material) : null,
                 ExternalId__c = this.orderExternalId + '|' + this.OrderItemCode + '|' + this.DivisaoRemessa,
                 DeliveryDate__c = this.DataDivisao,
-                Quantity__c = this.Quantidade, 
-                ConfirmedQuantity__c = this.QuantidadeConfirmada
+                Quantity__c = this.Quantidade
+                // ConfirmedQuantity__c = this.QuantidadeConfirmada
             );
         }
         public List<String> getRequiredFields(){
