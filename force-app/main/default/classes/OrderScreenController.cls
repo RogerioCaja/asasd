@@ -567,7 +567,9 @@ public without sharing class OrderScreenController {
                     orderItem.ComissionValue__c = orderItem.PercentComission__c != 0 ? ((orderItem.FinalTotalValue__c * orderItem.PercentComission__c) / 100) : 0;
                     listOrderItems.add(orderItem);
                 }
+                OrderHelper.disableTrigger();
                 update motherItems.values();
+                OrderHelper.enableTrigger();
 
                 String orderItemErrors = '';
                 Set<Id> itemsIds = new Set<Id>();
