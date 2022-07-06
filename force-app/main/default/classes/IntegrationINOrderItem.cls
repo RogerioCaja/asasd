@@ -33,7 +33,7 @@ global with sharing class IntegrationINOrderItem {
         FinancialDiscountValue__c, FinancialAdditionPercent__c, FinancialAdditionValue__c,
         CommercialAdditionPercent__c, CommercialAdditionValue__c, Dosage__c, ListCost__c, NumeroSap__c,
         PracticedCost__c, PracticedPrice__c, UnitPrice FROM OrderItem WHERE ExternalId__c IN: idsOrderItem]);
-
+    
         for(OrderItem ordItem : orderItemSelectList){
             orderItemsIdsMap.put(ordItem.ExternalId__c, ordItem);
         }
@@ -43,13 +43,17 @@ global with sharing class IntegrationINOrderItem {
             System.debug('OrderItem ' + ordItem);
             System.debug('orderExternalId ' + orderItem.orderExternalId);
 
-
+            System.debug('orderItem.orderExternalId '+ orderItem.orderExternalId);
+            
             if(orderItem.orderExternalId == null){
+                System.debug('ordItem.OrderId '+ ordItem.OrderId);
                 if(ordItem.OrderId != null){
-                    orderItem.orderExternalId = ordItem.Order.CodigoSap__c; 
+                    orderItem.orderExternalId = ordItem.OrderId; 
                     lookups.put('Order' + ordItem.Order.CodigoSap__c, ordItem.OrderId);
+                    System.debug('lookups ' + lookups);
                 }
             }
+            
             if(orderItem.material == null){
                 if(ordItem.Product2Id != null){
                     orderItem.material = ordItem.Product2.ProductCode__c;
@@ -181,7 +185,7 @@ global with sharing class IntegrationINOrderItem {
             lookups, 
             parentMapKeys
         );
-
+        System.debug('orderItemListToUpsert ' + orderItemListToUpsert);
 
         //Upserting records
         List<Database.UpsertResult> upsResults = Database.upsert(orderItemListToUpsert, OrderItem.ExternalId__c, false);
