@@ -58,7 +58,7 @@ global without sharing class IntegrationINOrderAppdigital {
                 //Putting the Order's ExternalId parameter in the OrderItem
                 for (TemplateDataIntegrationFields.OrderItemINData orderItem : order.orderItems){
                     orderItem.orderExternalId = order.numeroPedidoApp;
-                    orderItem.orderItemCode = replace.replaceFirst('^0+','');
+                    orderItem.orderItemCode = orderItem.orderItemCode.replace.replaceFirst('^0+','');
                 }
                 // Adiciona os orderItem na lista para upsert
                 //Getting list of order items
@@ -67,7 +67,7 @@ global without sharing class IntegrationINOrderAppdigital {
             }
             for(TemplateDataIntegrationFields.ShippingDivisonINData shippingDivison : order.shippingDivison){
                 shippingDivison.orderExternalId = order.numeroPedidoApp;
-                shippingDivison.orderItemCode = replace.replaceFirst('^0+','');
+                shippingDivison.orderItemCode = shippingDivison.orderItemCode.replace.replaceFirst('^0+','');
             }
             shippingDivisonListToUpsert.addAll(order.shippingDivison);
             System.debug('shippingDivisonListToUpsert' + shippingDivisonListToUpsert);
