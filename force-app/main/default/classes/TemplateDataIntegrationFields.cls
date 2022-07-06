@@ -408,6 +408,9 @@ global with sharing class TemplateDataIntegrationFields {
         public Decimal precoUnitario;
         public OrderItem serialize(Map<String, Id> lookups){
 
+            
+            orderItemCode = orderItemCode.replaceFirst('^0+','');
+
             return new OrderItem(
                 OrderId = this.orderExternalId,
                 Product2Id = lookups.containsKey('Product2'+this.material) ? lookups.get('Product2'+this.material) : null,
@@ -475,7 +478,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String ExternalId;
 
         public ShippingDivison__c serialize(Map<String, Id> lookups){
-
+            orderItemCode = orderItemCode.replaceFirst('^0+','');
             return new ShippingDivison__c(
                 OrderItem__c = lookups.containsKey('OrderItem__c'+this.material) ? lookups.get('OrderItem__c'+this.material) : null,
                 ExternalId__c = this.orderExternalId + '|' + this.OrderItemCode + '|' + this.DivisaoRemessa,
