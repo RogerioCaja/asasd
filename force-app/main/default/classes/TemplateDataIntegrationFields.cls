@@ -429,11 +429,12 @@ global with sharing class TemplateDataIntegrationFields {
                 CommercialAdditionPercent__c = this.porcentagemAcrescComercial,
                 CommercialAdditionValue__c = this.valorAcrescComercial,
                 Dosage__c = this.dosagem,
-                ListCost__c = this.custoLista,
+                ListCost__c = this.precoUnitario,
                 NumeroSap__c = this.orderItemCode,
                 PracticedCost__c = this.custoPreco,
                 PracticedPrice__c = this.precoPraticado,
-                UnitPrice = this.precoUnitario
+                UnitPrice = this.precoPraticado,
+                AmountUsed__c = 0
             );
         }
         public List<String> getRequiredFields(){
