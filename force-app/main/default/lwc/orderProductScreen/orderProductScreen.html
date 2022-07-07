@@ -23,7 +23,6 @@
 									<p class="product-name">{prod.Name}</p>
 									<p><b>Grupo:</b> {prod.productGroupName}</p>
 									<p><b>Princípio ativo:</b> {prod.activePrinciple}</p>
-									<p><b>Código:</b> {prod.sapProductCode}</p>
 								</div>
 								<div class="card-02">
 									<button class="include-button" data-target-id={prod.Id} onclick={showProductModal}>Incluir</button>
@@ -65,12 +64,12 @@
 
 					<div class="row">
 						<div class="column">
-							<label>Preço Lista</label><br>
-							<input class="input-design" type="text" value={addProduct.listPriceFront} disabled/>
-						</div>
-						<div class="column">
 							<label>Unidade de Medida</label><br>
 							<input class="input-design" type="text" value={addProduct.unity} disabled/> 
+						</div>
+						<div class="column">
+							<label>Preço Lista (un)</label><br>
+							<input class="input-design" type="text" value={addProduct.listPriceFront} disabled/>
 						</div>
 					</div>
 
@@ -238,12 +237,12 @@
 
 					<div class="row">
 						<div class="column">
-							<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnListPrice} data-target-id="columnListPrice">
-							<label class="column-title">Preço Lista</label><br>
-						</div>
-						<div class="column">
 							<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnUnity} data-target-id="columnUnity">
 							<label class="column-title">Unidade de Medida</label><br>
+						</div>
+						<div class="column">
+							<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnListPrice} data-target-id="columnListPrice">
+							<label class="column-title">Preço Lista (un)</label><br>
 						</div>
 					</div>
 

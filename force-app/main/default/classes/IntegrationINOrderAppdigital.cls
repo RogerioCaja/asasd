@@ -67,7 +67,7 @@ global without sharing class IntegrationINOrderAppdigital {
             }
             for(TemplateDataIntegrationFields.ShippingDivisonINData shippingDivison : order.shippingDivison){
                 shippingDivison.orderExternalId = order.numeroPedidoApp;
-                shippingDivison.orderItemCode = shippingDivison.OrderItemCode.replaceFirst('^0+','');
+                shippingDivison.orderItemCode = shippingDivison.orderItemCode.replaceFirst('^0+','');
             }
             shippingDivisonListToUpsert.addAll(order.shippingDivison);
             System.debug('shippingDivisonListToUpsert' + shippingDivisonListToUpsert);

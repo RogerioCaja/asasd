@@ -6,13 +6,9 @@ export default class OrderSummaryScreen extends LightningElement {
     hasData = true;
     disabled=false;
     isBarter = false;
-    formattedPaymentDate;
-    formattedDeliveryDate;
-    
     @track orderMargin = 0;
     @track approval = '';
     @track approvalMargin = 'Dispensado';
-
     @api accountData;
     @api productData;
     @api divisionData;
@@ -67,8 +63,7 @@ export default class OrderSummaryScreen extends LightningElement {
                 this.disabled = true;
             }
 
-            this.formattedPaymentDate = this.headerData.data_pagamento.split('-')[2] + '/' + this.headerData.data_pagamento.split('-')[1] + '/' + this.headerData.data_pagamento.split('-')[0];
-            this.formattedDeliveryDate = this.headerData.data_entrega.split('-')[2] + '/' + this.headerData.data_entrega.split('-')[1] + '/' + this.headerData.data_entrega.split('-')[0];
+            
             
             let orderTotalPrice = 0;
             let orderTotalCost = 0;
