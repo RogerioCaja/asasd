@@ -978,7 +978,7 @@ export default class OrderProductScreen extends LightningElement {
                 this.productDivision(row.position);
             break;
             case 'delete':
-                this.deleteProduct(row.position);
+                this.deleteProduct(row.position - 1);
             break;
         }
     }
