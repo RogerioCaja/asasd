@@ -47,6 +47,7 @@ global without sharing class IntegrationINOrder {
             
             for (TemplateDataIntegrationFields.OrderItemINData orderItem : order.orderItems) {
                 orderItem.orderExternalId = order.CodigoSap;
+                orderItem.orderItemCode = orderItem.orderItemCode.replaceFirst('^0+','');
                 System.debug('orderItem.orderExternalId ' + orderItem.orderExternalId);
                 System.debug('order.CodigoSap ' + order.CodigoSap);
             }
@@ -56,6 +57,7 @@ global without sharing class IntegrationINOrder {
 
             for (TemplateDataIntegrationFields.ShippingDivisonINData shippingDivisonItem : order.shippingDivison) {
                 shippingDivisonItem.orderExternalId = order.CodigoSap;
+                shippingDivisonItem.OrderItemCode = shippingDivisonItem.OrderItemCode.replaceFirst('^0+','');
             }
             shippingDivisonListToUpsert.addAll(order.shippingDivison);
             
