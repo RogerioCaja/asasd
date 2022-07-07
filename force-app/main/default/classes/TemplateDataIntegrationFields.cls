@@ -341,7 +341,6 @@ global with sharing class TemplateDataIntegrationFields {
                 ShippingDate__c = Date.valueOf(ShippingDate),
                 Status = this.status,
                 StatusRecusa__c	= this.statusRecusa,
-                Type = this.type,
                 CustomerOrderNumber__c = this.customerOrderNumber,
                 PaymentForm__c = this.paymentForm,
                 StatusSF__c = 'Em digitação',
