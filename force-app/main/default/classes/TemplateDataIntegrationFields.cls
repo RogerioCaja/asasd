@@ -341,6 +341,7 @@ global with sharing class TemplateDataIntegrationFields {
                 ShippingDate__c = Date.valueOf(ShippingDate),
                 Status = this.status,
                 StatusRecusa__c	= this.statusRecusa,
+                Type = this.type,
                 CustomerOrderNumber__c = this.customerOrderNumber,
                 PaymentForm__c = this.paymentForm,
                 StatusSF__c = 'Em digitação',
@@ -357,9 +358,8 @@ global with sharing class TemplateDataIntegrationFields {
                 Company__c = lookups.containsKey('Company__c' + this.company) ? lookups.get('Company__c' + this.company):null,
                 
                 /* ATUALIZAÇÃO 05.07.2022*/
-                RecordTypeId = this.salesType != null ? Schema.SObjectType.Order.getRecordTypeInfosByName().get(this.salesType).getRecordTypeId() : this.recordIdToUpdate,
-                Type = this.salesType != null ? this.salesType : Schema.getGlobalDescribe().get('Order').getDescribe().getRecordTypeInfosById().get(this.recordIdToUpdate).getName(),
-                OrderType__c = this.pedidoMae ? 'Pedido Mãe' : 'Pedido Normal'
+                RecordTypeId = this.salesType != null ? Schema.SObjectType.Order.getRecordTypeInfosByName().get(this.salesType).getRecordTypeId() : this.recordIdToUpdate
+                
                 
             );
         }
