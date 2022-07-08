@@ -287,6 +287,7 @@ global with sharing class TemplateDataIntegrationFields {
                 pedidoMae = false;
             }
 
+            /*
             switch on Status {
                 when 'Em análise de Crédito' {
                     Status = '1';
@@ -319,7 +320,7 @@ global with sharing class TemplateDataIntegrationFields {
                     Status = '5';
                 }
             }
-
+            */
             
             return new Order(
 
