@@ -121,7 +121,7 @@ export default class OrderProductScreen extends LightningElement {
 
         this.currentDate = yyyy + '-' + mm + '-' + dd;
         this.paymentDate = this.headerData.data_pagamento;
-        this.hectares = this.headerData.hectares;
+        this.hectares = this.headerData.hectares.includes(',') ? Number(this.headerData.hectares.replace(',', '.')) : Number(this.headerData.hectares);
         this.salesConditionId = this.headerData.condicao_venda.Id;
         this.commoditiesData = this.isFilled(this.commodityData) ? this.commodityData : [];
         this.barterSale = this.headerData.tipo_venda == 'Venda Barter' && this.commoditiesData.length == 0 ? true : false;
