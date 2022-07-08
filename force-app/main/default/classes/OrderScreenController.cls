@@ -1056,13 +1056,13 @@ public without sharing class OrderScreenController {
             };
 
             if(orderDiscount.Approver__c == 'Diretor'){
-                approval = approvalLevels.get('GerenteFilial') + '/' + approvalLevels.get('GerenteRegional') + '/' + approvalLevels.get(orderDiscount.Approver__c);
+                approval += approvalLevels.get('GerenteFilial') + '/' + approvalLevels.get('GerenteRegional') + '/' + approvalLevels.get(orderDiscount.Approver__c);
             }
             if(orderDiscount.Approver__c == 'GerenteRegional'){
-                approval = approvalLevels.get('GerenteFilial') + '/' + approvalLevels.get(orderDiscount.Approver__c);
+                approval += approvalLevels.get('GerenteFilial') + '/' + approvalLevels.get(orderDiscount.Approver__c);
             }
             if(orderDiscount.Approver__c == 'GerenteFilial'){
-                approval = approvalLevels.get(orderDiscount.Approver__c);
+                approval += approvalLevels.get(orderDiscount.Approver__c);
             }
         }
         return approval;
