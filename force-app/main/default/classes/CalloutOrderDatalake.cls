@@ -23,7 +23,7 @@ public with sharing class CalloutOrderDatalake {
         IsOrderMother__c, Company__c, RecordTypeId, TotalAmount, StatusSAP__c,Culture__r.Name,SalesOrg__r.Name,Crop__r.Name,
         SalesCTV__r.CodigoSap__c,PaymentCondition__r.Code__c, Company__r.SupplierCenter__c, Company__r.SalesOffice__c, Company__r.SalesTeam__c,
         DistributionChannel__r.Codigo__c,ActivitySector__r.Codigo__c, PaymentCondition__r.Name,EndDate,
-        SalesCondition__r.ExternalId__c,Company__r.ExternalID__c, (SELECT Id FROM OrderItems) 
+        SalesCondition__r.ExternalId__c,SalesCondition__r.Name, Company__r.ExternalID__c, (SELECT Id FROM OrderItems) 
                             FROM Order WHERE Id = :orderId];
         System.debug('parentOrder' + parentOrder);
         List<Order> allOrders = new List<Order>{parentOrder};
@@ -81,7 +81,7 @@ public with sharing class CalloutOrderDatalake {
 
 
         //Path geralmente cadastrado dentro de ua customSettings
-        String endpoint = (!Test.isRunningTest() ? 'https://apim.agrogalaxy.com.br/gtw/sales-order/v1/webhook/order23232ssdasd' : 'http://callout.My_Named_Credential.com/some/path');
+        String endpoint = (!Test.isRunningTest() ? 'https://apim.agrogalaxy.com.br/gtw/sales-order/v1/webhook/order34' : 'http://callout.My_Named_Credential.com/some/path');
         Map<String, String> ordersMap = new Map<String, String>();
         ordersMap.put('Content-type', 'application/json');
         ordersMap.put('Authorization', 'Bearer '+ accessToken);
@@ -147,7 +147,15 @@ public with sharing class CalloutOrderDatalake {
                     orderPayment.put(objPickList.getValue(), objPickList.getLabel());
                 }
                 System.debug(orderPayment.get('B'));
-
+			
+            Map<String, String> statusDesc = new Map<String, String>();
+                Schema.DescribeFieldResult stsFieldDescribe = Schema.Order.Status.getDescribe();
+                List<Schema.PicklistEntry> statusPickListValues = stsFieldDescribe.getPickListValues();
+                for (Schema.PicklistEntry stsPickList : statusPickListValues) {
+                    statusDesc.put(stsPickList.getValue(), stsPickList.getLabel());
+                }
+                System.debug(statusDesc.get('1'));
+            
             List<ShippingDivison__c> divisonList = [SELECT Id,Name, DeliveryDate__c, Quantity__c, OrderItem__c, ExternalId__c FROM ShippingDivison__c WHERE OrderItem__c IN: orderItemIds];
             Map<Id, List<ShippingDivison__c>> divisionMap = new  Map<Id, List<ShippingDivison__c>>();
 
@@ -194,8 +202,10 @@ public with sharing class CalloutOrderDatalake {
                 header.activitySector = order.ActivitySector__r.Codigo__c; // Já está adicionado na query
                 header.salesCondition = order.SalesCondition__r.ExternalId__c; // Já está adicionado na query
                 header.company = order.Company__r.ExternalID__c; // Já está adicionado na query
-
+				header.statusDesc = statusDesc.get(order.Status);
                 header.orderCodeSf = order.OrderNumber;
+                header.salesConditionName = order.SalesCondition__r.Name;
+                
                 header.paymentFormName = orderPayment.get(order.PaymentForm__c);
                 header.paymentConditionName = order.PaymentCondition__r.Name;
                 header.centroFornecedor = order.Company__r.SupplierCenter__c;
@@ -271,7 +281,8 @@ public with sharing class CalloutOrderDatalake {
         public String centroFornecedor;
         public String escritorioVendas;
         public String equipeVendas;
-
+		public String statusDesc;
+        public String salesConditionName;
         public String codigoSap; 
         public String numeroPedidoApp; 
         public String pricebook2; 
