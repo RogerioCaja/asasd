@@ -65,16 +65,20 @@ global without sharing class IntegrationINOrderAppdigital {
                 orderItemListToUpsert.addAll(order.orderItems);
                 System.debug('orderItemListToUpsert' + orderItemListToUpsert); 
             }
+            if(order.pedidoMae ==  false){
             for(TemplateDataIntegrationFields.ShippingDivisonINData shippingDivison : order.shippingDivison){
                 shippingDivison.orderExternalId = order.numeroPedidoApp;
                 shippingDivison.orderItemCode = shippingDivison.orderItemCode.replaceFirst('^0+','');
             }
-            shippingDivisonListToUpsert.addAll(order.shippingDivison);
+            if(order.pedidoMae == false){
+                shippingDivisonListToUpsert.addAll(order.shippingDivison);
+            }
+             
             System.debug('shippingDivisonListToUpsert' + shippingDivisonListToUpsert);
             
             }
-
-            
+        }
+            System.debug('Chegou!?!!!!!!!!!!!!!!!!!!!! ');    
         // Pega o Id da conta com base no CNPJ da conta
         //Account search based on CNPJ field sent
         for (Account account : [SELECT Id, ExternalId__c FROM Account WHERE ExternalId__c IN : accountLookups]) {
@@ -136,9 +140,11 @@ global without sharing class IntegrationINOrderAppdigital {
         }
         //Converting template to object list and validating required fields
         // Valida e adiciona objeto na lista para upsert
+        System.debug('Chegou!?010102301023010230120 ');
         FactoryDataIntegration.convertSObject(new Order(), 'IN', request, responseList, orderListToUpsert, lookups);
           
         //Upserting records (Order)
+        System.debug('Chegou!? 222222');
 		IntegrationUtils.upsertRecords(
             Database.upsert(orderListToUpsert, Order.NumeroPedidoApp__c, false), 
             responseList, 
@@ -158,9 +164,9 @@ global without sharing class IntegrationINOrderAppdigital {
                     orderIt.orderExternalId = orderId;
                 } 
         }
+        
         for (TemplateDataIntegrationFields.ShippingDivisonINData shipIt : shippingDivisonListToUpsert){
             String orderId;
-            
                 if(shipIt.orderExternalId != null){
                     orderId = orderUpMap.get(shipIt.orderExternalId);
                     
@@ -179,6 +185,7 @@ global without sharing class IntegrationINOrderAppdigital {
         }
 
         Map<String, List<TemplateDataIntegrationFields.Response>> shippingDivisonResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
+        
         if(shippingDivisonListToUpsert.size() != 0){
             shippingDivisonResponse.putAll(
                 IntegrationINShippingDivisonAppdigital.upsertShippingDivison(shippingDivisonListToUpsert)
@@ -193,8 +200,11 @@ global without sharing class IntegrationINOrderAppdigital {
             response.items = new List<TemplateDataIntegrationFields.Response>();
             if(orderItemsResponse.size() != 0 && orderItemsResponse.containsKey(response.idSalesforce)){
                 response.items.addAll(orderItemsResponse.get(response.idSalesforce));
+                
                 for(TemplatedataIntegrationFields.Response orderItem : orderItemsResponse.get(response.idSalesforce)){
-                    response.items.addAll(shippingDivisonResponse.get(orderItem.idSalesforce)); 
+                    if(shippingDivisonResponse.containsKey(orderItem.idSalesforce)){
+                        response.items.addAll(shippingDivisonResponse.get(orderItem.idSalesforce));
+                    } 
                 }
             } 
             else if(orderItemsResponse.size() != 0 && orderItemsResponse.containsKey(response.externalCode)){
