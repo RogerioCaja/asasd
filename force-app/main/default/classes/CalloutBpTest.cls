@@ -66,7 +66,21 @@
             );
             insert salesTeam;
         }
+        @future(callout = true)
+        public static void processIntegration(){
+            Account account = [SELECT Id FROM Account LIMIT 1];
+            UserTerritory2Association userTerritory = [SELECT Territory2Id  FROM UserTerritory2Association LIMIT 1];
+            ObjectTerritory2Association objObjectTerritory2AssociationCreation = new ObjectTerritory2Association(ObjectId = account.Id, Territory2Id = userTerritory.Territory2Id, AssociationCause='Territory2Manual');
+            insert objObjectTerritory2AssociationCreation;  
+        }
+        @future(callout = true)
+        public static void checkResult(){
+            Account accountResult = [SELECT Id, ExternalId__c, Email__c, CPF__c FROM Account WHERE ExternalId__c = '11111'];
 
+            List<ObjectTerritory2Association> objObjectTerritory2Association = new List<ObjectTerritory2Association>([SELECT Id, ObjectId, Territory2Id  FROM ObjectTerritory2Association]);
+            System.debug('objObjectTerritory2Association: '+ objObjectTerritory2Association);
+            System.debug('accountResult: '+ accountResult);
+        }
         @isTest
         static void calloutBpSuccess(){
             Account account = [SELECT Id FROM Account LIMIT 1];
@@ -80,18 +94,17 @@
                 objTerr.Territory2TypeId = terrModel.Id;
                 objTerr.Territory2ModelId = model.Id;
             insert objTerr;
-
+            
             UserTerritory2Association userTerrAssociation = new UserTerritory2Association(Territory2Id= objTerr.Id, UserId= u.Id, RoleInTerritory2='Sales / Marketing Manager');
             insert userTerrAssociation;
+            processIntegration();
+              
             Test.setMock(HttpCalloutMock.class, new CalloutBPMock(true));
             Account accountBefore = [SELECT Id, Email__c, CPF__c FROM Account WHERE ExternalId__c = '11111'];
             System.debug('accountBefore'+ accountBefore);
             Test.startTest();
             CalloutBP.processIntegration();
             Test.stopTest();
-            Account accountResult = [SELECT Id, ExternalId__c, Email__c, CPF__c FROM Account WHERE ExternalId__c = '11111'];
-            List<ObjectTerritory2Association> objObjectTerritory2Association = new List<ObjectTerritory2Association>([SELECT Id, ObjectId, Territory2Id  FROM ObjectTerritory2Association]);
-            System.debug('objObjectTerritory2Association: '+ objObjectTerritory2Association);
-            System.debug('accountResult: '+ accountResult);
+            checkResult();
         } 
     }
