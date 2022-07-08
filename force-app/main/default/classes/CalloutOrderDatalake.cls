@@ -81,7 +81,7 @@ public with sharing class CalloutOrderDatalake {
 
 
         //Path geralmente cadastrado dentro de ua customSettings
-        String endpoint = (!Test.isRunningTest() ? 'https://apim.agrogalaxy.com.br/gtw/sales-order/v1/webhook/order34' : 'http://callout.My_Named_Credential.com/some/path');
+        String endpoint = (!Test.isRunningTest() ? 'https://apim.agrogalaxy.com.br/gtw/sales-order/v1/webhook/order' : 'http://callout.My_Named_Credential.com/some/path');
         Map<String, String> ordersMap = new Map<String, String>();
         ordersMap.put('Content-type', 'application/json');
         ordersMap.put('Authorization', 'Bearer '+ accessToken);
