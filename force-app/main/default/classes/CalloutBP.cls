@@ -1,4 +1,4 @@
-public with sharing class CalloutBP {
+public without sharing class CalloutBP {
     @future(callout = true)
     public static void processIntegration(){
 
