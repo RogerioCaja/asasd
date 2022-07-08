@@ -292,6 +292,7 @@ public with sharing class CalloutBP {
                 }
             } 
         }
+        System.debug('resultBaseListToCheck: '+resultBaseListToCheck);
         for (ObjectTerritory2Association records : resultBaseListToCheck) {
             String keyName = String.valueOf(records.ObjectId) + String.valueOf(records.Territory2Id);
             System.debug('keyName: '+keyName);
@@ -299,6 +300,8 @@ public with sharing class CalloutBP {
                 oldResultBaseList.add(records);
             }
         }
+        System.debug('resultMapToMaintain: '+resultMapToMaintain);
+        System.debug('oldResultBaseList: '+oldResultBaseList);
         if (!oldResultBaseList.isEmpty()) {
             Database.delete(oldResultBaseList, false);
         }
