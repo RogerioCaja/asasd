@@ -141,7 +141,8 @@ public without sharing class CalloutOrder {
     }
 
     public static Decimal isNotation(Decimal value){
-        return value;
+        if(value == 0) return 0;
+        else return value;
     }
 
     //! Preparing data to Callout
@@ -251,7 +252,7 @@ public without sharing class CalloutOrder {
                 }
                 
                 IT_ITEMS_IN.add(new CalloutOrder.OrderItemParameters(orderItem, referenceItemMotherMap.containsKey(orderItem.Product2.ExternalId__c) ?  referenceItemMotherMap.get(orderItem.Product2.ExternalId__c) : '', order.Company__r.SupplierCenter__c ));
-                if(orderItem.FinancialAdditionValue__c > 0){
+                if(orderItem.CommercialAdditionPercent__c > 0){
                     IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDEC', (CalloutOrder.isNotation(orderItem.CommercialAdditionPercent__c)).toPlainString(), ''));
                 }
                 else{
