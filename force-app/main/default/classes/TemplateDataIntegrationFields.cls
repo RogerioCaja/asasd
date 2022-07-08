@@ -341,7 +341,6 @@ global with sharing class TemplateDataIntegrationFields {
                 ShippingDate__c = Date.valueOf(ShippingDate),
                 Status = this.status,
                 StatusRecusa__c	= this.statusRecusa,
-                Type = this.type,
                 CustomerOrderNumber__c = this.customerOrderNumber,
                 PaymentForm__c = this.paymentForm,
                 StatusSF__c = 'Em digitação',
@@ -353,14 +352,14 @@ global with sharing class TemplateDataIntegrationFields {
                 FinalTotalValue__c = this.valorFinalTotal,
                 Hectare__c = this.hectare,
                 OrderMargin__c = this.margemPedido,
-                OrderType__c = this.orderType,
                 SalesCondition__c = lookups.containsKey('SalesCondition__c'+this.condicaoVenda) ? lookups.get('SalesCondition__c'+this.condicaoVenda) : null,
                 IsOrderMother__c = this.pedidoMae,
                 Company__c = lookups.containsKey('Company__c' + this.company) ? lookups.get('Company__c' + this.company):null,
                 
                 /* ATUALIZAÇÃO 05.07.2022*/
-                RecordTypeId = this.salesType != null ? Schema.SObjectType.Order.getRecordTypeInfosByName().get(this.salesType).getRecordTypeId() : this.recordIdToUpdate
-                
+                RecordTypeId = this.salesType != null ? Schema.SObjectType.Order.getRecordTypeInfosByName().get(this.salesType).getRecordTypeId() : this.recordIdToUpdate,
+                Type = this.salesType != null ? this.salesType : Schema.getGlobalDescribe().get('Order').getDescribe().getRecordTypeInfosById().get(this.recordIdToUpdate).getName(),
+                OrderType__c = this.pedidoMae ? 'Pedido Mãe' : 'Pedido Normal'
                 
             );
         }
@@ -408,6 +407,9 @@ global with sharing class TemplateDataIntegrationFields {
         public Decimal precoUnitario;
         public OrderItem serialize(Map<String, Id> lookups){
 
+            
+            orderItemCode = orderItemCode.replaceFirst('^0+','');
+
             return new OrderItem(
                 OrderId = this.orderExternalId,
                 Product2Id = lookups.containsKey('Product2'+this.material) ? lookups.get('Product2'+this.material) : null,
@@ -429,8 +431,9 @@ global with sharing class TemplateDataIntegrationFields {
                 CommercialAdditionPercent__c = this.porcentagemAcrescComercial,
                 CommercialAdditionValue__c = this.valorAcrescComercial,
                 Dosage__c = this.dosagem,
-                ListCost__c = this.precoUnitario,
-                NumeroSap__c = this.orderItemCode,
+                ListPrice__c = this.precoUnitario,
+                ListCost__c = this.custoLista,
+                NumeroSap__c = String.valueOf(Integer.valueOf(this.orderItemCode)),
                 PracticedCost__c = this.custoPreco,
                 PracticedPrice__c = this.precoPraticado,
                 UnitPrice = this.precoPraticado,
@@ -474,7 +477,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String ExternalId;
 
         public ShippingDivison__c serialize(Map<String, Id> lookups){
-
+            orderItemCode = orderItemCode.replaceFirst('^0+','');
             return new ShippingDivison__c(
                 OrderItem__c = lookups.containsKey('OrderItem__c'+this.material) ? lookups.get('OrderItem__c'+this.material) : null,
                 ExternalId__c = this.orderExternalId + '|' + this.OrderItemCode + '|' + this.DivisaoRemessa,
