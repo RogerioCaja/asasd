@@ -16,10 +16,12 @@
                 ExternalId__c = '11111',
                 Company__c = 'Empresa 01'
             );
+            INSERT account;
             Account accountFather = new Account(
-                Name = 'Teste 1',
+                Name = 'Teste 2',
                 BillingStreet = ' ',
                 BillingState = '' ,
+                ParentId = account.Id,
                 Phone= '', 
                 BillingCity = ' ', 
                 BillingLongitude = 000000,
@@ -41,7 +43,7 @@
     
             );
             INSERT safra;
-            INSERT account;
+            
             INSERT accountFather;
             Profile p = [SELECT Id FROM Profile WHERE Name='Standard User']; 
             User u = new User(Alias = 'standt', Email='standarduser@testorg.com', 
@@ -79,6 +81,9 @@
             UserTerritory2Association userTerritory = [SELECT Territory2Id  FROM UserTerritory2Association WHERE RoleInTerritory2 =:'Sales / Marketing Manage' LIMIT 1];
             ObjectTerritory2Association objObjectTerritory2AssociationCreation = new ObjectTerritory2Association(ObjectId = account.Id, Territory2Id = userTerritory.Territory2Id, AssociationCause='Territory2Manual');
             insert objObjectTerritory2AssociationCreation;  
+            List<ObjectTerritory2Association> objObjectTerritory2Association = new List<ObjectTerritory2Association>([SELECT Id, ObjectId, Territory2Id  FROM ObjectTerritory2Association]);
+            System.debug('objObjectTerritory2Association: '+ objObjectTerritory2Association);
+
         }
         @future(callout = true)
         public static void checkResult(){
@@ -114,6 +119,9 @@
             insert userTerrAssociation2;
             processIntegration();
             processIntegration2();  
+            List<Account> resultAccountsList = new List<Account>([SELECT Id,Name, ParentId FROM Account]);
+            System.debug('resultAccountsList'+ resultAccountsList);
+            
             Test.setMock(HttpCalloutMock.class, new CalloutBPMock(true));
             Account accountBefore = [SELECT Id, Email__c, CPF__c FROM Account WHERE ExternalId__c = '11111'];
             System.debug('accountBefore'+ accountBefore);
