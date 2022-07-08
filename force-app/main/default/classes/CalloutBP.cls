@@ -246,6 +246,7 @@ public with sharing class CalloutBP {
         System.debug('userTerrytoryMap: '+userTerrytoryMap);
         List<ObjectTerritory2Association> objectTerritoryList = new List<ObjectTerritory2Association>();
         List<String> objectTerritoryObjectIdList = new List<String>();
+        List<String> objectTerritoryObjectToDeleteList = new List<String>();
         List<String> objectTerritoryTerritory2IdList = new List<String>();
         for(CompanyINData company : companyList){
             UserTerritory2Association userTerrytory = userTerrytoryMap.get(company.Partner);
@@ -254,12 +255,14 @@ public with sharing class CalloutBP {
             if(userTerrytory != null){
                 objectTerritoryTerritory2IdList.add(userTerrytory.Territory2Id);
                 objectTerritoryObjectIdList.add(accountId);
+                objectTerritoryObjectToDeleteList.add(accountId);
                 ObjectTerritory2Association objObjectTerritory2Association = new ObjectTerritory2Association(ObjectId = accountId, Territory2Id = userTerrytory.Territory2Id, AssociationCause='Territory2Manual');
                 objectTerritoryList.add(objObjectTerritory2Association);
 
                 if(accountFatherId != null || accountFatherId != ''){
                     objectTerritoryTerritory2IdList.add(userTerrytory.Territory2Id);
                     objectTerritoryObjectIdList.add(accountFatherId);
+
                     ObjectTerritory2Association objObjectTerritory2Association2 = new ObjectTerritory2Association(ObjectId = accountFatherId, Territory2Id = userTerrytory.Territory2Id, AssociationCause='Territory2Manual');
                     objectTerritoryList.add(objObjectTerritory2Association2);
                 }
@@ -267,8 +270,11 @@ public with sharing class CalloutBP {
         }
         Set<ObjectTerritory2Association> removeDuplicates = new Set<ObjectTerritory2Association>();
         List<ObjectTerritory2Association> resultList = new List<ObjectTerritory2Association>();
+        List<ObjectTerritory2Association> resultBaseListToCheck = new List<ObjectTerritory2Association>([SELECT ObjectId, Territory2Id, AssociationCause  FROM ObjectTerritory2Association WHERE ObjectId IN: objectTerritoryObjectToDeleteList]);
         List<ObjectTerritory2Association> resultBaseList = new List<ObjectTerritory2Association>([SELECT ObjectId, Territory2Id, AssociationCause  FROM ObjectTerritory2Association WHERE ObjectId IN: objectTerritoryObjectIdList AND Territory2Id IN: objectTerritoryTerritory2IdList]);
+        List<ObjectTerritory2Association> oldResultBaseList = new List<ObjectTerritory2Association>();
         Map<String,String> resultBaseMap = new  Map<String,String>();
+        Map<String,String> resultMapToMaintain = new  Map<String,String>();
         System.debug('resultBaseList: '+resultBaseList);
         for (ObjectTerritory2Association records : resultBaseList) {
             String keyName = String.valueOf(records.ObjectId) + String.valueOf(records.Territory2Id);
@@ -280,9 +286,24 @@ public with sharing class CalloutBP {
                 String keyName = String.valueOf(newRecords.ObjectId) + String.valueOf(newRecords.Territory2Id);
                 System.debug('keyName: '+keyName);
                 if(!resultBaseMap.containsKey(keyName)){
-                    resultList.add(newRecords);
+                    resultList.add(newRecords);  
+                }else{
+                    resultMapToMaintain.put(keyName, '');
                 }
+            } 
+        }
+        System.debug('resultBaseListToCheck: '+resultBaseListToCheck);
+        for (ObjectTerritory2Association records : resultBaseListToCheck) {
+            String keyName = String.valueOf(records.ObjectId) + String.valueOf(records.Territory2Id);
+            System.debug('keyName: '+keyName);
+            if(!resultMapToMaintain.containsKey(keyName)){
+                oldResultBaseList.add(records);
             }
+        }
+        System.debug('resultMapToMaintain: '+resultMapToMaintain);
+        System.debug('oldResultBaseList: '+oldResultBaseList);
+        if (!oldResultBaseList.isEmpty()) {
+            Database.delete(oldResultBaseList, false);
         }
         System.debug('resultList'+ resultList);
         if (!resultList.isEmpty()) {
