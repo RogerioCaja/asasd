@@ -65,17 +65,17 @@ global without sharing class IntegrationINOrderAppdigital {
                 orderItemListToUpsert.addAll(order.orderItems);
                 System.debug('orderItemListToUpsert' + orderItemListToUpsert); 
             }
+
             if(order.pedidoMae ==  false){
-            for(TemplateDataIntegrationFields.ShippingDivisonINData shippingDivison : order.shippingDivison){
-                shippingDivison.orderExternalId = order.numeroPedidoApp;
-                shippingDivison.orderItemCode = shippingDivison.orderItemCode.replaceFirst('^0+','');
-            }
-            if(order.pedidoMae == false){
-                shippingDivisonListToUpsert.addAll(order.shippingDivison);
-            }
-             
-            System.debug('shippingDivisonListToUpsert' + shippingDivisonListToUpsert);
-            
+                for(TemplateDataIntegrationFields.ShippingDivisonINData shippingDivison : order.shippingDivison){
+                    shippingDivison.orderExternalId = order.numeroPedidoApp;
+                    shippingDivison.orderItemCode = shippingDivison.OrderItemCode.replaceFirst('^0+','');
+                }
+                if(order.pedidoMae == false){
+                    shippingDivisonListToUpsert.addAll(order.shippingDivison);
+                }  
+                 System.debug('shippingDivisonListToUpsert' + shippingDivisonListToUpsert);
+
             }
         }
             System.debug('Chegou!?!!!!!!!!!!!!!!!!!!!! ');    
@@ -173,7 +173,6 @@ global without sharing class IntegrationINOrderAppdigital {
                     shipIt.orderExternalId = orderId;
                 } 
         }
-       
          //Confirmar com o Helder
         //Upserting records (OrderItem)
         // Upsert OrderItem
@@ -241,7 +240,10 @@ global without sharing class IntegrationINOrderAppdigital {
         ResponseModel modelo = new ResponseModel();
         modelo.response = responseList;
         return modelo;
-    }
+    
+    
+}
+
     // Classe que cria a resposta
     global class ResponseModel {
 
@@ -398,5 +400,5 @@ global without sharing class IntegrationINOrderAppdigital {
                 orderDiscount.Description += '1n73gr4ção N3sc4r4 5F x 4PP';
             update orderDiscount;
         }
-        }
+    }
 }
