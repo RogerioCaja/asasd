@@ -295,7 +295,7 @@ public without sharing class CustomLookupController {
             multiplier = multiplier != null ? multiplier : 1;
             this.Id = Id;
             this.Name = Name;
-            this.sapProductCode = sapProductCode != null ? sapProductCode : '';
+            this.sapProductCode = sapProductCode != null ? String.valueOf(Integer.valueOf(sapProductCode) * 1) : '';
             this.unity = unity != null ? unity : '';
             this.productGroupId = productGroup != null ? productGroup : '';
             this.productHierarchyId = productHierarchy != null ? productHierarchy : '';

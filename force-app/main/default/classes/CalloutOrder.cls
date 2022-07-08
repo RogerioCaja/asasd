@@ -1,4 +1,4 @@
-public with sharing class CalloutOrder {
+public without sharing class CalloutOrder {
     public CalloutOrder() {
         
     }
@@ -143,7 +143,6 @@ public with sharing class CalloutOrder {
     public static Decimal isNotation(Decimal value){
         if(value == 0) return 0;
         else return value;
-        
     }
 
     //! Preparing data to Callout
@@ -253,11 +252,11 @@ public with sharing class CalloutOrder {
                 }
                 
                 IT_ITEMS_IN.add(new CalloutOrder.OrderItemParameters(orderItem, referenceItemMotherMap.containsKey(orderItem.Product2.ExternalId__c) ?  referenceItemMotherMap.get(orderItem.Product2.ExternalId__c) : '', order.Company__r.SupplierCenter__c ));
-                if(orderItem.FinancialAdditionValue__c > 0){
-                    IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDEC', String.valueOf(CalloutOrder.isNotation(orderItem.CommercialAdditionPercent__c)), ''));
+                if(orderItem.CommercialAdditionPercent__c > 0){
+                    IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDEC', (CalloutOrder.isNotation(orderItem.CommercialAdditionPercent__c)).toPlainString(), ''));
                 }
                 else{
-                    IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDEC', String.valueOf(CalloutOrder.isNotation(orderItem.DiscountPercent__c)*-1), ''));
+                    IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDEC', (CalloutOrder.isNotation(orderItem.DiscountPercent__c)*-1).toPlainString(), ''));
                 }
                 // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZPRS', String.valueOf(CalloutOrder.isNotation(orderItem.ListCost__c)), order.Currency__c));
                 // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZPR0', String.valueOf(CalloutOrder.isNotation(orderItem.UnitPrice)), order.Currency__c));

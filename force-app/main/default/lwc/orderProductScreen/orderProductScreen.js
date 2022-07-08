@@ -1042,7 +1042,13 @@ export default class OrderProductScreen extends LightningElement {
 
     deleteProduct(position) {
         let excludeProduct = JSON.parse(JSON.stringify(this.products));
+        
         excludeProduct.splice(position, 1);
+        if(excludeProduct.lenght - 1 != position){
+            excludeProduct.forEach((product) => {
+                if(product.position > position) product.position -= 1
+            })
+        }
         this.products = JSON.parse(JSON.stringify(excludeProduct));
 
         if (this.products.length == 0) {
