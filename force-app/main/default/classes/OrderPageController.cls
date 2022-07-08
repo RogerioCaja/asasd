@@ -48,7 +48,7 @@ public with sharing class OrderPageController {
             'ShippingAccount__r.Name','Account.BillingCity', 'Account.StateRegistration__c',
             'Company__r.salesTeam__r.Address__c','Company__r.salesTeam__r.CNPJ__c', 'Company__r.salesTeam__r.Country__c', 'Company__r.salesTeam__r.Locale__c','Company__r.salesTeam__r.Phone__c',
             'Company__r.salesTeam__r.Registration__c','Company__r.salesTeam__r.State__c', 'Company__r.salesTeam__r.Subsidiary__c', 'Company__r.salesTeam__r.ZipCode__c',
-            'Account.CPF__c', 'Account.CNPJ__c', 'TotalAmount', 'Description',
+            'Account.CPF__c', 'Account.CNPJ__c', 'TotalAmount', 'Description', 'FinalTotalValue__c',
             'Account.BillingPostalCode', 'Crop__r.Name', 'PaymentForm__c', 'PaymentDate__c', 'RecordTypeId',
             'Currency__c', 'Culture__r.Name', 'CodigoSap__c', 'SalesCTV__r.CodigoSap__c', 'SalesCTV__r.Name'
         };
@@ -177,7 +177,7 @@ public with sharing class OrderPageController {
             this.currencyOrder = currencyLogic(order);
             this.culture = order.Culture__r.Name;
             this.dueDate = String.valueOf(order.PaymentDate__c);
-            this.totalAmount = formatCurrency(order.TotalAmount, this.currencyOrder);
+            this.totalAmount = formatCurrency(order.FinalTotalValue__c, this.currencyOrder);
             this.observation = order.Description;
             this.codCTV = order.SalesCTV__r.CodigoSap__c;
             this.nameCTV = order.SalesCTV__r.Name;
