@@ -9,7 +9,7 @@ public with sharing class CalloutOrderDatalake {
 
     public static IntegrationUtils.CalloutDatalakeResponse processIntegration(Id orderId){
 
-		Order parentOrder = [SELECT CodigoSap__c, Id, NumeroPedidoApp__c,  
+        Order parentOrder = [SELECT CodigoSap__c, Id, NumeroPedidoApp__c,  
         Pricebook2Id, ShippingAccount__r.ExternalId__c,
         ShippingAccount__c, Account.ExternalId__c, AccountId,  
         Crop__r.Code__c, Crop__c, Culture__r.Codigo__c, Culture__c,  
@@ -21,94 +21,94 @@ public with sharing class CalloutOrderDatalake {
         Incoterms__c, Incoterms2__c, Description, DescriptionBillingSale__c,  
         FinalTotalValue__c, Hectare__c, OrderMargin__c, OrderType__c, SalesCondition__c,  
         IsOrderMother__c, Company__c, RecordTypeId, TotalAmount, StatusSAP__c,Culture__r.Name,SalesOrg__r.Name,Crop__r.Name,
-        SalesCTV__r.CodigoSap__c,PaymentCondition__r.Code__c,
-        DistributionChannel__r.Codigo__c,ActivitySector__r.Codigo__c,
+        SalesCTV__r.CodigoSap__c,PaymentCondition__r.Code__c, Company__r.SupplierCenter__c, Company__r.SalesOffice__c, Company__r.SalesTeam__c,
+        DistributionChannel__r.Codigo__c,ActivitySector__r.Codigo__c, PaymentCondition__r.Name,EndDate,
         SalesCondition__r.ExternalId__c,Company__r.ExternalID__c, (SELECT Id FROM OrderItems) 
                             FROM Order WHERE Id = :orderId];
-		System.debug('parentOrder' + parentOrder);
-		List<Order> allOrders = new List<Order>{parentOrder};
+        System.debug('parentOrder' + parentOrder);
+        List<Order> allOrders = new List<Order>{parentOrder};
         
-		
-		IntegrationUtils.CalloutDatalakeResponse calloutResponse = sendOrder(allOrders);
+        
+        IntegrationUtils.CalloutDatalakeResponse calloutResponse = sendOrder(allOrders);
 
-		if (calloutResponse.success) {
-			
-			ResponseParameters resp = (ResponseParameters) calloutResponse.parsedResponse;
-			Map<String, Order> orderMap = new Map<String, Order>();
+        if (calloutResponse.success) {
+            
+            ResponseParameters resp = (ResponseParameters) calloutResponse.parsedResponse;
+            Map<String, Order> orderMap = new Map<String, Order>();
 
-			for (Order ord : allOrders) {
-				orderMap.put(ord.OrderNumber, ord);
-			}
+            for (Order ord : allOrders) {
+                orderMap.put(ord.OrderNumber, ord);
+            }
 
-			List<Order> orderList = new List<Order>();
+            List<Order> orderList = new List<Order>();
 
-			for (ResponseParametersWrapper respWrapper : resp.responses) {
-				if (orderMap.containsKey(respWrapper.OrderNumber)) {
+            for (ResponseParametersWrapper respWrapper : resp.responses) {
+                if (orderMap.containsKey(respWrapper.OrderNumber)) {
 
-					Order ord = orderMap.get(respWrapper.OrderNumber);
+                    Order ord = orderMap.get(respWrapper.OrderNumber);
                     ord.CodigoSap__c = respWrapper.DetalhesPedido[0].NumeroOrdemVenda; 
                     //ord.StatusSAP__c = respWrapper.DetalhesPedido[0].StatusSap;
                     // ord.TypeMessage__c = respWrapper.Mensagens[0].Tipo;
                     // ord.Message__c = respWrapper.Mensagens[0].Mensagem;
-					orderList.add(ord);
-				}
-			}
+                    orderList.add(ord);
+                }
+            }
 
-			if (!orderList.isEmpty()) {
+            if (!orderList.isEmpty()) {
                 OrderHelper.disableTrigger();
-				update orderList;
+                update orderList;
                 OrderHelper.enableTrigger();
-			}
-		}
-		
-		return calloutResponse;
-	}
-
-	public static IntegrationUtils.CalloutDatalakeResponse sendOrder(List<Order> orders) {
-			
-		List<RequestParameters> request = new List<RequestParameters>();
+            }
+        }
         
-		for (Order ord : orders) {
-			request.add(new RequestParameters(ord));
-		}
+        return calloutResponse;
+    }
+
+    public static IntegrationUtils.CalloutDatalakeResponse sendOrder(List<Order> orders) {
+            
+        List<RequestParameters> request = new List<RequestParameters>();
+        
+        for (Order ord : orders) {
+            request.add(new RequestParameters(ord));
+        }
         System.debug('request' + request);
-		String payload = JSON.serialize(request);
+        String payload = JSON.serialize(request);
         System.debug('payload' + payload);
-		//Metodo para busca de Access Token, depende de cada projeto, podendo estar presente dentro de uma custom settings ou relacionado com outra requisição.
-		String code = (!Test.isRunningTest() ? getAcessCode() : 'acessToken');
+        //Metodo para busca de Access Token, depende de cada projeto, podendo estar presente dentro de uma custom settings ou relacionado com outra requisição.
+        String code = (!Test.isRunningTest() ? getAcessCode() : 'acessToken');
         String accessToken = code;
-		
+        
 
 
-		//Path geralmente cadastrado dentro de ua customSettings
-		String endpoint = (!Test.isRunningTest() ? 'https://apim.agrogalaxy.com.br/gtw/sales-order/v1/webhook/order23232ssdasd' : 'http://callout.My_Named_Credential.com/some/path');
-		Map<String, String> ordersMap = new Map<String, String>();
-		ordersMap.put('Content-type', 'application/json');
-		ordersMap.put('Authorization', 'Bearer '+ accessToken);
-		
-		IntegrationUtils.RequestResponseObject responseObject = IntegrationUtils.executeCallout(endpoint, payload, ordersMap);
+        //Path geralmente cadastrado dentro de ua customSettings
+        String endpoint = (!Test.isRunningTest() ? 'https://apim.agrogalaxy.com.br/gtw/sales-order/v1/webhook/order23232ssdasd' : 'http://callout.My_Named_Credential.com/some/path');
+        Map<String, String> ordersMap = new Map<String, String>();
+        ordersMap.put('Content-type', 'application/json');
+        ordersMap.put('Authorization', 'Bearer '+ accessToken);
+        
+        IntegrationUtils.RequestResponseObject responseObject = IntegrationUtils.executeCallout(endpoint, payload, ordersMap);
 
-		if (responseObject.success) {
+        if (responseObject.success) {
 
-			HttpResponse response = responseObject.response;
+            HttpResponse response = responseObject.response;
 
             IntegrationLog.createLog('Pedido OUT', 'OUT', response.getBody(), payload, false);
-			// .WSLog('Pedido', 'OUTBOUND', response.getBody(), payload, false);
-			try {
+            // .WSLog('Pedido', 'OUTBOUND', response.getBody(), payload, false);
+            try {
 
-				List<ResponseParametersWrapper> responses = (List<ResponseParametersWrapper>) JSON.deserialize(response.getBody(), List<ResponseParametersWrapper>.class);
-				return new IntegrationUtils.CalloutDatalakeResponse(new ResponseParameters(responses));
-			} catch (Exception e) {
-				
-				String defaultErrorMessage = 'Malformatted HTTP Response Exception: ' + e.getMessage();
+                List<ResponseParametersWrapper> responses = (List<ResponseParametersWrapper>) JSON.deserialize(response.getBody(), List<ResponseParametersWrapper>.class);
+                return new IntegrationUtils.CalloutDatalakeResponse(new ResponseParameters(responses));
+            } catch (Exception e) {
+                
+                String defaultErrorMessage = 'Malformatted HTTP Response Exception: ' + e.getMessage();
 
-				return new IntegrationUtils.CalloutDatalakeResponse(defaultErrorMessage);
-			}
-		} else {
+                return new IntegrationUtils.CalloutDatalakeResponse(defaultErrorMessage);
+            }
+        } else {
 
             IntegrationLog.createLog('Pedido OUT - DataLake', 'OUT', responseObject.exceptionObject.getMessage(), payload, true);
-			return new IntegrationUtils.CalloutDatalakeResponse(responseObject.exceptionObject.getMessage());
-		}
+            return new IntegrationUtils.CalloutDatalakeResponse(responseObject.exceptionObject.getMessage());
+        }
     }
 
     //! Preparing data to Callout
@@ -140,6 +140,14 @@ public with sharing class CalloutOrderDatalake {
                 WHERE Id IN: orderItemIds
             ]);
 
+            Map<String, String> orderPayment = new Map<String, String>();
+                Schema.DescribeFieldResult objFieldDescribe = Schema.Order.PaymentForm__c.getDescribe();
+                List<Schema.PicklistEntry> lstPickListValues = objFieldDescribe.getPickListValues();
+                for (Schema.PicklistEntry objPickList : lstPickListValues) {
+                    orderPayment.put(objPickList.getValue(), objPickList.getLabel());
+                }
+                System.debug(orderPayment.get('B'));
+
             List<ShippingDivison__c> divisonList = [SELECT Id,Name, DeliveryDate__c, Quantity__c, OrderItem__c, ExternalId__c FROM ShippingDivison__c WHERE OrderItem__c IN: orderItemIds];
             Map<Id, List<ShippingDivison__c>> divisionMap = new  Map<Id, List<ShippingDivison__c>>();
 
@@ -164,9 +172,11 @@ public with sharing class CalloutOrderDatalake {
                 orderItemList.add(new CalloutOrderDatalake.OrderItemParameters(orderItem, shippingCodesList));
                 //System.debug('order' + orders);
             }
-
-            if(order.CodigoSap__c != null){
+            System.debug('order ' + order.CodigoSap__c);
+            if(order.CodigoSap__c == null){
+            
                 CalloutOrderDatalake.HeaderInsert header = new CalloutOrderDatalake.HeaderInsert();
+                
                 
                 //Campos Lookups 
                 header.shippingAccount = order.ShippingAccount__r.ExternalId__c; // Já está adicionado na query
@@ -184,6 +194,13 @@ public with sharing class CalloutOrderDatalake {
                 header.activitySector = order.ActivitySector__r.Codigo__c; // Já está adicionado na query
                 header.salesCondition = order.SalesCondition__r.ExternalId__c; // Já está adicionado na query
                 header.company = order.Company__r.ExternalID__c; // Já está adicionado na query
+
+                header.orderCodeSf = order.OrderNumber;
+                header.paymentFormName = orderPayment.get(order.PaymentForm__c);
+                header.paymentConditionName = order.PaymentCondition__r.Name;
+                header.centroFornecedor = order.Company__r.SupplierCenter__c;
+                header.escritorioVendas = order.Company__r.SalesOffice__c;
+                header.equipeVendas = order.Company__r.SalesTeam__c;
 
                 header.codigoSap = order.CodigoSap__c;
                 header.numeroPedidoApp = order.NumeroPedidoApp__c;
@@ -249,6 +266,12 @@ public with sharing class CalloutOrderDatalake {
     }
 
     public class HeaderInsert{
+        public String orderCodeSf;
+        public String paymentConditionName;
+        public String centroFornecedor;
+        public String escritorioVendas;
+        public String equipeVendas;
+
         public String codigoSap; 
         public String numeroPedidoApp; 
         public String pricebook2; 
@@ -273,6 +296,7 @@ public with sharing class CalloutOrderDatalake {
         public String type; 
         public String customerOrderNumber; 
         public String paymentForm; 
+        public String paymentFormName;
         public String statusSF; 
         public String currencyOrder; 
         public String incoterms; 
@@ -305,6 +329,7 @@ public with sharing class CalloutOrderDatalake {
         public String orderItemCode;
         public String orderItem;
         public String material;
+        public String divisaoRemessa;
         //public String numeroDivisaoRemessa;
         public Date deliveryDate;
         public Decimal quantityItem;
@@ -313,7 +338,7 @@ public with sharing class CalloutOrderDatalake {
             this.orderItemCode = orderItem.NumeroSap__c; 
             this.material = orderItem.Product2.ExternalId__c;
             this.orderItem = orderItem.ExternalId__c;
-
+            this.divisaoRemessa = shippingDivision.Name;
             this.shippingExternalId = shippingDivision.ExternalId__c; 
             this.quantityItem = shippingDivision.Quantity__c; // Quantity__c
             this.deliveryDate = shippingDivision.DeliveryDate__c; // DeliveryDate__c
