@@ -74,10 +74,10 @@ global without sharing class IntegrationINOrderAppdigital {
                 if(order.pedidoMae == false){
                     shippingDivisonListToUpsert.addAll(order.shippingDivison);
                 }  
-            System.debug('shippingDivisonListToUpsert' + shippingDivisonListToUpsert);
+                 System.debug('shippingDivisonListToUpsert' + shippingDivisonListToUpsert);
 
             }
-
+        }
             System.debug('Chegou!?!!!!!!!!!!!!!!!!!!!! ');    
         // Pega o Id da conta com base no CNPJ da conta
         //Account search based on CNPJ field sent
@@ -246,8 +246,10 @@ global without sharing class IntegrationINOrderAppdigital {
         ResponseModel modelo = new ResponseModel();
         modelo.response = responseList;
         return modelo;
-    }
+    
+    
 }
+
     // Classe que cria a resposta
     global class ResponseModel {
 
