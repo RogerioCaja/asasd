@@ -491,7 +491,7 @@ public without sharing class OrderScreenController {
             order.PaymentCondition__c = orderData.headerData.condicao_pagamento.Id;
             order.ShippingDate__c = Date.valueOf(orderData.headerData.data_entrega);
             order.DescriptionBillingSale__c = orderData.summaryData.billing_sale_observation;
-            order.OrderReference__c = orderData.headerData.pedido_mae.Id;
+            order.OrderReference__c = order.OrderReference__c != null ? order.OrderReference__c : orderData.headerData.pedido_mae.Id;
             order.IsOrderMother__c = orderData.headerData.pedido_mae.Id != null ? false : Boolean.valueOf(orderData.headerData.pedido_mae_check);
             order.Hectare__c = orderData.headerData.hectares;
             order.FinalTotalValue__c = orderTotalValue;
