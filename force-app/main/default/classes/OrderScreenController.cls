@@ -493,7 +493,7 @@ public without sharing class OrderScreenController {
             order.DescriptionBillingSale__c = orderData.summaryData.billing_sale_observation;
             order.OrderReference__c = order.OrderReference__c != null ? order.OrderReference__c : orderData.headerData.pedido_mae.Id;
             order.IsOrderMother__c = orderData.headerData.pedido_mae.Id != null ? false : Boolean.valueOf(orderData.headerData.pedido_mae_check);
-            order.Hectare__c = orderData.headerData.hectares;
+            order.Hectare__c = orderData.headerData.hectares.contains(',') ? Decimal.valueOf(orderData.headerData.hectares.replace(',', '.')) : Decimal.valueOf(orderData.headerData.hectares);
             order.FinalTotalValue__c = orderTotalValue;
             order.Company__c = company.Id;
             order.OrderType__c = orderData.headerData.pedido_mae.Id != null ? 'Pedido Filho' : (order.IsOrderMother__c ? 'Pedido Mãe' : 'Pedido Normal');
@@ -1133,10 +1133,10 @@ public without sharing class OrderScreenController {
         public String  billing_sale_observation;
         public String  orderMargin;
         public String  companyId;
+        public String  hectares;
         public Boolean pedido_mae_check;
         public Boolean pre_pedido;
         public Boolean firstTime;
-        public Decimal hectares;
         public AccountSerialize  cliente_entrega;
         public InformationFields safra;
         public InformationFields cultura;
@@ -1339,10 +1339,10 @@ public without sharing class OrderScreenController {
         public String  orderMargin;
         public String  companyId;
         public String  recTypeId;
+        public String  hectares;
         public Boolean pedido_mae_check;
         public Boolean pre_pedido;
         public Boolean firstTime;
-        public Decimal hectares;
         public InformationFields safra;
         public InformationFields cultura;
         public InformationFields condicao_venda;
@@ -1388,7 +1388,7 @@ public without sharing class OrderScreenController {
             this.ctv_venda = new InformationFields(order.SalesCTV__c,  order.SalesCTV__r.Name);
             this.pedido_mae = new InformationFields(order.OrderReference__c, order.OrderReference__r.Name);
             this.pedido_mae_check = order.IsOrderMother__c;
-            this.hectares = order.Hectare__c;
+            this.hectares = String.valueOf(order.Hectare__c).contains('.') ? String.valueOf(order.Hectare__c).replace('.', ',') : String.valueOf(order.Hectare__c);
             this.condicao_pagamento = new InformationFields(order.PaymentCondition__c, order.PaymentCondition__r.Name);
             this.frete = order.Incoterms__c;
             this.observation = order.Description;
