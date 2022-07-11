@@ -8,7 +8,7 @@ export default class OrderSummaryScreen extends LightningElement {
     isBarter = false;
     formattedPaymentDate;
     formattedDeliveryDate;
-    
+
     @track orderMargin = 0;
     @track approval = '';
     @track approvalMargin = 'Dispensado';
@@ -36,7 +36,7 @@ export default class OrderSummaryScreen extends LightningElement {
             if(result){
                 this.approval = result;
                 if(this.approval.includes('- Comitê de Margem')){
-                    this.approval.replace('- Comitê de Margem', '');
+                    this.approval = this.approval.replace('- Comitê de Margem', '');
                     this.approvalMargin = 'Necessário';
                 }
                 this.summaryDataLocale.approval = this.approval;

@@ -87,7 +87,26 @@ public without sharing class OrderHelper {
         {
             Map<ID,Schema.RecordTypeInfo> orderMap = Order.sObjectType.getDescribe().getRecordTypeInfosById();
             for(Order order : newRecords){
-                if(order.Status != '0' && !(order.Description != null ? order.Description.contains('1n73gr4ção N3sc4r4 5F x 4PP') : false)){
+                if(orderMap.get(order.RecordTypeId).getName() == 'Venda de Serviço'){
+                    if(order.OrderMargin__c > 30){
+                        try{
+                            Approval.ProcessSubmitRequest administrationRequest = new Approval.ProcessSubmitRequest();
+                            administrationRequest.setProcessDefinitionNameOrId('OrderApproval5');
+                            administrationRequest.setComments(order.ApprovalJustification__c);
+                            administrationRequest.setObjectId(order.Id);
+                            Approval.ProcessResult approvalResult = Approval.process(administrationRequest);
+                            System.debug('pedido submetido para aprovação com sucesso: '+ approvalResult.isSuccess());
+                        }
+                        catch(Exception e){
+                            System.debug(e.getMessage());
+                        }
+                    }
+                    else{
+                        orderToUpdate.add(order.Id);
+                    }
+                    
+                }
+                if(order.Status != '0' && !(order.Description != null ? order.Description.contains('1n73gr4ção N3sc4r4 5F x 4PP') : false) && !(orderMap.get(order.RecordTypeId).getName() == 'Venda de Serviço')){
                     if(order.MarginCommittee__c || order.Manager_BranchOffice__c || order.Gerente_Regional__c || order.Director__c || orderMap.get(order.RecordTypeId).getName() == 'Venda Barter')
                     {
                         try{
@@ -138,16 +157,35 @@ public without sharing class OrderHelper {
         {
             Map<ID,Schema.RecordTypeInfo> orderMap = Order.sObjectType.getDescribe().getRecordTypeInfosById();
             for(Id id : orderIds){
-                if((oldMap.get(id).Status == '0' && newMap.get(id).Status == '001') || ( (newMap.get(id).Description != null ? newMap.get(id).Description.contains('1n73gr4ção N3sc4r4 5F x 4PP') : false) && newMap.get(id).Status == '001')){
+                if(newMap.get(id).Description != null){
+                    if(newMap.get(id).Description.contains('1n73gr4ção N3sc4r4 5F x 4PP')){
+                        orderToUpdateByIntegration.add(id);
+                    }
+                }
+                if(orderMap.get(newMap.get(id).RecordTypeId).getName() == 'Venda de Serviço'){
+                    if(newMap.get(id).OrderMargin__c > 30){
+                        try{
+                            Approval.ProcessSubmitRequest administrationRequest = new Approval.ProcessSubmitRequest();
+                            administrationRequest.setProcessDefinitionNameOrId('OrderApproval5');
+                            administrationRequest.setComments(newMap.get(id).ApprovalJustification__c);
+                            administrationRequest.setObjectId(id);
+                            Approval.ProcessResult approvalResult = Approval.process(administrationRequest);
+                            System.debug('pedido submetido para aprovação com sucesso: '+ approvalResult.isSuccess());
+                        }
+                        catch(Exception e){
+                            System.debug(e.getMessage());
+                        }
+                    }
+                    else{
+                        orderToUpdate.add(id);
+                    }
+                    
+                }
+                if((oldMap.get(id).Status == '0' && newMap.get(id).Status == '001') || ( (newMap.get(id).Description != null ? newMap.get(id).Description.contains('1n73gr4ção N3sc4r4 5F x 4PP') : false) && newMap.get(id).Status == '001') && !(orderMap.get(newMap.get(id).RecordTypeId).getName() == 'Venda de Serviço')){
                     if(newMap.get(id).MarginCommittee__c || newMap.get(id).Manager_BranchOffice__c || newMap.get(id).Gerente_Regional__c || newMap.get(id).Director__c || orderMap.get(newMap.get(id).RecordTypeId).getName() == 'Venda Barter')
                     {
                         
                         try{
-                            if(newMap.get(id).Description != null){
-                                if(newMap.get(id).Description.contains('1n73gr4ção N3sc4r4 5F x 4PP')){
-                                    orderToUpdateByIntegration.add(id);
-                                }
-                            }
                             Approval.ProcessSubmitRequest administrationRequest = new Approval.ProcessSubmitRequest();
                             administrationRequest.setProcessDefinitionNameOrId('OrderApproval5');
                             administrationRequest.setComments(newMap.get(id).ApprovalJustification__c);
