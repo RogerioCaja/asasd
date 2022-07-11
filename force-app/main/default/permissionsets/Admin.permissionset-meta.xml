@@ -2114,6 +2114,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>ShippingDivison__c.SapNumber__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>ShippingDivison__c.ShippingValue__c</field>
         <readable>true</readable>
     </fieldPermissions>
