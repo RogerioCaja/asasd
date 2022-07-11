@@ -7,6 +7,6 @@
     <fields>ShippingAccount__c</fields>
     <fields>SalesOrg__c</fields>
     <fields>Crop__c</fields>
-    <fields>TotalAmount</fields>
+    <fields>FinalTotalValue__c</fields>
     <label>AgroGalaxy - Order</label>
 </CompactLayout>
