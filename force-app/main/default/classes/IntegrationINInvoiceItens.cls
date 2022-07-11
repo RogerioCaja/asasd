@@ -56,7 +56,8 @@ global with sharing class IntegrationINInvoiceItens {
         
         for(TemplateDataIntegrationFields.ItensNotaFiscalINData invoiceItem : request) {
             // como estava = parentMapKeys.put(ORDEREXTERNALID + '|' + ORDERITEMEXTERNALID, lookups.containsKey('Order'+ORDEREXTERNALID) ? lookups.get('Order'+ORDEREXTERNALID) : ORDEREXTERNALID);
-            //parentMapKeys.put(invoiceItem.nfExternalId + '|' + invoiceItem.notaFiscal, lookups.containsKey('NotaFiscal__c'+invoiceItem.nfExternalId) ? String.valueOf(lookups.get('NotaFiscal__c'+invoiceItem.nfExternalId)) : invoiceItem.nfExternalId);
+            parentMapKeys.put(invoiceItem.nfExternalId + '|' + (invoiceItem.codigoMaterial + '|' + invoiceItem.notaFiscal + '|' + invoiceItem.lote), lookups.containsKey('NotaFiscal__c'+invoiceItem.nfExternalId) ? String.valueOf(lookups.get('NotaFiscal__c'+invoiceItem.nfExternalId)) : invoiceItem.nfExternalId);
+            System.debug('Parent Map ' + parentMapKeys);
         }
         
         // Valida e adiciona os OrderItem na lista para o upsert
@@ -78,6 +79,7 @@ global with sharing class IntegrationINInvoiceItens {
         system.debug('invoiceItensListToUpsert' + invoiceItensListToUpsert);
         system.debug('ItensNotaFiscal__c.ExternalID__c' + ItensNotaFiscal__c.ExternalID__c);
         //Returning response
+        System.debug('responseMap ' + responseMap);
         return responseMap;
     }
 }

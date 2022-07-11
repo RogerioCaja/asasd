@@ -21,7 +21,7 @@ public with sharing class CalloutOrderDatalake {
         Incoterms__c, Incoterms2__c, Description, DescriptionBillingSale__c,  
         FinalTotalValue__c, Hectare__c, OrderMargin__c, OrderType__c, SalesCondition__c,  
         IsOrderMother__c, Company__c, RecordTypeId, TotalAmount, StatusSAP__c,Culture__r.Name,SalesOrg__r.Name,Crop__r.Name,
-        SalesCTV__r.CodigoSap__c,PaymentCondition__r.Code__c, Company__r.SupplierCenter__c, Company__r.SalesOffice__c, Company__r.SalesTeam__c,
+        SalesCTV__r.CodigoSap__c,PaymentCondition__r.Code__c, Company__r.SupplierCenter__c, Company__r.SalesOffice__r.Codigo__c, Company__r.SalesTeam__r.ExternalId__c,
         DistributionChannel__r.Codigo__c,ActivitySector__r.Codigo__c, PaymentCondition__r.Name,EndDate,
         SalesCondition__r.ExternalId__c,SalesCondition__r.Name, Company__r.ExternalID__c, (SELECT Id FROM OrderItems) 
                             FROM Order WHERE Id = :orderId];
@@ -209,8 +209,8 @@ public with sharing class CalloutOrderDatalake {
                 header.paymentFormName = orderPayment.get(order.PaymentForm__c);
                 header.paymentConditionName = order.PaymentCondition__r.Name;
                 header.centroFornecedor = order.Company__r.SupplierCenter__c;
-                header.escritorioVendas = order.Company__r.SalesOffice__c;
-                header.equipeVendas = order.Company__r.SalesTeam__c;
+                header.escritorioVendas = order.Company__r.SalesOffice__r.Codigo__c;
+                header.equipeVendas = order.Company__r.SalesTeam__r.ExternalId__c;
 
                 header.codigoSap = order.CodigoSap__c;
                 header.numeroPedidoApp = order.NumeroPedidoApp__c;
