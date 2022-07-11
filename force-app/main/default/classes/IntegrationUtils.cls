@@ -133,6 +133,16 @@ public class IntegrationUtils {
                     responseMap.put(aux.OrderItem__c, new List<TemplateDataIntegrationFields.Response>{responseData});
                 }
             }
+
+            if (objResult.getSObjectType() == globalDescribe.get('ItensNotaFiscal__c')){
+                ItensNotaFiscal__c aux = (ItensNotaFiscal__c)objResult;
+                if(responseMap.KeySet().contains(aux.Invoice__c)){
+                    responseMap.get(aux.Invoice__c).add(responseData);
+                }
+                else{
+                    responseMap.put(aux.Invoice__c, new List<TemplateDataINtegrationFields.Response>{responseData});
+                }
+            }
         }
     }
     
