@@ -10,7 +10,13 @@ export default class OrderScreenFooter extends LightningElement {
     @api summaryData;
     @api justification;
     question = false;
-  
+    barterSale = false;
+
+    connectedCallback(event) {
+        if (this.headerData.tipo_venda == 'Venda Barter') {
+            this.barterSale = true;
+        }
+    }
 
     saveOrderPre(event){
       
