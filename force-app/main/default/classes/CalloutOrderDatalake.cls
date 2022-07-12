@@ -235,17 +235,7 @@ public without sharing class CalloutOrderDatalake {
                 header.orderMargin = order.OrderMargin__c;
                 header.orderType = order.OrderType__c;
                 header.isOrderMother = order.IsOrderMother__c;
-                header.recordType = order.RecordTypeId;
-
-
-
-                if(order.Culture__c != null){
-                    header.culture = string.valueOf(order.Culture__r.Codigo__c);
-                    header.culture = string.valueOf(order.Culture__r.Name); //Adicionar no SELECT
-                }else{
-                    header.culture = null;
-                }
-
+                header.recordType = order.Schema.getGlobalDescribe().get('Order').getDescribe().getRecordTypeInfosById().get(order.RecordTypeId).getName();
 
                 header.orderItemList = orderItemList;
                 header.scheduleList = scheduleList;
