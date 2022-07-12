@@ -1,4 +1,4 @@
-public with sharing class CalloutOrderDatalake {
+public without sharing class CalloutOrderDatalake {
     public CalloutOrderDatalake() {
 
     }
