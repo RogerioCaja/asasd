@@ -8,7 +8,8 @@ export default class OrderSummaryScreen extends LightningElement {
     isBarter = false;
     formattedPaymentDate;
     formattedDeliveryDate;
-    
+    totalDelivery;
+
     @track orderMargin = 0;
     @track approval = '';
     @track approvalMargin = 'Dispensado';
@@ -76,6 +77,7 @@ export default class OrderSummaryScreen extends LightningElement {
                 for(var i= 0; i< this.productDataLocale.length; i++){
                     this.isBarter = true;
                     this.orderMargin = this.commodityDataLocale[0].marginValue;
+                    this.totalDelivery = this.commodityDataLocale[0].totalDeliveryFront.replace(' sacas', '');
                     let unitPrice = Number(this.productDataLocale[i].unitPrice) / Number(this.commodityDataLocale[0].commodityPrice);
                     this.productDataLocale[i]['unitPrice'] = this.fixDecimalPlacesFront(unitPrice).toString() + ' por saca';
                     this.productDataLocale[i]['totalPrice']  = this.fixDecimalPlacesFront(Number(unitPrice * Number(this.productDataLocale[i].quantity))).toString() + ' sacas';
