@@ -231,7 +231,7 @@ global without sharing class IntegrationINOrder {
                 }
             }
             
-            if(order.SalesCTV == null){
+            if(order.SalesCTV == null || order.SalesCTV == ''){
                 if(ord.SalesCTV__c != null){
                     order.salesCTV = ord.SalesCTV__r.CodigoSap__c;
                     lookups.put('User' + ord.SalesCTV__r.CodigoSap__c, ord.SalesCTV__c);
