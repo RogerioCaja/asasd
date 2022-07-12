@@ -1,0 +1,586 @@
+<template>
+	<template if:true={showLoading}>
+		<div class="exampleHolder">
+			<lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
+		</div>
+	</template>
+	
+	<template if:false={showLoading}>
+		<template if:false={disabled}>
+			<div class="search-title">
+				<span>Pesquisar <b>PRODUTO</b>:</span>
+			</div>
+			
+			<c-custom-order-search data-target-id="product-search" object-name="Product2" field-name="Name" product-params={productParams} onshowresults={showResults} label="Pesquisar PRODUTO:" placeholder="Digite o nome do Produto" required="true" onchild={getFieldsValueProduct}></c-custom-order-search>
+
+			<div style="width: 100%;">
+				<div class="product-column product-left"><span class="arrow-style" if:true={showArrows} onclick={backProductScreen}>&#8249;</span></div>
+				<div class="product-column middle" style="width: 90%; float: left;" if:true={showBaseProducts}>
+					<template for:each={baseProducts} for:item="prod">
+						<div key={prod.Id} class="card">
+							<div class="container">
+								<div class="card-01">
+									<p class="product-name">{prod.Name}</p>
+									<p><b>Grupo:</b> {prod.productGroupName}</p>
+									<p><b>Princípio ativo:</b> {prod.activePrinciple}</p>
+									<p><b>Código:</b> {prod.sapProductCode}</p>
+								</div>
+								<div class="card-02">
+									<button class="include-button" data-target-id={prod.Id} onclick={showProductModal}>Incluir</button>
+								</div>
+							</div>
+						</div>
+					</template>
+				</div>
+				<div class="product-column product-right"><span class="arrow-style" if:true={showArrows} onclick={nextProductScreen}>&#8250;</span></div>
+			</div>
+		</template>
+
+		<div class="products-result" if:true={showIncludedProducts}>
+			<template if:false={message}>
+				<button if:true={barterSale} class="barter-sale" onclick={openCommodities}>Escolher commodities</button>
+				<button if:true={showCommodityData} class="barter-sale" onclick={openCommodityData}>Visualizar commodities</button>
+				<button class="change-columns" onclick={showTableColumns}>Alterar colunas</button>
+				<h2>Resultados de <b>PRODUTOS</b>:</h2>
+
+				<lightning-datatable class="slds-is-relative"
+					data={products}
+					columns={columns}
+					key-field="id"
+					onrowaction={handleRowActions}
+				>
+				</lightning-datatable>
+			</template>
+			
+			<template if:true={message}>
+				<h2>{message}</h2>
+			</template>
+		</div>
+
+		<template if:true={createNewProduct}>
+			<div id="product-modal" class="modal">
+				<div class="modal-content">
+					<span class="close" onclick={showProductModal}>&times;</span>
+					<p class="new-product-title">Incluir novo produto: {addProduct.name}</p>
+
+					<div class="row">
+						<div class="column">
+							<label>Preço Lista</label><br>
+							<input class="input-design" type="text" value={addProduct.listPriceFront} disabled/>
+						</div>
+						<div class="column">
+							<label>Unidade de Medida</label><br>
+							<input class="input-design" type="text" value={addProduct.unity} disabled/> 
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="column">
+							<label>Dosagem</label><br>
+							<template if:true={headerData.IsOrderChild}>
+								<input class="input-design" type="text" value={addProduct.dosage} onchange={changeValue} data-target-id="dosage" disabled/>
+							</template>
+							<template if:false={headerData.IsOrderChild}>
+								<input class="input-design" type="text" value={addProduct.dosage} onchange={changeValue} data-target-id="dosage" disabled={disabled}/>
+							</template>
+						</div>
+
+						<div class="column">
+							<label>Qtd</label><br>
+							<input class="input-design" type="text" value={addProduct.quantity} onchange={changeValue} data-target-id="quantity" disabled={disabled}/>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="column">
+							<label>Preço Praticado (un)</label><br>
+							<template if:true={headerData.IsOrderChild}>
+								<input class="input-design" type="text" value={addProduct.unitPriceFront} onchange={changeValue} data-target-id="unitPrice" disabled/>
+							</template>
+							<template if:false={headerData.IsOrderChild}>
+								<input class="input-design" type="text" value={addProduct.unitPriceFront} onchange={changeValue} data-target-id="unitPrice" disabled={disabled}/>
+							</template>
+						</div>
+						<div class="column">
+							<label>Preço Total</label><br>
+							<input class="input-design" type="text" value={addProduct.totalPriceFront} disabled/>
+						</div>
+					</div>
+
+					<hr class="line-divisor"/>
+					<p class="title-divisor">Comercial</p>
+
+					<template if:true={headerData.IsOrderChild}>
+						<div class="row">
+							<div class="column">
+								<label>% Desconto Comercial</label><br>
+								<input class="input-design" type="text" value={addProduct.commercialDiscountPercentageFront} maxlength="8" onkeypress={changeToPercentage} onchange={changeValue} data-target-id="commercialDiscountPercentage" disabled/>
+							</div>
+							<div class="column">
+								<label>Valor de Desconto Comercial</label><br>
+								<input class="input-design" type="text" value={addProduct.commercialDiscountValueFront} onchange={changeValue} data-target-id="commercialDiscountValue" disabled/>
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="column">
+								<label>% Acréscimo Comercial</label><br>
+								<input class="input-design" type="text" value={addProduct.commercialAdditionPercentageFront} maxlength="8" onkeypress={changeToPercentage} onchange={changeValue} data-target-id="commercialAdditionPercentage" disabled/>
+							</div>
+							<div class="column">
+								<label>Valor de Acréscimo Comercial</label><br>
+								<input class="input-design" type="text" value={addProduct.commercialAdditionValueFront} onchange={changeValue} data-target-id="commercialAdditionValue" disabled/>
+							</div>
+						</div>
+					</template>
+
+					<template if:false={headerData.IsOrderChild}>
+						<div class="row">
+							<div class="column">
+								<label>% Desconto Comercial</label><br>
+								<input class="input-design" type="text" value={addProduct.commercialDiscountPercentageFront} maxlength="8" onkeypress={changeToPercentage} onchange={changeValue} data-target-id="commercialDiscountPercentage" disabled={disabled}/>
+							</div>
+							<div class="column">
+								<label>Valor de Desconto Comercial</label><br>
+								<input class="input-design" type="text" value={addProduct.commercialDiscountValueFront} onchange={changeValue} data-target-id="commercialDiscountValue" disabled={disabled}/>
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="column">
+								<label>% Acréscimo Comercial</label><br>
+								<input class="input-design" type="text" value={addProduct.commercialAdditionPercentageFront} maxlength="8" onkeypress={changeToPercentage} onchange={changeValue} data-target-id="commercialAdditionPercentage" disabled={disabled}/>
+							</div>
+							<div class="column">
+								<label>Valor de Acréscimo Comercial</label><br>
+								<input class="input-design" type="text" value={addProduct.commercialAdditionValueFront} onchange={changeValue} data-target-id="commercialAdditionValue" disabled={disabled}/>
+							</div>
+						</div>
+					</template>
+
+
+					<hr class="line-divisor"/>
+					<p class="title-divisor">Financeiro</p>
+
+					<div class="row">
+						<div class="column">
+							<label>% Acréscimo Financeiro</label><br>
+							<input class="input-design" type="text" value={addProduct.financialAdditionPercentageFront} maxlength="8" data-target-id="financialAdditionPercentage" disabled/>
+						</div>
+						<div class="column">
+							<label>Valor de Acréscimo Financeiro</label><br>
+							<input class="input-design" type="text" value={addProduct.financialAdditionValueFront} data-target-id="financialAdditionValue" disabled/>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="column">
+							<label>% Decréscimo Financeiro</label><br>
+							<input class="input-design" type="text" value={addProduct.financialDecreasePercentageFront} maxlength="8" data-target-id="financialDecreasePercentage" disabled/>
+						</div>
+						<div class="column">
+							<label>Valor de Decréscimo Financeiro</label><br>
+							<input class="input-design" type="text" value={addProduct.financialDecreaseValueFront} data-target-id="financialDecreaseValue" disabled/>
+						</div>
+					</div>
+
+					<hr class="line-divisor"/>
+					<p class="title-divisor">Informações Adicionais</p>
+
+					<div class="row">
+						<div class="column">
+							<label>Quantidade Faturada</label><br>
+							<input class="input-design" type="text" value={addProduct.invoicedQuantity} disabled/> 
+						</div>
+						<div class="column">
+							<label>Princípio Ativo</label><br>
+							<input class="input-design" type="text" value={addProduct.activePrinciple} onchange={changeValue} data-target-id="activePrinciple" disabled/>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="column">
+							<label>Grupo do Produto</label><br>
+							<input class="input-design" type="text" value={addProduct.productGroupName} onchange={changeValue} data-target-id="productGroupName" disabled/>
+						</div>
+						<div class="column">
+							<label>Subgrupo do Produto</label><br>
+							<input class="input-design" type="text" value={addProduct.productSubgroupName} disabled/>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="back-button">
+							<a onclick={showProductModal}>Fechar</a>
+						</div>
+						<template if:false={disabled}>
+							<template if:true={updateProduct}>
+								<div class="column">
+									<button class="confirm-button" onclick={changeProduct}>Alterar Produto</button>
+								</div>
+							</template>
+							<template if:false={updateProduct}>
+								<div class="column">
+									<button class="confirm-button" onclick={includeProduct}>Incluir Produto</button>
+								</div>
+							</template>
+						</template>
+					</div>
+				</div>
+			</div>
+		</template>
+
+		<template if:true={changeColumns}>
+			<div id="columns-modal" class="modal">
+				<div class="modal-content">
+					<span class="close" onclick={showTableColumns}>&times;</span>
+					<p class="new-product-title">Escolha as colunas que deseja visualizar</p>
+
+					<div class="row">
+						<div class="column">
+							<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnListPrice} data-target-id="columnListPrice">
+							<label class="column-title">Preço Lista</label><br>
+						</div>
+						<div class="column">
+							<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnUnity} data-target-id="columnUnity">
+							<label class="column-title">Unidade de Medida</label><br>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="column">
+							<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnDosage} data-target-id="columnDosage">
+							<label class="column-title">Dosagem</label><br>
+						</div>
+						<div class="column">
+							<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnQuantity} data-target-id="columnQuantity">
+							<label class="column-title">Qtd</label><br>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="column">
+							<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnUnitPrice} data-target-id="columnUnitPrice">
+							<label class="column-title">Preço Praticado (un)</label><br>
+						</div>
+						<div class="column">
+							<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnTotalPrice} data-target-id="columnTotalPrice">
+							<label class="column-title">Preço Total</label><br>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="column">
+							<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnCommercialDiscountPercentage} data-target-id="columnCommercialDiscountPercentage">
+							<label class="column-title">% Desconto Comercial</label><br>
+						</div>
+						<div class="column">
+							<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnCommercialDiscountValue} data-target-id="columnCommercialDiscountValue">
+							<label class="column-title">Valor de Desconto Comercial</label><br>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="column">
+							<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnCommercialAdditionPercentage} data-target-id="columnCommercialAdditionPercentage">
+							<label class="column-title">% Acréscimo Comercial</label><br>
+						</div>
+						<div class="column">
+							<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnCommercialAdditionValue} data-target-id="columnCommercialAdditionValue">
+							<label class="column-title">Valor de Acréscimo Comercial</label><br>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="column">
+							<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnFinancialAdditionPercentage} data-target-id="columnFinancialAdditionPercentage">
+							<label class="column-title">% Acréscimo Financeiro</label><br>
+						</div>
+						<div class="column">
+							<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnFinancialAdditionValue} data-target-id="columnFinancialAdditionValue">
+							<label class="column-title">Valor de Acréscimo Financeiro</label><br>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="column">
+							<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnFinancialDecreasePercentage} data-target-id="columnFinancialDecreasePercentage">
+							<label class="column-title">% Decréscimo Financeiro</label><br>
+						</div>
+						<div class="column">
+							<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnFinancialDecreaseValue} data-target-id="columnFinancialDecreaseValue">
+							<label class="column-title">Valor de Decréscimo Financeiro</label><br>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="column">
+							<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnInvoicedQuantity} data-target-id="columnInvoicedQuantity">
+							<label class="column-title">Quantidade Faturada</label><br>
+						</div>
+						<div class="column">
+							<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnActivePrinciple} data-target-id="columnActivePrinciple">
+							<label class="column-title">Princípio Ativo</label><br>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="column">
+							<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnGroup} data-target-id="columnGroup">
+							<label class="column-title">Grupo do Produto</label><br>
+						</div>
+						<div class="column">
+							<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnproductSubgroupName} data-target-id="columnproductSubgroupName">
+							<label class="column-title">Subgrupo do Produto</label><br>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="back-button">
+							<a onclick={showTableColumns}>Fechar</a>
+						</div>
+						<div class="column">
+							<button class="confirm-button" onclick={applySelectedColumns}>Aplicar</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</template>
+
+		<div style="width: 100%;" if:true={showCommodities}>
+			<div id="commodity-modal" class="modal">
+				<div class="modal-content" style="width: 900px;">
+					<span class="close" onclick={closeCommodityModal}>&times;</span>
+
+					<div if:true={chooseCommodities}>
+						<p class="new-product-title">Escolha de Commodities</p>
+						<c-custom-order-search class="commodity-search" object-name="Commodity" field-name="Name" product-params={productParams} onshowresults={showCommodityResults} label="Pesquisar COMMODITY:" placeholder="Digite o nome da Commodity" required="true" onchild={getFieldsValueCommodity}></c-custom-order-search>
+						
+						<div if:true={selectCommodityScreen}>
+							<template for:each={commodities} for:item="commodity">
+								<div key={commodity.Id} class="card" style="width: 50%;">
+									<div class="container">
+										<div class="card-01">
+											<p class="product-name">{commodity.Name}</p>
+										</div>
+										<div class="card-02">
+											<button class="include-button" data-target-id={commodity.Id} onclick={selectCommodity}>Escolher</button>
+										</div>
+									</div>
+								</div>
+							</template>
+						</div>
+					</div>
+
+					<div if:true={commoditySelected}>
+						<p class="new-product-title">Escolha de Commodities</p>
+						<div class="row">
+							<div class="column">
+								<label>Commodity</label><br>
+								<input class="input-design" type="text" value={selectedCommodity.name} disabled/> 
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="column">
+								<label><span class="required"></span>Data de Início da Entrega</label><br>
+								<input class="input-design" type="date" min={currentDate} value={selectedCommodity.startDate} data-target-id="startDate" onchange={commodityChange} /> 
+							</div>
+							<div class="column">
+								<label><span class="required"></span>Data de Fim da Entrega</label><br>
+								<input class="input-design" type="date" min={currentDate} value={selectedCommodity.endDate} data-target-id="endDate" onchange={commodityChange}/> 
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="column">
+								<label>Quantidade a Entregar</label><br>
+								<input class="input-design" type="text" value={selectedCommodity.deliveryQuantityFront} disabled/> 
+							</div>
+							<div class="column">
+								<label>Valor PTAX Pós-Fixado</label><br>
+								<input class="input-design" type="text" value={selectedCommodity.ptax} disabled/> 
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="column">
+								<label><span class="required"></span>Local de Entrega</label><br>
+								<input class="input-design" type="text" value={selectedCommodity.deliveryAddress} data-target-id="deliveryAddress" onchange={commodityChange}/> 
+							</div>
+
+							<div class="column"></div>
+						</div>
+					</div>
+
+					<div if:true={summaryScreen}>
+						<p class="new-product-title">Detalhes da Negociação</p>
+						<lightning-datatable class="slds-is-relative"
+											data={commoditiesData}
+											columns={commodityColumns}
+											key-field="id"
+						>
+						</lightning-datatable>
+
+						<div class="row" style="margin-top: 20px;">
+							<div class="column">
+								<label>Local de Faturamento</label><br>
+								<input class="input-design" type="text" value={accountData.Name} disabled/> 
+							</div>
+							<div class="column">
+								<label>Local de Entrega</label><br>
+								<input class="input-design" type="text" value={selectedCommodity.deliveryAddress} disabled/> 
+							</div>
+						</div>
+
+						<!-- <div class="row" style="margin-top: 20px;">
+							<div class="column">
+								<div class="column">
+									<label>Comissão Total</label><br>
+									<input class="input-design" type="text" value={selectedCommodity.commission} disabled/>
+								</div>
+								<div class="column">
+									<p class="approval">Valor sujeito a aprovação</p><br>
+								</div>
+							</div>
+
+							<div class="column-25">
+								<label>Margem Total (%)</label><br>
+								<input class="input-design" type="text" value={selectedCommodity.totalMarginPercentFront} disabled/> 
+							</div>
+							<div class="column-25">
+								<label>Margem Total</label><br>
+								<input class="input-design" type="text" value={selectedCommodity.totalMarginValueFront} disabled/> 
+							</div>
+						</div> -->
+					</div>
+
+					<!-- <div if:true={haScreen}>
+						<p class="new-product-title">Custo por HA</p>
+						<lightning-datatable class="slds-is-relative"
+											data={haData}
+											columns={haColumns}
+											key-field="id"
+						>
+						</lightning-datatable>
+					</div> -->
+
+					<div class="row">
+						<div class="back-button">
+							<a if:false={selectCommodityScreen} onclick={backScreen}>Voltar</a>
+							<a if:true={selectCommodityScreen} onclick={closeCommodityModal}>Fechar</a>
+						</div>
+						<div class="column" if:false={selectCommodityScreen}>
+							<button if:false={summaryScreen} class="confirm-button" onclick={nextScreen}>Próximo></button>
+							<button if:true={summaryScreen} class="confirm-button" onclick={closeCommodityModal} data-target-id="saveButton">Salvar</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div style="width: 100%;" if:true={openCommoditiesData}>
+			<div id="commodity-data-modal" class="modal">
+				<div class="modal-content" style="width: 900px">
+					<span class="close" onclick={openCommodityData}>&times;</span>
+					<p class="new-product-title">Detalhes da Negociação</p>
+					<lightning-datatable class="slds-is-relative"
+										data={commoditiesData}
+										columns={visualizeCommodityColumns}
+										key-field="id"
+										onrowaction={handleCommodityActions}
+						>
+					</lightning-datatable>
+				</div>
+			</div>
+		</div>
+
+		<template if:true={showProductDivision}>
+			<div id="product-division-modal" class="modal">
+				<div class="modal-content">
+					<span class="close" onclick={showDivisionModal}>&times;</span>
+					<p class="new-product-title">Divisão de entrega: {currentDivisionProduct.name}</p>
+
+					<div class="quantities-div">
+						<div class="column">
+							Quantidade total do produto: <label class="quantities-bold">{currentDivisionProduct.quantity}</label><br>
+						</div>
+						<template if:true={currentDivisionProduct.showRed}>
+							<div class="column">
+								Quantidade a distribuir: <label class="quantities-red">{currentDivisionProduct.availableQuantity}</label><br>
+							</div>
+						</template>
+						<template if:false={currentDivisionProduct.showRed}>
+							<div class="column">
+								Quantidade a distribuir: <label class="quantities-bold">{currentDivisionProduct.availableQuantity}</label><br>
+							</div>
+						</template>
+					</div>
+
+					<template for:each={divisionProducts} for:item="divProduct">
+						<div class="row" key={divProduct.position}>
+							<template if:true={divProduct.showInfos}>
+								<div class="column">
+									<label>Data de entrega</label><br>
+									<input class="input-design" type="date" value={divProduct.deliveryDate} onchange={divisionChange} data-target-id={divProduct.deliveryId} disabled={currentDivisionProduct.dontAllowChange}/>
+								</div>
+								<div class="column">
+									<label>Quantidade</label><br>
+									<input class="input-design" type="number" value={divProduct.quantity} onchange={divisionChange} data-target-id={divProduct.quantityId} disabled={currentDivisionProduct.dontAllowChange}/>
+								</div>
+							</template>
+						</div>
+					</template>
+
+					<div class="row">
+						<div class="back-button">
+							<a if:false={currentDivisionProduct.dontAllowChange} onclick={newFields}>Adicionar remessa</a>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="back-button">
+							<a onclick={showDivisionModal}>Fechar</a>
+						</div>
+						<div class="column">
+							<button class="confirm-button" onclick={confirmDivision}>Confirmar</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</template>
+
+		<template if:true={selectCompany}>
+			<div id="select-company-modal" class="modal">
+				<div class="modal-content" style="width: 700px;">
+					<p class="new-product-title">Escolha umas das seguintes áreas de vendas:</p>
+
+					<template for:each={companyResult} for:item="company">
+						<div key={company.companyId} class="company-card">
+							<div class="container">
+								<div class="company-card-01">
+									<p><b>Equipe de Vendas:</b> {company.salesTeamName}</p>
+									<p><b>Centro Fornecedor:</b> {company.supplierCenter}</p>
+									<p><b>Setor de Atividade:</b> {company.activitySectorName}</p>
+									<p><b>Centro de distribuição:</b> {company.distributionChannelName}</p>
+								</div>
+								<div class="company-card-02">
+									<input type="checkbox" class="checkbox-round" onclick={chooseCompany} checked={company.selected} data-target-id={company.companyId}>
+								</div>
+							</div>
+						</div>
+					</template>
+
+					<div class="row">
+						<div class="column" style="width: 100%;">
+							<button class="confirm-button" onclick={onSelectCompany}>Confirmar</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</template>
+	</template>
+
+    <!--Modal-->
+    <c-modal-remessa></c-modal-remessa>
+</template>

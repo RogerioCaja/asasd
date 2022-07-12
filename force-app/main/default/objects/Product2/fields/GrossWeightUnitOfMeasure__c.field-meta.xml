@@ -3,23 +3,9 @@
     <fullName>GrossWeightUnitOfMeasure__c</fullName>
     <externalId>false</externalId>
     <label>Unidade Medida do Peso Bruto</label>
+    <length>180</length>
     <required>false</required>
     <trackHistory>false</trackHistory>
-    <type>Picklist</type>
-    <valueSet>
-        <restricted>true</restricted>
-        <valueSetDefinition>
-            <sorted>false</sorted>
-            <value>
-                <fullName>KG</fullName>
-                <default>false</default>
-                <label>KG</label>
-            </value>
-            <value>
-                <fullName>T</fullName>
-                <default>false</default>
-                <label>T</label>
-            </value>
-        </valueSetDefinition>
-    </valueSet>
+    <type>Text</type>
+    <unique>false</unique>
 </CustomField>

@@ -1,0 +1,82 @@
+<template>
+	<div class="container slds-is-relative">
+	  <template if:false={selectedRecord}>
+		<lightning-input
+			type="search"
+			class="slds-container_fluid"
+			placeholder="Selecione uma conta"
+			autocomplete="off"
+            onfocusin={showDataMethod}
+			label="Cliente de Entrega"
+			name="searchInput"
+			required="true"
+			disabled={disabled}>
+		</lightning-input>
+
+		<template if:true={showData}>
+			<div class="bg-list-full" onclick={handleCloseList}></div>
+			<div class="container-records-list slds-container_fluid slds-is-absolute">
+				<ul>
+				  <template for:each={accountList} for:item="account">
+					<li key={account.Id}
+						data-value={account.Id}
+						onclick={selectAccountChild}
+						class="slds-var-p-vertical_small slds-var-p-horizontal_medium slds-list_horizontal slds-media_center slds-truncate list-item">
+							<lightning-icon
+								data-value={account.Id}
+								icon-name="standard:avatar"
+								title="Account"
+								size="small"
+								class="slds-var-m-right_small">
+							</lightning-icon>
+							<div class="slds-truncate">
+								<h1 data-value={account.Id} class="slds-truncate">{account.Name}</h1>
+								<div data-value={account.Id} class="slds-text-color_weak slds-truncate">
+                                    <div class="dados">
+                                        <span>Código SAP:  {account.CodSap}</span>
+                                        <span if:true={account.CNPJ}>CPF/CNPJ: {account.CNPJ}</span>
+                                        <span if:true={account.CPF}>CPF/CNPJ: {account.CPF}</span>
+                                        <span>Cidade: {account.City}</span>
+                                        <span>UF: {account.UF}</span>
+                                    </div>
+								</div>
+							</div>
+					</li>
+				  </template>
+
+				</ul>
+			</div>
+		</template>
+	  </template>
+
+	  <template if:true={selectedRecord}>
+		<div>
+		  <label class="slds-form-element__label">Conta</label>
+
+		  <div class="slds-var-p-vertical_xx-small slds-var-p-horizontal_small selected-record slds-list_horizontal slds-media_center slds-grid_align-spread">
+			<div class="slds-list_horizontal slds-media_center slds-truncate">
+				<lightning-icon
+					icon-name="standard:action_list_component"
+					title={objectIconName}
+					size="small"
+					class="slds-var-m-right_small">
+				</lightning-icon>
+
+				{selectedRecord.Name}
+			</div>
+			<template if:false={disabled}>
+				<div class="slds-var-p-bottom_xx-small">
+					<lightning-button-icon
+						icon-name="utility:close"
+						variant="bare"
+						alternative-text="Settings"
+						title="Settings"
+						onclick={handleClearSelected}>
+					</lightning-button-icon>
+				</div>
+			</template>
+		  </div>
+		</div>
+	  </template>
+	</div>
+</template>

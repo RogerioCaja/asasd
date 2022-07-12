@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Status SF --></label>
+    <name>StatusSF__c</name>
+    <picklistValues>
+        <masterLabel>Em digitação</masterLabel>
+        <translation><!-- Em digitação --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Em aprovação - Gerente Filial</masterLabel>
+        <translation><!-- Em aprovação - Gerente Filial --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Em Aprovação - Gerente Regional</masterLabel>
+        <translation><!-- Em Aprovação - Gerente Regional --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Em Aprovação - Diretor</masterLabel>
+        <translation><!-- Em Aprovação - Diretor --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Em Aprovação - Comitê Margem</masterLabel>
+        <translation><!-- Em Aprovação - Comitê Margem --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Em Aprovação - Mesa de Grãos</masterLabel>
+        <translation><!-- Em Aprovação - Mesa de Grãos --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Aprovado</masterLabel>
+        <translation><!-- Aprovado --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Recusado</masterLabel>
+        <translation><!-- Recusado --></translation>
+    </picklistValues>
+    <picklistValues>
+        <masterLabel>Integrado</masterLabel>
+        <translation><!-- Integrado --></translation>
+    </picklistValues>
+</CustomFieldTranslation>

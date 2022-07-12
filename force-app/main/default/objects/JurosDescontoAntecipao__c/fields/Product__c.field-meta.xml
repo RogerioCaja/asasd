@@ -5,11 +5,10 @@
     <externalId>false</externalId>
     <label>Produto</label>
     <referenceTo>Product2</referenceTo>
-    <relationshipLabel>Juros e Descontos Antecipação</relationshipLabel>
     <relationshipName>Juros_e_Descontos_Antecipa_o</relationshipName>
     <required>false</required>
     <trackFeedHistory>false</trackFeedHistory>
-    <trackHistory>false</trackHistory>
+    <trackHistory>true</trackHistory>
     <trackTrending>false</trackTrending>
     <type>Lookup</type>
 </CustomField>

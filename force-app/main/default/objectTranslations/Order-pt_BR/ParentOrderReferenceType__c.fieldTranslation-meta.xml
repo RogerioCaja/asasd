@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomFieldTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label><!-- Tipo de Referencia do pedido pai --></label>
+    <name>ParentOrderReferenceType__c</name>
+</CustomFieldTranslation>

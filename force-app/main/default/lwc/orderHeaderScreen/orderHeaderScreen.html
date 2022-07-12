@@ -1,0 +1,384 @@
+<template>
+    <div class="titulo">
+        <h2>Detalhes do <b>Cabeçalho do Pedido</b></h2>
+    </div>
+    <div class="cabecalho">
+            <div class="detalhes_conta">
+                <div class="tituloItem">
+                    <svg width="25" height="27" viewBox="0 0 25 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="25" height="26.0417" rx="4" fill="#2A9676" />
+                        <mask style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="25" height="27">
+                            <rect width="25" height="26.0417" rx="4" fill="white" />
+                        </mask>
+                        <g mask="url(#mask0_2849_380)">
+                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                d="M11.5836 18.6674L11.5837 18.6674C11.6248 18.6439 11.6675 18.6197 11.7116 18.5947C12.2647 18.2505 12.8465 17.9587 13.4498 17.7231C13.2691 17.3464 13.1075 16.96 12.9658 16.5657C12.9658 16.5459 12.956 16.5205 12.9469 16.497L12.9469 16.497C12.9438 16.4889 12.9408 16.4811 12.9383 16.4738C12.321 16.7417 11.6592 16.8805 10.9905 16.8821C8.19852 16.8854 5.91412 14.5674 5.84417 11.6601C5.77422 8.75268 7.94428 6.31838 10.7329 6.17606C13.5215 6.03374 15.9096 8.2354 16.1129 11.136C17.269 11.2646 17.9196 11.8606 18.2684 12.524C18.3142 12.192 18.3378 11.8572 18.339 11.5218C18.3467 7.33803 15.1276 3.92329 11.1117 3.8554C7.0958 3.7875 3.77196 7.09161 3.64936 11.2734C3.52676 15.4552 6.65086 18.9644 10.6632 19.1519C10.8122 19.0682 10.963 18.9866 11.1394 18.9029V18.907C11.2673 18.8478 11.413 18.7647 11.5836 18.6674ZM10.9905 9.22538C12.2067 9.23101 13.1888 10.2616 13.1852 11.5285C13.1816 12.7955 12.1937 13.82 10.9774 13.8181C9.76117 13.8163 8.77615 12.7887 8.77614 11.5218C8.77613 10.911 9.00974 10.3253 9.4253 9.89435C9.84085 9.4634 10.4041 9.22266 10.9905 9.22538ZM19.3334 19.2505C19.5669 19.3874 19.7739 19.5088 19.9576 19.5949L19.9478 19.5969C21.3685 20.2501 21.3685 20.9748 21.3508 20.9748V22.1873H10.0028V20.9748C10.0028 20.9748 10.0107 20.2562 11.4216 19.6051C11.6117 19.5185 11.8266 19.3932 12.07 19.2511C12.7048 18.8808 13.5341 18.3971 14.6275 18.1905C14.2356 17.7578 13.9475 17.0882 13.6477 16.2881C13.5005 15.887 13.5028 15.5358 13.5057 15.0794C13.5062 15.0131 13.5066 14.9447 13.5066 14.8735C13.5066 14.7547 13.501 14.6172 13.495 14.4729C13.48 14.1066 13.4632 13.696 13.5321 13.4324C13.8632 12.1933 14.7078 11.8525 15.6876 11.8525C16.6674 11.8525 17.5081 12.1995 17.8432 13.4242C17.9123 13.6873 17.8951 14.1072 17.88 14.474C17.8742 14.6165 17.8686 14.7511 17.8686 14.8653C17.8686 14.9481 17.8694 15.0273 17.8702 15.1036C17.8745 15.5432 17.8778 15.8886 17.7276 16.2799C17.4258 17.078 17.1397 17.7496 16.7478 18.1803C17.8523 18.3823 18.6925 18.8749 19.3334 19.2505Z"
+                                fill="white"></path>
+                        </g>
+                    </svg>
+                    <span>{accountData.Name}</span>
+                </div>
+                <div class="dadosConta">
+                    <div class="texto" if:true={accountData.Company__c}>
+                        <span>Razão Social:</span> {accountData.Company__c}
+                    </div>
+                    <div class="texto" if:true={accountData.Company}>
+                        <span>Razão Social:</span> {accountData.Company}
+                    </div>
+                    <div class="texto" if:true={accountData.CPNJ__c} >
+                        <span>Tipo de Conta:</span> Jurídica
+                    </div>
+                    <div class="texto" if:true={accountData.CPNJ} >
+                        <span>Tipo de Conta:</span> Jurídica
+                    </div>
+                    <div class="texto" if:true={accountData.CPF__c} >
+                        <span>Tipo de Conta:</span> Pessoa Física
+                    </div>
+                    <div class="texto" if:true={accountData.CPF} >
+                        <span>Tipo de Conta:</span>  Pessoa Física
+                    </div>
+                    <div class="texto" if:true={accountData.CPNJ__c}>
+                        <span>CNPJ:</span> {accountData.CPNJ__c}
+                    </div>
+                    <div class="texto" if:true={accountData.CPF__c}>
+                        <span>CPF:</span>{accountData.CPF__c}
+                    </div>
+                    <div class="texto" if:true={accountData.CPNJ}>
+                        <span>CNPJ:</span> {accountData.CPNJ}
+                    </div>
+                    <div class="texto" if:true={accountData.CPF}>
+                        <span>CPF:</span> {accountData.CPF}
+                    </div>
+                    <div class="texto" if:true={accountData.City}>
+                        {accountData.City} - {accountData.UF} - Brasil
+                     </div>
+                     <div class="texto" if:true={accountData.BillingCity}>
+                         {accountData.BillingCity} - {accountData.BillingState} - Brasil
+                      </div>
+                     <div class="texto" if:true={accountData.ExternalId__c}>
+                         <span>Código SAP:</span> {accountData.ExternalId__c}
+                     </div>
+                     <div class="texto" if:true={accountData.CodSap}>
+                         <span>Código SAP:</span> {accountData.CodSap}
+                     </div>
+                    <div class="texto">
+                        <span>Telefone:</span> {accountData.Phone}
+                    </div>
+                </div>
+            </div>
+        <div class="campos">
+            <fieldset class="slds-form-element slds-form-element_compound">
+                <div class="slds-form-element__control">
+                    <template if:true={allowMotherOrder}>
+                        <div if:false={headerData.IsOrderChild} class="slds-form-element__row">
+                            <div class="slds-size_1-of-4">
+                                <p>
+                                    <label>Pedido Mãe:</label>
+                                    <template if:true={disabled}>
+                                        <input if:true={headerData.pedido_mae_check} type="checkbox" id="check0" name="pedido_mae_check" value="yes" onchange={selectItemRegister} checked disabled>
+                                        <input if:false={headerData.pedido_mae_check} type="checkbox" id="check1" name="pedido_mae_check" value="no" onchange={selectItemRegister} disabled>
+                                    </template>
+                                    <template if:false={disabled}>
+                                        <input if:true={headerData.pedido_mae_check} type="checkbox" id="check2" name="pedido_mae_check" value="yes" onchange={selectItemRegister} checked>
+                                        <input if:false={headerData.pedido_mae_check} type="checkbox" id="check3" name="pedido_mae_check" value="no" onchange={selectItemRegister} disabled={headerDictLocale.IsOrderChild}>
+                                    </template>
+                                </p>
+                            </div>
+                        </div>
+                    </template>
+
+                    <div class="slds-form-element__row">
+                        <div class="slds-form-element slds-size_1-of-4">
+                           
+                            <c-lookup-account data-name="cliente_entrega" name="cliente_entrega" record-id={headerData.cliente_entrega.Id} onclearselectedrecord={removeItemRegister} onselectrecord={selectItemRegister} account-list={accountChildData} disabled={disabled}></c-lookup-account>
+                        </div>
+                        <div class="slds-form-element slds-size_1-of-4">
+                            <lightning-input
+                                name="tipo_venda" 
+                                label="Tipo de Venda" 
+                                placeholder=""
+                                value={headerData.tipo_venda} 
+                                disabled="true"
+                                required="true">
+                            </lightning-input>
+                            <!-- <lightning-combobox 
+                                name="tipo_venda" 
+                                label="Tipo de Venda" 
+                                placeholder="Escolha um Tipo de Venda"
+                                value={headerData.tipo_venda} 
+                                onchange={selectItemRegister} 
+                                options={tiposVenda} 
+                                required="true">
+                            </lightning-combobox> -->
+                        </div>
+                        
+                        <div class="slds-form-element slds-size_1-of-4">
+                            <c-lookup 
+                                name="ctv_venda"
+                                data-name="ctv_venda"
+                                input-label="CTV da Venda" 
+                                object-icon-name="standard:action_list_component"
+                                target-object={redispatchCtvVendaObject}
+                                search-fields={redispatchCtvSearchFields} 
+                                record-id={headerData.ctv_venda.Id}
+                                list-item-options={redispatchCtvVendaListItemOptions} 
+                                standard-form-layout={booleanTrue}
+                                account-id={accountData.Id}
+                                onclearselectedrecord={removeItemRegister}
+                                onselectrecord={selectItemRegister} 
+                                placeholder="Pesquisar CTV da Venda"
+                                style="width: 100%;" 
+                                required="true"
+                                disabled={fieldKey}>
+                            </c-lookup>
+                        </div>  
+                    </div>
+                    <div class="slds-form-element__row">
+                        <div class="slds-form-element slds-size_1-of-4">
+                            <c-lookup 
+                                name="safra"
+                                data-name="safra"
+                                input-label="Safras" 
+                                object-icon-name="standard:action_list_component"
+                                target-object={redispatchSafraObject} 
+                                record-id={headerData.safra.Id}
+                                search-fields={redispatchSafraSearchFields}
+                                list-item-options={redispatchSafraListItemOptions} 
+                                standard-form-layout={booleanTrue}
+                                onclearselectedrecord={removeItemRegister}
+                                onselectrecord={selectItemRegister} 
+                                placeholder="Pesquisar Safras" 
+                                style="width: 100%;"
+                                required="true"
+                                disabled={fieldKey}>
+                            </c-lookup>
+                        </div>
+                        <div class="slds-form-element slds-size_1-of-4">
+                            <lightning-combobox 
+                                name="moeda" 
+                                data-name="moeda"
+                                label="Moeda" 
+                                placeholder="Escolha a Moeda"
+                                value={headerData.moeda} 
+                                onchange={selectItemRegister} 
+                                options={moedas} 
+                                required="true"
+                                disabled={fieldKey}>
+                            </lightning-combobox>
+                            
+                        </div>
+                        <div class="slds-form-element slds-size_1-of-4">
+                            <c-lookup 
+                                name="condicao_venda"
+                                data-name="condicao_venda"
+                                input-label="Tabela de Preços" 
+                                object-icon-name="standard:action_list_component"
+                                target-object={redispatchCondicaoVendaObject}
+                                record-id={headerData.condicao_venda.Id}
+                                safra-name={safraName}
+                                sales-type={headerData.tipo_venda}
+                                currency-option={currencyOption}
+                                sales-org={salesOrgId}
+                                search-fields={redispatchCondicaoVendaSearchFields}
+                                list-item-options={redispatchCondicaoVendaListItemOptions} 
+                                standard-form-layout={booleanTrue}
+                                onclearselectedrecord={removeItemRegister}
+                                onselectrecord={selectItemRegister} 
+                                placeholder="Pesquisar Tabela de Preços"
+                                style="width: 100%;" 
+                                required="true"
+                                disabled={fieldKey}>
+                            </c-lookup>
+                        </div>
+                    </div>
+                    <div class="slds-form-element__row">
+                        <div class="slds-size_1-of-4">
+                            <c-lookup 
+                                name="condicao_pagamento"
+                                input-label="Condição de Pagamento"
+                                object-icon-name="standard:action_list_component"
+                                target-object={redispatchCondicaoPagamentoObject} 
+                                record-id={headerData.condicao_pagamento.Id}
+                                search-fields={redispatchCondicaoPagamentoSearchFields}
+                                standard-form-layout={booleanTrue}
+                                list-item-options={redispatchCondicaoPagamentoListItemOptions} 
+                                barter-sale={barterSale}
+                                onclearselectedrecord={removeItemRegister}
+                                onselectrecord={selectItemRegister}
+                                placeholder="Pesquisar Condições de Pagamento"
+                                style="width: 100%;" 
+                                required="true"
+                                disabled={disabled}>
+                            </c-lookup>
+                        </div>
+                        
+                        <template if:true={headerData.IsOrderChild}>
+                            <div class="slds-size_1-of-8">
+                                <lightning-input 
+                                    name="data_pagamento"
+                                    label="Data de Pagamento" 
+                                    field-name="data_pagamento"
+                                    value={headerData.data_pagamento} 
+                                    date-style="short" 
+                                    onchange={selectItemRegister} 
+                                    type="date" 
+                                    disabled="true"
+                                    required="true"
+                                    min={currentDate}
+                                    max={dateLimit}>
+                                </lightning-input>
+                            </div>
+                            <div class="slds-size_1-of-8">
+                                <lightning-input 
+                                    name="data_entrega"
+                                    label="Data de Entrega" 
+                                    field-name="data_entrega" 
+                                    value={headerData.data_entrega} 
+                                    type="date" 
+                                    date-style="short" 
+                                    onchange={selectItemRegister} 
+                                    required="true"
+                                    min={dateStartBilling}
+                                    max={dateLimitBilling}
+                                    disabled="true">
+                                </lightning-input>
+                            </div>
+                        </template>
+
+                        <template if:false={headerData.IsOrderChild}>
+                            <div class="slds-size_1-of-8">
+                                <lightning-input 
+                                    name="data_pagamento"
+                                    label="Data de Pagamento" 
+                                    field-name="data_pagamento"
+                                    value={headerData.data_pagamento} 
+                                    date-style="short" 
+                                    onchange={selectItemRegister} 
+                                    type="date" 
+                                    disabled={paymentDisabled}
+                                    required="true"
+                                    min={currentDate}
+                                    max={dateLimit}>
+                                </lightning-input>
+                            </div>
+                            <div class="slds-size_1-of-8">
+                                <lightning-input 
+                                    name="data_entrega"
+                                    label="Data de Entrega" 
+                                    field-name="data_entrega" 
+                                    value={headerData.data_entrega} 
+                                    type="date" 
+                                    date-style="short" 
+                                    onchange={selectItemRegister} 
+                                    required="true"
+                                    min={currentDate}
+                                    max={dateLimitBilling}
+                                    disabled={disabled}>
+                                </lightning-input>
+                            </div>
+                        </template>
+
+                        <div class="slds-size_1-of-4">
+                            <lightning-combobox 
+                                name="forma_pagamento" 
+                                label="Forma de Pagamento"
+                                placeholder="Escolha a Forma de pagamento"
+                                value={headerData.forma_pagamento}  
+                                onchange={selectItemRegister}
+                                options={formasPagamento} 
+                                required="true"
+                                disabled={disabled}>
+                            </lightning-combobox>
+                        </div>
+                    </div>
+                    <div class="slds-form-element__row">
+                        <div class="slds-size_1-of-4">
+                            <lightning-combobox 
+                                name="status_pedido" 
+                                label="Status de Pedido"
+                                placeholder="Escolha um Status do Pedido" 
+                                value={headerData.status_pedido} 
+                                onchange={selectItemRegister}
+                                options={statusPedido} 
+                                read-only="true">
+                            </lightning-combobox>
+                        </div>
+                        <div class="slds-size_1-of-4">
+                            <c-lookup 
+                                name="cultura"
+                                input-label="Culturas" 
+                                object-icon-name="standard:action_list_component"
+                                target-object={redispatchCulturaObject} 
+                                record-id={headerData.cultura.Id}
+                                search-fields={redispatchCulturaSearchFields}
+                                list-item-options={redispatchCulturaListItemOptions} 
+                                onclearselectedrecord={removeItemRegister}
+                                onselectrecord={selectItemRegister} 
+                                standard-form-layout={booleanTrue} 
+                                placeholder="Pesquisar Culturas" 
+                                style="width: 100%;"
+                                required="true"
+                                disabled={disabled}>
+                            </c-lookup>
+                        </div>
+                        <div class="slds-size_1-of-4">
+                            <lightning-input 
+                                name="numero_pedido_cliente"
+                                label="Número Pedido de Cliente" 
+                                field-name="numero_pedido_cliente"
+                                value={headerData.numero_pedido_cliente} 
+                                onchange={selectItemRegister} 
+                                type="text" 
+                                disabled={disabled}>
+                            </lightning-input>
+                        </div>
+                    </div>
+                    <div class="slds-form-element__row">
+                        <div class="slds-size_1-of-4">
+                            <lightning-combobox 
+                                name="frete" 
+                                label="Tipo de Frete" 
+                                placeholder="Escolha o Frete"
+                                value={headerData.frete} 
+                                onchange={selectItemRegister} 
+                                options={fretes} 
+                                required="true"
+                                disabled={disabled}>
+                            </lightning-combobox>
+                        </div>
+
+                        <template if:true={headerData.IsOrderChild}>
+                            <div class="slds-size_1-of-4">
+                                <lightning-input 
+                                name="hectares"
+                                label="Hectares" 
+                                field-name="hectares"
+                                value={headerData.hectares}
+                                onchange={selectItemRegister}
+                                type="text" 
+                                required="true"
+                                disabled="true">
+                                </lightning-input>
+                            </div>
+                        </template>
+                        <template if:false={headerData.IsOrderChild}>
+                            <div class="slds-size_1-of-4">
+                                <lightning-input 
+                                name="hectares"
+                                label="Hectares" 
+                                field-name="hectares"
+                                value={headerData.hectares}
+                                onchange={selectItemRegister}
+                                type="text" 
+                                required="true"
+                                disabled={disabled}>
+                                </lightning-input>
+                            </div>
+                        </template>
+                    </div>
+                    
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</template>
