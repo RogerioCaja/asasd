@@ -598,10 +598,11 @@ public without sharing class OrderScreenController {
                     }
                 }
 
+                Integer divisionCounter = 1;
                 Set<Id> setDivisionIds = new Set<Id>();
+                Map<String, OrderItem> mapOrderItems = new Map<String, OrderItem>();
                 List<ShippingDivison__c> listShippingDivision = new List<ShippingDivison__c>();
                 if (orderData.divisionData != null && orderData.divisionData.size() > 0 && typeOrder != 'prepedido') {
-                    Map<String, OrderItem> mapOrderItems = new Map<String, OrderItem>();
                     for (OrderItem orderItem : [
                         SELECT Id,
                                Product2Id,
@@ -640,7 +641,6 @@ public without sharing class OrderScreenController {
                         divisionsById.put(shippingDivison.Id, shippingDivison);
                     }
 
-                    Integer divisionCounter = 1;
                     Map<Id, Decimal> quantityDistributedByItem = new Map<Id, Decimal>();
                     for (DivisionDeserialize division : divisionsByKey.values()) {
                         ShippingDivison__c shippingDivision;
@@ -650,7 +650,7 @@ public without sharing class OrderScreenController {
                             shippingDivision = new ShippingDivison__c();
                             String divisionSapNumber = divisionCounter >= 10 ? '0' + String.valueOf(divisionCounter) : '00' + String.valueOf(divisionCounter);
                             shippingDivision.SapNumber__c = divisionSapNumber;
-                            shippingDivision.ExternalId__c = order.Id + '|' + mapOrderItems.get(division.orderItemKey).NumeroSap__c + '|' + shippingDivision.SapNumber__c ;
+                            shippingDivision.ExternalId__c = order.Id + '|' + mapOrderItems.get(division.orderItemKey).NumeroSap__c + '|' + shippingDivision.SapNumber__c;
                             divisionCounter++;
                         }
 
@@ -671,10 +671,13 @@ public without sharing class OrderScreenController {
 
                     if (order.OrderType__c == 'Pedido Normal') {
                         for (OrderItem item : listOrderItems) {
+                            String divisionSapNumber = divisionCounter >= 10 ? '0' + String.valueOf(divisionCounter) : '00' + String.valueOf(divisionCounter);
                             if (quantityDistributedByItem.containsKey(item.Id)) {
                                 Decimal quantityUsed = quantityDistributedByItem.get(item.Id);
                                 if (item.Quantity > quantityUsed) {
                                     ShippingDivison__c shippingDivision = new ShippingDivison__c();
+                                    shippingDivision.ExternalId__c = order.Id + '|' + mapOrderItems.get(item.Product2Id).NumeroSap__c + '|' + divisionSapNumber;
+                                    shippingDivision.SapNumber__c = divisionSapNumber;
                                     shippingDivision.DeliveryDate__c = order.ShippingDate__c;
                                     shippingDivision.Quantity__c = item.Quantity - quantityUsed;
                                     shippingDivision.OrderItem__c = item.Id;
@@ -682,20 +685,28 @@ public without sharing class OrderScreenController {
                                 }
                             } else {
                                 ShippingDivison__c shippingDivision = new ShippingDivison__c();
+                                shippingDivision.ExternalId__c = order.Id + '|' + mapOrderItems.get(item.Product2Id).NumeroSap__c + '|' + divisionSapNumber;
+                                shippingDivision.SapNumber__c = divisionSapNumber;
                                 shippingDivision.DeliveryDate__c = order.ShippingDate__c;
                                 shippingDivision.Quantity__c = item.Quantity;
                                 shippingDivision.OrderItem__c = item.Id;
                                 listShippingDivision.add(shippingDivision);
                             }
+
+                            divisionCounter++;
                         }
                     }
                 } else if (order.OrderType__c != 'Pedido Mãe') {
                     for (OrderItem item : listOrderItems) {
+                        String divisionSapNumber = divisionCounter >= 10 ? '0' + String.valueOf(divisionCounter) : '00' + String.valueOf(divisionCounter);
                         ShippingDivison__c shippingDivision = new ShippingDivison__c();
+                        shippingDivision.ExternalId__c = order.Id + '|' + mapOrderItems.get(item.Product2Id).NumeroSap__c + '|' + divisionSapNumber;
+                        shippingDivision.SapNumber__c = divisionSapNumber;
                         shippingDivision.DeliveryDate__c = order.ShippingDate__c;
                         shippingDivision.Quantity__c = item.Quantity;
                         shippingDivision.OrderItem__c = item.Id;
                         listShippingDivision.add(shippingDivision);
+                        divisionCounter++;
                     }
                 }
 
