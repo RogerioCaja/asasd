@@ -76,7 +76,7 @@ export default class OrderProductScreen extends LightningElement {
         {label: 'Produto', fieldName: 'product'},
         {label: 'Dose', fieldName: 'desage'},
         {label: 'Área', fieldName: 'area'},
-        {label: 'Quantidade', fieldName: 'quantity'},
+        // {label: 'Quantidade', fieldName: 'quantity'},
         {label: 'Desconto', fieldName: 'discountFront'},
         {label: 'Margem', fieldName: 'marginFront'},
         {label: 'Entrega Total', fieldName: 'totalDeliveryFront'}
@@ -986,10 +986,7 @@ export default class OrderProductScreen extends LightningElement {
     editProduct(position, recalculateFinancialValues) {
         this.productPosition = position;
         let currentProduct = this.products.find(e => e.position == position);
-        console.log('currentProduct: ' + JSON.stringify(currentProduct));
-        console.log('currentProduct.multiplicity: ' + JSON.stringify(currentProduct.multiplicity));
         this.multiplicity = this.isFilled(currentProduct.multiplicity) ? currentProduct.multiplicity : 1;
-        console.log('this.multiplicity: ' + this.multiplicity);
 
         this.addProduct = this.newProduct(currentProduct);
         console.log('this.addProduct: ' + JSON.stringify(this.addProduct));
@@ -1208,13 +1205,13 @@ export default class OrderProductScreen extends LightningElement {
         this.nextScreen();
         let totalProducts = 0;
         let orderTotalCost = 0;
-        let productsQUantity = 0;
+        let productsQuantity = 0;
         let totalDiscount = 0;
 
         for (let index = 0; index < this.products.length; index++) {
             totalProducts += Number(this.products[index].totalPrice);
             orderTotalCost += Number(this.products[index].practicedCost) * Number(this.products[index].quantity);
-            productsQUantity += Number(this.products[index].quantity);
+            productsQuantity += Number(this.products[index].quantity);
             totalDiscount += Number(this.products[index].commercialDiscountValue);
         }
 
@@ -1227,8 +1224,8 @@ export default class OrderProductScreen extends LightningElement {
             cotation: chooseCommodity.listPrice,
             startDate: null,
             endDate: null,
-            deliveryQuantity: this.fixDecimalPlaces((totalProducts / chooseCommodity.listPrice)) + ' sacas',
-            deliveryQuantityFront: this.fixDecimalPlacesFront((totalProducts / chooseCommodity.listPrice)) + ' sacas',
+            deliveryQuantity: Math.ceil((totalProducts / chooseCommodity.listPrice)) + ' sacas',
+            deliveryQuantityFront: Math.ceil((totalProducts / chooseCommodity.listPrice)) + ' sacas',
             ptax: chooseCommodity.productCurrency + chooseCommodity.listPrice,
             commodityPrice: chooseCommodity.listPrice,
             deliveryAddress: '',
@@ -1237,7 +1234,7 @@ export default class OrderProductScreen extends LightningElement {
             totalMarginPercentFront: this.fixDecimalPlacesFront(marginPercent) + '%',
             totalMarginValue: this.fixDecimalPlaces(((totalProducts * marginPercent) / 100) / chooseCommodity.listPrice) + ' sacas',
             totalMarginValueFront: this.fixDecimalPlacesFront(((totalProducts * marginPercent) / 100) / chooseCommodity.listPrice) + ' sacas',
-            quantity: productsQUantity,
+            quantity: productsQuantity,
             totalDiscountValue: this.fixDecimalPlaces(totalDiscount / chooseCommodity.listPrice) + ' sacas',
             totalDiscountValueFront: this.fixDecimalPlacesFront(totalDiscount / chooseCommodity.listPrice) + ' sacas'
         };
@@ -1364,17 +1361,16 @@ export default class OrderProductScreen extends LightningElement {
     }
 
     recalculateCommodities() {
-        console.log(this.isFilled(this.commoditiesData) && this.commoditiesData.length > 0);
         if (this.isFilled(this.commoditiesData) && this.commoditiesData.length > 0) {
             let totalProducts = 0;
             let orderTotalCost = 0;
-            let productsQUantity = 0;
+            let productsQuantity = 0;
             let totalDiscount = 0;
             
             for (let index = 0; index < this.products.length; index++) {
                 totalProducts += Number(this.products[index].totalPrice);
                 orderTotalCost += Number(this.products[index].practicedCost) * Number(this.products[index].quantity);
-                productsQUantity += Number(this.products[index].quantity);
+                productsQuantity += Number(this.products[index].quantity);
                 totalDiscount += Number(this.products[index].commercialDiscountValue);
             }
     
@@ -1382,15 +1378,15 @@ export default class OrderProductScreen extends LightningElement {
             let currentCommodityValues = JSON.parse(JSON.stringify(this.commoditiesData[0]));
             
             currentCommodityValues.area = this.headerData.hectares;
-            currentCommodityValues.quantity = productsQUantity;
+            currentCommodityValues.quantity = productsQuantity;
             currentCommodityValues.discount = this.fixDecimalPlaces(totalDiscount / Number(currentCommodityValues.cotation)) + ' sacas';
             currentCommodityValues.discountFront = this.fixDecimalPlacesFront(totalDiscount / Number(currentCommodityValues.cotation)) + ' sacas';
             currentCommodityValues.margin = this.fixDecimalPlaces(marginPercent) + '%';
             currentCommodityValues.marginFront = this.fixDecimalPlacesFront(marginPercent) + '%';
             currentCommodityValues.marginValue = this.fixDecimalPlaces(((totalProducts * marginPercent) / 100) / Number(currentCommodityValues.cotation)) + ' sacas';
             currentCommodityValues.marginValueFront = this.fixDecimalPlacesFront(((totalProducts * marginPercent) / 100) / Number(currentCommodityValues.cotation)) + ' sacas';
-            currentCommodityValues.totalDelivery = this.fixDecimalPlaces((totalProducts / currentCommodityValues.cotation)) + ' sacas';
-            currentCommodityValues.totalDeliveryFront = this.fixDecimalPlacesFront((totalProducts / currentCommodityValues.cotation)) + ' sacas';
+            currentCommodityValues.totalDelivery = Math.ceil((totalProducts / currentCommodityValues.cotation)) + ' sacas';
+            currentCommodityValues.totalDeliveryFront = Math.ceil((totalProducts / currentCommodityValues.cotation)) + ' sacas';
             
             this.commoditiesData = [];
             this.commoditiesData.push(currentCommodityValues);
