@@ -342,7 +342,7 @@ public without sharing class CalloutOrderDatalake {
         public Date effectiveDate; 
         public Date shippingDate; 
         public String status; 
-        public String statusRecusa; 
+    
         public String type; 
         public String customerOrderNumber; 
         public String paymentForm; 
@@ -395,7 +395,7 @@ public without sharing class CalloutOrderDatalake {
         public Date effectiveDate; 
         public Date shippingDate; 
         public String status; 
-        public String statusRecusa; 
+        
         public String type; 
         public String customerOrderNumber; 
         public String paymentForm; 
