@@ -361,7 +361,7 @@ global with sharing class TemplateDataIntegrationFields {
                 SalesOrg__c = lookups.containsKey('SalesOrg__c'+this.salesOrg) ? lookups.get('SalesOrg__c'+this.salesOrg) : null,
                 SalesCTV__c = lookups.containsKey('User'+this.salesCTV) ? lookups.get('User'+this.salesCTV) : null,
                 PaymentCondition__c = lookups.containsKey('CondicaoPagamento__c'+this.PaymentCondition) ? lookups.get('CondicaoPagamento__c'+this.PaymentCondition) : null,
-                OrderReference__c = lookups.containsKey('OrderReference__c'+this.orderReference) ? lookups.get('OrderReference__c'+this.orderReference) : null,
+                OrderReference__c = lookups.containsKey('Order'+this.orderReference) ? lookups.get('Order'+this.orderReference) : null,
                 DistributionChannel__c = lookups.containsKey('DistributionChannel__c' + this.distributionChannel)? lookups.get ('DistributionChannel__c' + this.distributionChannel) : null,
                 ActivitySector__c = lookups.containsKey('ActivitySector__c' + this.activitySector)? lookups.get ('ActivitySector__c' + this.activitySector) : null,
                 PaymentDate__c = Date.valueOf(paymentDate),
