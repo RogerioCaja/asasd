@@ -368,9 +368,55 @@ public without sharing class CalloutOrderDatalake {
     }
 
     public class HeaderUpdate{
-        public String codSap;
-        public String codSalesforce;
-        public Date  expiredDate;
+        public String orderCodeSf;
+        public String paymentConditionName;
+        public String centroFornecedor;
+        public String escritorioVendas;
+        public String equipeVendas;
+		public String statusDesc;
+        public String salesConditionName;
+        public String codigoSap; 
+        public String numeroPedidoApp; 
+        public String pricebook2; 
+        public String shippingAccount; 
+        public String paymentAccount; 
+        public String crop; 
+        public String culture; 
+        public String salesOrg; 
+        public String salesCTV;
+        public String cropName;
+        public String cultureName; 
+        public String salesOrgName; 
+        public String paymentCondition; 
+        public String orderReferencie; 
+        public String distributionChannel; 
+        public String activitySector; 
+        public Date paymentDate; 
+        public Date effectiveDate; 
+        public Date shippingDate; 
+        public String status; 
+        public String statusRecusa; 
+        public String type; 
+        public String customerOrderNumber; 
+        public String paymentForm; 
+        public String paymentFormName;
+        public String statusSF; 
+        public String currencyOrder; 
+        public String incoterms; 
+        public String incoterms2; 
+        public String description;  
+        public String descriptionBillingSale;  
+        public Decimal finalTotalValue;  
+        public Decimal hectare;  
+        public Decimal orderMargin; 
+        public String orderType; 
+        public String salesCondition; 
+        public Boolean isOrderMother; 
+        public String company; 
+        public String recordType; 
+
+        public List<CalloutOrderDatalake.ScheduleParameters> scheduleList;
+        public List<CalloutOrderDatalake.OrderItemParameters> orderItemList;
 
         //public OrderUpdate(){}
     }
