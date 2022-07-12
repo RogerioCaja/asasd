@@ -599,21 +599,22 @@ public without sharing class OrderScreenController {
 
                 Integer divisionCounter = 1;
                 Set<Id> setDivisionIds = new Set<Id>();
-                Map<String, OrderItem> mapOrderItems = new Map<String, OrderItem>();
                 List<ShippingDivison__c> listShippingDivision = new List<ShippingDivison__c>();
-                if (orderData.divisionData != null && orderData.divisionData.size() > 0 && typeOrder != 'prepedido') {
-                    for (OrderItem orderItem : [
-                        SELECT Id,
-                               Product2Id,
-                               Quantity,
-                               UnitPrice,
-                               NumeroSap__c
-                          FROM OrderItem
-                         WHERE Id IN: itemsIds
-                    ]) {
-                        mapOrderItems.put(orderItem.Product2Id, orderItem);
-                    }
 
+                Map<String, OrderItem> mapOrderItems = new Map<String, OrderItem>();
+                for (OrderItem orderItem : [
+                    SELECT Id,
+                           Product2Id,
+                           Quantity,
+                           UnitPrice,
+                           NumeroSap__c
+                      FROM OrderItem
+                     WHERE Id IN: itemsIds
+                ]) {
+                    mapOrderItems.put(orderItem.Product2Id, orderItem);
+                }
+                
+                if (orderData.divisionData != null && orderData.divisionData.size() > 0 && typeOrder != 'prepedido') {
                     Map<String, DivisionDeserialize> divisionsByKey = new Map<String, DivisionDeserialize>();
                     for (DivisionDeserialize division : orderData.divisionData) {
                         if (division.divisionId != null) {
