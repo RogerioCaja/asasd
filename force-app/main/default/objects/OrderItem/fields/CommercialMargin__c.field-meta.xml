@@ -5,7 +5,7 @@
     <label>Margem Comercial</label>
     <precision>18</precision>
     <required>false</required>
-    <scale>6</scale>
+    <scale>4</scale>
     <trackHistory>false</trackHistory>
     <type>Percent</type>
 </CustomField>

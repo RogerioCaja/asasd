@@ -12,32 +12,12 @@
     <isNavPersonalizationDisabled>false</isNavPersonalizationDisabled>
     <label>AgroGalaxy</label>
     <navType>Standard</navType>
-    <profileActionOverrides>
-        <actionName>Tab</actionName>
-        <content>Home_Page_Default</content>
-        <formFactor>Large</formFactor>
-        <pageOrSobjectType>standard-home</pageOrSobjectType>
-        <type>Flexipage</type>
-        <profile>Admin</profile>
-    </profileActionOverrides>
-    <tabs>standard-home</tabs>
     <tabs>standard-Account</tabs>
-    <tabs>standard-Lead</tabs>
-    <tabs>standard-Order</tabs>
-    <tabs>standard-Product2</tabs>
     <tabs>standard-Contact</tabs>
-    <tabs>Safra__c</tabs>
-    <tabs>Cultura__c</tabs>
-    <tabs>NotaFiscal__c</tabs>
-    <tabs>SalesOrg__c</tabs>
-    <tabs>JurosDescontoAntecipao__c</tabs>
-    <tabs>ShippingDivison__c</tabs>
-    <tabs>Company__c</tabs>
-    <tabs>ProductFamily__c</tabs>
-    <tabs>ProductGroup__c</tabs>
-    <tabs>OrgVProduct__c</tabs>
-    <tabs>ActivitySector__c</tabs>
-    <tabs>ProductSubGroup__c</tabs>
+    <tabs>standard-Lead</tabs>
+    <tabs>standard-Product2</tabs>
+    <tabs>PlanejamentoVendas__c</tabs>
+    <tabs>PotencialCompra__c</tabs>
     <uiType>Lightning</uiType>
     <utilityBar>AgroGalaxy_UtilityBar</utilityBar>
 </CustomApplication>

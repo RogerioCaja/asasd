@@ -169,6 +169,6 @@
     </nameField>
     <pluralLabel>Potencial de Compras</pluralLabel>
     <searchLayouts/>
-    <sharingModel>Private</sharingModel>
+    <sharingModel>ReadWrite</sharingModel>
     <visibility>Public</visibility>
 </CustomObject>

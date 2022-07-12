@@ -36,10 +36,6 @@
                 <field>EndDateBilling__c</field>
             </layoutItems>
             <layoutItems>
-                <behavior>Edit</behavior>
-                <field>PaymentBaseDate__c</field>
-            </layoutItems>
-            <layoutItems>
                 <behavior>Required</behavior>
                 <field>NumberOfDaysAfterPayment__c</field>
             </layoutItems>
@@ -87,10 +83,6 @@
     </layoutSections>
     <relatedLists>
         <fields>NAME</fields>
-        <fields>Product__c</fields>
-        <fields>UnitPrice__c</fields>
-        <fields>Cost__c</fields>
-        <fields>CREATED_DATE</fields>
         <relatedList>JurosDescontoAntecipao__c.harvest__c</relatedList>
     </relatedLists>
     <showEmailCheckbox>false</showEmailCheckbox>
@@ -99,7 +91,7 @@
     <showRunAssignmentRulesCheckbox>false</showRunAssignmentRulesCheckbox>
     <showSubmitAndAttachButton>false</showSubmitAndAttachButton>
     <summaryLayout>
-        <masterLabel>00h63000006dJ15</masterLabel>
+        <masterLabel>00h1D000006MYQl</masterLabel>
         <sizeX>4</sizeX>
         <sizeY>0</sizeY>
         <summaryLayoutStyle>Default</summaryLayoutStyle>

@@ -16,6 +16,13 @@
         </values>
     </picklistValues>
     <picklistValues>
+        <picklist>DistributionChannel__c</picklist>
+        <values>
+            <fullName>Venda Direta</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
         <picklist>Freight__c</picklist>
         <values>
             <fullName>Y1</fullName>
@@ -105,114 +112,20 @@
         </values>
     </picklistValues>
     <picklistValues>
-        <picklist>OrderType__c</picklist>
-        <values>
-            <fullName>Pedido Filho</fullName>
-            <default>false</default>
-        </values>
-        <values>
-            <fullName>Pedido Mãe</fullName>
-            <default>false</default>
-        </values>
-        <values>
-            <fullName>Pedido Normal</fullName>
-            <default>false</default>
-        </values>
-    </picklistValues>
-    <picklistValues>
         <picklist>PaymentForm__c</picklist>
         <values>
-            <fullName>A</fullName>
-            <default>false</default>
-        </values>
-        <values>
-            <fullName>B</fullName>
-            <default>false</default>
-        </values>
-        <values>
-            <fullName>C</fullName>
-            <default>false</default>
-        </values>
-        <values>
-            <fullName>D</fullName>
-            <default>false</default>
-        </values>
-        <values>
-            <fullName>E</fullName>
-            <default>false</default>
-        </values>
-        <values>
-            <fullName>H</fullName>
-            <default>false</default>
-        </values>
-        <values>
-            <fullName>L</fullName>
-            <default>false</default>
-        </values>
-        <values>
-            <fullName>P</fullName>
-            <default>false</default>
-        </values>
-        <values>
-            <fullName>S</fullName>
-            <default>false</default>
-        </values>
-        <values>
-            <fullName>T</fullName>
-            <default>false</default>
-        </values>
-        <values>
-            <fullName>V</fullName>
-            <default>false</default>
-        </values>
-        <values>
-            <fullName>X</fullName>
+            <fullName>Bonificação</fullName>
             <default>false</default>
         </values>
     </picklistValues>
     <picklistValues>
         <picklist>Status</picklist>
         <values>
-            <fullName>0</fullName>
+            <fullName>Activated</fullName>
             <default>false</default>
         </values>
         <values>
-            <fullName>0001</fullName>
-            <default>false</default>
-        </values>
-        <values>
-            <fullName>001</fullName>
-            <default>false</default>
-        </values>
-        <values>
-            <fullName>1</fullName>
-            <default>false</default>
-        </values>
-        <values>
-            <fullName>2</fullName>
-            <default>false</default>
-        </values>
-        <values>
-            <fullName>3</fullName>
-            <default>false</default>
-        </values>
-        <values>
-            <fullName>4</fullName>
-            <default>false</default>
-        </values>
-        <values>
-            <fullName>5</fullName>
-            <default>false</default>
-        </values>
-        <values>
-            <fullName>X</fullName>
-            <default>false</default>
-        </values>
-    </picklistValues>
-    <picklistValues>
-        <picklist>StatusRecusa__c</picklist>
-        <values>
-            <fullName>Teste</fullName>
+            <fullName>Draft</fullName>
             <default>false</default>
         </values>
     </picklistValues>
@@ -254,19 +167,7 @@
             <default>false</default>
         </values>
         <values>
-            <fullName>Em Aprovação - Diretor</fullName>
-            <default>false</default>
-        </values>
-        <values>
-            <fullName>Em Aprovação - Gerente Regional</fullName>
-            <default>false</default>
-        </values>
-        <values>
-            <fullName>Em Aprovação - Mesa de Grãos</fullName>
-            <default>false</default>
-        </values>
-        <values>
-            <fullName>Em aprovação - Gerente Filial</fullName>
+            <fullName>Em aprovação</fullName>
             <default>false</default>
         </values>
         <values>

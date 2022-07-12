@@ -40,6 +40,18 @@
                 <default>false</default>
                 <label>Cancelado</label>
             </value>
+            <value>
+                <fullName>Em Digitação</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Em Digitação</label>
+            </value>
+            <value>
+                <fullName>Pré Pedido</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Pré Pedido</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

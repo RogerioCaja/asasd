@@ -44,13 +44,11 @@
     </actionOverrides>
     <actionOverrides>
         <actionName>Edit</actionName>
-        <content>CallOrderPage</content>
-        <formFactor>Large</formFactor>
-        <skipRecordTypeSelect>false</skipRecordTypeSelect>
-        <type>LightningComponent</type>
+        <type>Default</type>
     </actionOverrides>
     <actionOverrides>
         <actionName>Edit</actionName>
+        <formFactor>Large</formFactor>
         <type>Default</type>
     </actionOverrides>
     <actionOverrides>

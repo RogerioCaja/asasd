@@ -82,10 +82,6 @@
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
-        <fields>Product__c</fields>
-        <fields>UnitPrice__c</fields>
-        <fields>Cost__c</fields>
-        <fields>CREATED_DATE</fields>
         <relatedList>JurosDescontoAntecipao__c.Culture__c</relatedList>
     </relatedLists>
     <showEmailCheckbox>false</showEmailCheckbox>
@@ -94,7 +90,7 @@
     <showRunAssignmentRulesCheckbox>false</showRunAssignmentRulesCheckbox>
     <showSubmitAndAttachButton>false</showSubmitAndAttachButton>
     <summaryLayout>
-        <masterLabel>00h63000006dJ0k</masterLabel>
+        <masterLabel>00h17000008wsWl</masterLabel>
         <sizeX>4</sizeX>
         <sizeY>0</sizeY>
         <summaryLayoutStyle>Default</summaryLayoutStyle>

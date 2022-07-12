@@ -5,7 +5,7 @@
     <label>Porcentagem Desconto</label>
     <precision>18</precision>
     <required>false</required>
-    <scale>6</scale>
+    <scale>2</scale>
     <trackHistory>false</trackHistory>
     <type>Percent</type>
 </CustomField>

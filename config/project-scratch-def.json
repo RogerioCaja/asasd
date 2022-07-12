@@ -1,7 +1,7 @@
 {
-  "orgName": "AgroGalaxy - SF",
+  "orgName": "Example - SF",
   "edition": "Enterprise",
-  "language": "en_US",
+  "language": "pt_BR",
   "features": ["Communities", "AdditionalFieldHistory:40", "Entitlements"],
   "settings": {
     "currencySettings": {
