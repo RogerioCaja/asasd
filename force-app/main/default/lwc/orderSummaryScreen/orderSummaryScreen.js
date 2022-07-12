@@ -114,11 +114,12 @@ export default class OrderSummaryScreen extends LightningElement {
                 }
             }
             
+            let margin = (1 - (orderTotalCost / orderTotalPrice)) * 100;
             if(this.headerData.tipo_venda != 'Venda Barter')
             {
-                this.orderMargin = this.fixDecimalPlacesFront((1 - (orderTotalCost / orderTotalPrice)) * 100) + '%';
+                this.orderMargin = this.fixDecimalPlacesFront(margin) + '%';
             }
-            this.summaryDataLocale.orderMargin = this.orderMargin;
+            this.summaryDataLocale.orderMargin = (+(Math.trunc(+(margin + 'e' + 6)) + 'e' + -6)).toFixed(6);
             this.defineOrderMargin();
         }
     }
