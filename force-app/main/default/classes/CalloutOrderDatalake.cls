@@ -156,7 +156,7 @@ public without sharing class CalloutOrderDatalake {
                 }
                 System.debug(statusDesc.get('1'));
             
-            List<ShippingDivison__c> divisonList = [SELECT Id,Name, DeliveryDate__c, Quantity__c, OrderItem__c, ExternalId__c FROM ShippingDivison__c WHERE OrderItem__c IN: orderItemIds];
+            List<ShippingDivison__c> divisonList = [SELECT Id,Name, DeliveryDate__c, Quantity__c, OrderItem__c, ExternalId__c, SapNumber__c FROM ShippingDivison__c WHERE OrderItem__c IN: orderItemIds];
             Map<Id, List<ShippingDivison__c>> divisionMap = new  Map<Id, List<ShippingDivison__c>>();
 
             for(ShippingDivison__c sd : divisonList){
@@ -235,17 +235,7 @@ public without sharing class CalloutOrderDatalake {
                 header.orderMargin = order.OrderMargin__c;
                 header.orderType = order.OrderType__c;
                 header.isOrderMother = order.IsOrderMother__c;
-                header.recordType = order.RecordTypeId;
-
-
-
-                if(order.Culture__c != null){
-                    header.culture = string.valueOf(order.Culture__r.Codigo__c);
-                    header.culture = string.valueOf(order.Culture__r.Name); //Adicionar no SELECT
-                }else{
-                    header.culture = null;
-                }
-
+                header.recordType = Schema.getGlobalDescribe().get('Order').getDescribe().getRecordTypeInfosById().get(order.RecordTypeId).getName();
 
                 header.orderItemList = orderItemList;
                 header.scheduleList = scheduleList;
@@ -349,7 +339,7 @@ public without sharing class CalloutOrderDatalake {
             this.orderItemCode = orderItem.NumeroSap__c; 
             this.material = orderItem.Product2.ExternalId__c;
             this.orderItem = orderItem.ExternalId__c;
-            this.divisaoRemessa = shippingDivision.Name;
+            this.divisaoRemessa = shippingDivision.SapNumber__c;
             this.shippingExternalId = shippingDivision.ExternalId__c; 
             this.quantityItem = shippingDivision.Quantity__c; // Quantity__c
             this.deliveryDate = shippingDivision.DeliveryDate__c; // DeliveryDate__c
