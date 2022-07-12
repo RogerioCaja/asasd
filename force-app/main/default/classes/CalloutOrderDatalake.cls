@@ -214,7 +214,7 @@ public without sharing class CalloutOrderDatalake {
 
                 header.codigoSap = order.CodigoSap__c;
                 header.numeroPedidoApp = order.NumeroPedidoApp__c;
-                header.pricebook2 = order.Pricebook2Id;
+                //header.pricebook2 = order.Pricebook2Id;
                 header.orderReferencie = order.OrderReference__c;
                 header.paymentDate = order.PaymentDate__c;
                 header.effectiveDate = order.EffectiveDate;
@@ -276,7 +276,7 @@ public without sharing class CalloutOrderDatalake {
 
                 header.codigoSap = order.CodigoSap__c;
                 header.numeroPedidoApp = order.NumeroPedidoApp__c;
-                header.pricebook2 = order.Pricebook2Id;
+                //header.pricebook2 = order.Pricebook2Id;
                 header.orderReferencie = order.OrderReference__c;
                 header.paymentDate = order.PaymentDate__c;
                 header.effectiveDate = order.EffectiveDate;
@@ -324,7 +324,7 @@ public without sharing class CalloutOrderDatalake {
         public String salesConditionName;
         public String codigoSap; 
         public String numeroPedidoApp; 
-        public String pricebook2; 
+        //public String pricebook2; 
         public String shippingAccount; 
         public String paymentAccount; 
         public String crop; 
@@ -377,7 +377,7 @@ public without sharing class CalloutOrderDatalake {
         public String salesConditionName;
         public String codigoSap; 
         public String numeroPedidoApp; 
-        public String pricebook2; 
+        //public String pricebook2; 
         public String shippingAccount; 
         public String paymentAccount; 
         public String crop; 
@@ -459,7 +459,7 @@ public without sharing class CalloutOrderDatalake {
         public String orderId;
         public String material;
         //public String pricebookEntryId;
-        public String orderExternalId;
+        //public String orderExternalId;
         public Decimal quantityItem;
         public String unitMeasure;
         public Decimal percentComission;
@@ -486,7 +486,7 @@ public without sharing class CalloutOrderDatalake {
         public OrderItemParameters(OrderItem orderItem, List<Integer> shippingDivison){
             this.orderId = orderItem.OrderId;
             this.material = orderItem.Product2.ExternalId__c;
-            this.orderExternalId = orderItem.ExternalId__c;
+            //this.orderExternalId = orderItem.ExternalId__c;
             this.quantityItem = orderItem.Quantity;
             this.unitMeasure = orderItem.UnitMeasure__c;
             this.percentComission = orderItem.PercentComission__c;
