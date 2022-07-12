@@ -286,41 +286,68 @@ global with sharing class TemplateDataIntegrationFields {
             if(pedidoMae == null){
                 pedidoMae = false;
             }
+            
+            
+            switch on salesType {
+               // ---- Pedido mãe  ----
+                when 'ZCCO' {
+                    pedidoMae = true;
+                }
+                when 'ZCVF'{
+                    pedidoMae = true;
+                }
+                when 'ZCVN'{
+                    pedidoMae = true;
+                }
 
-            /*
-            switch on Status {
-                when 'Em análise de Crédito' {
-                    Status = '1';
+               // --- Pedidos normais ---
+                when 'ZSER'{
+                    pedidoMae = false;
                 }
-                when 'Crédito Bloqueado'{
-                    Status = '2';
+                when 'ZVBA'{
+                    pedidoMae = false;
+                    
                 }
-                when 'Crédito Liberado'{
-                    Status = '3';
+                when 'ZVEF'{
+                    pedidoMae = false;
+                    
                 }
-                when 'Faturado Parcialmente'{
-                    Status = '4';
+                when 'ZVNO' {
+                    pedidoMae = false;
+
                 }
-                when 'Concluído'{
-                    Status = '5';
+                when 'ZVVO'{
+                    pedidoMae = false;
+                    
                 }
-                when 'Cancelado'{
-                    Status = 'X';
-                }
-                when 'Em analise de Credito' {
-                    Status = '1';
-                }
-                when 'Credito Bloqueado'{
-                    Status = '2';
-                }
-                when 'Credito Liberado'{
-                    Status = '3';
-                }
-                when 'Concluido'{
-                    Status = '5';
+                when 'ZRCO'{
+                    pedidoMae = false;
+
                 }
             }
-            */
+
+            
+                    Map<String, String> codTypeOrder = new Map<String, String>();
+                    if(!pedidoMae){
+                        
+                        codTypeOrder.put('ZRAG', 'Venda Amostra Grátis');
+                        codTypeOrder.put('ZRBO', 'Venda Bonificação');
+                        codTypeOrder.put('ZVBA', 'Venda Barter');
+                        codTypeOrder.put('ZRCO', 'Venda Conta e Ordem');
+                        codTypeOrder.put('ZSER', 'Venda de Serviço');
+                        codTypeOrder.put('ZVEF', 'Venda Entrega Futura');
+                        codTypeOrder.put('ZVNO', 'Venda Normal');
+                        codTypeOrder.put('ZVVO', 'Venda Ordem Simples Faturamento');
+                    }
+                    else{
+                        codTypeOrder.put('ZCCO', 'Venda Conta e Ordem');
+                        codTypeOrder.put('ZCVF', 'Venda Entrega Futura');
+                        codTypeOrder.put('ZCVN', 'Venda Normal');
+                    }
+
+                    salesType = codTypeOrder.containsKey(salesType) ? codTypeOrder.get(salesType) : salesType;
+                
+          
             
             return new Order(
 
@@ -359,6 +386,7 @@ global with sharing class TemplateDataIntegrationFields {
                 
                 /* ATUALIZAÇÃO 05.07.2022*/
                 RecordTypeId = this.salesType != null ? Schema.SObjectType.Order.getRecordTypeInfosByName().get(this.salesType).getRecordTypeId() : this.recordIdToUpdate,
+                
                 Type = this.salesType != null ? this.salesType : Schema.getGlobalDescribe().get('Order').getDescribe().getRecordTypeInfosById().get(this.recordIdToUpdate).getName(),
                 OrderType__c = this.pedidoMae ? 'Pedido Mãe' : 'Pedido Normal'
                 
@@ -406,6 +434,7 @@ global with sharing class TemplateDataIntegrationFields {
         public Decimal custoPreco;
         public Decimal precoPraticado;
         public Decimal precoUnitario;
+        public String motivoRecusa;
         public OrderItem serialize(Map<String, Id> lookups){
 
             
@@ -438,7 +467,8 @@ global with sharing class TemplateDataIntegrationFields {
                 PracticedCost__c = this.custoPreco,
                 PracticedPrice__c = this.precoPraticado,
                 UnitPrice = this.precoPraticado,
-                AmountUsed__c = 0
+                AmountUsed__c = 0,
+                ReasonRefuse__c = this.motivoRecusa
             );
         }
         public List<String> getRequiredFields(){
