@@ -372,7 +372,7 @@ public without sharing class CalloutBP {
         System.debug('companyListToUpsert: '+ companyListToUpsert);
         if (!companyListToUpsert.isEmpty()) {
             Try{
-                Database.upsert(companyListToUpsert, Company__c.ExternalId__c, false);
+                Database.upsert(companyListToUpsert, Company__c.ExternalID__c, false);
              } 
              Catch(System.Exception e){
                 System.debug('Exception type caught: ' + e.getTypeName());
