@@ -25,6 +25,8 @@ global without sharing class IntegrationINOrder {
 
         List<TemplateDataIntegrationFields.ShippingDivisonINData> shippingDivisonListToUpsert = new List<TemplateDataIntegrationFields.ShippingDivisonINData>();
         
+        List<TemplateDataIntegrationFields.ConditionInsert> conditionList = new List<TemplateDataIntegrationFields.ConditionInsert>();
+        
         List<String> idOrders = new List<String>();
 
         // Guarda uma lista de pedidos para fazer o upsert
@@ -123,6 +125,11 @@ global without sharing class IntegrationINOrder {
                         order.salesCTV = partnerList.KUNNR;
                     }
             }
+
+                
+                conditionList.addAll(order.conditions);
+                
+            
             System.debug('accountLookups' + accountLookups);
             
             /*
@@ -381,7 +388,7 @@ global without sharing class IntegrationINOrder {
         Map<String, List<TemplateDataIntegrationFields.Response>> orderItemsResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
         if(orderItemListToUpsert.size() != 0){
             orderItemsResponse.putAll(
-                IntegrationINOrderItem.upsertOrderItem(orderItemListToUpsert)
+                IntegrationINOrderItem.upsertOrderItem(orderItemListToUpsert, conditionList)
             );
 
         }

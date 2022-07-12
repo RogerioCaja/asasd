@@ -3,7 +3,7 @@ global with sharing class IntegrationINOrderItem {
     }
     // Integração do OrderItem Upsert
     //@HttpPost 
-    global static Map<String, List<TemplateDataIntegrationFields.Response>> upsertOrderItem(List<TemplateDataIntegrationFields.OrderItemINData> request) {
+    global static Map<String, List<TemplateDataIntegrationFields.Response>> upsertOrderItem(List<TemplateDataIntegrationFields.OrderItemINData> request, List<TemplateDataIntegrationFields.ConditionInsert> conditionList) {
         // Guarda as relações de order e product de preço com OrderItem
         Map<String, Id> lookups = new Map<String, Id>();
         Set<String> orderLookups = new Set<String>();
@@ -14,17 +14,62 @@ global with sharing class IntegrationINOrderItem {
         List<OrderItem> orderItemListToUpsert = new List<OrderItem>();
 
         List<String> idsOrderItem = new List<String>();
+        Map<String, String> ordersCondition = new Map<String, String>();
+
         //Application of business rules
         for(TemplateDataIntegrationFields.OrderItemINData OrderItemINData : request) {
             // Pega a relação do OrderItem com Order
             //Getting order parameters to search
+
+
             orderLookups.add(OrderItemINData.orderExternalId);
             // Pega a relação do Product com o OrderItem
             //Getting product parameters to search
             productLookups.add(OrderItemINData.material);
 
-            idsOrderItem.add(OrderItemINData.orderExternalId + '|' + OrderItemINData.orderItemCode);
+            idsOrderItem.add(OrderItemINData.orderExternalId + '|' + OrderItemINData.orderItemCode);  
+            /*
+            if(!ordersCondition.containsKey(OrderItemINData.orderItemCode)){
+                ordersCondition.put(OrderItemINData.orderItemCode, new List<TemplateDataIntegrationFields.ConditionInsert>());
+            }
+            */
+            for(TemplateDataIntegrationFields.ConditionInsert  conditions : conditionList){
+    
+                if(conditions.KPOSN == OrderItemINData.orderItemCode){
+                    OrderItemINData.conditions.add(conditions);
+
+                    if(conditions.KSCHL == 'ZPR0'){
+                        OrderItemINData.precoUnitario = Decimal.valueOf((Decimal.valueOf(conditions.KBETR) / Decimal.valueOf(conditions.KPEIN)));
+                       //OrderItemINData.multiplicador == conditions.KPEIN;
+                    }
+                    if(conditions.KSCHL == 'ZDAN'){
+                       OrderItemINData.porcentagemDesconto = Decimal.valueOf(conditions.KBETR);
+                    }
+                    if(conditions.KSCHL == 'ZJUR'){
+                        OrderItemINData.porcentagemAcrescComercial = Decimal.valueOf(conditions.KBETR);
+                    }
+                    if(conditions.KSCHL == 'ZDEC'){
+                        if(condition.KBETR > 0){
+                            OrderItemINData.porcentagemAcrescFin == Decimal.valueOf(conditions.KBETR);
+                        }
+                        else {
+                            OrderItemINData.porcentagemDescontoFin == Decimal.valueOf(conditions.KBETR);
+                        }
+                    }   
+            }
+            /*
+            Caso seja necessário 
+            if(OrderItemINData.porcentagemDesconto > 0){
+                OrderItemINData.precoUnitario = (OrderItemINData.precoUnitario - OrderItemINData.porcentagemDesconto) + (OrderItemINData.porcentagemAcrescFin);
+                }
+                else{
+                    OrderItemINData.precoUnitario = (OrderItemINData.precoUnitario + OrderItemINData.porcentagemAcrescComercial) + (OrderItemINData.porcentagemAcrescFin);
+                }
+            }
+            */
         }
+
+        
 
         Map<String, OrderItem> orderItemsIdsMap = new Map<String, OrderItem>();
         List<OrderItem> orderItemSelectList = new List<OrderItem>([SELECT Id, Order.CodigoSap__c, Product2.ProductCode__c, Product2Id, OrderId,
@@ -75,47 +120,47 @@ global with sharing class IntegrationINOrderItem {
             }
 
             if(orderItem.unidadeMedida == null){
-                orderItem.unidadeMedida = ordItem.UnitMeasure__c;
+                //orderItem.unidadeMedida = ordItem.UnitMeasure__c;
             }
 
             if(orderItem.porcentagemComissao == null){
-                orderItem.porcentagemComissao = ordItem.PercentComission__c;
+                //orderItem.porcentagemComissao = ordItem.PercentComission__c;
             }
 
             if(orderItem.porcentagemDesconto == null){
-                orderItem.porcentagemDesconto = ordItem.DiscountPercent__c;
+                //orderItem.porcentagemDesconto = ordItem.DiscountPercent__c;
             }
 
             if(orderItem.comissaoValor == null){
-                orderItem.comissaoValor = ordItem.ComissionValue__c;
+                //orderItem.comissaoValor = ordItem.ComissionValue__c;
             }
 
             if(orderItem.margemComercial == null){
-                orderItem.margemComercial = ordItem.CommercialMargin__c;
+                //orderItem.margemComercial = ordItem.CommercialMargin__c;
             }
 
             if(orderItem.descontoValor == null){
-                orderItem.descontoValor = ordItem.DiscountValue__c;
+                //orderItem.descontoValor = ordItem.DiscountValue__c;
             }
 
             if(orderItem.valorTotal == null){
-                orderItem.valorTotal = ordItem.FinalTotalValue__c;
+                //orderItem.valorTotal = ordItem.FinalTotalValue__c;
             }
 
             if(orderItem.porcentagemDescontoFin == null){
-                orderItem.porcentagemDescontoFin = ordItem.FinancialDiscountPercent__c;
+                //orderItem.porcentagemDescontoFin = ordItem.FinancialDiscountPercent__c;
             }
 
             if(orderItem.valorDescontoFin == null){
-                orderItem.valorDescontoFin = ordItem.FinancialDiscountValue__c;
+                //orderItem.valorDescontoFin = ordItem.FinancialDiscountValue__c;
             }
 
             if(orderItem.porcentagemAcrescFin == null){
-                orderItem.porcentagemAcrescFin = ordItem.FinancialAdditionPercent__c;
+                //orderItem.porcentagemAcrescFin = ordItem.FinancialAdditionPercent__c;
             }
 
             if(orderItem.valorAcrescFin == null){
-                orderItem.valorAcrescFin = ordItem.FinancialAdditionValue__c;
+                //orderItem.valorAcrescFin = ordItem.FinancialAdditionValue__c;
             }
 
             if(orderItem.porcentagemAcrescComercial == null){
@@ -123,11 +168,11 @@ global with sharing class IntegrationINOrderItem {
             }
 
             if(orderItem.valorAcrescComercial == null){
-                orderItem.valorAcrescComercial = ordItem.CommercialAdditionValue__c;
+               orderItem.valorAcrescComercial = ordItem.CommercialAdditionValue__c;
             }
 
             if(orderItem.dosagem == null){
-                orderItem.dosagem = ordItem.Dosage__c;
+               orderItem.dosagem = ordItem.Dosage__c;
             }
 
             if(orderItem.custoLista == null){
@@ -194,4 +239,5 @@ global with sharing class IntegrationINOrderItem {
         //Returning response
         return responseMap;
     }
+}
 }

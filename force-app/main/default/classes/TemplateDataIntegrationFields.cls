@@ -233,7 +233,14 @@ global with sharing class TemplateDataIntegrationFields {
         public PartnerInsert(){}
     }
 
-
+    public class ConditionInsert{
+        public String KNUMV;
+        public String KPOSN;
+        public String KSCHL;
+        public String KNUKBETRMV;
+        public String KPEIN;
+        public ConditionInsert(){}
+    }
 
 
     global class OrderINData implements FieldData{
@@ -281,6 +288,7 @@ global with sharing class TemplateDataIntegrationFields {
         public List<TemplateDataIntegrationFields.OrderItemINData> orderItems;
         public List<TemplateDataIntegrationFields.ShippingDivisonINData> shippingDivison;
         public List<TemplateDataIntegrationFields.PartnerInsert> partners;
+        public List<TemplateDataIntegrationFields.ConditionInsert> conditions;
         public Order serialize(Map<String, Id> lookups){
 
             if(pedidoMae == null){
