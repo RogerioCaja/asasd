@@ -41,12 +41,24 @@ Thumbs.db
 ehthumbs.db
 [Dd]esktop.ini
 $RECYCLE.BIN/
-#force-app/main/default/profiles/*
+force-app/main/default/profiles/*
 force-app/main/default/lwc/jsconfig.json
 force-app/main/default/lwc/.eslintrc.json
+force-app/main/default/customindex/*
+force-app/main/default/appMenus/*
+
 manifest/package.xml
 
 destructiveChanges
 force-app/main/default/profiles/*
+force-app/main/default/profileSessionSettings/*
+force-app/main/default/profilePasswordPolicies/*
 scripts/csv/converted-output/*
 scripts/csv/converted-output-error/*
+force-app/main/default/customIndex/*
+
+force-app/main/default/assignmentRules/*
+force-app/main/default/fieldRestrictionRules/*
+
+
+

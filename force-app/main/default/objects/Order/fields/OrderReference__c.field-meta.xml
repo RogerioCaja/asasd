@@ -5,7 +5,7 @@
     <externalId>false</externalId>
     <label>Pedido Mãe</label>
     <referenceTo>Order</referenceTo>
-    <relationshipLabel>Pedidos</relationshipLabel>
+    <relationshipLabel>Pedidos Filhos</relationshipLabel>
     <relationshipName>Pedidos</relationshipName>
     <required>false</required>
     <trackHistory>false</trackHistory>
