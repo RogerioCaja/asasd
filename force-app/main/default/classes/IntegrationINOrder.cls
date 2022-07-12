@@ -127,9 +127,11 @@ global without sharing class IntegrationINOrder {
             if(order.status == null){
                 order.status = ord.Status;
             }
+            /*
             if(order.statusRecusa == null){
                 order.statusRecusa = ord.StatusRecusa__c;
             }
+            */
             if(order.type == null){
                 order.type = ord.Type;
             }

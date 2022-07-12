@@ -239,7 +239,7 @@ global with sharing class TemplateDataIntegrationFields {
     global class OrderINData implements FieldData{
 
         public String Status;
-        public String statusRecusa;
+        //public String statusRecusa;
         public String numeroPedidoApp;
         public String pricebook2Id;
         public String CodigoSap;
@@ -369,7 +369,7 @@ global with sharing class TemplateDataIntegrationFields {
                 EffectiveDate = Date.valueOf(effectiveDate),
                 ShippingDate__c = Date.valueOf(ShippingDate),
                 Status = this.status,
-                StatusRecusa__c	= this.statusRecusa,
+                //StatusRecusa__c	= this.statusRecusa,
                 CustomerOrderNumber__c = this.customerOrderNumber,
                 PaymentForm__c = this.paymentForm,
                 StatusSF__c = 'Em digitação',

@@ -249,9 +249,58 @@ public without sharing class CalloutOrderDatalake {
             }
             else {
                 CalloutOrderDatalake.HeaderUpdate header = new CalloutOrderDatalake.HeaderUpdate();
-                header.codSap = order.CodigoSap__c;
-                header.codSalesforce = order.OrderNumber;
-                header.expiredDate = order.EndDate;
+                header.shippingAccount = order.ShippingAccount__r.ExternalId__c; // Já está adicionado na query
+                header.paymentAccount = order.Account.ExternalId__c;  // Já está adicionado na query
+                header.crop = order.Crop__r.Code__c;  // Já está adicionado na query
+                header.cropName = order.Crop__r.Name; // Já está adicionado na query
+                header.culture = order.Culture__r.Codigo__c; // Já está adicionado na query
+                header.cultureName = order.Culture__r.Name; // Já está adicionado na query
+                header.salesOrg = order.SalesOrg__r.SalesOrganizationCode__c; // Já está adicionado na query
+                header.salesOrgName = order.SalesOrg__r.Name; // Já está adicionado na query
+                
+                header.salesCTV = order.SalesCTV__r.CodigoSap__c; // Já está adicionado na query
+                header.paymentCondition = order.PaymentCondition__r.Code__c; // Já está adicionado na query
+                header.distributionChannel = order.DistributionChannel__r.Codigo__c; // Já está adicionado na query
+                header.activitySector = order.ActivitySector__r.Codigo__c; // Já está adicionado na query
+                header.salesCondition = order.SalesCondition__r.ExternalId__c; // Já está adicionado na query
+                header.company = order.Company__r.ExternalID__c; // Já está adicionado na query
+				header.statusDesc = statusDesc.get(order.Status);
+                header.orderCodeSf = order.OrderNumber;
+                header.salesConditionName = order.SalesCondition__r.Name;
+                
+                header.paymentFormName = orderPayment.get(order.PaymentForm__c);
+                header.paymentConditionName = order.PaymentCondition__r.Name;
+                header.centroFornecedor = order.Company__r.SupplierCenter__c;
+                header.escritorioVendas = order.Company__r.SalesOffice__r.Codigo__c;
+                header.equipeVendas = order.Company__r.SalesTeam__r.ExternalId__c;
+
+                header.codigoSap = order.CodigoSap__c;
+                header.numeroPedidoApp = order.NumeroPedidoApp__c;
+                header.pricebook2 = order.Pricebook2Id;
+                header.orderReferencie = order.OrderReference__c;
+                header.paymentDate = order.PaymentDate__c;
+                header.effectiveDate = order.EffectiveDate;
+                header.shippingDate = order.ShippingDate__c;
+                header.status = order.Status;
+                header.statusRecusa = order.StatusRecusa__c;
+                header.type = order.Type;
+                header.customerOrderNumber = order.CustomerOrderNumber__c;
+                header.paymentForm = order.PaymentForm__c;
+                header.statusSF = order.StatusSF__c;
+                header.currencyOrder = order.Currency__c;
+                header.incoterms = order.Incoterms__c;
+                header.incoterms2 = order.Incoterms2__c;
+                header.description  = order.Description;
+                header.descriptionBillingSale  = order.DescriptionBillingSale__c;
+                header.finalTotalValue  = order.FinalTotalValue__c;
+                header.hectare  = order.Hectare__c;
+                header.orderMargin = order.OrderMargin__c;
+                header.orderType = order.OrderType__c;
+                header.isOrderMother = order.IsOrderMother__c;
+                header.recordType = Schema.getGlobalDescribe().get('Order').getDescribe().getRecordTypeInfosById().get(order.RecordTypeId).getName();
+
+                header.orderItemList = orderItemList;
+                header.scheduleList = scheduleList;
                 this.header = header;
             }
 
@@ -319,9 +368,55 @@ public without sharing class CalloutOrderDatalake {
     }
 
     public class HeaderUpdate{
-        public String codSap;
-        public String codSalesforce;
-        public Date  expiredDate;
+        public String orderCodeSf;
+        public String paymentConditionName;
+        public String centroFornecedor;
+        public String escritorioVendas;
+        public String equipeVendas;
+		public String statusDesc;
+        public String salesConditionName;
+        public String codigoSap; 
+        public String numeroPedidoApp; 
+        public String pricebook2; 
+        public String shippingAccount; 
+        public String paymentAccount; 
+        public String crop; 
+        public String culture; 
+        public String salesOrg; 
+        public String salesCTV;
+        public String cropName;
+        public String cultureName; 
+        public String salesOrgName; 
+        public String paymentCondition; 
+        public String orderReferencie; 
+        public String distributionChannel; 
+        public String activitySector; 
+        public Date paymentDate; 
+        public Date effectiveDate; 
+        public Date shippingDate; 
+        public String status; 
+        public String statusRecusa; 
+        public String type; 
+        public String customerOrderNumber; 
+        public String paymentForm; 
+        public String paymentFormName;
+        public String statusSF; 
+        public String currencyOrder; 
+        public String incoterms; 
+        public String incoterms2; 
+        public String description;  
+        public String descriptionBillingSale;  
+        public Decimal finalTotalValue;  
+        public Decimal hectare;  
+        public Decimal orderMargin; 
+        public String orderType; 
+        public String salesCondition; 
+        public Boolean isOrderMother; 
+        public String company; 
+        public String recordType; 
+
+        public List<CalloutOrderDatalake.ScheduleParameters> scheduleList;
+        public List<CalloutOrderDatalake.OrderItemParameters> orderItemList;
 
         //public OrderUpdate(){}
     }
