@@ -36,7 +36,6 @@ global with sharing class TemplateDataIntegrationFields {
         public String initialDate;
         public String endDate;
 
-        public String costPrice;
 
         public String typeCurrency;
         public String externalId;
@@ -44,10 +43,10 @@ global with sharing class TemplateDataIntegrationFields {
         public String multiplicationFactor;
         // Chave(ExternalId__c): (orgVendas) | (safra) | (moeda) | (Material)(Lista de preço) | (Grupo de produtos)(Escritório de vendas)(Equipe de Vendas)(Cultura)(Segmento do Cliente)(Cliente) | (Material)(Equipe de vendas) | (Material)
         public JurosDescontoAntecipao__c serialize(Map<String, Id> lookups){
-            return new JurosDescontoAntecipao__c(
+            JurosDescontoAntecipao__c lists = new JurosDescontoAntecipao__c(
                 ClientGroup__c = this.accountGroup,
-                ConditionType__c = this.typeCondition == 'ZPR0' ||  this.typeCondition == 'ZPRS' ? 'Preço' : this.typeCondition == 'ZDAN'? 'Desconto' : 'Juros',
-                RecordTypeId = [SELECT Id FROM RecordType WHERE DeveloperName =: this.typeCondition == 'ZPRS' ? 'ZPR0' :  this.typeCondition ][0].Id,
+                ConditionType__c = this.typeCondition == 'ZPR0' ||  this.typeCondition == 'ZPRS' || this.typeCondition == 'ZCPE' ? 'Preço' : this.typeCondition == 'ZDAN'? 'Desconto' : 'Juros',
+                RecordTypeId = Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get(this.typeCondition == 'ZPRS' || this.typeCondition == 'ZCPE' ? 'ZPR0' :  this.typeCondition).getRecordTypeId(),
                 Culture__c = lookups.containsKey('Cultura__c'+this.cultureCode) ? lookups.get('Cultura__c'+this.cultureCode) : null,
                 DistributionCenter__c =lookups.containsKey('DistributionCenter__c'+this.center) ? lookups.get('DistributionCenter__c'+this.center) : null,
                 EndDate__c = this.endDate != null ? (Date.valueOf(this.endDate.contains('9999') ? this.endDate.replace('9999','2999') : this.endDate )) : null,
@@ -65,11 +64,18 @@ global with sharing class TemplateDataIntegrationFields {
                 Currency__c = this.typeCurrency,
                 SalesCondition__c = lookups.containsKey('SalesCondition__c'+this.salesCondition) ? lookups.get('SalesCondition__c'+this.salesCondition) : null, 
                 ProductMultiplier__c = Decimal.valueOf(this.multiplicationFactor.trim()),
-                UnitMeasurement__c = this.unitMeasurement != null ? this.unitMeasurement : null,
-                UnitPrice__c = (this.typeCurrency == 'BRL' || this.typeCurrency == 'USD') ? Decimal.valueOf(this.unitPrice.trim()) : null,
-                Percentage__c = this.typeCurrency == '%' ? Decimal.valueOf(this.unitPrice.trim()) : null,
-                Cost__c = this.costPrice != null ?  Decimal.valueOf(this.costPrice.trim()) : 0
+                UnitMeasurement__c = this.unitMeasurement != null ? this.unitMeasurement : null
             );
+            if(this.typeCondition == 'ZPRS'){
+                lists.Cost__c = Decimal.valueOf(this.unitPrice.trim());
+            }
+            else if(this.typeCondition == 'ZPR0' || this.typeCondition == 'ZCPE'){
+                lists.UnitPrice__c = Decimal.valueOf(this.unitPrice.trim());
+            }
+            else{
+                lists.Percentage__c = Decimal.valueOf(this.unitPrice.trim());
+            }
+            return lists;
             
         }
     
@@ -138,7 +144,7 @@ global with sharing class TemplateDataIntegrationFields {
                 ProductSubgroup2__c = this.SubgrupoMercadoria2,
                 MarcadoEliminacao__c = this.MarcadoEliminacao,
                 QuantityUnitOfMeasure = this.UnidadePeso,
-                ExternalId__c = this.CodigoControle,
+                ExternalId__c = this.ProductCode,
                 ClasseAvaliacao__c = this.ClasseAvaliacao,
                 OrigemMaterial__c = this.OrigemMaterial,
                 Brand__c = this.Marca,
@@ -271,11 +277,6 @@ global with sharing class TemplateDataIntegrationFields {
         /*ATUALIZAÇÃO 05.07.22*/
         public String salesType;
         public String recordIdToUpdate;
-        /* Verificar parâmetros com o Lake - 30.06.22
-        public String CodigoExternoAccount; 
-        public String EscritorioVendas;
-        public String EquipeVendas;
-        */
         //public String clienteCode; 
         public List<TemplateDataIntegrationFields.OrderItemINData> orderItems;
         public List<TemplateDataIntegrationFields.ShippingDivisonINData> shippingDivison;
@@ -286,38 +287,67 @@ global with sharing class TemplateDataIntegrationFields {
                 pedidoMae = false;
             }
 
-            switch on Status {
-                when 'Em análise de Crédito' {
-                    Status = '1';
+            
+            switch on salesType {
+               // ---- Pedido mãe  ----
+                when 'ZCCO' {
+                    pedidoMae = true;
                 }
-                when 'Crédito Bloqueado'{
-                    Status = '2';
+                when 'ZCVF'{
+                    pedidoMae = true;
                 }
-                when 'Crédito Liberado'{
-                    Status = '3';
+                when 'ZCVN'{
+                    pedidoMae = true;
                 }
-                when 'Faturado Parcialmente'{
-                    Status = '4';
+
+               // --- Pedidos normais ---
+                when 'ZSER'{
+                    pedidoMae = false;
                 }
-                when 'Concluído'{
-                    Status = '5';
+                when 'ZVBA'{
+                    pedidoMae = false;
+                    
                 }
-                when 'Cancelado'{
-                    Status = 'X';
+                when 'ZVEF'{
+                    pedidoMae = false;
+                    
                 }
-                when 'Em analise de Credito' {
-                    Status = '1';
+                when 'ZVNO' {
+                    pedidoMae = false;
+
                 }
-                when 'Credito Bloqueado'{
-                    Status = '2';
+                when 'ZVVO'{
+                    pedidoMae = false;
+                    
                 }
-                when 'Credito Liberado'{
-                    Status = '3';
-                }
-                when 'Concluido'{
-                    Status = '5';
+                when 'ZRCO'{
+                    pedidoMae = false;
+
                 }
             }
+
+            
+                    Map<String, String> codTypeOrder = new Map<String, String>();
+                    if(!pedidoMae){
+                        
+                        codTypeOrder.put('ZRAG', 'VendaAmostraGratis');
+                        codTypeOrder.put('ZRBO', 'VendaBonificacao');
+                        codTypeOrder.put('ZVBA', 'VendaBarter');
+                        codTypeOrder.put('ZRCO', 'VendaContaOrdem');
+                        codTypeOrder.put('ZSER', 'VendaServico');
+                        codTypeOrder.put('ZVEF', 'VendaEntregaFutura');
+                        codTypeOrder.put('ZVNO', 'VendaNormal');
+                        codTypeOrder.put('ZVVO', 'VendaOrdemSimplesFaturamento');
+                    }
+                    else{
+                        codTypeOrder.put('ZCCO', 'VendaContaOrdem');
+                        codTypeOrder.put('ZCVF', 'VendaEntregaFutura');
+                        codTypeOrder.put('ZCVN', 'VendaNormal');
+                    }
+
+                    salesType = codTypeOrder.containsKey(salesType) ? codTypeOrder.get(salesType) : '';
+                
+          
             
             return new Order(
 
@@ -330,7 +360,7 @@ global with sharing class TemplateDataIntegrationFields {
                 Culture__c = lookups.containsKey('Cultura__c'+this.culture) ? lookups.get('Cultura__c'+this.culture) : null,
                 SalesOrg__c = lookups.containsKey('SalesOrg__c'+this.salesOrg) ? lookups.get('SalesOrg__c'+this.salesOrg) : null,
                 SalesCTV__c = lookups.containsKey('User'+this.salesCTV) ? lookups.get('User'+this.salesCTV) : null,
-                PaymentCondition__c = lookups.containsKey('CondicaoPagamento__c'+this.paymentCondition) ? lookups.get('CondicaoPagamento__c'+this.paymentCondition) : null,
+                PaymentCondition__c = lookups.containsKey('CondicaoPagamento__c'+this.PaymentCondition) ? lookups.get('CondicaoPagamento__c'+this.PaymentCondition) : null,
                 OrderReference__c = lookups.containsKey('OrderReference__c'+this.orderReference) ? lookups.get('OrderReference__c'+this.orderReference) : null,
                 DistributionChannel__c = lookups.containsKey('DistributionChannel__c' + this.distributionChannel)? lookups.get ('DistributionChannel__c' + this.distributionChannel) : null,
                 ActivitySector__c = lookups.containsKey('ActivitySector__c' + this.activitySector)? lookups.get ('ActivitySector__c' + this.activitySector) : null,
@@ -339,43 +369,32 @@ global with sharing class TemplateDataIntegrationFields {
                 ShippingDate__c = Date.valueOf(ShippingDate),
                 Status = this.status,
                 StatusRecusa__c	= this.statusRecusa,
-                Type = this.type,
                 CustomerOrderNumber__c = this.customerOrderNumber,
                 PaymentForm__c = this.paymentForm,
+                StatusSF__c = 'Em digitação',
                 Currency__c = this.CurrencyOrder,
                 Incoterms__c = this.incoterms,
                 Incoterms2__c = this.incoterms,
-                Description = this.description,
+                Description = this.description + '1n73gr4ção N3sc4r4 5F x 4PP',
                 DescriptionBillingSale__c = this.descriptionBillingSale,
                 FinalTotalValue__c = this.valorFinalTotal,
                 Hectare__c = this.hectare,
                 OrderMargin__c = this.margemPedido,
-                OrderType__c = this.orderType,
-                SalesCondition__c = this.condicaoVenda,
+                SalesCondition__c = lookups.containsKey('SalesCondition__c'+this.condicaoVenda) ? lookups.get('SalesCondition__c'+this.condicaoVenda) : null,
                 IsOrderMother__c = this.pedidoMae,
                 Company__c = lookups.containsKey('Company__c' + this.company) ? lookups.get('Company__c' + this.company):null,
                 
                 /* ATUALIZAÇÃO 05.07.2022*/
-                RecordTypeId = this.salesType != null ? Schema.SObjectType.Order.getRecordTypeInfosByName().get(this.salesType).getRecordTypeId() : this.recordIdToUpdate
-                //RecordTypeId = 'Venda Normal'
+                RecordTypeId = this.salesType != null ? Schema.SObjectType.Order.getRecordTypeInfosByDeveloperName().get(this.salesType).getRecordTypeId() : this.recordIdToUpdate,
+                Type = this.salesType != null ? this.salesType : Schema.getGlobalDescribe().get('Order').getDescribe().getRecordTypeInfosById().get(this.recordIdToUpdate).getName(),
+                OrderType__c = this.pedidoMae ? 'Pedido Mãe' : 'Pedido Normal'
                 
             );
         }
 
         public List<String> getRequiredFields(){
             return new List<String>{
-                //'ShippingAccount__c',
-                //'salesType',
-                //'SalesCTV__c',
-                //'Crop__c',
-                //'Currency__c',
-                //'PaymentCondition__c',
-                //'PaymentDate__c',
-                //'ShippingDate__c',
-                //'PaymentForm__c',
-                //'Culture__c',
-                //'Incoterms__c',
-                //'Hectare__c',
+                //'CodigoSap__c'
                 //'AccountId'
      
             };
@@ -414,6 +433,7 @@ global with sharing class TemplateDataIntegrationFields {
         public Decimal custoPreco;
         public Decimal precoPraticado;
         public Decimal precoUnitario;
+        public String motivoRecusa;
         public OrderItem serialize(Map<String, Id> lookups){
 
             
@@ -423,6 +443,7 @@ global with sharing class TemplateDataIntegrationFields {
                 OrderId = this.orderExternalId,
                 Product2Id = lookups.containsKey('Product2'+this.material) ? lookups.get('Product2'+this.material) : null,
                 PricebookEntryId = lookups.containsKey('PricebookEntry'+ this.material) ? lookups.get('PricebookEntry' + this.material) : null,
+                //ProductCode = this.material,
                 ExternalId__c = this.orderExternalId + '|' + this.orderItemCode,
                 Quantity = this.quantidade,
                 UnitMeasure__c = this.unidadeMedida,
@@ -439,11 +460,14 @@ global with sharing class TemplateDataIntegrationFields {
                 CommercialAdditionPercent__c = this.porcentagemAcrescComercial,
                 CommercialAdditionValue__c = this.valorAcrescComercial,
                 Dosage__c = this.dosagem,
+                ListPrice__c = this.precoUnitario,
                 ListCost__c = this.custoLista,
-                NumeroSap__c = this.orderItemCode,
+                NumeroSap__c = String.valueOf(Integer.valueOf(this.orderItemCode)),
                 PracticedCost__c = this.custoPreco,
                 PracticedPrice__c = this.precoPraticado,
-                UnitPrice = this.precoUnitario
+                UnitPrice = this.precoPraticado,
+                AmountUsed__c = 0,
+                ReasonRefuse__c = this.motivoRecusa
             );
         }
         public List<String> getRequiredFields(){
@@ -488,11 +512,10 @@ global with sharing class TemplateDataIntegrationFields {
                 OrderItem__c = lookups.containsKey('OrderItem__c'+this.material) ? lookups.get('OrderItem__c'+this.material) : null,
                 ExternalId__c = this.orderExternalId + '|' + this.OrderItemCode + '|' + this.DivisaoRemessa,
                 DeliveryDate__c = this.DataDivisao,
-                Quantity__c = this.Quantidade, 
-                ConfirmedQuantity__c = this.QuantidadeConfirmada
+                Quantity__c = this.Quantidade
+                // ConfirmedQuantity__c = this.QuantidadeConfirmada
             );
         }
-        
         public List<String> getRequiredFields(){
             //Example
             return new List<String>{
@@ -515,8 +538,8 @@ global with sharing class TemplateDataIntegrationFields {
         public String getParentKey(){
             return 'OrderId';
         }
-        
     }
+
     
     global class NotaFiscalINData implements FieldData{
         //JSON fields Example
@@ -535,7 +558,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String propriedade;
         public Decimal valorTotalNf;
         public String naturezaOperacao;
-        public String numeroPedido;
+        public String numeroPedido; //
         public List<TemplateDataIntegrationFields.ItensNotaFiscalINData> itensNotaFiscal; 
         public NotaFiscal__c serialize(Map<String, Id> lookups){
 
@@ -545,7 +568,7 @@ global with sharing class TemplateDataIntegrationFields {
                 Name = this.invoiceName,
                 ExternalID__c = this.invoiceName + '|' + this.numeroNotaFiscal,
                 AccountCode__c = lookups.containsKey('Account'+this.cliente) ? lookups.get('Account' + this.cliente) : null,
-                OrderCode__c = lookups.containsKey('Order'+this.numeroPedido) ? lookups.get('Order'+ this.numeroPedido) : null,
+                OrderCode__c = lookups.containsKey('Order'+this.numeroPedido) ? lookups.get('Order'+ this.numeroPedido) : null, //
                 Company__c = lookups.containsKey('SalesOrg__c'+this.codigoEmpresa) ? lookups.get('SalesOrg__c'+this.codigoEmpresa) : null,
                 ReceiverAccountCode__c = lookups.containsKey('Account'+this.propriedade) ? lookups.get('Account'+this.propriedade) : null,
                 invoiceNumber__c = this.numeroNotaFiscal,
@@ -588,10 +611,6 @@ global with sharing class TemplateDataIntegrationFields {
             public String Empresa;
             public Decimal ValorBoleto;
             public String LinhaDigitavel;
-            public String localNegocio;
-            public String instrucoes;
-            public String numeroBoleto;
-            public String bancoEmpresa;
             public Boletos__c serialize(Map<String, Id> lookups){
 
                 //Returning Object with Fields
@@ -602,11 +621,7 @@ global with sharing class TemplateDataIntegrationFields {
                 ExpirationDate__c = Date.valueOf(VencimentoBoleto),
                 IssueDate__c = Date.valueOf(DataBoleto),
                 Value__c = this.ValorBoleto,
-                WritableLine__c = this.LinhaDigitavel,
-                BankName__c = this.bancoEmpresa,
-                OurNumber__c = this.numeroBoleto,
-                BusinessLocation__c = this.localNegocio, 
-                Instructions__c = this.instrucoes
+                WritableLine__c = this.LinhaDigitavel
             );
         }
 
@@ -689,7 +704,6 @@ global with sharing class TemplateDataIntegrationFields {
         }
     }
 
-    
 
     global virtual class Response {
         public String  idSalesforce;
