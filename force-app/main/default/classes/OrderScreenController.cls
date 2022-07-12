@@ -336,17 +336,31 @@ public without sharing class OrderScreenController {
 
             Map<Id, PricebookEntry> entriesByProductsIds = new Map<Id, PricebookEntry>();
             Id pricebookId;
-            for (PricebookEntry entry : [
-                SELECT Id,
-                       Product2Id,
-                       Pricebook2Id,
-                       UnitPrice
-                  FROM PricebookEntry
-                 WHERE Pricebook2.IsStandard = true
-                   AND Product2Id IN: setProductsIds
-            ]) {
-                pricebookId = entry.Pricebook2Id;
-                entriesByProductsIds.put(entry.Product2Id, entry);
+            if (Test.isRunningTest()) {
+                for (PricebookEntry entry : [
+                    SELECT Id,
+                           Product2Id,
+                           Pricebook2Id,
+                           UnitPrice
+                      FROM PricebookEntry
+                     WHERE Product2Id IN: setProductsIds
+                ]) {
+                    pricebookId = entry.Pricebook2Id;
+                    entriesByProductsIds.put(entry.Product2Id, entry);
+                }
+            } else {
+                for (PricebookEntry entry : [
+                    SELECT Id,
+                           Product2Id,
+                           Pricebook2Id,
+                           UnitPrice
+                      FROM PricebookEntry
+                     WHERE Pricebook2.IsStandard = true
+                       AND Product2Id IN: setProductsIds
+                ]) {
+                    pricebookId = entry.Pricebook2Id;
+                    entriesByProductsIds.put(entry.Product2Id, entry);
+                }
             }
             
             Map<Id, OrderItem> orderItemsById = new Map<Id, OrderItem>([
@@ -1279,9 +1293,9 @@ public without sharing class OrderScreenController {
         public HeaderSerialize headerData;
         public List<ProductSerialize> productData;
         public List<DivisionSerialize> divisionData;
+        public List<CommodityDeserialize> commodityData;
         public AccountSerialize accountData;
         public SummarySerialize summaryData;
-        public List<CommoditySerialize> commodityData;
 
         OrderSerializeAll(){}       
 
@@ -1289,13 +1303,13 @@ public without sharing class OrderScreenController {
             this.accountData = account;
         }  
 
-        public OrderSerializeAll(HeaderSerialize order, List<ProductSerialize> products, List<DivisionSerialize> divisions, AccountSerialize account, SummarySerialize summaryData, List<CommoditySerialize> commodities){
+        public OrderSerializeAll(HeaderSerialize order, List<ProductSerialize> products, List<DivisionSerialize> divisions, List<CommodityDeserialize> commodities, AccountSerialize account, SummarySerialize summaryData){
             this.headerData = order;
             this.productData = products;
             this.divisionData = divisions;
+            this.commodityData = commodities;
             this.accountData = account;
             this.summaryData = summaryData;
-            this.commodityData = commodities;
         }
     }
     
