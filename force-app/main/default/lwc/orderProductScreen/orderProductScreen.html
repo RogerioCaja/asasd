@@ -40,7 +40,7 @@
 			<template if:false={message}>
 				<button if:true={barterSale} class="barter-sale" onclick={openCommodities}>Escolher commodities</button>
 				<button if:true={showCommodityData} class="barter-sale" onclick={openCommodityData}>Visualizar commodities</button>
-				<button class="change-columns" onclick={showTableColumns}>Alterar colunas</button>
+				<button if:false={hideChooseColumns} class="change-columns" onclick={showTableColumns}>Alterar colunas</button>
 				<h2>Resultados de <b>PRODUTOS</b>:</h2>
 
 				<lightning-datatable class="slds-is-relative"

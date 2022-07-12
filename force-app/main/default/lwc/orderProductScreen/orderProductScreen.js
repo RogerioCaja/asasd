@@ -38,6 +38,7 @@ export default class OrderProductScreen extends LightningElement {
     productParams={};
     productsPriceMap;
     salesInfos;
+    hideChooseColumns = false;
 
     baseProducts = [];
     showBaseProducts = false;
@@ -165,7 +166,26 @@ export default class OrderProductScreen extends LightningElement {
         else actions.push({ label: 'Editar', name: 'edit' }, { label: 'Divisão de Remessas', name: 'shippingDivision' }, { label: 'Excluir', name: 'delete' });
 
         this.showIncludedProducts = this.products.length > 0;
-        this.applySelectedColumns(event);
+        if (this.headerData.tipo_venda == 'Venda Barter') {
+            this.hideChooseColumns = true;
+            let barterColumns = [
+                {label: 'Produto', fieldName: 'name'},
+                {label: 'Unidade de Medida', fieldName: 'unity'},
+                {label: 'Qtd', fieldName: 'quantity'}
+            ]
+
+            barterColumns.push({
+                type: 'action',
+                typeAttributes: {
+                    rowActions: actions,
+                    menuAlignment: 'auto'
+                }
+            });
+            this.columns = barterColumns;
+            this.changeColumns = false;
+        } else {
+            this.applySelectedColumns(event);
+        }
 
         this.headerData = JSON.parse(JSON.stringify(this.headerData));
         let getCompanyData = {
