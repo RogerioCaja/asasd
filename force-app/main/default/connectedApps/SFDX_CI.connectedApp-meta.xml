@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ConnectedApp xmlns="http://soap.sforce.com/2006/04/metadata">
+    <contactEmail>demo@nescara.com</contactEmail>
+    <label>SFDX CI</label>
+    <oauthConfig>
+        <callbackUrl>http://localhost:1717/OauthRedirect</callbackUrl>
+        <certificate>MIIDvTCCAqUCFGpuvZasz2iQqeHlJtM30V/TkIc0MA0GCSqGSIb3DQEBCwUAMIGaMQswCQYDVQQGEwJCUjETMBEGA1UECAwKU8OGbyBQYXVsbzEfMB0GA1UEBwwWU8OGbyBCZXJuYXJkbyBkbyBDYW1wbzEQMA4GA1UECgwHTmVzY2FyYTEQMA4GA1UECwwHTmVzY2FyYTEQMA4GA1UEAwwHTmVzY2FyYTEfMB0GCSqGSIb3DQEJARYQZGVtb0BuZXNjYXJhLmNvbTAeFw0yMjAxMzEyMTAzNTBaFw0yMzAxMzEyMTAzNTBaMIGaMQswCQYDVQQGEwJCUjETMBEGA1UECAwKU8OGbyBQYXVsbzEfMB0GA1UEBwwWU8OGbyBCZXJuYXJkbyBkbyBDYW1wbzEQMA4GA1UECgwHTmVzY2FyYTEQMA4GA1UECwwHTmVzY2FyYTEQMA4GA1UEAwwHTmVzY2FyYTEfMB0GCSqGSIb3DQEJARYQZGVtb0BuZXNjYXJhLmNvbTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALunlOhYLXk/Atmm/jYsJXSosrgWTzt3Y6GiyoB/gS3aweW98Va3zwdb5IhrymhVtdBX/MQbn0Tu0/1Zi/xZh0Dh+0kZZuxa5DtnGqdaQEhnPnBlVg6m09BItpTTi9FmoMV2usL/kzNXW/ngrCo+rgxNkoWtR+D5NRXGN+Qi7XFX9XCArujHu2Mgn9wOmGVmzO6Y7L4/Pg4G5ZSZktzzFnlt2vez9ttMl9Og+bWlx/yNc8QwxBphHkV96xMgnjJAqz7jMQWI+5hEvFJuqCzCkaJCpcznL6bNbe093m/2oakCctSimdfeDIT0WnBsRV/PTb3z3CLTz2EVqtPZljXqYskCAwEAATANBgkqhkiG9w0BAQsFAAOCAQEAPPiFNzxD7ngw8O1Mwpc4L4QzEOgkrE8KyIn0OgF6JV++imoOl3pmLQS6LjmlfPm0BPKw4DISpztANSXqAETYrWDk+Str3DBR3DwF2QikdFLp69YsUKXnqbeETgPFtjFSGptahBq/0fOtlQMFFaPSa5wfjpx29hdVR19tBYGMaDiZi0daCgT8786jyczN2AitEzLFTso+S2zd8TI3QuMq0WD3W02Z96ZepBzfRvypNeKekUWnLD9U1xZ4PQGb7dpGVKRChXszdZXGafVqbW3y2Xj9o/iwCVFUk0d4hpP/SFrxPiPnUdPjIsB7Hnp5ay8N4oP3kgQfIsu9g1cnV1bLpQ==</certificate>
+        <consumerKey>3MVG9SM6_sNwRXqsEPoVTJAl3iQgdY_zf7ZR9gmXIipj0sTMG8crfDOqDsQTG0TMTvBRQgTTDF3VV0Gye1NHQ</consumerKey>
+        <isAdminApproved>true</isAdminApproved>
+        <isConsumerSecretOptional>false</isConsumerSecretOptional>
+        <isIntrospectAllTokens>false</isIntrospectAllTokens>
+        <isSecretRequiredForRefreshToken>true</isSecretRequiredForRefreshToken>
+        <scopes>Full</scopes>
+        <scopes>RefreshToken</scopes>
+        <scopes>CustomPermissions</scopes>
+    </oauthConfig>
+    <oauthPolicy>
+        <ipRelaxation>BYPASS</ipRelaxation>
+        <refreshTokenPolicy>infinite</refreshTokenPolicy>
+    </oauthPolicy>
+    <permissionSetName>sfdx ci</permissionSetName>
+</ConnectedApp>
