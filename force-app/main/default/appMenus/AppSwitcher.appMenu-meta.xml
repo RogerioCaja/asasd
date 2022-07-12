@@ -88,4 +88,8 @@
         <name>AgroGalaxy</name>
         <type>CustomApplication</type>
     </appMenuItems>
+    <appMenuItems>
+        <name>IntegrationIN</name>
+        <type>ConnectedApp</type>
+    </appMenuItems>
 </AppMenu>
