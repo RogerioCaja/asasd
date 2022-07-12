@@ -42,10 +42,6 @@
                     <value>Área de Vendas</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
-                    <name>reportName</name>
-                    <value>AreaVendaCliente</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
                     <name>showRefreshButton</name>
                     <value>true</value>
                 </componentInstanceProperties>
