@@ -223,8 +223,8 @@ public without sharing class OrderScreenController {
             
             if (orderId != null && !cloneOrder) {
                 newOrder = false;
-                order = [SELECT Id, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c, SalesCondition__c, PaymentDate__c, ShippingDate__c, PaymentCondition__c, CustomerOrderNumber__c, OrderType__c,
-                                Crop__c, Culture__c, PaymentForm__c, StatusSF__c, SalesOrg__c, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, EffectiveDate, Company__c, Hectare__c, OrderMargin__c
+                order = [SELECT Id, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c, SalesCondition__c, PaymentDate__c, ShippingDate__c, PaymentCondition__c, CustomerOrderNumber__c, OrderType__c, OrderReference__c,
+                                Crop__c, Culture__c, PaymentForm__c, StatusSF__c, SalesOrg__c, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, EffectiveDate, Company__c, Hectare__c, OrderMargin__c, Status
                 FROM Order WHERE Id =: orderId LIMIT 1];
             } else {
                 order = new Order();
@@ -244,6 +244,23 @@ public without sharing class OrderScreenController {
                  WHERE Id =: orderData.headerData.companyId
             ]) {
                 company = accountCompany;
+            }
+
+            Map<Id, OrderItem> motherItems = new Map<Id, OrderItem>();
+            Boolean newDivision = false;
+            if (orderData.headerData.pedido_mae.Id != null || order.OrderReference__c != null) {
+                for (OrderItem item : [
+                    SELECT Id,
+                           Product2Id,
+                           Quantity,
+                           AmountUsed__c
+                      FROM OrderItem
+                     WHERE OrderId =: orderData.headerData.pedido_mae.Id
+                        OR OrderId =: order.OrderReference__c
+                ]) {
+                    motherItems.put(item.Product2Id, item);
+                }
+                newDivision = newOrder ? true : false;
             }
     
             Decimal orderTotalValue = 0;
@@ -281,6 +298,13 @@ public without sharing class OrderScreenController {
                 if (biggerDiscount < currentDiscount) {
                     biggerDiscount = currentDiscount;
                     productGroupId = orderProduct.productGroupId;
+                }
+
+                if (order.OrderReference__c != null && motherItems.containsKey(orderProduct.productId) && order.Status == '0' && typeOrder != 'prepedido') {
+                    OrderItem motherItem = motherItems.get(orderProduct.productId);
+                    if (motherItem.AmountUsed__c + orderProduct.quantity > motherItem.Quantity) {
+                        return JSON.serializePretty(new AGRO_RemotingResult(true, '200', 'Não é possível efetivar o pedido por ter excedido as quantidades do pedido mãe.'));
+                    }
                 }
             }
 
@@ -467,31 +491,15 @@ public without sharing class OrderScreenController {
             order.PaymentCondition__c = orderData.headerData.condicao_pagamento.Id;
             order.ShippingDate__c = Date.valueOf(orderData.headerData.data_entrega);
             order.DescriptionBillingSale__c = orderData.summaryData.billing_sale_observation;
-            order.OrderReference__c = orderData.headerData.pedido_mae.Id;
+            order.OrderReference__c = order.OrderReference__c != null ? order.OrderReference__c : orderData.headerData.pedido_mae.Id;
             order.IsOrderMother__c = orderData.headerData.pedido_mae.Id != null ? false : Boolean.valueOf(orderData.headerData.pedido_mae_check);
-            order.Hectare__c = orderData.headerData.hectares;
+            order.Hectare__c = orderData.headerData.hectares.contains(',') ? Decimal.valueOf(orderData.headerData.hectares.replace(',', '.')) : Decimal.valueOf(orderData.headerData.hectares);
             order.FinalTotalValue__c = orderTotalValue;
             order.Company__c = company.Id;
             order.OrderType__c = orderData.headerData.pedido_mae.Id != null ? 'Pedido Filho' : (order.IsOrderMother__c ? 'Pedido Mãe' : 'Pedido Normal');
             order.OrderMargin__c = orderData.summaryData.orderMargin != null ? (orderData.summaryData.orderMargin.contains(' sacas') ?
                                      stringToDecimal(orderData.summaryData.orderMargin.replace(' sacas', '')) : stringToDecimal((orderData.summaryData.orderMargin))) : 0;
             order.ApprovalJustification__c = orderData.summaryData.justification;
-
-            Map<Id, OrderItem> motherItems = new Map<Id, OrderItem>();
-            Boolean newDivision = false;
-            if (order.OrderReference__c != null) {
-                for (OrderItem item : [
-                    SELECT Id,
-                           Quantity,
-                           AmountUsed__c
-                      FROM OrderItem
-                     WHERE OrderId =: order.OrderReference__c
-                ]) {
-                    motherItems.put(item.Id, item);
-                }
-
-                newDivision = newOrder ? true : false;
-            }
 
             Database.UpsertResult insResults = Database.upsert(order, false);
             if (insResults.isSuccess()) {
@@ -531,10 +539,10 @@ public without sharing class OrderScreenController {
                         itemCounter++;
                     }
                     
-                    if (motherItems.containsKey(orderProduct.orderItemId)) {
-                        OrderItem motherItem = motherItems.get(orderProduct.orderItemId);
+                    if (motherItems.containsKey(orderProduct.productId) && typeOrder != 'prepedido') {
+                        OrderItem motherItem = motherItems.get(orderProduct.productId);
                         motherItem.AmountUsed__c = motherItem.AmountUsed__c != null ? motherItem.AmountUsed__c + orderProduct.quantity : 0;
-                        motherItems.put(orderProduct.orderItemId, motherItem);
+                        motherItems.put(orderProduct.productId, motherItem);
                     }
 
                     orderItem.UnitPricePerBag__c = commodityPrice > 0 ? (orderProduct.unitPrice / commodityPrice) : null;
@@ -590,17 +598,18 @@ public without sharing class OrderScreenController {
 
                 Set<Id> setDivisionIds = new Set<Id>();
                 List<ShippingDivison__c> listShippingDivision = new List<ShippingDivison__c>();
-                if (orderData.divisionData != null && orderData.divisionData.size() > 0) {
-                    Map<String, Id> mapOrderItems = new Map<String, Id>();
+                if (orderData.divisionData != null && orderData.divisionData.size() > 0 && typeOrder != 'prepedido') {
+                    Map<String, OrderItem> mapOrderItems = new Map<String, OrderItem>();
                     for (OrderItem orderItem : [
                         SELECT Id,
                                Product2Id,
                                Quantity,
-                               UnitPrice
+                               UnitPrice,
+                               NumeroSap__c
                           FROM OrderItem
                          WHERE Id IN: itemsIds
                     ]) {
-                        mapOrderItems.put(orderItem.Product2Id, orderItem.Id);
+                        mapOrderItems.put(orderItem.Product2Id, orderItem);
                     }
 
                     Map<String, DivisionDeserialize> divisionsByKey = new Map<String, DivisionDeserialize>();
@@ -621,13 +630,15 @@ public without sharing class OrderScreenController {
 
                     Map<Id, ShippingDivison__c> divisionsById = new Map<Id, ShippingDivison__c>();
                     for (ShippingDivison__c shippingDivison : [
-                        SELECT Id
+                        SELECT Id,
+                               ExternalId__c
                           FROM ShippingDivison__c
                          WHERE Id IN: setDivisionIds
                     ]) {
                         divisionsById.put(shippingDivison.Id, shippingDivison);
                     }
 
+                    Integer divisionCounter = 1;
                     Map<Id, Decimal> quantityDistributedByItem = new Map<Id, Decimal>();
                     for (DivisionDeserialize division : divisionsByKey.values()) {
                         ShippingDivison__c shippingDivision;
@@ -635,14 +646,17 @@ public without sharing class OrderScreenController {
                             shippingDivision = divisionsById.get(division.divisionId);
                         } else {
                             shippingDivision = new ShippingDivison__c();
+                            String divisionSapNumber = divisionCounter >= 10 ? '0' + String.valueOf(divisionCounter) : '00' + String.valueOf(divisionCounter);
+                            shippingDivision.SapNumber__c = divisionSapNumber;
+                            shippingDivision.ExternalId__c = order.Id + '|' + mapOrderItems.get(division.orderItemKey).NumeroSap__c + '|' + shippingDivision.SapNumber__c ;
+                            divisionCounter++;
                         }
 
                         shippingDivision.DeliveryDate__c = Date.valueOf(division.deliveryDate);
                         shippingDivision.Quantity__c = division.quantity;
-                        shippingDivision.ExternalId__c = division.externalId;
                         shippingDivision.ConfirmedQuantity__c = division.confirmedQuantity != null ? division.confirmedQuantity : 0;
                         shippingDivision.OrderItem__c = !cloneOrder && !newDivision && division.orderItemId != null ?
-                                                        division.orderItemId : mapOrderItems.get(division.orderItemKey);
+                                                        division.orderItemId : mapOrderItems.get(division.orderItemKey).Id;
                         listShippingDivision.add(shippingDivision);
 
                         if (quantityDistributedByItem.containsKey(shippingDivision.OrderItem__c)) {
@@ -1119,10 +1133,10 @@ public without sharing class OrderScreenController {
         public String  billing_sale_observation;
         public String  orderMargin;
         public String  companyId;
+        public String  hectares;
         public Boolean pedido_mae_check;
         public Boolean pre_pedido;
         public Boolean firstTime;
-        public Decimal hectares;
         public AccountSerialize  cliente_entrega;
         public InformationFields safra;
         public InformationFields cultura;
@@ -1325,10 +1339,10 @@ public without sharing class OrderScreenController {
         public String  orderMargin;
         public String  companyId;
         public String  recTypeId;
+        public String  hectares;
         public Boolean pedido_mae_check;
         public Boolean pre_pedido;
         public Boolean firstTime;
-        public Decimal hectares;
         public InformationFields safra;
         public InformationFields cultura;
         public InformationFields condicao_venda;
@@ -1374,7 +1388,7 @@ public without sharing class OrderScreenController {
             this.ctv_venda = new InformationFields(order.SalesCTV__c,  order.SalesCTV__r.Name);
             this.pedido_mae = new InformationFields(order.OrderReference__c, order.OrderReference__r.Name);
             this.pedido_mae_check = order.IsOrderMother__c;
-            this.hectares = order.Hectare__c;
+            this.hectares = String.valueOf(order.Hectare__c).contains('.') ? String.valueOf(order.Hectare__c).replace('.', ',') : String.valueOf(order.Hectare__c);
             this.condicao_pagamento = new InformationFields(order.PaymentCondition__c, order.PaymentCondition__r.Name);
             this.frete = order.Incoterms__c;
             this.observation = order.Description;

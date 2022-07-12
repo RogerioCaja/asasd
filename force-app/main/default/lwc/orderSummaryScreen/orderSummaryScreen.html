@@ -127,7 +127,7 @@
                         <span>Aprovação Comercial: </span>
                         <span>{approval}</span>
                     </section>
-                    <section>
+                    <section if:false={isBarter}>
                         <span>Margem do Pedido: </span>
                         <span>{orderMargin}</span>
                     </section>
@@ -144,13 +144,13 @@
               <th>U. M.</th>
               <th>Quantidade</th>
               <th if:false={isBarter}>Preço Praticado</th>
-              <th if:true={isBarter}>Preço por saca</th>
+              <!-- <th if:true={isBarter}>Preço por saca</th> -->
               <th if:false={isBarter}>Preço Total</th>
-              <th if:true={isBarter}>Preço Total em saca</th>
-              <th>Valor Desconto Comercial</th>
-              <th>Grupo de Produtos</th>
-              <th>% de Desconto</th>
-              <th>Margem do Item</th>
+              <!-- <th if:true={isBarter}>Preço Total em saca</th> -->
+              <th if:false={isBarter}>Valor Desconto Comercial</th>
+              <th if:false={isBarter}>Grupo de Produtos</th>
+              <th if:false={isBarter}>% de Desconto</th>
+              <th if:false={isBarter}>Margem do Item</th>
               <th>Calenderização</th>
             </tr>
         
@@ -159,12 +159,12 @@
                     <td>{product.sapProductCode} - {product.name}  </td>
                     <td>{product.unity}</td>
                     <td>{product.quantity}</td>
-                    <td>{product.unitPrice}</td>
-                    <td>{product.totalPrice}</td>
-                    <td>{product.commercialDiscountValue}</td>
-                    <td>{product.productGroupName}</td>
-                    <td>{product.commercialDiscountPercentage}</td>
-                    <td>{product.commercialMarginPercentage}</td>
+                    <td if:false={isBarter}>{product.unitPrice}</td>
+                    <td if:false={isBarter}>{product.totalPrice}</td>
+                    <td if:false={isBarter}>{product.commercialDiscountValue}</td>
+                    <td if:false={isBarter}>{product.productGroupName}</td>
+                    <td if:false={isBarter}>{product.commercialDiscountPercentage}</td>
+                    <td if:false={isBarter}>{product.commercialMarginPercentage}</td>
                       <td>
                           <div class="tooltip">
                               <a>
