@@ -562,6 +562,11 @@ public without sharing class OrderScreenController {
                         motherItems.put(orderProduct.productId, motherItem);
                     }
 
+                    orderItem.CommitteeTrigger__c = false;
+                    if (orderMarginMap.get(orderProduct.productGroupId) >= orderProduct.commercialMarginPercentage) {
+                        orderItem.CommitteeTrigger__c = true;
+                    }
+
                     orderItem.UnitPricePerBag__c = commodityPrice > 0 ? (orderProduct.unitPrice / commodityPrice) : null;
                     orderItem.TotalPricePerBag__c = commodityPrice > 0 ? (orderItem.UnitPricePerBag__c * orderProduct.quantity) : null;
                     orderItem.Quantity = orderProduct.quantity;
