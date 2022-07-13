@@ -233,7 +233,7 @@ global with sharing class TemplateDataIntegrationFields {
         public PartnerInsert(){}
     }
 
-    public class ConditionInsert{
+    global class ConditionInsert{
         public String KNUMV;
         public String KPOSN;
         public String KSCHL;
