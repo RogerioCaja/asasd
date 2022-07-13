@@ -69,10 +69,10 @@ global with sharing class IntegrationINOrderItem {
             		if (OrderItemINData.porcentagemAcrescFin > 0){
                 		porcentagemAcrescimoFinanceiro = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemAcrescFin / 100);
             		}
-            		if (OrderItemINData.porcentagemAcrescComercial > 0){
+            		if (OrderItemINData.porcentagemAcrescComercial != 0){
                 		porcentagemDescontoComercial = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemAcrescComercial / 100);
             		}
-            		if(OrderItemINData.porcentagemDesconto > 0){
+            		if(OrderItemINData.porcentagemDesconto != 0){
                 		porcentagemAcrescimoComercial = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemDesconto / 100);
             		}
                     
