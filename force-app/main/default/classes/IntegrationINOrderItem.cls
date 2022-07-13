@@ -35,10 +35,10 @@ global with sharing class IntegrationINOrderItem {
                         OrderItemINData.precoUnitario = (Decimal.valueOf(conditions.KBETR) / Decimal.valueOf(conditions.KPEIN));
                        //OrderItemINData.multiplicador == conditions.KPEIN;
                     }
-                    if(conditions.KSCHL == 'ZDAN'){
+                    if(conditions.KSCHL == 'ZDAC'){ //Antigo ZDAN
                        OrderItemINData.porcentagemDesconto = Decimal.valueOf(conditions.KBETR);
                     }
-                    if(conditions.KSCHL == 'ZJUR'){
+                    if(conditions.KSCHL == 'ZJUC'){ //Antigo ZJUR
                         OrderItemINData.porcentagemAcrescComercial = Decimal.valueOf(conditions.KBETR);
                     }
                     if(conditions.KSCHL == 'ZDEC'){
