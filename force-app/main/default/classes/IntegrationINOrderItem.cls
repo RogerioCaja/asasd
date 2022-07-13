@@ -28,7 +28,7 @@ global with sharing class IntegrationINOrderItem {
 
             idsOrderItem.add(OrderItemINData.orderExternalId + '|' + OrderItemINData.orderItemCode);
             for(TemplateDataIntegrationFields.ConditionInsert  conditions : conditionList){
-    
+                conditions.KPOSN = conditions.KPOSN.replaceFirst('^0+','');
                 if(conditions.KPOSN == OrderItemINData.orderItemCode){
 
                     if(conditions.KSCHL == 'ZPR0'){
