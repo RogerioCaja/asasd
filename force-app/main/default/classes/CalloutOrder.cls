@@ -211,7 +211,7 @@ public without sharing class CalloutOrder {
             IS_HEADER_IN.ZZDATA_VENCTO = String.valueOf(order.PaymentDate__c).replace('-', '');
             IS_HEADER_IN.PRICE_LIST = String.valueOf(order.SalesCondition__r.ExternalId__c).leftPad(2, '0');
             IS_HEADER_IN.REF_DOC = order.OrderReference__c != null ? order.OrderReference__r.CodigoSap__c : '';
-            IS_HEADER_IN.CSTCNDGRP1 = statusSeller.get(SalesCTV__r.SellerType__c);
+            IS_HEADER_IN.CSTCNDGRP1 = statusSeller.get(order.SalesCTV__r.SellerType__c);
 
             Map<String, String> referenceItemMotherMap = new Map<String, String>();
             if(order.OrderReference__c != null){
