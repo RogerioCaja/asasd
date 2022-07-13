@@ -48,10 +48,10 @@ global with sharing class IntegrationINOrderItem {
                     }
                     if(conditions.KSCHL == 'ZDEC'){
                         if(Decimal.valueOf(conditions.KBETR) > 0){
-                            OrderItemINData.porcentagemAcrescFin == Decimal.valueOf(conditions.KBETR);
+                            OrderItemINData.porcentagemAcrescFin = Decimal.valueOf(conditions.KBETR);
                         }
                         else {
-                            OrderItemINData.porcentagemDescontoFin == Decimal.valueOf(conditions.KBETR);
+                            OrderItemINData.porcentagemDescontoFin = Decimal.valueOf(conditions.KBETR);
                         }
                     }   
             }
