@@ -534,7 +534,7 @@ public without sharing class OrderScreenController {
                     }
                 }
 
-                Integer itemCounter = 1;
+                Integer itemCounter = setOrderItemsIds.size() + 1;
                 Boolean childOrder = order.OrderType__c == 'Pedido Filho';
                 for (ProductDeserialize orderProduct : orderData.productData) {
                     OrderItem orderItem;
