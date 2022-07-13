@@ -14,7 +14,6 @@ global with sharing class IntegrationINOrderItem {
         List<OrderItem> orderItemListToUpsert = new List<OrderItem>();
 
         List<String> idsOrderItem = new List<String>();
-        Map<String, String> ordersCondition = new Map<String, String>();
 
         //Application of business rules
         for(TemplateDataIntegrationFields.OrderItemINData OrderItemINData : request) {
@@ -36,10 +35,9 @@ global with sharing class IntegrationINOrderItem {
             for(TemplateDataIntegrationFields.ConditionInsert  conditions : conditionList){
     
                 if(conditions.KPOSN == OrderItemINData.orderItemCode){
-                    OrderItemINData.conditions.add(conditions);
 
                     if(conditions.KSCHL == 'ZPR0'){
-                        OrderItemINData.precoUnitario = Decimal.valueOf((Decimal.valueOf(conditions.KBETR) / Decimal.valueOf(conditions.KPEIN)));
+                        OrderItemINData.precoUnitario = (Decimal.valueOf(conditions.KBETR) / Decimal.valueOf(conditions.KPEIN));
                        //OrderItemINData.multiplicador == conditions.KPEIN;
                     }
                     if(conditions.KSCHL == 'ZDAN'){
