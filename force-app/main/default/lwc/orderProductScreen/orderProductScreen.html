@@ -40,7 +40,7 @@
 			<template if:false={message}>
 				<button if:true={barterSale} class="barter-sale" onclick={openCommodities}>Escolher commodities</button>
 				<button if:true={showCommodityData} class="barter-sale" onclick={openCommodityData}>Visualizar commodities</button>
-				<button class="change-columns" onclick={showTableColumns}>Alterar colunas</button>
+				<button if:false={hideChooseColumns} class="change-columns" onclick={showTableColumns}>Alterar colunas</button>
 				<h2>Resultados de <b>PRODUTOS</b>:</h2>
 
 				<lightning-datatable class="slds-is-relative"
@@ -48,6 +48,7 @@
 					columns={columns}
 					key-field="id"
 					onrowaction={handleRowActions}
+					hide-checkbox-column
 				>
 				</lightning-datatable>
 			</template>
@@ -419,6 +420,7 @@
 											data={commoditiesData}
 											columns={commodityColumns}
 											key-field="id"
+											hide-checkbox-column
 						>
 						</lightning-datatable>
 
@@ -489,6 +491,7 @@
 										columns={visualizeCommodityColumns}
 										key-field="id"
 										onrowaction={handleCommodityActions}
+										hide-checkbox-column
 						>
 					</lightning-datatable>
 				</div>
