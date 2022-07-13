@@ -1,0 +1,14 @@
+<template>
+    <div if:true={showCompanyTable}>
+        <p class="company-title">Área de Vendas</p>
+        <lightning-datatable class="slds-is-relative table-letter"
+            data={companies}
+            columns={columns}
+            key-field="id"
+            hide-checkbox-column
+        >
+        </lightning-datatable>
+
+        <hr class="line-style">
+    </div>
+</template>
