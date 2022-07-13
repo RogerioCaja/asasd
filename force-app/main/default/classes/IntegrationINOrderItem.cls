@@ -12,7 +12,7 @@ global with sharing class IntegrationINOrderItem {
         Map<String, List<TemplateDataIntegrationFields.Response>> responseMap = new Map<String, List<TemplateDataIntegrationFields.Response>>();
         // Guarda uma lista com os OrderItem para fazer o upsert
         List<OrderItem> orderItemListToUpsert = new List<OrderItem>();
-
+        
         List<String> idsOrderItem = new List<String>();
 
         //Application of business rules
@@ -26,12 +26,7 @@ global with sharing class IntegrationINOrderItem {
             //Getting product parameters to search
             productLookups.add(OrderItemINData.material);
 
-            idsOrderItem.add(OrderItemINData.orderExternalId + '|' + OrderItemINData.orderItemCode);  
-            /*
-            if(!ordersCondition.containsKey(OrderItemINData.orderItemCode)){
-                ordersCondition.put(OrderItemINData.orderItemCode, new List<TemplateDataIntegrationFields.ConditionInsert>());
-            }
-            */
+            idsOrderItem.add(OrderItemINData.orderExternalId + '|' + OrderItemINData.orderItemCode);
             for(TemplateDataIntegrationFields.ConditionInsert  conditions : conditionList){
     
                 if(conditions.KPOSN == OrderItemINData.orderItemCode){
@@ -55,16 +50,7 @@ global with sharing class IntegrationINOrderItem {
                         }
                     }   
             }
-            /*
-            Caso seja necessário 
-            if(OrderItemINData.porcentagemDesconto > 0){
-                OrderItemINData.precoUnitario = (OrderItemINData.precoUnitario - OrderItemINData.porcentagemDesconto) + (OrderItemINData.porcentagemAcrescFin);
-                }
-                else{
-                    OrderItemINData.precoUnitario = (OrderItemINData.precoUnitario + OrderItemINData.porcentagemAcrescComercial) + (OrderItemINData.porcentagemAcrescFin);
-                }
-            }
-            */
+        }
         }
 
         
@@ -237,5 +223,4 @@ global with sharing class IntegrationINOrderItem {
         //Returning response
         return responseMap;
     }
-}
 }
