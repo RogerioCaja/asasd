@@ -237,7 +237,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String KNUMV;
         public String KPOSN;
         public String KSCHL;
-        public String KNUKBETRMV;
+        public String KBETR;
         public String KPEIN;
         public ConditionInsert(){}
     }
