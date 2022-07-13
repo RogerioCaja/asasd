@@ -364,7 +364,7 @@ public without sharing class OrderScreenController {
             }
             
             Map<Id, OrderItem> orderItemsById = new Map<Id, OrderItem>([
-                SELECT Id
+                SELECT Id, Product2Id
                   FROM OrderItem
                  WHERE Id IN: setOrderItemsIds
             ]);
