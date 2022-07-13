@@ -14,7 +14,7 @@ public without sharing class CalloutOrder {
 
 		Order parentOrder = [SELECT Id, CodigoSap__c, ShippingAccount__r.ExternalId__c, Company__r.SupplierCenter__c, Account.ExternalId__c, Type, SalesOrg__r.SalesOrganizationCode__c, DistributionChannel__c, DistributionChannel__r.Codigo__c, SalesCondition__r.ExternalId__c,
                             ActivitySector__c, ActivitySector__r.Codigo__c, PaymentCondition__r.CashPayment__c, Incoterms__c, Incoterms2__c, PaymentCondition__r.Code__c, OrderReason__c , SalesCTV__r.CodigoSap__c, PaymentDate__c,EffectiveDate, OrderReference__r.CodigoSap__c,
-                            OrderNumber, Crop__r.Code__c, Crop__r.StartDateOrderInsertion__c, Crop__r.EndDateInsertionOrders__c ,Culture__r.Codigo__c, EndDate, TotalAmount, PaymentForm__c, OrderReference__c, CustomerOrderNumber__c,
+                            OrderNumber, Crop__r.Code__c, Crop__r.StartDateOrderInsertion__c, Crop__r.EndDateInsertionOrders__c ,Culture__r.Codigo__c, EndDate, TotalAmount, PaymentForm__c, OrderReference__c, CustomerOrderNumber__c, SalesCTV__r.SellerType__c,
                             Currency__c, Crop__r.PaymentBaseDate__c,IsOrderMother__c, RecordTypeId,Description, (SELECT Id FROM OrderItems) 
                             FROM Order WHERE Id = :orderId];
 		
@@ -178,6 +178,10 @@ public without sharing class CalloutOrder {
 
             String dateF;
 
+            Map<String, String> statusSeller = new Map<String, String>();
+            statusSeller.put('CTV', 'CT');
+            statusSeller.put('Franqueado', 'FR');
+
             if(order.Crop__r.StartDateOrderInsertion__c < System.today() && IV_TYPE == 'G' ){
                 dateF = String.valueOf(order.EffectiveDate).replace('-', '');
             }
@@ -207,6 +211,7 @@ public without sharing class CalloutOrder {
             IS_HEADER_IN.ZZDATA_VENCTO = String.valueOf(order.PaymentDate__c).replace('-', '');
             IS_HEADER_IN.PRICE_LIST = String.valueOf(order.SalesCondition__r.ExternalId__c).leftPad(2, '0');
             IS_HEADER_IN.REF_DOC = order.OrderReference__c != null ? order.OrderReference__r.CodigoSap__c : '';
+            IS_HEADER_IN.CSTCNDGRP1 = statusSeller.get(SalesCTV__r.SellerType__c);
 
             Map<String, String> referenceItemMotherMap = new Map<String, String>();
             if(order.OrderReference__c != null){
@@ -288,6 +293,7 @@ public without sharing class CalloutOrder {
         public String ZZDATA_VENCTO;
         public String REF_DOC;
         public String PRICE_LIST;
+        public String CSTCNDGRP1;
 
         public Header(){}
     }
