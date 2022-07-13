@@ -36,8 +36,8 @@ public without sharing class OrderHelper {
         Orderhelper.disableTrigger();
         for(Order order : newRecords){ 
             if(order.StatusSF__c == 'Aprovado'){
-                CalloutOrder.callIntegration(order.Id);
-                CalloutOrderDatalake.callIntegration(order.Id);
+                //CalloutOrder.callIntegration(order.Id);
+                //CalloutOrderDatalake.callIntegration(order.Id);
             }
             if(order.CodigoSap__c != null && order.StatusSF__c == 'Integrado' && orderMap != null){
                 
@@ -45,7 +45,7 @@ public without sharing class OrderHelper {
                 String rmCode = orderMap.get(order.Id).ShippingAccount__r.ExternalId__c;
                 String agCode = orderMap.get(order.Id).Account.ExternalId__c;
                 String zcCode = orderMap.get(order.Id).SalesCTV__r.CodigoSap__c;
-                CalloutOrderUpdate.callIntegration(order.Id, rmCode , agCode , zcCode);
+                //CalloutOrderUpdate.callIntegration(order.Id, rmCode , agCode , zcCode);
             }  
         }
         Orderhelper.enableTrigger(); 
@@ -65,8 +65,8 @@ public without sharing class OrderHelper {
         Orderhelper.disableTrigger();
         for(Order order : newRecords){
             if(order.StatusSF__c != 'Integrado'){
-                CalloutOrder.callIntegration(order.Id);
-                CalloutOrderDatalake.callIntegration(order.Id);
+                //CalloutOrder.callIntegration(order.Id);
+                //CalloutOrderDatalake.callIntegration(order.Id);
             }
             if(order.CodigoSap__c != null && order.StatusSF__c == 'Integrado' && orderMap != null){
                 
@@ -74,7 +74,7 @@ public without sharing class OrderHelper {
                 String rmCode = orderMap.get(order.Id).ShippingAccount__r.ExternalId__c;
                 String agCode = orderMap.get(order.Id).Account.ExternalId__c;
                 String zcCode = orderMap.get(order.Id).SalesCTV__r.CodigoSap__c;
-                CalloutOrderUpdate.callIntegration(order.Id, rmCode , agCode , zcCode);
+                //CalloutOrderUpdate.callIntegration(order.Id, rmCode , agCode , zcCode);
             }  
         }
         Orderhelper.enableTrigger(); 
@@ -138,16 +138,16 @@ public without sharing class OrderHelper {
         {
             Map<ID,Schema.RecordTypeInfo> orderMap = Order.sObjectType.getDescribe().getRecordTypeInfosById();
             for(Id id : orderIds){
+                if(newMap.get(id).Description != null){
+                    if(newMap.get(id).Description.contains('1n73gr4ção N3sc4r4 5F x 4PP')){
+                        orderToUpdateByIntegration.add(id);
+                    }
+                }
                 if((oldMap.get(id).Status == '0' && newMap.get(id).Status == '001') || ( (newMap.get(id).Description != null ? newMap.get(id).Description.contains('1n73gr4ção N3sc4r4 5F x 4PP') : false) && newMap.get(id).Status == '001')){
                     if(newMap.get(id).MarginCommittee__c || newMap.get(id).Manager_BranchOffice__c || newMap.get(id).Gerente_Regional__c || newMap.get(id).Director__c || orderMap.get(newMap.get(id).RecordTypeId).getName() == 'Venda Barter')
                     {
                         
                         try{
-                            if(newMap.get(id).Description != null){
-                                if(newMap.get(id).Description.contains('1n73gr4ção N3sc4r4 5F x 4PP')){
-                                    orderToUpdateByIntegration.add(id);
-                                }
-                            }
                             Approval.ProcessSubmitRequest administrationRequest = new Approval.ProcessSubmitRequest();
                             administrationRequest.setProcessDefinitionNameOrId('OrderApproval5');
                             administrationRequest.setComments(newMap.get(id).ApprovalJustification__c);

@@ -154,7 +154,9 @@ public without sharing class OrderScreenController {
                    Order__r.Hectare__c,
                    Order__r.FinalTotalValue__c,
                    Product__c,
-                   Product__r.Name
+                   Product__r.Name,
+                   StartDate__c,
+                   EndDate__c
               FROM OrderCommodity__c
              WHERE Order__c =: orderId
         ]) {
@@ -336,21 +338,35 @@ public without sharing class OrderScreenController {
 
             Map<Id, PricebookEntry> entriesByProductsIds = new Map<Id, PricebookEntry>();
             Id pricebookId;
-            for (PricebookEntry entry : [
-                SELECT Id,
-                       Product2Id,
-                       Pricebook2Id,
-                       UnitPrice
-                  FROM PricebookEntry
-                 WHERE Pricebook2.IsStandard = true
-                   AND Product2Id IN: setProductsIds
-            ]) {
-                pricebookId = entry.Pricebook2Id;
-                entriesByProductsIds.put(entry.Product2Id, entry);
+            if (Test.isRunningTest()) {
+                for (PricebookEntry entry : [
+                    SELECT Id,
+                           Product2Id,
+                           Pricebook2Id,
+                           UnitPrice
+                      FROM PricebookEntry
+                     WHERE Product2Id IN: setProductsIds
+                ]) {
+                    pricebookId = entry.Pricebook2Id;
+                    entriesByProductsIds.put(entry.Product2Id, entry);
+                }
+            } else {
+                for (PricebookEntry entry : [
+                    SELECT Id,
+                           Product2Id,
+                           Pricebook2Id,
+                           UnitPrice
+                      FROM PricebookEntry
+                     WHERE Pricebook2.IsStandard = true
+                       AND Product2Id IN: setProductsIds
+                ]) {
+                    pricebookId = entry.Pricebook2Id;
+                    entriesByProductsIds.put(entry.Product2Id, entry);
+                }
             }
             
             Map<Id, OrderItem> orderItemsById = new Map<Id, OrderItem>([
-                SELECT Id
+                SELECT Id, Product2Id
                   FROM OrderItem
                  WHERE Id IN: setOrderItemsIds
             ]);
@@ -498,7 +514,7 @@ public without sharing class OrderScreenController {
             order.Company__c = company.Id;
             order.OrderType__c = orderData.headerData.pedido_mae.Id != null ? 'Pedido Filho' : (order.IsOrderMother__c ? 'Pedido Mãe' : 'Pedido Normal');
             order.OrderMargin__c = orderData.summaryData.orderMargin != null ? (orderData.summaryData.orderMargin.contains(' sacas') ?
-                                     stringToDecimal(orderData.summaryData.orderMargin.replace(' sacas', '')) : stringToDecimal((orderData.summaryData.orderMargin))) : 0;
+                                   stringToDecimal(orderData.summaryData.orderMargin.replace(' sacas', '')) : stringToDecimal((orderData.summaryData.orderMargin))) : 0;
             order.ApprovalJustification__c = orderData.summaryData.justification;
 
             Database.UpsertResult insResults = Database.upsert(order, false);
@@ -520,7 +536,8 @@ public without sharing class OrderScreenController {
                     }
                 }
 
-                Integer itemCounter = 1;
+                Integer itemCounter = setOrderItemsIds.size() + 1;
+                Boolean childOrder = order.OrderType__c == 'Pedido Filho';
                 for (ProductDeserialize orderProduct : orderData.productData) {
                     OrderItem orderItem;
                     if (!newOrder && orderItemsById.containsKey(orderProduct.orderItemId)) {
@@ -557,13 +574,13 @@ public without sharing class OrderScreenController {
                     orderItem.ListCost__c = orderProduct.listCost != null ? orderProduct.listCost : 0;
                     orderItem.PracticedCost__c = orderProduct.practicedCost != null ? orderProduct.practicedCost : 0;
                     orderItem.DiscountPercent__c = orderProduct.commercialDiscountPercentage != '' ? (stringToDecimal(orderProduct.commercialDiscountPercentage) != null ? stringToDecimal(orderProduct.commercialDiscountPercentage) : 0) : 0;
-                    orderItem.DiscountValue__c = orderProduct.commercialDiscountValue != null ? orderProduct.commercialDiscountValue : 0;
+                    orderItem.DiscountValue__c = childOrder ? 0 : (orderProduct.commercialDiscountValue != null ? orderProduct.commercialDiscountValue : 0);
                     orderItem.CommercialAdditionPercent__c = orderProduct.commercialAdditionPercentage != '' ? (stringToDecimal(orderProduct.commercialAdditionPercentage) != null ? stringToDecimal(orderProduct.commercialAdditionPercentage) : 0) : 0;
-                    orderItem.CommercialAdditionValue__c = orderProduct.commercialAdditionValue != null ? orderProduct.commercialAdditionValue : 0;
+                    orderItem.CommercialAdditionValue__c = childOrder ? 0 : (orderProduct.commercialAdditionValue != null ? orderProduct.commercialAdditionValue : 0);
                     orderItem.FinancialAdditionPercent__c = orderProduct.financialAdditionPercentage != '' ? (stringToDecimal(orderProduct.financialAdditionPercentage) != null ? stringToDecimal(orderProduct.financialAdditionPercentage) : 0) : 0;
-                    orderItem.FinancialAdditionValue__c = orderProduct.financialAdditionValue != null ? orderProduct.financialAdditionValue : 0;
+                    orderItem.FinancialAdditionValue__c = childOrder ? 0 : (orderProduct.financialAdditionValue != null ? orderProduct.financialAdditionValue : 0);
                     orderItem.FinancialDiscountPercent__c = orderProduct.financialDecreasePercentage != '' ? (stringToDecimal(orderProduct.financialDecreasePercentage) != null ? stringToDecimal(orderProduct.financialDecreasePercentage) : 0) : 0;
-                    orderItem.FinancialDiscountValue__c = orderProduct.financialDecreaseValue != null ? orderProduct.financialDecreaseValue : 0;
+                    orderItem.FinancialDiscountValue__c = childOrder ? 0 : (orderProduct.financialDecreaseValue != null ? orderProduct.financialDecreaseValue : 0);
                     orderItem.ComissionValue__c = orderProduct.comissionValue != null ? orderProduct.comissionValue : 0;
                     orderItem.CommercialMargin__c = orderProduct.commercialMarginPercentage != null ? orderProduct.commercialMarginPercentage : 0;
                     orderItem.PercentComission__c = orderProduct.productHierarchyId != null && orderProduct.productHierarchyId != '' ?
@@ -597,22 +614,24 @@ public without sharing class OrderScreenController {
                     }
                 }
 
+                Integer divisionCounter = 1;
                 Set<Id> setDivisionIds = new Set<Id>();
                 List<ShippingDivison__c> listShippingDivision = new List<ShippingDivison__c>();
-                if (orderData.divisionData != null && orderData.divisionData.size() > 0 && typeOrder != 'prepedido') {
-                    Map<String, OrderItem> mapOrderItems = new Map<String, OrderItem>();
-                    for (OrderItem orderItem : [
-                        SELECT Id,
-                               Product2Id,
-                               Quantity,
-                               UnitPrice,
-                               NumeroSap__c
-                          FROM OrderItem
-                         WHERE Id IN: itemsIds
-                    ]) {
-                        mapOrderItems.put(orderItem.Product2Id, orderItem);
-                    }
 
+                Map<String, OrderItem> mapOrderItems = new Map<String, OrderItem>();
+                for (OrderItem orderItem : [
+                    SELECT Id,
+                           Product2Id,
+                           Quantity,
+                           UnitPrice,
+                           NumeroSap__c
+                      FROM OrderItem
+                     WHERE Id IN: itemsIds
+                ]) {
+                    mapOrderItems.put(orderItem.Product2Id, orderItem);
+                }
+                
+                if (orderData.divisionData != null && orderData.divisionData.size() > 0 && typeOrder != 'prepedido') {
                     Map<String, DivisionDeserialize> divisionsByKey = new Map<String, DivisionDeserialize>();
                     for (DivisionDeserialize division : orderData.divisionData) {
                         if (division.divisionId != null) {
@@ -639,7 +658,6 @@ public without sharing class OrderScreenController {
                         divisionsById.put(shippingDivison.Id, shippingDivison);
                     }
 
-                    Integer divisionCounter = 1;
                     Map<Id, Decimal> quantityDistributedByItem = new Map<Id, Decimal>();
                     for (DivisionDeserialize division : divisionsByKey.values()) {
                         ShippingDivison__c shippingDivision;
@@ -649,7 +667,7 @@ public without sharing class OrderScreenController {
                             shippingDivision = new ShippingDivison__c();
                             String divisionSapNumber = divisionCounter >= 10 ? '0' + String.valueOf(divisionCounter) : '00' + String.valueOf(divisionCounter);
                             shippingDivision.SapNumber__c = divisionSapNumber;
-                            shippingDivision.ExternalId__c = order.Id + '|' + mapOrderItems.get(division.orderItemKey).NumeroSap__c + '|' + shippingDivision.SapNumber__c ;
+                            shippingDivision.ExternalId__c = order.Id + '|' + mapOrderItems.get(division.orderItemKey).NumeroSap__c + '|' + shippingDivision.SapNumber__c;
                             divisionCounter++;
                         }
 
@@ -670,10 +688,13 @@ public without sharing class OrderScreenController {
 
                     if (order.OrderType__c == 'Pedido Normal') {
                         for (OrderItem item : listOrderItems) {
+                            String divisionSapNumber = divisionCounter >= 10 ? '0' + String.valueOf(divisionCounter) : '00' + String.valueOf(divisionCounter);
                             if (quantityDistributedByItem.containsKey(item.Id)) {
                                 Decimal quantityUsed = quantityDistributedByItem.get(item.Id);
                                 if (item.Quantity > quantityUsed) {
                                     ShippingDivison__c shippingDivision = new ShippingDivison__c();
+                                    shippingDivision.ExternalId__c = order.Id + '|' + mapOrderItems.get(item.Product2Id).NumeroSap__c + '|' + divisionSapNumber;
+                                    shippingDivision.SapNumber__c = divisionSapNumber;
                                     shippingDivision.DeliveryDate__c = order.ShippingDate__c;
                                     shippingDivision.Quantity__c = item.Quantity - quantityUsed;
                                     shippingDivision.OrderItem__c = item.Id;
@@ -681,20 +702,28 @@ public without sharing class OrderScreenController {
                                 }
                             } else {
                                 ShippingDivison__c shippingDivision = new ShippingDivison__c();
+                                shippingDivision.ExternalId__c = order.Id + '|' + mapOrderItems.get(item.Product2Id).NumeroSap__c + '|' + divisionSapNumber;
+                                shippingDivision.SapNumber__c = divisionSapNumber;
                                 shippingDivision.DeliveryDate__c = order.ShippingDate__c;
                                 shippingDivision.Quantity__c = item.Quantity;
                                 shippingDivision.OrderItem__c = item.Id;
                                 listShippingDivision.add(shippingDivision);
                             }
+
+                            divisionCounter++;
                         }
                     }
                 } else if (order.OrderType__c != 'Pedido Mãe') {
                     for (OrderItem item : listOrderItems) {
+                        String divisionSapNumber = divisionCounter >= 10 ? '0' + String.valueOf(divisionCounter) : '00' + String.valueOf(divisionCounter);
                         ShippingDivison__c shippingDivision = new ShippingDivison__c();
+                        shippingDivision.ExternalId__c = order.Id + '|' + mapOrderItems.get(item.Product2Id).NumeroSap__c + '|' + divisionSapNumber;
+                        shippingDivision.SapNumber__c = divisionSapNumber;
                         shippingDivision.DeliveryDate__c = order.ShippingDate__c;
                         shippingDivision.Quantity__c = item.Quantity;
                         shippingDivision.OrderItem__c = item.Id;
                         listShippingDivision.add(shippingDivision);
+                        divisionCounter++;
                     }
                 }
 
@@ -1267,9 +1296,9 @@ public without sharing class OrderScreenController {
         public HeaderSerialize headerData;
         public List<ProductSerialize> productData;
         public List<DivisionSerialize> divisionData;
+        public List<CommodityDeserialize> commodityData;
         public AccountSerialize accountData;
         public SummarySerialize summaryData;
-        public List<CommoditySerialize> commodityData;
 
         OrderSerializeAll(){}       
 
@@ -1277,13 +1306,13 @@ public without sharing class OrderScreenController {
             this.accountData = account;
         }  
 
-        public OrderSerializeAll(HeaderSerialize order, List<ProductSerialize> products, List<DivisionSerialize> divisions, AccountSerialize account, SummarySerialize summaryData, List<CommoditySerialize> commodities){
+        public OrderSerializeAll(HeaderSerialize order, List<ProductSerialize> products, List<DivisionSerialize> divisions, List<CommodityDeserialize> commodities, AccountSerialize account, SummarySerialize summaryData){
             this.headerData = order;
             this.productData = products;
             this.divisionData = divisions;
+            this.commodityData = commodities;
             this.accountData = account;
             this.summaryData = summaryData;
-            this.commodityData = commodities;
         }
     }
     
@@ -1530,6 +1559,8 @@ public without sharing class OrderScreenController {
         public String  margin;
         public String  marginValue;
         public String  totalDelivery;
+        public String  startDate;
+        public String  endDate;
         public Decimal commodityPrice;
         public Decimal area;
         public Decimal quantity;
@@ -1551,6 +1582,8 @@ public without sharing class OrderScreenController {
             this.marginValue = (((orderCommodity.Order__r.FinalTotalValue__c * margin) / 100) / this.commodityPrice).setScale(4) + ' sacas';
             this.totalDelivery = orderCommodity.BagQuantity__c + ' sacas';
             this.cotation = orderCommodity.CommodityPrice__c;
+            this.startDate = String.valueOf(orderCommodity.StartDate__c);
+            this.endDate = String.valueOf(orderCommodity.EndDate__c);
             this.saved = true;
         }
     }
