@@ -47,7 +47,7 @@ global with sharing class IntegrationINOrderItem {
                         OrderItemINData.porcentagemAcrescComercial = Decimal.valueOf(conditions.KBETR);
                     }
                     if(conditions.KSCHL == 'ZDEC'){
-                        if(condition.KBETR > 0){
+                        if(conditions.KBETR > 0){
                             OrderItemINData.porcentagemAcrescFin == Decimal.valueOf(conditions.KBETR);
                         }
                         else {
