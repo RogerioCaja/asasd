@@ -12,9 +12,8 @@ global with sharing class IntegrationINOrderItem {
         Map<String, List<TemplateDataIntegrationFields.Response>> responseMap = new Map<String, List<TemplateDataIntegrationFields.Response>>();
         // Guarda uma lista com os OrderItem para fazer o upsert
         List<OrderItem> orderItemListToUpsert = new List<OrderItem>();
-
+        
         List<String> idsOrderItem = new List<String>();
-        Map<String, String> ordersCondition = new Map<String, String>();
 
         //Application of business rules
         for(TemplateDataIntegrationFields.OrderItemINData OrderItemINData : request) {
@@ -27,19 +26,13 @@ global with sharing class IntegrationINOrderItem {
             //Getting product parameters to search
             productLookups.add(OrderItemINData.material);
 
-            idsOrderItem.add(OrderItemINData.orderExternalId + '|' + OrderItemINData.orderItemCode);  
-            /*
-            if(!ordersCondition.containsKey(OrderItemINData.orderItemCode)){
-                ordersCondition.put(OrderItemINData.orderItemCode, new List<TemplateDataIntegrationFields.ConditionInsert>());
-            }
-            */
+            idsOrderItem.add(OrderItemINData.orderExternalId + '|' + OrderItemINData.orderItemCode);
             for(TemplateDataIntegrationFields.ConditionInsert  conditions : conditionList){
     
                 if(conditions.KPOSN == OrderItemINData.orderItemCode){
-                    OrderItemINData.conditions.add(conditions);
 
                     if(conditions.KSCHL == 'ZPR0'){
-                        OrderItemINData.precoUnitario = Decimal.valueOf((Decimal.valueOf(conditions.KBETR) / Decimal.valueOf(conditions.KPEIN)));
+                        OrderItemINData.precoUnitario = (Decimal.valueOf(conditions.KBETR) / Decimal.valueOf(conditions.KPEIN));
                        //OrderItemINData.multiplicador == conditions.KPEIN;
                     }
                     if(conditions.KSCHL == 'ZDAN'){
@@ -49,24 +42,15 @@ global with sharing class IntegrationINOrderItem {
                         OrderItemINData.porcentagemAcrescComercial = Decimal.valueOf(conditions.KBETR);
                     }
                     if(conditions.KSCHL == 'ZDEC'){
-                        if(condition.KBETR > 0){
-                            OrderItemINData.porcentagemAcrescFin == Decimal.valueOf(conditions.KBETR);
+                        if(Decimal.valueOf(conditions.KBETR) > 0){
+                            OrderItemINData.porcentagemAcrescFin = Decimal.valueOf(conditions.KBETR);
                         }
                         else {
-                            OrderItemINData.porcentagemDescontoFin == Decimal.valueOf(conditions.KBETR);
+                            OrderItemINData.porcentagemDescontoFin = Decimal.valueOf(conditions.KBETR);
                         }
                     }   
             }
-            /*
-            Caso seja necessário 
-            if(OrderItemINData.porcentagemDesconto > 0){
-                OrderItemINData.precoUnitario = (OrderItemINData.precoUnitario - OrderItemINData.porcentagemDesconto) + (OrderItemINData.porcentagemAcrescFin);
-                }
-                else{
-                    OrderItemINData.precoUnitario = (OrderItemINData.precoUnitario + OrderItemINData.porcentagemAcrescComercial) + (OrderItemINData.porcentagemAcrescFin);
-                }
-            }
-            */
+        }
         }
 
         
@@ -120,47 +104,47 @@ global with sharing class IntegrationINOrderItem {
             }
 
             if(orderItem.unidadeMedida == null){
-                //orderItem.unidadeMedida = ordItem.UnitMeasure__c;
+                orderItem.unidadeMedida = ordItem.UnitMeasure__c;
             }
 
             if(orderItem.porcentagemComissao == null){
-                //orderItem.porcentagemComissao = ordItem.PercentComission__c;
+                orderItem.porcentagemComissao = ordItem.PercentComission__c;
             }
 
             if(orderItem.porcentagemDesconto == null){
-                //orderItem.porcentagemDesconto = ordItem.DiscountPercent__c;
+                orderItem.porcentagemDesconto = ordItem.DiscountPercent__c;
             }
 
             if(orderItem.comissaoValor == null){
-                //orderItem.comissaoValor = ordItem.ComissionValue__c;
+                orderItem.comissaoValor = ordItem.ComissionValue__c;
             }
 
             if(orderItem.margemComercial == null){
-                //orderItem.margemComercial = ordItem.CommercialMargin__c;
+                orderItem.margemComercial = ordItem.CommercialMargin__c;
             }
 
             if(orderItem.descontoValor == null){
-                //orderItem.descontoValor = ordItem.DiscountValue__c;
+                orderItem.descontoValor = ordItem.DiscountValue__c;
             }
 
             if(orderItem.valorTotal == null){
-                //orderItem.valorTotal = ordItem.FinalTotalValue__c;
+                orderItem.valorTotal = ordItem.FinalTotalValue__c;
             }
 
             if(orderItem.porcentagemDescontoFin == null){
-                //orderItem.porcentagemDescontoFin = ordItem.FinancialDiscountPercent__c;
+                orderItem.porcentagemDescontoFin = ordItem.FinancialDiscountPercent__c;
             }
 
             if(orderItem.valorDescontoFin == null){
-                //orderItem.valorDescontoFin = ordItem.FinancialDiscountValue__c;
+                orderItem.valorDescontoFin = ordItem.FinancialDiscountValue__c;
             }
 
             if(orderItem.porcentagemAcrescFin == null){
-                //orderItem.porcentagemAcrescFin = ordItem.FinancialAdditionPercent__c;
+                orderItem.porcentagemAcrescFin = ordItem.FinancialAdditionPercent__c;
             }
 
             if(orderItem.valorAcrescFin == null){
-                //orderItem.valorAcrescFin = ordItem.FinancialAdditionValue__c;
+                orderItem.valorAcrescFin = ordItem.FinancialAdditionValue__c;
             }
 
             if(orderItem.porcentagemAcrescComercial == null){
@@ -239,5 +223,4 @@ global with sharing class IntegrationINOrderItem {
         //Returning response
         return responseMap;
     }
-}
 }
