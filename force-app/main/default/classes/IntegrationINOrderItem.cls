@@ -43,6 +43,10 @@ global with sharing class IntegrationINOrderItem {
 
                     }
                     if(conditions.KSCHL == 'ZDEC'){
+                        
+                        OrderItemINData.porcentagemAcrescComercial = 0;
+                        OrderItemINData.porcentagemDesconto = 0;
+                        
                         if(Decimal.valueOf(conditions.KBETR) > 0){
                             OrderItemINData.porcentagemAcrescComercial = Decimal.valueOf(conditions.KBETR);
 
@@ -54,16 +58,24 @@ global with sharing class IntegrationINOrderItem {
             }
         }
                     
-                    Decimal porcentagemDescontoFinanceiro;
-                    Decimal porcentagemAcrescimoFinanceiro;
-                    Decimal porcentagemDescontoComercial;
-                    Decimal porcentagemAcrescimoComercial;
-
-                    porcentagemDescontoFinanceiro = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemDescontoFin / 100);
-                    porcentagemAcrescimoFinanceiro = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemAcrescFin / 100);
-                    porcentagemDescontoComercial = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemAcrescComercial / 100);
-                    porcentagemAcrescimoComercial = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemDesconto / 100);
-
+                    Decimal porcentagemDescontoFinanceiro = 0;
+                    Decimal porcentagemAcrescimoFinanceiro = 0; 
+                    Decimal porcentagemDescontoComercial = 0; 
+                    Decimal porcentagemAcrescimoComercial = 0;
+					
+            		if(OrderItemINData.porcentagemDescontoFin > 0){
+                        porcentagemDescontoFinanceiro = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemDescontoFin / 100);
+					}
+            		if (OrderItemINData.porcentagemAcrescFin > 0){
+                		porcentagemAcrescimoFinanceiro = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemAcrescFin / 100);
+            		}
+            		if (OrderItemINData.porcentagemAcrescComercial > 0){
+                		porcentagemDescontoComercial = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemAcrescComercial / 100);
+            		}
+            		if(OrderItemINData.porcentagemDesconto > 0){
+                		porcentagemAcrescimoComercial = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemDesconto / 100);
+            		}
+                    
                     OrderItemINData.precoUnitario  += porcentagemAcrescimoFinanceiro - porcentagemDescontoFinanceiro  ;
                     OrderItemINData.precoUnitario  += porcentagemAcrescimoComercial - porcentagemDescontoComercial  ;
                     
