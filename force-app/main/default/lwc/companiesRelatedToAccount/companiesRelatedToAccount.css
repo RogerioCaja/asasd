@@ -1,0 +1,15 @@
+.company-title {
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    padding: 8px;
+}
+
+.line-style {
+    border-color: #a9a9a9;
+    margin: 20px;
+}
+
+.table-letter {
+    font-size: 11px;
+}
