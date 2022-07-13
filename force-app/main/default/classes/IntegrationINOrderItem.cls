@@ -3,7 +3,7 @@ global with sharing class IntegrationINOrderItem {
     }
     // Integração do OrderItem Upsert
     //@HttpPost 
-    global static Map<String, List<TemplateDataIntegrationFields.Response>> upsertOrderItem(List<TemplateDataIntegrationFields.OrderItemINData> request) {
+    global static Map<String, List<TemplateDataIntegrationFields.Response>> upsertOrderItem(List<TemplateDataIntegrationFields.OrderItemINData> request, List<TemplateDataIntegrationFields.ConditionInsert> conditionList) {
         // Guarda as relações de order e product de preço com OrderItem
         Map<String, Id> lookups = new Map<String, Id>();
         Set<String> orderLookups = new Set<String>();
@@ -12,19 +12,64 @@ global with sharing class IntegrationINOrderItem {
         Map<String, List<TemplateDataIntegrationFields.Response>> responseMap = new Map<String, List<TemplateDataIntegrationFields.Response>>();
         // Guarda uma lista com os OrderItem para fazer o upsert
         List<OrderItem> orderItemListToUpsert = new List<OrderItem>();
-
+        
         List<String> idsOrderItem = new List<String>();
+
         //Application of business rules
         for(TemplateDataIntegrationFields.OrderItemINData OrderItemINData : request) {
             // Pega a relação do OrderItem com Order
             //Getting order parameters to search
+
+
             orderLookups.add(OrderItemINData.orderExternalId);
             // Pega a relação do Product com o OrderItem
             //Getting product parameters to search
             productLookups.add(OrderItemINData.material);
 
             idsOrderItem.add(OrderItemINData.orderExternalId + '|' + OrderItemINData.orderItemCode);
+            for(TemplateDataIntegrationFields.ConditionInsert  conditions : conditionList){
+                conditions.KPOSN = conditions.KPOSN.replaceFirst('^0+','');
+                if(conditions.KPOSN == OrderItemINData.orderItemCode){
+
+                    if(conditions.KSCHL == 'ZPR0'){
+                        OrderItemINData.precoUnitario = (Decimal.valueOf(conditions.KBETR) / Decimal.valueOf(conditions.KPEIN));
+                       //OrderItemINData.multiplicador == conditions.KPEIN;
+                    }
+                    if(conditions.KSCHL == 'ZDAC'){ //Antigo ZDAN
+                       OrderItemINData.porcentagemDescontoFin = Decimal.valueOf(conditions.KBETR);
+                    }
+                    if(conditions.KSCHL == 'ZJUC'){ //Antigo ZJUR
+                        OrderItemINData.porcentagemAcrescFin = Decimal.valueOf(conditions.KBETR);
+
+                    }
+                    if(conditions.KSCHL == 'ZDEC'){
+                        if(Decimal.valueOf(conditions.KBETR) > 0){
+                            OrderItemINData.porcentagemAcrescComercial = Decimal.valueOf(conditions.KBETR);
+
+                        }
+                        else {
+                            OrderItemINData.porcentagemDesconto = Decimal.valueOf(conditions.KBETR);
+                        }
+                    }   
+            }
         }
+                    
+                    Decimal porcentagemDescontoFinanceiro;
+                    Decimal porcentagemAcrescimoFinanceiro;
+                    Decimal porcentagemDescontoComercial;
+                    Decimal porcentagemAcrescimoComercial;
+
+                    porcentagemDescontoFinanceiro = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemDescontoFin / 100);
+                    porcentagemAcrescimoFinanceiro = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemAcrescFin / 100);
+                    porcentagemDescontoComercial = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemAcrescComercial / 100);
+                    porcentagemAcrescimoComercial = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemDesconto / 100);
+
+                    OrderItemINData.precoUnitario  += porcentagemAcrescimoFinanceiro - porcentagemDescontoFinanceiro  ;
+                    OrderItemINData.precoUnitario  += porcentagemAcrescimoComercial - porcentagemDescontoComercial  ;
+                    
+        }
+
+        
 
         Map<String, OrderItem> orderItemsIdsMap = new Map<String, OrderItem>();
         List<OrderItem> orderItemSelectList = new List<OrderItem>([SELECT Id, Order.CodigoSap__c, Product2.ProductCode__c, Product2Id, OrderId,
@@ -123,11 +168,11 @@ global with sharing class IntegrationINOrderItem {
             }
 
             if(orderItem.valorAcrescComercial == null){
-                orderItem.valorAcrescComercial = ordItem.CommercialAdditionValue__c;
+               orderItem.valorAcrescComercial = ordItem.CommercialAdditionValue__c;
             }
 
             if(orderItem.dosagem == null){
-                orderItem.dosagem = ordItem.Dosage__c;
+               orderItem.dosagem = ordItem.Dosage__c;
             }
 
             if(orderItem.custoLista == null){
