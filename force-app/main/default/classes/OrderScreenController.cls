@@ -154,7 +154,9 @@ public without sharing class OrderScreenController {
                    Order__r.Hectare__c,
                    Order__r.FinalTotalValue__c,
                    Product__c,
-                   Product__r.Name
+                   Product__r.Name,
+                   StartDate__c,
+                   EndDate__c
               FROM OrderCommodity__c
              WHERE Order__c =: orderId
         ]) {
@@ -1556,6 +1558,8 @@ public without sharing class OrderScreenController {
         public String  margin;
         public String  marginValue;
         public String  totalDelivery;
+        public String  startDate;
+        public String  endDate;
         public Decimal commodityPrice;
         public Decimal area;
         public Decimal quantity;
@@ -1577,6 +1581,8 @@ public without sharing class OrderScreenController {
             this.marginValue = (((orderCommodity.Order__r.FinalTotalValue__c * margin) / 100) / this.commodityPrice).setScale(4) + ' sacas';
             this.totalDelivery = orderCommodity.BagQuantity__c + ' sacas';
             this.cotation = orderCommodity.CommodityPrice__c;
+            this.startDate = String.valueOf(orderCommodity.StartDate__c);
+            this.endDate = String.valueOf(orderCommodity.EndDate__c);
             this.saved = true;
         }
     }
