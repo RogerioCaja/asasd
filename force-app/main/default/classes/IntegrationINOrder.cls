@@ -25,6 +25,8 @@ global without sharing class IntegrationINOrder {
 
         List<TemplateDataIntegrationFields.ShippingDivisonINData> shippingDivisonListToUpsert = new List<TemplateDataIntegrationFields.ShippingDivisonINData>();
         
+        List<TemplateDataIntegrationFields.ConditionInsert> conditionList = new List<TemplateDataIntegrationFields.ConditionInsert>();
+        
         List<String> idOrders = new List<String>();
 
         // Guarda uma lista de pedidos para fazer o upsert
@@ -55,11 +57,52 @@ global without sharing class IntegrationINOrder {
             orderItemListToUpsert.addAll(order.orderItems);
             System.debug('orderItemListToUpsert ' + orderItemListToUpsert);
 
-            for (TemplateDataIntegrationFields.ShippingDivisonINData shippingDivisonItem : order.shippingDivison) {
-                shippingDivisonItem.orderExternalId = order.CodigoSap;
-                shippingDivisonItem.OrderItemCode = shippingDivisonItem.OrderItemCode.replaceFirst('^0+','');
+            switch on order.salesType {
+                // ---- Pedido mãe  ----
+                 when 'ZCCO' {
+                     order.pedidoMae = true;
+                 }
+                 when 'ZCVF'{
+                    order.pedidoMae = true;
+                 }
+                 when 'ZCVN'{
+                    order.pedidoMae = true;
+                 }
+ 
+                // --- Pedidos normais ---
+                 when 'ZSER'{
+                    order.pedidoMae = false;
+                 }
+                 when 'ZVBA'{
+                     order.pedidoMae = false;
+                     
+                 }
+                 when 'ZVEF'{
+                     order.pedidoMae = false;
+                     
+                 }
+                 when 'ZVNO' {
+                     order.pedidoMae = false;
+ 
+                 }
+                 when 'ZVVO'{
+                     order.pedidoMae = false;
+                     
+                 }
+                 when 'ZRCO'{
+                     order.pedidoMae = false;
+ 
+                 }
+             }
+
+            if(order.pedidoMae == false){
+                for (TemplateDataIntegrationFields.ShippingDivisonINData shippingDivisonItem : order.shippingDivison) {
+                    shippingDivisonItem.orderExternalId = order.CodigoSap;
+                    shippingDivisonItem.OrderItemCode = shippingDivisonItem.OrderItemCode.replaceFirst('^0+','');
+                }
+                shippingDivisonListToUpsert.addAll(order.shippingDivison);
             }
-            shippingDivisonListToUpsert.addAll(order.shippingDivison);
+            
             
             for (TemplateDataIntegrationFields.PartnerInsert partnerList : order.partners){
                 
@@ -82,6 +125,11 @@ global without sharing class IntegrationINOrder {
                         order.salesCTV = partnerList.KUNNR;
                     }
             }
+
+                
+                conditionList.addAll(order.conditions);
+                
+            
             System.debug('accountLookups' + accountLookups);
             
             /*
@@ -342,7 +390,7 @@ global without sharing class IntegrationINOrder {
         Map<String, List<TemplateDataIntegrationFields.Response>> orderItemsResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
         if(orderItemListToUpsert.size() != 0){
             orderItemsResponse.putAll(
-                IntegrationINOrderItem.upsertOrderItem(orderItemListToUpsert)
+                IntegrationINOrderItem.upsertOrderItem(orderItemListToUpsert, conditionList)
             );
 
         }
@@ -367,15 +415,19 @@ global without sharing class IntegrationINOrder {
             
             if(orderItemsResponse.size() != 0 && orderItemsResponse.containsKey(response.idSalesforce)){
                 response.items.addAll(orderItemsResponse.get(response.idSalesforce));
+
                 for(TemplatedataIntegrationFields.Response orderItem : orderItemsResponse.get(response.idSalesforce)){
-                    System.debug('orderItem'+orderItem);
-                    response.items.addAll(shippingDivisonResponse.get(orderItem.idSalesforce)); 
+                    if(shippingDivisonResponse.containsKey(orderItem.idSalesforce)){
+                        response.items.addAll(shippingDivisonResponse.get(orderItem.idSalesforce)); 
+                    }
                 }
             } 
             else if(orderItemsResponse.size() != 0 && orderItemsResponse.containsKey(response.externalCode)){
                 response.items.addAll(orderItemsResponse.get(response.externalCode));
                 for(TemplatedataIntegrationFields.Response orderItem : orderItemsResponse.get(response.externalCode)){
-                    response.items.addAll(shippingDivisonResponse.get(orderItem.externalCode)); 
+                    if(shippingDivisonResponse.containsKey(orderItem.externalCode)){
+                        response.items.addAll(shippingDivisonResponse.get(orderItem.externalCode)); 
+                    }
                 }
             }
         }
