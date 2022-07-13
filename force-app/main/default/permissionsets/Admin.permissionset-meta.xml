@@ -1514,6 +1514,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>OrderItem.CommitteeTrigger__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>OrderItem.Description</field>
         <readable>true</readable>
     </fieldPermissions>
