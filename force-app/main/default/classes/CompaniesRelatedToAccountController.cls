@@ -10,7 +10,7 @@ public class CompaniesRelatedToAccountController {
                    SalesTeam__r.Name,
                    ActivitySector__r.Name,
                    DistributionChannel__r.Name,
-                   ClientGroup__c,
+                   toLabel(ClientGroup__c),
                    SupplierCenter__c
               FROM Company__c
              WHERE Conta__c =: accountId
