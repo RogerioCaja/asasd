@@ -120,47 +120,47 @@ global with sharing class IntegrationINOrderItem {
             }
 
             if(orderItem.unidadeMedida == null){
-                //orderItem.unidadeMedida = ordItem.UnitMeasure__c;
+                orderItem.unidadeMedida = ordItem.UnitMeasure__c;
             }
 
             if(orderItem.porcentagemComissao == null){
-                //orderItem.porcentagemComissao = ordItem.PercentComission__c;
+                orderItem.porcentagemComissao = ordItem.PercentComission__c;
             }
 
             if(orderItem.porcentagemDesconto == null){
-                //orderItem.porcentagemDesconto = ordItem.DiscountPercent__c;
+                orderItem.porcentagemDesconto = ordItem.DiscountPercent__c;
             }
 
             if(orderItem.comissaoValor == null){
-                //orderItem.comissaoValor = ordItem.ComissionValue__c;
+                orderItem.comissaoValor = ordItem.ComissionValue__c;
             }
 
             if(orderItem.margemComercial == null){
-                //orderItem.margemComercial = ordItem.CommercialMargin__c;
+                orderItem.margemComercial = ordItem.CommercialMargin__c;
             }
 
             if(orderItem.descontoValor == null){
-                //orderItem.descontoValor = ordItem.DiscountValue__c;
+                orderItem.descontoValor = ordItem.DiscountValue__c;
             }
 
             if(orderItem.valorTotal == null){
-                //orderItem.valorTotal = ordItem.FinalTotalValue__c;
+                orderItem.valorTotal = ordItem.FinalTotalValue__c;
             }
 
             if(orderItem.porcentagemDescontoFin == null){
-                //orderItem.porcentagemDescontoFin = ordItem.FinancialDiscountPercent__c;
+                orderItem.porcentagemDescontoFin = ordItem.FinancialDiscountPercent__c;
             }
 
             if(orderItem.valorDescontoFin == null){
-                //orderItem.valorDescontoFin = ordItem.FinancialDiscountValue__c;
+                orderItem.valorDescontoFin = ordItem.FinancialDiscountValue__c;
             }
 
             if(orderItem.porcentagemAcrescFin == null){
-                //orderItem.porcentagemAcrescFin = ordItem.FinancialAdditionPercent__c;
+                orderItem.porcentagemAcrescFin = ordItem.FinancialAdditionPercent__c;
             }
 
             if(orderItem.valorAcrescFin == null){
-                //orderItem.valorAcrescFin = ordItem.FinancialAdditionValue__c;
+                orderItem.valorAcrescFin = ordItem.FinancialAdditionValue__c;
             }
 
             if(orderItem.porcentagemAcrescComercial == null){
