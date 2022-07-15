@@ -174,7 +174,6 @@ global with sharing class IntegrationINPricebook2 {
         FactoryDataIntegration.convertSObject(new JurosDescontoAntecipao__c(), 'IN', request, responseList, interestDicountListToUpsert, lookups, requirementsMap, isValidMap);
         
         List<JurosDescontoAntecipao__c> priceWithoutZPRS = removeZPRSData(interestDicountListToUpsert, responseList);
-        System.debug(priceWithoutZPRS);
         IntegrationUtils.upsertRecords(
             Database.upsert(priceWithoutZPRS, JurosDescontoAntecipao__c.ExternalId__c, false), 
             responseList, 
@@ -182,7 +181,6 @@ global with sharing class IntegrationINPricebook2 {
             JurosDescontoAntecipao__c.ExternalId__c);
 
         List<JurosDescontoAntecipao__c> priceWithZPRS = ZPRSData(interestDicountListToUpsert, responseList);
-        System.debug('Aqui => '+ priceWithZPRS);
         IntegrationUtils.upsertRecords(
             Database.upsert(priceWithZPRS, JurosDescontoAntecipao__c.ExternalId__c, false), 
             responseList, 
@@ -287,7 +285,6 @@ global with sharing class IntegrationINPricebook2 {
                     (prices.SalesTeam__c == null ? '' : String.valueOf(prices.SalesTeam__c).subString(0, 15)+'_')+
                     (prices.Product__c == null ? '' : String.valueOf(prices.Product__c).subString(0, 15))
                 );
-                System.debug(externalId);
                 externalIdMap.put(externalId,prices.ExternalId__c);
                 repetitons.add(prices.ExternalId__c);
                 prices.EndDate__c = prices.EndDate__c != null ? String.valueOf(prices.EndDate__c).contains('9999') ? Date.valueOf(String.valueOf(prices.EndDate__c).replace('9999', '2999')) : prices.EndDate__c : null;
@@ -302,8 +299,10 @@ global with sharing class IntegrationINPricebook2 {
                                                 FROM JurosDescontoAntecipao__c
                                                 WHERE DescriptionExternalId__c IN: pricesMap.keySet()
                                                 AND RecordType.DeveloperName = 'ZPR0']){ 
-            if(externalIdMap.containsKey(prices.DescriptionExternalId__c)) externalIdMap.remove(prices.DescriptionExternalId__c);    
-            pricesList.add(new JurosDescontoAntecipao__c(IsActive__c = Date.valueOf(pricesMap.get(prices.DescriptionExternalId__c).substringAfter('|')) < Date.today() ? false : true ,EndDate__c = Date.valueOf(pricesMap.get(prices.DescriptionExternalId__c).substringAfter('|')), UnitPrice__c = Decimal.valueOf(pricesMap.get(prices.DescriptionExternalId__c).substringBefore('|')), ExternalId__c = prices.ExternalId__c));
+            if(externalIdMap.containsKey(prices.DescriptionExternalId__c)) externalIdMap.remove(prices.DescriptionExternalId__c); 
+            if(pricesMap.containsKey(prices.DescriptionExternalId__c)){   
+                pricesList.add(new JurosDescontoAntecipao__c(IsActive__c = Date.valueOf(pricesMap.get(prices.DescriptionExternalId__c).substringAfter('|')) < Date.today() ? false : true ,EndDate__c = Date.valueOf(pricesMap.get(prices.DescriptionExternalId__c).substringAfter('|')), UnitPrice__c = Decimal.valueOf(pricesMap.get(prices.DescriptionExternalId__c).substringBefore('|')), ExternalId__c = prices.ExternalId__c));
+            }
         }
         Set<String> externalIdSet = new Set<String>();
         for(String value : externalIdMap.values()){
@@ -355,7 +354,6 @@ global with sharing class IntegrationINPricebook2 {
                 (prices.SalesTeam__c == null ? '' : String.valueOf(prices.SalesTeam__c).subString(0, 15)+'_')+
                 (prices.Product__c == null ? '' : String.valueOf(prices.Product__c).subString(0, 15))
             );
-            System.debug(externalId);
             externalIdMap.put(externalId,prices.ExternalId__c);
             repetitonsZPRS.add(prices.ExternalId__c);
             pricesMap.put(externalId, prices.Cost__c);
@@ -368,7 +366,9 @@ global with sharing class IntegrationINPricebook2 {
                                                 WHERE DescriptionExternalId__c IN: pricesMap.keySet()
                                                 AND RecordType.DeveloperName = 'ZPR0']){ 
             if(externalIdMap.containsKey(prices.DescriptionExternalId__c)) externalIdMap.remove(prices.DescriptionExternalId__c);
-            pricesList.add(new JurosDescontoAntecipao__c(Cost__c = pricesMap.get(prices.DescriptionExternalId__c), ExternalId__c = prices.ExternalId__c));
+            if(pricesMap.containsKey(prices.DescriptionExternalId__c)){
+                pricesList.add(new JurosDescontoAntecipao__c(Cost__c = pricesMap.get(prices.DescriptionExternalId__c), ExternalId__c = prices.ExternalId__c));
+            }
         }
        	Set<String> externalIdSet = new Set<String>();
         for(String value : externalIdMap.values()){
