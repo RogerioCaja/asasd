@@ -300,7 +300,7 @@ global without sharing class IntegrationINPricebook2 {
      
         for(JurosDescontoAntecipao__c prices : [ SELECT Id, ExternalId__c, UnitPrice__c, DescriptionExternalId__c
                                                 FROM JurosDescontoAntecipao__c
-                                                WHERE DescriptionExternalId__c IN: pricesMap.keySet()
+                                                WHERE DescriptionExternalId__c =: pricesMap.keySet()
                                                 AND RecordType.DeveloperName = 'ZPR0']){ 
             if(externalIdMap.containsKey(prices.DescriptionExternalId__c)) externalIdMap.remove(prices.DescriptionExternalId__c);  
             
