@@ -307,6 +307,7 @@ global with sharing class IntegrationINPricebook2 {
             if(externalIdMap.containsKey(prices.DescriptionExternalId__c)) externalIdMap.remove(prices.DescriptionExternalId__c);  
             
             System.debug('prices.DescriptionExternalId__c => ' + prices.DescriptionExternalId__c);
+            System.debug('get value => ' + pricesMap.get(prices.DescriptionExternalId__c));
             pricesList.add(new JurosDescontoAntecipao__c(IsActive__c = Date.valueOf(pricesMap.get(prices.DescriptionExternalId__c).substringAfter('|')) < Date.today() ? false : true ,EndDate__c = Date.valueOf(pricesMap.get(prices.DescriptionExternalId__c).substringAfter('|')), UnitPrice__c = Decimal.valueOf(pricesMap.get(prices.DescriptionExternalId__c).substringBefore('|')), ExternalId__c = prices.ExternalId__c));
         }
         Set<String> externalIdSet = new Set<String>();
