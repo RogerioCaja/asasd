@@ -1,5 +1,5 @@
 @RestResource(urlMapping='/upsertPricebook2/*')
-global with sharing class IntegrationINPricebook2 {
+global without sharing class IntegrationINPricebook2 {
 
     global static Boolean hasError = false;
     // This example of request
