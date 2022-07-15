@@ -300,13 +300,14 @@ global without sharing class IntegrationINPricebook2 {
      
         for(JurosDescontoAntecipao__c prices : [ SELECT Id, ExternalId__c, UnitPrice__c, DescriptionExternalId__c
                                                 FROM JurosDescontoAntecipao__c
-                                                WHERE DescriptionExternalId__c =: pricesMap.keySet()
+                                                WHERE DescriptionExternalId__c IN: pricesMap.keySet()
                                                 AND RecordType.DeveloperName = 'ZPR0']){ 
             if(externalIdMap.containsKey(prices.DescriptionExternalId__c)) externalIdMap.remove(prices.DescriptionExternalId__c);  
             
-            System.debug('get value => ' + pricesMap.get(prices.DescriptionExternalId__c));
-            System.debug('prices => '+ prices);
-            pricesList.add(new JurosDescontoAntecipao__c(IsActive__c = Date.valueOf(pricesMap.get(prices.DescriptionExternalId__c).substringAfter('|')) < Date.today() ? false : true ,EndDate__c = Date.valueOf(pricesMap.get(prices.DescriptionExternalId__c).substringAfter('|')), UnitPrice__c = Decimal.valueOf(pricesMap.get(prices.DescriptionExternalId__c).substringBefore('|')), ExternalId__c = prices.ExternalId__c));
+            if(pricesMap.containsKey(prices.DescriptionExternalId__c)){
+                pricesList.add(new JurosDescontoAntecipao__c(IsActive__c = Date.valueOf(pricesMap.get(prices.DescriptionExternalId__c).substringAfter('|')) < Date.today() ? false : true ,EndDate__c = Date.valueOf(pricesMap.get(prices.DescriptionExternalId__c).substringAfter('|')), UnitPrice__c = Decimal.valueOf(pricesMap.get(prices.DescriptionExternalId__c).substringBefore('|')), ExternalId__c = prices.ExternalId__c));
+            }
+            
         }
         Set<String> externalIdSet = new Set<String>();
         for(String value : externalIdMap.values()){
