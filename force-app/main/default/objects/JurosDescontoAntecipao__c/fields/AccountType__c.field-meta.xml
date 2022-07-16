@@ -4,7 +4,7 @@
     <externalId>false</externalId>
     <label>Grupo de Cliente</label>
     <length>50</length>
-    <required>true</required>
+    <required>false</required>
     <trackFeedHistory>false</trackFeedHistory>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>
