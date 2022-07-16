@@ -356,7 +356,9 @@ global with sharing class TemplateDataIntegrationFields {
 
                     salesType = codTypeOrder.containsKey(salesType) ? codTypeOrder.get(salesType) : salesType;
                 
-          
+                    if(orderReference == null){
+                        orderReference = '';
+                    }
             
             return new Order(
 
