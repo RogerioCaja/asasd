@@ -354,9 +354,12 @@ global with sharing class TemplateDataIntegrationFields {
                     }
 
                     salesType = codTypeOrder.containsKey(salesType) ? codTypeOrder.get(salesType) : '';
-                
+                    
           
-            
+                    if(orderReference == null){
+                        orderReference = '';
+                    }
+                    
             return new Order(
 
                 CodigoSap__c = this.CodigoSap,
