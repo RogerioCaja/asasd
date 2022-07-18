@@ -289,7 +289,7 @@ global without sharing class IntegrationINOrder {
             if(order.paymentCondition == null){
                 if(ord.PaymentCondition__c != null){
                     order.paymentCondition = ord.PaymentCondition__r.Code__c;
-                    lookups.put('PaymentCondition__c' + ord.PaymentCondition__r.Code__c, ord.PaymentCondition__c);    
+                    lookups.put('CondicaoPagamento__c' + ord.PaymentCondition__r.Code__c, ord.PaymentCondition__c);    
                 }
             } 
             if (order.company == null){
@@ -350,7 +350,7 @@ global without sharing class IntegrationINOrder {
         }
 
         for (CondicaoPagamento__c paymentCondition : [SELECT Id, Code__c FROM CondicaoPagamento__c WHERE Code__c IN : paymentConditionLookups]) {
-            lookups.put('PaymentCondition__c' + paymentCondition.Code__c, paymentCondition.Id);
+            lookups.put('CondicaoPagamento__c' + paymentCondition.Code__c, paymentCondition.Id);
         }
 
 
