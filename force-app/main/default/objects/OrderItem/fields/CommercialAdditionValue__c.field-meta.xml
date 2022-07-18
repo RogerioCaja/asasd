@@ -6,6 +6,6 @@
     <precision>18</precision>
     <required>false</required>
     <scale>6</scale>
-    <trackHistory>false</trackHistory>
+    <trackHistory>true</trackHistory>
     <type>Currency</type>
 </CustomField>
