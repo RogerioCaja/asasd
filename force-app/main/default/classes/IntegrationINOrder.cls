@@ -149,7 +149,7 @@ global without sharing class IntegrationINOrder {
         Map<String, Order> ordersIdsMap = new Map<String, Order>();
         List<Order> orderSelectList = new List<Order>([SELECT Id, NumeroPedidoApp__c,PaymentDate__c,ShippingDate__c,Type,CustomerOrderNumber__c,
         Currency__c,Description,DescriptionBillingSale__c,FinalTotalValue__c,Hectare__c,OrderMargin__c,OrderType__c,SalesCondition__c,IsOrderMother__c, RecordTypeId,
-        CodigoSap__c, Pricebook2Id, Pricebook2.Name,EffectiveDate,Status,StatusRecusa__c,Incoterms__c,Incoterms2__c,PaymentForm__c, Crop__r.Code__c, Crop__c, Culture__c, Culture__r.Codigo__c, SalesOrg__r.SalesOrganizationCode__c, SalesOrg__c,
+        CodigoSap__c, Pricebook2Id, Pricebook2.Name,EffectiveDate,Status,StatusRecusa__c,Incoterms__c,Incoterms2__c,PaymentForm__c, Crop__r.Code__c, Crop__c, Culture__c, Culture__r.Codigo__c, SalesOrg__r.SalesOrganizationCode__c, SalesOrg__c, SalesCondition__r.ExternalId__c,
         SalesCTV__r.CodigoSap__c, SalesCTV__c, PaymentCondition__r.Code__c, PaymentCondition__c,OrderReference__r.CodigoSap__c, OrderReference__c, Account.ExternalId__c, AccountId, ShippingAccount__r.ExternalId__c, ShippingAccount__c,Company__r.ExternalID__c,Company__c,DistributionChannel__r.Codigo__c,DistributionChannel__c
         FROM Order WHERE CodigoSap__c  IN : idOrders]);
 
@@ -175,9 +175,11 @@ global without sharing class IntegrationINOrder {
             if(order.status == null){
                 order.status = ord.Status;
             }
+            /*
             if(order.statusRecusa == null){
                 order.statusRecusa = ord.StatusRecusa__c;
             }
+            */
             if(order.type == null){
                 order.type = ord.Type;
             }
@@ -214,9 +216,7 @@ global without sharing class IntegrationINOrder {
             if(order.orderType == null){
                 order.orderType = ord.OrderType__c;
             }
-            if(order.condicaoVenda == null){
-                order.condicaoVenda = ord.SalesCondition__c;
-            }
+            
             if(order.pedidoMae == null){
                 order.pedidoMae = ord.IsOrderMother__c;
             }
@@ -279,7 +279,7 @@ global without sharing class IntegrationINOrder {
                 }
             }
             
-            if(order.SalesCTV == null){
+            if(order.SalesCTV == null || order.SalesCTV == ''){
                 if(ord.SalesCTV__c != null){
                     order.salesCTV = ord.SalesCTV__r.CodigoSap__c;
                     lookups.put('User' + ord.SalesCTV__r.CodigoSap__c, ord.SalesCTV__c);
@@ -304,6 +304,15 @@ global without sharing class IntegrationINOrder {
                     lookups.put('DistributionChannel__c' + ord.DistributionChannel__r.Codigo__c, ord.DistributionChannel__c);
                 }
             }
+            
+            if(order.condicaoVenda == null){
+                if(ord.SalesCondition__c != null){
+                    order.condicaoVenda = ord.SalesCondition__r.ExternalId__c;
+                    lookups.put('SalesCondition__c' + ord.SalesCondition__r.ExternalId__c, ord.SalesCondition__c);
+                }
+                
+            }
+            
         }
 
         for (Pricebook2 pricebook2Id : [SELECT Id, ExternalId__c FROM Pricebook2 WHERE ExternalId__c IN : pricebook2IdLookups ]){
