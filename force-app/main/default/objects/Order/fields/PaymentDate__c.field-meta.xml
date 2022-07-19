@@ -4,6 +4,6 @@
     <externalId>false</externalId>
     <label>Data de Pagamento</label>
     <required>false</required>
-    <trackHistory>false</trackHistory>
+    <trackHistory>true</trackHistory>
     <type>Date</type>
 </CustomField>
