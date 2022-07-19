@@ -449,7 +449,7 @@ global with sharing class TemplateDataIntegrationFields {
 
             
             orderItemCode = orderItemCode.replaceFirst('^0+','');
-
+            
             return new OrderItem(
                 OrderId = this.orderExternalId,
                 Product2Id = lookups.containsKey('Product2'+this.material) ? lookups.get('Product2'+this.material) : null,
