@@ -255,7 +255,8 @@ public without sharing class OrderScreenController {
                     SELECT Id,
                            Product2Id,
                            Quantity,
-                           AmountUsed__c
+                           AmountUsed__c,
+                           NumeroSap__c
                       FROM OrderItem
                      WHERE OrderId =: orderData.headerData.pedido_mae.Id
                         OR OrderId =: order.OrderReference__c
@@ -545,7 +546,8 @@ public without sharing class OrderScreenController {
                         orderItem = orderItemsById.get(orderProduct.orderItemId);
                     } else {
                         orderItem = new OrderItem();
-                        orderItem.NumeroSap__c = String.valueOf(itemCounter * 10);
+                        String sapNumber = childOrder ? motherItems.get(orderProduct.productId).NumeroSap__c : String.valueOf(itemCounter * 10);
+                        orderItem.NumeroSap__c = sapNumber;
                         orderItem.ExternalId__c = order.Id + '|' + orderItem.NumeroSap__c;
                         orderItem.OrderId = order.Id;
                         orderItem.PricebookEntryId = entriesByProductsIds.get(orderProduct.productId).Id;
