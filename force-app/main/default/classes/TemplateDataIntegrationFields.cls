@@ -449,9 +449,6 @@ global with sharing class TemplateDataIntegrationFields {
 
             
             orderItemCode = orderItemCode.replaceFirst('^0+','');
-            if(porcentagemDesconto != null || porcentagemDesconto != 0 || porcentagemDesconto != Integer.valueOf('')){
-                porcentagemDesconto = porcentagemDesconto * (-1);
-            }
             
             return new OrderItem(
                 OrderId = this.orderExternalId,
