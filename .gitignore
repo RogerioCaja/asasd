@@ -6,6 +6,7 @@
 .sfdx/
 *.dup
 .sfdx/
+.sf/
 .forceignore
 .vscode/
 README.md
