@@ -47,12 +47,17 @@ global with sharing class IntegrationINOrderItem {
                         OrderItemINData.porcentagemAcrescComercial = 0;
                         OrderItemINData.porcentagemDesconto = 0;
                         
+                        
+                        System.debug('KBETR ' + Decimal.valueOf(conditions.KBETR));
                         if(Decimal.valueOf(conditions.KBETR) > 0){
                             OrderItemINData.porcentagemAcrescComercial = Decimal.valueOf(conditions.KBETR);
+                            System.debug('porcentagemAcrescComercial ' + OrderItemINData.porcentagemAcrescComercial);
 
                         }
                         else {
                             OrderItemINData.porcentagemDesconto = Decimal.valueOf(conditions.KBETR);
+                            OrderItemINData.porcentagemDesconto *= (-1);
+                            System.debug('porcentagemDesconto ' + OrderItemINData.porcentagemDesconto);
                         }
                     }   
             }
@@ -62,23 +67,28 @@ global with sharing class IntegrationINOrderItem {
                     Decimal porcentagemAcrescimoFinanceiro = 0; 
                     Decimal porcentagemDescontoComercial = 0; 
                     Decimal porcentagemAcrescimoComercial = 0;
-					
-            		if(OrderItemINData.porcentagemDescontoFin > 0){
+                    
+                    if(OrderItemINData.porcentagemDescontoFin > 0){
                         porcentagemDescontoFinanceiro = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemDescontoFin / 100);
-					}
-            		if (OrderItemINData.porcentagemAcrescFin > 0){
-                		porcentagemAcrescimoFinanceiro = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemAcrescFin / 100);
-            		}
-            		if (OrderItemINData.porcentagemAcrescComercial != 0){
-                		porcentagemDescontoComercial = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemAcrescComercial / 100);
-            		}
-            		if(OrderItemINData.porcentagemDesconto != 0){
-                		porcentagemAcrescimoComercial = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemDesconto / 100);
-            		}
+                    }
+                    if (OrderItemINData.porcentagemAcrescFin > 0){
+                        porcentagemAcrescimoFinanceiro = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemAcrescFin / 100);
+                    }
+                    if (OrderItemINData.porcentagemDesconto != 0){ 
+                        porcentagemDescontoComercial = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemDesconto / 100); 
+                        System.debug('porcentagemDescontoComercial ' + porcentagemDescontoComercial);
+                    }
+                    if(OrderItemINData.porcentagemAcrescComercial != 0){
+                        porcentagemAcrescimoComercial = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemAcrescComercial / 100);
+                        System.debug('porcentagemAcrescimoComercial ' + porcentagemAcrescimoComercial);
+                        //System.debug('porcentagemDesconto ' + OrderItemINData.porcentagemDesconto);
+                    }
                     
                     OrderItemINData.precoUnitario  += porcentagemAcrescimoFinanceiro - porcentagemDescontoFinanceiro  ;
                     OrderItemINData.precoUnitario  += porcentagemAcrescimoComercial - porcentagemDescontoComercial  ;
-                    
+                    System.debug('precoUnitario  ' + OrderItemINData.precoUnitario);
+                    OrderItemINData.descontoValor = OrderItemINData.precoUnitario + (porcentagemAcrescimoComercial - porcentagemDescontoComercial);
+                    System.debug('Desconto Valor ' + OrderItemINData.descontoValor);
         }
 
         

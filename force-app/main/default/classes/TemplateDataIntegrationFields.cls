@@ -449,7 +449,10 @@ global with sharing class TemplateDataIntegrationFields {
 
             
             orderItemCode = orderItemCode.replaceFirst('^0+','');
-
+            if(porcentagemDesconto != null || porcentagemDesconto != 0 || porcentagemDesconto != ''){
+                porcentagemDesconto = porcentagemDesconto * (-1);
+            }
+            
             return new OrderItem(
                 OrderId = this.orderExternalId,
                 Product2Id = lookups.containsKey('Product2'+this.material) ? lookups.get('Product2'+this.material) : null,
