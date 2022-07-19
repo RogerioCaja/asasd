@@ -359,6 +359,8 @@ global with sharing class TemplateDataIntegrationFields {
                     if(orderReference == null){
                         orderReference = '';
                     }
+
+                    
                     
             return new Order(
 
