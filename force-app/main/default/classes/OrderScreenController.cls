@@ -501,6 +501,7 @@ public without sharing class OrderScreenController {
             order.SalesCTV__c = orderData.headerData.ctv_venda.Id ;
             order.StatusSF__c = orderData.headerData.status_pedido;
             order.Status = typeOrder == 'prepedido' ? '0' : '001';
+            if(typeOrder == 'gerarpedido') order.EffectiveOrderDate__c = Date.today();
             order.Incoterms__c = orderData.headerData.frete;
             order.Incoterms2__c = orderData.headerData.frete;
             order.Description = orderData.summaryData.observation;
@@ -882,6 +883,7 @@ public without sharing class OrderScreenController {
         if (salesTeamTerritory != null && salesTeamTerritory.DeveloperName != null) {
             String salesTeamDevName = salesTeamTerritory.DeveloperName.substring(0, 1) == 'X' ? salesTeamTerritory.DeveloperName.substring(1, salesTeamTerritory.DeveloperName.length()) : salesTeamTerritory.DeveloperName;
             proQuery.add(Q.condition('SalesTeam__r.ExternalId__c').equalsTo(salesTeamDevName));
+            proQuery.add(Q.condition('SalesOrg__r.SalesOrganizationCode__c').equalsTo('1000'));
             if(companyInfos.orderType != 'Venda de Serviço')
                 proQuery.add(Q.condition('ActivitySector__r.Codigo__c').notEqualsTo('40'));
             else {
