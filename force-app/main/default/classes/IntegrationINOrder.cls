@@ -16,7 +16,6 @@ global without sharing class IntegrationINOrder {
         Set<String> salesOrgLookups = new Set<String>();
         Set<String> salesCTVLookups = new Set<String>();
         Set<String> pricebook2IdLookups = new Set<String>();
-        Set<String> activitySectorLookups = new Set<String>();
         Set<String> paymentConditionLookups = new Set<String>(); 
         Set<String> activitySectorLookups = new Set<String>();
 
@@ -45,7 +44,6 @@ global without sharing class IntegrationINOrder {
             salesOrgLookups.add(order.salesOrg);
             //salesCTVLookups.add(order.salesCTV);
             pricebook2IdLookups.add(order.pricebook2Id);
-            activitySectorLookups.add(order.ActivitySector);
             paymentConditionLookups.add(order.paymentCondition);
             activitySectorLookups.add(order.ActivitySector);
             idOrders.add(order.CodigoSap);
