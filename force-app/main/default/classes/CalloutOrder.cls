@@ -43,6 +43,7 @@ public without sharing class CalloutOrder {
             if(calloutResponse.success){
                 allOrders[0].CodigoSap__c = resp.responses.EV_SALES_DOC;
                 allOrders[0].StatusSF__c = 'Integrado';
+                allOrders[0].Status =  resp.responses.EV_STATUS;
                 orderList.add(allOrders[0]);
             }
             
@@ -366,6 +367,7 @@ public without sharing class CalloutOrder {
     public class ResponseParametersWrapper {
         public OrderDetails ET_RETURN;
         public String EV_SALES_DOC;
+        public String EV_STATUS;
     }
 
     public class Messages{
