@@ -1,9 +1,62 @@
 @RestResource(urlMapping='/upsertINOrder/*')
 global without sharing class IntegrationINOrder {
     public IntegrationINOrder() {
-
+			
     }
     @HttpPost
+    global static ResponseModel upsertOrderValidation(List<TemplateDataIntegrationFields.OrderINData> request){
+        
+		List<String> idOrders = new List<String>();
+
+        List<TemplateDataIntegrationFields.ConditionInsert> conditionList = new List<TemplateDataIntegrationFields.ConditionInsert>();
+
+        List<TemplateDataIntegrationFields.ResponseParent> responseList = new List<TemplateDataIntegrationFields.ResponseParent>();
+
+        for (TemplateDataIntegrationFields.OrderINData order : request){
+            idOrders.add(order.CodigoSap);
+            
+        }
+        
+        Map<String, Order> ordersIdsMap = new Map<String, Order>();
+        List<Order> orderSelectList = new List<Order>([SELECT Id, NumeroPedidoApp__c,PaymentDate__c,ShippingDate__c,Type,CustomerOrderNumber__c,
+        Currency__c,Description,DescriptionBillingSale__c,FinalTotalValue__c,Hectare__c,OrderMargin__c,OrderType__c,SalesCondition__c,IsOrderMother__c, RecordTypeId, OwnerId,
+        CodigoSap__c, Pricebook2Id, Pricebook2.Name,EffectiveDate,Status,StatusRecusa__c,Incoterms__c,Incoterms2__c,PaymentForm__c, Crop__r.Code__c, Crop__c, Culture__c, Culture__r.Codigo__c, SalesOrg__r.SalesOrganizationCode__c, SalesOrg__c, SalesCondition__r.ExternalId__c,ActivitySector__r.Codigo__c,
+        SalesCTV__r.CodigoSap__c, SalesCTV__c, PaymentCondition__r.Code__c, PaymentCondition__c,OrderReference__r.CodigoSap__c, OrderReference__c, Account.ExternalId__c, AccountId, ShippingAccount__r.ExternalId__c, ShippingAccount__c,Company__r.ExternalID__c,Company__c,DistributionChannel__r.Codigo__c,DistributionChannel__c
+        FROM Order WHERE CodigoSap__c  IN : idOrders]);
+
+        for (Order ord : orderSelectList){
+            ordersIdsMap.put(ord.CodigoSap__c, ord);
+
+        }
+         List<TemplateDataIntegrationFields.OrderINData> integrationOrderListValidation = new List<TemplateDataIntegrationFields.OrderINData>(); //Segue o jogo dentro do inboundOrder
+         List<TemplateDataIntegrationFields.OrderINData> inApporderListValidation = new List<TemplateDataIntegrationFields.OrderINData>(); //Segue o jogo dentro do inboundOrderAppDigital
+         for (TemplateDataIntegrationFields.OrderINData order : request){
+            idOrders.add(order.CodigoSap);
+             if(ordersIdsMap.containsKey(order.CodigoSap)){
+					integrationOrderListValidation.add(order);
+                    System.debug('1');
+             }
+             else{
+                 inApporderListValidation.add(order);
+                 System.debug('2');
+             }  
+        }
+
+        ResponseModel modelo = new ResponseModel();
+        
+        
+        if(!integrationOrderListValidation.isEmpty()){
+            responseList.addAll(IntegrationINOrder.upsertOrder(integrationOrderListValidation).response); 
+            System.debug('IF 1 ');
+        }
+        if(!inApporderListValidation.isEmpty()){
+            responseList.addAll(IntegrationINOrderInsert.upsertOrder(inApporderListValidation).response);
+            System.debug('IF 2 ');
+        }   
+        modelo.response = responseList;
+        return modelo;
+    }
+    
     global static ResponseModel upsertOrder(List<TemplateDataIntegrationFields.OrderINData> request) { 
         // Guarda a relação da conta com o pedido
         Map<String, Id> lookups = new Map<String, Id>();
@@ -17,6 +70,7 @@ global without sharing class IntegrationINOrder {
         Set<String> salesCTVLookups = new Set<String>();
         Set<String> pricebook2IdLookups = new Set<String>();
         Set<String> paymentConditionLookups = new Set<String>(); 
+        Set<String> activitySectorLookups = new Set<String>();
 
         // Guarda uma lista de respostas
         List<TemplateDataIntegrationFields.ResponseParent> responseList = new List<TemplateDataIntegrationFields.ResponseParent>();
@@ -44,13 +98,13 @@ global without sharing class IntegrationINOrder {
             //salesCTVLookups.add(order.salesCTV);
             pricebook2IdLookups.add(order.pricebook2Id);
             paymentConditionLookups.add(order.paymentCondition);
-
+            activitySectorLookups.add(order.ActivitySector);
             idOrders.add(order.CodigoSap);
             
             for (TemplateDataIntegrationFields.OrderItemINData orderItem : order.orderItems) {
                 orderItem.orderExternalId = order.CodigoSap;
                 orderItem.orderItemCode = orderItem.orderItemCode.replaceFirst('^0+','');
-                System.debug('orderItem.orderExternalId ' + orderItem.orderExternalId);
+                
                 System.debug('order.CodigoSap ' + order.CodigoSap);
             }
 
@@ -148,8 +202,8 @@ global without sharing class IntegrationINOrder {
         
         Map<String, Order> ordersIdsMap = new Map<String, Order>();
         List<Order> orderSelectList = new List<Order>([SELECT Id, NumeroPedidoApp__c,PaymentDate__c,ShippingDate__c,Type,CustomerOrderNumber__c,
-        Currency__c,Description,DescriptionBillingSale__c,FinalTotalValue__c,Hectare__c,OrderMargin__c,OrderType__c,SalesCondition__c,IsOrderMother__c, RecordTypeId,
-        CodigoSap__c, Pricebook2Id, Pricebook2.Name,EffectiveDate,Status,StatusRecusa__c,Incoterms__c,Incoterms2__c,PaymentForm__c, Crop__r.Code__c, Crop__c, Culture__c, Culture__r.Codigo__c, SalesOrg__r.SalesOrganizationCode__c, SalesOrg__c,
+        Currency__c,Description,DescriptionBillingSale__c,FinalTotalValue__c,Hectare__c,OrderMargin__c,OrderType__c,SalesCondition__c,IsOrderMother__c, RecordTypeId, OwnerId,
+        CodigoSap__c, Pricebook2Id, Pricebook2.Name,EffectiveDate,Status,StatusRecusa__c,Incoterms__c,Incoterms2__c,PaymentForm__c, Crop__r.Code__c, Crop__c, Culture__c, Culture__r.Codigo__c, SalesOrg__r.SalesOrganizationCode__c, SalesOrg__c, SalesCondition__r.ExternalId__c,ActivitySector__r.Codigo__c,
         SalesCTV__r.CodigoSap__c, SalesCTV__c, PaymentCondition__r.Code__c, PaymentCondition__c,OrderReference__r.CodigoSap__c, OrderReference__c, Account.ExternalId__c, AccountId, ShippingAccount__r.ExternalId__c, ShippingAccount__c,Company__r.ExternalID__c,Company__c,DistributionChannel__r.Codigo__c,DistributionChannel__c
         FROM Order WHERE CodigoSap__c  IN : idOrders]);
 
@@ -159,7 +213,7 @@ global without sharing class IntegrationINOrder {
         }
         for (TemplateDataIntegrationFields.OrderINData order : request){
             Order ord = ordersIdsMap.get(order.CodigoSap);
-
+            
             if(order.numeroPedidoApp == null){
                 order.numeroPedidoApp = ord.NumeroPedidoApp__c;
             }
@@ -175,9 +229,7 @@ global without sharing class IntegrationINOrder {
             if(order.status == null){
                 order.status = ord.Status;
             }
-            if(order.statusRecusa == null){
-                order.statusRecusa = ord.StatusRecusa__c;
-            }
+          
             if(order.type == null){
                 order.type = ord.Type;
             }
@@ -214,25 +266,26 @@ global without sharing class IntegrationINOrder {
             if(order.orderType == null){
                 order.orderType = ord.OrderType__c;
             }
-            if(order.condicaoVenda == null){
-                order.condicaoVenda = ord.SalesCondition__c;
-            }
+            
             if(order.pedidoMae == null){
                 order.pedidoMae = ord.IsOrderMother__c;
             }
 
-            /* ATUALIZAÇÃO 05.07.22*/
+            
 
             if(order.salesType == null){
                 order.recordIdToUpdate = ord.RecordTypeId;
             }
             
+			if(order.pricebook2Id == null){
+                if(ord.Pricebook2Id != null){
+                    order.pricebook2Id = ord.Pricebook2.Name;
+                    lookups.put('Pricebook2Id' + ord.Pricebook2.Name, ord.Pricebook2Id);
+                }
+            }
 
 
-
-            /*
-            order.orderReference
-            */
+        
             if(order.shippingAccount == null){
                 if(ord.ShippingAccount__c != null){
                     order.shippingAccount = ord.ShippingAccount__r.ExternalId__c;
@@ -251,12 +304,7 @@ global without sharing class IntegrationINOrder {
                     lookups.put('Order' + ord.OrderReference__r.CodigoSap__c, ord.OrderReference__c);
                 }
             }
-            if(order.pricebook2Id == null){
-                if(ord.Pricebook2Id != null){
-                    order.pricebook2Id = ord.Pricebook2.Name;
-                    lookups.put('Pricebook2Id' + ord.Pricebook2.Name, ord.Pricebook2Id);
-                }
-            }
+           
             
             if(order.crop == null){
                 if(ord.Crop__c != null){
@@ -279,8 +327,13 @@ global without sharing class IntegrationINOrder {
                 }
             }
             
-            if(order.SalesCTV == null){
+            if(order.SalesCTV == null || order.SalesCTV == ''){
                 if(ord.SalesCTV__c != null){
+                    order.salesCTV = ord.SalesCTV__r.CodigoSap__c;
+                    lookups.put('User' + ord.SalesCTV__r.CodigoSap__c, ord.SalesCTV__c);
+                }
+                
+                if(ord.OwnerId != null){
                     order.salesCTV = ord.SalesCTV__r.CodigoSap__c;
                     lookups.put('User' + ord.SalesCTV__r.CodigoSap__c, ord.SalesCTV__c);
                 }
@@ -289,7 +342,7 @@ global without sharing class IntegrationINOrder {
             if(order.paymentCondition == null){
                 if(ord.PaymentCondition__c != null){
                     order.paymentCondition = ord.PaymentCondition__r.Code__c;
-                    lookups.put('PaymentCondition__c' + ord.PaymentCondition__r.Code__c, ord.PaymentCondition__c);    
+                    lookups.put('CondicaoPagamento__c' + ord.PaymentCondition__r.Code__c, ord.PaymentCondition__c);    
                 }
             } 
             if (order.company == null){
@@ -304,10 +357,33 @@ global without sharing class IntegrationINOrder {
                     lookups.put('DistributionChannel__c' + ord.DistributionChannel__r.Codigo__c, ord.DistributionChannel__c);
                 }
             }
+            
+            if(order.condicaoVenda == null){
+                if(ord.SalesCondition__c != null){
+                    order.condicaoVenda = ord.SalesCondition__r.ExternalId__c;
+                    lookups.put('SalesCondition__c' + ord.SalesCondition__r.ExternalId__c, ord.SalesCondition__c);
+                }
+                
+            }
+
+            if(order.activitySector == null){
+                if(ord.ActivitySector__c != null){
+                    order.activitySector = ord.ActivitySector__r.Codigo__c;
+                    lookups.put('ActivitySector__c' + ord.ActivitySector__r.Codigo__c, ord.ActivitySector__c);
+                }
+            }
+            
+             if(order.activitySector == null){
+                if(ord.ActivitySector__c != null){
+                    order.activitySector = ord.ActivitySector__r.Codigo__c;
+                    lookups.put('ActivitySector__c' + ord.ActivitySector__r.Codigo__c, ord.ActivitySector__c);
+                }
+            }
+            
         }
 
-        for (Pricebook2 pricebook2Id : [SELECT Id, ExternalId__c FROM Pricebook2 WHERE ExternalId__c IN : pricebook2IdLookups ]){
-            lookups.put('Pricebook2Id' + pricebook2Id.ExternalId__c, pricebook2Id.Id);
+        for (Pricebook2 pricebook2Id : [SELECT Id, ExternalId__c, Name FROM Pricebook2 WHERE Name IN : pricebook2IdLookups ]){
+            lookups.put('Pricebook2Id' + pricebook2Id.Name, pricebook2Id.Id);
         }
 
         for (Order order : [SELECT Id, CodigoSap__c FROM Order WHERE CodigoSap__c IN : orderLookups]) {
@@ -341,7 +417,11 @@ global without sharing class IntegrationINOrder {
         }
 
         for (CondicaoPagamento__c paymentCondition : [SELECT Id, Code__c FROM CondicaoPagamento__c WHERE Code__c IN : paymentConditionLookups]) {
-            lookups.put('PaymentCondition__c' + paymentCondition.Code__c, paymentCondition.Id);
+            lookups.put('CondicaoPagamento__c' + paymentCondition.Code__c, paymentCondition.Id);
+        }
+
+        for (ActivitySector__c activitySector :[SELECT Id, Name, Codigo__c FROM ActivitySector__c WHERE Codigo__c IN : activitySectorLookups]){
+            lookups.put('ActivitySector__c' + activitySector.Codigo__c, activitySector.Id);
         }
 
 
@@ -364,14 +444,16 @@ global without sharing class IntegrationINOrder {
             System.debug('orderUpMap ' + orderUpMap);
             System.debug('orderListToUpsert1111 ' + orderListToUpsert);
         }
+        
+        
         for (TemplateDataIntegrationFields.OrderItemINData orderIt : orderItemListToUpsert){
             String orderId;
-            
-                if(orderIt.orderExternalId != null){
-                    orderId = ordersIdsMap.get(orderIt.orderExternalId).Id;
+               if(orderIt.orderExternalId != null){
+		            orderId = ordersIdsMap.get(orderIt.orderExternalId).Id;
                     
                     orderIt.orderExternalId = orderId;
-                } 
+                }  
+                  
         }
         for (TemplateDataIntegrationFields.ShippingDivisonINData shipIt : shippingDivisonListToUpsert){
             String orderId;
@@ -381,6 +463,8 @@ global without sharing class IntegrationINOrder {
                     
                     shipIt.orderExternalId = orderId;
                 } 
+            
+                
         }
         //Upserting records (OrderItem)
         // Upsert OrderItem
