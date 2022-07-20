@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Layout xmlns="http://soap.sforce.com/2006/04/metadata">
-    <excludeButtons>DataDotComAccountInsights</excludeButtons>
-    <excludeButtons>DataDotComClean</excludeButtons>
-    <excludeButtons>DataDotComCompanyHierarchy</excludeButtons>
     <excludeButtons>Submit</excludeButtons>
     <layoutSections>
         <customLabel>false</customLabel>
@@ -240,12 +237,12 @@
         <relatedList>PotencialCompra__c.Client__c</relatedList>
     </relatedLists>
     <relatedLists>
+        <fields>FULL_NAME</fields>
+        <fields>CORE.USERS.EMAIL</fields>
+        <fields>ROLE_IN_TERRITORY</fields>
         <fields>TERRITORY.NAME</fields>
         <fields>MODEL.NAME</fields>
-        <fields>MODEL.STATE</fields>
-        <fields>ASSIGNMENT_DATE</fields>
-        <fields>ASSOCIATION_CAUSE</fields>
-        <relatedList>AccountAssignedTerritory2sRelatedList</relatedList>
+        <relatedList>AccountUserTerritory2RelatedList</relatedList>
     </relatedLists>
     <relatedLists>
         <fields>TASK.SUBJECT</fields>
@@ -275,7 +272,7 @@
     <showRunAssignmentRulesCheckbox>false</showRunAssignmentRulesCheckbox>
     <showSubmitAndAttachButton>false</showSubmitAndAttachButton>
     <summaryLayout>
-        <masterLabel>00h22000001IOwY</masterLabel>
+        <masterLabel>00h1D000007pAT9</masterLabel>
         <sizeX>4</sizeX>
         <sizeY>0</sizeY>
         <summaryLayoutStyle>Default</summaryLayoutStyle>
