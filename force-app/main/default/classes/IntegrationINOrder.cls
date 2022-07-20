@@ -16,8 +16,8 @@ global without sharing class IntegrationINOrder {
         Set<String> salesOrgLookups = new Set<String>();
         Set<String> salesCTVLookups = new Set<String>();
         Set<String> pricebook2IdLookups = new Set<String>();
-        Set<String> activitySectorLookups = new Set<String>();
         Set<String> paymentConditionLookups = new Set<String>(); 
+        Set<String> activitySectorLookups = new Set<String>();
 
         // Guarda uma lista de respostas
         List<TemplateDataIntegrationFields.ResponseParent> responseList = new List<TemplateDataIntegrationFields.ResponseParent>();
@@ -44,9 +44,8 @@ global without sharing class IntegrationINOrder {
             salesOrgLookups.add(order.salesOrg);
             //salesCTVLookups.add(order.salesCTV);
             pricebook2IdLookups.add(order.pricebook2Id);
-            activitySectorLookups.add(order.ActivitySector);
             paymentConditionLookups.add(order.paymentCondition);
-			
+            activitySectorLookups.add(order.ActivitySector);
             idOrders.add(order.CodigoSap);
             
             for (TemplateDataIntegrationFields.OrderItemINData orderItem : order.orderItems) {
@@ -150,8 +149,8 @@ global without sharing class IntegrationINOrder {
         
         Map<String, Order> ordersIdsMap = new Map<String, Order>();
         List<Order> orderSelectList = new List<Order>([SELECT Id, NumeroPedidoApp__c,PaymentDate__c,ShippingDate__c,Type,CustomerOrderNumber__c,
-        Currency__c,Description,DescriptionBillingSale__c,FinalTotalValue__c,Hectare__c,OrderMargin__c,OrderType__c,SalesCondition__c,IsOrderMother__c, RecordTypeId,ActivitySector__r.Codigo__c,
-        CodigoSap__c, Pricebook2Id, Pricebook2.Name,EffectiveDate,Status,StatusRecusa__c,Incoterms__c,Incoterms2__c,PaymentForm__c, Crop__r.Code__c, Crop__c, Culture__c, Culture__r.Codigo__c, SalesOrg__r.SalesOrganizationCode__c, SalesOrg__c, SalesCondition__r.ExternalId__c,
+        Currency__c,Description,DescriptionBillingSale__c,FinalTotalValue__c,Hectare__c,OrderMargin__c,OrderType__c,SalesCondition__c,IsOrderMother__c, RecordTypeId,
+        CodigoSap__c, Pricebook2Id, Pricebook2.Name,EffectiveDate,Status,StatusRecusa__c,Incoterms__c,Incoterms2__c,PaymentForm__c, Crop__r.Code__c, Crop__c, Culture__c, Culture__r.Codigo__c, SalesOrg__r.SalesOrganizationCode__c, SalesOrg__c, SalesCondition__r.ExternalId__c,ActivitySector__r.Codigo__c,
         SalesCTV__r.CodigoSap__c, SalesCTV__c, PaymentCondition__r.Code__c, PaymentCondition__c,OrderReference__r.CodigoSap__c, OrderReference__c, Account.ExternalId__c, AccountId, ShippingAccount__r.ExternalId__c, ShippingAccount__c,Company__r.ExternalID__c,Company__c,DistributionChannel__r.Codigo__c,DistributionChannel__c
         FROM Order WHERE CodigoSap__c  IN : idOrders]);
 
@@ -314,6 +313,13 @@ global without sharing class IntegrationINOrder {
                 }
                 
             }
+
+            if(order.activitySector == null){
+                if(ord.ActivitySector__c != null){
+                    order.activitySector = ord.ActivitySector__r.Codigo__c;
+                    lookups.put('ActivitySector__c' + ord.ActivitySector__r.Codigo__c, ord.ActivitySector__c);
+                }
+            }
             
              if(order.activitySector == null){
                 if(ord.ActivitySector__c != null){
@@ -361,10 +367,11 @@ global without sharing class IntegrationINOrder {
         for (CondicaoPagamento__c paymentCondition : [SELECT Id, Code__c FROM CondicaoPagamento__c WHERE Code__c IN : paymentConditionLookups]) {
             lookups.put('CondicaoPagamento__c' + paymentCondition.Code__c, paymentCondition.Id);
         }
-		
+
         for (ActivitySector__c activitySector :[SELECT Id, Name, Codigo__c FROM ActivitySector__c WHERE Codigo__c IN : activitySectorLookups]){
             lookups.put('ActivitySector__c' + activitySector.Codigo__c, activitySector.Id);
         }
+
 
         //Converting template to object list and validating required fields
         // Valida e adiciona objeto na lista para upsert

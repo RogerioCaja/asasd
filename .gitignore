@@ -8,6 +8,7 @@
 .sfdx/
 .forceignore
 .vscode/
+.sf/
 README.md
 scripts/dxutils/main/output/*
 scripts/dxutils/config/*
