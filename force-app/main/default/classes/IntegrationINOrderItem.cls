@@ -63,32 +63,65 @@ global with sharing class IntegrationINOrderItem {
             }
         }
                     
-                    Decimal porcentagemDescontoFinanceiro = 0;
-                    Decimal porcentagemAcrescimoFinanceiro = 0; 
-                    Decimal porcentagemDescontoComercial = 0; 
-                    Decimal porcentagemAcrescimoComercial = 0;
+                    //Decimal porcentagemDescontoFinanceiro = 0;
+                    Decimal valorDescontoFinanceiro = 0;
+            
+                    //Decimal porcentagemAcrescimoFinanceiro = 0; 
+                    Decimal valorAcrescimoFinanceiro = 0;
+            
+                    //Decimal porcentagemDescontoComercial = 0;
+                    Decimal valorDescontoComercial = 0; 
+                    
+                    //Decimal porcentagemAcrescimoComercial = 0;
+                    Decimal valorAcrescimoComercial = 0;
+                    
+                    Decimal valorFinal = OrderItemINData.precoUnitario * OrderItemINData.quantidade;
                     
                     if(OrderItemINData.porcentagemDescontoFin > 0){
-                        porcentagemDescontoFinanceiro = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemDescontoFin / 100);
+                        //porcentagemDescontoFinanceiro = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemDescontoFin / 100);
+                        valorDescontoFinanceiro = valorFinal * (OrderItemINData.porcentagemDescontoFin / 100);
+                        OrderItemINData.valorDescontoFin = valorDescontoFinanceiro;
+                        valorFinal = valorFinal - valorDescontoFinanceiro;
+                        System.debug('valorFinal ' + valorFinal);
+                        System.debug('valorDescontoFinanceiro ' + valorDescontoFinanceiro);
                     }
                     if (OrderItemINData.porcentagemAcrescFin > 0){
-                        porcentagemAcrescimoFinanceiro = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemAcrescFin / 100);
+                        //porcentagemAcrescimoFinanceiro = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemAcrescFin / 100);
+                        
+                        valorAcrescimoFinanceiro = valorFinal * (OrderItemINData.porcentagemAcrescFin / 100);     
+                        OrderItemINData.valorAcrescFin = valorAcrescimoFinanceiro;
+                        valorFinal = valorFinal + valorAcrescimoFinanceiro;
+                        System.debug('valorFinal ' + valorFinal);
+                        System.debug('valorAcrescimoFinanceiro ' + valorAcrescimoFinanceiro);
                     }
                     if (OrderItemINData.porcentagemDesconto != 0){ 
-                        porcentagemDescontoComercial = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemDesconto / 100); 
-                        System.debug('porcentagemDescontoComercial ' + porcentagemDescontoComercial);
+                        //porcentagemDescontoComercial = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemDesconto / 100);
+                        valorDescontoComercial = valorFinal  * (OrderItemINData.porcentagemDesconto / 100);
+                        System.debug('valorFinal ' + valorFinal);
+                        System.debug('porcentagemDesconto ' + (OrderItemINData.porcentagemDesconto / 100));
+                        System.debug('valorDescontoComercial ' + valorDescontoComercial);
+                        OrderItemINData.precoPraticado = (valorFinal - valorDescontoComercial) / OrderItemINData.quantidade;
+                        OrderItemINData.descontoValor = valorDescontoComercial;
                     }
                     if(OrderItemINData.porcentagemAcrescComercial != 0){
-                        porcentagemAcrescimoComercial = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemAcrescComercial / 100);
-                        System.debug('porcentagemAcrescimoComercial ' + porcentagemAcrescimoComercial);
+                        //porcentagemAcrescimoComercial = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemAcrescComercial / 100);
+                        valorAcrescimoComercial = valorFinal * (OrderItemINData.porcentagemAcrescComercial / 100);
+                        System.debug('valorAcrescimoComercial ' + valorAcrescimoComercial);
+                        
+                        OrderItemINData.precoPraticado = (valorFinal + valorAcrescimoComercial) / OrderItemINData.quantidade;
+                        OrderItemINData.valorAcrescComercial = valorAcrescimoComercial;
                         //System.debug('porcentagemDesconto ' + OrderItemINData.porcentagemDesconto);
                     }
                     
-                    OrderItemINData.precoUnitario  += porcentagemAcrescimoFinanceiro - porcentagemDescontoFinanceiro  ;
-                    OrderItemINData.precoUnitario  += porcentagemAcrescimoComercial - porcentagemDescontoComercial  ;
-                    System.debug('precoUnitario  ' + OrderItemINData.precoUnitario);
-                    OrderItemINData.descontoValor = OrderItemINData.precoUnitario + (porcentagemAcrescimoComercial - porcentagemDescontoComercial);
+                    //OrderItemINData.precoUnitario  += valorAcrescimoFinanceiro - valorDescontoFinanceiro  ;
+                    //OrderItemINData.precoUnitario  += valorAcrescimoComercial - valorDescontoComercial  ;
+                    
+                    
+                    System.debug('valorAcrescComercial  ' + OrderItemINData.valorAcrescComercial);
+                    
                     System.debug('Desconto Valor ' + OrderItemINData.descontoValor);
+                    System.debug('Preço Praticado ' + OrderItemINData.precoPraticado);
+                    
         }
 
         
