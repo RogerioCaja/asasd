@@ -285,6 +285,11 @@ global without sharing class IntegrationINOrder {
                     order.salesCTV = ord.SalesCTV__r.CodigoSap__c;
                     lookups.put('User' + ord.SalesCTV__r.CodigoSap__c, ord.SalesCTV__c);
                 }
+            
+                if(ord.OwnerId != null){
+                    order.salesCTV = ord.SalesCTV__r.CodigoSap__c;
+                    lookups.put('User' + ord.SalesCTV__r.CodigoSap__c, ord.SalesCTV__c);
+                }
             }
             
             if(order.paymentCondition == null){
