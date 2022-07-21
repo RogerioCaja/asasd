@@ -312,15 +312,14 @@ global without sharing class IntegrationINOrderAppdigital {
                 }
                 Decimal currentDiscount = 0;
                 Decimal biggerDiscount = 0;
-                List<String> productGroupId = new List<String>();
+                Id productGroupId;
                 for(OrderItem ordItems : orderItemList){   
-                    productGroupId.add(ordItems.Product2.ProductGroup__c);
                     System.debug('Product2.ProductGroup__c' + ordItems.Product2Id);
                     System.debug('ordItems.Product2.ProductGroup__c' + ordItems.Product2.ProductGroup__c);
                     currentDiscount = ordItems.DiscountPercent__c;
                     if(currentDiscount > biggerDiscount){
                         biggerDiscount = ordItems.DiscountPercent__c;
-
+                        productGroupId = ordItems.Product2.ProductGroup__c;
                     }
                    
                 }
