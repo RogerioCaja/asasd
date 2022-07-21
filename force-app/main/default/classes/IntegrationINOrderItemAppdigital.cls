@@ -38,6 +38,11 @@ global with sharing class IntegrationINOrderItemAppdigital {
             //Map structure for the model -> object name + parameter to record id
             lookups.put('Order' + order.NumeroPedidoApp__c, order.Id);
         }
+
+        for (Order order : [SELECT Id, CodigoSap__c FROM Order WHERE CodigoSap__c IN : orderLookups]) {
+            //Map structure for the model -> object name + parameter to record id
+            lookups.put('Order' + order.CodigoSap__c, order.Id);
+        }
        
         for (PricebookEntry pricebookEntry : [SELECT Id, Product2Id, ProductCode, Pricebook2.isStandard FROM PricebookEntry ]){
             lookups.put('Product2' + pricebookEntry.ProductCode, pricebookEntry.Product2Id);

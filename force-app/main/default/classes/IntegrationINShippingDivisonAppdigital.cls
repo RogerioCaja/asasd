@@ -32,6 +32,12 @@ global with sharing class IntegrationINShippingDivisonAppdigital {
             //Map structure for the model -> object name + parameter to record id
             lookups.put('Order' + order.NumeroPedidoApp__c, order.Id);
         }
+
+        for (Order order : [SELECT Id, CodigoSap__c FROM Order WHERE CodigoSap__c IN : orderLookups]) {
+            //Map structure for the model -> object name + parameter to record id
+            lookups.put('Order' + order.CodigoSap__c, order.Id);
+        }
+
         for (OrderItem OrderItem : [SELECT Id, ExternalId__c, Product2.ProductCode FROM OrderItem WHERE ExternalId__c IN : orderItemLookups]) {
             //Map structure for the model -> object name + parameter to record id
             lookups.put('OrderItem__c' + orderItem.Product2.ProductCode, orderItem.Id);

@@ -28,6 +28,7 @@ global without sharing class IntegrationINOrderAppdigital {
         // Guarda uma lista de orderItem para fazer o upsert
         List<TemplateDataIntegrationFields.OrderItemINData> orderItemListToUpsert = new List<TemplateDataIntegrationFields.OrderItemINData>();
         // Guarda uma lista de pedidos para fazer o upsert
+        Set<Id> orderItemIds = new Set<Id>();
         List<TemplateDataINtegrationFields.ShippingDivisonINData> shippingDivisonListToUpsert = new List<TemplateDataIntegrationFields.ShippingDivisonINData>();
         List<Order> orderListToUpsert = new List<Order>();
 
@@ -57,7 +58,14 @@ global without sharing class IntegrationINOrderAppdigital {
                 // Adiciona todos os External Id e o catalogo de preço de order nos orderItem
                 //Putting the Order's ExternalId parameter in the OrderItem
                 for (TemplateDataIntegrationFields.OrderItemINData orderItem : order.orderItems){
-                    orderItem.orderExternalId = order.numeroPedidoApp;
+                    if(order.numeroPedidoApp != null || order.numeroPedidoApp != ''){
+                        orderItem.orderExternalId = order.numeroPedidoApp;
+                        System.debug('orderItem.orderExternalId App' + orderItem.orderExternalId );
+                    }
+                    else{
+                        orderItem.orderExternalId = order.CodigoSap;
+                        System.debug('orderItem.orderExternalId SAP' + orderItem.orderExternalId );
+                    }
                 }
                 // Adiciona os orderItem na lista para upsert
                 //Getting list of order items
@@ -66,8 +74,12 @@ global without sharing class IntegrationINOrderAppdigital {
             }
             if(order.pedidoMae ==  false){
             for(TemplateDataIntegrationFields.ShippingDivisonINData shippingDivison : order.shippingDivison){
-                
-                    shippingDivison.orderExternalId = order.numeroPedidoApp;
+                    if(order.numeroPedidoApp != null || order.numeroPedidoApp != ''){
+                        shippingDivison.orderExternalId = order.numeroPedidoApp;
+                    }
+                    else{
+                        shippingDivison.orderExternalId = order.codigoSap;
+                    }
                 }
               
             }
@@ -136,24 +148,66 @@ global without sharing class IntegrationINOrderAppdigital {
         }
         //Converting template to object list and validating required fields
         // Valida e adiciona objeto na lista para upsert
-        System.debug('Chegou!?010102301023010230120 ');
+        
         FactoryDataIntegration.convertSObject(new Order(), 'IN', request, responseList, orderListToUpsert, lookups);
           
         //Upserting records (Order)
-        System.debug('Chegou!? 222222');
-		IntegrationUtils.upsertRecords(
-            Database.upsert(orderListToUpsert, Order.NumeroPedidoApp__c, false), 
+        System.debug('orderListToUpsert ' + orderListToUpsert);
+        Map<String, String> orderUpMap = new Map<String, String>();
+        List<Order> orderWithNbApp = new List<Order>();
+        List<Order> orderWithNbSap = new List<Order>();
+
+        for(Order ordUp :orderListToUpsert){
+            //orderUpMap.put(ordUp.NumeroPedidoApp__c, ordUp.Id);
+            //orderUpMap.put(ordUp.CodigoSap__c, ordUp.Id);
+
+            if(ordUp.NumeroPedidoApp__c == null || ordUp.NumeroPedidoApp__c == ''){
+                orderWithNbSap.add(ordUp);
+                orderUpMap.put(ordUp.CodigoSap__c, ordUp.Id);
+                
+            }
+            else{
+                orderWithNbApp.add(ordUp);
+                orderUpMap.put(ordUp.NumeroPedidoApp__c, ordUp.Id);
+            }
+        }
+        List<Order> orderListForAppr = new List<Order>();
+
+        if(!orderWithNbApp.isEmpty()){
+            IntegrationUtils.upsertRecords(
+            Database.upsert(orderWithNbApp, Order.NumeroPedidoApp__c, false), 
             responseList, 
-            orderListToUpsert, 
+            orderWithNbApp, 
             Order.NumeroPedidoApp__c
         );
-        Map<String, String> orderUpMap = new Map<String, String>();
-        for(Order ordUp :orderListToUpsert){
-            orderUpMap.put(ordUp.NumeroPedidoApp__c, ordUp.Id);
+        orderListForAppr.addAll(orderWithNbApp);
         }
+        if(!orderWithNbSap.isEmpty()){
+            IntegrationUtils.upsertRecords(
+                Database.upsert(orderWithNbSap, Order.CodigoSap__c, false), 
+                responseList, 
+                orderWithNbSap, 
+                Order.CodigoSap__c
+            );
+            orderListForAppr.addAll(orderWithNbSap);
+        }
+
+		for(Order ordUp :orderListForAppr){
+            //orderUpMap.put(ordUp.NumeroPedidoApp__c, ordUp.Id);
+            //orderUpMap.put(ordUp.CodigoSap__c, ordUp.Id);
+
+            if(ordUp.NumeroPedidoApp__c == null){
+                orderUpMap.put(ordUp.CodigoSap__c, ordUp.Id);
+            }
+            else{
+                orderUpMap.put(ordUp.NumeroPedidoApp__c, ordUp.Id);
+            }
+        }
+
         for (TemplateDataIntegrationFields.OrderItemINData orderIt : orderItemListToUpsert){
             String orderId;
-            
+                System.debug('orderIt.orderExternalId ' + orderIt.orderExternalId);
+                System.debug('orderUpMap ' + orderUpMap);
                 if(orderIt.orderExternalId != null){
                     orderId = orderUpMap.get(orderIt.orderExternalId);
                     
@@ -170,8 +224,8 @@ global without sharing class IntegrationINOrderAppdigital {
                 } 
         }
         
-        if(!orderListToUpsert.isEmpty()){
-            IntegrationINOrderAppdigital.approvalDiscountOrder(orderListToUpsert[0]);
+        if(!orderListForAppr.isEmpty()){
+            IntegrationINOrderAppdigital.approvalDiscountOrder(orderListForAppr[0]);
         }
          //Confirmar com o Helder
         //Upserting records (OrderItem)
@@ -182,6 +236,22 @@ global without sharing class IntegrationINOrderAppdigital {
                 IntegrationINOrderItemAppdigital.upsertOrderItem(orderItemListToUpsert)
             );
             System.debug('orderItemsResponse' + orderItemsResponse);
+            List <TemplateDataIntegrationFields.Response> listResponse = new list<TemplateDataIntegrationFields.Response>();
+
+            for (String resp : orderItemsResponse.keySet()){
+                listResponse.addAll(orderItemsResponse.get(resp));
+               
+            }
+            for(TemplateDataIntegrationFields.Response respp : listResponse){
+                orderItemIds.add(respp.idSalesforce);
+            }
+
+           List<ShippingDivison__c> shippingListIds = [SELECT Id, OrderItem__c,OrderItem__r.OrderId  From ShippingDivison__c Where OrderItem__c IN: orderItemIds];
+           Database.delete(shippingListIds, false);
+
+           if(!shippingListIds.isEmpty()){
+                CalloutOrderDatalake.callIntegration(shippingListIds[0].OrderItem__r.OrderId);
+           }
         }
 
         Map<String, List<TemplateDataIntegrationFields.Response>> shippingDivisonResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
