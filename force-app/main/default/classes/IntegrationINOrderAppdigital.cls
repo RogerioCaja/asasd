@@ -29,6 +29,7 @@ global without sharing class IntegrationINOrderAppdigital {
         // Guarda uma lista de orderItem para fazer o upsert
         List<TemplateDataIntegrationFields.OrderItemINData> orderItemListToUpsert = new List<TemplateDataIntegrationFields.OrderItemINData>();
         // Guarda uma lista de pedidos para fazer o upsert
+        Set<Id> orderItemIds = new Set<Id>();
         List<TemplateDataINtegrationFields.ShippingDivisonINData> shippingDivisonListToUpsert = new List<TemplateDataIntegrationFields.ShippingDivisonINData>();
         List<Order> orderListToUpsert = new List<Order>();
 
@@ -52,32 +53,48 @@ global without sharing class IntegrationINOrderAppdigital {
             salesConditionLookups.add(order.condicaoVenda);
             order.company = order.PaymentAccount + order.CentroFornecedor + order.salesOrg + order.activitySector + order.distributionChannel + order.EscritorioVendas + order.EquipeVendas;
             companyLookups.add(order.company);
+
+            
             System.debug('companyLookups ' + companyLookups);
             if(order.orderItems != null) {
                 // Adiciona todos os External Id e o catalogo de preço de order nos orderItem
                 //Putting the Order's ExternalId parameter in the OrderItem
                 for (TemplateDataIntegrationFields.OrderItemINData orderItem : order.orderItems){
-                    orderItem.orderExternalId = order.numeroPedidoApp;
                     orderItem.orderItemCode = orderItem.orderItemCode.replaceFirst('^0+','');
+                    if(order.numeroPedidoApp != null || order.numeroPedidoApp != ''){
+                        orderItem.orderExternalId = order.numeroPedidoApp;
+                        System.debug('orderItem.orderExternalId App' + orderItem.orderExternalId );
+                    }
+                    else{
+                        orderItem.orderExternalId = order.CodigoSap;
+                        System.debug('orderItem.orderExternalId SAP' + orderItem.orderExternalId );
+                    }
                 }
                 // Adiciona os orderItem na lista para upsert
                 //Getting list of order items
                 orderItemListToUpsert.addAll(order.orderItems);
                 System.debug('orderItemListToUpsert' + orderItemListToUpsert); 
             }
-
             if(order.pedidoMae ==  false){
-                for(TemplateDataIntegrationFields.ShippingDivisonINData shippingDivison : order.shippingDivison){
-                    shippingDivison.orderExternalId = order.numeroPedidoApp;
+            for(TemplateDataIntegrationFields.ShippingDivisonINData shippingDivison : order.shippingDivison){
                     shippingDivison.orderItemCode = shippingDivison.OrderItemCode.replaceFirst('^0+','');
+                    if(order.numeroPedidoApp != null || order.numeroPedidoApp != ''){
+                        shippingDivison.orderExternalId = order.numeroPedidoApp;
+                    }
+                    else{
+                        shippingDivison.orderExternalId = order.codigoSap;
+                    }
                 }
-                if(order.pedidoMae == false){
-                    shippingDivisonListToUpsert.addAll(order.shippingDivison);
-                }  
-                 System.debug('shippingDivisonListToUpsert' + shippingDivisonListToUpsert);
-
+              
             }
-        }
+            if(order.pedidoMae == false){
+                shippingDivisonListToUpsert.addAll(order.shippingDivison);
+            }
+             
+            System.debug('shippingDivisonListToUpsert' + shippingDivisonListToUpsert);
+            
+            }
+
             System.debug('Chegou!?!!!!!!!!!!!!!!!!!!!! ');    
         // Pega o Id da conta com base no CNPJ da conta
         //Account search based on CNPJ field sent
@@ -118,7 +135,7 @@ global without sharing class IntegrationINOrderAppdigital {
             lookups.put('User' + salesCTV.CodigoSap__c, salesCTV.Id);
        }
        
-        for (CondicaoPagamento__c paymentCondition : [SELECT Id, Name, Code__c  from CondicaoPagamento__c WHERE Code__c IN: paymentConditionLookups]){//
+        for (CondicaoPagamento__c paymentCondition : [SELECT Id, Name,Code__c  from CondicaoPagamento__c WHERE Code__c IN: paymentConditionLookups]){
             lookups.put('CondicaoPagamento__c' + paymentCondition.Code__c, paymentCondition.Id);
         }
         for (Pricebook2 pricebook2Id : [SELECT Id, ExternalId__c, Name FROM Pricebook2 WHERE Name IN : pricebookLookups ]){
@@ -136,28 +153,70 @@ global without sharing class IntegrationINOrderAppdigital {
 
         for(SalesCondition__c salesCondition : [SELECT Id, ExternalId__c FROM SalesCondition__c WHERE ExternalId__c IN : salesConditionLookups]){
             lookups.put('SalesCondition__c' + salesCondition.ExternalId__c, salesCondition.Id);
-
         }
+
         //Converting template to object list and validating required fields
         // Valida e adiciona objeto na lista para upsert
-        System.debug('Chegou!?010102301023010230120 ');
+        
         FactoryDataIntegration.convertSObject(new Order(), 'IN', request, responseList, orderListToUpsert, lookups);
           
         //Upserting records (Order)
-        System.debug('Chegou!? 222222');
-		IntegrationUtils.upsertRecords(
-            Database.upsert(orderListToUpsert, Order.NumeroPedidoApp__c, false), 
+        System.debug('orderListToUpsert ' + orderListToUpsert);
+        Map<String, String> orderUpMap = new Map<String, String>();
+        List<Order> orderWithNbApp = new List<Order>();
+        List<Order> orderWithNbSap = new List<Order>();
+
+        for(Order ordUp :orderListToUpsert){
+            //orderUpMap.put(ordUp.NumeroPedidoApp__c, ordUp.Id);
+            //orderUpMap.put(ordUp.CodigoSap__c, ordUp.Id);
+
+            if(ordUp.NumeroPedidoApp__c == null || ordUp.NumeroPedidoApp__c == ''){
+                orderWithNbSap.add(ordUp);
+                orderUpMap.put(ordUp.CodigoSap__c, ordUp.Id);
+                
+            }
+            else{
+                orderWithNbApp.add(ordUp);
+                orderUpMap.put(ordUp.NumeroPedidoApp__c, ordUp.Id);
+            }
+        }
+        List<Order> orderListForAppr = new List<Order>();
+
+        if(!orderWithNbApp.isEmpty()){
+            IntegrationUtils.upsertRecords(
+            Database.upsert(orderWithNbApp, Order.NumeroPedidoApp__c, false), 
             responseList, 
-            orderListToUpsert, 
+            orderWithNbApp, 
             Order.NumeroPedidoApp__c
         );
-        Map<String, String> orderUpMap = new Map<String, String>();
-        for(Order ordUp :orderListToUpsert){
-            orderUpMap.put(ordUp.NumeroPedidoApp__c, ordUp.Id);
+        orderListForAppr.addAll(orderWithNbApp);
         }
+        if(!orderWithNbSap.isEmpty()){
+            IntegrationUtils.upsertRecords(
+                Database.upsert(orderWithNbSap, Order.CodigoSap__c, false), 
+                responseList, 
+                orderWithNbSap, 
+                Order.CodigoSap__c
+            );
+            orderListForAppr.addAll(orderWithNbSap);
+        }
+
+		for(Order ordUp :orderListForAppr){
+            //orderUpMap.put(ordUp.NumeroPedidoApp__c, ordUp.Id);
+            //orderUpMap.put(ordUp.CodigoSap__c, ordUp.Id);
+
+            if(ordUp.NumeroPedidoApp__c == null){
+                orderUpMap.put(ordUp.CodigoSap__c, ordUp.Id);
+            }
+            else{
+                orderUpMap.put(ordUp.NumeroPedidoApp__c, ordUp.Id);
+            }
+        }
+
         for (TemplateDataIntegrationFields.OrderItemINData orderIt : orderItemListToUpsert){
             String orderId;
-            
+                System.debug('orderIt.orderExternalId ' + orderIt.orderExternalId);
+                System.debug('orderUpMap ' + orderUpMap);
                 if(orderIt.orderExternalId != null){
                     orderId = orderUpMap.get(orderIt.orderExternalId);
                     
@@ -173,6 +232,10 @@ global without sharing class IntegrationINOrderAppdigital {
                     shipIt.orderExternalId = orderId;
                 } 
         }
+        
+        if(!orderListForAppr.isEmpty()){
+            IntegrationINOrderAppdigital.approvalDiscountOrder(orderListForAppr[0]);
+        }
          //Confirmar com o Helder
         //Upserting records (OrderItem)
         // Upsert OrderItem
@@ -181,6 +244,23 @@ global without sharing class IntegrationINOrderAppdigital {
             orderItemsResponse.putAll(
                 IntegrationINOrderItemAppdigital.upsertOrderItem(orderItemListToUpsert)
             );
+            System.debug('orderItemsResponse' + orderItemsResponse);
+            List <TemplateDataIntegrationFields.Response> listResponse = new list<TemplateDataIntegrationFields.Response>();
+
+            for (String resp : orderItemsResponse.keySet()){
+                listResponse.addAll(orderItemsResponse.get(resp));
+               
+            }
+            for(TemplateDataIntegrationFields.Response respp : listResponse){
+                orderItemIds.add(respp.idSalesforce);
+            }
+
+           List<ShippingDivison__c> shippingListIds = [SELECT Id, OrderItem__c,OrderItem__r.OrderId  From ShippingDivison__c Where OrderItem__c IN: orderItemIds];
+           Database.delete(shippingListIds, false);
+
+           if(!shippingListIds.isEmpty()){
+                CalloutOrderDatalake.callIntegration(shippingListIds[0].OrderItem__r.OrderId);
+           }
         }
 
         Map<String, List<TemplateDataIntegrationFields.Response>> shippingDivisonResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
@@ -189,10 +269,9 @@ global without sharing class IntegrationINOrderAppdigital {
             shippingDivisonResponse.putAll(
                 IntegrationINShippingDivisonAppdigital.upsertShippingDivison(shippingDivisonListToUpsert)
             );
+            System.debug('shippingDivisonResponse' + shippingDivisonResponse);
         }
-        if(!orderListToUpsert.isEmpty()){
-            IntegrationINOrderAppdigital.approvalDiscountOrder(orderListToUpsert[0]);
-        }
+        System.debug('Chegou!? ');
         //Associating child object's response with object response
         // Pega todas as respostas dos OrderItem
         for(TemplateDataIntegrationFields.ResponseParent response : responseList){
@@ -205,6 +284,9 @@ global without sharing class IntegrationINOrderAppdigital {
                         response.items.addAll(shippingDivisonResponse.get(orderItem.idSalesforce));
                     } 
                 }
+                
+                System.debug('orderItemsResponse' + orderItemsResponse);
+                System.debug('shippingDivisonResponse' + shippingDivisonResponse);
             } 
             else if(orderItemsResponse.size() != 0 && orderItemsResponse.containsKey(response.externalCode)){
                 response.items.addAll(orderItemsResponse.get(response.externalCode));
@@ -240,10 +322,7 @@ global without sharing class IntegrationINOrderAppdigital {
         ResponseModel modelo = new ResponseModel();
         modelo.response = responseList;
         return modelo;
-    
-    
-}
-
+    }
     // Classe que cria a resposta
     global class ResponseModel {
 
@@ -260,145 +339,146 @@ global without sharing class IntegrationINOrderAppdigital {
     }
 
     public static void approvalDiscountOrder(Order orderDiscount){
-    System.debug('Teste Entrada');
-    List<OrderItem> orderItemList = [SELECT Id, OrderId,
-    Product2Id,
-    Product2.ProductGroup__c,
-    PricebookEntryId, 
-    ExternalId__c, 
-    Quantity,
-    UnitMeasure__c,
-    PercentComission__c, 
-    DiscountPercent__c, 
-    ComissionValue__c, 
-    CommercialMargin__c, 
-    DiscountValue__c, 
-    FinalTotalValue__c, 
-    FinancialDiscountPercent__c, 
-    FinancialDiscountValue__c, 
-    FinancialAdditionPercent__c,
-    FinancialAdditionValue__c, 
-    CommercialAdditionPercent__c,  
-    CommercialAdditionValue__c, 
-    Dosage__c, 
-    ListCost__c, 
-    NumeroSap__c, 
-    PracticedCost__c, 
-    PracticedPrice__c,
-    UnitPrice FROM OrderItem WHERE OrderId =: orderDiscount.Id];
-	System.debug('orderItemList ' + orderItemList);
-    System.debug('orderDiscount.Company__c ' + orderDiscount.Company__c);    
-            if (orderDiscount.Company__c != null) {
-                Id userTerritoryId;
-                for (UserTerritory2Association userAssociation : [
-                    SELECT Id,
-                           UserId,
-                           Territory2Id
-                      FROM UserTerritory2Association
-                     WHERE UserId =: orderDiscount.SalesCTV__c
-                     LIMIT 1
-                ]) {
-                    userTerritoryId = userAssociation.Territory2Id;
-                }
     
-                Map<Id, Territory2> territoryAndParents = new Map<Id, Territory2>();
-                for(Territory2 territory : [
-                    SELECT Id,
-                           DeveloperName,
-                           ParentTerritory2Id
-                      FROM Territory2
-                ]){
-                    territoryAndParents.put(territory.Id, territory);
-                }
-                Decimal currentDiscount = 0;
-                Decimal biggerDiscount = 0;
-                List<String> productGroupId = new List<String>();
-                for(OrderItem ordItems : orderItemList){   
-                    productGroupId.add(ordItems.Product2.ProductGroup__c);
-                    System.debug('Product2.ProductGroup__c' + ordItems.Product2Id);
-                    System.debug('ordItems.Product2.ProductGroup__c' + ordItems.Product2.ProductGroup__c);
-                    currentDiscount = ordItems.DiscountPercent__c;
-                    if(currentDiscount > biggerDiscount){
-                        biggerDiscount = ordItems.DiscountPercent__c;
-
+        System.debug('Teste Entrada');
+        List<OrderItem> orderItemList = [SELECT Id, OrderId,
+        Product2Id,
+        Product2.ProductGroup__c,
+        PricebookEntryId, 
+        ExternalId__c, 
+        Quantity,
+        UnitMeasure__c,
+        PercentComission__c, 
+        DiscountPercent__c, 
+        ComissionValue__c, 
+        CommercialMargin__c, 
+        DiscountValue__c, 
+        FinalTotalValue__c, 
+        FinancialDiscountPercent__c, 
+        FinancialDiscountValue__c, 
+        FinancialAdditionPercent__c,
+        FinancialAdditionValue__c, 
+        CommercialAdditionPercent__c,  
+        CommercialAdditionValue__c, 
+        Dosage__c, 
+        ListCost__c, 
+        NumeroSap__c, 
+        PracticedCost__c, 
+        PracticedPrice__c,
+        UnitPrice FROM OrderItem WHERE OrderId =: orderDiscount.Id];
+        System.debug('orderItemList ' + orderItemList);
+        System.debug('orderDiscount.Company__c ' + orderDiscount.Company__c);    
+                if (orderDiscount.Company__c != null) {
+                    Id userTerritoryId;
+                    for (UserTerritory2Association userAssociation : [
+                        SELECT Id,
+                               UserId,
+                               Territory2Id
+                          FROM UserTerritory2Association
+                         WHERE UserId =: orderDiscount.SalesCTV__c
+                         LIMIT 1
+                    ]) {
+                        userTerritoryId = userAssociation.Territory2Id;
                     }
-                   
-                }
-	
-                System.debug('productGroupId' + productGroupId);
-                System.debug('biggerDiscount' + biggerDiscount);
-                
-                Order orders = [SELECT Id, Company__r.ClientGroup__c FROM Order WHERE Id =: orderDiscount.Id];
-                System.debug('orders' + orders);
-                Discount__c orderDisc = new Discount__c();
-                for (Discount__c discount : [
-                    SELECT Id,
-                           Approver__c
-                      FROM Discount__c
-                     WHERE Status__c = 'Aprovado'
-                       AND ClientGroup__c =: orders.Company__r.ClientGroup__c
-                       AND ProductGroup__c =: productGroupId //Vamos rever esse daqui
-                       AND InitialDate__c <=: System.today()
-                       AND EndDate__c >=: System.today()
-                       AND MinPercentage__c <=: biggerDiscount
-                       AND MaxPercentage__c >=: biggerDiscount
-                  ORDER BY MinPercentage__c, MaxPercentage__c
-                ]) {
-                    orderDisc = discount;
-                }
-    			System.debug('orderDisc' + orderDisc);
-                Map<String, Integer> approvalLevels = new Map<String, Integer>{
-                    'GerenteFilial' => 1,
-                    'GerenteRegional' => 2,
-                    'Diretor' => 3
-                };
-    
-                Integer counter = 0;
-                Integer approvalNumber = approvalLevels.get(orderDisc.Approver__c);
-                System.debug('approvalNumber ' + approvalNumber);
-                Map<Integer, Id> approvalByCounter = new Map<Integer, Id>();
-                while (counter < approvalNumber) {
-                    Territory2 territory = territoryAndParents.containsKey(userTerritoryId) ? territoryAndParents.get(userTerritoryId) : new Territory2();
-    
-                    if (territory != null && territory.ParentTerritory2Id != null) {
-                        userTerritoryId = territory.ParentTerritory2Id;
-                        approvalByCounter.put(counter, userTerritoryId);
+        
+                    Map<Id, Territory2> territoryAndParents = new Map<Id, Territory2>();
+                    for(Territory2 territory : [
+                        SELECT Id,
+                               DeveloperName,
+                               ParentTerritory2Id
+                          FROM Territory2
+                    ]){
+                        territoryAndParents.put(territory.Id, territory);
                     }
-                    counter++;
-                }
+                    Decimal currentDiscount = 0;
+                    Decimal biggerDiscount = 0;
+                    List<String> productGroupId = new List<String>();
+                    for(OrderItem ordItems : orderItemList){   
+                        productGroupId.add(ordItems.Product2.ProductGroup__c);
+                        System.debug('Product2.ProductGroup__c' + ordItems.Product2Id);
+                        System.debug('ordItems.Product2.ProductGroup__c' + ordItems.Product2.ProductGroup__c);
+                        currentDiscount = ordItems.DiscountPercent__c;
+                        if(currentDiscount > biggerDiscount){
+                            biggerDiscount = ordItems.DiscountPercent__c;
     
-                Map<Id, Id> approvalsByTerritory = new Map<Id, Id>();
-                for (UserTerritory2Association userAssociation : [
-                    SELECT Id,
-                           UserId,
-                           Territory2Id
-                      FROM UserTerritory2Association
-                     WHERE Territory2Id IN: approvalByCounter.values()
-                ]) {
-                    approvalsByTerritory.put(userAssociation.Territory2Id, userAssociation.UserId);
-                }
-    
-                orderDiscount.ApprovalBranchManager__c = null;
-                orderDiscount.Manager_BranchOffice__c = false;
-                orderDiscount.ApprovalRegionalManager__c = null;
-                orderDiscount.Gerente_Regional__c = false;
-                orderDiscount.ApprovalDirector__c = null;
-                orderDiscount.Director__c = false;
-    
-                if (approvalNumber >= 1) {
-                    orderDiscount.ApprovalBranchManager__c = approvalsByTerritory.get(approvalByCounter.get(0));
-                    orderDiscount.Manager_BranchOffice__c = true;
-                }
-                if (approvalNumber >= 2) {
-                    orderDiscount.ApprovalRegionalManager__c = approvalsByTerritory.get(approvalByCounter.get(1));
-                    orderDiscount.Gerente_Regional__c = true;
-                }
-                if (approvalNumber >= 3) {
-                    orderDiscount.ApprovalDirector__c = approvalsByTerritory.get(approvalByCounter.get(2));
-                    orderDiscount.Director__c = true;
-                }
-                orderDiscount.Description += '1n73gr4ção N3sc4r4 5F x 4PP';
-            update orderDiscount;
+                        }
+                       
+                    }
+        
+                    System.debug('productGroupId' + productGroupId);
+                    System.debug('biggerDiscount' + biggerDiscount);
+                    
+                    Order orders = [SELECT Id, Company__r.ClientGroup__c FROM Order WHERE Id =: orderDiscount.Id];
+                    System.debug('orders' + orders);
+                    Discount__c orderDisc = new Discount__c();
+                    for (Discount__c discount : [
+                        SELECT Id,
+                               Approver__c
+                          FROM Discount__c
+                         WHERE Status__c = 'Aprovado'
+                           AND ClientGroup__c =: orders.Company__r.ClientGroup__c
+                           AND ProductGroup__c =: productGroupId //Vamos rever esse daqui
+                           AND InitialDate__c <=: System.today()
+                           AND EndDate__c >=: System.today()
+                           AND MinPercentage__c <=: biggerDiscount
+                           AND MaxPercentage__c >=: biggerDiscount
+                      ORDER BY MinPercentage__c, MaxPercentage__c
+                    ]) {
+                        orderDisc = discount;
+                    }
+                    System.debug('orderDisc' + orderDisc);
+                    Map<String, Integer> approvalLevels = new Map<String, Integer>{
+                        'GerenteFilial' => 1,
+                        'GerenteRegional' => 2,
+                        'Diretor' => 3
+                    };
+        
+                    Integer counter = 0;
+                    Integer approvalNumber = approvalLevels.get(orderDisc.Approver__c);
+                    System.debug('approvalNumber ' + approvalNumber);
+                    Map<Integer, Id> approvalByCounter = new Map<Integer, Id>();
+                    while (counter < approvalNumber) {
+                        Territory2 territory = territoryAndParents.containsKey(userTerritoryId) ? territoryAndParents.get(userTerritoryId) : new Territory2();
+        
+                        if (territory != null && territory.ParentTerritory2Id != null) {
+                            userTerritoryId = territory.ParentTerritory2Id;
+                            approvalByCounter.put(counter, userTerritoryId);
+                        }
+                        counter++;
+                    }
+        
+                    Map<Id, Id> approvalsByTerritory = new Map<Id, Id>();
+                    for (UserTerritory2Association userAssociation : [
+                        SELECT Id,
+                               UserId,
+                               Territory2Id
+                          FROM UserTerritory2Association
+                         WHERE Territory2Id IN: approvalByCounter.values()
+                    ]) {
+                        approvalsByTerritory.put(userAssociation.Territory2Id, userAssociation.UserId);
+                    }
+        
+                    orderDiscount.ApprovalBranchManager__c = null;
+                    orderDiscount.Manager_BranchOffice__c = false;
+                    orderDiscount.ApprovalRegionalManager__c = null;
+                    orderDiscount.Gerente_Regional__c = false;
+                    orderDiscount.ApprovalDirector__c = null;
+                    orderDiscount.Director__c = false;
+        
+                    if (approvalNumber >= 1) {
+                        orderDiscount.ApprovalBranchManager__c = approvalsByTerritory.get(approvalByCounter.get(0));
+                        orderDiscount.Manager_BranchOffice__c = true;
+                    }
+                    if (approvalNumber >= 2) {
+                        orderDiscount.ApprovalRegionalManager__c = approvalsByTerritory.get(approvalByCounter.get(1));
+                        orderDiscount.Gerente_Regional__c = true;
+                    }
+                    if (approvalNumber >= 3) {
+                        orderDiscount.ApprovalDirector__c = approvalsByTerritory.get(approvalByCounter.get(2));
+                        orderDiscount.Director__c = true;
+                    }
+                    orderDiscount.Description += '1n73gr4ção N3sc4r4 5F x 4PP';
+                update orderDiscount;
+            }
         }
-    }
 }
