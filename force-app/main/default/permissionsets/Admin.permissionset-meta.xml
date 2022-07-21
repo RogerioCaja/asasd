@@ -1678,6 +1678,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>true</editable>
+        <field>OrgVProduct__c.OrgVExternal__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>false</editable>
         <field>PlanejamentoVendas__c.TotalSaleValue__c</field>
         <readable>true</readable>
