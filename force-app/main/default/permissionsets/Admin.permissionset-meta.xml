@@ -224,11 +224,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Order.ContagemItens__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
         <field>Account.Description</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1213,6 +1208,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>true</editable>
+        <field>Order.ContagemItens__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>false</editable>
         <field>Order.ContractEndDate</field>
         <readable>true</readable>
@@ -1675,6 +1675,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>OrgVProduct__c.SupplierCenter__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>OrgVProduct__c.OrgVExternal__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
