@@ -36,7 +36,7 @@ public without sharing class OrderHelper {
     public class calloutDatalakeQueue implements Queueable { 
         private Id orderId;
 
-        public calloutsQueue(Id orderIdParameter){
+        public calloutDatalakeQueue(Id orderIdParameter){
             this.orderId = orderIdParameter;
         }
 
