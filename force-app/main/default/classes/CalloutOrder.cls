@@ -51,6 +51,7 @@ public without sharing class CalloutOrder {
                 OrderHelper.disableTrigger();
 				update orderList;
                 OrderHelper.enableTrigger();
+                CalloutOrderDatalake.processIntegration(orderList[0].Id);
 			}
 		}
 		
