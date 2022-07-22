@@ -30,7 +30,7 @@ public without sharing class OrderHelper {
 
         public void execute(QueueableContext context) {
             CalloutOrder.callIntegration(orderId);
-            System.enqueueJob(new calloutDatalakeQueue(order.Id));
+            System.enqueueJob(new calloutDatalakeQueue(orderId));
         }
     } 
 
