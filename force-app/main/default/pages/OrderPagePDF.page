@@ -26,7 +26,7 @@
             <td class="information_monetary">
                 <div> {! orderToPage.codeSapOrder } </div>
                 <div> Codigo SF: {! orderToPage.orderNumber } </div>
-                <div> Pedido Salesforce</div>
+                <div> Status do Pedido: {! orderToPage.status } </div>
                 <div>
                     <section><apex:image value="{!If(orderToPage.currencyOrder == 'BRL', '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}"/> Reais</section>
                     <section><apex:image value="{!If(orderToPage.currencyOrder == 'USD', '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}"/> Dólar</section>
@@ -166,12 +166,20 @@
         </tr>
     </tbody>
 </table>
+
 </div>
 
     <div class="observation footer">
         Obs:<br/>
         {! orderToPage.observation}
     </div>
+
+    <div class="footer">
+        <apex:outputText rendered="{!orderToPage.status == 'Pré Pedido'}">
+    		<span style="font-size: 8pt;font-family: Arial, Helvetica, sans-serif;">*Pedidos com status do pedido com <strong>Pré Pedido</strong> podem sofrer alterações</span>
+		</apex:outputText>
+    </div>
+
     <p style="page-break-after:always;"></p>
     <div class="appointments" >
         Compromisso – O(A) Comprador(a) se compromete a utilizar os produtos deste pedido apenas para fins agrícolas, observadas as restrições existentes na legislação ambiental, abstendo-se de utilizá-los em áreas protegidas e/ou embargadas.<br/>  
