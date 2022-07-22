@@ -49,9 +49,10 @@ public without sharing class CalloutOrder {
             
 			if (!orderList.isEmpty()) {
                 OrderHelper.disableTrigger();
-				update orderList;
+                Database.SaveResult[] upsResult = Database.update(orderList, false);
                 OrderHelper.enableTrigger();
-                CalloutOrderDatalake.processIntegration(orderList[0].Id);
+                if(upsResult[0].isSuccess())
+                    CalloutOrderDatalake.processIntegration(orderList[0].Id);
 			}
 		}
 		
