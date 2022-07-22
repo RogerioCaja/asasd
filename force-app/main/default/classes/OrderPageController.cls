@@ -48,7 +48,7 @@ public with sharing class OrderPageController {
             'ShippingAccount__r.Name','Account.BillingCity', 'Account.StateRegistration__c',
             'Company__r.salesTeam__r.Address__c','Company__r.salesTeam__r.CNPJ__c', 'Company__r.salesTeam__r.Country__c', 'Company__r.salesTeam__r.Locale__c','Company__r.salesTeam__r.Phone__c',
             'Company__r.salesTeam__r.Registration__c','Company__r.salesTeam__r.State__c', 'Company__r.salesTeam__r.Subsidiary__c', 'Company__r.salesTeam__r.ZipCode__c',
-            'Account.CPF__c', 'Account.CNPJ__c', 'TotalAmount', 'Description', 'FinalTotalValue__c',
+            'Account.CPF__c', 'Account.CNPJ__c', 'TotalAmount', 'Description', 'FinalTotalValue__c', 'Status',
             'Account.BillingPostalCode', 'Crop__r.Name', 'PaymentForm__c', 'PaymentDate__c', 'RecordTypeId',
             'Currency__c', 'Culture__r.Name', 'CodigoSap__c', 'SalesCTV__r.CodigoSap__c', 'SalesCTV__r.Name'
         };
@@ -151,6 +151,7 @@ public with sharing class OrderPageController {
         public String culture {get; set;}
         public String totalAmount {get; set;}
         public String observation {get; set;}
+        public String status {get; set;}
 
         public String salesTeamName {get;set;}
         public String salesTeamLocale {get;set;}
@@ -179,6 +180,7 @@ public with sharing class OrderPageController {
             this.dueDate = String.valueOf(order.PaymentDate__c);
             this.totalAmount = formatCurrency(order.FinalTotalValue__c, this.currencyOrder);
             this.observation = order.Description;
+            this.status = getLabelForPage(order.Status);
             this.codCTV = order.SalesCTV__r.CodigoSap__c;
             this.nameCTV = order.SalesCTV__r.Name;
             this.salesTeamName = order.Company__r.salesTeam__r.Subsidiary__c;
@@ -207,6 +209,17 @@ public with sharing class OrderPageController {
             }
     
             return valueToFormat;
+        }
+
+        public String getLabelForPage(String status){
+            
+            Map<String, String> orderStatus = new Map<String, String>();
+            Schema.DescribeFieldResult objFieldDescribe = Schema.Order.Status.getDescribe();
+            List<Schema.PicklistEntry> lstPickListValues = objFieldDescribe.getPickListValues();
+            for (Schema.PicklistEntry objPickList : lstPickListValues) {
+                orderStatus.put(objPickList.getValue(), objPickList.getLabel());
+            }
+            return orderStatus.get(status);
         }
     }
 

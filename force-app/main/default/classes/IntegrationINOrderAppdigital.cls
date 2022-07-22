@@ -29,9 +29,11 @@ global without sharing class IntegrationINOrderAppdigital {
         // Guarda uma lista de orderItem para fazer o upsert
         List<TemplateDataIntegrationFields.OrderItemINData> orderItemListToUpsert = new List<TemplateDataIntegrationFields.OrderItemINData>();
         // Guarda uma lista de pedidos para fazer o upsert
+        Set<Id> orderItemIds = new Set<Id>();
         List<TemplateDataINtegrationFields.ShippingDivisonINData> shippingDivisonListToUpsert = new List<TemplateDataIntegrationFields.ShippingDivisonINData>();
         List<Order> orderListToUpsert = new List<Order>();
 
+        List<String> idOrders = new List<String>();
         
         //Application of business rules
         for (TemplateDataIntegrationFields.OrderINData order : request){
@@ -52,41 +54,233 @@ global without sharing class IntegrationINOrderAppdigital {
             salesConditionLookups.add(order.condicaoVenda);
             order.company = order.PaymentAccount + order.CentroFornecedor + order.salesOrg + order.activitySector + order.distributionChannel + order.EscritorioVendas + order.EquipeVendas;
             companyLookups.add(order.company);
-            System.debug('companyLookups ' + companyLookups);
+            idOrders.add(order.CodigoSap);
+
             if(order.orderItems != null) {
                 // Adiciona todos os External Id e o catalogo de preço de order nos orderItem
                 //Putting the Order's ExternalId parameter in the OrderItem
                 for (TemplateDataIntegrationFields.OrderItemINData orderItem : order.orderItems){
-                    orderItem.orderExternalId = order.numeroPedidoApp;
                     orderItem.orderItemCode = orderItem.orderItemCode.replaceFirst('^0+','');
+                    if(order.numeroPedidoApp != null && order.numeroPedidoApp != ''){
+                        System.debug('orderItem.orderExternalId ' + orderItem.orderExternalId );
+                        orderItem.orderExternalId = order.numeroPedidoApp;
+                        orderItem.orderItemECalendariazacao = order.eCalendarizacao;
+                        System.debug('orderItem.orderExternalId App' + orderItem.orderExternalId );
+                    }
+                    else{
+                        System.debug('orderItem.orderExternalId ' + orderItem.orderExternalId );
+                        orderItem.orderExternalId = order.CodigoSap;
+                        orderItem.orderItemECalendariazacao = order.eCalendarizacao;
+                        System.debug('orderItem.orderExternalId SAP' + orderItem.orderExternalId );
+                    }
                 }
                 // Adiciona os orderItem na lista para upsert
                 //Getting list of order items
                 orderItemListToUpsert.addAll(order.orderItems);
                 System.debug('orderItemListToUpsert' + orderItemListToUpsert); 
             }
-
             if(order.pedidoMae ==  false){
-                for(TemplateDataIntegrationFields.ShippingDivisonINData shippingDivison : order.shippingDivison){
-                    shippingDivison.orderExternalId = order.numeroPedidoApp;
-                    shippingDivison.orderItemCode = shippingDivison.OrderItemCode.replaceFirst('^0+','');
+            for(TemplateDataIntegrationFields.ShippingDivisonINData shippingDivison : order.shippingDivison){
+                shippingDivison.orderItemCode = shippingDivison.orderItemCode.replaceFirst('^0+','');
+                    if(order.numeroPedidoApp != null && order.numeroPedidoApp != ''){
+                        shippingDivison.orderExternalId = order.numeroPedidoApp;
+                    }
+                    else{
+                        shippingDivison.orderExternalId = order.codigoSap;
+                    }
                 }
-                if(order.pedidoMae == false){
-                    shippingDivisonListToUpsert.addAll(order.shippingDivison);
-                }  
-                 System.debug('shippingDivisonListToUpsert' + shippingDivisonListToUpsert);
+              
+            }
+            if(order.pedidoMae == false){
+                shippingDivisonListToUpsert.addAll(order.shippingDivison);
+            }
+             
+            System.debug('shippingDivisonListToUpsert' + shippingDivisonListToUpsert);
+            
+            }
+           
+        Map<String, Order> ordersIdsMap = new Map<String, Order>();
+        List<Order> orderSelectList = new List<Order>([SELECT Id, NumeroPedidoApp__c,PaymentDate__c,ShippingDate__c,Type,CustomerOrderNumber__c,
+        Currency__c,Description,DescriptionBillingSale__c,FinalTotalValue__c,Hectare__c,OrderMargin__c,OrderType__c,SalesCondition__c,IsOrderMother__c, RecordTypeId, OwnerId,
+        CodigoSap__c, Pricebook2Id, Pricebook2.Name,EffectiveDate,Status,StatusRecusa__c,Incoterms__c,Incoterms2__c,PaymentForm__c, Crop__r.Code__c, Crop__c, Culture__c, Culture__r.Codigo__c, SalesOrg__r.SalesOrganizationCode__c, SalesOrg__c, SalesCondition__r.ExternalId__c,ActivitySector__r.Codigo__c,
+        SalesCTV__r.CodigoSap__c, SalesCTV__c, PaymentCondition__r.Code__c, PaymentCondition__c,OrderReference__r.CodigoSap__c, OrderReference__c, Account.ExternalId__c, AccountId, ShippingAccount__r.ExternalId__c, ShippingAccount__c,Company__r.ExternalID__c,Company__c,DistributionChannel__r.Codigo__c,DistributionChannel__c
+        FROM Order WHERE CodigoSap__c  IN : idOrders]);
+
+        for (Order ord : orderSelectList){
+            ordersIdsMap.put(ord.CodigoSap__c, ord);
+        }
+        for (TemplateDataIntegrationFields.OrderINData order : request){
+            if(order.eCalendarizacao == true){
+            Order ord = ordersIdsMap.get(order.CodigoSap);
+                
+            if(order.numeroPedidoApp == null || order.eCalendarizacao == true){
+                order.numeroPedidoApp = ord.NumeroPedidoApp__c;
 
             }
+            if (order.paymentDate == null || order.eCalendarizacao == true){
+                order.paymentDate = ord.PaymentDate__c;
+            }
+            if (order.effectiveDate == null || order.eCalendarizacao == true){
+                order.effectiveDate = ord.EffectiveDate;
+            }
+            if(order.ShippingDate == null || order.eCalendarizacao == true){
+                order.ShippingDate = ord.ShippingDate__c;
+            }
+            if(order.status == null || order.eCalendarizacao == true){
+                order.status = ord.Status;
+            }
+          
+            if(order.type == null || order.eCalendarizacao == true){
+                order.type = ord.Type;
+            }
+            if(order.customerOrderNumber == null || order.eCalendarizacao == true){
+                order.customerOrderNumber = ord.CustomerOrderNumber__c;
+            }
+            if(order.paymentForm == null || order.eCalendarizacao == true){
+                order.paymentForm = ord.PaymentForm__c;
+            }
+            if(order.CurrencyOrder == null || order.eCalendarizacao == true){
+                order.CurrencyOrder = ord.Currency__c;
+            }
+            if(order.incoterms == null || order.eCalendarizacao == true){
+                order.incoterms = ord.Incoterms__c;
+            }
+            if(order.incoterms2 == null || order.eCalendarizacao == true){
+                order.incoterms2 = ord.Incoterms2__c;
+            }
+            if(order.description == null || order.eCalendarizacao == true){
+                order.description = ord.Description;
+            }
+            if(order.descriptionBillingSale == null || order.eCalendarizacao == true){
+                order.descriptionBillingSale = ord.DescriptionBillingSale__c;
+            }
+            if(order.valorFinalTotal == null || order.eCalendarizacao == true){
+                order.valorFinalTotal = ord.FinalTotalValue__c;
+            }
+            if(order.hectare == null || order.eCalendarizacao == true){
+                order.hectare = ord.Hectare__c; 
+            }
+            if(order.margemPedido == null || order.eCalendarizacao == true){
+                order.margemPedido = ord.OrderMargin__c;
+            }
+            if(order.orderType == null || order.eCalendarizacao == true){
+                order.orderType = ord.OrderType__c;
+            }
+            
+            if(order.pedidoMae == null || order.eCalendarizacao == true){
+                order.pedidoMae = ord.IsOrderMother__c;
+            }
+
+            if(order.salesType == null || order.eCalendarizacao == true){
+                order.recordIdToUpdate = ord.RecordTypeId;
+            }
+            
+			if(order.pricebook2Id == null || order.eCalendarizacao == true ){
+                if(ord.Pricebook2Id != null){
+                    order.pricebook2Id = ord.Pricebook2.Name;
+                    lookups.put('Pricebook2Id' + ord.Pricebook2.Name, ord.Pricebook2Id);
+                }
+            }
+
+            if(order.shippingAccount == null || order.eCalendarizacao == true){
+                if(ord.ShippingAccount__c != null){
+                    order.shippingAccount = ord.ShippingAccount__r.ExternalId__c;
+                    lookups.put('Account' + ord.ShippingAccount__r.ExternalId__c, ord.ShippingAccount__c);
+                }
+            }
+            if(order.eCalendarizacao == true){
+                if(ord.AccountId != null){
+                    order.PaymentAccount = ord.Account.ExternalId__c;
+                    lookups.put('Account' + ord.Account.ExternalId__c, ord.AccountId);
+                    System.debug('ord.Account.ExternalId__c ' + ord.Account.ExternalId__c);
+                }
+            }
+            if(order.orderReference == null || order.eCalendarizacao == true){
+                if(ord.OrderReference__c != null){
+                    order.orderReference = ord.OrderReference__r.CodigoSap__c;
+                    lookups.put('Order' + ord.OrderReference__r.CodigoSap__c, ord.OrderReference__c);
+                }
+            }
+           
+            
+            if(order.crop == null || order.eCalendarizacao == true){
+                if(ord.Crop__c != null){
+                    order.crop = ord.Crop__r.Code__c;
+                    lookups.put('Safra__c' + ord.Crop__r.Code__c, ord.Crop__c);
+                }
+            }
+
+            if(order.culture == null || order.eCalendarizacao == true){
+                if(ord.Culture__c != null){
+                    order.culture = ord.Culture__r.Codigo__c;
+                    lookups.put('Cultura__c' + ord.Culture__r.Codigo__c, ord.Culture__c);
+                }
+            }
+
+            if(order.salesOrg == null || order.eCalendarizacao == true){
+                if(ord.SalesOrg__c != null){
+                    order.salesOrg = ord.SalesOrg__r.SalesOrganizationCode__c;
+                    lookups.put('SalesOrg__c' + ord.SalesOrg__r.SalesOrganizationCode__c, ord.SalesOrg__c);
+                }
+            }
+            
+            if(order.SalesCTV == null || order.SalesCTV == '' || order.eCalendarizacao == true){
+                if(ord.SalesCTV__c != null){
+                    order.salesCTV = ord.SalesCTV__r.CodigoSap__c;
+                    lookups.put('User' + ord.SalesCTV__r.CodigoSap__c, ord.SalesCTV__c);
+                }
+                
+                if(ord.OwnerId != null ){
+                    order.salesCTV = ord.SalesCTV__r.CodigoSap__c;
+                    lookups.put('User' + ord.SalesCTV__r.CodigoSap__c, ord.SalesCTV__c);
+                }
+            }
+            
+            if(order.paymentCondition == null || order.eCalendarizacao == true){
+                if(ord.PaymentCondition__c != null){
+                    order.paymentCondition = ord.PaymentCondition__r.Code__c;
+                    lookups.put('CondicaoPagamento__c' + ord.PaymentCondition__r.Code__c, ord.PaymentCondition__c);    
+                }
+            } 
+            if (order.company == null || order.eCalendarizacao == true){
+                if(ord.Company__c != null){
+                    order.company = ord.Company__r.ExternalID__c;
+                    lookups.put('Company__c' + ord.Company__r.ExternalID__c, ord.Company__c);
+                }
+            }
+            if(order.distributionChannel == null || order.eCalendarizacao == true){
+                if(ord.DistributionChannel__c != null){
+                    order.distributionChannel = ord.DistributionChannel__r.Codigo__c;
+                    lookups.put('DistributionChannel__c' + ord.DistributionChannel__r.Codigo__c, ord.DistributionChannel__c);
+                }
+            }
+            
+            if(order.condicaoVenda == null || order.eCalendarizacao == true){
+                if(ord.SalesCondition__c != null){
+                    order.condicaoVenda = ord.SalesCondition__r.ExternalId__c;
+                    lookups.put('SalesCondition__c' + ord.SalesCondition__r.ExternalId__c, ord.SalesCondition__c);
+                }
+                
+            }
+
+            if(order.activitySector == null || order.eCalendarizacao == true){
+                if(ord.ActivitySector__c != null){
+                    order.activitySector = ord.ActivitySector__r.Codigo__c;
+                    lookups.put('ActivitySector__c' + ord.ActivitySector__r.Codigo__c, ord.ActivitySector__c);
+                }
+            }
         }
-            System.debug('Chegou!?!!!!!!!!!!!!!!!!!!!! ');    
+        }   
+
+
         // Pega o Id da conta com base no CNPJ da conta
         //Account search based on CNPJ field sent
         for (Account account : [SELECT Id, ExternalId__c FROM Account WHERE ExternalId__c IN : accountLookups]) {
             //Map structure for the model -> object name + parameter to record id
             //Example
-            lookups.put('Account' + account.ExternalId__c, account.Id);
+             lookups.put('Account' + account.ExternalId__c, account.Id);       
         }
-// Pega o WE 
+        
         for (Account account : [SELECT Id, ExternalId__c FROM Account WHERE ExternalId__c IN : shippingAccountLookups]) {
             lookups.put('Account' + account.ExternalId__c, account.Id);
         }
@@ -118,7 +312,7 @@ global without sharing class IntegrationINOrderAppdigital {
             lookups.put('User' + salesCTV.CodigoSap__c, salesCTV.Id);
        }
        
-        for (CondicaoPagamento__c paymentCondition : [SELECT Id, Name, Code__c  from CondicaoPagamento__c WHERE Code__c IN: paymentConditionLookups]){//
+        for (CondicaoPagamento__c paymentCondition : [SELECT Id, Name,Code__c  from CondicaoPagamento__c WHERE Code__c IN: paymentConditionLookups]){
             lookups.put('CondicaoPagamento__c' + paymentCondition.Code__c, paymentCondition.Id);
         }
         for (Pricebook2 pricebook2Id : [SELECT Id, ExternalId__c, Name FROM Pricebook2 WHERE Name IN : pricebookLookups ]){
@@ -136,28 +330,65 @@ global without sharing class IntegrationINOrderAppdigital {
 
         for(SalesCondition__c salesCondition : [SELECT Id, ExternalId__c FROM SalesCondition__c WHERE ExternalId__c IN : salesConditionLookups]){
             lookups.put('SalesCondition__c' + salesCondition.ExternalId__c, salesCondition.Id);
-
         }
+
         //Converting template to object list and validating required fields
         // Valida e adiciona objeto na lista para upsert
-        System.debug('Chegou!?010102301023010230120 ');
+        
         FactoryDataIntegration.convertSObject(new Order(), 'IN', request, responseList, orderListToUpsert, lookups);
-          
+        System.debug('Order List to ' + orderListToUpsert);
         //Upserting records (Order)
-        System.debug('Chegou!? 222222');
-		IntegrationUtils.upsertRecords(
-            Database.upsert(orderListToUpsert, Order.NumeroPedidoApp__c, false), 
+        Map<String, String> orderUpMap = new Map<String, String>();
+        List<Order> orderWithNbApp = new List<Order>();
+        List<Order> orderWithNbSap = new List<Order>();
+
+        for(Order ordUp :orderListToUpsert){
+            //orderUpMap.put(ordUp.NumeroPedidoApp__c, ordUp.Id);
+            //orderUpMap.put(ordUp.CodigoSap__c, ordUp.Id);
+
+            if(ordUp.NumeroPedidoApp__c == null || ordUp.NumeroPedidoApp__c == ''){
+                orderWithNbSap.add(ordUp);
+                orderUpMap.put(ordUp.CodigoSap__c, ordUp.Id);
+                
+            }
+            else{
+                orderWithNbApp.add(ordUp);
+                orderUpMap.put(ordUp.NumeroPedidoApp__c, ordUp.Id);
+            }
+        }
+        List<Order> orderListForAppr = new List<Order>();
+
+        if(!orderWithNbApp.isEmpty()){
+            IntegrationUtils.upsertRecords(
+            Database.upsert(orderWithNbApp, Order.NumeroPedidoApp__c, false), 
             responseList, 
-            orderListToUpsert, 
+            orderWithNbApp, 
             Order.NumeroPedidoApp__c
         );
-        Map<String, String> orderUpMap = new Map<String, String>();
-        for(Order ordUp :orderListToUpsert){
-            orderUpMap.put(ordUp.NumeroPedidoApp__c, ordUp.Id);
+        orderListForAppr.addAll(orderWithNbApp);
         }
+        if(!orderWithNbSap.isEmpty()){
+            IntegrationUtils.upsertRecords(
+                Database.upsert(orderWithNbSap, Order.CodigoSap__c, false), 
+                responseList, 
+                orderWithNbSap, 
+                Order.CodigoSap__c
+            );
+            orderListForAppr.addAll(orderWithNbSap);
+        }
+
+		for(Order ordUp :orderListForAppr){
+            
+            if(ordUp.NumeroPedidoApp__c == null || ordUp.NumeroPedidoApp__c == ''){
+                orderUpMap.put(ordUp.CodigoSap__c, ordUp.Id); 
+            }
+            else{
+                orderUpMap.put(ordUp.NumeroPedidoApp__c, ordUp.Id);
+            }
+        }
+
         for (TemplateDataIntegrationFields.OrderItemINData orderIt : orderItemListToUpsert){
             String orderId;
-            
                 if(orderIt.orderExternalId != null){
                     orderId = orderUpMap.get(orderIt.orderExternalId);
                     
@@ -173,6 +404,10 @@ global without sharing class IntegrationINOrderAppdigital {
                     shipIt.orderExternalId = orderId;
                 } 
         }
+        
+        if(!orderListForAppr.isEmpty()){
+            IntegrationINOrderAppdigital.approvalDiscountOrder(orderListForAppr[0]);
+        }
          //Confirmar com o Helder
         //Upserting records (OrderItem)
         // Upsert OrderItem
@@ -181,6 +416,22 @@ global without sharing class IntegrationINOrderAppdigital {
             orderItemsResponse.putAll(
                 IntegrationINOrderItemAppdigital.upsertOrderItem(orderItemListToUpsert)
             );
+            List <TemplateDataIntegrationFields.Response> listResponse = new list<TemplateDataIntegrationFields.Response>();
+
+            for (String resp : orderItemsResponse.keySet()){
+                listResponse.addAll(orderItemsResponse.get(resp));
+               
+            }
+            for(TemplateDataIntegrationFields.Response respp : listResponse){
+                orderItemIds.add(respp.idSalesforce);
+            }
+
+           List<ShippingDivison__c> shippingListIds = [SELECT Id, OrderItem__c,OrderItem__r.OrderId  From ShippingDivison__c Where OrderItem__c IN: orderItemIds];
+           Database.delete(shippingListIds, false);
+
+           if(!shippingListIds.isEmpty()){
+                //CalloutOrderDatalake.callIntegration(shippingListIds[0].OrderItem__r.OrderId);
+           }
         }
 
         Map<String, List<TemplateDataIntegrationFields.Response>> shippingDivisonResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
@@ -189,9 +440,7 @@ global without sharing class IntegrationINOrderAppdigital {
             shippingDivisonResponse.putAll(
                 IntegrationINShippingDivisonAppdigital.upsertShippingDivison(shippingDivisonListToUpsert)
             );
-        }
-        if(!orderListToUpsert.isEmpty()){
-            IntegrationINOrderAppdigital.approvalDiscountOrder(orderListToUpsert[0]);
+            System.debug('shippingDivisonResponse' + shippingDivisonResponse);
         }
         //Associating child object's response with object response
         // Pega todas as respostas dos OrderItem
@@ -205,6 +454,7 @@ global without sharing class IntegrationINOrderAppdigital {
                         response.items.addAll(shippingDivisonResponse.get(orderItem.idSalesforce));
                     } 
                 }
+
             } 
             else if(orderItemsResponse.size() != 0 && orderItemsResponse.containsKey(response.externalCode)){
                 response.items.addAll(orderItemsResponse.get(response.externalCode));
@@ -240,10 +490,7 @@ global without sharing class IntegrationINOrderAppdigital {
         ResponseModel modelo = new ResponseModel();
         modelo.response = responseList;
         return modelo;
-    
-    
-}
-
+    }
     // Classe que cria a resposta
     global class ResponseModel {
 
@@ -260,7 +507,7 @@ global without sharing class IntegrationINOrderAppdigital {
     }
 
     public static void approvalDiscountOrder(Order orderDiscount){
-    System.debug('Teste Entrada');
+    
     List<OrderItem> orderItemList = [SELECT Id, OrderId,
     Product2Id,
     Product2.ProductGroup__c,
@@ -284,10 +531,9 @@ global without sharing class IntegrationINOrderAppdigital {
     ListCost__c, 
     NumeroSap__c, 
     PracticedCost__c, 
-    PracticedPrice__c,
+    PracticedPrice__c, 
     UnitPrice FROM OrderItem WHERE OrderId =: orderDiscount.Id];
-	System.debug('orderItemList ' + orderItemList);
-    System.debug('orderDiscount.Company__c ' + orderDiscount.Company__c);    
+
             if (orderDiscount.Company__c != null) {
                 Id userTerritoryId;
                 for (UserTerritory2Association userAssociation : [
@@ -323,19 +569,15 @@ global without sharing class IntegrationINOrderAppdigital {
                     }
                    
                 }
-	
-                System.debug('productGroupId' + productGroupId);
-                System.debug('biggerDiscount' + biggerDiscount);
-                
+
                 Order orders = [SELECT Id, Company__r.ClientGroup__c FROM Order WHERE Id =: orderDiscount.Id];
-                System.debug('orders' + orders);
                 Discount__c orderDisc = new Discount__c();
                 for (Discount__c discount : [
                     SELECT Id,
                            Approver__c
                       FROM Discount__c
                      WHERE Status__c = 'Aprovado'
-                       AND ClientGroup__c =: orders.Company__r.ClientGroup__c
+                       AND ClientGroup__c =: orderDiscount.Company__r.ClientGroup__c
                        AND ProductGroup__c =: productGroupId //Vamos rever esse daqui
                        AND InitialDate__c <=: System.today()
                        AND EndDate__c >=: System.today()
@@ -345,7 +587,7 @@ global without sharing class IntegrationINOrderAppdigital {
                 ]) {
                     orderDisc = discount;
                 }
-    			System.debug('orderDisc' + orderDisc);
+    
                 Map<String, Integer> approvalLevels = new Map<String, Integer>{
                     'GerenteFilial' => 1,
                     'GerenteRegional' => 2,
@@ -354,7 +596,6 @@ global without sharing class IntegrationINOrderAppdigital {
     
                 Integer counter = 0;
                 Integer approvalNumber = approvalLevels.get(orderDisc.Approver__c);
-                System.debug('approvalNumber ' + approvalNumber);
                 Map<Integer, Id> approvalByCounter = new Map<Integer, Id>();
                 while (counter < approvalNumber) {
                     Territory2 territory = territoryAndParents.containsKey(userTerritoryId) ? territoryAndParents.get(userTerritoryId) : new Territory2();
@@ -397,7 +638,7 @@ global without sharing class IntegrationINOrderAppdigital {
                     orderDiscount.Director__c = true;
                 }
                 orderDiscount.Description += '1n73gr4ção N3sc4r4 5F x 4PP';
-            update orderDiscount;
+                update orderDiscount;
         }
-    }
+        }
 }
