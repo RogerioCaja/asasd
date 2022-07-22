@@ -30,6 +30,17 @@ public without sharing class OrderHelper {
 
         public void execute(QueueableContext context) {
             CalloutOrder.callIntegration(orderId);
+        }
+    } 
+
+    public class calloutDatalakeQueue implements Queueable { 
+        private Id orderId;
+
+        public calloutsQueue(Id orderIdParameter){
+            this.orderId = orderIdParameter;
+        }
+
+        public void execute(QueueableContext context) {
             CalloutOrderDatalake.callIntegration(orderId);
         }
     } 
@@ -49,7 +60,9 @@ public without sharing class OrderHelper {
         for(Order order : newRecords){ 
             if(order.StatusSF__c == 'Aprovado'){
                 calloutsQueue job = new calloutsQueue(order.Id);
+                calloutDatalakeQueue job2 = new calloutDatalakeQueue(order.Id);
                 System.enqueueJob(job);
+                System.enqueueJob(job2);
             }
             if(order.CodigoSap__c != null && order.StatusSF__c == 'Integrado' && orderMap != null){
                 String rmCode = orderMap.get(order.Id).ShippingAccount__r.ExternalId__c;
