@@ -61,8 +61,8 @@ public without sharing class OrderHelper {
             if(order.StatusSF__c == 'Aprovado'){
                 calloutsQueue job = new calloutsQueue(order.Id);
                 calloutDatalakeQueue job2 = new calloutDatalakeQueue(order.Id);
-                System.enqueueJob(job);
                 System.enqueueJob(job2);
+                System.enqueueJob(job);
             }
             if(order.CodigoSap__c != null && order.StatusSF__c == 'Integrado' && orderMap != null){
                 String rmCode = orderMap.get(order.Id).ShippingAccount__r.ExternalId__c;
