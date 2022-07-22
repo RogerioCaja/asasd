@@ -36,7 +36,8 @@ public without sharing class OrderHelper {
         Orderhelper.disableTrigger();
         for(Order order : newRecords){ 
             if(order.StatusSF__c == 'Aprovado'){
-                CalloutOrder.callIntegration(order.Id);
+                IntegrationUtils.CalloutResponse test = CalloutOrder.processIntegration(order.Id);
+                if(test != null) CalloutOrderDatalake.callIntegration(order.Id);
             }
             if(order.CodigoSap__c != null && order.StatusSF__c == 'Integrado' && orderMap != null){
                 String rmCode = orderMap.get(order.Id).ShippingAccount__r.ExternalId__c;

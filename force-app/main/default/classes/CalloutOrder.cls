@@ -51,8 +51,8 @@ public without sharing class CalloutOrder {
                 OrderHelper.disableTrigger();
                 Database.SaveResult[] upsResult = Database.update(orderList, false);
                 OrderHelper.enableTrigger();
-                if(upsResult[0].isSuccess())
-                    CalloutOrderDatalake.processIntegration(orderId);
+                // if(upsResult[0].isSuccess())
+                //     CalloutOrderDatalake.processIntegration(orderId);
 			}
 		}
 		
