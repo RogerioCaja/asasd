@@ -21,7 +21,7 @@ public without sharing class OrderHelper {
         return isEnabled = true;
     }
 
-    public class calloutsQueue implements Queueable { 
+    public class calloutsQueue implements Queueable, Database.AllowsCallouts{ 
         private Id orderId;
 
         public calloutsQueue(Id orderIdParameter){
