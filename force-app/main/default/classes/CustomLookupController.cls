@@ -48,7 +48,7 @@ public without sharing class CustomLookupController {
 	}
 
     @AuraEnabled
-    public static ProductDataResult fetchProductsRecords(String searchString, String data, Boolean isCommodity) {
+    public static ProductDataResult fetchProductsRecords(String searchString, String data, Boolean isCommodity, List<String> productsIds) {
         try {
             ProductDataResult result = new ProductDataResult();
             ProductParams productParams = (ProductParams) JSON.deserialize(data, ProductParams.class);
@@ -64,7 +64,7 @@ public without sharing class CustomLookupController {
             result.salesResult = salesResult;
 
             Set<String> priceFields = new Set<String>{'Id', 'UnitPrice__c', 'Cost__c', 'Product__c', 'Currency__c', 'SalesOrg__c', 'SalesTeam__c', 'SalesOffice__c', 'Account__c', 'Culture__c', 'ProductMultiplier__c'};
-            String priceQuery = new Q(JurosDescontoAntecipao__c.SObjectType)
+            Q priceQuery = new Q(JurosDescontoAntecipao__c.SObjectType)
                                 .selectFields(priceFields)
                                 .add(Q.condition('RecordTypeId').equalsTo(commodityRecType))
                                 .add(Q.condition('SalesCondition__c').equalsTo(productParams.salesConditionId))
@@ -73,12 +73,15 @@ public without sharing class CustomLookupController {
                                 .add(Q.condition('SalesOrg__c').equalsTo(salesResult.salesOrgId))
                                 .add(Q.condition('IsActive__c').equalsTo(true))
                                 .add(Q.condition('StartDate__c').isLessOrEquals(System.today()))
-                                .add(Q.condition('EndDate__c').isGreaterOrEquals(System.today()))
-                                .build();
+                                .add(Q.condition('EndDate__c').isGreaterOrEquals(System.today()));
+
+            if (productsIds.size() > 0) {
+                priceQuery.add(Q.condition('Product__c').isIn(productsIds));
+            }
 
             Map<Id, List<JurosDescontoAntecipao__c>> productsPriceById = new Map<Id, List<JurosDescontoAntecipao__c>>();
             Set<Id> accountIds = new Set<Id>();
-            for(SObject jda : Database.query(priceQuery)) {
+            for(SObject jda : Database.query(priceQuery.build())) {
                 System.debug('jda: ' + jda);
                 if (!productsPriceById.containsKey((Id)jda.get('Product__c'))) {
                     productsPriceById.put((Id)jda.get('Product__c'), new List<JurosDescontoAntecipao__c>{(JurosDescontoAntecipao__c)jda});

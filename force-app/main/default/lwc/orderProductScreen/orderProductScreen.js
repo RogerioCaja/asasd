@@ -342,6 +342,59 @@ export default class OrderProductScreen extends LightningElement {
                     culture: this.headerData.cultura.Id != null ? this.headerData.cultura.Id : ''
                 };
 
+                if (this.headerData.pre_pedido) {
+                    let prodsIds = [];
+                    for (let index = 0; index < this.products.length; index++) {
+                        prodsIds.push(this.products[index].productId);
+                    }
+                    console.log('prodsIds: ' + JSON.stringify(prodsIds));
+
+                    fetchOrderRecords({
+                        searchString: '',
+                        data: JSON.stringify(this.productParams),
+                        isCommodity: false,
+                        productsIds: prodsIds
+                    })
+                    .then(result => {
+                        this.productsPriceMap = result.recordsDataMap;
+                        this.salesInfos = result.salesResult;
+                        let orderProducts = [];
+                        let listPriceChange = false;
+
+                        for (let index = 0; index < this.products.length; index++) {
+                            this.addProduct = this.products[index];
+                            let priorityInfos = this.getProductByPriority(this.addProduct);
+                            if (priorityInfos.listPrice != this.addProduct.listPrice || priorityInfos.costPrice != this.addProduct.listCost) {
+                                this.addProduct.listPrice = this.isFilled(priorityInfos.listPrice) ? this.fixDecimalPlaces(priorityInfos.listPrice) : 0;
+                                this.addProduct.listPriceFront = this.isFilled(priorityInfos.listPrice) ? this.fixDecimalPlacesFront(priorityInfos.listPrice) : 0;
+                                this.addProduct.listCost = this.isFilled(priorityInfos.costPrice) ? this.fixDecimalPlaces(priorityInfos.costPrice) : 0;
+                                this.addProduct.practicedCost = this.isFilled(priorityInfos.costPrice) ? this.fixDecimalPlaces(priorityInfos.costPrice) : 0;
+                                
+                                if (this.addProduct.commercialAdditionPercentage != '0%') {
+                                    this.addProduct.unitPrice = this.addProduct.listPrice + this.calculateValue(this.addProduct.commercialAdditionPercentage, this.addProduct.listPrice);
+                                } else if (this.addProduct.commercialDiscountPercentage != '0%') {
+                                    this.addProduct.unitPrice = this.addProduct.listPrice - this.calculateValue(this.addProduct.commercialDiscountPercentage, this.addProduct.listPrice);
+                                }
+                                this.addProduct.unitPriceFront = this.fixDecimalPlacesFront(this.addProduct.unitPrice);
+
+                                this.calculateDiscountOrAddition();
+                                this.calculateTotalPrice(true, this.addProduct.commercialDiscountValue > 0);
+
+                                let margin = this.isFilled(this.addProduct.practicedCost) ? this.fixDecimalPlaces((1 - (Number(this.addProduct.practicedCost) / (this.addProduct.totalPrice / this.addProduct.quantity))) * 100) : 0;
+                                this.addProduct.commercialMarginPercentage = margin;
+                                listPriceChange = true;
+                            }
+
+                            orderProducts.push(this.addProduct);
+                        }
+
+                        this.products = JSON.parse(JSON.stringify(orderProducts));
+                        if (listPriceChange) {
+                            this.showToast('warning', 'Alteração na lista de preço!', 'Os preços foram ajustados de acordo com os valores da lista de preço. Verifique-os.');
+                        }
+                    });
+                }
+
                 if (!this.headerData.IsOrderChild) {
                     getFinancialInfos({data: JSON.stringify(orderData)})
                     .then((result) => {
@@ -1447,7 +1500,8 @@ export default class OrderProductScreen extends LightningElement {
         fetchOrderRecords({
             searchString: this.salesInfos.searchString,
             data: JSON.stringify(this.productParams),
-            isCommodity: false
+            isCommodity: false,
+            productsIds: []
         })
         .then(result => {
             this.showBaseProducts = result.recordsDataList.length > 0;
