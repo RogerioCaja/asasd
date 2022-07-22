@@ -46,6 +46,7 @@ export default class OrderHeaderScreen extends LightningElement {
     disabled = false;
     fieldKey = true;
     paymentDisabled = false;
+    blockPaymentForm = false;
     barterSale = false;
     safraName = null;
     currencyOption = null;
@@ -224,11 +225,6 @@ export default class OrderHeaderScreen extends LightningElement {
             label: 'Boleto',
             value: 'B',
             description: 'Boleto'
-        },
-        {
-            label: 'Operação Barter',
-            value: 'C',
-            description: 'Operação Barter'
         },
         {
             label: 'Dinheiro/Adiantamento',
@@ -462,6 +458,7 @@ export default class OrderHeaderScreen extends LightningElement {
                 this.headerData.status_pedido.toLowerCase() == 'em aprovação - diretor' || this.headerData.status_pedido.toLowerCase() == 'em aprovação - comitê margem' || this.headerData.status_pedido.toLowerCase() == 'em aprovação - mesa de grãos') {
                     this.disabled = true;
                     this.paymentDisabled = true;
+                    this.blockPaymentForm = true;
                 }else{
                     setTimeout(()=>this.template.querySelector('[data-name="cliente_entrega"]').disabled = false);
                 }
@@ -473,6 +470,12 @@ export default class OrderHeaderScreen extends LightningElement {
                     this.headerDictLocale.data_entrega = this.headerData.data_entrega ? this.headerData.data_entrega : null;
                 }
                 this.currencyOption = this.headerData.moeda;
+
+                if (this.barterSale) {
+                    this.formasPagamento.push({label: 'Operação Barter', value: 'C', description: 'Operação Barter'});
+                    this.headerDictLocale.forma_pagamento = 'C';
+                    this.blockPaymentForm = true;
+                }
                 
                
             }
@@ -693,6 +696,7 @@ export default class OrderHeaderScreen extends LightningElement {
         if (this.headerData.IsOrderChild) {
             this.disabled = true;
             this.paymentDisabled = true;
+            this.blockPaymentForm = true;
             setTimeout(()=>this.template.querySelector('[data-name="cliente_entrega"]').disabled = false);////
         }
     }
