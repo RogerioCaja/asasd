@@ -30,6 +30,7 @@ public without sharing class OrderHelper {
 
         public void execute(QueueableContext context) {
             CalloutOrder.callIntegration(orderId);
+            System.enqueueJob(new calloutDatalakeQueue(order.Id));
         }
     } 
 
@@ -60,8 +61,6 @@ public without sharing class OrderHelper {
         for(Order order : newRecords){ 
             if(order.StatusSF__c == 'Aprovado'){
                 calloutsQueue job = new calloutsQueue(order.Id);
-                calloutDatalakeQueue job2 = new calloutDatalakeQueue(order.Id);
-                System.enqueueJob(job2);
                 System.enqueueJob(job);
             }
             if(order.CodigoSap__c != null && order.StatusSF__c == 'Integrado' && orderMap != null){
