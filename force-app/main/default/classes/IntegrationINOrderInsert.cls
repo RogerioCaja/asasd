@@ -30,6 +30,11 @@ global without sharing class IntegrationINOrderInsert {
         List<TemplateDataIntegrationFields.OrderItemINData> orderItemListToUpsert = new List<TemplateDataIntegrationFields.OrderItemINData>();
         // Guarda uma lista de pedidos para fazer o upsert
         List<TemplateDataINtegrationFields.ShippingDivisonINData> shippingDivisonListToUpsert = new List<TemplateDataIntegrationFields.ShippingDivisonINData>();
+
+        List<TemplateDataIntegrationFields.ConditionInsert> conditionList = new List<TemplateDataIntegrationFields.ConditionInsert>();
+        
+        List<String> idOrders = new List<String>();
+
         List<Order> orderListToUpsert = new List<Order>();
 
         
@@ -59,22 +64,83 @@ global without sharing class IntegrationINOrderInsert {
                 //Putting the Order's ExternalId parameter in the OrderItem
                 for (TemplateDataIntegrationFields.OrderItemINData orderItem : order.orderItems){
                     orderItem.orderExternalId = order.CodigoSap;
+                    orderItem.orderItemCode = orderItem.orderItemCode.replaceFirst('^0+','');
                 }
                 // Adiciona os orderItem na lista para upsert
                 //Getting list of order items
                 orderItemListToUpsert.addAll(order.orderItems);
                 System.debug('orderItemListToUpsert' + orderItemListToUpsert); 
+
+                switch on order.salesType {
+                    // ---- Pedido mãe  ----
+                     when 'ZCCO' {
+                         order.pedidoMae = true;
+                     }
+                     when 'ZCVF'{
+                        order.pedidoMae = true;
+                     }
+                     when 'ZCVN'{
+                        order.pedidoMae = true;
+                     }
+     
+                    // --- Pedidos normais ---
+                     when 'ZSER'{
+                        order.pedidoMae = false;
+                     }
+                     when 'ZVBA'{
+                         order.pedidoMae = false;
+                         
+                     }
+                     when 'ZVEF'{
+                         order.pedidoMae = false;
+                         
+                     }
+                     when 'ZVNO' {
+                         order.pedidoMae = false;
+     
+                     }
+                     when 'ZVVO'{
+                         order.pedidoMae = false;
+                         
+                     }
+                     when 'ZRCO'{
+                         order.pedidoMae = false;
+     
+                     }
+                 }
+
             }
             if(order.pedidoMae ==  false){
             for(TemplateDataIntegrationFields.ShippingDivisonINData shippingDivison : order.shippingDivison){
-                
                     shippingDivison.orderExternalId = order.CodigoSap;
+                    shippingDivison.OrderItemCode = shippingDivison.OrderItemCode.replaceFirst('^0+','');
                 }
-              
-            }
-            if(order.pedidoMae == false){
                 shippingDivisonListToUpsert.addAll(order.shippingDivison);
             }
+
+            for (TemplateDataIntegrationFields.PartnerInsert partnerList : order.partners){
+                
+                if(partnerList.PARVW == 'AG'){ // Cliente Emissor da ordem
+                    accountLookups.add(partnerList.KUNNR);
+                    order.PaymentAccount = partnerList.KUNNR;
+                }
+                else if (partnerList.PARVW == 'RE'){ // Recebedor da Fatura
+                    
+                }
+                else if (partnerList.PARVW == 'RG'){ // Tipo Parceiro RG - Pagador
+
+                }
+                else if (partnerList.PARVW == 'WE'){ // Recebedor da Mercadoria
+                    shippingAccountLookups.add(partnerList.KUNNR);
+                    order.ShippingAccount = partnerList.KUNNR;
+                }
+                else if (partnerList.PARVW == 'ZC'){ // CTV Consultor
+                    salesCTVLookups.add(partnerList.KUNNR);
+                    order.salesCTV = partnerList.KUNNR;
+                }
+        }
+
+            conditionList.addAll(order.conditions);
              
             System.debug('shippingDivisonListToUpsert' + shippingDivisonListToUpsert);
             
@@ -178,7 +244,7 @@ global without sharing class IntegrationINOrderInsert {
         Map<String, List<TemplateDataIntegrationFields.Response>> orderItemsResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
         if(orderItemListToUpsert.size() != 0){
             orderItemsResponse.putAll(
-                IntegrationINOrderItemInsert.upsertOrderItem(orderItemListToUpsert)
+                IntegrationINOrderItemInsert.upsertOrderItem(orderItemListToUpsert, conditionList)
             );
             System.debug('orderItemsResponse' + orderItemsResponse);
         }
