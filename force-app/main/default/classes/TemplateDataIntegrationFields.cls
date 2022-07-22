@@ -281,6 +281,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String escritorioVendas;
         public String equipeVendas;
         public String company;
+        public Boolean eCalendarizacao; 
         /*ATUALIZAÇÃO 05.07.22*/
         public String salesType;
         public String recordIdToUpdate;
@@ -428,6 +429,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String material;
         public String productCode;
         public Decimal quantidade;
+        public Boolean orderItemECalendariazacao;
         //public String centro;
         public String unidadeMedida;
         public Decimal porcentagemComissao;
