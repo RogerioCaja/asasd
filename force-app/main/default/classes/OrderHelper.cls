@@ -21,6 +21,18 @@ public without sharing class OrderHelper {
         return isEnabled = true;
     }
 
+    public class calloutsQueue implements Queueable { 
+        private Id orderId;
+
+        public calloutsQueue(Id orderIdParameter){
+            this.orderId = orderIdParameter;
+        }
+
+        public void execute(QueueableContext context) {
+            CalloutOrder.callIntegration(orderId);
+            CalloutOrderDatalake.callIntegration(orderId);
+        }
+    } 
     
     public static void calloutOrderToSAP(List<Order> newRecords){
         Set<Id> orderIds = new Set<Id>();
@@ -36,8 +48,8 @@ public without sharing class OrderHelper {
         Orderhelper.disableTrigger();
         for(Order order : newRecords){ 
             if(order.StatusSF__c == 'Aprovado'){
-                IntegrationUtils.CalloutResponse test = CalloutOrder.processIntegration(order.Id);
-                if(test != null) CalloutOrderDatalake.callIntegration(order.Id);
+                calloutsQueue job = new calloutsQueue(order.Id);
+                System.enqueueJob(job);
             }
             if(order.CodigoSap__c != null && order.StatusSF__c == 'Integrado' && orderMap != null){
                 String rmCode = orderMap.get(order.Id).ShippingAccount__r.ExternalId__c;
