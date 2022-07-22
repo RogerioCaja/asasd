@@ -52,7 +52,7 @@ public without sharing class CalloutOrder {
                 Database.SaveResult[] upsResult = Database.update(orderList, false);
                 OrderHelper.enableTrigger();
                 if(upsResult[0].isSuccess())
-                    CalloutOrderDatalake.processIntegration(orderList[0].Id);
+                    CalloutOrderDatalake.processIntegration(orderId);
 			}
 		}
 		
