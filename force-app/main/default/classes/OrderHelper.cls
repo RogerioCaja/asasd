@@ -37,15 +37,13 @@ public without sharing class OrderHelper {
         for(Order order : newRecords){ 
             if(order.StatusSF__c == 'Aprovado'){
                 //CalloutOrder.callIntegration(order.Id);
-                //CalloutOrderDatalake.callIntegration(order.Id);
             }
             if(order.CodigoSap__c != null && order.StatusSF__c == 'Integrado' && orderMap != null){
-                
-                System.debug('Account.ExternalId__c => ' + orderMap.get(order.Id).Account.ExternalId__c);
                 String rmCode = orderMap.get(order.Id).ShippingAccount__r.ExternalId__c;
                 String agCode = orderMap.get(order.Id).Account.ExternalId__c;
                 String zcCode = orderMap.get(order.Id).SalesCTV__r.CodigoSap__c;
                 //CalloutOrderUpdate.callIntegration(order.Id, rmCode , agCode , zcCode);
+                //CalloutOrderDatalake.callIntegration(order.Id);
             }  
         }
         Orderhelper.enableTrigger(); 
