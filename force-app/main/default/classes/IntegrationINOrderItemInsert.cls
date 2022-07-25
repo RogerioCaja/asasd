@@ -97,7 +97,7 @@ global with sharing class IntegrationINOrderItemInsert {
             System.debug('valorFinal ' + valorFinal);
             System.debug('valorAcrescimoFinanceiro ' + valorAcrescimoFinanceiro);
         }
-        if (OrderItemINData.porcentagemDesconto != 0){ 
+        if (OrderItemINData.porcentagemDesconto != 0 && OrderItemINData.porcentagemDesconto != null){ 
             //porcentagemDescontoComercial = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemDesconto / 100);
             valorDescontoComercial = valorFinal  * (OrderItemINData.porcentagemDesconto / 100);
             System.debug('porcentagemDesconto ' + (OrderItemINData.porcentagemDesconto / 100));
@@ -107,7 +107,7 @@ global with sharing class IntegrationINOrderItemInsert {
             System.debug('valorFinalFinal  ' + OrderItemINData.valorTotal);
             OrderItemINData.descontoValor = valorDescontoComercial;
         }
-        if(OrderItemINData.porcentagemAcrescComercial != 0){
+        if(OrderItemINData.porcentagemAcrescComercial != 0 && OrderItemINData.porcentagemAcrescComercial != null){
             //porcentagemAcrescimoComercial = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemAcrescComercial / 100);
             valorAcrescimoComercial = valorFinal * (OrderItemINData.porcentagemAcrescComercial / 100);
             System.debug('valorAcrescimoComercial ' + valorAcrescimoComercial);
