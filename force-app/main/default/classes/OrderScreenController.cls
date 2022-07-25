@@ -174,14 +174,67 @@ public without sharing class OrderScreenController {
     @AuraEnabled
     public static string getAccountDataChild(Id accountId){
         try {
+            Set<Id> relatedAccounts = getTerritoryAccounts();
             List<AccountSerialize> accountListSerialize = new List<AccountSerialize>();
-            Account accountMom = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE Id =: accountId LIMIT 1];
-            List<Account> accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE ParentId =: accountId];
-            accountList.add(accountMom);
-            for(Account account : accountList)
-                accountListSerialize.add(new AccountSerialize(account));
-            return JSON.serialize(new AccountSerialize(accountListSerialize));
+            List<Account> accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE ParentId =: accountId AND Id IN: relatedAccounts AND ExternalId__c LIKE '0002%'];
             
+            for(Account account : accountList) accountListSerialize.add(new AccountSerialize(account));
+            return JSON.serialize(new AccountSerialize(accountListSerialize));
+        } catch (Exception e) {
+            throw new AuraHandledException(e.getMessage());
+        }
+    }
+
+    public static Set<Id> getTerritoryAccounts() {
+        try {
+            Id sellerTerritoryId;
+            String userTerritoryType = '';
+            Set<Id> userTerritories = new Set<Id>();
+            List<String> territoryTypes = new List<String>{'Torre', 'SalesOrg', 'SalesOffice', 'SalesTeam', 'SellerPosition'};
+
+            for (UserTerritory2Association userAssociation : [
+                SELECT Id,
+                       Territory2Id,
+                       Territory2.Territory2Type.DeveloperName
+                  FROM UserTerritory2Association
+                 WHERE UserId =: UserInfo.getUserId()
+            ]) {
+				if (userAssociation.Territory2.Territory2Type.DeveloperName == 'SellerPosition') {
+                    sellerTerritoryId = userAssociation.Territory2Id;
+                }
+
+                userTerritories.add(userAssociation.Territory2Id);
+                userTerritoryType = territoryTypes.indexOf(userAssociation.Territory2.Territory2Type.DeveloperName) > territoryTypes.indexOf(userTerritoryType) &&
+                                    territoryTypes.indexOf(userTerritoryType) > -1 ? userTerritoryType : userAssociation.Territory2.Territory2Type.DeveloperName;
+            }
+
+            Set<Id> relatedTerritories = new Set<Id>();
+			String territoryQuery = 'SELECT Id, Territory2Type.DeveloperName FROM Territory2 ';
+			if (userTerritoryType == 'Torre') territoryQuery += 'WHERE ParentTerritory2.ParentTerritory2.ParentTerritory2.ParentTerritory2Id IN: userTerritories';
+			else if (userTerritoryType == 'SalesOrg') territoryQuery += 'WHERE ParentTerritory2.ParentTerritory2.ParentTerritory2Id IN: userTerritories';
+			else if (userTerritoryType == 'SalesOffice') territoryQuery += 'WHERE ParentTerritory2.ParentTerritory2Id IN: userTerritories';
+			else if (userTerritoryType == 'SalesTeam') territoryQuery += 'WHERE ParentTerritory2Id IN: userTerritories';
+			else if (userTerritoryType == 'SellerPosition') territoryQuery += 'WHERE Id =: sellerTerritoryId';
+			else territoryQuery += 'WHERE Id = null';
+			
+			for(SObject sobj : Database.query(territoryQuery)) {
+				relatedTerritories.add((Id)sobj.get('Id'));
+			}
+
+			Set<Id> relatedAccounts = new Set<Id>();
+			for (ObjectTerritory2Association associatedAccount : [
+				SELECT Id,
+				       SobjectType,
+					   ObjectId
+				  FROM ObjectTerritory2Association
+				 WHERE Territory2Id IN: relatedTerritories
+			]) {
+				if (associatedAccount.SobjectType == 'Account') {
+					relatedAccounts.add(associatedAccount.ObjectId);
+				}
+			}
+
+            return relatedAccounts;
         } catch (Exception e) {
             throw new AuraHandledException(e.getMessage());
         }
