@@ -385,7 +385,7 @@ global with sharing class TemplateDataIntegrationFields {
                 //StatusRecusa__c	= this.statusRecusa,
                 CustomerOrderNumber__c = this.customerOrderNumber,
                 PaymentForm__c = this.paymentForm,
-                StatusSF__c = 'Em digitação',
+                StatusSF__c = (this.CodigoSap != null && this.CodigoSap != '') ? 'Integrado' :'Em digitação',
                 Currency__c = this.CurrencyOrder,
                 Incoterms__c = this.incoterms,
                 Incoterms2__c = this.incoterms,
