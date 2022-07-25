@@ -1183,7 +1183,7 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>Order.ClientGroup__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1208,7 +1208,7 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>Order.ContagemItens__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1408,8 +1408,18 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>false</editable>
+        <field>Order.SalesOffice__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>true</editable>
         <field>Order.SalesOrg__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Order.SalesTeam__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -1659,6 +1669,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>OrgVProduct__c.OrgVExternal__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>OrgVProduct__c.Product__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1675,11 +1690,6 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>OrgVProduct__c.SupplierCenter__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>OrgVProduct__c.OrgVExternal__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
