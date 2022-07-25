@@ -49,8 +49,10 @@ public without sharing class CalloutOrder {
             
 			if (!orderList.isEmpty()) {
                 OrderHelper.disableTrigger();
-				update orderList;
+                Database.SaveResult[] upsResult = Database.update(orderList, false);
                 OrderHelper.enableTrigger();
+                // if(upsResult[0].isSuccess())
+                //     CalloutOrderDatalake.processIntegration(orderId);
 			}
 		}
 		
@@ -211,7 +213,7 @@ public without sharing class CalloutOrder {
             IS_HEADER_IN.ZZDATA_CARENCIA = String.valueOf(order.Crop__r.PaymentBaseDate__c).replace('-', '');
             IS_HEADER_IN.ZZDATA_VENCTO = String.valueOf(order.PaymentDate__c).replace('-', '');
             IS_HEADER_IN.PRICE_LIST = String.valueOf(order.SalesCondition__r.ExternalId__c).leftPad(2, '0');
-            IS_HEADER_IN.PRICE_DATE = String.valueOf(order.EffectiveOrderDate__c).replace('-', '');
+            IS_HEADER_IN.PRICE_DATE = order.EffectiveOrderDate__c == null ? String.valueOf(order.EffectiveDate).replace('-', '') : String.valueOf(order.EffectiveOrderDate__c).replace('-', '');
             IS_HEADER_IN.REF_DOC = order.OrderReference__c != null ? order.OrderReference__r.CodigoSap__c : '';
             IS_HEADER_IN.CSTCNDGRP1 = statusSeller.get(order.SalesCTV__r.SellerType__c);
 

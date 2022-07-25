@@ -21,6 +21,30 @@ public without sharing class OrderHelper {
         return isEnabled = true;
     }
 
+    public class calloutsQueue implements Queueable, Database.AllowsCallouts{ 
+        private Id orderId;
+
+        public calloutsQueue(Id orderIdParameter){
+            this.orderId = orderIdParameter;
+        }
+
+        public void execute(QueueableContext context) {
+            CalloutOrder.processIntegration(orderId);
+            System.enqueueJob(new calloutDatalakeQueue(orderId));
+        }
+    } 
+
+    public class calloutDatalakeQueue implements Queueable { 
+        private Id orderId;
+
+        public calloutDatalakeQueue(Id orderIdParameter){
+            this.orderId = orderIdParameter;
+        }
+
+        public void execute(QueueableContext context) {
+            CalloutOrderDatalake.callIntegration(orderId);
+        }
+    } 
     
     public static void calloutOrderToSAP(List<Order> newRecords){
         Set<Id> orderIds = new Set<Id>();
@@ -36,16 +60,15 @@ public without sharing class OrderHelper {
         Orderhelper.disableTrigger();
         for(Order order : newRecords){ 
             if(order.StatusSF__c == 'Aprovado'){
-                //CalloutOrder.callIntegration(order.Id);
-                //CalloutOrderDatalake.callIntegration(order.Id);
+                calloutsQueue job = new calloutsQueue(order.Id);
+                System.enqueueJob(job);
             }
             if(order.CodigoSap__c != null && order.StatusSF__c == 'Integrado' && orderMap != null){
-                
-                System.debug('Account.ExternalId__c => ' + orderMap.get(order.Id).Account.ExternalId__c);
                 String rmCode = orderMap.get(order.Id).ShippingAccount__r.ExternalId__c;
                 String agCode = orderMap.get(order.Id).Account.ExternalId__c;
                 String zcCode = orderMap.get(order.Id).SalesCTV__r.CodigoSap__c;
-                //CalloutOrderUpdate.callIntegration(order.Id, rmCode , agCode , zcCode);
+                CalloutOrderUpdate.callIntegration(order.Id, rmCode , agCode , zcCode);
+                CalloutOrderDatalake.callIntegration(order.Id);
             }  
         }
         Orderhelper.enableTrigger(); 
@@ -65,8 +88,8 @@ public without sharing class OrderHelper {
         Orderhelper.disableTrigger();
         for(Order order : newRecords){
             if(order.StatusSF__c != 'Integrado'){
-                //CalloutOrder.callIntegration(order.Id);
-                //CalloutOrderDatalake.callIntegration(order.Id);
+                CalloutOrder.callIntegration(order.Id);
+                CalloutOrderDatalake.callIntegration(order.Id);
             }
             if(order.CodigoSap__c != null && order.StatusSF__c == 'Integrado' && orderMap != null){
                 
@@ -74,7 +97,7 @@ public without sharing class OrderHelper {
                 String rmCode = orderMap.get(order.Id).ShippingAccount__r.ExternalId__c;
                 String agCode = orderMap.get(order.Id).Account.ExternalId__c;
                 String zcCode = orderMap.get(order.Id).SalesCTV__r.CodigoSap__c;
-                //CalloutOrderUpdate.callIntegration(order.Id, rmCode , agCode , zcCode);
+                CalloutOrderUpdate.callIntegration(order.Id, rmCode , agCode , zcCode);
             }  
         }
         Orderhelper.enableTrigger(); 
@@ -167,10 +190,15 @@ public without sharing class OrderHelper {
                 }
             }
             if(orderToUpdate.size() > 0){
-                List<Order> orderList = [SELECT Id, StatusSF__c, Description FROM Order WHERE Id IN: orderToUpdate];
+                List<Order> orderList = [SELECT Id, StatusSF__c, CodigoSAP__c, Description FROM Order WHERE Id IN: orderToUpdate];
                 List<Order> orderToUpdateList = new List<Order>();
                 for(Order order : orderList){
-                    order.StatusSF__c = 'Aprovado';
+                    if(order.CodigoSAP__c != null){
+                        order.StatusSF__c = 'Integrado';
+                    }else{
+                        order.StatusSF__c = 'Aprovado';
+                    }
+                    
                     if(order.Description != null){
                         if(order.Description.contains('1n73gr4ção N3sc4r4 5F x 4PP')){
                             order.Description = order.Description.replace('1n73gr4ção N3sc4r4 5F x 4PP', '');

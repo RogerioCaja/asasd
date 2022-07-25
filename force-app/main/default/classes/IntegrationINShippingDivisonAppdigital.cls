@@ -64,8 +64,9 @@ global with sharing class IntegrationINShippingDivisonAppdigital {
         );
 
         //Upserting records
+        OrderHelper.disableTrigger();
         List<Database.UpsertResult> upsResults = Database.upsert(shippingDivisonListToUpsert, ShippingDivison__c.ExternalId__c, false);
-
+        OrderHelper.enableTrigger();
         IntegrationUtils.upsertChildRecords(upsResults, responseMap, shippingDivisonListToUpsert, ShippingDivison__c.ExternalId__c); 
         
         //Returning response

@@ -281,6 +281,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String escritorioVendas;
         public String equipeVendas;
         public String company;
+        public Boolean eCalendarizacao;
         /*ATUALIZAÇÃO 05.07.22*/
         public String salesType;
         public String recordIdToUpdate;
@@ -384,7 +385,7 @@ global with sharing class TemplateDataIntegrationFields {
                 //StatusRecusa__c	= this.statusRecusa,
                 CustomerOrderNumber__c = this.customerOrderNumber,
                 PaymentForm__c = this.paymentForm,
-                StatusSF__c = 'Em digitação',
+                StatusSF__c = (this.CodigoSap != null && this.CodigoSap != '') ? 'Integrado' :'Em digitação',
                 Currency__c = this.CurrencyOrder,
                 Incoterms__c = this.incoterms,
                 Incoterms2__c = this.incoterms,
@@ -428,6 +429,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String material;
         public String productCode;
         public Decimal quantidade;
+        public Boolean orderItemECalendariazacao;
         //public String centro;
         public String unidadeMedida;
         public Decimal porcentagemComissao;

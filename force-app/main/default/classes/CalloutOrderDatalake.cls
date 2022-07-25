@@ -56,7 +56,7 @@ public without sharing class CalloutOrderDatalake {
 
             if (!orderList.isEmpty()) {
                 OrderHelper.disableTrigger();
-                update orderList;
+                // update orderList;
                 OrderHelper.enableTrigger();
             }
         }
