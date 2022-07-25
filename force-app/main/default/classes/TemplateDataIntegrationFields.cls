@@ -246,7 +246,7 @@ global with sharing class TemplateDataIntegrationFields {
     global class OrderINData implements FieldData{
 
         public String Status;
-        public String statusRecusa;
+        //public String statusRecusa;
         public String numeroPedidoApp;
         public String pricebook2Id;
         public String CodigoSap;
@@ -281,7 +281,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String escritorioVendas;
         public String equipeVendas;
         public String company;
-        public Boolean eCalendarizacao; 
+        public Boolean eCalendarizacao;
         /*ATUALIZAÇÃO 05.07.22*/
         public String salesType;
         public String recordIdToUpdate;
@@ -295,6 +295,7 @@ global with sharing class TemplateDataIntegrationFields {
             if(pedidoMae == null){
                 pedidoMae = false;
             }
+            
 
             
             switch on salesType {
@@ -339,24 +340,23 @@ global with sharing class TemplateDataIntegrationFields {
                     Map<String, String> codTypeOrder = new Map<String, String>();
                     if(!pedidoMae){
                         
-                        codTypeOrder.put('ZRAG', 'VendaAmostraGratis');
-                        codTypeOrder.put('ZRBO', 'VendaBonificacao');
-                        codTypeOrder.put('ZVBA', 'VendaBarter');
-                        codTypeOrder.put('ZRCO', 'VendaContaOrdem');
-                        codTypeOrder.put('ZSER', 'VendaServico');
-                        codTypeOrder.put('ZVEF', 'VendaEntregaFutura');
-                        codTypeOrder.put('ZVNO', 'VendaNormal');
-                        codTypeOrder.put('ZVVO', 'VendaOrdemSimplesFaturamento');
+                        codTypeOrder.put('ZRAG', 'Venda Amostra Grátis');
+                        codTypeOrder.put('ZRBO', 'Venda Bonificação');
+                        codTypeOrder.put('ZVBA', 'Venda Barter');
+                        codTypeOrder.put('ZRCO', 'Venda Conta e Ordem');
+                        codTypeOrder.put('ZSER', 'Venda de Serviço');
+                        codTypeOrder.put('ZVEF', 'Venda Entrega Futura');
+                        codTypeOrder.put('ZVNO', 'Venda Normal');
+                        codTypeOrder.put('ZVVO', 'Venda Ordem Simples Faturamento');
                     }
                     else{
-                        codTypeOrder.put('ZCCO', 'VendaContaOrdem');
-                        codTypeOrder.put('ZCVF', 'VendaEntregaFutura');
-                        codTypeOrder.put('ZCVN', 'VendaNormal');
+                        codTypeOrder.put('ZCCO', 'Venda Conta e Ordem');
+                        codTypeOrder.put('ZCVF', 'Venda Entrega Futura');
+                        codTypeOrder.put('ZCVN', 'Venda Normal');
                     }
 
-                    salesType = codTypeOrder.containsKey(salesType) ? codTypeOrder.get(salesType) : '';
-                    
-          
+                    salesType = codTypeOrder.containsKey(salesType) ? codTypeOrder.get(salesType) : salesType;
+                
                     if(orderReference == null){
                         orderReference = '';
                     }
@@ -375,17 +375,17 @@ global with sharing class TemplateDataIntegrationFields {
                 SalesOrg__c = lookups.containsKey('SalesOrg__c'+this.salesOrg) ? lookups.get('SalesOrg__c'+this.salesOrg) : null,
                 SalesCTV__c = lookups.containsKey('User'+this.salesCTV) ? lookups.get('User'+this.salesCTV) : null,
                 PaymentCondition__c = lookups.containsKey('CondicaoPagamento__c'+this.PaymentCondition) ? lookups.get('CondicaoPagamento__c'+this.PaymentCondition) : null,
-                OrderReference__c = lookups.containsKey('OrderReference__c'+this.orderReference) ? lookups.get('OrderReference__c'+this.orderReference) : null,
+                OrderReference__c = lookups.containsKey('Order'+this.orderReference) ? lookups.get('Order'+this.orderReference) : null,
                 DistributionChannel__c = lookups.containsKey('DistributionChannel__c' + this.distributionChannel)? lookups.get ('DistributionChannel__c' + this.distributionChannel) : null,
                 ActivitySector__c = lookups.containsKey('ActivitySector__c' + this.activitySector)? lookups.get ('ActivitySector__c' + this.activitySector) : null,
                 PaymentDate__c = Date.valueOf(paymentDate),
                 EffectiveDate = Date.valueOf(effectiveDate),
                 ShippingDate__c = Date.valueOf(ShippingDate),
                 Status = this.status,
-                StatusRecusa__c	= this.statusRecusa,
+                //StatusRecusa__c	= this.statusRecusa,
                 CustomerOrderNumber__c = this.customerOrderNumber,
                 PaymentForm__c = this.paymentForm,
-                StatusSF__c = 'Em digitação',
+                StatusSF__c = (this.CodigoSap != null && this.CodigoSap != '') ? 'Integrado' :'Em digitação',
                 Currency__c = this.CurrencyOrder,
                 Incoterms__c = this.incoterms,
                 Incoterms2__c = this.incoterms,
@@ -399,11 +399,11 @@ global with sharing class TemplateDataIntegrationFields {
                 Company__c = lookups.containsKey('Company__c' + this.company) ? lookups.get('Company__c' + this.company):null,
                 
                 /* ATUALIZAÇÃO 05.07.2022*/
-                RecordTypeId = this.salesType != null ? Schema.SObjectType.Order.getRecordTypeInfosByDeveloperName().get(this.salesType).getRecordTypeId() : this.recordIdToUpdate,
+                RecordTypeId = this.salesType != null ? Schema.SObjectType.Order.getRecordTypeInfosByName().get(this.salesType).getRecordTypeId() : this.recordIdToUpdate,//
                 Type = this.salesType != null ? this.salesType : Schema.getGlobalDescribe().get('Order').getDescribe().getRecordTypeInfosById().get(this.recordIdToUpdate).getName(),
                 OrderType__c = this.pedidoMae ? 'Pedido Mãe' : 'Pedido Normal',
                 OwnerId = lookups.containsKey('User'+this.salesCTV) ? lookups.get('User'+this.salesCTV) : null
-                                
+                
             );
         }
 
@@ -454,7 +454,7 @@ global with sharing class TemplateDataIntegrationFields {
 
             
             orderItemCode = orderItemCode.replaceFirst('^0+','');
-
+            
             return new OrderItem(
                 OrderId = this.orderExternalId,
                 Product2Id = lookups.containsKey('Product2'+this.material) ? lookups.get('Product2'+this.material) : null,
