@@ -427,8 +427,9 @@ global without sharing class IntegrationINOrderAppdigital {
             }
 
            List<ShippingDivison__c> shippingListIds = [SELECT Id, OrderItem__c,OrderItem__r.OrderId  From ShippingDivison__c Where OrderItem__c IN: orderItemIds];
+           OrderHelper.disableTrigger();
            Database.delete(shippingListIds, false);
-
+           OrderHelper.enableTrigger();
            if(!shippingListIds.isEmpty()){
                 //CalloutOrderDatalake.callIntegration(shippingListIds[0].OrderItem__r.OrderId);
            }
