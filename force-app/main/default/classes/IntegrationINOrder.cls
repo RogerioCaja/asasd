@@ -373,13 +373,6 @@ global without sharing class IntegrationINOrder {
                 }
             }
             
-             if(order.activitySector == null){
-                if(ord.ActivitySector__c != null){
-                    order.activitySector = ord.ActivitySector__r.Codigo__c;
-                    lookups.put('ActivitySector__c' + ord.ActivitySector__r.Codigo__c, ord.ActivitySector__c);
-                }
-            }
-            
         }
 
         for (Pricebook2 pricebook2Id : [SELECT Id, ExternalId__c, Name FROM Pricebook2 WHERE Name IN : pricebook2IdLookups ]){
