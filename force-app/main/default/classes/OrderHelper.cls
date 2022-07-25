@@ -59,7 +59,7 @@ public without sharing class OrderHelper {
 
         Orderhelper.disableTrigger();
         for(Order order : newRecords){ 
-            if(order.StatusSF__c == 'Aprovado'){
+            if(order.CodigoSap__c == null && order.StatusSF__c == 'Aprovado'){
                 calloutsQueue job = new calloutsQueue(order.Id);
                 System.enqueueJob(job);
             }
@@ -166,7 +166,7 @@ public without sharing class OrderHelper {
                         orderToUpdateByIntegration.add(id);
                     }
                 }
-                if((oldMap.get(id).Status == '0' && newMap.get(id).Status == '001') || ( (newMap.get(id).Description != null ? newMap.get(id).Description.contains('1n73gr4ção N3sc4r4 5F x 4PP') : false) && newMap.get(id).Status == '001')){
+                if((oldMap.get(id).Status == '0' && newMap.get(id).Status == '001') || ( (newMap.get(id).Description != null ? newMap.get(id).Description.contains('1n73gr4ção N3sc4r4 5F x 4PP') : false) && newMap.get(id).Status == '001' && newMap.get(id).CodigoSap__c != null)){
                     if(newMap.get(id).MarginCommittee__c || newMap.get(id).Manager_BranchOffice__c || newMap.get(id).Gerente_Regional__c || newMap.get(id).Director__c || orderMap.get(newMap.get(id).RecordTypeId).getName() == 'Venda Barter')
                     {
                         
@@ -190,10 +190,15 @@ public without sharing class OrderHelper {
                 }
             }
             if(orderToUpdate.size() > 0){
-                List<Order> orderList = [SELECT Id, StatusSF__c, Description FROM Order WHERE Id IN: orderToUpdate];
+                List<Order> orderList = [SELECT Id, StatusSF__c, CodigoSAP__c Description FROM Order WHERE Id IN: orderToUpdate];
                 List<Order> orderToUpdateList = new List<Order>();
                 for(Order order : orderList){
-                    order.StatusSF__c = 'Aprovado';
+                    if(order.CodigoSAP__c != null){
+                        order.StatusSF__c = 'Integrado';
+                    }else{
+                        order.StatusSF__c = 'Aprovado';
+                    }
+                    
                     if(order.Description != null){
                         if(order.Description.contains('1n73gr4ção N3sc4r4 5F x 4PP')){
                             order.Description = order.Description.replace('1n73gr4ção N3sc4r4 5F x 4PP', '');
