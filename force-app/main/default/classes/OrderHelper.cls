@@ -190,7 +190,7 @@ public without sharing class OrderHelper {
                 }
             }
             if(orderToUpdate.size() > 0){
-                List<Order> orderList = [SELECT Id, StatusSF__c, CodigoSAP__c Description FROM Order WHERE Id IN: orderToUpdate];
+                List<Order> orderList = [SELECT Id, StatusSF__c, CodigoSAP__c, Description FROM Order WHERE Id IN: orderToUpdate];
                 List<Order> orderToUpdateList = new List<Order>();
                 for(Order order : orderList){
                     if(order.CodigoSAP__c != null){
