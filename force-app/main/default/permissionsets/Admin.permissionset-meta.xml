@@ -2039,6 +2039,21 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>PTAProducts__c.Harvest__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>PTAProducts__c.PTAProduct__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>PTAProducts__c.SalesOrg__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Safra__c.EndDateInsertionOrders__c</field>
         <readable>true</readable>
     </fieldPermissions>
