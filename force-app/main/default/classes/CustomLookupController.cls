@@ -99,7 +99,7 @@ public without sharing class CustomLookupController {
                  WHERE Id IN: accountIds
             ]);
 
-            Set<Id> prodsId = new Set<Id>();
+            List<Id> prodsId = new List<Id>();
             for (OrgVProduct__c orgVProduct : [
                 SELECT Id,
                        Product__c
@@ -188,6 +188,19 @@ public without sharing class CustomLookupController {
                     }
                 }
             }
+            
+            Set<String> ptaFields = new Set<String>{'Id', 'PTAProduct__c', 'SalesOrg__c', 'Harvest__c'};
+            String ptaQuery = new Q(PTAProducts__c.SObjectType)
+                              .selectFields(ptaFields)
+                              .add(Q.condition('PTAProduct__c').isIN(prodsId))
+                              .add(Q.condition('SalesOrg__c').equalsTo(productParams.salesOrgId))
+                              .add(Q.condition('Harvest__c').equalsTo(productParams.safra))
+                              .build();
+
+            Set<Id> ptaProducts = new Set<Id>();
+            for(SObject pta : Database.query(ptaQuery)) {
+                ptaProducts.add((Id)pta.get('PTAProduct__c'));
+            }
 
             result.recordsDataList = new List<ProductData>();
             result.recordsDataMap = new Map<String, ProductData>();
@@ -200,6 +213,7 @@ public without sharing class CustomLookupController {
                     String productHierarchyId = (String)s.get('ProductHierarchy__c');
                     String productGroupName = '';
                     String productSubgroupName = '';
+                    Boolean isPtaProduct = false;
                     
                     if (productGroupId != null) {
                         productGroupName = productsGroupById.get(productGroupId) != null ? productsGroupById.get(productGroupId).Name : '';
@@ -208,9 +222,13 @@ public without sharing class CustomLookupController {
                     if (productSubgroupId != null) {
                         productSubgroupName = productsSubgroupById.get(productSubgroupId) != null ? productsSubgroupById.get(productSubgroupId).Name : '';
                     }
+
+                    if (ptaProducts.contains((String)s.get('Id'))) {
+                        isPtaProduct = true;
+                    }
     
                     Decimal commissionPercentage = commissionByHierarchy.get(productHierarchyId) != null ? commissionByHierarchy.get(productHierarchyId) : 0;
-                    ProductData productData = new ProductData((String)s.get('Id'), (String)s.get('Name'), (String)s.get('ExternalId__c'), (String)s.get('UnidadeMedida__c'), (String)s.get('PrincipleActive__c'), (Decimal)s.get('Multiplicity__c'), productGroupId, productHierarchyId, productGroupName, productSubgroupId, productSubgroupName, jda.Currency__c, jda.Id, jda.UnitPrice__c, jda.Cost__c, commissionPercentage, jda.ProductMultiplier__c);
+                    ProductData productData = new ProductData((String)s.get('Id'), (String)s.get('Name'), (String)s.get('ExternalId__c'), (String)s.get('UnidadeMedida__c'), (String)s.get('PrincipleActive__c'), (Decimal)s.get('Multiplicity__c'), productGroupId, productHierarchyId, productGroupName, productSubgroupId, productSubgroupName, jda.Currency__c, jda.Id, jda.UnitPrice__c, jda.Cost__c, commissionPercentage, jda.ProductMultiplier__c, isPtaProduct);
                     if (!productIncluded) {
                         result.recordsDataList.add(productData);
                         productIncluded = true;
@@ -289,12 +307,13 @@ public without sharing class CustomLookupController {
         @AuraEnabled public String  activePrinciple;
         @AuraEnabled public String  entryId;
         @AuraEnabled public String  productCurrency;
+        @AuraEnabled public Boolean ptaProduct;
         @AuraEnabled public Decimal multiplicity;
         @AuraEnabled public Decimal listPrice;
         @AuraEnabled public Decimal costPrice;
         @AuraEnabled public Decimal commissionPercentage;
         
-        public ProductData(String Id, String Name, String sapProductCode, String unity, String activePrinciple, Decimal multiplicity, String productGroup, String productHierarchy, String productGroupName, String productSubgroup, String productSubgroupName, String productCurrency, Id entryId, Decimal listPrice, Decimal costPrice, Decimal commissionPercentage, Decimal multiplier) {
+        public ProductData(String Id, String Name, String sapProductCode, String unity, String activePrinciple, Decimal multiplicity, String productGroup, String productHierarchy, String productGroupName, String productSubgroup, String productSubgroupName, String productCurrency, Id entryId, Decimal listPrice, Decimal costPrice, Decimal commissionPercentage, Decimal multiplier, Boolean ptaProduct) {
             multiplier = multiplier != null ? multiplier : 1;
             this.Id = Id;
             this.Name = Name;
@@ -307,6 +326,7 @@ public without sharing class CustomLookupController {
             this.productSubgroupName = productSubgroupName != null ? productSubgroupName : '';
             this.activePrinciple = activePrinciple != null ? activePrinciple : '';
             this.productCurrency = productCurrency != null ? productCurrency : '';
+            this.ptaProduct = ptaProduct;
             this.multiplicity = multiplicity != null ? multiplicity : 1;
             this.entryId = entryId;
             this.listPrice = listPrice != null ? listPrice / multiplier : 0;

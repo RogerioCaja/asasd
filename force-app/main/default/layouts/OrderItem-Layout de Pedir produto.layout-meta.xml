@@ -69,6 +69,10 @@
                 <behavior>Edit</behavior>
                 <field>CommitteeTrigger__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>PTA__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>
