@@ -2129,11 +2129,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>SalesCondition__c.CreatedById</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
         <field>SalesCondition__c.LastModifiedById</field>
         <readable>true</readable>
     </fieldPermissions>
