@@ -46,10 +46,12 @@ public with sharing class CalloutCTVCarteiraTest {
         //ObjectTerritory2Association objObjectTerritory2Association = new ObjectTerritory2Association(ObjectId = account.Id, Territory2Id =objTerr.Id, AssociationCause='Territory2Manual' );
         //insert objObjectTerritory2Association;
 
+        List<Territory2> territoryList = new List<Territory2>();
+        territoryList.add(objTerr);
         CalloutOrder calloutTest = new CalloutOrder();
         Test.setMock(HttpCalloutMock.class, new CalloutCTVMock(true));
         Test.startTest();
-        //CalloutCTVCarteira.processIntegration();
+        CalloutCTVCarteira.sendOrder(territoryList);
         Test.stopTest();
     } 
 }
