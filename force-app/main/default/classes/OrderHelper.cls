@@ -63,6 +63,8 @@ public without sharing class OrderHelper {
                 calloutsQueue job = new calloutsQueue(order.Id);
                 System.enqueueJob(job);
             }
+            System.debug('System' + System.URL.getCurrentRequestUrl().GetPath());
+            // System.URL.getCurrentRequestUrl().GetPath().contains('/upsertOrderAppdigital/');
             if(order.CodigoSap__c != null && order.StatusSF__c == 'Integrado' && orderMap != null){
                 String rmCode = orderMap.get(order.Id).ShippingAccount__r.ExternalId__c;
                 String agCode = orderMap.get(order.Id).Account.ExternalId__c;
