@@ -1219,6 +1219,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Order.ClientGroup__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Order.ApprovalRegionalManager__c</field>
         <readable>true</readable>
     </fieldPermissions>
