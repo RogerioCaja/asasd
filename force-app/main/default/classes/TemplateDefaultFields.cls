@@ -1,4 +1,3 @@
-
 public  class TemplateDefaultFields {
 	public TemplateDefaultFields(){
 
@@ -114,7 +113,7 @@ public  class TemplateDefaultFields {
             Culture__c = cultura.Id,
             PaymentForm__c =  'Bonificação',
             SalesOrg__c =  so.Id,
-            DistributionChannel__c =  'Venda Direta',
+            DistributionChannel__c =  distributionChannel.Id,
             ActivitySector__c =  '',
             Currency__c =  'BRL',
             SalesCTV__c =  u.Id,
@@ -215,6 +214,7 @@ public  class TemplateDefaultFields {
             EndDateBilling__c = System.today(),
             EndDateInsertionOrders__c = System.today(),
             NumberOfDaysAfterPayment__c = System.today(),
+            PaymentBaseDate__c = System.today(),
             ReleaseStatus__c = 'Ativo',
             StartDateOrderInsertion__c = System.today()
 
@@ -248,7 +248,12 @@ public  class TemplateDefaultFields {
             EmailEncodingKey='UTF-8', LastName='Testing', LanguageLocaleKey='en_US', 
             LocaleSidKey='en_US', ProfileId = p.Id, 
             TimeZoneSidKey='America/Los_Angeles', UserName='tetedogas@testorg.com');
+        salesCondition__c sales = new salesCondition__c(
+            Name = 'Condição',
+            ExternalId__c = '1'
+        );
 
+        INSERT sales;
         INSERT account;
         INSERT safra;
         INSERT cultura;
@@ -259,10 +264,11 @@ public  class TemplateDefaultFields {
 
         Order order = new Order(
             AccountId =  account.Id,
+            CodigoSap__c = '001',
             Status = 'Draft',
             PriceBook2Id = Test.getStandardPricebookId(),
-            Type =  'Venda Sucata',
-            RecordTypeId = recordTypeMap.get('Venda Sucata').getRecordTypeId(),
+            Type =  'Venda Normal',
+            RecordTypeId = recordTypeMap.get('Venda Normal').getRecordTypeId(),
             ShippingAccount__c =   account.Id,
             ShippingDate__c =  Date.today(),
             PaymentDate__c =  Date.today(),
@@ -270,8 +276,10 @@ public  class TemplateDefaultFields {
             EffectiveDate = Date.today(),
             Crop__c =  safra.Id,
             Culture__c = cultura.Id,
-            PaymentForm__c =  'Bonificação',
+            PaymentForm__c =  'B',
             SalesOrg__c =  so.Id,
+            FinalTotalValue__c = 1000.00,
+            SalesCondition__c = sales.Id,
             DistributionChannel__c =  distributionChannel.Id,
             Currency__c =  'BRL',
             SalesCTV__c =  u.Id,
@@ -282,7 +290,7 @@ public  class TemplateDefaultFields {
 
         INSERT order;
 
-        Product2 prod2 = new Product2(
+        Product2 prod = new Product2(
             Name = 'Laptop X200', 
             Family = 'Hardware',
             ExternalId__c = '0001',
@@ -295,25 +303,35 @@ public  class TemplateDefaultFields {
             UnidadeMedida__c = 'KG'
         );
 
-        INSERT prod2;
-
-        // PricebookEntry standardPrice = new PricebookEntry(
-        //     Pricebook2Id = Test.getStandardPricebookId(), 
-        //     Product2Id = prod2.Id,
-        //     UnitPrice = 1000000,
-        //     IsActive = true);
-        
-        // INSERT standardPrice;
+        INSERT prod;
 
         OrderItem orderItem = new OrderItem(
             OrderId = order.Id,
-            Product2Id = prod2.Id,
-            NumeroSap__c = '123',
-            UnitMeasure__c = 'L',
-            UnitPrice = 10000,
-            Quantity = 1,
-            ExternalId__c = 'texto',
-            PricebookEntryId = [SELECT Id FROM PricebookEntry WHERE Product2Id =: prod2.Id][0].Id
+            Product2Id = prod.Id,
+            PricebookEntryId = [SELECT Id FROM PricebookEntry WHERE Product2Id =: prod.Id LIMIT 1][0].Id,
+            ListPrice__c = 150,
+            ServiceDate = System.today(),
+            Quantity = 10,
+            UnitPrice = 160,
+            PracticedCost__c = 130,
+            PracticedPrice__c = 160,
+            Status__c = '5',
+            UnitMeasure__c = 'Each',
+            FinalTotalValue__c = 1600,
+            DiscountPercent__c = 0,
+            DiscountValue__c = 0,
+            CommercialAdditionPercent__c = 6.6666,
+            CommercialAdditionValue__c = 100,
+            FinancialAdditionPercent__c = 0,
+            FinancialAdditionValue__c = 0,
+            FinancialDiscountPercent__c = 0,
+            FinancialDiscountValue__c = 0,
+            ComissionValue__c = 0,
+            CommercialMargin__c = 2,
+            Dosage__c = 5,
+            InvoicedQuantity__c = 0,
+            NumeroSap__c = '001',
+            ExternalId__c = order.Id + '|001'
         );
 
         INSERT orderItem;
