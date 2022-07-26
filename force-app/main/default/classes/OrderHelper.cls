@@ -66,7 +66,7 @@ public without sharing class OrderHelper {
             System.debug('System' + System.URL.getCurrentRequestUrl().GetPath());
             // System.URL.getCurrentRequestUrl().GetPath().contains('/upsertOrderAppdigital/');
             if(order.CodigoSap__c != null && order.StatusSF__c == 'Integrado' && orderMap != null){
-                if(System.URL.getCurrentRequestUrl() != null && System.URL.getCurrentRequestUrl().GetPath() != null && System.URL.getCurrentRequestUrl().GetPath().contains('/upsertOrderAppdigital/')){
+                if(System.URL.getCurrentRequestUrl() != null && System.URL.getCurrentRequestUrl().GetPath() != null && System.URL.getCurrentRequestUrl().GetPath().contains('/upsertOrderAppdigital')){
                     String rmCode = orderMap.get(order.Id).ShippingAccount__r.ExternalId__c;
                     String agCode = orderMap.get(order.Id).Account.ExternalId__c;
                     String zcCode = orderMap.get(order.Id).SalesCTV__r.CodigoSap__c;
