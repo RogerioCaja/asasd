@@ -394,3 +394,34 @@ lightning-datatable.dt-outer-container {
 .product-middle {
 	width: 90%;
 }
+
+.star-style {
+	padding: 10px;
+    float: right;
+	cursor: pointer;
+}
+
+.tooltip {
+	position: relative;
+	display: inline-block;
+	float: right;
+	width: 100%;
+}
+  
+.tooltip .tooltiptext {
+	visibility: hidden;
+	width: 130px;
+    background-color: rgba(42, 150, 118, 0.9);
+    color: #fff;
+    text-align: center;
+    border-radius: 4px;
+    padding: 5px 0;
+    position: absolute;
+    z-index: 1;
+    bottom: 85%;
+    margin-left: -75px;
+}
+  
+.tooltip:hover .tooltiptext {
+	visibility: visible;
+}
