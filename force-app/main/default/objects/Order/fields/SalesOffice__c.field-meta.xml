@@ -2,7 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>SalesOffice__c</fullName>
     <externalId>false</externalId>
-    <formula>Company__r.SalesOffice__c</formula>
+    <formula>Company__r.SalesOffice__r.Name</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
     <label>Escritório de Vendas</label>
     <required>false</required>
