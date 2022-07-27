@@ -1,4 +1,3 @@
-
 global without sharing class IntegrationINOrderInsert {
     public IntegrationINOrderInsert() {
 
@@ -49,6 +48,9 @@ global without sharing class IntegrationINOrderInsert {
             salesSectionLookups.add(order.ActivitySector);
             salesCTVLookups.add(order.SalesCTV);
             paymentConditionLookups.add(order.PaymentCondition);
+            if(order.PriceBook2Id == null){
+                order.PriceBook2Id = 'Standard Price Book';
+            }
             pricebookLookups.add(order.pricebook2Id);
             shippingAccountLookups.add(order.ShippingAccount);
             orderReferenceLookups.add(order.orderReference);
@@ -57,6 +59,8 @@ global without sharing class IntegrationINOrderInsert {
             order.company = order.PaymentAccount + order.CentroFornecedor + order.salesOrg + order.activitySector + order.distributionChannel + order.EscritorioVendas + order.EquipeVendas;
             companyLookups.add(order.company);
 
+            
+            System.debug('order.PriceBook2Id ' + order.PriceBook2Id);
             
             System.debug('companyLookups ' + companyLookups);
             if(order.orderItems != null) {
@@ -190,7 +194,9 @@ global without sharing class IntegrationINOrderInsert {
             lookups.put('CondicaoPagamento__c' + paymentCondition.Code__c, paymentCondition.Id);
         }
         for (Pricebook2 pricebook2Id : [SELECT Id, ExternalId__c, Name FROM Pricebook2 WHERE Name IN : pricebookLookups ]){
+            
             lookups.put('Pricebook2Id' + pricebook2Id.Name, pricebook2Id.Id);
+            
         }
 
         for (Order orderReference: [SELECT Id, CodigoSap__c FROM Order WHERE CodigoSap__c IN : orderReferenceLookups]){
@@ -324,4 +330,3 @@ global without sharing class IntegrationINOrderInsert {
         }
     }
 }
-
