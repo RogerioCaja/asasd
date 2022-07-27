@@ -5,7 +5,7 @@
     <encodingKey>UTF-8</encodingKey>
     <name>Pedido de Aprovação</name>
     <style>none</style>
-    <subject>APROVAÇÃO PEDIDO - {!Order.OrderNumber} - {!Account.Name} -</subject>
+    <subject>Pedido de Aprovação - {!Order.OrderNumber} - {!Account.Name}</subject>
     <type>text</type>
     <uiType>Aloha</uiType>
 </EmailTemplate>

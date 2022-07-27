@@ -1,10 +1,10 @@
-{!User.Name},
+{!ApprovalRequest.Process_Assignee},
 
 O CTV {!Order.SalesCTV__c} está solicitando a sua aprovação ao Pedido {!Order.OrderNumber}
 
-Clique no link para aprovar o pedido
+Por favor, verifique o pedido no sistema.
 
-{!ApprovalRequest.External_URL}
+{!ApprovalRequest.Internal_URL}
 
 --
 
