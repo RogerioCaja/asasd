@@ -33,6 +33,7 @@ global with sharing class IntegrationINOrderItemInsert {
 
                     if(conditions.KSCHL == 'ZPR0'){
                         OrderItemINData.precoUnitario = (Decimal.valueOf(conditions.KBETR) / Decimal.valueOf(conditions.KPEIN));
+                        System.debug('OrderItemINData.precoUnitario ' + OrderItemINData.precoUnitario);
                        //OrderItemINData.multiplicador == conditions.KPEIN;
                     }
                     
@@ -117,7 +118,13 @@ global with sharing class IntegrationINOrderItemInsert {
             OrderItemINData.valorAcrescComercial = valorAcrescimoComercial;
             //System.debug('porcentagemDesconto ' + OrderItemINData.porcentagemDesconto);
         }
-        
+            
+            //Atualização para Insert - 26.07.22
+        	System.debug('OrderItemINData.precoUnitario ' + OrderItemINData.precoUnitario);
+            if(OrderItemINData.precoPraticado == null){
+                OrderItemINData.precoPraticado = OrderItemINData.precoUnitario;
+                System.debug('OrderItemINData.precoPraticado ' + OrderItemINData.precoPraticado);
+            }
         //OrderItemINData.precoUnitario  += valorAcrescimoFinanceiro - valorDescontoFinanceiro  ;
         //OrderItemINData.precoUnitario  += valorAcrescimoComercial - valorDescontoComercial  ;
         
