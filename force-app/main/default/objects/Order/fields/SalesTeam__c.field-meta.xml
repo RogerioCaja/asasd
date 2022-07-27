@@ -2,7 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>SalesTeam__c</fullName>
     <externalId>false</externalId>
-    <formula>Company__r.SalesTeam__c</formula>
+    <formula>Company__r.SalesTeam__r.Name</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
     <label>Equipe de Vendas</label>
     <required>false</required>
