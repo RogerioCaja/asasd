@@ -1,6 +1,6 @@
 <table border="0" cellpadding="5" width="550" cellspacing="5" height="400" >
 <tr valign="top" height="400" >
-<td tEditID="c1r1" style=" background-color:#FFFFFF; bEditID:r3st1; color:#000000; bLabel:main; font-size:12pt; font-family:arial;" aEditID="c1r1" locked="0" >
-<![CDATA[Olá&nbsp;{!Target_User.Name},<div><br></div><div>O CTV&nbsp;{!Order.SalesCTV__c} está solicitando a aprovação do pedido&nbsp;{!Order.OrderNumber}.</div><div><br></div><div>Para aprovar o pedido <a href="http://{!Order.Link}">clique aqui</a>, ou responsa este e-mail com as opções abaixo:</div><div><br></div><div>APROVAR, APROVADO ou SIM para aprovar o Pedido</div><div>REPROVAR, REJEITADO ou NÃO para reprovar o Pedido</div><div><br></div><div><br></div>]]></td>
+<td tEditID="c1r1" style=" background-color:#FFFFFF; color:#000000; bEditID:r3st1; bLabel:main; font-size:12pt; font-family:arial;" aEditID="c1r1" locked="1" >
+<![CDATA[<span style="font-size: 12pt;">Olá&nbsp;{!Target_User.Name},</span><div style="font-size: 12pt;"><br></div><div style="font-size: 12pt;">O CTV&nbsp;{!Order.SalesCTV__c} está solicitando a aprovação do pedido&nbsp;{!Order.OrderNumber}.</div><div style="font-size: 12pt;"><span style="font-size: 12pt;"><br></span></div><div style="font-size: 12pt;"><span style="font-size: 12pt;">Por favor, verifique o pedido no sistema.</span></div><div style="font-size: 12pt;"><br></div><div style="font-size: 12pt;">--</div><div style="font-size: 12pt;"><br></div><div style=""><font size="2"><i>Agrogalaxy.</i></font></div>]]></td>
 </tr>
 </table>
