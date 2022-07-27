@@ -85,6 +85,8 @@ global with sharing class IntegrationINOrderItem {
                         valorDescontoFinanceiro = valorFinal * (OrderItemINData.porcentagemDescontoFin / 100);
                         OrderItemINData.valorDescontoFin = valorDescontoFinanceiro;
                         valorFinal = valorFinal - valorDescontoFinanceiro; //Bateu
+                        OrderItemINData.precoPraticado = (valorFinal) / OrderItemINData.quantidade;
+                        OrderItemINData.valorTotal = valorFinal;
                         System.debug('valorFinal ' + valorFinal);
                         System.debug('valorDescontoFinanceiro ' + valorDescontoFinanceiro);
                     }
@@ -94,6 +96,8 @@ global with sharing class IntegrationINOrderItem {
                         valorAcrescimoFinanceiro = valorFinal * (OrderItemINData.porcentagemAcrescFin / 100);     
                         OrderItemINData.valorAcrescFin = valorAcrescimoFinanceiro;
                         valorFinal = valorFinal + valorAcrescimoFinanceiro;
+                        OrderItemINData.precoPraticado = (valorFinal) / OrderItemINData.quantidade;
+                        OrderItemINData.valorTotal = valorFinal;
                         System.debug('valorFinal ' + valorFinal);
                         System.debug('valorAcrescimoFinanceiro ' + valorAcrescimoFinanceiro);
                     }
@@ -117,11 +121,8 @@ global with sharing class IntegrationINOrderItem {
                         OrderItemINData.valorAcrescComercial = valorAcrescimoComercial;
                         //System.debug('porcentagemDesconto ' + OrderItemINData.porcentagemDesconto);
                     }
-                    
-                    //OrderItemINData.precoUnitario  += valorAcrescimoFinanceiro - valorDescontoFinanceiro  ;
-                    //OrderItemINData.precoUnitario  += valorAcrescimoComercial - valorDescontoComercial  ;
-                    
-                    
+                                        
+                    System.debug('Valor Final   ' + valorFinal);
                     System.debug('valorAcrescComercial  ' + OrderItemINData.valorAcrescComercial);
                     
                     System.debug('Desconto Valor ' + OrderItemINData.descontoValor);

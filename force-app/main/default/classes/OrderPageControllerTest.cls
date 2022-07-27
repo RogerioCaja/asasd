@@ -60,7 +60,7 @@ public with sharing class OrderPageControllerTest {
         System.assertEquals(String.valueOf(order.PaymentDate__c), testValue.dueDate, 'Erro no Campo: dueDate');
         System.assertEquals(order.Currency__c, testValue.currencyOrder, 'Erro no Campo: currencyOrder');
         System.assertEquals(order.Culture__r.Name, testValue.culture, 'Erro no Campo: culture');
-        System.assertEquals(order.CodigoSap__c, testValue.codeSapOrder, 'Erro no Campo: codeSapOrder');
+        System.assertEquals('Codigo SAP: 001', testValue.codeSapOrder, 'Erro no Campo: codeSapOrder');
         System.assert(orderItemList.size() > 0 , 'A lista de OrderItem não está sendo retornada');
 
         // System.assertEquals(testValue.orderItemList.get(0).productCode, orderItemList.get(0).Product2Id, 'Erro no Campo: Product2Id');
