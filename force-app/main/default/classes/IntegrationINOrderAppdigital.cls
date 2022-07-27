@@ -366,6 +366,7 @@ global without sharing class IntegrationINOrderAppdigital {
             Order.NumeroPedidoApp__c
         );
         orderListForAppr.addAll(orderWithNbApp);
+        IntegrationINOrderAppdigital.approvalDiscountOrder(orderListForAppr[0]);
         }
         if(!orderWithNbSap.isEmpty()){
             IntegrationUtils.upsertRecords(
@@ -405,9 +406,6 @@ global without sharing class IntegrationINOrderAppdigital {
                 } 
         }
         
-        if(!orderListForAppr.isEmpty()){
-            IntegrationINOrderAppdigital.approvalDiscountOrder(orderListForAppr[0]);
-        }
          //Confirmar com o Helder
         //Upserting records (OrderItem)
         // Upsert OrderItem
