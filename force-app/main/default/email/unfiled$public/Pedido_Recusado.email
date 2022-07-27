@@ -1,8 +1,8 @@
 {!Order.OwnerFullName}
 
-O Pedido {!Workitem.ID} de Desconto foi Recusado.
+O Pedido {!Order.OrderNumber} de Desconto foi Recusado.
 
-Status do Processo de aprovação: {!ApprovalRequest.Status}
+Status do Processo de aprovação: {!Workitem.ID} - {!ApprovalRequest.Status}
 
 Por favor revise seu Pedido e envie novamente para aprovação.
 
