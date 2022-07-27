@@ -1,8 +1,8 @@
 {!Order.OwnerFullName}
 
-O Pedido {!Workitem.ID} foi aprovado!
+O Pedido {!Order.OrderNumber} foi aprovado!
 
-Status do Processo de aprovação: {!ApprovalRequest.Status}
+Status do Processo de aprovação: {!Workitem.ID} - {!ApprovalRequest.Status}
 
 --
 
