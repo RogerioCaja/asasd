@@ -619,6 +619,8 @@ export default class OrderProductScreen extends LightningElement {
             fieldValue = fieldValue.toString().includes('.') ? fieldValue.toString().replace('.', '') : fieldValue;
             fieldValue = fieldValue.toString().includes(',') ? fieldValue.replace(',', '.') : fieldValue;
             this.addProduct[fieldId] = fieldValue;
+            let priceWithFinancialValue = (this.addProduct.listPrice * this.addProduct.quantity) + Number(this.addProduct.financialAdditionValue) - Number(this.addProduct.financialDecreaseValue);
+
             if (fieldId == 'unitPrice') {
                 this.recalculateValuesByUnitPrice();
                 this.addProduct.unitPriceFront = this.fixDecimalPlacesFront(this.addProduct.unitPrice);
@@ -627,8 +629,8 @@ export default class OrderProductScreen extends LightningElement {
                 this.addProduct.commercialDiscountPercentage = this.addProduct.commercialDiscountPercentage == '' ? '0%' : this.addProduct.commercialDiscountPercentage;
                 this.addProduct.commercialDiscountPercentageFront = this.fixDecimalPlacesPercentage(this.addProduct.commercialDiscountPercentage);
                 this.addProduct.commercialDiscountValue = 
-                    this.isFilled(this.addProduct.totalPrice) ?
-                    this.calculateValue(this.addProduct.commercialDiscountPercentage, this.addProduct.totalPrice) :
+                    this.isFilled(priceWithFinancialValue) ?
+                    this.calculateValue(this.addProduct.commercialDiscountPercentage, priceWithFinancialValue) :
                     this.addProduct.commercialDiscountValue;
                 this.addProduct.commercialDiscountValueFront = this.fixDecimalPlacesFront(Number(this.addProduct.commercialDiscountValue));
                 
@@ -637,8 +639,8 @@ export default class OrderProductScreen extends LightningElement {
                 this.addProduct.commercialDiscountValue = this.addProduct.commercialDiscountValue == '' ? 0 : this.fixDecimalPlaces(Number(this.addProduct.commercialDiscountValue));
                 this.addProduct.commercialDiscountValueFront = this.addProduct.commercialDiscountValue == '' ? 0 : this.fixDecimalPlacesFront(Number(this.addProduct.commercialDiscountValue));
                 this.addProduct.commercialDiscountPercentage = 
-                    this.isFilled(this.addProduct.totalPrice) ?
-                    this.calculatePercentage(this.addProduct.commercialDiscountValue, this.addProduct.totalPrice) :
+                    this.isFilled(priceWithFinancialValue) ?
+                    this.calculatePercentage(this.addProduct.commercialDiscountValue, priceWithFinancialValue) :
                     this.addProduct.commercialDiscountPercentage;
                 this.addProduct.commercialDiscountPercentageFront = this.fixDecimalPlacesPercentage(this.addProduct.commercialDiscountPercentage);
                 
@@ -647,8 +649,8 @@ export default class OrderProductScreen extends LightningElement {
                 this.addProduct.commercialAdditionPercentage = this.addProduct.commercialAdditionPercentage == '' ? '0%' : this.addProduct.commercialAdditionPercentage;
                 this.addProduct.commercialAdditionPercentageFront = this.fixDecimalPlacesPercentage(this.addProduct.commercialAdditionPercentage);
                 this.addProduct.commercialAdditionValue = 
-                    this.isFilled(this.addProduct.totalPrice) ?
-                    this.calculateValue(this.addProduct.commercialAdditionPercentage, this.addProduct.totalPrice) :
+                    this.isFilled(priceWithFinancialValue) ?
+                    this.calculateValue(this.addProduct.commercialAdditionPercentage, priceWithFinancialValue) :
                     this.addProduct.commercialAdditionValue;
                 this.addProduct.commercialAdditionValueFront = this.fixDecimalPlacesFront(Number(this.addProduct.commercialAdditionValue));
                 
@@ -657,8 +659,8 @@ export default class OrderProductScreen extends LightningElement {
                 this.addProduct.commercialAdditionValue = this.addProduct.commercialAdditionValue == '' ? 0 : this.fixDecimalPlaces(Number(this.addProduct.commercialAdditionValue));
                 this.addProduct.commercialAdditionValueFront = this.addProduct.commercialAdditionValue == '' ? 0 : this.fixDecimalPlacesFront(Number(this.addProduct.commercialAdditionValue));
                 this.addProduct.commercialAdditionPercentage = 
-                    this.isFilled(this.addProduct.totalPrice) ?
-                    this.calculatePercentage(this.addProduct.commercialAdditionValue, this.addProduct.totalPrice) :
+                    this.isFilled(priceWithFinancialValue) ?
+                    this.calculatePercentage(this.addProduct.commercialAdditionValue, priceWithFinancialValue) :
                     this.addProduct.commercialAdditionPercentage;
                 this.addProduct.commercialAdditionPercentageFront = this.fixDecimalPlacesPercentage(this.addProduct.commercialAdditionPercentage);
                 
