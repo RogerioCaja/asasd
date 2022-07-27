@@ -86,6 +86,7 @@ global with sharing class IntegrationINOrderItemInsert {
             valorDescontoFinanceiro = valorFinal * (OrderItemINData.porcentagemDescontoFin / 100);
             OrderItemINData.valorDescontoFin = valorDescontoFinanceiro;
             valorFinal = valorFinal - valorDescontoFinanceiro; //Bateu
+            OrderItemINData.precoPraticado = (valorFinal) / OrderItemINData.quantidade;
             System.debug('valorFinal ' + valorFinal);
             System.debug('valorDescontoFinanceiro ' + valorDescontoFinanceiro);
         }
@@ -95,6 +96,7 @@ global with sharing class IntegrationINOrderItemInsert {
             valorAcrescimoFinanceiro = valorFinal * (OrderItemINData.porcentagemAcrescFin / 100);     
             OrderItemINData.valorAcrescFin = valorAcrescimoFinanceiro;
             valorFinal = valorFinal + valorAcrescimoFinanceiro;
+            OrderItemINData.precoPraticado = (valorFinal) / OrderItemINData.quantidade;
             System.debug('valorFinal ' + valorFinal);
             System.debug('valorAcrescimoFinanceiro ' + valorAcrescimoFinanceiro);
         }
