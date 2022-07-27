@@ -127,7 +127,7 @@ public without sharing class CalloutBP {
                 cultureIdsList.add(valor.Cultura);
             }
             if(valor.Safra != null){
-                safraIdsList.add(String.valueOf(valor.Safra));
+                safraIdsList.add(valor.Safra);
             }
         }
         for(CompanyINData valor : companyList){
@@ -403,7 +403,7 @@ public without sharing class CalloutBP {
             	LimitValue__c = valor.Valor,
             	BlockedCredit__c = blocked,
             	LimitBalance__c = valor.Saldo,
-            	Safra__c = lookups.containsKey('Safra__c'+String.valueOf(valor.Safra)) ? lookups.get('Safra__c'+String.valueOf(valor.Safra)) : null,
+            	Safra__c = lookups.containsKey('Safra__c'+valor.Safra) ? lookups.get('Safra__c'+valor.Safra) : null,
             	ExternalId__c = valor.CodigoExternoAccount + valor.Safra + valor.Cultura);
             	creditListToUpsert.add(credit);
             }
@@ -548,7 +548,7 @@ public without sharing class CalloutBP {
         public String Bloqueado;
         public String Cultura;
         public Decimal Saldo;
-        public Decimal Safra;
+        public String Safra;
     }
 
     public class CompanyINData{
