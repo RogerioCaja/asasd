@@ -70,21 +70,23 @@ global with sharing class IntegrationINOrderItem {
                     Decimal valorDescontoFinanceiro = 0;
             
                     //Decimal porcentagemAcrescimoFinanceiro = 0; 
-            		Decimal valorAcrescimoFinanceiro = 0;
+                    Decimal valorAcrescimoFinanceiro = 0;
             
                     //Decimal porcentagemDescontoComercial = 0;
                     Decimal valorDescontoComercial = 0; 
-					
+                    
                     //Decimal porcentagemAcrescimoComercial = 0;
                     Decimal valorAcrescimoComercial = 0;
-                   	
-            		Decimal valorFinal = OrderItemINData.precoUnitario * OrderItemINData.quantidade;
-            		
+                    
+                    Decimal valorFinal = OrderItemINData.precoUnitario * OrderItemINData.quantidade;
+                    
                     if(OrderItemINData.porcentagemDescontoFin > 0){
                         //porcentagemDescontoFinanceiro = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemDescontoFin / 100);
                         valorDescontoFinanceiro = valorFinal * (OrderItemINData.porcentagemDescontoFin / 100);
                         OrderItemINData.valorDescontoFin = valorDescontoFinanceiro;
                         valorFinal = valorFinal - valorDescontoFinanceiro; //Bateu
+                        OrderItemINData.precoPraticado = (valorFinal) / OrderItemINData.quantidade;
+                        OrderItemINData.valorTotal = valorFinal;
                         System.debug('valorFinal ' + valorFinal);
                         System.debug('valorDescontoFinanceiro ' + valorDescontoFinanceiro);
                     }
@@ -94,6 +96,8 @@ global with sharing class IntegrationINOrderItem {
                         valorAcrescimoFinanceiro = valorFinal * (OrderItemINData.porcentagemAcrescFin / 100);     
                         OrderItemINData.valorAcrescFin = valorAcrescimoFinanceiro;
                         valorFinal = valorFinal + valorAcrescimoFinanceiro;
+                        OrderItemINData.precoPraticado = (valorFinal) / OrderItemINData.quantidade;
+                        OrderItemINData.valorTotal = valorFinal;
                         System.debug('valorFinal ' + valorFinal);
                         System.debug('valorAcrescimoFinanceiro ' + valorAcrescimoFinanceiro);
                     }
@@ -117,15 +121,12 @@ global with sharing class IntegrationINOrderItem {
                         OrderItemINData.valorAcrescComercial = valorAcrescimoComercial;
                         //System.debug('porcentagemDesconto ' + OrderItemINData.porcentagemDesconto);
                     }
-                    
-                    //OrderItemINData.precoUnitario  += valorAcrescimoFinanceiro - valorDescontoFinanceiro  ;
-                    //OrderItemINData.precoUnitario  += valorAcrescimoComercial - valorDescontoComercial  ;
-                    
-            		
+                                        
+                    System.debug('Valor Final   ' + valorFinal);
                     System.debug('valorAcrescComercial  ' + OrderItemINData.valorAcrescComercial);
                     
                     System.debug('Desconto Valor ' + OrderItemINData.descontoValor);
-            		System.debug('Preço Praticado ' + OrderItemINData.precoPraticado);
+                    System.debug('Preço Praticado ' + OrderItemINData.precoPraticado);
                     
         }
 
