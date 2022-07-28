@@ -224,6 +224,7 @@ global without sharing class IntegrationINOrderInsert {
         for(Order ordUp :orderListToUpsert){
             orderUpMap.put(ordUp.CodigoSap__c, ordUp.Id);
         }
+        Map<String, String> orderIdEx = new Map<String, String>();
         for (TemplateDataIntegrationFields.OrderItemINData orderIt : orderItemListToUpsert){
             String orderId;
             
@@ -231,6 +232,8 @@ global without sharing class IntegrationINOrderInsert {
                     orderId = orderUpMap.get(orderIt.orderExternalId);
                     
                     orderIt.orderExternalId = orderId;
+
+                    orderIdEx.put(orderId, orderIt.orderExternalId);
                 } 
         }
         
@@ -263,6 +266,19 @@ global without sharing class IntegrationINOrderInsert {
             );
             System.debug('shippingDivisonResponse' + shippingDivisonResponse);
         }
+
+             AggregateResult[] resulTotal =[SELECT SUM(FinalTotalValue__c) somatoria FROM OrderItem WHERE OrderId =: orderIdEx.keySet()];
+        	 List<OrderItem> orderItemListT = [SELECT Id,  FinalTotalValue__c FROM OrderItem WHERE OrderId =: orderIdEx.keySet()];
+        	 System.debug('orderItemListT ' + orderItemListT);
+             System.debug('resulTotal ' + resulTotal);
+             Order order = new Order();
+             order.Id = (new List<String>(orderIdEx.keySet()))[0]; //(new List<String>(posts.keySet()))[0]
+             //Object avgAmount = resulTotal[0].get('somatoria');
+             order.FinalTotalValue__c  = (Decimal)resulTotal[0].get('somatoria');
+             System.debug('order.FinalTotalValue__c ' + order.FinalTotalValue__c);
+             OrderHelper.disableTrigger();
+             upsert order;
+             OrderHelper.enableTrigger();
         System.debug('Chegou!? ');
         //Associating child object's response with object response
         // Pega todas as respostas dos OrderItem
