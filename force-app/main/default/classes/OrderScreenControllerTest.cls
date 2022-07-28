@@ -204,7 +204,9 @@ public class OrderScreenControllerTest {
             NumeroSap__c = '001',
             ExternalId__c = order.Id + '|001'
         );
+        OrderHelper.disableTrigger();
         insert orderItem;
+        OrderHelper.enableTrigger();
 
         ShippingDivison__c shipping = new ShippingDivison__c(
             DeliveryDate__c = System.today().addDays(30),
