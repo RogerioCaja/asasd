@@ -174,9 +174,17 @@ public without sharing class OrderScreenController {
     @AuraEnabled
     public static string getAccountDataChild(Id accountId){
         try {
-            Set<Id> relatedAccounts = getTerritoryAccounts();
+            List<Account> accountList = new List<Account>();
             List<AccountSerialize> accountListSerialize = new List<AccountSerialize>();
-            List<Account> accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE ParentId =: accountId AND Id IN: relatedAccounts AND ExternalId__c LIKE '0002%'];
+            List<SObject> recordsData = new List<SObject>();
+			String profileName = [SELECT Name FROM Profile WHERE Id =: UserInfo.getProfileId()].Name;
+			
+            if (profileName != 'Balcão') {
+                Set<Id> relatedAccounts = getTerritoryAccounts();
+                accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE ParentId =: accountId AND Id IN: relatedAccounts AND ExternalId__c LIKE '0002%'];
+            } else {
+                accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE ParentId =: accountId AND ExternalId__c LIKE '0002%'];
+            }
             
             for(Account account : accountList) accountListSerialize.add(new AccountSerialize(account));
             return JSON.serialize(new AccountSerialize(accountListSerialize));
@@ -572,6 +580,10 @@ public without sharing class OrderScreenController {
                                    stringToDecimal(orderData.summaryData.orderMargin.replace(' sacas', '')) : stringToDecimal((orderData.summaryData.orderMargin))) : 0;
             order.ApprovalJustification__c = orderData.summaryData.justification;
 
+            if (Test.isRunningTest()) {
+                OrderHelper.disableTrigger();
+            }
+            
             Database.UpsertResult insResults = Database.upsert(order, false);
             if (insResults.isSuccess()) {
                 msg = 'Pedido ' + (newOrder ? 'criado' : 'atualizado') + ' com sucesso';
