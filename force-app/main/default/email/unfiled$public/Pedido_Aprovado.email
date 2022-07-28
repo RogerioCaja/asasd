@@ -2,8 +2,6 @@
 
 O Pedido {!Order.OrderNumber} foi aprovado!
 
-Status do Processo de aprovação: {!Workitem.ID} - {!ApprovalRequest.Status}
-
 --
 
 AgroGalaxy.

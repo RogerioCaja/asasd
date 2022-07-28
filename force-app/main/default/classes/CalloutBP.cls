@@ -470,19 +470,26 @@ public without sharing class CalloutBP {
 
             HttpResponse response = responseObject.response;
 
-            IntegrationLog.createLog('Bp OUT', 'OUT', response.getBody(), payload, false);
+            //IntegrationLog.createLog('Bp OUT', 'OUT', response.getBody(), payload, false);
             // .WSLog('Pedido', 'OUTBOUND', response.getBody(), payload, false);
             System.debug('response.getBody(): '+ response.getBody());
             try {
                 List<ResponseParametersWrapper> responses = (List<ResponseParametersWrapper>) JSON.deserialize(response.getBody(), List<ResponseParametersWrapper>.class);
                 System.debug('responses2: '+ responses);
-                // IntegrationLog.createLog('Bp OUT', 'OUT', response.getBody(), payload, false);
+                IntegrationLog.createLog('Bp OUT', 'OUT', response.getBody(), payload, false);
                 return new IntegrationUtils.CalloutBpResponse(new ResponseParameters(responses));
+        
             } catch (Exception e) {
-                
-                String defaultErrorMessage = 'Malformatted HTTP Response Exception: ' + e.getMessage();
-                // IntegrationLog.createLog('Bp OUT', 'OUT', defaultErrorMessage, payload, true);
-                return new IntegrationUtils.CalloutBpResponse(defaultErrorMessage);
+                try{
+                    ResponseNothing responses = (ResponseNothing) JSON.deserialize(response.getBody(), ResponseNothing.class);
+                    String defaultErrorMessager = 'Malformatted HTTP Response Exception: ' + e.getMessage();
+                    IntegrationLog.createLog('Bp OUT', 'OUT', response.getBody(), payload, false);
+                    return new IntegrationUtils.CalloutBpResponse(defaultErrorMessager);
+                } catch (Exception er) {
+                    String defaultErrorMessage = 'Malformatted HTTP Response Exception: ' + er.getMessage();
+                    IntegrationLog.createLog('Bp OUT', 'OUT', defaultErrorMessage, payload, true);
+                    return new IntegrationUtils.CalloutBpResponse(defaultErrorMessage);
+                }
             }
         } else {
 
@@ -527,6 +534,14 @@ public without sharing class CalloutBP {
             this.responses = responses;
         }
     }
+    //! Response part
+    public class ResponseNothing {
+        public String dt_atualizacao;
+        public String message;
+        public String time_hour_plus_utc;
+        public String time_hour_utc;
+    }
+
     public class ResponseParametersWrapper {
         public String Nome;
         public String CodigoExterno;
