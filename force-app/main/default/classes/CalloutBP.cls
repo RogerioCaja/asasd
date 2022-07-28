@@ -82,10 +82,11 @@ public without sharing class CalloutBP {
                 if(company.Partner != null && company.Partner != ''){
                     userCodigoSapList.add(company.Partner);
                 }
-            }           
+            }          
+            Database.UpsertResult[] resultsAccount;
             if (!accountList.isEmpty()) {
                 System.debug('accountList: '+accountList);
-                Database.upsert(accountList, Account.ExternalId__c, false);
+                resultsAccount = Database.upsert(accountList, Account.ExternalId__c, false);
             }
             List<Account> accountFatherListExternalId = new List<Account>([SELECT Id, ExternalId__c FROM Account WHERE ExternalId__c =: accountFatherIdsList]);
             creatyAccountTerrytoryAssossiation(accountList,accountFatherListExternalId, userCodigoSapList, resp, companyList);
@@ -99,8 +100,40 @@ public without sharing class CalloutBP {
             System.debug('creditoList: '+ creditoList);
             System.debug('companyList: '+ companyList);
             System.debug('newLookups: '+ newLookups);
-            creatyCredit(creditoList, newLookups);
-            creatyCompany(companyList, newLookups, nameLookups);
+            Database.UpsertResult[] resultsCredit = creatyCredit(creditoList, newLookups);
+            Database.UpsertResult[] resultsCompany = creatyCompany(companyList, newLookups, nameLookups);
+           
+            String resultsError = '';
+
+
+            for(Database.UpsertResult results : resultsCompany){
+                System.debug('Database.UpsertResult: ' + results);
+                if(!results.isSuccess()){
+                    resultsError += 'Company Error: ' + results.getErrors() + '/ ';
+                }
+            }
+
+            for(Database.UpsertResult results : resultsCredit){
+                System.debug('Database.UpsertResult: ' + results);
+                if(!results.isSuccess()){
+                    resultsError += 'Credit Error: ' + results.getErrors() + '/ ';
+                }
+            }
+
+            for(Database.UpsertResult results : resultsAccount){
+                System.debug('Database.UpsertResult: ' + results);
+                if(!results.isSuccess()){
+                    resultsError += 'Account Error: ' + results.getErrors() + '/ ';
+                }
+            }
+
+            if(resultsError != ''){
+                Datetime UTC = System.now().addMinutes(-3);  
+                Organization orgDetails = [SELECT Id, TimeZoneSidKey FROM Organization WHERE Id = :UserInfo.getOrganizationId()]; 
+                Timezone tz = Timezone.getTimeZone(orgDetails.TimeZoneSidKey);
+                Datetime orgTime = UTC.addSeconds((tz.getOffset(UTC)/1000)); 
+                IntegrationLog.createLog('Bp OUT Insertion Error', 'OUT', resultsError,String.valueOf(orgTime), true);
+            }
             System.debug('integração foi um sucesso');
         }
         
@@ -336,7 +369,7 @@ public without sharing class CalloutBP {
             }
         }
     }
-    public static void creatyCompany(List<CompanyINData> companyList, Map<String, Id> lookups, Map<String, String> nameLookups){
+    public static Database.UpsertResult[] creatyCompany(List<CompanyINData> companyList, Map<String, Id> lookups, Map<String, String> nameLookups){
         String statusName;
         List<Company__c> companyListToUpsert = new List<Company__c>();
         Map<String,String> checkExternalId = new Map<String,String>();
@@ -367,24 +400,15 @@ public without sharing class CalloutBP {
                 checkExternalId.put(company.ExternalId__c,company.ExternalId__c);
                 companyListToUpsert.add(company);
             }
-            
         }
         System.debug('companyListToUpsert: '+ companyListToUpsert);
         if (!companyListToUpsert.isEmpty()) {
-            Try{
-                Database.upsert(companyListToUpsert, Company__c.ExternalId__c, false);
-             } 
-             Catch(System.Exception e){
-                System.debug('Exception type caught: ' + e.getTypeName());
-    			System.debug('Message: ' + e.getMessage());
-    			System.debug('Cause: ' + e.getCause());    // returns null
-    			System.debug('Line number: ' + e.getLineNumber());
-    			System.debug('Stack trace: ' + e.getStackTraceString());
-            }
+            Database.UpsertResult[] resultCompanyList = Database.upsert(companyListToUpsert, Company__c.ExternalId__c, false);
+            return resultCompanyList;
         }
-
+        return null;
     }
-    public static void creatyCredit(List<LimiteCreditoINData> creditoList, Map<String, Id> lookups){
+    public static Database.UpsertResult[] creatyCredit(List<LimiteCreditoINData> creditoList, Map<String, Id> lookups){
 
         List<LimiteCredito__c> creditListToUpsert = new List<LimiteCredito__c>();
         for(LimiteCreditoINData valor : creditoList){
@@ -410,17 +434,10 @@ public without sharing class CalloutBP {
         }
         System.debug('creditListToUpsert'+ creditListToUpsert);
         if (!creditListToUpsert.isEmpty()) {
-            Try{
-                Database.upsert(creditListToUpsert, LimiteCredito__c.ExternalId__c, false);
-             } 
-             Catch(System.Exception e){
-                System.debug('Exception type caught: ' + e.getTypeName());
-    			System.debug('Message: ' + e.getMessage());
-    			System.debug('Cause: ' + e.getCause());    // returns null
-    			System.debug('Line number: ' + e.getLineNumber());
-    			System.debug('Stack trace: ' + e.getStackTraceString());
-            }
+            Database.UpsertResult[] resultCreditList = Database.upsert(creditListToUpsert, LimiteCredito__c.ExternalId__c, false);
+            return resultCreditList;
         }
+        return null;
     } 
 
     public static IntegrationUtils.CalloutBpResponse sendOrder() {
@@ -453,18 +470,18 @@ public without sharing class CalloutBP {
 
             HttpResponse response = responseObject.response;
 
-            IntegrationLog.createLog('Bp OUT', 'OUT', response.getBody(), payload, false);
+            //IntegrationLog.createLog('Bp OUT', 'OUT', response.getBody(), payload, false);
             // .WSLog('Pedido', 'OUTBOUND', response.getBody(), payload, false);
             System.debug('response.getBody(): '+ response.getBody());
             try {
-                
                 List<ResponseParametersWrapper> responses = (List<ResponseParametersWrapper>) JSON.deserialize(response.getBody(), List<ResponseParametersWrapper>.class);
                 System.debug('responses2: '+ responses);
+                IntegrationLog.createLog('Bp OUT', 'OUT', response.getBody(), payload, false);
                 return new IntegrationUtils.CalloutBpResponse(new ResponseParameters(responses));
             } catch (Exception e) {
                 
                 String defaultErrorMessage = 'Malformatted HTTP Response Exception: ' + e.getMessage();
-
+                IntegrationLog.createLog('Bp OUT', 'OUT', defaultErrorMessage, payload, true);
                 return new IntegrationUtils.CalloutBpResponse(defaultErrorMessage);
             }
         } else {
