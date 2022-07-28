@@ -27,6 +27,10 @@
 								</div>
 								<div class="card-02">
 									<button class="include-button" data-target-id={prod.Id} onclick={showProductModal}>Incluir</button>
+									
+									<div if:true={prod.ptaProduct} class="tooltip"><img class="star-style" src={star}>
+										<span class="tooltiptext">Produto no PTA</span>
+									</div>
 								</div>
 							</div>
 						</div>

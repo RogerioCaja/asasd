@@ -64,11 +64,14 @@ public without sharing class OrderHelper {
                 System.enqueueJob(job);
             }
             if(order.CodigoSap__c != null && order.StatusSF__c == 'Integrado' && orderMap != null){
-                String rmCode = orderMap.get(order.Id).ShippingAccount__r.ExternalId__c;
-                String agCode = orderMap.get(order.Id).Account.ExternalId__c;
-                String zcCode = orderMap.get(order.Id).SalesCTV__r.CodigoSap__c;
-                CalloutOrderUpdate.callIntegration(order.Id, rmCode , agCode , zcCode);
-                CalloutOrderDatalake.callIntegration(order.Id);
+                if(System.URL.getCurrentRequestUrl() != null && System.URL.getCurrentRequestUrl().GetPath() != null && System.URL.getCurrentRequestUrl().GetPath().contains('/upsertOrderAppdigital')){
+                    String rmCode = orderMap.get(order.Id).ShippingAccount__r.ExternalId__c;
+                    String agCode = orderMap.get(order.Id).Account.ExternalId__c;
+                    String zcCode = orderMap.get(order.Id).SalesCTV__r.CodigoSap__c;
+                    CalloutOrderUpdate.callIntegration(order.Id, rmCode , agCode , zcCode);
+                    CalloutOrderDatalake.callIntegration(order.Id);
+                }
+                
             }  
         }
         Orderhelper.enableTrigger(); 
@@ -115,7 +118,7 @@ public without sharing class OrderHelper {
                     {
                         try{
                             Approval.ProcessSubmitRequest administrationRequest = new Approval.ProcessSubmitRequest();
-                            administrationRequest.setProcessDefinitionNameOrId('OrderApproval5');
+                            administrationRequest.setProcessDefinitionNameOrId('OrderApproval6');
                             administrationRequest.setComments(order.ApprovalJustification__c);
                             administrationRequest.setObjectId(order.Id);
                             Approval.ProcessResult approvalResult = Approval.process(administrationRequest);
@@ -172,7 +175,7 @@ public without sharing class OrderHelper {
                         
                         try{
                             Approval.ProcessSubmitRequest administrationRequest = new Approval.ProcessSubmitRequest();
-                            administrationRequest.setProcessDefinitionNameOrId('OrderApproval5');
+                            administrationRequest.setProcessDefinitionNameOrId('OrderApproval6');
                             administrationRequest.setComments(newMap.get(id).ApprovalJustification__c);
                             administrationRequest.setObjectId(id);
                             Approval.ProcessResult approvalResult = Approval.process(administrationRequest);

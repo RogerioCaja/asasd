@@ -1,4 +1,3 @@
-
 global without sharing class IntegrationINOrderInsert {
     public IntegrationINOrderInsert() {
 
@@ -49,6 +48,9 @@ global without sharing class IntegrationINOrderInsert {
             salesSectionLookups.add(order.ActivitySector);
             salesCTVLookups.add(order.SalesCTV);
             paymentConditionLookups.add(order.PaymentCondition);
+            if(order.PriceBook2Id == null){
+                order.PriceBook2Id = 'Standard Price Book';
+            }
             pricebookLookups.add(order.pricebook2Id);
             shippingAccountLookups.add(order.ShippingAccount);
             orderReferenceLookups.add(order.orderReference);
@@ -57,6 +59,8 @@ global without sharing class IntegrationINOrderInsert {
             order.company = order.PaymentAccount + order.CentroFornecedor + order.salesOrg + order.activitySector + order.distributionChannel + order.EscritorioVendas + order.EquipeVendas;
             companyLookups.add(order.company);
 
+            
+            System.debug('order.PriceBook2Id ' + order.PriceBook2Id);
             
             System.debug('companyLookups ' + companyLookups);
             if(order.orderItems != null) {
@@ -190,7 +194,9 @@ global without sharing class IntegrationINOrderInsert {
             lookups.put('CondicaoPagamento__c' + paymentCondition.Code__c, paymentCondition.Id);
         }
         for (Pricebook2 pricebook2Id : [SELECT Id, ExternalId__c, Name FROM Pricebook2 WHERE Name IN : pricebookLookups ]){
+            
             lookups.put('Pricebook2Id' + pricebook2Id.Name, pricebook2Id.Id);
+            
         }
 
         for (Order orderReference: [SELECT Id, CodigoSap__c FROM Order WHERE CodigoSap__c IN : orderReferenceLookups]){
@@ -218,6 +224,7 @@ global without sharing class IntegrationINOrderInsert {
         for(Order ordUp :orderListToUpsert){
             orderUpMap.put(ordUp.CodigoSap__c, ordUp.Id);
         }
+        Map<String, String> orderIdEx = new Map<String, String>();
         for (TemplateDataIntegrationFields.OrderItemINData orderIt : orderItemListToUpsert){
             String orderId;
             
@@ -225,7 +232,9 @@ global without sharing class IntegrationINOrderInsert {
                     orderId = orderUpMap.get(orderIt.orderExternalId);
                     
                     orderIt.orderExternalId = orderId;
-                } 
+                    
+                    orderIdEx.put(orderId, orderIt.orderExternalId);
+                }
         }
         
         for (TemplateDataIntegrationFields.ShippingDivisonINData shipIt : shippingDivisonListToUpsert){
@@ -257,6 +266,21 @@ global without sharing class IntegrationINOrderInsert {
             );
             System.debug('shippingDivisonResponse' + shippingDivisonResponse);
         }
+        
+        	 AggregateResult[] resulTotal =[SELECT SUM(FinalTotalValue__c) somatoria FROM OrderItem WHERE OrderId =: orderIdEx.keySet()];
+        	 List<OrderItem> orderItemListT = [SELECT Id,  FinalTotalValue__c FROM OrderItem WHERE OrderId =: orderIdEx.keySet()];
+        	 System.debug('orderItemListT ' + orderItemListT);
+             System.debug('resulTotal ' + resulTotal);
+             Order order = new Order();
+             order.Id = (new List<String>(orderIdEx.keySet()))[0]; //(new List<String>(posts.keySet()))[0]
+             //Object avgAmount = resulTotal[0].get('somatoria');
+             order.FinalTotalValue__c  = (Decimal)resulTotal[0].get('somatoria');
+             System.debug('order.FinalTotalValue__c ' + order.FinalTotalValue__c);
+             OrderHelper.disableTrigger();
+             update order;
+             OrderHelper.enableTrigger();
+        
+        
         System.debug('Chegou!? ');
         //Associating child object's response with object response
         // Pega todas as respostas dos OrderItem
@@ -324,4 +348,3 @@ global without sharing class IntegrationINOrderInsert {
         }
     }
 }
-
