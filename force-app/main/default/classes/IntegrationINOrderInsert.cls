@@ -74,7 +74,9 @@ global without sharing class IntegrationINOrderInsert {
                 //Getting list of order items
                 orderItemListToUpsert.addAll(order.orderItems);
                 System.debug('orderItemListToUpsert' + orderItemListToUpsert); 
-
+                if(order.salesType == 'ZVAB'){
+                	order.salesType = 'ZVNO';
+            	}
                 switch on order.salesType {
                     // ---- Pedido mãe  ----
                      when 'ZCCO' {

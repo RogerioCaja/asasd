@@ -20,6 +20,29 @@
         <senderType>CurrentUser</senderType>
         <template>unfiled$public/Pedido_Recusado</template>
     </alerts>
+    <alerts>
+        <fullName>Solicitacao_de_Aprovacao_do_Pedido</fullName>
+        <description>Solicitação de Aprovação do Pedido</description>
+        <protected>false</protected>
+        <recipients>
+            <field>ApprovalBranchManager__c</field>
+            <type>userLookup</type>
+        </recipients>
+        <recipients>
+            <field>ApprovalDirector__c</field>
+            <type>userLookup</type>
+        </recipients>
+        <recipients>
+            <field>ApprovalRegionalManager__c</field>
+            <type>userLookup</type>
+        </recipients>
+        <recipients>
+            <field>Aprovador_ComiteMargem__c</field>
+            <type>userLookup</type>
+        </recipients>
+        <senderType>CurrentUser</senderType>
+        <template>unfiled$public/ApprovalRequest</template>
+    </alerts>
     <fieldUpdates>
         <fullName>AprovacaoDiretor</fullName>
         <field>StatusSF__c</field>
