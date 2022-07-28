@@ -438,13 +438,15 @@ global without sharing class IntegrationINOrder {
             System.debug('orderListToUpsert1111 ' + orderListToUpsert);
         }
         
-        
+        Map<String, String> orderIdEx = new Map<String, String>();
         for (TemplateDataIntegrationFields.OrderItemINData orderIt : orderItemListToUpsert){
             String orderId;
                if(orderIt.orderExternalId != null){
 		            orderId = ordersIdsMap.get(orderIt.orderExternalId).Id;
                     
                     orderIt.orderExternalId = orderId;
+
+                    orderIdEx.put(orderId, orderIt.orderExternalId);
                 }  
                   
         }
@@ -477,6 +479,18 @@ global without sharing class IntegrationINOrder {
             );
         }
 
+             AggregateResult[] resulTotal =[SELECT SUM(FinalTotalValue__c) somatoria FROM OrderItem WHERE OrderId =: orderIdEx.keySet()];
+        	 List<OrderItem> orderItemListT = [SELECT Id,  FinalTotalValue__c FROM OrderItem WHERE OrderId =: orderIdEx.keySet()];
+        	 System.debug('orderItemListT ' + orderItemListT);
+             System.debug('resulTotal ' + resulTotal);
+             Order order = new Order();
+             order.Id = (new List<String>(orderIdEx.keySet()))[0]; //(new List<String>(posts.keySet()))[0]
+             //Object avgAmount = resulTotal[0].get('somatoria');
+             order.FinalTotalValue__c  = (Decimal)resulTotal[0].get('somatoria');
+             System.debug('order.FinalTotalValue__c ' + order.FinalTotalValue__c);
+             OrderHelper.disableTrigger();
+             upsert order;
+             OrderHelper.enableTrigger();
         //Associating child object's response with object response
         // Pega todas as respostas dos OrderItem
         for(TemplateDataIntegrationFields.ResponseParent response : responseList){
