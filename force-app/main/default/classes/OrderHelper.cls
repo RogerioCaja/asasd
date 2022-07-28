@@ -118,7 +118,7 @@ public without sharing class OrderHelper {
                     {
                         try{
                             Approval.ProcessSubmitRequest administrationRequest = new Approval.ProcessSubmitRequest();
-                            administrationRequest.setProcessDefinitionNameOrId('OrderApproval6');
+                            administrationRequest.setProcessDefinitionNameOrId('OrderApproval7');
                             administrationRequest.setComments(order.ApprovalJustification__c);
                             administrationRequest.setObjectId(order.Id);
                             Approval.ProcessResult approvalResult = Approval.process(administrationRequest);
@@ -175,7 +175,7 @@ public without sharing class OrderHelper {
                         
                         try{
                             Approval.ProcessSubmitRequest administrationRequest = new Approval.ProcessSubmitRequest();
-                            administrationRequest.setProcessDefinitionNameOrId('OrderApproval6');
+                            administrationRequest.setProcessDefinitionNameOrId('OrderApproval7');
                             administrationRequest.setComments(newMap.get(id).ApprovalJustification__c);
                             administrationRequest.setObjectId(id);
                             Approval.ProcessResult approvalResult = Approval.process(administrationRequest);
