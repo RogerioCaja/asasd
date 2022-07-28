@@ -470,18 +470,18 @@ public without sharing class CalloutBP {
 
             HttpResponse response = responseObject.response;
 
-            //IntegrationLog.createLog('Bp OUT', 'OUT', response.getBody(), payload, false);
+            IntegrationLog.createLog('Bp OUT', 'OUT', response.getBody(), payload, false);
             // .WSLog('Pedido', 'OUTBOUND', response.getBody(), payload, false);
             System.debug('response.getBody(): '+ response.getBody());
             try {
                 List<ResponseParametersWrapper> responses = (List<ResponseParametersWrapper>) JSON.deserialize(response.getBody(), List<ResponseParametersWrapper>.class);
                 System.debug('responses2: '+ responses);
-                IntegrationLog.createLog('Bp OUT', 'OUT', response.getBody(), payload, false);
+                // IntegrationLog.createLog('Bp OUT', 'OUT', response.getBody(), payload, false);
                 return new IntegrationUtils.CalloutBpResponse(new ResponseParameters(responses));
             } catch (Exception e) {
                 
                 String defaultErrorMessage = 'Malformatted HTTP Response Exception: ' + e.getMessage();
-                IntegrationLog.createLog('Bp OUT', 'OUT', defaultErrorMessage, payload, true);
+                // IntegrationLog.createLog('Bp OUT', 'OUT', defaultErrorMessage, payload, true);
                 return new IntegrationUtils.CalloutBpResponse(defaultErrorMessage);
             }
         } else {
