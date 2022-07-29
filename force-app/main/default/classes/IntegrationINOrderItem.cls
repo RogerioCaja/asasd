@@ -45,6 +45,14 @@ global with sharing class IntegrationINOrderItem {
                         OrderItemINData.porcentagemAcrescFin = Decimal.valueOf(conditions.KBETR);
 
                     }
+                    if(conditions.KSCHL == 'ZMAR'){
+                        OrderItemINData.margemComercial = Decimal.valueOf(conditions.KBETR);
+                    }
+
+                    if(conditions.KSCHL == 'ZCP0'){
+                        OrderItemINData.custoPreco = Decimal.valueOf(conditions.KBETR);
+                    }
+
                     if(conditions.KSCHL == 'ZDEC'){
                         
                         OrderItemINData.porcentagemAcrescComercial = 0;
