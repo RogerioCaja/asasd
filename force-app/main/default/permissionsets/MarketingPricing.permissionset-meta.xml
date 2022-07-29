@@ -2099,6 +2099,21 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>PTAProducts__c.Harvest__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>PTAProducts__c.PTAProduct__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>PTAProducts__c.SalesOrg__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Safra__c.EndDateInsertionOrders__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -2574,6 +2589,15 @@
     </objectPermissions>
     <objectPermissions>
         <allowCreate>true</allowCreate>
+        <allowDelete>true</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>true</modifyAllRecords>
+        <object>PTAProducts__c</object>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
         <allowDelete>false</allowDelete>
         <allowEdit>true</allowEdit>
         <allowRead>true</allowRead>
@@ -2776,6 +2800,10 @@
     </tabSettings>
     <tabSettings>
         <tab>ProdutosPlanejamento__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>PTAProducts__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
     <tabSettings>
