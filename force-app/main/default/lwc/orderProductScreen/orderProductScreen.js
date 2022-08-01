@@ -275,7 +275,8 @@ export default class OrderProductScreen extends LightningElement {
             productSubgroupName: currentProduct.productSubgroupName,
             orderId: currentProduct.orderId,
             serviceDate: currentProduct.serviceDate,
-            comissionValue: currentProduct.comissionValue
+            comissionValue: currentProduct.comissionValue,
+            ptaProduct: currentProduct.ptaProduct
         };
         return newProduct;
     }
@@ -542,7 +543,8 @@ export default class OrderProductScreen extends LightningElement {
                     productSubgroupName: currentProduct.productSubgroupName != null ? currentProduct.productSubgroupName : '',
                     productHierarchyId: currentProduct.productHierarchyId != null ? currentProduct.productHierarchyId : '',
                     sapStatus: currentProduct.sapStatus != null ? currentProduct.sapStatus : '',
-                    sapProductCode: currentProduct.sapProductCode != null ? currentProduct.sapProductCode : ''
+                    sapProductCode: currentProduct.sapProductCode != null ? currentProduct.sapProductCode : '',
+                    ptaProduct: currentProduct.ptaProduct
                 };
             }
         }
