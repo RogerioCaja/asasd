@@ -389,7 +389,7 @@ public class OrderScreenControllerTest {
     @isTest
     public static void getAccountCompaniesTest() {
         Id accountId = [SELECT Id FROM Account WHERE Name = 'Parent Account' LIMIT 1].Id;
-        OrderScreenController.getAccountCompanies('{"ctvId":"' + UserInfo.getUserId() + '","accountId":"' + accountId + '","approvalNumber":1}', false);
+        OrderScreenController.getAccountCompanies('{"ctvId":"' + UserInfo.getUserId() + '","accountId":"' + accountId + '","approvalNumber":1}', false, false);
     }
 
     @isTest

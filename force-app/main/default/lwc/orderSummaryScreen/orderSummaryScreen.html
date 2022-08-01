@@ -131,7 +131,7 @@
                         <span>Aprovação Comercial: </span>
                         <span>{approval}</span>
                     </section>
-                    <section if:false={isBarter}>
+                    <section if:false={hideMargin}>
                         <span>Margem do Pedido: </span>
                         <span>{orderMargin}</span>
                     </section>
@@ -154,7 +154,7 @@
               <th if:false={isBarter}>Valor Desconto Comercial</th>
               <th if:false={isBarter}>Grupo de Produtos</th>
               <th if:false={isBarter}>% de Desconto</th>
-              <th if:false={isBarter}>Margem do Item</th>
+              <th if:false={hideMargin}>Margem do Item</th>
               <th>Calenderização</th>
             </tr>
         
@@ -168,7 +168,7 @@
                     <td if:false={isBarter}>{product.commercialDiscountValue}</td>
                     <td if:false={isBarter}>{product.productGroupName}</td>
                     <td if:false={isBarter}>{product.commercialDiscountPercentage}</td>
-                    <td if:false={isBarter}>{product.commercialMarginPercentage}</td>
+                    <td if:false={hideMargin}>{product.commercialMarginPercentage}</td>
                       <td>
                           <div class="tooltip">
                               <a>
