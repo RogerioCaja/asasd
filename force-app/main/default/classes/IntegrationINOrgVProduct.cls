@@ -44,7 +44,8 @@ global with sharing class IntegrationINOrgVProduct {
         
         for(TemplateDataIntegrationFields.OrgVProductINData orgV : request) {
             // como estava = parentMapKeys.put(ORDEREXTERNALID + '|' + ORDERITEMEXTERNALID, lookups.containsKey('Order'+ORDEREXTERNALID) ? lookups.get('Order'+ORDEREXTERNALID) : ORDEREXTERNALID);
-            //parentMapKeys.put(invoiceItem.nfExternalId + '|' + invoiceItem.notaFiscal, lookups.containsKey('NotaFiscal__c'+invoiceItem.nfExternalId) ? String.valueOf(lookups.get('NotaFiscal__c'+invoiceItem.nfExternalId)) : invoiceItem.nfExternalId);
+            parentMapKeys.put(orgV.productExternalId + '|' + (orgV.OrganizacaoVendas + '|' + orgV.OrgProduct + '|' + orgV.centroFilial), lookups.containsKey('Product2'+orgV.OrgProduct) ? String.valueOf(lookups.get('Product2'+orgV.OrgProduct)) : orgV.OrgProduct);
+            System.debug('Parent Map ' + parentMapKeys);
         }
         
         // Valida e adiciona os OrderItem na lista para o upsert
