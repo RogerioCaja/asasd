@@ -892,6 +892,21 @@ public without sharing class OrderScreenController {
         GetCompanyInfos companyInfos = (GetCompanyInfos) JSON.deserialize(data, GetCompanyInfos.class);
         Id userTerritoryId;
         Boolean sellerPosition = false;
+
+        for (UserTerritory2Association userAssociation : [
+            SELECT Id,
+                   Territory2.Territory2Type.DeveloperName
+              FROM UserTerritory2Association
+             WHERE UserId =: UserInfo.getUserId()
+             LIMIT 1
+        ]) {
+            sellerPosition = userAssociation.Territory2.Territory2Type.DeveloperName == 'SellerPosition' ? true : false;
+        }
+        
+        if (verifyUserType) {
+            sellerPosition = true;
+            return JSON.serialize(sellerPosition);
+        }
         
         for (UserTerritory2Association userAssociation : [
             SELECT Id,
@@ -903,12 +918,6 @@ public without sharing class OrderScreenController {
              LIMIT 1
         ]) {
             userTerritoryId = userAssociation.Territory2Id;
-            sellerPosition = userAssociation.Territory2.Territory2Type.DeveloperName == 'SellerPosition' ? true : false;
-        }
-
-        if (verifyUserType) {
-            sellerPosition = true;
-            return JSON.serialize(sellerPosition);
         }
 
         Map<Id, Territory2> territoryAndParents = new Map<Id, Territory2>();
