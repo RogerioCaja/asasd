@@ -104,7 +104,8 @@ public without sharing class OrderScreenController {
                    FinancialDiscountValue__c,
                    ComissionValue__c,
                    CommercialMargin__c,
-                   AmountUsed__c
+                   AmountUsed__c,
+                   PTA__c
               FROM OrderItem
              WHERE OrderId =: orderId
         ]){
@@ -663,6 +664,7 @@ public without sharing class OrderScreenController {
                                                     ) :
                                                     0;
                     orderItem.ComissionValue__c = orderItem.PercentComission__c != 0 ? ((orderItem.FinalTotalValue__c * orderItem.PercentComission__c) / 100) : 0;
+                    orderItem.PTA__c = orderProduct.ptaProduct;
                     listOrderItems.add(orderItem);
                 }
                 OrderHelper.disableTrigger();
@@ -1272,6 +1274,7 @@ public without sharing class OrderScreenController {
         public String  financialAdditionPercentage;
         public String  financialDecreasePercentage;
         public Integer position;
+        public Boolean ptaProduct;
         public Decimal invoicedQuantity;
         public Decimal motherAvailableQuantity;
         public Decimal quantity;
@@ -1534,6 +1537,7 @@ public without sharing class OrderScreenController {
         public String  financialAdditionPercentage;
         public String  financialDecreasePercentage;
         public Integer position;
+        public Boolean ptaProduct;
         public Decimal multiplicity;
         public Decimal invoicedQuantity;
         public Decimal quantity;
@@ -1590,6 +1594,7 @@ public without sharing class OrderScreenController {
             this.financialDecreaseValue = orderItem.FinancialDiscountValue__c;
             this.comissionValue = orderItem.ComissionValue__c;
             this.commercialMarginPercentage = orderItem.CommercialMargin__c;
+            this.ptaProduct = orderItem.PTA__c;
         }
     }
 

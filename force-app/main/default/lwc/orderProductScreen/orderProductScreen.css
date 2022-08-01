@@ -396,21 +396,22 @@ lightning-datatable.dt-outer-container {
 }
 
 .star-style {
-	padding: 10px;
     float: right;
 	cursor: pointer;
 }
 
 .tooltip {
 	position: relative;
-	display: inline-block;
-	float: right;
-	width: 100%;
+    display: inline-block;
+    float: right;
+    width: 30%;
+    margin-top: 11px;
+    margin-right: 4px;
 }
   
 .tooltip .tooltiptext {
 	visibility: hidden;
-	width: 130px;
+    width: 130px;
     background-color: rgba(42, 150, 118, 0.9);
     color: #fff;
     text-align: center;
@@ -418,8 +419,8 @@ lightning-datatable.dt-outer-container {
     padding: 5px 0;
     position: absolute;
     z-index: 1;
-    bottom: 85%;
-    margin-left: -75px;
+    bottom: 50%;
+    margin-left: -120px;
 }
   
 .tooltip:hover .tooltiptext {
