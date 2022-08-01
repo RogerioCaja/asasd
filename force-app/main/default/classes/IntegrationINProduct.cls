@@ -27,7 +27,15 @@ global with sharing class IntegrationINProduct {
             productSubGroupLookups.add(product.SubgrupoMercadoria);
             productHierarchyLookups.add(product.hierarquiaProduto);
 
-            orgVProductListToUpsert.addAll(product.orgVProductItems);
+            if(product.orgVProductItems != null) {
+
+                for (TemplateDataIntegrationFields.OrgVProductINData orgVProduct : product.orgVProductItems){
+                    orgVProduct.productExternalId = product.ProductCode;
+                }
+                orgVProductListToUpsert.addAll(product.orgVProductItems);
+                System.debug('orgVProductListToUpsert' + orgVProductListToUpsert); 
+            }
+            
             System.debug('orgVProductListToUpsert --->' + orgVProductListToUpsert);
         }
         // Pega o Id da conta com base no CNPJ da conta

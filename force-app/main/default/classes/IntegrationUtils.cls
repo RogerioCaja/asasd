@@ -143,6 +143,17 @@ public class IntegrationUtils {
                     responseMap.put(aux.Invoice__c, new List<TemplateDataINtegrationFields.Response>{responseData});
                 }
             }
+
+            if (objResult.getSObjectType() == globalDescribe.get('OrgVProduct__c')){
+                OrgVProduct__c aux = (OrgVProduct__c)objResult;
+                if(responseMap.KeySet().contains(aux.Product__c)){
+                    responseMap.get(aux.Product__c).add(responseData);
+                }
+                else{
+                    responseMap.put(aux.Product__c, new List<TemplateDataINtegrationFields.Response>{responseData});
+                }
+            }
+
         }
     }
     
