@@ -222,9 +222,9 @@ global without sharing class IntegrationINOrder {
             if (order.paymentDate == null){
                 order.paymentDate = ord.PaymentDate__c;
             }
-            if (order.effectiveDate == null){
+            
                 order.effectiveDate = ord.EffectiveDate;
-            }
+            
             if(order.ShippingDate == null){
                 order.ShippingDate = ord.ShippingDate__c;
             }
