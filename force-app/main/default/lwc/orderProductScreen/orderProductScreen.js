@@ -197,7 +197,7 @@ export default class OrderProductScreen extends LightningElement {
             approvalNumber: 1
         }
 
-        getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: false})
+        getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: false, verifyUserType: false})
         .then((result) => {
             this.companyResult = JSON.parse(result).listCompanyInfos;
             if (this.headerData.companyId != null) {
@@ -345,7 +345,10 @@ export default class OrderProductScreen extends LightningElement {
                     culture: this.headerData.cultura.Id != null ? this.headerData.cultura.Id : ''
                 };
 
-                if (this.headerData.pre_pedido) {
+                let allowChange = (this.headerData.tipo_pedido != 'Pedido Filho' && !this.headerData.IsOrderChild && this.isFilled(this.headerData.codigo_sap)) ||
+                                  (this.headerData.tipo_pedido == 'Pedido Filho' && this.isFilled(this.headerData.codigo_sap)) ? false : true;
+
+                if (this.headerData.pre_pedido && allowChange) {
                     let prodsIds = [];
                     for (let index = 0; index < this.products.length; index++) {
                         prodsIds.push(this.products[index].productId);
@@ -397,7 +400,7 @@ export default class OrderProductScreen extends LightningElement {
                     });
                 }
 
-                if (!this.headerData.IsOrderChild) {
+                if (!this.headerData.IsOrderChild && allowChange) {
                     getFinancialInfos({data: JSON.stringify(orderData)})
                     .then((result) => {
                         this.financialInfos = JSON.parse(result);

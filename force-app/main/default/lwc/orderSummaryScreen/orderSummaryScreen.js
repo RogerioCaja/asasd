@@ -1,5 +1,6 @@
 import { LightningElement, api, track } from 'lwc';
 import approval from '@salesforce/apex/OrderScreenController.approvals';
+import getAccountCompanies from '@salesforce/apex/OrderScreenController.getAccountCompanies';
 
 export default class OrderSummaryScreen extends LightningElement {
     staticValue = 'hidden';
@@ -9,6 +10,7 @@ export default class OrderSummaryScreen extends LightningElement {
     formattedPaymentDate;
     formattedDeliveryDate;
     totalDelivery;
+    hideMargin = false;
 
     @track orderMargin = 0;
     @track approval = '';
@@ -30,6 +32,19 @@ export default class OrderSummaryScreen extends LightningElement {
     connectedCallback(){
         this.summaryDataLocale = {... this.summaryData};
         this.loadData();
+
+        let getCompanyData = {
+            ctvId: this.headerData.ctv_venda.Id != null ? this.headerData.ctv_venda.Id : '',
+            accountId: this.accountData.Id != null ? this.accountData.Id : '',
+            orderType: this.headerData.tipo_venda,
+            approvalNumber: 1
+        }
+
+        getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: false, verifyUserType: true})
+        .then((result) => {
+            this.hideMargin = JSON.parse(result);
+        });
+
         const data = {accountData: this.accountData, headerData: this.headerData, productData: this.productData, divisionData: this.divisionData, summaryData: this.summaryData};
         approval({
             data: JSON.stringify(data)
@@ -76,6 +91,7 @@ export default class OrderSummaryScreen extends LightningElement {
             if(this.headerData.tipo_venda == 'Venda Barter'){
                 for(var i= 0; i< this.productDataLocale.length; i++){
                     this.isBarter = true;
+                    this.hideMargin = true;
                     this.orderMargin = this.commodityDataLocale[0].marginValue;
                     this.totalDelivery = this.commodityDataLocale[0].totalDeliveryFront.replace(' sacas', '');
                     let unitPrice = Number(this.productDataLocale[i].unitPrice) / Number(this.commodityDataLocale[0].commodityPrice);
@@ -96,13 +112,11 @@ export default class OrderSummaryScreen extends LightningElement {
             }
             else{
                 for(var i= 0; i< this.productDataLocale.length; i++){
+                    console.log('this.productDataLocale[i]: ' + JSON.stringify(this.productDataLocale[i]));
                     orderTotalPrice += Number(this.productDataLocale[i].unitPrice) * Number(this.productDataLocale[i].quantity);
                     orderTotalCost += Number(this.productDataLocale[i].practicedCost) * Number(this.productDataLocale[i].quantity);
-                    // this.productDataLocale[i]['unitPrice'] = this.formatCurrency(this.productDataLocale[i].unitPriceFront);
-                    this.productDataLocale[i]['unitPrice'] = 'R$ ' + this.productDataLocale[i].unitPriceFront;
-                    // this.productDataLocale[i]['totalPrice']  = this.formatCurrency(this.productDataLocale[i].totalPriceFront);
-                    this.productDataLocale[i]['totalPrice']  = 'R$ ' + this.productDataLocale[i].totalPriceFront;
-                    // this.productDataLocale[i]['commercialDiscountValue']  =  this.formatCurrency(this.fixDecimalPlacesFront(this.productDataLocale[i].commercialDiscountValue));
+                    this.productDataLocale[i]['unitPrice'] = 'R$ ' + this.fixDecimalPlacesFront(this.productDataLocale[i].unitPrice);
+                    this.productDataLocale[i]['totalPrice']  = 'R$ ' + this.fixDecimalPlacesFront(this.productDataLocale[i].totalPrice);
                     this.productDataLocale[i]['commercialDiscountValue']  = 'R$ ' +  this.fixDecimalPlacesFront(this.productDataLocale[i].commercialDiscountValue);
                     this.productDataLocale[i]['commercialDiscountPercentage']  =  this.fixDecimalPlacesPercentage(this.productDataLocale[i].commercialDiscountPercentage);
                     this.productDataLocale[i]['commercialMarginPercentage']  = this.fixDecimalPlacesFront(this.productDataLocale[i].commercialMarginPercentage) + '%';
