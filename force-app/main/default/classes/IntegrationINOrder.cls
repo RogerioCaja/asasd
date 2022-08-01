@@ -482,7 +482,7 @@ global without sharing class IntegrationINOrder {
         }
        
        
-		     AggregateResult[] resulTotal =[SELECT SUM(FinalTotalValue__c) somatoria FROM OrderItem WHERE OrderId =: orderIdEx.keySet() AND ReasonRefuse__c  =: null AND ReasonRefuse__c  =: ''];
+            AggregateResult[] resulTotal =[SELECT SUM(FinalTotalValue__c) somatoria FROM OrderItem WHERE OrderId =: orderIdEx.keySet() AND ReasonRefuse__c  =: null AND ReasonRefuse__c  =: ''];
              Order order = new Order();
              order.Id = (new List<String>(orderIdEx.keySet()))[0]; //(new List<String>(posts.keySet()))[0]
              //Object avgAmount = resulTotal[0].get('somatoria');

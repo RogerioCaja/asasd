@@ -178,6 +178,7 @@ global with sharing class TemplateDataIntegrationFields {
     global class OrgVProductINData implements FieldDataChild{
         
         //JSON fields Example
+        public String productExternalId;
         public String OrgVId;
         public String centroFilial;
         public String OrganizacaoVendas;
