@@ -266,7 +266,6 @@ global with sharing class IntegrationINOrderItem {
                     orderItem.precoUnitario = ordItem.UnitPrice;
                 }  
             }
-             
         }
         // Pega o produto com base no ExternalID recebido
         //Product2 search based on ExternalId__c field sent

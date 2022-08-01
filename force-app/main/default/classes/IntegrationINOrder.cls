@@ -480,9 +480,11 @@ global without sharing class IntegrationINOrder {
                 IntegrationINShippingDivison.upsertShippingDivison(shippingDivisonListToUpsert)
             );
         }
-       
-       
-		     AggregateResult[] resulTotal =[SELECT SUM(FinalTotalValue__c) somatoria FROM OrderItem WHERE OrderId =: orderIdEx.keySet() AND ReasonRefuse__c  =: null AND ReasonRefuse__c  =: ''];
+
+            AggregateResult[] resulTotal =[SELECT SUM(FinalTotalValue__c) somatoria FROM OrderItem WHERE OrderId =: orderIdEx.keySet() AND ReasonRefuse__c  =: null AND ReasonRefuse__c  =: ''];
+        	 List<OrderItem> orderItemListT = [SELECT Id,  FinalTotalValue__c FROM OrderItem WHERE OrderId =: orderIdEx.keySet()];
+        	 System.debug('orderItemListT ' + orderItemListT);
+             System.debug('resulTotal ' + resulTotal);
              Order order = new Order();
              order.Id = (new List<String>(orderIdEx.keySet()))[0]; //(new List<String>(posts.keySet()))[0]
              //Object avgAmount = resulTotal[0].get('somatoria');
