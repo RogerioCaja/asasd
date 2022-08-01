@@ -483,7 +483,7 @@ public without sharing class CalloutBP {
                 try{
                     ResponseNothing responses = (ResponseNothing) JSON.deserialize(response.getBody(), ResponseNothing.class);
                     String defaultErrorMessager = 'Malformatted HTTP Response Exception: ' + e.getMessage();
-                    IntegrationLog.createLog('Bp OUT', 'OUT', response.getBody(), payload, false);
+                    //IntegrationLog.createLog('Bp OUT', 'OUT', response.getBody(), payload, false);
                     return new IntegrationUtils.CalloutBpResponse(defaultErrorMessager);
                 } catch (Exception er) {
                     String defaultErrorMessage = 'Malformatted HTTP Response Exception: ' + er.getMessage();
