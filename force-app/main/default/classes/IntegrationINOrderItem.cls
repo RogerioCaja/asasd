@@ -45,7 +45,6 @@ global with sharing class IntegrationINOrderItem {
                         OrderItemINData.porcentagemAcrescFin = Decimal.valueOf(conditions.KBETR);
 
                     }
-
                     if(conditions.KSCHL == 'ZMAR'){
                         OrderItemINData.margemComercial = Decimal.valueOf(conditions.KBETR);
                     }
@@ -155,115 +154,117 @@ global with sharing class IntegrationINOrderItem {
         System.debug('orderItemsIdsMap ' + orderItemsIdsMap);
         for (TemplateDataIntegrationFields.OrderItemINData orderItem : request){
             OrderItem ordItem = orderItemsIdsMap.get(orderItem.orderExternalId + '|' + orderItem.orderItemCode);
-            System.debug('OrderItem ' + ordItem);
-            System.debug('orderExternalId ' + orderItem.orderExternalId);
-
-            System.debug('orderItem.orderExternalId '+ orderItem.orderExternalId);
-            
-            if(orderItem.orderExternalId == null){
-                System.debug('ordItem.OrderId '+ ordItem.OrderId);
-                if(ordItem.OrderId != null){
-                    orderItem.orderExternalId = ordItem.OrderId; 
-                    lookups.put('Order' + ordItem.Order.CodigoSap__c, ordItem.OrderId);
-                    System.debug('lookups ' + lookups);
+            if(ordItem != null){
+                System.debug('OrderItem ' + ordItem);
+                System.debug('orderExternalId ' + orderItem.orderExternalId);
+    
+                System.debug('orderItem.orderExternalId '+ orderItem.orderExternalId);
+                
+                if(orderItem.orderExternalId == null){
+                    System.debug('ordItem.OrderId '+ ordItem.OrderId);
+                    if(ordItem.OrderId != null){
+                        orderItem.orderExternalId = ordItem.OrderId; 
+                        lookups.put('Order' + ordItem.Order.CodigoSap__c, ordItem.OrderId);
+                        System.debug('lookups ' + lookups);
+                    }
                 }
+                
+                if(orderItem.material == null){
+                    if(ordItem.Product2Id != null){
+                        orderItem.material = ordItem.Product2.ProductCode__c;
+                        lookups.put('PricebookEntry' + ordItem.Product2.ProductCode__c, ordItem.Product2Id);
+                    } 
+                }
+                
+    
+                if(orderItem.material == null){
+                    if(ordItem.Product2Id != null){
+                        orderItem.material = ordItem.Product2.ProductCode__c;
+                        lookups.put('Product2' + ordItem.Product2.ProductCode__c, ordItem.Product2Id);
+                    } 
+                }
+                                  
+                
+                if(orderItem.quantidade == null){
+                    orderItem.quantidade = ordItem.Quantity;
+                }
+    
+                if(orderItem.unidadeMedida == null){
+                    orderItem.unidadeMedida = ordItem.UnitMeasure__c;
+                }
+    
+                if(orderItem.porcentagemComissao == null){
+                    orderItem.porcentagemComissao = ordItem.PercentComission__c;
+                }
+    
+                if(orderItem.porcentagemDesconto == null){
+                    orderItem.porcentagemDesconto = ordItem.DiscountPercent__c;
+                }
+    
+                if(orderItem.comissaoValor == null){
+                    orderItem.comissaoValor = ordItem.ComissionValue__c;
+                }
+    
+                if(orderItem.margemComercial == null){
+                    orderItem.margemComercial = ordItem.CommercialMargin__c;
+                }
+    
+                if(orderItem.descontoValor == null){
+                    orderItem.descontoValor = ordItem.DiscountValue__c;
+                }
+    
+                if(orderItem.valorTotal == null){
+                    orderItem.valorTotal = ordItem.FinalTotalValue__c;
+                }
+    
+                if(orderItem.porcentagemDescontoFin == null){
+                    orderItem.porcentagemDescontoFin = ordItem.FinancialDiscountPercent__c;
+                }
+    
+                if(orderItem.valorDescontoFin == null){
+                    orderItem.valorDescontoFin = ordItem.FinancialDiscountValue__c;
+                }
+    
+                if(orderItem.porcentagemAcrescFin == null){
+                    orderItem.porcentagemAcrescFin = ordItem.FinancialAdditionPercent__c;
+                }
+    
+                if(orderItem.valorAcrescFin == null){
+                    orderItem.valorAcrescFin = ordItem.FinancialAdditionValue__c;
+                }
+    
+                if(orderItem.porcentagemAcrescComercial == null){
+                    orderItem.porcentagemAcrescComercial = ordItem.CommercialAdditionPercent__c;
+                }
+    
+                if(orderItem.valorAcrescComercial == null){
+                   orderItem.valorAcrescComercial = ordItem.CommercialAdditionValue__c;
+                }
+    
+                if(orderItem.dosagem == null){
+                   orderItem.dosagem = ordItem.Dosage__c;
+                }
+    
+                if(orderItem.custoLista == null){
+                    orderItem.custoLista = ordItem.ListCost__c;
+                }
+    
+                if(orderItem.orderItemCode == null){
+                   orderItem.orderItemCode = ordItem.NumeroSap__c;
+                }
+    
+                if(orderItem.custoPreco == null){
+                    orderItem.custoPreco = ordItem.PracticedCost__c;
+                }
+    
+                if(orderItem.precoPraticado == null){
+                    orderItem.precoPraticado = ordItem.PracticedPrice__c;
+                }
+    
+                if(orderItem.precoUnitario == null){
+                    orderItem.precoUnitario = ordItem.UnitPrice;
+                }  
             }
-            
-            if(orderItem.material == null){
-                if(ordItem.Product2Id != null){
-                    orderItem.material = ordItem.Product2.ProductCode__c;
-                    lookups.put('PricebookEntry' + ordItem.Product2.ProductCode__c, ordItem.Product2Id);
-                } 
-            }
-            
-
-            if(orderItem.material == null){
-                if(ordItem.Product2Id != null){
-                    orderItem.material = ordItem.Product2.ProductCode__c;
-                    lookups.put('Product2' + ordItem.Product2.ProductCode__c, ordItem.Product2Id);
-                } 
-            }
-                              
-            
-            if(orderItem.quantidade == null){
-                orderItem.quantidade = ordItem.Quantity;
-            }
-
-            if(orderItem.unidadeMedida == null){
-                orderItem.unidadeMedida = ordItem.UnitMeasure__c;
-            }
-
-            if(orderItem.porcentagemComissao == null){
-                orderItem.porcentagemComissao = ordItem.PercentComission__c;
-            }
-
-            if(orderItem.porcentagemDesconto == null){
-                orderItem.porcentagemDesconto = ordItem.DiscountPercent__c;
-            }
-
-            if(orderItem.comissaoValor == null){
-                orderItem.comissaoValor = ordItem.ComissionValue__c;
-            }
-
-            if(orderItem.margemComercial == null){
-                orderItem.margemComercial = ordItem.CommercialMargin__c;
-            }
-
-            if(orderItem.descontoValor == null){
-                orderItem.descontoValor = ordItem.DiscountValue__c;
-            }
-
-            if(orderItem.valorTotal == null){
-                orderItem.valorTotal = ordItem.FinalTotalValue__c;
-            }
-
-            if(orderItem.porcentagemDescontoFin == null){
-                orderItem.porcentagemDescontoFin = ordItem.FinancialDiscountPercent__c;
-            }
-
-            if(orderItem.valorDescontoFin == null){
-                orderItem.valorDescontoFin = ordItem.FinancialDiscountValue__c;
-            }
-
-            if(orderItem.porcentagemAcrescFin == null){
-                orderItem.porcentagemAcrescFin = ordItem.FinancialAdditionPercent__c;
-            }
-
-            if(orderItem.valorAcrescFin == null){
-                orderItem.valorAcrescFin = ordItem.FinancialAdditionValue__c;
-            }
-
-            if(orderItem.porcentagemAcrescComercial == null){
-                orderItem.porcentagemAcrescComercial = ordItem.CommercialAdditionPercent__c;
-            }
-
-            if(orderItem.valorAcrescComercial == null){
-               orderItem.valorAcrescComercial = ordItem.CommercialAdditionValue__c;
-            }
-
-            if(orderItem.dosagem == null){
-               orderItem.dosagem = ordItem.Dosage__c;
-            }
-
-            if(orderItem.custoLista == null){
-                orderItem.custoLista = ordItem.ListCost__c;
-            }
-
-            if(orderItem.orderItemCode == null){
-               orderItem.orderItemCode = ordItem.NumeroSap__c;
-            }
-
-            if(orderItem.custoPreco == null){
-                orderItem.custoPreco = ordItem.PracticedCost__c;
-            }
-
-            if(orderItem.precoPraticado == null){
-                orderItem.precoPraticado = ordItem.PracticedPrice__c;
-            }
-
-            if(orderItem.precoUnitario == null){
-                orderItem.precoUnitario = ordItem.UnitPrice;
-            }    
         }
         // Pega o produto com base no ExternalID recebido
         //Product2 search based on ExternalId__c field sent

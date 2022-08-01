@@ -1623,6 +1623,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>false</editable>
+        <field>OrderItem.PTA__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>true</editable>
         <field>OrderItem.QuoteLineItemId</field>
         <readable>true</readable>
@@ -2525,6 +2530,15 @@
         <allowEdit>true</allowEdit>
         <allowRead>true</allowRead>
         <modifyAllRecords>true</modifyAllRecords>
+        <object>PTAProducts__c</object>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>true</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>true</modifyAllRecords>
         <object>Safra__c</object>
         <viewAllRecords>true</viewAllRecords>
     </objectPermissions>
@@ -2748,6 +2762,10 @@
     </tabSettings>
     <tabSettings>
         <tab>ProdutosPlanejamento__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>PTAProducts__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
     <tabSettings>
