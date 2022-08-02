@@ -8,7 +8,6 @@ import getSafraInfos from '@salesforce/apex/OrderScreenController.getSafraInfos'
 import getFinancialInfos from '@salesforce/apex/OrderScreenController.getFinancialInfos';
 import getAccountCompanies from '@salesforce/apex/OrderScreenController.getAccountCompanies';
 import fetchOrderRecords from '@salesforce/apex/CustomLookupController.fetchProductsRecords';
-import productStar from '@salesforce/resourceUrl/PTAStar';
 
 let actions = [];
 let commodityActions = [{label: 'Excluir', name: 'delete'}];
@@ -19,7 +18,6 @@ export default class OrderProductScreen extends LightningElement {
     listTotalPrice;
     productPosition;
     currentDate;
-    star = productStar;
 
     selectedColumns={
         columnUnity: true,
