@@ -40,7 +40,7 @@ public without sharing class CalloutBP {
                     companyList.add(company);
                 }
                 String statusType;
-                if(valor.Status == ''){
+                if(valor.Status == '' || valor.Status == null){
                     statusType = 'Ativo';
                 }else{
                     statusType = 'Bloqueado';
@@ -374,7 +374,7 @@ public without sharing class CalloutBP {
         List<Company__c> companyListToUpsert = new List<Company__c>();
         Map<String,String> checkExternalId = new Map<String,String>();
         for(CompanyINData valor : companyList){
-            if(valor.Status == ''){
+            if(valor.Status == '' || valor.Status == null){
                 statusName = 'Adicionada';
             }else{
                 statusName = 'Removida';
