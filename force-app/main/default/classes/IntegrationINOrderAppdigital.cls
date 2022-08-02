@@ -365,12 +365,7 @@ global without sharing class IntegrationINOrderAppdigital {
             orderWithNbApp, 
             Order.NumeroPedidoApp__c
         );
-            orderListForAppr.addAll(orderWithNbApp);
-            if(orderListForAppr[0].CodigoSap__c == null || orderListForAppr[0].CodigoSap__c == ''){
-                IntegrationINOrderAppdigital.approvalDiscountOrder(orderListForAppr[0]);
-            }
-        
-            
+            orderListForAppr.addAll(orderWithNbApp);  
         }
         if(!orderWithNbSap.isEmpty()){
             IntegrationUtils.upsertRecords(
@@ -445,6 +440,13 @@ global without sharing class IntegrationINOrderAppdigital {
             );
             System.debug('shippingDivisonResponse' + shippingDivisonResponse);
         }
+        
+        if(!orderListForAppr.isEmpty()){
+           if(orderListForAppr[0].CodigoSap__c == null || orderListForAppr[0].CodigoSap__c == ''){
+                IntegrationINOrderAppdigital.approvalDiscountOrder(orderListForAppr[0]);
+        	} 
+        }
+        
         //Associating child object's response with object response
         // Pega todas as respostas dos OrderItem
         for(TemplateDataIntegrationFields.ResponseParent response : responseList){
@@ -561,6 +563,7 @@ global without sharing class IntegrationINOrderAppdigital {
                 Decimal currentDiscount = 0;
                 Decimal biggerDiscount = 0;
                 Id productGroupId;
+                System.debug('orderItemList APROVACAO => '+ orderItemList);
                 for(OrderItem ordItems : orderItemList){ 
                     System.debug('ordItems.DiscountPercent__c => '+ ordItems.DiscountPercent__c);
                     System.debug('Product2.ProductGroup__c' + ordItems.Product2Id);
@@ -576,6 +579,9 @@ global without sharing class IntegrationINOrderAppdigital {
                 Order orders = [SELECT Id, Company__r.ClientGroup__c FROM Order WHERE Id =: orderDiscount.Id];
                 Discount__c orderDisc = new Discount__c();
                 
+                System.debug('ClientGroup__c => ' + orders.Company__r.ClientGroup__c);
+                System.debug('ProductGroup__c => ' + productGroupId);
+                System.debug('biggerDiscount => ' + biggerDiscount);
                 for (Discount__c discount : [
                     SELECT Id,
                            Approver__c
