@@ -443,8 +443,10 @@ lightning-datatable.dt-outer-container {
 }
 
 .star-style {
+	font-size: 25px;
     float: right;
-	cursor: pointer;
+    cursor: pointer;
+    margin-top: -10px;
 }
 
 .tooltip {
