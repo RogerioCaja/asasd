@@ -4,7 +4,7 @@
         public static void testBatchDeliveryNotificationSchedulable(){
             String sch = '0 0 * * * ?';
             Test.startTest();
-            system.schedule('Delivery Notification Schedule Job Test Class', sch, new BatchCTVSchedulable());
+            System.schedule('Delivery Notification Schedule Job Test Class', sch, new BatchCTVSchedulable());
             Test.stopTest();
         }
     }
