@@ -365,8 +365,7 @@ global without sharing class IntegrationINOrderAppdigital {
             orderWithNbApp, 
             Order.NumeroPedidoApp__c
         );
-        orderListForAppr.addAll(orderWithNbApp);
-        IntegrationINOrderAppdigital.approvalDiscountOrder(orderListForAppr[0]);
+            orderListForAppr.addAll(orderWithNbApp);  
         }
         if(!orderWithNbSap.isEmpty()){
             IntegrationUtils.upsertRecords(
@@ -441,6 +440,13 @@ global without sharing class IntegrationINOrderAppdigital {
             );
             System.debug('shippingDivisonResponse' + shippingDivisonResponse);
         }
+        
+        if(!orderListForAppr.isEmpty()){
+           if(orderListForAppr[0].CodigoSap__c == null || orderListForAppr[0].CodigoSap__c == ''){
+                IntegrationINOrderAppdigital.approvalDiscountOrder(orderListForAppr[0]);
+        	} 
+        }
+        
         //Associating child object's response with object response
         // Pega todas as respostas dos OrderItem
         for(TemplateDataIntegrationFields.ResponseParent response : responseList){
@@ -506,7 +512,6 @@ global without sharing class IntegrationINOrderAppdigital {
     }
 
     public static void approvalDiscountOrder(Order orderDiscount){
-    
     List<OrderItem> orderItemList = [SELECT Id, OrderId,
     Product2Id,
     Product2.ProductGroup__c,
@@ -558,7 +563,9 @@ global without sharing class IntegrationINOrderAppdigital {
                 Decimal currentDiscount = 0;
                 Decimal biggerDiscount = 0;
                 Id productGroupId;
-                for(OrderItem ordItems : orderItemList){   
+                System.debug('orderItemList APROVACAO => '+ orderItemList);
+                for(OrderItem ordItems : orderItemList){ 
+                    System.debug('ordItems.DiscountPercent__c => '+ ordItems.DiscountPercent__c);
                     System.debug('Product2.ProductGroup__c' + ordItems.Product2Id);
                     System.debug('ordItems.Product2.ProductGroup__c' + ordItems.Product2.ProductGroup__c);
                     currentDiscount = ordItems.DiscountPercent__c;
@@ -571,12 +578,16 @@ global without sharing class IntegrationINOrderAppdigital {
 
                 Order orders = [SELECT Id, Company__r.ClientGroup__c FROM Order WHERE Id =: orderDiscount.Id];
                 Discount__c orderDisc = new Discount__c();
+                
+                System.debug('ClientGroup__c => ' + orders.Company__r.ClientGroup__c);
+                System.debug('ProductGroup__c => ' + productGroupId);
+                System.debug('biggerDiscount => ' + biggerDiscount);
                 for (Discount__c discount : [
                     SELECT Id,
                            Approver__c
                       FROM Discount__c
                      WHERE Status__c = 'Aprovado'
-                       AND ClientGroup__c =: orderDiscount.Company__r.ClientGroup__c
+                       AND ClientGroup__c =: orders.Company__r.ClientGroup__c
                        AND ProductGroup__c =: productGroupId //Vamos rever esse daqui
                        AND InitialDate__c <=: System.today()
                        AND EndDate__c >=: System.today()
@@ -584,9 +595,11 @@ global without sharing class IntegrationINOrderAppdigital {
                        AND MaxPercentage__c >=: biggerDiscount
                   ORDER BY MinPercentage__c, MaxPercentage__c
                 ]) {
+                    System.debug('discount => ' + discount);
                     orderDisc = discount;
                 }
-    
+    			System.debug('orderDisc => ' + orderDisc);
+                System.debug('orderDisc.Approver__c => ' + orderDisc.Approver__c);
                 Map<String, Integer> approvalLevels = new Map<String, Integer>{
                     'GerenteFilial' => 1,
                     'GerenteRegional' => 2,

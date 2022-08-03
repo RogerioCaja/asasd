@@ -266,19 +266,18 @@ global without sharing class IntegrationINOrderInsert {
             );
             System.debug('shippingDivisonResponse' + shippingDivisonResponse);
         }
-        
-            AggregateResult[] resulTotal =[SELECT SUM(FinalTotalValue__c) somatoria FROM OrderItem WHERE OrderId =: orderIdEx.keySet() AND ReasonRefuse__c  =: null AND ReasonRefuse__c  =: ''];
-        	 List<OrderItem> orderItemListT = [SELECT Id,  FinalTotalValue__c FROM OrderItem WHERE OrderId =: orderIdEx.keySet()];
-        	 System.debug('orderItemListT ' + orderItemListT);
-             System.debug('resulTotal ' + resulTotal);
-             Order order = new Order();
-             order.Id = (new List<String>(orderIdEx.keySet()))[0]; //(new List<String>(posts.keySet()))[0]
-             //Object avgAmount = resulTotal[0].get('somatoria');
-             order.FinalTotalValue__c  = (Decimal)resulTotal[0].get('somatoria');
-             System.debug('order.FinalTotalValue__c ' + order.FinalTotalValue__c);
-             OrderHelper.disableTrigger();
-             update order;
-             OrderHelper.enableTrigger();
+        AggregateResult[] resulTotal =[SELECT SUM(FinalTotalValue__c) somatoria FROM OrderItem WHERE OrderId =: orderIdEx.keySet() AND ReasonRefuse__c  =: null AND ReasonRefuse__c  =: ''];
+        List<OrderItem> orderItemListT = [SELECT Id,  FinalTotalValue__c FROM OrderItem WHERE OrderId =: orderIdEx.keySet()];
+        System.debug('orderItemListT ' + orderItemListT);
+        System.debug('resulTotal ' + resulTotal);
+        Order order = new Order();
+        order.Id = (new List<String>(orderIdEx.keySet()))[0]; //(new List<String>(posts.keySet()))[0]
+        //Object avgAmount = resulTotal[0].get('somatoria');
+        order.FinalTotalValue__c  = (Decimal)resulTotal[0].get('somatoria');
+        System.debug('order.FinalTotalValue__c ' + order.FinalTotalValue__c);
+        OrderHelper.disableTrigger();
+        update order;
+        OrderHelper.enableTrigger();
         
         
         System.debug('Chegou!? ');
