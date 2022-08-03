@@ -81,7 +81,7 @@ public with sharing class CalloutOrderDatalakeTest {
             Culture__c = cultura.Id,
             PaymentForm__c =  'Bonificação',
             SalesOrg__c =  so.Id,
-            DistributionChannel__c =  'Venda Direta',
+            DistributionChannel__c =  distributionChannel.Id,
             ActivitySector__c =  '',
             Currency__c =  'BRL',
             SalesCTV__c =  u.Id,
@@ -104,15 +104,7 @@ public with sharing class CalloutOrderDatalakeTest {
             UnidadeMedida__c = 'un'
         );
         INSERT prod;
-
-        PricebookEntry standardPrice = new PricebookEntry(
-            Pricebook2Id = Test.getStandardPricebookId(), 
-            Product2Id = prod.Id,
-            UnitPrice = 10000,
-            IsActive = true);
         
-        INSERT standardPrice;
-
         OrderItem orderItem = new OrderItem(
             OrderId = order.Id,
             Product2Id = prod.Id,
@@ -121,7 +113,7 @@ public with sharing class CalloutOrderDatalakeTest {
             UnitPrice = 10000,
             Quantity = 1,
             ExternalId__c = 'texto',
-            PricebookEntryId = standardPrice.Id
+            PricebookEntryId = [SELECT Id FROM PricebookEntry WHERE Product2Id =: prod.Id LIMIT 1][0].Id
         );
 
         INSERT orderItem;
