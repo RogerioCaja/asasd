@@ -4,7 +4,7 @@
     <fields>OrderNumber</fields>
     <fields>CodigoSap__c</fields>
     <fields>AccountId</fields>
-    <fields>ShippingAccount__c</fields>
+    <fields>RecordTypeId</fields>
     <fields>Crop__c</fields>
     <fields>FinalTotalValue__c</fields>
     <fields>ClientGroup__c</fields>
