@@ -4,15 +4,7 @@ public with sharing class IntegrationINBoletosTest {
     @TestSetup
     static void makeData(){
 
-        Boletos__c boletos = new Boletos__c(
-            AccountCode__c ='020',
-            ExpirationDate__c = Date.valueOf('2022-09-21'),
-            IssueDate__c = Date.valueOf('2022-09-21'),
-            SalesOrg__c = '102',
-            Value__c = 20.00,
-            WritableLine__c = '002'
-        );
-        insert boletos;
+        
 
         Account account = new Account(
             Name = 'Testinho11',
@@ -20,13 +12,28 @@ public with sharing class IntegrationINBoletosTest {
             BillingState = '' ,
             Phone= '0000011111', 
             BillingCity = ' ', 
-            BillingLongitude = 01010101,
-            BillingLatitude = 001100,
+            BillingLongitude = 000000,
+            BillingLatitude = 000000,
             BillingPostalCode = '',
-            ExternalId__c = '2884',
+            ExternalId__c = '020',
             Company__c = 'Empresa 012'
         );
         insert account;
+
+        SalesOrg__c so = new SalesOrg__c(
+            Name = 'AgroGalaxy',
+            SalesOrganizationCode__c = '1111'
+        );
+        insert so;
+        Boletos__c boletos = new Boletos__c(
+            AccountCode__c = account.Id,
+            ExpirationDate__c = Date.valueOf('2022-09-21'),
+            IssueDate__c = Date.valueOf('2022-09-21'),
+            SalesOrg__c = so.Id,
+            Value__c = 20.00,
+            WritableLine__c = '002'
+        );
+        insert boletos;
 
         SalesOrg__c salesOrg = new SalesOrg__c(
             Name = 'AgroGalaxy',
@@ -47,12 +54,12 @@ public with sharing class IntegrationINBoletosTest {
     static void verifyIntegrationBoletos(){
         List<TemplateDataIntegrationFields.BoletosINData> listBoletosList = new List<TemplateDataIntegrationFields.BoletosINData>();
         TemplateDataIntegrationFields.BoletosINData listBoletos = new TemplateDataIntegrationFields.BoletosINData();
-        listBoletos.codigoParceiro = '020';
-        listBoletos.vencimentoBoleto = Date.valueOf('2022-09-21');
-        listBoletos.dataBoleto = Date.valueOf('2022-09-13');
-        listBoletos.empresa = '102';
-        listBoletos.valorBoleto = 20.00;
-        listBoletos.linhaDigitavel = '002';
+        listBoletos.CodigoParceiro = '020';
+        listBoletos.VencimentoBoleto = Date.valueOf('2022-09-21');
+        listBoletos.DataBoleto = Date.valueOf('2022-09-13');
+        listBoletos.Empresa = '102';
+        listBoletos.ValorBoleto = 20.00;
+        listBoletos.LinhaDigitavel = '002';
         listBoletosList.add(listBoletos);
 
         IntegrationINBoletos.ResponseModel modelo = IntegrationINBoletos.upsertBoletos(listBoletosList);

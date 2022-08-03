@@ -6,10 +6,15 @@ public with sharing class CalloutOrderMockDatalake implements HttpCalloutMock{
     private final String body;
     private final Integer status;
 
-    public CalloutOrderMockDatalake(Boolean isSuccess, String orderNumber) {
-       if(isSuccess){
+    public CalloutOrderMockDatalake(Boolean isSuccess, String orderNumber, Boolean isAccessToken) {
+     
+       if(isSuccess && !isAccessToken){
             status = 200;
             body = '[{ "OrderNumber":' + '"' +orderNumber+ '"' + ',"DetalhesPedido":[{"StatusSap": "Integrado","NumeroOrdemVenda" : "0001" }],"Mensagens":[{"Tipo": "S","Mensagem": "Teste" }] }]';
+       }
+       else if(isAccessToken){
+            status = 200;
+            body = '{"access_token" : "fdgfdbvkhjfdv"}';
        }
        else{
             status = 400;
