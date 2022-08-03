@@ -3,36 +3,23 @@ public with sharing class IntegrationINInvoiceTest {
     @TestSetup
     static void makeData(){
         
-        NotaFiscal__c invoice = new NotaFiscal__c(
-            Name = 'Invoice Agro',
-            AccountCode__c = '020',
-            OrderCode__c = '0100',
-            Company__c = ' 001',
-            ReceiverAccountCode__c = '030',
-            invoiceNumber__c = '90001',
-            Serie__c = '001',
-            BranchOffice__c = 'São Paulo', 
-            InvoiceStatus__c = 'Aprovado',
-            AccessKey__c = '35220765651788000141550020000011611391381530',
-            Invoice_CreationDate__c = System.today(),
-            HoraCriacao__c = System.today(),
-            Invoice_TotalAmount__c = 100.00,
-            CFOP__c = '5.102'
-        );
-        insert invoice;
+        
+       
         Account account = new Account(
             Name = 'AgroGalaxy Conta',
             BillingStreet = '',
             BillingState = '' ,
             Phone= '0000011111', 
             BillingCity = ' ', 
-            BillingLongitude = 01010101,
-            BillingLatitude = 001100,
+            BillingLongitude = 00000000,
+            BillingLatitude = 000000,
             BillingPostalCode = '',
             ExternalId__c = '020',
             Company__c = '00010018631001100010103511001'
         );
         insert account;
+        
+        
 
         Account parentAccount = new Account(
             Name = 'Parent Account',
@@ -48,8 +35,8 @@ public with sharing class IntegrationINInvoiceTest {
             BillingState = '' ,
             Phone= '000002222', 
             BillingCity = ' ', 
-            BillingLongitude = 02020202,
-            BillingLatitude = 002200,
+            BillingLongitude = 00000000,
+            BillingLatitude = 000000,
             BillingPostalCode = '',
             ExternalId__c = '030',
             Company__c = '00010018631001100010103511001'
@@ -135,6 +122,8 @@ public with sharing class IntegrationINInvoiceTest {
             External_Id__c = '001'
         );
         insert productHierarchy;
+        
+      
 
         SalesCondition__c salesCondition = new SalesCondition__c(
             Name = 'Condição',
@@ -176,19 +165,19 @@ public with sharing class IntegrationINInvoiceTest {
             CodigoSap__c = '0100',
             NumeroPedidoApp__c = '0600',
             Pricebook2Id = Test.getStandardPricebookId(),
-            ShippingAccount__c = '020',
-            AccountId = '030',
-            Crop__c = '001',
-            Culture__c = '001',
-            SalesOrg__c = '001',
+            ShippingAccount__c = account.Id,
+            AccountId = account.Id,
+            Crop__c = crop.Id,
+            Culture__c = culture.Id,
+            SalesOrg__c = salesOrg.Id,
             SalesCTV__c =  u.Id,
-            PaymentCondition__c = 'Z09',
-            DistributionChannel__c = '0001',
-            ActivitySector__c = '003',
+            PaymentCondition__c = paymentCondition.Id,
+            DistributionChannel__c = distributionChannel.Id,
+            ActivitySector__c = activitySector.Id,
             PaymentDate__c = Date.valueOf('2022-09-21'),
             EffectiveDate = Date.today(),
             ShippingDate__c = Date.valueOf('2022-09-30'),
-            Status = '02',
+            Status = '2',
             CustomerOrderNumber__c ='09001',
             PaymentForm__c = 'B',
             StatusSF__c = 'Aprovado',
@@ -200,15 +189,33 @@ public with sharing class IntegrationINInvoiceTest {
             FinalTotalValue__c = 1000,
             Hectare__c = 10,
             OrderMargin__c = 1200,
-            SalesCondition__c =  '001',
+            SalesCondition__c =  salesCondition.Id,
             IsOrderMother__c = false,
-            Company__c =  '001',
+            Company__c =  company.Id,
             RecordTypeId = recordTypeMap.get('Venda Normal').getRecordTypeId(),
             Type = 'Venda Normal',
             OrderType__c = 'Pedido Normal',
             OwnerId = u.Id
         );
         insert order;
+        
+          NotaFiscal__c invoice = new NotaFiscal__c(
+            Name = 'Invoice Agro',
+            AccountCode__c = account.Id,
+            OrderCode__c = order.Id,
+            Company__c = salesOrg.Id,
+            ReceiverAccountCode__c = account.Id,
+            invoiceNumber__c = '90001',
+            Serie__c = '001',
+            BranchOffice__c = 'São Paulo', 
+            InvoiceStatus__c = 'Aprovado',
+            AccessKey__c = '35220765651788000141550020000011611391381530',
+            Invoice_CreationDate__c = System.today(),
+            HoraCriacao__c = System.today(),
+            Invoice_TotalAmount__c = 100.00,
+            CFOP__c = '5.102'
+        );
+        insert invoice;
     }
 
     @isTest
@@ -241,6 +248,7 @@ public with sharing class IntegrationINInvoiceTest {
         listInvoiceItems.descontoNF = 0;
         listInvoiceItems.valorUnitarioNF =  8.33;
         listInvoiceItems.NameProduct = 'Milho';
+        listInvoice.itensNotaFiscal = new List<TemplateDataIntegrationFields.ItensNotaFiscalINData>();
         listInvoice.itensNotaFiscal.add(listInvoiceItems);
 
         listInvoiceList.add(listInvoice);
