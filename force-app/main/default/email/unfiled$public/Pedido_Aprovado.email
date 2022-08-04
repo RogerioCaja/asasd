@@ -1,0 +1,7 @@
+{!Order.OwnerFullName}
+
+O Pedido {!Order.OrderNumber} foi aprovado!
+
+--
+
+AgroGalaxy.

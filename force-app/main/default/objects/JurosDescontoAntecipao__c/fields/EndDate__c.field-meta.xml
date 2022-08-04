@@ -3,9 +3,9 @@
     <fullName>EndDate__c</fullName>
     <externalId>false</externalId>
     <label>Data Fim</label>
-    <required>true</required>
+    <required>false</required>
     <trackFeedHistory>false</trackFeedHistory>
-    <trackHistory>false</trackHistory>
+    <trackHistory>true</trackHistory>
     <trackTrending>false</trackTrending>
     <type>Date</type>
 </CustomField>

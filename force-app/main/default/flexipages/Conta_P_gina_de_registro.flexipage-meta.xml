@@ -33,19 +33,16 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
+                <componentName>companiesRelatedToAccount</componentName>
+            </componentInstance>
+        </itemInstances>
+        <itemInstances>
+            <componentInstance>
                 <componentName>force:detailPanel</componentName>
             </componentInstance>
         </itemInstances>
         <mode>Replace</mode>
         <name>detailTabContent</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <flexiPageRegions>
-        <name>Facet-bea1619d-94e9-4c23-b98e-d1c7d12c0e5b</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <flexiPageRegions>
-        <name>Facet-kzjwe0eh88o</name>
         <type>Facet</type>
     </flexiPageRegions>
     <flexiPageRegions>
@@ -58,32 +55,6 @@
                 <componentInstanceProperties>
                     <name>title</name>
                     <value>Standard.Tab.detail</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:tab</componentName>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>body</name>
-                    <value>Facet-bea1619d-94e9-4c23-b98e-d1c7d12c0e5b</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>title</name>
-                    <value>Standard.Tab.tasks</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:tab</componentName>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>body</name>
-                    <value>Facet-kzjwe0eh88o</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>title</name>
-                    <value>Standard.Tab.collaborate</value>
                 </componentInstanceProperties>
                 <componentName>flexipage:tab</componentName>
             </componentInstance>

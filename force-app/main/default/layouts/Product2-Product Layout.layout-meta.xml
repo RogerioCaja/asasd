@@ -13,19 +13,7 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>ProductCode</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
-                <field>ProductGroup__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
-                <field>ProductSubgroup__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
-                <field>ProductFamily__c</field>
+                <field>ProductCode__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
@@ -39,15 +27,43 @@
                 <behavior>Edit</behavior>
                 <field>PrincipleActive__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>DistributionCenter__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>UnidadeMedida__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>MarcadoEliminacao__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>ClasseAvaliacao__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>OrigemMaterial__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>NCM__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>GrupoQuimico__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>NumeroRegistro__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>
                 <behavior>Required</behavior>
                 <field>ExternalId__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
-                <field>Family</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
@@ -68,6 +84,18 @@
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>ActivitySection__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>ProductGroup__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>ProductSubgroup__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>ProductSubgroup2__c</field>
             </layoutItems>
         </layoutColumns>
         <style>TwoColumnsTopToBottom</style>
@@ -162,10 +190,17 @@
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
+        <fields>SalesOrg__c</fields>
+        <fields>SupplierCenter__c</fields>
+        <fields>Channel__c</fields>
+        <fields>Status__c</fields>
         <relatedList>OrgVProduct__c.Product__c</relatedList>
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
+        <fields>UnitPrice__c</fields>
+        <fields>Cost__c</fields>
+        <fields>CREATED_DATE</fields>
         <relatedList>JurosDescontoAntecipao__c.Product__c</relatedList>
     </relatedLists>
     <showEmailCheckbox>false</showEmailCheckbox>
@@ -174,7 +209,7 @@
     <showRunAssignmentRulesCheckbox>false</showRunAssignmentRulesCheckbox>
     <showSubmitAndAttachButton>false</showSubmitAndAttachButton>
     <summaryLayout>
-        <masterLabel>00h11000006TVcW</masterLabel>
+        <masterLabel>00h220000017zLD</masterLabel>
         <sizeX>4</sizeX>
         <sizeY>0</sizeY>
         <summaryLayoutStyle>Default</summaryLayoutStyle>

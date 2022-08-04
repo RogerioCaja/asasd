@@ -1,0 +1,9 @@
+Olá {!Target_User.FirstName},
+
+O CTV {!Order.SalesCTV__c} está solicitando a sua aprovação ao Pedido {!Order.OrderNumber}
+
+Por favor, verifique o pedido no sistema.
+
+--
+
+AgroGalaxy.

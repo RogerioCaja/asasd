@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <encodingKey>UTF-8</encodingKey>
+    <letterhead>AprovacaoPedidos</letterhead>
+    <name>Aprovação de Pedidos</name>
+    <style>freeForm</style>
+    <subject>Pedido de Aprovação - {!Order.OrderNumber} - {!Account.Name}</subject>
+    <textOnly>Olá {!Target_User.Name},
+
+O CTV {!Order.SalesCTV__c} está solicitando a aprovação do pedido {!Order.OrderNumber}.
+
+Por favor, verifique o pedido no sistema.
+
+--
+
+Agrogalaxy.</textOnly>
+    <type>html</type>
+    <uiType>Aloha</uiType>
+</EmailTemplate>

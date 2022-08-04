@@ -1,0 +1,75 @@
+<template>
+	<div class="container slds-is-relative">
+	  <template if:false={selectedRecord}>
+		<lightning-input
+			type="search"
+			class="slds-container_fluid"
+			placeholder="Selecione um Pedido Mãe"
+			autocomplete="off"
+            onfocusin={showDataMethod}
+			label="Pedido Mãe"
+			name="searchInput"
+			disabled={disabled}>
+		</lightning-input>
+
+		<template if:true={showData}>
+			<div class="bg-list-full" onclick={handleCloseList}></div>
+			<div class="container-records-list slds-container_fluid slds-is-absolute">
+				<ul>
+				  <template for:each={orderList} for:item="record">
+					<li key={record.Id}
+						data-value={record.Id}
+						onclick={selectOrderMother}
+						class="slds-var-p-vertical_small slds-var-p-horizontal_medium slds-list_horizontal slds-media_center slds-truncate list-item">
+							<lightning-icon
+								data-value={record.Id}
+								icon-name="standard:avatar"
+								title="Order"
+								size="small"
+								class="slds-var-m-right_small">
+							</lightning-icon>
+							<div class="slds-truncate">
+								<h1 data-value={record.Id} class="slds-truncate">{record.Name}</h1>
+								<div data-value={record.Id} class="slds-text-color_weak slds-truncate">
+									{record.Name}
+								</div>
+							</div>
+					</li>
+				  </template>
+
+				</ul>
+			</div>
+		</template>
+	  </template>
+
+	  <template if:true={selectedRecord}>
+		<div>
+		  <label class="slds-form-element__label">Pedido Mãe</label>
+
+		  <div class="slds-var-p-vertical_xx-small slds-var-p-horizontal_small selected-record slds-list_horizontal slds-media_center slds-grid_align-spread">
+			<div class="slds-list_horizontal slds-media_center slds-truncate">
+				<lightning-icon
+					icon-name="standard:action_list_component"
+					title={objectIconName}
+					size="small"
+					class="slds-var-m-right_small">
+				</lightning-icon>
+
+				{selectedRecord.Name}
+			</div>
+			<template if:false={disabled}>
+				<div class="slds-var-p-bottom_xx-small">
+					<lightning-button-icon
+						icon-name="utility:close"
+						variant="bare"
+						alternative-text="Settings"
+						title="Settings"
+						onclick={handleClearSelected}>
+					</lightning-button-icon>
+				</div>
+			</template>
+		  </div>
+		</div>
+	  </template>
+	</div>
+</template>

@@ -1,0 +1,145 @@
+/* Estilos globais */
+@page { 
+    size: a4;
+} 
+
+table {
+    margin-top: 10px;
+    width: 100%;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 9pt;
+    border: 1px solid #000;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    border: 1px solid #000;
+}
+
+th{
+    text-align: center;
+}
+/* ----------------------------------------------- */
+
+/* Estilos para parte 1 */
+.information_logo{
+    width: 200px;
+    text-align: center;
+}
+
+.information_org{
+    width: 400px;
+}
+.information_org > div{
+    padding-bottom: 4px;
+    padding-left: 5px;
+}
+.information_monetary{
+    text-align: center;
+    width: 250px;
+}
+.information_monetary > div:first-child{
+    padding-top: 10px;
+}
+
+.information_monetary > div{
+    padding-bottom: 10px;
+}
+/* ------------------------------ */
+
+
+/* Estilos para parte 2 */
+.information_order > tr > td{
+    padding: 5px;
+}
+/* -------------------- */
+
+
+/* Estilos para parte 3 */
+.information_order_item_header{
+    background-color: green;
+    color: white;
+}
+
+.information_order_item{
+    text-align: center;
+    
+}
+.container-items{
+    min-height: 500px;
+}
+
+.information_order_item > tr > td {
+    padding: 5px;
+}
+/* ---------------------- */
+
+.observation{
+    border: 1px solid black;
+    font-size: 10pt;
+    text-transform: uppercase;
+    padding: 3px;
+    min-height:100px;
+    /* margin-top: 100px; */
+}
+
+.total_amount > tbody{
+    text-align: right;
+    padding: 5px;
+}
+
+.total_amount > tbody > tr :first-child{
+    border-top: none;
+    border-left: none;
+    border-bottom: none;
+    font-weight: bold;
+}
+
+
+.appointments{
+    border: 1px solid black;
+    font-size: 9pt;
+    padding: 3px;
+    margin-bottom: 5px;
+}
+
+.assign{
+    position: relative;
+    margin-top: 10px;
+    height: 60px;
+    border: 1px solid black;
+}
+
+.sales{
+    position: absolute;
+    left: 30px;
+    top: 20px;
+    padding: 5px;
+
+}
+.assigning{
+    width:300px;
+    text-align: center;
+    font-size: 8pt;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    padding-top: 10px;
+    
+}
+.line{
+    border-bottom: 1px solid black;
+    padding-bottom: 5px;
+    width: 300px;
+    
+}
+
+.buy{
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    padding: 5px;
+}
+
+
+

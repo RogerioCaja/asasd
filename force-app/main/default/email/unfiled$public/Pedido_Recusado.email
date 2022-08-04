@@ -1,0 +1,9 @@
+{!Order.OwnerFullName}
+
+O Pedido {!Order.OrderNumber} de Desconto foi Recusado.
+
+Por favor revise seu Pedido e envie novamente para aprovação.
+
+--
+
+AgroGalaxy.

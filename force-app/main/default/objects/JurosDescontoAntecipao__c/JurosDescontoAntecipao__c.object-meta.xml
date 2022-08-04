@@ -159,16 +159,18 @@
     <enableSharing>true</enableSharing>
     <enableStreamingApi>true</enableStreamingApi>
     <externalSharingModel>Private</externalSharingModel>
-    <label>Juros e Desconto Antecipação</label>
+    <label>Lista de Preço</label>
     <nameField>
-        <displayFormat>JD-{00000000}</displayFormat>
-        <label>Condição</label>
+        <displayFormat>P-{00000000}</displayFormat>
+        <label>Lista de Preço</label>
         <trackFeedHistory>false</trackFeedHistory>
-        <trackHistory>false</trackHistory>
+        <trackHistory>true</trackHistory>
         <type>AutoNumber</type>
     </nameField>
-    <pluralLabel>Juros e Descontos Antecipação</pluralLabel>
-    <searchLayouts/>
-    <sharingModel>ReadWrite</sharingModel>
+    <pluralLabel>Listas de Preço</pluralLabel>
+    <recordTypeTrackFeedHistory>false</recordTypeTrackFeedHistory>
+    <recordTypeTrackHistory>false</recordTypeTrackHistory>
+    <searchLayouts></searchLayouts>
+    <sharingModel>Private</sharingModel>
     <visibility>Public</visibility>
 </CustomObject>
