@@ -364,7 +364,7 @@ public class OrderScreenControllerTest {
         commodity.saved = true;
 
         String data = JSON.serialize(new OrderScreenController.OrderSerializeAll(order, ordItemList, divisionList, new List<OrderScreenController.CommodityDeserialize>{commodity}, account, summary));
-        OrderScreenController.saveOrder(null, false, data, '');
+        OrderScreenController.saveOrder(null, false, data, '', null);
         OrderScreenController.approvals(data);
     }
 

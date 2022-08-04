@@ -84,6 +84,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     @track productData;
     @track divisionData;
     @track commodityData;
+    @track excludedItems;
     @track summaryData = {
         'observation' : "",
         'billing_sale_observation': ""
@@ -425,7 +426,8 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             orderId: (this.recordId && this.originScreen.includes('Order') && !this.childOrder) ? this.recordId : null,
             cloneOrder: this.cloneData.cloneOrder,
             data: JSON.stringify(data),
-            typeOrder: mode
+            typeOrder: mode,
+            itemsToExclude: JSON.stringify(this.excludedItems)
         })
         .then((result) => {
             console.log(JSON.stringify(result));
@@ -570,6 +572,10 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         this.summaryData = event.data;
         console.log('summary data setted:', this.summaryData);
         this.enableNextScreen();
+    }
+
+    _setExcludedesItems(event) {
+        this.excludedItems = event.data;
     }
 
     //c/orderScreenNavbar
