@@ -28,6 +28,7 @@ export default class OrderSummaryScreen extends LightningElement {
     @api divisionDataLocale;
     @api headerData;
     @api cloneData;
+    @api excludedItems;
 
     connectedCallback(){
         this.summaryDataLocale = {... this.summaryData};
@@ -112,7 +113,6 @@ export default class OrderSummaryScreen extends LightningElement {
             }
             else{
                 for(var i= 0; i< this.productDataLocale.length; i++){
-                    console.log('this.productDataLocale[i]: ' + JSON.stringify(this.productDataLocale[i]));
                     orderTotalPrice += Number(this.productDataLocale[i].unitPrice) * Number(this.productDataLocale[i].quantity);
                     orderTotalCost += Number(this.productDataLocale[i].practicedCost) * Number(this.productDataLocale[i].quantity);
                     this.productDataLocale[i]['unitPrice'] = 'R$ ' + this.fixDecimalPlacesFront(this.productDataLocale[i].unitPrice);
