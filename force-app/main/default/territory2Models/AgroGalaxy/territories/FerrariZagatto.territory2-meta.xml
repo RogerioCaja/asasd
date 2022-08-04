@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Territory2 xmlns="http://soap.sforce.com/2006/04/metadata">
+    <accountAccessLevel>Read</accountAccessLevel>
+    <caseAccessLevel>None</caseAccessLevel>
+    <contactAccessLevel>Edit</contactAccessLevel>
+    <description>Empresa Ferrari Zagatto do grupo AgroGalaxy</description>
+    <name>Ferrari Zagatto</name>
+    <opportunityAccessLevel>None</opportunityAccessLevel>
+    <parentTerritory>UnidadeSulSudeste</parentTerritory>
+    <territory2Type>SalesOrg</territory2Type>
+</Territory2>
