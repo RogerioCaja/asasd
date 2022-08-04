@@ -103,7 +103,6 @@ export default class OrderProductScreen extends LightningElement {
         {label: 'Potencial/HA', fieldName: 'haPotential'},
         {label: 'Customer Share', fieldName: 'customerShare'}
     ]; */
-    
     @track products = [];
     @track commoditiesData = [];
 
@@ -113,7 +112,8 @@ export default class OrderProductScreen extends LightningElement {
     @api accountData;
     @api headerData;
     @api cloneData;
-    
+    @api excludedItems;
+
     connectedCallback(event) {
         let today = new Date();
         let dd = String(today.getDate()).padStart(2, '0');
@@ -274,7 +274,8 @@ export default class OrderProductScreen extends LightningElement {
             orderId: currentProduct.orderId,
             serviceDate: currentProduct.serviceDate,
             comissionValue: currentProduct.comissionValue,
-            ptaProduct: currentProduct.ptaProduct
+            ptaProduct: currentProduct.ptaProduct,
+            priceListCode: currentProduct.priceListCode
         };
         return newProduct;
     }
@@ -345,7 +346,7 @@ export default class OrderProductScreen extends LightningElement {
 
                 let allowChange = (this.headerData.tipo_pedido != 'Pedido Filho' && !this.headerData.IsOrderChild && this.isFilled(this.headerData.codigo_sap)) ||
                                   (this.headerData.tipo_pedido == 'Pedido Filho' && this.isFilled(this.headerData.codigo_sap)) ? false : true;
-
+                                  
                 if (this.headerData.pre_pedido && allowChange) {
                     let prodsIds = [];
                     for (let index = 0; index < this.products.length; index++) {
@@ -363,37 +364,53 @@ export default class OrderProductScreen extends LightningElement {
                         this.salesInfos = result.salesResult;
                         let orderProducts = [];
                         let listPriceChange = false;
+                        let productsWithoutPrice = '';
+                        let itemToExclude = [];
 
                         for (let index = 0; index < this.products.length; index++) {
                             this.addProduct = this.products[index];
                             let priorityInfos = this.getProductByPriority(this.addProduct);
-                            if (priorityInfos.listPrice != this.addProduct.listPrice || priorityInfos.costPrice != this.addProduct.listCost) {
-                                this.addProduct.listPrice = this.isFilled(priorityInfos.listPrice) ? this.fixDecimalPlaces(priorityInfos.listPrice) : 0;
-                                this.addProduct.listPriceFront = this.isFilled(priorityInfos.listPrice) ? this.fixDecimalPlacesFront(priorityInfos.listPrice) : 0;
-                                this.addProduct.listCost = this.isFilled(priorityInfos.costPrice) ? this.fixDecimalPlaces(priorityInfos.costPrice) : 0;
-                                this.addProduct.practicedCost = this.isFilled(priorityInfos.costPrice) ? this.fixDecimalPlaces(priorityInfos.costPrice) : 0;
-                                
-                                if (this.addProduct.commercialAdditionPercentage != '0%') {
-                                    this.addProduct.unitPrice = this.addProduct.listPrice + this.calculateValue(this.addProduct.commercialAdditionPercentage, this.addProduct.listPrice);
-                                } else if (this.addProduct.commercialDiscountPercentage != '0%') {
-                                    this.addProduct.unitPrice = this.addProduct.listPrice - this.calculateValue(this.addProduct.commercialDiscountPercentage, this.addProduct.listPrice);
+                            
+                            if (this.isFilled(priorityInfos)) {
+                                if (priorityInfos.listPrice != this.addProduct.listPrice || priorityInfos.costPrice != this.addProduct.listCost) {
+                                    this.addProduct.listPrice = this.isFilled(priorityInfos.listPrice) ? this.fixDecimalPlaces(priorityInfos.listPrice) : 0;
+                                    this.addProduct.listPriceFront = this.isFilled(priorityInfos.listPrice) ? this.fixDecimalPlacesFront(priorityInfos.listPrice) : 0;
+                                    this.addProduct.listCost = this.isFilled(priorityInfos.costPrice) ? this.fixDecimalPlaces(priorityInfos.costPrice) : 0;
+                                    this.addProduct.practicedCost = this.isFilled(priorityInfos.costPrice) ? this.fixDecimalPlaces(priorityInfos.costPrice) : 0;
+                                    this.addProduct.priceListCode = priorityInfos.priceListCode;
+                                    
+                                    if (this.addProduct.commercialAdditionPercentage != '0%') {
+                                        this.addProduct.unitPrice = this.addProduct.listPrice + this.calculateValue(this.addProduct.commercialAdditionPercentage, this.addProduct.listPrice);
+                                    } else if (this.addProduct.commercialDiscountPercentage != '0%') {
+                                        this.addProduct.unitPrice = this.addProduct.listPrice - this.calculateValue(this.addProduct.commercialDiscountPercentage, this.addProduct.listPrice);
+                                    }
+                                    this.addProduct.unitPriceFront = this.fixDecimalPlacesFront(this.addProduct.unitPrice);
+
+                                    this.calculateDiscountOrAddition();
+                                    this.calculateTotalPrice(true, this.addProduct.commercialDiscountValue > 0);
+
+                                    let margin = this.isFilled(this.addProduct.practicedCost) ? this.fixDecimalPlaces((1 - (Number(this.addProduct.practicedCost) / (this.addProduct.totalPrice / this.addProduct.quantity))) * 100) : 0;
+                                    this.addProduct.commercialMarginPercentage = margin;
+                                    listPriceChange = true;
                                 }
-                                this.addProduct.unitPriceFront = this.fixDecimalPlacesFront(this.addProduct.unitPrice);
 
-                                this.calculateDiscountOrAddition();
-                                this.calculateTotalPrice(true, this.addProduct.commercialDiscountValue > 0);
-
-                                let margin = this.isFilled(this.addProduct.practicedCost) ? this.fixDecimalPlaces((1 - (Number(this.addProduct.practicedCost) / (this.addProduct.totalPrice / this.addProduct.quantity))) * 100) : 0;
-                                this.addProduct.commercialMarginPercentage = margin;
-                                listPriceChange = true;
+                                orderProducts.push(this.addProduct);
+                            } else {
+                                productsWithoutPrice = productsWithoutPrice != '' ? productsWithoutPrice + ', ' + this.addProduct.name : this.addProduct.name;
+                                itemToExclude.push(this.addProduct.orderItemId)
                             }
-
-                            orderProducts.push(this.addProduct);
                         }
 
                         this.products = JSON.parse(JSON.stringify(orderProducts));
+                        this.excludedItems = this.isFilled(this.excludedItems) ? this.excludedItems : JSON.parse(JSON.stringify(itemToExclude));
+                        this._setExcludedesItems();
+                        this._setData();
                         if (listPriceChange) {
                             this.showToast('warning', 'Alteração na lista de preço!', 'Os preços foram ajustados de acordo com os valores da lista de preço. Verifique-os.');
+                        }
+
+                        if (productsWithoutPrice != '') {
+                            this.showToast('warning', 'Produtos sem preço!', 'Os produtos ' + productsWithoutPrice + ' foram removidos do pedido.');
                         }
                     });
                 }
@@ -449,6 +466,8 @@ export default class OrderProductScreen extends LightningElement {
                         } else {
                             this.showLoading = false;
                         }
+
+                        this._setData();
                     })
                 } else {
                     this.showLoading = false;
@@ -460,16 +479,18 @@ export default class OrderProductScreen extends LightningElement {
     }
 
     getProductByPriority(selectedProduct) {
-        let key1 = this.accountData.Id + '-' + selectedProduct.Id;
-        let key2 = this.salesInfos.segmento + '-' + selectedProduct.Id;
-        let key3 = this.headerData.cultura.Id + '-' + this.salesInfos.salesTeamId + '-' + selectedProduct.Id;
-        let key4 = this.salesInfos.salesTeamId + '-' + selectedProduct.Id;
-        let key5 = this.salesInfos.salesOfficeId + '-' + selectedProduct.Id;
-        let key6 = selectedProduct.productGroupId;
-        let key7 = selectedProduct.Id;
-
-        let productsPrice = this.productsPriceMap;
         let priorityPrice;
+        let productsPrice = this.productsPriceMap;
+        let productId = this.isFilled(selectedProduct.Id) ? selectedProduct.Id : selectedProduct.productId;
+
+        let key1 = this.accountData.Id + '-' + productId;
+        let key2 = this.salesInfos.segmento + '-' + productId;
+        let key3 = this.headerData.cultura.Id + '-' + this.salesInfos.salesTeamId + '-' + productId;
+        let key4 = this.salesInfos.salesTeamId + '-' + productId;
+        let key5 = this.salesInfos.salesOfficeId + '-' + productId;
+        let key6 = selectedProduct.productGroupId;
+        let key7 = productId;
+
         if (this.isFilled(productsPrice[key1])) {
             priorityPrice = productsPrice[key1];
         } else if (this.isFilled(productsPrice[key2])) {
@@ -545,7 +566,8 @@ export default class OrderProductScreen extends LightningElement {
                     productHierarchyId: currentProduct.productHierarchyId != null ? currentProduct.productHierarchyId : '',
                     sapStatus: currentProduct.sapStatus != null ? currentProduct.sapStatus : '',
                     sapProductCode: currentProduct.sapProductCode != null ? currentProduct.sapProductCode : '',
-                    ptaProduct: currentProduct.ptaProduct
+                    ptaProduct: currentProduct.ptaProduct,
+                    priceListCode: priorityInfos.priceListCode
                 };
             }
         }
@@ -1256,6 +1278,12 @@ export default class OrderProductScreen extends LightningElement {
         const setHeaderValues = new CustomEvent('setheadervalues');
         setHeaderValues.data = this.headerData;
         this.dispatchEvent(setHeaderValues);
+    }
+
+    _setExcludedesItems() {
+        const setItems = new CustomEvent('setexcludedesitems');
+        setItems.data = this.excludedItems;
+        this.dispatchEvent(setItems);
     }
 
     showResults(event){
