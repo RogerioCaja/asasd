@@ -2,10 +2,12 @@
 <ListView xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>AllAccounts</fullName>
     <columns>ACCOUNT.NAME</columns>
-    <columns>ACCOUNT.ADDRESS1_STATE</columns>
-    <columns>ACCOUNT.PHONE1</columns>
-    <columns>ACCOUNT.TYPE</columns>
-    <columns>CORE.USERS.ALIAS</columns>
+    <columns>PARENT_NAME</columns>
+    <columns>ExternalId__c</columns>
+    <columns>CNPJ__c</columns>
+    <columns>CPF__c</columns>
+    <columns>StateRegistration__c</columns>
+    <columns>MunicipalRegistration__c</columns>
     <filterScope>Everything</filterScope>
     <label>Todas as Contas</label>
 </ListView>
