@@ -105,7 +105,8 @@ public without sharing class OrderScreenController {
                    ComissionValue__c,
                    CommercialMargin__c,
                    AmountUsed__c,
-                   PTA__c
+                   PTA__c,
+                   PriceListCode__c
               FROM OrderItem
              WHERE OrderId =: orderId
         ]){
@@ -276,7 +277,7 @@ public without sharing class OrderScreenController {
     }
 
     @AuraEnabled
-    public static String saveOrder(Id orderId, Boolean cloneOrder, String data, string typeOrder) {
+    public static String saveOrder(Id orderId, Boolean cloneOrder, String data, string typeOrder, String itemsToExclude) {
         Savepoint sp = Database.setSavepoint();
         try {
             Order order;
@@ -428,11 +429,14 @@ public without sharing class OrderScreenController {
                 }
             }
             
+            List<String> deleteItems = itemsToExclude != null ? (List<String>) JSON.deserialize(itemsToExclude, List<String>.class) : new List<String>();
             Map<Id, OrderItem> orderItemsById = new Map<Id, OrderItem>([
                 SELECT Id, Product2Id
                   FROM OrderItem
                  WHERE Id IN: setOrderItemsIds
+                    OR Id IN: deleteItems
             ]);
+
             String salesCTVId = orderData.headerData.ctv_venda != null ? orderData.headerData.ctv_venda.Id : '';
             User user = [SELECT Id, SellerType__c FROM User WHERE Id =: salesCTVId];
             String sellerType = user.SellerType__c != null ? user.SellerType__c : '';
@@ -665,10 +669,19 @@ public without sharing class OrderScreenController {
                                                     0;
                     orderItem.ComissionValue__c = orderItem.PercentComission__c != 0 ? ((orderItem.FinalTotalValue__c * orderItem.PercentComission__c) / 100) : 0;
                     orderItem.PTA__c = orderProduct.ptaProduct;
+                    orderItem.PriceListCode__c = orderProduct.priceListCode;
                     listOrderItems.add(orderItem);
                 }
+
+                List<OrderItem> itemsToDelete = new List<OrderItem>();
+                for (String itemToDeleteId : deleteItems) {
+                    OrderItem itemToDelete = orderItemsById.get(itemToDeleteId);
+                    itemsToDelete.add(itemToDelete);
+                }
+
                 OrderHelper.disableTrigger();
                 update motherItems.values();
+                delete itemsToDelete;
                 OrderHelper.enableTrigger();
 
                 String orderItemErrors = '';
@@ -1290,6 +1303,7 @@ public without sharing class OrderScreenController {
         public String  commercialAdditionPercentage;
         public String  financialAdditionPercentage;
         public String  financialDecreasePercentage;
+        public String  priceListCode;
         public Integer position;
         public Boolean ptaProduct;
         public Decimal invoicedQuantity;
@@ -1553,6 +1567,7 @@ public without sharing class OrderScreenController {
         public String  commercialAdditionPercentage;
         public String  financialAdditionPercentage;
         public String  financialDecreasePercentage;
+        public String  priceListCode;
         public Integer position;
         public Boolean ptaProduct;
         public Decimal multiplicity;
@@ -1612,6 +1627,7 @@ public without sharing class OrderScreenController {
             this.comissionValue = orderItem.ComissionValue__c;
             this.commercialMarginPercentage = orderItem.CommercialMargin__c;
             this.ptaProduct = orderItem.PTA__c;
+            this.priceListCode = orderItem.PriceListCode__c;
         }
     }
 

@@ -924,6 +924,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>JurosDescontoAntecipao__c.ExternalId__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>JurosDescontoAntecipao__c.IsActive__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1675,6 +1680,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>OrderItem.PracticedPrice__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>OrderItem.PriceListCode__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
