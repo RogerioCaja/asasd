@@ -70,6 +70,10 @@
                 <behavior>Readonly</behavior>
                 <field>ClientGroup__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Readonly</behavior>
+                <field>TotalDicountValue__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>
