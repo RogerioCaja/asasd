@@ -46,6 +46,10 @@
                 <behavior>Edit</behavior>
                 <field>StatusRecusa__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Readonly</behavior>
+                <field>TotalDicountValue__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>
