@@ -33,10 +33,6 @@ public without sharing class OrderHelper {
             if(!Test.isRunningTest()){
                 System.enqueueJob(new calloutDatalakeQueue(orderId));
             }
-<<<<<<< HEAD
-=======
-            
->>>>>>> 030822/compactLayout
         }
     } 
 
