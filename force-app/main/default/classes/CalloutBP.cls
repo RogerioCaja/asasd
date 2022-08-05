@@ -138,6 +138,145 @@ public without sharing class CalloutBP {
         }
         
     }
+
+    public static void processIntegration(Datetime orgTimeReal){
+
+        IntegrationUtils.CalloutBpResponse calloutBpResponse = sendOrder(orgTimeReal);
+        
+        List<Account> accountList = new List<Account>();
+        List<LimiteCreditoINData> creditoList = new List<LimiteCreditoINData>();
+        List<CompanyINData> companyList = new List<CompanyINData>();
+        if (calloutBpResponse.success) {
+            ResponseParameters resp = (ResponseParameters) calloutBpResponse.parsedResponse;
+            System.debug('resp: '+ resp);
+            Map<String, Id> lookups = new Map<String, Id>();
+            List<String> accountIdsList = new List<String>();
+            List<String> accountFatherIdsList = new List<String>();
+            List<String> userCodigoSapList = new List<String>();
+            for(ResponseParametersWrapper valor : resp.responses){
+                if(valor.CodigoExterno != null){
+                    accountIdsList.add(valor.CodigoExterno);
+                }
+                if(valor.ContaPai != null){
+                    accountIdsList.add(valor.ContaPai);
+                    accountFatherIdsList.add(valor.ContaPai);
+                }
+            }
+            System.debug('accountIdsList: '+ accountIdsList);
+            List<Account> accountListExternalId = new List<Account>([SELECT Id, ExternalId__c FROM Account WHERE ExternalId__c =: accountIdsList]);
+            for(Account acc : accountListExternalId){
+                lookups.put('Account' + acc.ExternalId__c, acc.Id);
+            }
+
+            for(ResponseParametersWrapper valor : resp.responses){
+                for(LimiteCreditoINData cred : valor.Credito){
+                    cred.CodigoExternoAccount = valor.CodigoExterno;
+                    creditoList.add(cred);
+                }
+                for(CompanyINData company : valor.EstruturaOrganizacional){
+                    company.CodigoExternoAccount = valor.CodigoExterno;
+                    company.CodigoExternoFatherAccount = valor.ContaPai;
+                    companyList.add(company);
+                }
+                String statusType;
+                if(valor.Status == '' || valor.Status == null){
+                    statusType = 'Ativo';
+                }else{
+                    statusType = 'Bloqueado';
+                }
+                String email = null;
+                if(!valor.Email.contains('.com')){
+                    if(valor.Email != '' && valor.Email != null){
+                        email = valor.Email + '.com';
+                    }
+                }else{
+                    email = valor.Email;
+                }
+                Account ac = new Account(
+                Name = valor.Nome,
+                Company__c = valor.Nome,    
+                ExternalId__c = valor.CodigoExterno,
+                ParentId = lookups.containsKey('Account'+valor.ContaPai) ? lookups.get('Account'+valor.ContaPai) : null,
+                CNPJ__c = valor.CNPJ,
+                CPF__c = valor.CPF,
+                MunicipalRegistration__c = valor.InscricaoMunicipal,
+                StateRegistration__c = valor.InscricaoEstadual,
+                Email__c = email,
+                Phone = valor.Telefone,
+                Status__c = statusType);
+                
+                ac.ShippingStreet = valor.RuaEntrega;
+                ac.ShippingCity = valor.CidadeEntrega;
+                ac.ShippingState = valor.Estado;
+                ac.ShippingCountry = valor.PaisEntrega;
+                ac.ShippingPostalCode = valor.CEPEntrega;
+                ac.BillingStreet = valor.RuaCobranca;
+                ac.BillingCity = valor.CidadeCobranca;
+                ac.BillingState = valor.EstadoCobranca;
+                ac.BillingCountry = valor.PaisCobranca;
+                ac.BillingPostalCode = valor.CEPCobranca;
+                accountList.add(ac);
+            }
+            for(CompanyINData company : companyList){
+                if(company.Partner != null && company.Partner != ''){
+                    userCodigoSapList.add(company.Partner);
+                }
+            }          
+            Database.UpsertResult[] resultsAccount;
+            if (!accountList.isEmpty()) {
+                System.debug('accountList: '+accountList);
+                resultsAccount = Database.upsert(accountList, Account.ExternalId__c, false);
+            }
+            List<Account> accountFatherListExternalId = new List<Account>([SELECT Id, ExternalId__c FROM Account WHERE ExternalId__c =: accountFatherIdsList]);
+            creatyAccountTerrytoryAssossiation(accountList,accountFatherListExternalId, userCodigoSapList, resp, companyList);
+
+            for(Account acc : accountList){
+                lookups.put('Account__c' + acc.ExternalId__c, acc.Id);
+            }
+
+            Map<String, Id> newLookups = creatyNewLookup(companyList, creditoList, lookups);
+            Map<String, String> nameLookups = creatyNameLookup(companyList, creditoList);
+            System.debug('creditoList: '+ creditoList);
+            System.debug('companyList: '+ companyList);
+            System.debug('newLookups: '+ newLookups);
+            Database.UpsertResult[] resultsCredit = creatyCredit(creditoList, newLookups);
+            Database.UpsertResult[] resultsCompany = creatyCompany(companyList, newLookups, nameLookups);
+           
+            String resultsError = '';
+
+
+            for(Database.UpsertResult results : resultsCompany){
+                System.debug('Database.UpsertResult: ' + results);
+                if(!results.isSuccess()){
+                    resultsError += 'Company Error: ' + results.getErrors() + '/ ';
+                }
+            }
+
+            for(Database.UpsertResult results : resultsCredit){
+                System.debug('Database.UpsertResult: ' + results);
+                if(!results.isSuccess()){
+                    resultsError += 'Credit Error: ' + results.getErrors() + '/ ';
+                }
+            }
+
+            for(Database.UpsertResult results : resultsAccount){
+                System.debug('Database.UpsertResult: ' + results);
+                if(!results.isSuccess()){
+                    resultsError += 'Account Error: ' + results.getErrors() + '/ ';
+                }
+            }
+
+            if(resultsError != ''){
+                Datetime UTC = System.now().addMinutes(-3);  
+                Organization orgDetails = [SELECT Id, TimeZoneSidKey FROM Organization WHERE Id = :UserInfo.getOrganizationId()]; 
+                Timezone tz = Timezone.getTimeZone(orgDetails.TimeZoneSidKey);
+                Datetime orgTime = UTC.addSeconds((tz.getOffset(UTC)/1000)); 
+                IntegrationLog.createLog('Bp OUT Insertion Error', 'OUT', resultsError,String.valueOf(orgTime), true);
+            }
+            System.debug('integração foi um sucesso');
+        }
+        
+    }
     public static Map<String, Id> creatyNewLookup(List<CompanyINData> companyList, List<LimiteCreditoINData> creditoList, Map<String, Id> lookups){
         Set<String> accountIdList = new Set<String>();
         Set<String> salesOrganizationIdList = new Set<String>();
@@ -449,6 +588,64 @@ public without sharing class CalloutBP {
         Datetime orgTime = UTC.addSeconds((tz.getOffset(UTC)/1000)); 
 
         request.add(new RequestParameters(orgTime));
+        System.debug('request: '+ request);
+        
+        String code = (!Test.isRunningTest() ? getAcessCode() : 'acessToken');
+        System.debug('AcessCode: '+ code);
+        String payload = JSON.serialize(request);
+        System.debug('PayloadCheck: '+ payload);
+        //Metodo para busca de Access Token, depende de cada projeto, podendo estar presente dentro de uma custom settings ou relacionado com outra requisição.
+        String accessToken = code;//! FALTA SABER A RESPOSTA DO SAP QUANTO A AUTENTICAÇÃO! F
+        //Url mock: https://aabb2740-69b0-4737-925c-2c40367a3737.mock.pstmn.io//CalloutBP
+        //Path geralmente cadastrado dentro de ua customSettings 
+        String endpoint = (!Test.isRunningTest() ? 'https://apim.agrogalaxy.com.br/gtw/sf-bp-out/v1/sf-bp-out' : 'http://callout.My_Named_Credential.com/some/path');
+        Map<String, String> headersMap = new Map<String, String>();
+        headersMap.put('Content-type', 'application/json');
+        headersMap.put('Authorization', 'Bearer '+ accessToken);
+        
+        IntegrationUtils.RequestResponseObject responseObject = IntegrationUtils.executeCalloutGet(endpoint, payload, headersMap);
+
+        if (responseObject.success) {
+
+            HttpResponse response = responseObject.response;
+
+            //IntegrationLog.createLog('Bp OUT', 'OUT', response.getBody(), payload, false);
+            // .WSLog('Pedido', 'OUTBOUND', response.getBody(), payload, false);
+            System.debug('response.getBody(): '+ response.getBody());
+            try {
+                List<ResponseParametersWrapper> responses = (List<ResponseParametersWrapper>) JSON.deserialize(response.getBody(), List<ResponseParametersWrapper>.class);
+                System.debug('responses2: '+ responses);
+                IntegrationLog.createLog('Bp OUT', 'OUT', response.getBody(), payload, false);
+                return new IntegrationUtils.CalloutBpResponse(new ResponseParameters(responses));
+        
+            } catch (Exception e) {
+                try{
+                    ResponseNothing responses = (ResponseNothing) JSON.deserialize(response.getBody(), ResponseNothing.class);
+                    String defaultErrorMessager = 'Malformatted HTTP Response Exception: ' + e.getMessage();
+                    //IntegrationLog.createLog('Bp OUT', 'OUT', response.getBody(), payload, false);
+                    return new IntegrationUtils.CalloutBpResponse(defaultErrorMessager);
+                } catch (Exception er) {
+                    String defaultErrorMessage = 'Malformatted HTTP Response Exception: ' + er.getMessage();
+                    IntegrationLog.createLog('Bp OUT', 'OUT', defaultErrorMessage, payload, true);
+                    return new IntegrationUtils.CalloutBpResponse(defaultErrorMessage);
+                }
+            }
+        } else {
+
+            IntegrationLog.createLog('Bp OUT', 'OUT', responseObject.exceptionObject.getMessage(), payload, true);
+            return new IntegrationUtils.CalloutBpResponse(responseObject.exceptionObject.getMessage());
+        }
+    }
+
+    public static IntegrationUtils.CalloutBpResponse sendOrder(Datetime orgTimeReal) {
+
+        List<RequestParameters> request = new List<RequestParameters>();
+        Datetime UTC = System.now().addMinutes(-3);  
+        Organization orgDetails = [SELECT Id, TimeZoneSidKey FROM Organization WHERE Id = :UserInfo.getOrganizationId()]; 
+        Timezone tz = Timezone.getTimeZone(orgDetails.TimeZoneSidKey);
+        Datetime orgTime = UTC.addSeconds((tz.getOffset(UTC)/1000)); 
+
+        request.add(new RequestParameters(orgTimeReal));
         System.debug('request: '+ request);
         
         String code = (!Test.isRunningTest() ? getAcessCode() : 'acessToken');
