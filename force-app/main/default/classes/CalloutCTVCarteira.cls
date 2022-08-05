@@ -44,7 +44,7 @@ public with sharing class CalloutCTVCarteira {
         String endpointToken = (!Test.isRunningTest() ? 'https://apim.agrogalaxy.com.br/identityserver/oauth2/token' : 'http://callout.My_Named_Credential.com/some/path');
         Map<String, String> headersMapToken = new Map<String, String>();
         headersMapToken.put('Content-type', 'application/x-www-form-urlencoded');
-        headersMapToken.put('Authorization', 'Basic dEQxV2M0bWtXdnRWNWVtRXZSOHlVRF9iUFZvYTpmZmVJQUs5SmdPNXNsbXI1UzVMUXNNcTBOME1h');
+        headersMapToken.put('Authorization', 'Basic ZVBwb0ZlUm1XZGtUNk9tRnlMQl9Ma2pBUUVrYTpsV3diUVBpa2dNeTRyTnQ5UkNSWmRpS3luMmdh');
         IntegrationUtils.RequestResponseObject responseObject2 = IntegrationUtils.executeCallout(endpointToken, payloadToken, headersMapToken);
         
         if (responseObject2.success) {
