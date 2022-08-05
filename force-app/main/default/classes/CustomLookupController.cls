@@ -235,39 +235,46 @@ public without sharing class CustomLookupController {
                     }
                     
                     String key = jda.Account__c + '-' + (String)s.get('Id');
-                    if (!result.recordsDataMap.containsKey(key)) {
+                    if (jda.Account__c != null && !result.recordsDataMap.containsKey(key)) {
                         result.recordsDataMap.put(key, productData);
+                        continue;
                     }
     
                     String accountSegment = jda.Account__c != null ? industryByAccountIds.get(jda.Account__c).Industry : '';
                     key = accountSegment + '-' + (String)s.get('Id');
-                    if (!result.recordsDataMap.containsKey(key)) {
+                    if (accountSegment != '' && !result.recordsDataMap.containsKey(key)) {
                         result.recordsDataMap.put(key, productData);
+                        continue;
                     }
     
                     key = jda.Culture__c + '-' + jda.SalesTeam__c + '-' + (String)s.get('Id');
-                    if (!result.recordsDataMap.containsKey(key)) {
+                    if (jda.Culture__c != null && jda.SalesTeam__c != null && !result.recordsDataMap.containsKey(key)) {
                         result.recordsDataMap.put(key, productData);
+                        continue;
                     }
     
                     key = jda.SalesTeam__c + '-' + (String)s.get('Id');
-                    if (!result.recordsDataMap.containsKey(key)) {
+                    if (jda.SalesTeam__c != null && !result.recordsDataMap.containsKey(key)) {
                         result.recordsDataMap.put(key, productData);
+                        continue;
                     }
     
                     key = jda.SalesOffice__c + '-' + (String)s.get('Id');
-                    if (!result.recordsDataMap.containsKey(key)) {
+                    if (jda.SalesOffice__c != null && !result.recordsDataMap.containsKey(key)) {
                         result.recordsDataMap.put(key, productData);
+                        continue;
                     }
     
                     key = jda.ProductGroup__c;
-                    if (!result.recordsDataMap.containsKey(key)) {
+                    if (jda.ProductGroup__c != null && !result.recordsDataMap.containsKey(key)) {
                         result.recordsDataMap.put(key, productData);
+                        continue;
                     }
     
                     key = (String)s.get('Id');
                     if (!result.recordsDataMap.containsKey(key)) {
                         result.recordsDataMap.put(key, productData);
+                        continue;
                     }
                 }
 	        }
