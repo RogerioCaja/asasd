@@ -105,7 +105,7 @@ public without sharing class CalloutBP {
            
             String resultsError = '';
 
-            if(resultsAccount != null){
+            if(resultsCompany != null){
                 for(Database.UpsertResult results : resultsCompany){
                     System.debug('Database.UpsertResult: ' + results);
                     if(!results.isSuccess()){
@@ -250,7 +250,7 @@ public without sharing class CalloutBP {
             String resultsError = '';
 
 
-            if(resultsAccount != null){
+            if(resultsCompany != null){
                 for(Database.UpsertResult results : resultsCompany){
                     System.debug('Database.UpsertResult: ' + results);
                     if(!results.isSuccess()){
