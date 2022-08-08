@@ -105,25 +105,30 @@ public without sharing class CalloutBP {
            
             String resultsError = '';
 
-
-            for(Database.UpsertResult results : resultsCompany){
-                System.debug('Database.UpsertResult: ' + results);
-                if(!results.isSuccess()){
-                    resultsError += 'Company Error: ' + results.getErrors() + '/ ';
+            if(resultsAccount != null){
+                for(Database.UpsertResult results : resultsCompany){
+                    System.debug('Database.UpsertResult: ' + results);
+                    if(!results.isSuccess()){
+                        resultsError += 'Company Error: ' + results.getErrors() + '/ ';
+                    }
                 }
             }
 
-            for(Database.UpsertResult results : resultsCredit){
-                System.debug('Database.UpsertResult: ' + results);
-                if(!results.isSuccess()){
-                    resultsError += 'Credit Error: ' + results.getErrors() + '/ ';
+            if(resultsCredit != null){
+                for(Database.UpsertResult results : resultsCredit){
+                    System.debug('Database.UpsertResult: ' + results);
+                    if(!results.isSuccess()){
+                        resultsError += 'Credit Error: ' + results.getErrors() + '/ ';
+                    }
                 }
             }
-
-            for(Database.UpsertResult results : resultsAccount){
-                System.debug('Database.UpsertResult: ' + results);
-                if(!results.isSuccess()){
-                    resultsError += 'Account Error: ' + results.getErrors() + '/ ';
+            
+            if(resultsAccount != null){
+                for(Database.UpsertResult results : resultsAccount){
+                    System.debug('Database.UpsertResult: ' + results);
+                    if(!results.isSuccess()){
+                        resultsError += 'Account Error: ' + results.getErrors() + '/ ';
+                    }
                 }
             }
 
@@ -245,24 +250,30 @@ public without sharing class CalloutBP {
             String resultsError = '';
 
 
-            for(Database.UpsertResult results : resultsCompany){
-                System.debug('Database.UpsertResult: ' + results);
-                if(!results.isSuccess()){
-                    resultsError += 'Company Error: ' + results.getErrors() + '/ ';
+            if(resultsAccount != null){
+                for(Database.UpsertResult results : resultsCompany){
+                    System.debug('Database.UpsertResult: ' + results);
+                    if(!results.isSuccess()){
+                        resultsError += 'Company Error: ' + results.getErrors() + '/ ';
+                    }
                 }
             }
 
-            for(Database.UpsertResult results : resultsCredit){
-                System.debug('Database.UpsertResult: ' + results);
-                if(!results.isSuccess()){
-                    resultsError += 'Credit Error: ' + results.getErrors() + '/ ';
+            if(resultsCredit != null){
+                for(Database.UpsertResult results : resultsCredit){
+                    System.debug('Database.UpsertResult: ' + results);
+                    if(!results.isSuccess()){
+                        resultsError += 'Credit Error: ' + results.getErrors() + '/ ';
+                    }
                 }
             }
-
-            for(Database.UpsertResult results : resultsAccount){
-                System.debug('Database.UpsertResult: ' + results);
-                if(!results.isSuccess()){
-                    resultsError += 'Account Error: ' + results.getErrors() + '/ ';
+            
+            if(resultsAccount != null){
+                for(Database.UpsertResult results : resultsAccount){
+                    System.debug('Database.UpsertResult: ' + results);
+                    if(!results.isSuccess()){
+                        resultsError += 'Account Error: ' + results.getErrors() + '/ ';
+                    }
                 }
             }
 
