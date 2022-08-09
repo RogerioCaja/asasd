@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ApprovalProcess xmlns="http://soap.sforce.com/2006/04/metadata">
-    <active>false</active>
+    <active>true</active>
     <allowRecall>true</allowRecall>
     <allowedSubmitters>
         <type>creator</type>
@@ -156,7 +156,7 @@
             <type>RejectRequest</type>
         </rejectBehavior>
     </approvalStep>
-    <emailTemplate>unfiled$public/AprovacaoPedidos</emailTemplate>
+    <emailTemplate>unfiled$public/OrderApproval</emailTemplate>
     <enableMobileDeviceAccess>false</enableMobileDeviceAccess>
     <entryCriteria>
         <criteriaItems>
@@ -197,10 +197,6 @@
     </finalRejectionActions>
     <finalRejectionRecordLock>false</finalRejectionRecordLock>
     <initialSubmissionActions>
-        <action>
-            <name>Solicitacao_de_Aprovacao_do_Pedido</name>
-            <type>Alert</type>
-        </action>
         <action>
             <name>StatusEmAprovacao</name>
             <type>FieldUpdate</type>
