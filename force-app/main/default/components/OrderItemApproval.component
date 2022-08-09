@@ -1,0 +1,29 @@
+<apex:component controller="OrderItemApprovalController" access="global">
+    <apex:attribute name="orderId" type="Id" description="Order Id" assignTo="{!recordId}"/>
+
+    <table border="0" style="margin-top: 24px; width: 800px; border-spacing: 0; border: 1px solid #000;">
+        <tr>
+            <th style="text-align: left; font-size: 12px; font-weight: bold; padding: 5px; border-bottom: 1px solid #000; background-color: #000;color: #4FE091;">Produto</th>
+            <th style="text-align: left; font-size: 12px; font-weight: bold; padding: 5px; border-bottom: 1px solid #000; background-color: #000;color: #4FE091;">Quantidade</th>
+            <th style="text-align: left; font-size: 12px; font-weight: bold; padding: 5px; border-bottom: 1px solid #000; background-color: #000;color: #4FE091;">Unidade</th>
+            <th style="text-align: left; font-size: 12px; font-weight: bold; padding: 5px; border-bottom: 1px solid #000; background-color: #000;color: #4FE091;">Preço Praticado</th>
+            <th style="text-align: left; font-size: 12px; font-weight: bold; padding: 5px; border-bottom: 1px solid #000; background-color: #000;color: #4FE091;">Preço de Lista</th>
+            <th style="text-align: left; font-size: 12px; font-weight: bold; padding: 5px; border-bottom: 1px solid #000; background-color: #000;color: #4FE091;">Valor Total de Desconto</th>
+            <th style="text-align: left; font-size: 12px; font-weight: bold; padding: 5px; border-bottom: 1px solid #000; background-color: #000;color: #4FE091;">% de Desconto</th>
+            <th style="text-align: left; font-size: 12px; font-weight: bold; padding: 5px; border-bottom: 1px solid #000; background-color: #000;color: #4FE091;">Margem do Item</th>
+        </tr>
+        
+        <apex:repeat value="{!orderItems}" var="oi">
+            <tr>
+                <td style="text-align: left; font-size: 12px; padding: 5px; border-bottom: 1px solid #000;">{!oi.Product2.Name}</td>
+                <td style="text-align: left; font-size: 12px; padding: 5px; border-bottom: 1px solid #000;">{!oi.Quantity}</td>
+                <td style="text-align: left; font-size: 12px; padding: 5px; border-bottom: 1px solid #000;">{!oi.UnitMeasure__c}</td>
+                <td style="text-align: left; font-size: 12px; padding: 5px; border-bottom: 1px solid #000;"><apex:outputText value="{0,number, ###,###,###.00}"> <apex:param value="{!oi.PracticedPrice__c}"/></apex:outputText></td>
+                <td style="text-align: left; font-size: 12px; padding: 5px; border-bottom: 1px solid #000;"><apex:outputText value="{0,number, ###,###,###.00}"> <apex:param value="{!oi.ListPrice__c}"/></apex:outputText></td>
+                <td style="text-align: left; font-size: 12px; padding: 5px; border-bottom: 1px solid #000;"><apex:outputText value="{0,number, ###,###,###.00}"> <apex:param value="{!oi.DiscountValue__c}"/></apex:outputText></td>
+                <td style="text-align: left; font-size: 12px; padding: 5px; border-bottom: 1px solid #000;">{!oi.DiscountPercent__c}</td>
+                <td style="text-align: left; font-size: 12px; padding: 5px; border-bottom: 1px solid #000;">{!oi.CommercialMargin__c}</td>
+            </tr>
+        </apex:repeat> 
+    </table>
+</apex:component>
