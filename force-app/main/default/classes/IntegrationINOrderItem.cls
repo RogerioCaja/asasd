@@ -33,6 +33,7 @@ global with sharing class IntegrationINOrderItem {
 
                     if(conditions.KSCHL == 'ZPR0'){
                         OrderItemINData.precoUnitario = (Decimal.valueOf(conditions.KBETR) / Decimal.valueOf(conditions.KPEIN));
+                        OrderItemINData.precoPraticado = OrderItemINData.precoUnitario;
                        //OrderItemINData.multiplicador == conditions.KPEIN;
                     }
                     
