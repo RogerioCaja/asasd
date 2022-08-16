@@ -46,7 +46,7 @@ public class OrderScreenControllerTest {
         Company__c company = new Company__c(
             Name = 'Company',
             Blocked__c = false,
-            ClientGroup__c = 'NÃO SEGMENTADO',
+            ClientGroup__c = '01',
             Conta__c = parentAccount.Id,
             SalesOrg__c = salesOrg.Id,
             SalesOffice__c = salesOffice.Id,
@@ -318,7 +318,7 @@ public class OrderScreenControllerTest {
             ProductGroup__c = productGroup.Id,
             Status__c = 'Aprovado',
             Approver__c = 'ComiteMargem',
-            ClientGroup__c = 'NÃO SEGMENTADO',
+            ClientGroup__c = '01',
             InitialDate__c = System.today().addDays(-90),
             EndDate__c = System.today().addDays(90)
         );
