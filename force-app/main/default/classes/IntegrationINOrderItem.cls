@@ -88,6 +88,7 @@ global with sharing class IntegrationINOrderItem {
                     Decimal valorAcrescimoComercial = 0;
                     
                     Decimal valorFinal = OrderItemINData.precoUnitario * OrderItemINData.quantidade;
+                    OrderItemINData.valorTotal = valorFinal;
                     
                     if(OrderItemINData.porcentagemDescontoFin > 0){
                         //porcentagemDescontoFinanceiro = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemDescontoFin / 100);
