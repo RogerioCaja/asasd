@@ -216,10 +216,8 @@ global without sharing class IntegrationINOrderInsert {
           
         //Upserting records (Order)
         System.debug('Chegou!? 222222');
-        List<Database.UpsertResult> upsResults = Database.upsert(orderListToUpsert, Order.CodigoSap__c, false);
-        System.debug('upsResult - Order => ' + upsResults);
 		IntegrationUtils.upsertRecords(
-            upsResults, 
+            Database.upsert(orderListToUpsert, Order.CodigoSap__c, false), 
             responseList, 
             orderListToUpsert, 
             Order.CodigoSap__c
