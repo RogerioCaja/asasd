@@ -29,7 +29,7 @@ public class CompaniesRelatedToAccountControllerTest {
         Company__c company = new Company__c(
             Name = 'Company',
             Blocked__c = false,
-            ClientGroup__c = 'NÃO SEGMENTADO',
+            ClientGroup__c = '01',
             Conta__c = account.Id,
             SalesOrg__c = salesOrg.Id,
             SalesOffice__c = salesOffice.Id,
