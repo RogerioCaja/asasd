@@ -1,4 +1,4 @@
-<messaging:emailTemplate subject=":: Aprovação de Desconto Necessária :: Cliente: {!relatedTo.Account.ExternalId__c}/{!relatedTo.Account.Name} - Solicitação: {!relatedTo.OrderNumber}" recipientType="Contact" relatedToType="Order">
+<messaging:emailTemplate subject=":: Aprovação de Desconto Necessária :: Cliente: {!relatedTo.Account.ExternalId__c}/{!relatedTo.Account.Name} - Pedido: {!relatedTo.OrderNumber}" recipientType="Contact" relatedToType="Order">
 <messaging:htmlEmailBody >
 
     <style>
@@ -7,54 +7,37 @@
     </style>
     
     <div style="padding: 24px">
+        <apex:image id="theImage" value="{!$Resource.AgrogalaxyLogo}" width="120px"/>
         <p>Prezado Aprovador (a)</p>
     
-        <p>A solicitação de compra N°<b>{!relatedTo.OrderNumber}</b> necessita de sua aprovação de desconto para seguir o processo de venda.</p>
+        <p>O Pedido de Venda N°<b>{!relatedTo.OrderNumber}</b> necessita de sua aprovação de desconto para seguir o processo de venda.</p>
         
-        <p><b>Cliente</b>: {!relatedTo.Company__r.Name}</p>
+        <p><b>Cliente</b>: {!relatedTo.Account.Name}</p>
+        <p><b>Recebedor</b>: {!relatedTo.ShippingAccount__r.Name}</p>
 
         <ul>
             <li><b>Safra</b>: {!relatedTo.Crop__r.Name}</li>
             <li><b>Cultura</b>: {!relatedTo.Culture__r.Name}</li>
+            <li><b>Margem do Pedido</b>: {!relatedTo.OrderMargin__c}</li>
             <li><b>Condição de Pagamento</b>: {!relatedTo.PaymentCondition__r.Name}</li>
             <li><b>Ctv da Venda</b>: {!relatedTo.SalesCTV__r.Name}</li>
             <li><b>Equipe de Vendas</b>: {!relatedTo.SalesTeam__c}</li>        
             <li><b>Centro Fornecedor</b>: {!relatedTo.Company__r.SupplierCenter__c}</li>        
         </ul>
         
-        <table border="0" style="margin-top: 24px; width: 800px; border-spacing: 0; border: 1px solid #000;">
-            <tr>
-                <th style="text-align: left; font-size: 12px; font-weight: bold; padding: 5px; border-bottom: 1px solid #000; background-color: #455560;color: #FFF;">Produto</th>
-                <th style="text-align: left; font-size: 12px; font-weight: bold; padding: 5px; border-bottom: 1px solid #000; background-color: #455560;color: #FFF;">Quantidade</th>
-                <th style="text-align: left; font-size: 12px; font-weight: bold; padding: 5px; border-bottom: 1px solid #000; background-color: #455560;color: #FFF;">Unidade</th>
-                <th style="text-align: left; font-size: 12px; font-weight: bold; padding: 5px; border-bottom: 1px solid #000; background-color: #455560;color: #FFF;">Preço Atual</th>
-                <th style="text-align: left; font-size: 12px; font-weight: bold; padding: 5px; border-bottom: 1px solid #000; background-color: #455560;color: #FFF;">Preço Original</th>
-                <th style="text-align: left; font-size: 12px; font-weight: bold; padding: 5px; border-bottom: 1px solid #000; background-color: #455560;color: #FFF;">Valor Total de Desconto</th>
-                <th style="text-align: left; font-size: 12px; font-weight: bold; padding: 5px; border-bottom: 1px solid #000; background-color: #455560;color: #FFF;">% de Desconto</th>
-                <th style="text-align: left; font-size: 12px; font-weight: bold; padding: 5px; border-bottom: 1px solid #000; background-color: #455560;color: #FFF;">Margem do Item</th>
-            </tr>
-            <apex:repeat var="oi" value="{!relatedTo.OrderItems}">
-            <tr>
-                <td style="text-align: left; font-size: 12px; padding: 5px; border-bottom: 1px solid #000;">{!oi.Product2.Name}</td>
-                <td style="text-align: left; font-size: 12px; padding: 5px; border-bottom: 1px solid #000;">{!oi.Quantity}</td>
-                <td style="text-align: left; font-size: 12px; padding: 5px; border-bottom: 1px solid #000;">{!oi.UnitMeasure__c}</td>
-                <td style="text-align: left; font-size: 12px; padding: 5px; border-bottom: 1px solid #000;"><apex:outputText value="{0,number, ###,###,###.00}"> <apex:param value="{!oi.PracticedPrice__c}"/></apex:outputText></td>
-                <td style="text-align: left; font-size: 12px; padding: 5px; border-bottom: 1px solid #000;"><apex:outputText value="{0,number, ###,###,###.00}"> <apex:param value="{!oi.ListPrice__c}"/></apex:outputText></td>
-                <td style="text-align: left; font-size: 12px; padding: 5px; border-bottom: 1px solid #000;"><apex:outputText value="{0,number, ###,###,###.00}"> <apex:param value="{!oi.DiscountValue__c}"/></apex:outputText></td>
-                <td style="text-align: left; font-size: 12px; padding: 5px; border-bottom: 1px solid #000;">{!oi.DiscountPercent__c}</td>
-                <td style="text-align: left; font-size: 12px; padding: 5px; border-bottom: 1px solid #000;">{!oi.CommercialMargin__c}</td>
-            </tr>
-            </apex:repeat> 
-        </table>
         <table border="0" style="margin-top: 24px; width: 800px; border-spacing: 0;">
             <tr>
-                <td style="font-size: 12px;padding: 8px;font-weight: 600;text-align: center;">Valor do Desconto Concedido: <apex:outputText style="font-style:normal;padding:5px 10px;background:#455560;color: #FFF;border-radius: 3px;margin-left: 5px; display: inline-block;text-align: center;" value="{0,number, ###,###,###.00}"> <apex:param value="{!relatedTo.TotalDicountValue__c}"/></apex:outputText></td>
-                <td style="font-size: 12px;padding: 8px;font-weight: 600;text-align: right;">Valor Total dos Produtos com Desconto: <apex:outputText style="font-style:normal;padding:5px 10px;background:#455560;color: #FFF;border-radius: 3px;margin-left: 5px; display: inline-block;text-align: center;" value="{0,number, ###,###,###.00}"> <apex:param value="{!relatedTo.FinalTotalValue__c}"/></apex:outputText></td>
+                <td style="font-size: 12px;padding: 8px;font-weight: 600;text-align: center;">Valor do Desconto Concedido: <apex:outputText style="font-style:normal;padding:5px 10px;background:#000;color: #4FE091;border-radius: 3px;margin-left: 5px; display: inline-block;text-align: center;" value="{0,number, ###,###,###.00}"> <apex:param value="{!relatedTo.TotalDicountValue__c}"/></apex:outputText></td>
+                <td style="font-size: 12px;padding: 8px;font-weight: 600;text-align: right;">Valor Total dos Produtos com Desconto: <apex:outputText style="font-style:normal;padding:5px 10px;background:#000;color: #4FE091;border-radius: 3px;margin-left: 5px; display: inline-block;text-align: center;" value="{0,number, ###,###,###.00}"> <apex:param value="{!relatedTo.FinalTotalValue__c}"/></apex:outputText></td>
             </tr>
         </table>
     </div>
     <div style="padding: 0 24px 24px">
         <p>Para visualizar detalhes da solicitação de desconto ou visualizar o pedido <a href="{!LEFT($Api.Partner_Server_URL_280, FIND(".com/",$Api.Partner_Server_URL_280)+3)}/{!relatedTo.Id}">clique aqui</a></p>
+
+        <p>Você pode aprovar este pedido respondendo este e-mail com as seguintes palavras: APROVAR, APROVADO e SIM para aprovar o pedido. REPROVAR, REPROVADO e NÃO para reprovar o pedido.</p>
+
+        <p>Caso queira adicionar algum comentário a aprovação ou reprovação, basta pular uma linha no e-mail e redigir o seu comentário.</p>
 
         <p style="margin-bottom: 2px">Atenciosamente,</p>
         
