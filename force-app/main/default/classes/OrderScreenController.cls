@@ -110,8 +110,10 @@ public without sharing class OrderScreenController {
               FROM OrderItem
              WHERE OrderId =: orderId
         ]){
-            totalCost += item.PracticedCost__c * item.Quantity;
-            totalDiscount += item.DiscountValue__c;
+            Decimal itemPracticedCost = item.PracticedCost__c != null ? item.PracticedCost__c : 0;
+            Decimal itemDiscount = item.DiscountValue__c != null ? item.DiscountValue__c : 0;
+            totalCost += itemPracticedCost * item.Quantity;
+            totalDiscount += itemDiscount;
             totalQuantity += item.Quantity;
             prods.add(new ProductSerialize(item, counter, cloneOrder));
             orderItemsPosition.put(item.Id, counter);
