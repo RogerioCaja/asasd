@@ -217,6 +217,8 @@ public without sharing class CalloutOrder {
             IS_HEADER_IN.REF_DOC = order.OrderReference__c != null ? order.OrderReference__r.CodigoSap__c : '';
             IS_HEADER_IN.CSTCNDGRP1 = statusSeller.get(order.SalesCTV__r.SellerType__c);
 
+            IS_HEADER_IN.PO_METHOD = order.NumeroPedidoApp__c != null ? 'APP' : 'SFOR';
+            
             Map<String, String> referenceItemMotherMap = new Map<String, String>();
             if(order.OrderReference__c != null){
                 List<OrderItem> orderItemReferenceList = [SELECT Product2.ExternalId__c, NumeroSap__c FROM OrderItem WHERE OrderId =:  order.OrderReference__c];
@@ -303,7 +305,7 @@ public without sharing class CalloutOrder {
         public String PRICE_LIST;
         public String PRICE_DATE;
         public String CSTCNDGRP1;
-
+        public String PO_METHOD;
         public Header(){}
     }
 
