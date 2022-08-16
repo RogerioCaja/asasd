@@ -216,8 +216,10 @@ global without sharing class IntegrationINOrderInsert {
           
         //Upserting records (Order)
         System.debug('Chegou!? 222222');
+        List<Database.UpsertResult> upsResults = Database.upsert(orderListToUpsert, Order.CodigoSap__c, false);
+        System.debug('upsResult - Order => ' + upsResults);
 		IntegrationUtils.upsertRecords(
-            Database.upsert(orderListToUpsert, Order.CodigoSap__c, false), 
+            upsResults, 
             responseList, 
             orderListToUpsert, 
             Order.CodigoSap__c
@@ -279,7 +281,7 @@ global without sharing class IntegrationINOrderInsert {
              order.FinalTotalValue__c  = (Decimal)resulTotal[0].get('somatoria');
              System.debug('order.FinalTotalValue__c ' + order.FinalTotalValue__c);
              OrderHelper.disableTrigger();
-             update order;
+             Database.update(order, false);
              OrderHelper.enableTrigger();
         
         
