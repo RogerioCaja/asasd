@@ -280,7 +280,7 @@ public without sharing class OrderHelper {
     public static void creatyShareRecord(List<Order> orderList){//after insert,update
         List<OrderShare> orderShareList = new List<OrderShare>();
         for(Order ord : orderList){
-            if(ord.SalesCTV__c != null && ord.SalesCTV__c != ord.OwnerId){
+            if(ord.SalesCTV__c != null && ord.SalesCTV__c != ord.OwnerId && ord.SalesCTV__r.isActive != false){
                 OrderShare orderShare = new OrderShare (OrderAccessLevel = 'Edit', RowCause = 'Manual', UserOrGroupId = ord.SalesCTV__c, OrderId = ord.Id);
                 orderShareList.add(orderShare);
             }
