@@ -9,7 +9,7 @@ public without sharing class Lookup {
         String query = getQueryBase(requestData);
         Set<Id> availableSalesCondition = new Set<Id>();
 
-        /* if(requestData.targetObject == 'SalesCondition__c'){
+        if(requestData.targetObject == 'SalesCondition__c'){
             List<String> typeProducts;
             if( requestSalesCondition.typeOrder == 'Venda de Serviço'){
                 typeProducts = new List<String>{'DIEN'};
@@ -109,7 +109,7 @@ public without sharing class Lookup {
             }
 
             query += ' AND Id IN: relatedUsers';
-        } else */ if (requestData.targetObject == 'CondicaoPagamento__c') {
+        } else if (requestData.targetObject == 'CondicaoPagamento__c') {
             query += ' AND BarterCondition__c =: barterSale';
         }
 
