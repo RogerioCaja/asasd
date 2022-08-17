@@ -523,6 +523,8 @@ public without sharing class CalloutBP {
         String statusName;
         List<Company__c> companyListToUpsert = new List<Company__c>();
         Map<String,String> checkExternalId = new Map<String,String>();
+        List<String> companyListExternalId = new List<String>();
+        List<String> accountListExternalId = new List<String>();
         for(CompanyINData valor : companyList){
             if(valor.Status == '' || valor.Status == null){
                 statusName = 'Adicionada';
@@ -549,11 +551,20 @@ public without sharing class CalloutBP {
             if(!checkExternalId.containsKey(company.ExternalId__c)){
                 checkExternalId.put(company.ExternalId__c,company.ExternalId__c);
                 companyListToUpsert.add(company);
+                companyListExternalId.add(company.ExternalId__c);
+                accountListExternalId.add(valor.CodigoExternoAccount);
             }
         }
         System.debug('companyListToUpsert: '+ companyListToUpsert);
         if (!companyListToUpsert.isEmpty()) {
             Database.UpsertResult[] resultCompanyList = Database.upsert(companyListToUpsert, Company__c.ExternalId__c, false);
+
+            List<Company__c> companyToUpdateRemove = new List<Company__c>([SELECT Id, ExternalId__c, Status__c FROM Company__c WHERE ExternalId__c !=: companyListExternalId AND Conta__r.ExternalId__c =: accountListExternalId]);
+            System.debug('companyToUpdateRemove: '+ companyToUpdateRemove);
+            for(Company__c  company : companyToUpdateRemove){
+                company.Status__c = 'Removida';
+            }
+            Database.upsert(companyToUpdateRemove, Company__c.ExternalId__c, false);
             return resultCompanyList;
         }
         return null;
