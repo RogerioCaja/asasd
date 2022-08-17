@@ -108,7 +108,7 @@ public with sharing class CalloutOrderDatalakeTest {
          Company__c company = new Company__c(
             Name = 'Company',
             Blocked__c = false,
-            ClientGroup__c = 'NÃO SEGMENTADO',
+            ClientGroup__c = 'NOVO',
             Conta__c = parentAccount.Id,
             SalesOrg__c = salesOrg.Id,
             SalesOffice__c = salesOffice.Id,
