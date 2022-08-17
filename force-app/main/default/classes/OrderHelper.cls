@@ -61,6 +61,8 @@ public without sharing class OrderHelper {
 
         Orderhelper.disableTrigger();
         for(Order order : newRecords){ 
+            if(order.Status == '0001' && order.StatusSF__c == 'Em digitação') CalloutOrderDatalake.callIntegration(order.Id);
+            
             if(order.StatusSF__c == 'Aprovado'){
                 calloutsQueue job = new calloutsQueue(order.Id);
                 System.enqueueJob(job);
