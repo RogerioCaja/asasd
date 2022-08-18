@@ -68,7 +68,7 @@ public without sharing class OrderHelper {
                 System.enqueueJob(job);
             }
             else{
-                // CalloutOrderDatalake.callIntegration(order.Id);
+                if(!Test.isRunningTest()) CalloutOrderDatalake.callIntegration(order.Id);
             }
             System.debug('System' + System.URL.getCurrentRequestUrl().GetPath());
             // System.URL.getCurrentRequestUrl().GetPath().contains('/upsertOrderAppdigital/');
