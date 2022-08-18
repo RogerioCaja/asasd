@@ -71,7 +71,7 @@ global without sharing class IntegrationINOrder {
         Set<String> pricebook2IdLookups = new Set<String>();
         Set<String> paymentConditionLookups = new Set<String>(); 
         Set<String> activitySectorLookups = new Set<String>();
-        order.company = order.PaymentAccount + order.CentroFornecedor + order.salesOrg + order.activitySector + order.distributionChannel + order.EscritorioVendas + order.EquipeVendas;
+        
         
         
         // Guarda uma lista de respostas
@@ -102,7 +102,7 @@ global without sharing class IntegrationINOrder {
             paymentConditionLookups.add(order.paymentCondition);
             activitySectorLookups.add(order.ActivitySector);
             idOrders.add(order.CodigoSap);
-            
+            order.company = order.PaymentAccount + order.CentroFornecedor + order.salesOrg + order.activitySector + order.distributionChannel + order.EscritorioVendas + order.EquipeVendas;
             for (TemplateDataIntegrationFields.OrderItemINData orderItem : order.orderItems) {
                 orderItem.orderExternalId = order.CodigoSap;
                 orderItem.orderItemCode = orderItem.orderItemCode.replaceFirst('^0+','');
