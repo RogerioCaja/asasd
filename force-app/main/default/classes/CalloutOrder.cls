@@ -213,7 +213,15 @@ public without sharing class CalloutOrder {
             IS_HEADER_IN.ZZDATA_CARENCIA = String.valueOf(order.Crop__r.PaymentBaseDate__c).replace('-', '');
             IS_HEADER_IN.ZZDATA_VENCTO = String.valueOf(order.PaymentDate__c).replace('-', '');
             IS_HEADER_IN.PRICE_LIST = String.valueOf(order.SalesCondition__r.ExternalId__c).leftPad(2, '0');
-            IS_HEADER_IN.PRICE_DATE = order.EffectiveOrderDate__c == null ? String.valueOf(order.EffectiveDate).replace('-', '') : String.valueOf(order.EffectiveOrderDate__c).replace('-', '');
+            if(order.OrderReference__c != null){
+                Order orderReference = [SELECT EffectiveOrderDate__c, EffectiveDate FROM Order WHERE Id =: order.OrderReference__c LIMIT 1];
+                if(orderReference != null){
+                    IS_HEADER_IN.PRICE_DATE = orderReference.EffectiveOrderDate__c;
+                }
+            }
+            else{
+                IS_HEADER_IN.PRICE_DATE = order.EffectiveOrderDate__c == null ? String.valueOf(order.EffectiveDate).replace('-', '') : String.valueOf(order.EffectiveOrderDate__c).replace('-', '');
+            }
             IS_HEADER_IN.REF_DOC = order.OrderReference__c != null ? order.OrderReference__r.CodigoSap__c : '';
             IS_HEADER_IN.CSTCNDGRP1 = statusSeller.get(order.SalesCTV__r.SellerType__c);
 
