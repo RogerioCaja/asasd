@@ -280,7 +280,7 @@ global without sharing class IntegrationINOrderInsert {
              order.FinalTotalValue__c  = (Decimal)resulTotal[0].get('somatoria');
              System.debug('order.FinalTotalValue__c ' + order.FinalTotalValue__c);
              OrderHelper.disableTrigger();
-             update order;
+             Database.update(order, false);
              OrderHelper.enableTrigger();
         
         
