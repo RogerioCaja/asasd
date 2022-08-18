@@ -216,7 +216,7 @@ public without sharing class CalloutOrder {
             if(order.OrderReference__c != null){
                 Order orderReference = [SELECT EffectiveOrderDate__c, EffectiveDate FROM Order WHERE Id =: order.OrderReference__c LIMIT 1];
                 if(orderReference != null){
-                    IS_HEADER_IN.PRICE_DATE = orderReference.EffectiveOrderDate__c;
+                    IS_HEADER_IN.PRICE_DATE = orderReference.EffectiveOrderDate__c == null ? String.valueOf(orderReference.EffectiveDate).replace('-', '') : String.valueOf(orderReference.EffectiveOrderDate__c).replace('-', '');
                 }
             }
             else{
