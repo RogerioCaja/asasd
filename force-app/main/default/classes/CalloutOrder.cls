@@ -213,7 +213,15 @@ public without sharing class CalloutOrder {
             IS_HEADER_IN.ZZDATA_CARENCIA = String.valueOf(order.Crop__r.PaymentBaseDate__c).replace('-', '');
             IS_HEADER_IN.ZZDATA_VENCTO = String.valueOf(order.PaymentDate__c).replace('-', '');
             IS_HEADER_IN.PRICE_LIST = String.valueOf(order.SalesCondition__r.ExternalId__c).leftPad(2, '0');
-            IS_HEADER_IN.PRICE_DATE = order.EffectiveOrderDate__c == null ? String.valueOf(order.EffectiveDate).replace('-', '') : String.valueOf(order.EffectiveOrderDate__c).replace('-', '');
+            if(order.OrderReference__c != null){
+                Order orderReference = [SELECT EffectiveOrderDate__c, EffectiveDate FROM Order WHERE Id =: order.OrderReference__c LIMIT 1];
+                if(orderReference != null){
+                    IS_HEADER_IN.PRICE_DATE = orderReference.EffectiveOrderDate__c == null ? String.valueOf(orderReference.EffectiveDate).replace('-', '') : String.valueOf(orderReference.EffectiveOrderDate__c).replace('-', '');
+                }
+            }
+            else{
+                IS_HEADER_IN.PRICE_DATE = order.EffectiveOrderDate__c == null ? String.valueOf(order.EffectiveDate).replace('-', '') : String.valueOf(order.EffectiveOrderDate__c).replace('-', '');
+            }
             IS_HEADER_IN.REF_DOC = order.OrderReference__c != null ? order.OrderReference__r.CodigoSap__c : '';
             IS_HEADER_IN.CSTCNDGRP1 = statusSeller.get(order.SalesCTV__r.SellerType__c);
 
@@ -270,9 +278,9 @@ public without sharing class CalloutOrder {
                     IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDEC', (CalloutOrder.isNotation(orderItem.DiscountPercent__c)*-1).toPlainString(), ''));
                 }
                 
-                // if(IS_HEADER_IN.PRICE_LIST == '99'){
-                //     IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZPR0', String.valueOf(CalloutOrder.isNotation(orderItem.ListPrice__c)), ''));
-                // }
+                if(IS_HEADER_IN.PRICE_LIST == '99'){
+                    IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZPR0', String.valueOf(CalloutOrder.isNotation(orderItem.ListPrice__c)), ''));
+                }
                
                 // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZPRS', String.valueOf(CalloutOrder.isNotation(orderItem.ListCost__c)), order.Currency__c));
                 // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZJUR', String.valueOf(CalloutOrder.isNotation(orderItem.FinancialAdditionPercent__c)), '%'));
