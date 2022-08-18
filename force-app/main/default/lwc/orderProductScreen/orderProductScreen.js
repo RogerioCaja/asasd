@@ -190,7 +190,7 @@ export default class OrderProductScreen extends LightningElement {
         this.headerData = JSON.parse(JSON.stringify(this.headerData));
         let getCompanyData = {
             ctvId: this.headerData.ctv_venda.Id != null ? this.headerData.ctv_venda.Id : '',
-            accountId: this.headerData.cliente_entrega.Id != null ? this.headerData.cliente_entrega.Id : '',
+            accountId: this.accountData.Id != null ? this.accountData.Id : '',
             orderType: this.headerData.tipo_venda,
             approvalNumber: 1
         }
