@@ -15,7 +15,16 @@ global with sharing class IntegrationINOrderItemInsert {
 
         List<String> idsOrderItem = new List<String>();
         //Application of business rules
-        
+        for(TemplateDataIntegrationFields.OrderItemINData OrderItemINData : request){
+            idsOrderItem.add(OrderItemINData.orderExternalId + '|' + OrderItemINData.orderItemCode);
+        }
+
+        Map<String, OrderItem> ordItMap = new Map<String, OrderItem>();
+        List<OrderItem> ordItList = new List<OrderItem>([SELECT ExternalId__c, Product2.UnidadeMedida__c FROM OrderItem  WHERE ExternalId__c =: idsOrderItem]);
+        for(OrderItem ordItem : ordItList){
+            ordItMap.put(ordItem.ExternalId__c, ordItem);
+        }
+
         for(TemplateDataIntegrationFields.OrderItemINData OrderItemINData : request){
 
             // Pega a relação do OrderItem com Order
@@ -25,7 +34,11 @@ global with sharing class IntegrationINOrderItemInsert {
             // Pega a relação do Product com o OrderItem
             //Getting product parameters to search
             productLookups.add(OrderItemINData.material);
+            OrderItemINData.dosagem = OrderItemINData.quantidade;
             idsOrderItem.add(OrderItemINData.orderExternalId + '|' + OrderItemINData.orderItemCode);
+
+            OrderItem ordItem = ordItMap.get(OrderItemINData.orderExternalId + '|' + OrderItemINData.orderItemCode);
+            OrderItemINData.unidadeMedida = ordItem.Product2.UnidadeMedida__c;
 
             for(TemplateDataIntegrationFields.ConditionInsert  conditions : conditionList){
                 conditions.KPOSN = conditions.KPOSN.replaceFirst('^0+','');

@@ -71,7 +71,9 @@ global without sharing class IntegrationINOrder {
         Set<String> pricebook2IdLookups = new Set<String>();
         Set<String> paymentConditionLookups = new Set<String>(); 
         Set<String> activitySectorLookups = new Set<String>();
-
+        order.company = order.PaymentAccount + order.CentroFornecedor + order.salesOrg + order.activitySector + order.distributionChannel + order.EscritorioVendas + order.EquipeVendas;
+        
+        
         // Guarda uma lista de respostas
         List<TemplateDataIntegrationFields.ResponseParent> responseList = new List<TemplateDataIntegrationFields.ResponseParent>();
         // Guarda uma lista de orderItem para fazer o upsert

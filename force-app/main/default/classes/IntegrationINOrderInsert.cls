@@ -57,6 +57,7 @@ global without sharing class IntegrationINOrderInsert {
             activitySectorLookups.add(order.ActivitySector);
             distributionChannelLookups.add(order.DistributionChannel);
             order.company = order.PaymentAccount + order.CentroFornecedor + order.salesOrg + order.activitySector + order.distributionChannel + order.EscritorioVendas + order.EquipeVendas;
+            order.hectare = order.hectare == null ? 1 : order.hectare;
             companyLookups.add(order.company);
 
             
