@@ -232,52 +232,54 @@ public without sharing class CustomLookupController {
         
                         Decimal commissionPercentage = commissionByHierarchy.get(productHierarchyId) != null ? commissionByHierarchy.get(productHierarchyId) : 0;
                         ProductData productData = new ProductData((String)s.get('Id'), (String)s.get('Name'), (String)s.get('ExternalId__c'), (String)s.get('UnidadeMedida__c'), (String)s.get('PrincipleActive__c'), (Decimal)s.get('Multiplicity__c'), productGroupId, productHierarchyId, productGroupName, productSubgroupId, productSubgroupName, jda.Currency__c, jda.Id, jda.UnitPrice__c, jda.Cost__c, commissionPercentage, jda.ProductMultiplier__c, isPtaProduct, jda.ExternalId__c);
-                        if (!productIncluded) {
-                            result.recordsDataList.add(productData);
-                            productIncluded = true;
-                        }
                         
+                        Boolean priceIncluded = false;
                         String key = jda.Account__c + '-' + (String)s.get('Id');
                         if (jda.Account__c != null && !result.recordsDataMap.containsKey(key)) {
                             result.recordsDataMap.put(key, productData);
-                            continue;
+                            priceIncluded = true;
                         }
         
                         String accountSegment = jda.Account__c != null ? industryByAccountIds.get(jda.Account__c).Industry : '';
                         key = accountSegment + '-' + (String)s.get('Id');
-                        if (accountSegment != '' && !result.recordsDataMap.containsKey(key)) {
+                        if (!priceIncluded && accountSegment != '' && !result.recordsDataMap.containsKey(key)) {
                             result.recordsDataMap.put(key, productData);
-                            continue;
+                            priceIncluded = true;
                         }
         
                         key = jda.Culture__c + '-' + jda.SalesTeam__c + '-' + (String)s.get('Id');
-                        if (jda.Culture__c != null && jda.SalesTeam__c != null && !result.recordsDataMap.containsKey(key)) {
+                        if (!priceIncluded && jda.Culture__c != null && jda.SalesTeam__c != null && !result.recordsDataMap.containsKey(key)) {
                             result.recordsDataMap.put(key, productData);
-                            continue;
+                            priceIncluded = true;
                         }
         
                         key = jda.SalesTeam__c + '-' + (String)s.get('Id');
-                        if (jda.SalesTeam__c != null && !result.recordsDataMap.containsKey(key)) {
+                        if (!priceIncluded && jda.SalesTeam__c != null && !result.recordsDataMap.containsKey(key)) {
                             result.recordsDataMap.put(key, productData);
-                            continue;
+                            priceIncluded = true;
                         }
         
                         key = jda.SalesOffice__c + '-' + (String)s.get('Id');
-                        if (jda.SalesOffice__c != null && !result.recordsDataMap.containsKey(key)) {
+                        if (!priceIncluded && jda.SalesOffice__c != null && !result.recordsDataMap.containsKey(key)) {
                             result.recordsDataMap.put(key, productData);
-                            continue;
+                            priceIncluded = true;
                         }
         
                         key = jda.ProductGroup__c;
-                        if (jda.ProductGroup__c != null && !result.recordsDataMap.containsKey(key)) {
+                        if (!priceIncluded && jda.ProductGroup__c != null && !result.recordsDataMap.containsKey(key)) {
                             result.recordsDataMap.put(key, productData);
-                            continue;
+                            priceIncluded = true;
                         }
         
                         key = (String)s.get('Id');
-                        if (!result.recordsDataMap.containsKey(key)) {
+                        if (!priceIncluded && !result.recordsDataMap.containsKey(key)) {
                             result.recordsDataMap.put(key, productData);
-                            continue;
+                            priceIncluded = true;
+                        }
+                        
+                        if (!productIncluded && priceIncluded) {
+                            result.recordsDataList.add(productData);
+                            productIncluded = true;
                         }
                     }
                 }
