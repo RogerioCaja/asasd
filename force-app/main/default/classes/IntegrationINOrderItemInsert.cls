@@ -25,6 +25,7 @@ global with sharing class IntegrationINOrderItemInsert {
             // Pega a relação do Product com o OrderItem
             //Getting product parameters to search
             productLookups.add(OrderItemINData.material);
+            OrderItemINData.dosagem = OrderItemINData.quantidade;
             idsOrderItem.add(OrderItemINData.orderExternalId + '|' + OrderItemINData.orderItemCode);
 
             for(TemplateDataIntegrationFields.ConditionInsert  conditions : conditionList){
