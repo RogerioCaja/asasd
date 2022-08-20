@@ -40,9 +40,13 @@ global with sharing class IntegrationINOrderItemInsert {
             OrderItemINData.dosagem = OrderItemINData.quantidade;
             idsOrderItem.add(OrderItemINData.orderExternalId + '|' + OrderItemINData.orderItemCode);
 
-            Product2 prdItem = prdtMap.get(OrderItemINData.material);
-            OrderItemINData.unidadeMedida = prdItem.GrossWeightUnitOfMeasure__c;
             
+            if(prdtMap.containsKey(OrderItemINData.material)){
+                Product2 prdItem = prdtMap.get(OrderItemINData.material);
+                OrderItemINData.unidadeMedida = prdItem.GrossWeightUnitOfMeasure__c;
+            }
+            
+
             for(TemplateDataIntegrationFields.ConditionInsert  conditions : conditionList){
                 conditions.KPOSN = conditions.KPOSN.replaceFirst('^0+','');
                 if(conditions.KPOSN == OrderItemINData.orderItemCode){

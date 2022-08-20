@@ -250,7 +250,7 @@ public with sharing class IntegrationINOrderTest {
         OrderId = order3.Id,
         Product2Id = prod.Id,
         NumeroSap__c = '10',
-        UnitMeasure__c = prod.GrossWeightUnitOfMeasure__c,
+        UnitMeasure__c = 'L',
         UnitPrice = 10000,
         Quantity = 1,
         ExternalId__c = order3.Id + '|' + '10',
