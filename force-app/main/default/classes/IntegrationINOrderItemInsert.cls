@@ -22,7 +22,7 @@ global with sharing class IntegrationINOrderItemInsert {
         }
 
         Map<String, Product2> prdtMap = new Map<String, Product2>();
-        List<Product2> prdList = new List<Product2>([SELECT ProductCode__c, GrossWeightUnitOfMeasure__c FROM Product2  WHERE ProductCode__c IN: productLookups]);
+        List<Product2> prdList = new List<Product2>([SELECT ProductCode__c, UnidadeMedida__c FROM Product2  WHERE ProductCode__c IN: productLookups]);
         
         for(Product2 product : prdList){
             prdtMap.put(product.ProductCode__c, product);
@@ -43,7 +43,7 @@ global with sharing class IntegrationINOrderItemInsert {
             
             if(prdtMap.containsKey(OrderItemINData.material)){
                 Product2 prdItem = prdtMap.get(OrderItemINData.material);
-                OrderItemINData.unidadeMedida = prdItem.GrossWeightUnitOfMeasure__c;
+                OrderItemINData.unidadeMedida = prdItem.UnidadeMedida__c;
             }
             
 
