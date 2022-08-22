@@ -40,7 +40,8 @@ public without sharing class OrderItemHelper {
             ordMap.put(concProductOrder, ordItem);     
         }
         for(OrderItem ordemItem : orderItemList){
-            if(ordMap.containsKey(ordemItem.Product2Id + ordemItem.Order.OrderReference__c)){
+            string concProductOrderRef = ordemItem.Product2Id + ordemItem.Order.OrderReference__c;
+            if(ordMap.containsKey(concProductOrderRef)){
                 string concProductOrderRef = ordemItem.Product2Id + ordemItem.Order.OrderReference__c;
                 OrderItem ordrItem = ordMap.get(concProductOrderRef);
 

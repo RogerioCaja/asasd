@@ -293,42 +293,4 @@ public without sharing class OrderHelper {
             OrderHelper.enableTrigger();
         }
     }
-
-    public static void updateOrderItem (List<OrderItem> orderItemList, Map<Id, OrderItem> oldRequest){
-        List<String> ordList = new List<String>();
-        List<OrderItem> orderItemListM = new List<OrderItem>();
-
-        for(OrderItem ordIt : orderItemList){
-            
-            OrderItem oldOrdIt = new OrderItem();
-            oldOrdIt = oldRequest.get(ordIt.id);
-            
-            if(ordIt.Order.IsOrderMother__c == true && ordIt.Order.OrderReference__c != null && oldOrdIt.ReasonRefuse__c == null && ordIt.ReasonRefuse__c != null){
-                ordList.add(ordIt.Order.OrderReference__c);
-                //ordIt.Quantity =  ordIt.Quantity - ordIt.AmountUsed__c; 
-            }
-        }
-
-        List<OrderItem> ordItemList = ([SELECT Id, OrderId, Order.IsOrderMother__c, Product2Id  FROM OrderItem WHERE OrderId =: ordList]);
-        Map<String, OrderItem> ordMap = new Map<String, OrderItem>();
-        for(OrderItem ordItem : ordItemList){
-            string concProductOrder = ordItem.Product2Id + ordItem.OrderId;
-            ordMap.put(concProductOrder, ordItem);     
-        }
-        for(OrderItem ordemItem : orderItemList){
-            if(ordMap.containsKey(ordemItem.Product2Id + ordemItem.Order.OrderReference__c)){
-                string concProductOrderRef = ordemItem.Product2Id + ordemItem.Order.OrderReference__c;
-                OrderItem ordrItem = ordMap.get(concProductOrderRef);
-
-                if(ordemItem.Product2Id == ordrItem.Product2Id){
-                    ordemItem.Quantity =  ordemItem.Quantity - ordemItem.AmountUsed__c; 
-                    orderItemListM.add(ordemItem);
-                }
-            }
-            
-        }
-        OrderHelper.disableTrigger();
-        upsert orderItemListM;
-        OrderHelper.enableTrigger();
-    }
 }
