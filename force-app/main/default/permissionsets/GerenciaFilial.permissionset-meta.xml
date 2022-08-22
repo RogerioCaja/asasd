@@ -2615,7 +2615,7 @@
     </recordTypeVisibilities>
     <recordTypeVisibilities>
         <recordType>Order.VendaEntregaFutura</recordType>
-        <visible>false</visible>
+        <visible>true</visible>
     </recordTypeVisibilities>
     <recordTypeVisibilities>
         <recordType>Order.VendaNormal</recordType>
