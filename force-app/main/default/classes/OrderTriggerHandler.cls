@@ -27,7 +27,6 @@ public without sharing class OrderTriggerHandler {
         OrderHelper.sendApprovalProccess(this.oldMap, this.newMap);
         OrderHelper.calloutOrderToSAP(this.newRecords);
         OrderHelper.creatyShareRecord(this.newRecords);
-        OrderHelper.updateOrderItem(this.newRecords, this.oldMap);
     }
     
     public void OnBeforeDelete(){}
