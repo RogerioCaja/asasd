@@ -61,11 +61,14 @@ public without sharing class OrderHelper {
 
         Orderhelper.disableTrigger();
         for(Order order : newRecords){ 
-            if(order.Status == '0001' && order.StatusSF__c == 'Em digitação') CalloutOrderDatalake.callIntegration(order.Id);
+            
             
             if(order.StatusSF__c == 'Aprovado'){
                 calloutsQueue job = new calloutsQueue(order.Id);
                 System.enqueueJob(job);
+            }
+            else{
+                if(!Test.isRunningTest()) CalloutOrderDatalake.callIntegration(order.Id);
             }
             System.debug('System' + System.URL.getCurrentRequestUrl().GetPath());
             // System.URL.getCurrentRequestUrl().GetPath().contains('/upsertOrderAppdigital/');
@@ -75,7 +78,7 @@ public without sharing class OrderHelper {
                     String agCode = orderMap.get(order.Id).Account.ExternalId__c;
                     String zcCode = orderMap.get(order.Id).SalesCTV__r.CodigoSap__c;
                     CalloutOrderUpdate.callIntegration(order.Id, rmCode , agCode , zcCode);
-                    CalloutOrderDatalake.callIntegration(order.Id);
+                    // CalloutOrderDatalake.callIntegration(order.Id);
                 }
                 
             }  
