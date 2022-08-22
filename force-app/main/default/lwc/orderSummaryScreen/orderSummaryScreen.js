@@ -36,7 +36,7 @@ export default class OrderSummaryScreen extends LightningElement {
 
         let getCompanyData = {
             ctvId: this.headerData.ctv_venda.Id != null ? this.headerData.ctv_venda.Id : '',
-            accountId: this.headerData.cliente_entrega.Id != null ? this.headerData.cliente_entrega.Id : '',
+            accountId: this.accountData.Id != null ? this.accountData.Id : '',
             orderType: this.headerData.tipo_venda,
             approvalNumber: 1
         }
