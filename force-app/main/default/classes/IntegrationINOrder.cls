@@ -300,7 +300,7 @@ global without sharing class IntegrationINOrder {
                     lookups.put('Account' + ord.Account.ExternalId__c, ord.AccountId);
                 }
             }
-            if(order.orderReference == null){
+            if(order.orderReference == null || order.orderReference == ''){
                 if(ord.OrderReference__c != null){
                     order.orderReference = ord.OrderReference__r.CodigoSap__c;
                     lookups.put('Order' + ord.OrderReference__r.CodigoSap__c, ord.OrderReference__c);
