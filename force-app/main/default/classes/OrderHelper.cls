@@ -317,8 +317,8 @@ public without sharing class OrderHelper {
         }
         for(OrderItem ordemItem : orderItemList){
             if(ordMap.containsKey(ordemItem.Product2Id + ordemItem.Order.OrderReference__c)){
-                string concProductOrder = ordemItem.Product2Id + ordemItem.Order.OrderReference__c;
-                OrderItem ordrItem = ordMap.get(ordemItem.Product2Id + ordemItem.Order.OrderReference__c);
+                string concProductOrderRef = ordemItem.Product2Id + ordemItem.Order.OrderReference__c;
+                OrderItem ordrItem = ordMap.get(concProductOrderRef);
 
                 if(ordemItem.Product2Id == ordrItem.Product2Id){
                     ordemItem.Quantity =  ordemItem.Quantity - ordemItem.AmountUsed__c; 
