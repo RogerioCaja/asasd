@@ -36,13 +36,12 @@ public without sharing class OrderItemHelper {
         List<OrderItem> ordItemList = ([SELECT Id, OrderId, Order.IsOrderMother__c, Product2Id  FROM OrderItem WHERE OrderId =: ordList]);
         Map<String, OrderItem> ordMap = new Map<String, OrderItem>();
         for(OrderItem ordItem : ordItemList){
-            string concProductOrder = ordItem.Product2Id + ordItem.OrderId;
+            string concProductOrder = String.valueOf(ordItem.Product2Id) + String.valueOf(ordItem.OrderId);
             ordMap.put(concProductOrder, ordItem);     
         }
         for(OrderItem ordemItem : orderItemList){
-            string concProductOrderRef = ordemItem.Product2Id + ordemItem.Order.OrderReference__c;
+            string concProductOrderRef = String.valueOf(ordemItem.Product2Id) + String.valueOf(ordemItem.Order.OrderReference__c);
             if(ordMap.containsKey(concProductOrderRef)){
-                string concProductOrderRef = ordemItem.Product2Id + ordemItem.Order.OrderReference__c;
                 OrderItem ordrItem = ordMap.get(concProductOrderRef);
 
                 if(ordemItem.Product2Id == ordrItem.Product2Id){
