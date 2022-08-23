@@ -295,6 +295,7 @@ public without sharing class OrderScreenController {
                 FROM Order WHERE Id =: orderId LIMIT 1];
             } else {
                 order = new Order();
+                order.OwnerId = orderData.headerData.ctv_venda.Id;
                 order.RecordTypeId = Schema.SObjectType.Order.getRecordTypeInfosByName().get(orderData.headerData.tipo_venda).getRecordTypeId();
             }
             System.debug('order: ' + order);
