@@ -216,70 +216,70 @@ global without sharing class IntegrationINOrder {
         for (TemplateDataIntegrationFields.OrderINData order : request){
             Order ord = ordersIdsMap.get(order.CodigoSap);
             
-            if(order.numeroPedidoApp == null){
+            if(order.numeroPedidoApp == null || order.numeroPedidoApp == ''){
                 order.numeroPedidoApp = ord.NumeroPedidoApp__c;
             }
-            if (order.paymentDate == null){
+            if (order.paymentDate == null || order.paymentDate == ''){
                 order.paymentDate = ord.PaymentDate__c;
             }
             
                 order.effectiveDate = ord.EffectiveDate;
             
-            if(order.ShippingDate == null){
+            if(order.ShippingDate == null || order.ShippingDate == ''){
                 order.ShippingDate = ord.ShippingDate__c;
             }
-            if(order.status == null){
+            if(order.status == null || order.status == ''){
                 order.status = ord.Status;
             }
           
-            if(order.type == null){
+            if(order.type == null || order.type == ''){
                 order.type = ord.Type;
             }
-            if(order.customerOrderNumber == null){
+            if(order.customerOrderNumber == null || order.customerOrderNumber == ''){
                 order.customerOrderNumber = ord.CustomerOrderNumber__c;
             }
-            if(order.paymentForm == null){
+            if(order.paymentForm == null || order.paymentForm == ''){
                 order.paymentForm = ord.PaymentForm__c;
             }
-            if(order.CurrencyOrder == null){
+            if(order.CurrencyOrder == null || order.CurrencyOrder == ''){
                 order.CurrencyOrder = ord.Currency__c;
             }
-            if(order.incoterms == null){
+            if(order.incoterms == null || order.incoterms == ''){
                 order.incoterms = ord.Incoterms__c;
             }
-            if(order.incoterms2 == null){
+            if(order.incoterms2 == null || order.incoterms2 == ''){
                 order.incoterms2 = ord.Incoterms2__c;
             }
-            if(order.description == null){
+            if(order.description == null || order.description == ''){
                 order.description = ord.Description;
             }
-            if(order.descriptionBillingSale == null){
+            if(order.descriptionBillingSale == null || order.descriptionBillingSale == ''){
                 order.descriptionBillingSale = ord.DescriptionBillingSale__c;
             }
-            if(order.valorFinalTotal == null){
+            if(order.valorFinalTotal == null || order.valorFinalTotal == ''){
                 order.valorFinalTotal = ord.FinalTotalValue__c;
             }
-            if(order.hectare == null){
+            if(order.hectare == null || order.hectare == ''){
                 order.hectare = ord.Hectare__c; 
             }
-            if(order.margemPedido == null){
+            if(order.margemPedido == null || order.margemPedido == ''){
                 order.margemPedido = ord.OrderMargin__c;
             }
-            if(order.orderType == null){
+            if(order.orderType == null || order.orderType == ''){
                 order.orderType = ord.OrderType__c;
             }
             
-            if(order.pedidoMae == null){
+            if(order.pedidoMae == null || order.pedidoMae == ''){
                 order.pedidoMae = ord.IsOrderMother__c;
             }
 
             
 
-            if(order.salesType == null){
+            if(order.salesType == null || order.salesType == ''){
                 order.recordIdToUpdate = ord.RecordTypeId;
             }
             
-			if(order.pricebook2Id == null){
+			if(order.pricebook2Id == null || order.pricebook2Id == ''){
                 if(ord.Pricebook2Id != null){
                     order.pricebook2Id = ord.Pricebook2.Name;
                     lookups.put('Pricebook2Id' + ord.Pricebook2.Name, ord.Pricebook2Id);
@@ -288,13 +288,13 @@ global without sharing class IntegrationINOrder {
 
 
         
-            if(order.shippingAccount == null){
+            if(order.shippingAccount == null || order.shippingAccount == ''){
                 if(ord.ShippingAccount__c != null){
                     order.shippingAccount = ord.ShippingAccount__r.ExternalId__c;
                     lookups.put('Account' + ord.ShippingAccount__r.ExternalId__c, ord.ShippingAccount__c);
                 }
             }
-            if(order.PaymentAccount == null){
+            if(order.PaymentAccount == null || order.PaymentAccount == ''){
                 if(ord.AccountId != null){
                     order.PaymentAccount = ord.AccountId;
                     lookups.put('Account' + ord.Account.ExternalId__c, ord.AccountId);
@@ -308,21 +308,21 @@ global without sharing class IntegrationINOrder {
             }
            
             
-            if(order.crop == null){
+            if(order.crop == null || order.crop == ''){
                 if(ord.Crop__c != null){
                     order.crop = ord.Crop__r.Code__c;
                     lookups.put('Safra__c' + ord.Crop__r.Code__c, ord.Crop__c);
                 }
             }
 
-            if(order.culture == null){
+            if(order.culture == null || order.culture == ''){
                 if(ord.Culture__c != null){
                     order.culture = ord.Culture__r.Codigo__c;
                     lookups.put('Cultura__c' + ord.Culture__r.Codigo__c, ord.Culture__c);
                 }
             }
 
-            if(order.salesOrg == null){
+            if(order.salesOrg == null || order.salesOrg == ''){
                 if(ord.SalesOrg__c != null){
                     order.salesOrg = ord.SalesOrg__r.SalesOrganizationCode__c;
                     lookups.put('SalesOrg__c' + ord.SalesOrg__r.SalesOrganizationCode__c, ord.SalesOrg__c);
@@ -341,26 +341,26 @@ global without sharing class IntegrationINOrder {
                 }
             }
             
-            if(order.paymentCondition == null){
+            if(order.paymentCondition == null || order.paymentCondition == ''){
                 if(ord.PaymentCondition__c != null){
                     order.paymentCondition = ord.PaymentCondition__r.Code__c;
                     lookups.put('CondicaoPagamento__c' + ord.PaymentCondition__r.Code__c, ord.PaymentCondition__c);    
                 }
             } 
-            if (order.company == null){
+            if (order.company == null || order.company == ''){
                 if(ord.Company__c != null){
                     order.company = ord.Company__r.ExternalID__c;
                     lookups.put('Company__c' + ord.Company__r.ExternalID__c, ord.Company__c);
                 }
             }
-            if(order.distributionChannel == null){
+            if(order.distributionChannel == null || order.distributionChannel == ''){
                 if(ord.DistributionChannel__c != null){
                     order.distributionChannel = ord.DistributionChannel__r.Codigo__c;
                     lookups.put('DistributionChannel__c' + ord.DistributionChannel__r.Codigo__c, ord.DistributionChannel__c);
                 }
             }
             
-            if(order.condicaoVenda == null){
+            if(order.condicaoVenda == null || order.condicaoVenda == ''){
                 if(ord.SalesCondition__c != null){
                     order.condicaoVenda = ord.SalesCondition__r.ExternalId__c;
                     lookups.put('SalesCondition__c' + ord.SalesCondition__r.ExternalId__c, ord.SalesCondition__c);
@@ -368,7 +368,7 @@ global without sharing class IntegrationINOrder {
                 
             }
 
-            if(order.activitySector == null){
+            if(order.activitySector == null || order.activitySector == ''){
                 if(ord.ActivitySector__c != null){
                     order.activitySector = ord.ActivitySector__r.Codigo__c;
                     lookups.put('ActivitySector__c' + ord.ActivitySector__r.Codigo__c, ord.ActivitySector__c);

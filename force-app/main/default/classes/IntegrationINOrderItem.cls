@@ -163,7 +163,7 @@ global with sharing class IntegrationINOrderItem {
     
                 System.debug('orderItem.orderExternalId '+ orderItem.orderExternalId);
                 
-                if(orderItem.orderExternalId == null){
+                if(orderItem.orderExternalId == null || orderItem.orderExternalId == ''){
                     System.debug('ordItem.OrderId '+ ordItem.OrderId);
                     if(ordItem.OrderId != null){
                         orderItem.orderExternalId = ordItem.OrderId; 
@@ -172,7 +172,7 @@ global with sharing class IntegrationINOrderItem {
                     }
                 }
                 
-                if(orderItem.material == null){
+                if(orderItem.material == null || orderItem.material == ''){
                     if(ordItem.Product2Id != null){
                         orderItem.material = ordItem.Product2.ProductCode__c;
                         lookups.put('PricebookEntry' + ordItem.Product2.ProductCode__c, ordItem.Product2Id);
@@ -180,7 +180,7 @@ global with sharing class IntegrationINOrderItem {
                 }
                 
     
-                if(orderItem.material == null){
+                if(orderItem.material == null || orderItem.material == ''){
                     if(ordItem.Product2Id != null){
                         orderItem.material = ordItem.Product2.ProductCode__c;
                         lookups.put('Product2' + ordItem.Product2.ProductCode__c, ordItem.Product2Id);
@@ -188,83 +188,83 @@ global with sharing class IntegrationINOrderItem {
                 }
                                   
                 
-                if(orderItem.quantidade == null){
+                if(orderItem.quantidade == null || orderItem.quantidade == ''){
                     orderItem.quantidade = ordItem.Quantity;
                 }
     
-                if(orderItem.unidadeMedida == null){
+                if(orderItem.unidadeMedida == null || orderItem.unidadeMedida == ''){
                     orderItem.unidadeMedida = ordItem.UnitMeasure__c;
                 }
     
-                if(orderItem.porcentagemComissao == null){
+                if(orderItem.porcentagemComissao == null || orderItem.porcentagemComissao == ''){
                     orderItem.porcentagemComissao = ordItem.PercentComission__c;
                 }
     
-                if(orderItem.porcentagemDesconto == null){
+                if(orderItem.porcentagemDesconto == null || orderItem.porcentagemDesconto == ''){
                     orderItem.porcentagemDesconto = ordItem.DiscountPercent__c;
                 }
     
-                if(orderItem.comissaoValor == null){
+                if(orderItem.comissaoValor == null || orderItem.comissaoValor == ''){
                     orderItem.comissaoValor = ordItem.ComissionValue__c;
                 }
     
-                if(orderItem.margemComercial == null){
+                if(orderItem.margemComercial == null || orderItem.margemComercial == ''){
                     orderItem.margemComercial = ordItem.CommercialMargin__c;
                 }
     
-                if(orderItem.descontoValor == null){
+                if(orderItem.descontoValor == null || orderItem.descontoValor == ''){
                     orderItem.descontoValor = ordItem.DiscountValue__c;
                 }
     
-                if(orderItem.valorTotal == null){
+                if(orderItem.valorTotal == null || orderItem.valorTotal == ''){
                     orderItem.valorTotal = ordItem.FinalTotalValue__c;
                 }
     
-                if(orderItem.porcentagemDescontoFin == null){
+                if(orderItem.porcentagemDescontoFin == null || orderItem.porcentagemDescontoFin == ''){
                     orderItem.porcentagemDescontoFin = ordItem.FinancialDiscountPercent__c;
                 }
     
-                if(orderItem.valorDescontoFin == null){
+                if(orderItem.valorDescontoFin == null || orderItem.valorDescontoFin == ''){
                     orderItem.valorDescontoFin = ordItem.FinancialDiscountValue__c;
                 }
     
-                if(orderItem.porcentagemAcrescFin == null){
+                if(orderItem.porcentagemAcrescFin == null || orderItem.porcentagemAcrescFin == ''){
                     orderItem.porcentagemAcrescFin = ordItem.FinancialAdditionPercent__c;
                 }
     
-                if(orderItem.valorAcrescFin == null){
+                if(orderItem.valorAcrescFin == null || orderItem.valorAcrescFin == ''){
                     orderItem.valorAcrescFin = ordItem.FinancialAdditionValue__c;
                 }
     
-                if(orderItem.porcentagemAcrescComercial == null){
+                if(orderItem.porcentagemAcrescComercial == null || orderItem.porcentagemAcrescComercial == ''){
                     orderItem.porcentagemAcrescComercial = ordItem.CommercialAdditionPercent__c;
                 }
     
-                if(orderItem.valorAcrescComercial == null){
+                if(orderItem.valorAcrescComercial == null || orderItem.valorAcrescComercial == ''){
                    orderItem.valorAcrescComercial = ordItem.CommercialAdditionValue__c;
                 }
     
-                if(orderItem.dosagem == null){
+                if(orderItem.dosagem == null || orderItem.dosagem == ''){
                    orderItem.dosagem = ordItem.Dosage__c;
                 }
     
-                if(orderItem.custoLista == null){
+                if(orderItem.custoLista == null || orderItem.custoLista == ''){
                     orderItem.custoLista = ordItem.ListCost__c;
                 }
     
-                if(orderItem.orderItemCode == null){
+                if(orderItem.orderItemCode == null || orderItem.orderItemCode == ''){
                    orderItem.orderItemCode = ordItem.NumeroSap__c;
                 }
     
-                if(orderItem.custoPreco == null){
+                if(orderItem.custoPreco == null || orderItem.custoPreco == ''){
                     orderItem.custoPreco = ordItem.PracticedCost__c;
                 }
     
-                if(orderItem.precoPraticado == null){
+                if(orderItem.precoPraticado == null || orderItem.precoPraticado == ''){
                     orderItem.precoPraticado = ordItem.PracticedPrice__c;
                 }
     
-                if(orderItem.precoUnitario == null){
+                if(orderItem.precoUnitario == null || orderItem.precoUnitario == ''){
                     orderItem.precoUnitario = ordItem.UnitPrice;
                 }  
             }
