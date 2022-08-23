@@ -256,10 +256,10 @@ global without sharing class IntegrationINOrder {
             if(order.descriptionBillingSale == null || order.descriptionBillingSale == ''){
                 order.descriptionBillingSale = ord.DescriptionBillingSale__c;
             }
-            if(order.valorFinalTotal == null || order.valorFinalTotal == ''){
+            if(order.valorFinalTotal == null){
                 order.valorFinalTotal = ord.FinalTotalValue__c;
             }
-            if(order.hectare == null || order.hectare == ''){
+            if(order.hectare == null){
                 order.hectare = ord.Hectare__c; 
             }
             if(order.margemPedido == null){

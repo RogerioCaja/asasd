@@ -48,10 +48,10 @@ global with sharing class IntegrationINShippingDivison {
                 }
                 
 
-                if(shipping.DataDivisao == null || shipping.DataDivisao == ''){
+                if(shipping.DataDivisao == null || shipping.DataDivisao == Date.valueOf('')){
                     shipping.DataDivisao = ship.DeliveryDate__c;
                 }
-                if(shipping.Quantidade == null || shipping.Quantidade == ''){
+                if(shipping.Quantidade == null){
                     shipping.Quantidade = ship.Quantity__c;
                 }
                 // if(shipping.QuantidadeConfirmada == null){
