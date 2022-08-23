@@ -48,7 +48,7 @@ global with sharing class IntegrationINShippingDivison {
                 }
                 
 
-                if(shipping.DataDivisao == null || shipping.DataDivisao == Date.valueOf('')){
+                if(shipping.DataDivisao == null){
                     shipping.DataDivisao = ship.DeliveryDate__c;
                 }
                 if(shipping.Quantidade == null){

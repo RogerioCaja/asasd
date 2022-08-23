@@ -219,13 +219,13 @@ global without sharing class IntegrationINOrder {
             if(order.numeroPedidoApp == null || order.numeroPedidoApp == ''){
                 order.numeroPedidoApp = ord.NumeroPedidoApp__c;
             }
-            if (order.paymentDate == null || order.paymentDate == Date.valueOf('')){
+            if (order.paymentDate == null){
                 order.paymentDate = ord.PaymentDate__c;
             }
             
                 order.effectiveDate = ord.EffectiveDate;
             
-            if(order.ShippingDate == null || order.ShippingDate == Date.valueOf('')){
+            if(order.ShippingDate == null){
                 order.ShippingDate = ord.ShippingDate__c;
             }
             if(order.status == null || order.status == ''){
