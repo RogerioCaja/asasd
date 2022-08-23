@@ -37,7 +37,20 @@ public without sharing class CalloutCTVCarteira {
             accountIdList.add(terrytory.ObjectId);
         }
         Map<Id,Account> accountObjectMap = new Map<Id,Account>([SELECT Id, ExternalId__c  FROM Account WHERE Id =: accountIdList]);
-        
+        List<Company__c> companyList = new List<Company__c>([SELECT Id, Conta__c, Conta__r.ExternalId__c, DistributionChannel__r.Codigo__c, ActivitySector__r.Codigo__c, SalesOrg__r.SalesOrganizationCode__c, SalesOffice__r.Codigo__c, SalesTeam__r.ExternalId__c, SupplierCenter__c, Blocked__c  FROM Company__c WHERE Conta__c =: accountIdList]);
+        Map<String,List<Company__c>> companyMap = new Map<String,List<Company__c>>();
+        for(Company__c comp : companyList){
+            if(companyMap.containsKey(comp.Conta__r.ExternalId__c)){
+                List<Company__c> companList = companyMap.get(comp.Conta__r.ExternalId__c);
+                companList.add(comp);
+                companyMap.put(comp.Conta__r.ExternalId__c,companList);
+            }else{
+                List<Company__c> newCompanyList = new List<Company__c>();
+                newCompanyList.add(comp);
+                companyMap.put(comp.Conta__r.ExternalId__c,newCompanyList);
+            }
+        }
+        System.debug('companyMap'+ companyMap);
         Map<String,List<String>> terrytoryObjectMap = new Map<String,List<String>>();
         for(ObjectTerritory2Association terrytory : terrytoryObject){
             Account acc = accountObjectMap.get(terrytory.ObjectId);
@@ -70,7 +83,7 @@ public without sharing class CalloutCTVCarteira {
             }else{
                 territoryParent = null;
             }
-            request.add(new RequestParameters(territory,territoryUserAsso, objectAccountExternalList, territoryParent));
+            request.add(new RequestParameters(territory,territoryUserAsso, objectAccountExternalList, territoryParent, companyMap));
         }
         String code = (!Test.isRunningTest() ? getAcessCode() : 'acessToken');
         System.debug('AcessCode: '+ code);
@@ -80,11 +93,12 @@ public without sharing class CalloutCTVCarteira {
         String accessToken = code;
         //Url mock: https://aabb2740-69b0-4737-925c-2c40367a3737.mock.pstmn.io//CalloutCTVCarteira
         //Path geralmente cadastrado dentro de ua customSettings 
-        String endpoint = (!Test.isRunningTest() ? 'https://apim.agrogalaxy.com.br/gtw/sales-territory/v1/webhook/_notify' : 'http://callout.My_Named_Credential.com/some/path');
+        //String endpoint = (!Test.isRunningTest() ? 'https://apim.agrogalaxy.com.br/gtw/sales-territory/v1/webhook/_notify' : 'http://callout.My_Named_Credential.com/some/path');
+        String endpoint = 'http://callout.My_Named_Credential.com/some/path';
         Map<String, String> headersMap = new Map<String, String>();
         headersMap.put('Content-type', 'application/json');
         headersMap.put('Authorization', 'Bearer '+ accessToken);
-        /*
+        
         IntegrationUtils.RequestResponseObject responseObject = IntegrationUtils.executeCallout(endpoint, payload, headersMap);
 
         if (responseObject.success) {
@@ -95,7 +109,7 @@ public without sharing class CalloutCTVCarteira {
             System.debug('response.getBody(): '+ response.getBody());
         } else {
             IntegrationLog.createLog('CTV OUT', 'OUT', responseObject.exceptionObject.getMessage(), payload, true);
-        }*/
+        }
     }
     public static String getAcessCode(){
         String payloadToken = 'grant_type=client_credentials';
@@ -119,7 +133,7 @@ public without sharing class CalloutCTVCarteira {
         public Object header;
         //public List<CalloutCTVCarteira.ClienteParameters> Clientes;
 
-        public RequestParameters(Territory2 territory, UserTerritory2Association territoryAsso, List<String> accountExternalIds, Territory2 territoryParent){
+        public RequestParameters(Territory2 territory, UserTerritory2Association territoryAsso, List<String> accountExternalIds, Territory2 territoryParent, Map<String,List<Company__c>> companyMap){
             CalloutCTVCarteira.HeaderInsert header = new CalloutCTVCarteira.HeaderInsert();
 
             header.IdTerritorio = territory.DeveloperName;
@@ -131,7 +145,8 @@ public without sharing class CalloutCTVCarteira {
             List<CalloutCTVCarteira.ClienteParameters> clientList= new List<CalloutCTVCarteira.ClienteParameters>();
             if(header.TipoTerritorio == 'SellerPosition'){
                 for(String acc : accountExternalIds){
-                    clientList.add(new CalloutCTVCarteira.ClienteParameters(acc));
+                    clientList.add(new CalloutCTVCarteira.ClienteParameters(acc, companyMap));
+                    System.debug('clientList'+ clientList);
                 }
             }
 
@@ -149,12 +164,50 @@ public without sharing class CalloutCTVCarteira {
         public List<CalloutCTVCarteira.ClienteParameters> Clientes;
         public HeaderInsert(){}
     }
-
+    public class EmpresaParameters{
+        public String CanalDistribuicao;
+        public String SetorAtividade;
+        public String OrganizacaoVendas;
+        public String EscritorioVendas;
+        public String EquipeVendas;
+        public String CentroFornecedor;
+        public Boolean Bloqueado;
+        public EmpresaParameters(){}
+    }
 
     public class ClienteParameters{
         public String CodigoCliente;
-
-        public ClienteParameters(String codigo){
+        public List<CalloutCTVCarteira.EmpresaParameters> Empresa;
+        public ClienteParameters(String codigo, Map<String,List<Company__c>> companyMap){
+            List<CalloutCTVCarteira.EmpresaParameters> companyList = new List<CalloutCTVCarteira.EmpresaParameters>();
+            if(companyMap.containsKey(codigo)){
+                List<Company__c> companList = companyMap.get(codigo);
+                System.debug('companList'+ companList);
+                for(Company__c comp : companList){
+                    CalloutCTVCarteira.EmpresaParameters company = new CalloutCTVCarteira.EmpresaParameters();
+                    System.debug('comp.ActivitySector__r.Codigo__c'+ comp.ActivitySector__r.Codigo__c);
+                    company.CanalDistribuicao = comp.DistributionChannel__r.Codigo__c;
+                    company.SetorAtividade = comp.ActivitySector__r.Codigo__c;
+                    company.OrganizacaoVendas = comp.SalesOrg__r.SalesOrganizationCode__c;
+                    company.EscritorioVendas = comp.SalesOffice__r.Codigo__c;
+                    company.EquipeVendas = comp.SalesTeam__r.ExternalId__c;
+                    company.CentroFornecedor = comp.SupplierCenter__c;
+                    company.Bloqueado = comp.Blocked__c;
+                    companyList.add(company);
+                }
+            }else{
+                CalloutCTVCarteira.EmpresaParameters company = new CalloutCTVCarteira.EmpresaParameters();
+                company.CanalDistribuicao = null;
+                company.SetorAtividade = null;
+                company.OrganizacaoVendas = null;
+                company.EscritorioVendas = null;
+                company.EquipeVendas = null;
+                company.CentroFornecedor = null;
+                company.Bloqueado = null;
+                companyList.add(company);
+            }
+            
+            this.Empresa = companyList;
             this.CodigoCliente = codigo;
         }
     }
