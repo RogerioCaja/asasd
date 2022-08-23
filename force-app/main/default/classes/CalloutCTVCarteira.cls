@@ -34,7 +34,7 @@ public without sharing class CalloutCTVCarteira {
         List<ObjectTerritory2Association> terrytoryObject = new List<ObjectTerritory2Association>([SELECT Id, Territory2Id, ObjectId, Object.ExternalId__c  FROM ObjectTerritory2Association WHERE Territory2Id =: territoryIdList]);
         Map<String,List<String>> terrytoryObjectMap = new Map<String,List<String>>();
         for(ObjectTerritory2Association terrytory : terrytoryObject){
-            if(terrytoryObjectMap.contains(terrytory.Territory2Id)){
+            if(terrytoryObjectMap.containsKey(terrytory.Territory2Id)){
                 List<String> accountObjectList = terrytoryObjectMap.get(terrytory.Territory2Id);
                 accountObjectList.add(terrytory.Object.ExternalId__c);
                 terrytoryObjectMap.put(terrytory.Territory2Id,accountObjectList);
@@ -48,17 +48,17 @@ public without sharing class CalloutCTVCarteira {
         List<String> objectAccountExternalList;
         for (Territory2 territory : territoryList) {
             System.debug('territory: '+ territory);
-            if(territoryUserAssociationMap.contains(territory.Id)){
+            if(territoryUserAssociationMap.containsKey(territory.Id)){
                 territoryUserAsso = territoryUserAssociationMap.get(territory.Id);
             }else{
                 territoryUserAsso = null;
             }
-            if(terrytoryObjectMap.contains(territory.Id)){
+            if(terrytoryObjectMap.containsKey(territory.Id)){
                 objectAccountExternalList = terrytoryObjectMap.get(territory.Id);
             }else{
                 objectAccountExternalList = null;
             }
-            if(territoryParentMap.contains(territory.ParentTerritory2Id)){
+            if(territoryParentMap.containsKey(territory.ParentTerritory2Id)){
                 territoryParent = territoryParentMap.get(territory.ParentTerritory2Id);
             }else{
                 territoryParent = null;
@@ -77,7 +77,7 @@ public without sharing class CalloutCTVCarteira {
         Map<String, String> headersMap = new Map<String, String>();
         headersMap.put('Content-type', 'application/json');
         headersMap.put('Authorization', 'Bearer '+ accessToken);
-        
+        /*
         IntegrationUtils.RequestResponseObject responseObject = IntegrationUtils.executeCallout(endpoint, payload, headersMap);
 
         if (responseObject.success) {
@@ -88,7 +88,7 @@ public without sharing class CalloutCTVCarteira {
             System.debug('response.getBody(): '+ response.getBody());
         } else {
             IntegrationLog.createLog('CTV OUT', 'OUT', responseObject.exceptionObject.getMessage(), payload, true);
-        }
+        }*/
     }
     public static String getAcessCode(){
         String payloadToken = 'grant_type=client_credentials';
