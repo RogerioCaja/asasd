@@ -31,16 +31,23 @@ public without sharing class CalloutCTVCarteira {
         }
         Territory2 territoryParent;
         //
-        List<ObjectTerritory2Association> terrytoryObject = new List<ObjectTerritory2Association>([SELECT Id, Territory2Id, ObjectId, Object.ExternalId__c  FROM ObjectTerritory2Association WHERE Territory2Id =: territoryIdList]);
+        List<ObjectTerritory2Association> terrytoryObject = new List<ObjectTerritory2Association>([SELECT Id, Territory2Id, ObjectId  FROM ObjectTerritory2Association WHERE Territory2Id =: territoryIdList]);
+        List<String> accountIdList = new List<String>();
+        for(ObjectTerritory2Association terrytory : terrytoryObject){
+            accountIdList.add(terrytory.ObjectId);
+        }
+        Map<Id,Account> accountObjectMap = new Map<Id,Account>([SELECT Id, ExternalId__c  FROM Account WHERE Id =: accountIdList]);
+        
         Map<String,List<String>> terrytoryObjectMap = new Map<String,List<String>>();
         for(ObjectTerritory2Association terrytory : terrytoryObject){
+            Account acc = accountObjectMap.get(terrytory.ObjectId);
             if(terrytoryObjectMap.containsKey(terrytory.Territory2Id)){
                 List<String> accountObjectList = terrytoryObjectMap.get(terrytory.Territory2Id);
-                accountObjectList.add(terrytory.Object.ExternalId__c);
+                accountObjectList.add(acc.ExternalId__c);
                 terrytoryObjectMap.put(terrytory.Territory2Id,accountObjectList);
             }else{
                 List<String> objectTerritoryAccountList = new List<String>();
-                objectTerritoryAccountList.add(terrytory.Object.ExternalId__c);
+                objectTerritoryAccountList.add(acc.ExternalId__c);
                 terrytoryObjectMap.put(terrytory.Territory2Id,objectTerritoryAccountList);
             }
         }
