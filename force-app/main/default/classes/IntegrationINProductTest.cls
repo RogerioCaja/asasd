@@ -1,64 +1,79 @@
 @isTest
 public with sharing class IntegrationINProductTest {
-
+    
     @TestSetup
     static void makeData(){
-        Account account = new Account (
-            Name = 'Teste 12',
-            BillingStreet = ' ',
-            BillingState = '' ,
-            Phone= '00000000000', 
-            BillingCity = ' ', 
-            BillingLongitude = 000000,
-            BillingLatitude = 00000,
-            BillingPostalCode = '',
-            ExternalId__c = '2884',
-            Company__c = 'Empresa 012'
+        ProductHierarchy__c productHierarchy = new ProductHierarchy__c(
+            Name = 'Hierarquia Teste',
+            External_Id__c ='hierarquia01'
         );
-        insert account;
-
-        Product2 prod = new Product2(
-            Name = 'Laptop X2020', 
-            Family = 'Hardware',
-            ExternalId__c = '0002',
-            ClasseAvaliacao__c = 'chucrute2',
-            GrupoQuimico__c = 'Só pó quimico',
-            MarcadoEliminacao__c = 'S',
-            NCM__c = 'S',
-            NumeroRegistro__c = '0002',
-            OrigemMaterial__c = 'Himalaia',
-            UnidadeMedida__c = 'KG'
-        );
-        insert prod;
         
+
+        ProductGroup__c productGroup = new ProductGroup__c(
+            Name = 'Grupo de produto Teste',
+            ExternalId__c = 'gp01'
+        );
+
+        ProductSubgroup__c productSubGroup = new ProductSubgroup__c( 
+            Name =  'SubGrupo de produto Teste',
+            ExternalId__c = 'sgp01'
+        );
+
+        SalesOrg__c salesOrg = new SalesOrg__c(
+            Name = 'AgroGalaxy',
+            SalesOrganizationCode__c = '1000'
+        );
+
+        Product2 product = new Product2(
+            Name = 'Laptop X200', 
+            Family = 'Hardware',
+            ExternalId__c = '0001',
+            ProductCode__c = '0001',
+            ProductCode = '0001',
+            ClasseAvaliacao__c = 'av01',
+            GrupoQuimico__c = 'bg1',
+            MarcadoEliminacao__c = 'tes01',
+            NCM__c = '85432000',
+            NumeroRegistro__c = '2',
+            OrigemMaterial__c = 'sp',
+            UnidadeMedida__c = 'un'
+        );
     }
 
     @isTest
     static void verifyIntegrationProduct(){
-        List<TemplateDataINtegrationFields.Product2INData> listProduct2List = new List<TemplateDataIntegrationFields.Product2INData>();
-        TemplateDataIntegrationFields.Product2INData listProduct = new TemplateDataIntegrationFields.Product2INData();
-        listProduct.TextoBreveMaterial = 'Café'; 
-        listProduct.ProductCode = 'CF01'; 
-        listProduct.TextoBreveMaterial = 'Café em graõs'; 
-        listProduct.UnidadeMedida = 'Kg'; 
-        listProduct.UnidadeMedidaRemessa = 'Tonelada'; 
-        listProduct.Status = 'Adicionada'; 
-        listProduct.TipoMaterial = 'Grãos'; 
-        listProduct.GrupoMercadoria = 'Cafés'; 
-        listProduct.SubgrupoMercadoria = 'CF'; 
-        listProduct.MarcadoEliminacao = 'Não'; 
-        listProduct.UnidadePeso = 'LT'; 
-        listProduct.CodigoControle = 'CF'; 
-        listProduct.ClasseAvaliacao = 'Ok'; 
-        listProduct.OrigemMaterial = 'Minas Gerais'; 
-        listProduct.Marca = 'Arabico'; 
-        listProduct.NCM = '85432000'; 
-        listProduct.GrupoQuimico = 'N'; 
-        listProduct.IngredienteAtivo = 'SM'; 
-        listProduct.NumeroRegistro = '001'; 
-        listProduct.PesoBruto = 1;
-        listProduct2List.add(listProduct);
-
-        IntegrationINProduct.ResponseModel modelo = IntegrationINProduct.upsertProduct(listProduct2List);
+        List<TemplateDataIntegrationFields.Product2INData> listProductList = new List<TemplateDataIntegrationFields.Product2INData>(); //Lista
+        TemplateDataIntegrationFields.Product2INData lisProduct = new TemplateDataIntegrationFields.Product2INData(); //Objeto
+        lisProduct.TextoBreveMaterial = 'Produto Agro';
+        lisProduct.ProductCode = '100';
+        lisProduct.DescricaoMaterial = 'Semente Agro';
+        lisProduct.UnidadeMedida = 'Kg';
+        lisProduct.UnidadeMedidaRemessa = 'Kg';
+        lisProduct.TipoMaterial = 'Semente';
+        lisProduct.hierarquiaProduto = 'hierarquia01';//Lookup
+        lisProduct.GrupoMercadoria = 'gp01';//Lookup
+        lisProduct.SubgrupoMercadoria = 'sgp01';//Lookup
+        lisProduct.SubgrupoMercadoria2 = 'PREMIUM';
+        lisProduct.MarcadoEliminacao = 'Sem elminação';
+        lisProduct.UnidadePeso = 'kg';
+        lisProduct.ClasseAvaliacao = 'Top';
+        lisProduct.OrigemMaterial = 'Minas';
+        lisProduct.Marca = 'semente storm';
+        lisProduct.NCM = '85432000';
+        lisProduct.GrupoQuimico = 'sem';
+        lisProduct.IngredienteAtivo = 'terra';
+        lisProduct.NumeroRegistro = '0405';
+        lisProduct.PesoBruto = 10;
+        lisProduct.multiplicidade = 1;
+        
+        TemplateDataIntegrationFields.OrgVProductINData listOrgVProduct = new TemplateDataIntegrationFields.OrgVProductINData();
+        listOrgVProduct.OrganizacaoVendas = '1000'; //Lookup
+        listOrgVProduct.OrgProduct = '100'; //Lookup
+        listOrgVProduct.SetorAtividade = 'Terra 2 de minas';
+        listOrgVProduct.centroFilial = '1001';
+        listOrgVProduct.Status = 'Adicionada';
+        lisProduct.orgVProductItems = new List<TemplateDataINtegrationFields.OrgVProductINData>();
+        listProductList.add(lisProduct);
+        IntegrationINProduct.ResponseModel modelo = IntegrationINProduct.upsertProduct(listProductList);
     }
 }

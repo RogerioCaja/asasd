@@ -6,7 +6,7 @@
     <label>Código Sap</label>
     <length>100</length>
     <required>false</required>
-    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
     <type>Text</type>
     <unique>true</unique>
 </CustomField>

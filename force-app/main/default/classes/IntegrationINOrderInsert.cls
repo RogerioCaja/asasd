@@ -56,7 +56,8 @@ global without sharing class IntegrationINOrderInsert {
             orderReferenceLookups.add(order.orderReference);
             activitySectorLookups.add(order.ActivitySector);
             distributionChannelLookups.add(order.DistributionChannel);
-            order.company = order.PaymentAccount + order.CentroFornecedor + order.salesOrg + order.activitySector + order.distributionChannel + order.EscritorioVendas + order.EquipeVendas;
+            
+            order.hectare = order.hectare == null ? 1 : order.hectare;
             companyLookups.add(order.company);
 
             
@@ -74,7 +75,9 @@ global without sharing class IntegrationINOrderInsert {
                 //Getting list of order items
                 orderItemListToUpsert.addAll(order.orderItems);
                 System.debug('orderItemListToUpsert' + orderItemListToUpsert); 
-
+                if(order.salesType == 'ZVAB'){
+                	order.salesType = 'ZVNO';
+            	}
                 switch on order.salesType {
                     // ---- Pedido mãe  ----
                      when 'ZCCO' {
@@ -143,7 +146,7 @@ global without sharing class IntegrationINOrderInsert {
                     order.salesCTV = partnerList.KUNNR;
                 }
         }
-
+            order.company = order.PaymentAccount + order.CentroFornecedor + order.salesOrg + order.activitySector + order.distributionChannel + order.EscritorioVendas + order.EquipeVendas;
             conditionList.addAll(order.conditions);
              
             System.debug('shippingDivisonListToUpsert' + shippingDivisonListToUpsert);
@@ -232,9 +235,9 @@ global without sharing class IntegrationINOrderInsert {
                     orderId = orderUpMap.get(orderIt.orderExternalId);
                     
                     orderIt.orderExternalId = orderId;
-
+                    
                     orderIdEx.put(orderId, orderIt.orderExternalId);
-                } 
+                }
         }
         
         for (TemplateDataIntegrationFields.ShippingDivisonINData shipIt : shippingDivisonListToUpsert){
@@ -266,7 +269,7 @@ global without sharing class IntegrationINOrderInsert {
             );
             System.debug('shippingDivisonResponse' + shippingDivisonResponse);
         }
-
+        
             AggregateResult[] resulTotal =[SELECT SUM(FinalTotalValue__c) somatoria FROM OrderItem WHERE OrderId =: orderIdEx.keySet() AND ReasonRefuse__c  =: null AND ReasonRefuse__c  =: ''];
         	 List<OrderItem> orderItemListT = [SELECT Id,  FinalTotalValue__c FROM OrderItem WHERE OrderId =: orderIdEx.keySet()];
         	 System.debug('orderItemListT ' + orderItemListT);
@@ -277,8 +280,10 @@ global without sharing class IntegrationINOrderInsert {
              order.FinalTotalValue__c  = (Decimal)resulTotal[0].get('somatoria');
              System.debug('order.FinalTotalValue__c ' + order.FinalTotalValue__c);
              OrderHelper.disableTrigger();
-             upsert order;
+             Database.update(order, false);
              OrderHelper.enableTrigger();
+        
+        
         System.debug('Chegou!? ');
         //Associating child object's response with object response
         // Pega todas as respostas dos OrderItem

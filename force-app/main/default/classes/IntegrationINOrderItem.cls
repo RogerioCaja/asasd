@@ -33,6 +33,7 @@ global with sharing class IntegrationINOrderItem {
 
                     if(conditions.KSCHL == 'ZPR0'){
                         OrderItemINData.precoUnitario = (Decimal.valueOf(conditions.KBETR) / Decimal.valueOf(conditions.KPEIN));
+                        OrderItemINData.precoPraticado = OrderItemINData.precoUnitario;
                        //OrderItemINData.multiplicador == conditions.KPEIN;
                     }
                     
@@ -45,6 +46,7 @@ global with sharing class IntegrationINOrderItem {
                         OrderItemINData.porcentagemAcrescFin = Decimal.valueOf(conditions.KBETR);
 
                     }
+
                     if(conditions.KSCHL == 'ZMAR'){
                         OrderItemINData.margemComercial = Decimal.valueOf(conditions.KBETR);
                     }
@@ -52,7 +54,7 @@ global with sharing class IntegrationINOrderItem {
                     if(conditions.KSCHL == 'ZCP0'){
                         OrderItemINData.custoPreco = Decimal.valueOf(conditions.KBETR);
                     }
-
+                    
                     if(conditions.KSCHL == 'ZDEC'){
                         
                         OrderItemINData.porcentagemAcrescComercial = 0;
@@ -87,6 +89,7 @@ global with sharing class IntegrationINOrderItem {
                     Decimal valorAcrescimoComercial = 0;
                     
                     Decimal valorFinal = OrderItemINData.precoUnitario * OrderItemINData.quantidade;
+                    OrderItemINData.valorTotal = valorFinal;
                     
                     if(OrderItemINData.porcentagemDescontoFin > 0){
                         //porcentagemDescontoFinanceiro = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemDescontoFin / 100);

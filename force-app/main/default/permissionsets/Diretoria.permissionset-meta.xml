@@ -1244,6 +1244,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Order.ClientGroup__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Order.CompanyAuthorizedById</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1565,6 +1570,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>OrderItem.CommercialMargin__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>OrderItem.CommitteeTrigger__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

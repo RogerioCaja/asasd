@@ -110,7 +110,9 @@ global without sharing class IntegrationINOrder {
 
             orderItemListToUpsert.addAll(order.orderItems);
             System.debug('orderItemListToUpsert ' + orderItemListToUpsert);
-
+            if(order.salesType == 'ZVAB'){
+                order.salesType = 'ZVNO';
+            }
             switch on order.salesType {
                 // ---- Pedido mãe  ----
                  when 'ZCCO' {
@@ -220,9 +222,9 @@ global without sharing class IntegrationINOrder {
             if (order.paymentDate == null){
                 order.paymentDate = ord.PaymentDate__c;
             }
-            if (order.effectiveDate == null){
+            
                 order.effectiveDate = ord.EffectiveDate;
-            }
+            
             if(order.ShippingDate == null){
                 order.ShippingDate = ord.ShippingDate__c;
             }
@@ -298,7 +300,7 @@ global without sharing class IntegrationINOrder {
                     lookups.put('Account' + ord.Account.ExternalId__c, ord.AccountId);
                 }
             }
-            if(order.orderReference == null){
+            if(order.orderReference == null || order.orderReference == ''){
                 if(ord.OrderReference__c != null){
                     order.orderReference = ord.OrderReference__r.CodigoSap__c;
                     lookups.put('Order' + ord.OrderReference__r.CodigoSap__c, ord.OrderReference__c);
@@ -445,10 +447,10 @@ global without sharing class IntegrationINOrder {
 		            orderId = ordersIdsMap.get(orderIt.orderExternalId).Id;
                     
                     orderIt.orderExternalId = orderId;
-
+                   
                     orderIdEx.put(orderId, orderIt.orderExternalId);
                 }  
-                  
+            
         }
         for (TemplateDataIntegrationFields.ShippingDivisonINData shipIt : shippingDivisonListToUpsert){
             String orderId;
@@ -478,19 +480,20 @@ global without sharing class IntegrationINOrder {
                 IntegrationINShippingDivison.upsertShippingDivison(shippingDivisonListToUpsert)
             );
         }
-
+       
+       
             AggregateResult[] resulTotal =[SELECT SUM(FinalTotalValue__c) somatoria FROM OrderItem WHERE OrderId =: orderIdEx.keySet() AND ReasonRefuse__c  =: null AND ReasonRefuse__c  =: ''];
-        	 List<OrderItem> orderItemListT = [SELECT Id,  FinalTotalValue__c FROM OrderItem WHERE OrderId =: orderIdEx.keySet()];
-        	 System.debug('orderItemListT ' + orderItemListT);
-             System.debug('resulTotal ' + resulTotal);
              Order order = new Order();
              order.Id = (new List<String>(orderIdEx.keySet()))[0]; //(new List<String>(posts.keySet()))[0]
              //Object avgAmount = resulTotal[0].get('somatoria');
              order.FinalTotalValue__c  = (Decimal)resulTotal[0].get('somatoria');
              System.debug('order.FinalTotalValue__c ' + order.FinalTotalValue__c);
              OrderHelper.disableTrigger();
-             upsert order;
-             OrderHelper.enableTrigger();
+             Database.update(order, false);
+             OrderHelper.enableTrigger();         
+        
+        
+
         //Associating child object's response with object response
         // Pega todas as respostas dos OrderItem
         for(TemplateDataIntegrationFields.ResponseParent response : responseList){
