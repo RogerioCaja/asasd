@@ -93,8 +93,7 @@ public without sharing class CalloutCTVCarteira {
         String accessToken = code;
         //Url mock: https://aabb2740-69b0-4737-925c-2c40367a3737.mock.pstmn.io//CalloutCTVCarteira
         //Path geralmente cadastrado dentro de ua customSettings 
-        //String endpoint = (!Test.isRunningTest() ? 'https://apim.agrogalaxy.com.br/gtw/sales-territory/v1/webhook/_notify' : 'http://callout.My_Named_Credential.com/some/path');
-        String endpoint = 'http://callout.My_Named_Credential.com/some/path';
+        String endpoint = (!Test.isRunningTest() ? 'https://apim.agrogalaxy.com.br/gtw/sales-territory/v1/webhook/_notify' : 'http://callout.My_Named_Credential.com/some/path');
         Map<String, String> headersMap = new Map<String, String>();
         headersMap.put('Content-type', 'application/json');
         headersMap.put('Authorization', 'Bearer '+ accessToken);
@@ -182,10 +181,8 @@ public without sharing class CalloutCTVCarteira {
             List<CalloutCTVCarteira.EmpresaParameters> companyList = new List<CalloutCTVCarteira.EmpresaParameters>();
             if(companyMap.containsKey(codigo)){
                 List<Company__c> companList = companyMap.get(codigo);
-                System.debug('companList'+ companList);
                 for(Company__c comp : companList){
                     CalloutCTVCarteira.EmpresaParameters company = new CalloutCTVCarteira.EmpresaParameters();
-                    System.debug('comp.ActivitySector__r.Codigo__c'+ comp.ActivitySector__r.Codigo__c);
                     company.CanalDistribuicao = comp.DistributionChannel__r.Codigo__c;
                     company.SetorAtividade = comp.ActivitySector__r.Codigo__c;
                     company.OrganizacaoVendas = comp.SalesOrg__r.SalesOrganizationCode__c;
