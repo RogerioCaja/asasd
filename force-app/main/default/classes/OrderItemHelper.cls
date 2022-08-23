@@ -39,7 +39,7 @@ public without sharing class OrderItemHelper {
             oldOrdIt = oldRequest.get(ordIt.id);
             System.debug('OrderReference__c ' + ord);
             System.debug('teste'+ ordIt.Order.IsOrderMother__c);
-            if(ordIt.Order.IsOrderMother__c != true && ord.OrderReference__c != null && ordIt.ReasonRefuse__c != null){
+            if(ordIt.Order.IsOrderMother__c != true && ord.OrderReference__c != null && oldOrdIt.ReasonRefuse__c == null && ordIt.ReasonRefuse__c != null){
                 System.debug('Entrou no IF');
                 System.debug('OrderReference__c ' + ordIt.Order.OrderReference__c);
                 ordList.add(ord.OrderReference__c);
