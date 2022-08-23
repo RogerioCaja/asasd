@@ -188,7 +188,7 @@ global with sharing class IntegrationINOrderItem {
                 }
                                   
                 
-                if(orderItem.quantidade == null || orderItem.quantidade == ''){
+                if(orderItem.quantidade == null){
                     orderItem.quantidade = ordItem.Quantity;
                 }
     
@@ -196,59 +196,59 @@ global with sharing class IntegrationINOrderItem {
                     orderItem.unidadeMedida = ordItem.UnitMeasure__c;
                 }
     
-                if(orderItem.porcentagemComissao == null || orderItem.porcentagemComissao == ''){
+                if(orderItem.porcentagemComissao == null){
                     orderItem.porcentagemComissao = ordItem.PercentComission__c;
                 }
     
-                if(orderItem.porcentagemDesconto == null || orderItem.porcentagemDesconto == ''){
+                if(orderItem.porcentagemDesconto == null){
                     orderItem.porcentagemDesconto = ordItem.DiscountPercent__c;
                 }
     
-                if(orderItem.comissaoValor == null || orderItem.comissaoValor == ''){
+                if(orderItem.comissaoValor == null){
                     orderItem.comissaoValor = ordItem.ComissionValue__c;
                 }
     
-                if(orderItem.margemComercial == null || orderItem.margemComercial == ''){
+                if(orderItem.margemComercial == null){
                     orderItem.margemComercial = ordItem.CommercialMargin__c;
                 }
     
-                if(orderItem.descontoValor == null || orderItem.descontoValor == ''){
+                if(orderItem.descontoValor == null){
                     orderItem.descontoValor = ordItem.DiscountValue__c;
                 }
     
-                if(orderItem.valorTotal == null || orderItem.valorTotal == ''){
+                if(orderItem.valorTotal == null){
                     orderItem.valorTotal = ordItem.FinalTotalValue__c;
                 }
     
-                if(orderItem.porcentagemDescontoFin == null || orderItem.porcentagemDescontoFin == ''){
+                if(orderItem.porcentagemDescontoFin == null){
                     orderItem.porcentagemDescontoFin = ordItem.FinancialDiscountPercent__c;
                 }
     
-                if(orderItem.valorDescontoFin == null || orderItem.valorDescontoFin == ''){
+                if(orderItem.valorDescontoFin == null){
                     orderItem.valorDescontoFin = ordItem.FinancialDiscountValue__c;
                 }
     
-                if(orderItem.porcentagemAcrescFin == null || orderItem.porcentagemAcrescFin == ''){
+                if(orderItem.porcentagemAcrescFin == null){
                     orderItem.porcentagemAcrescFin = ordItem.FinancialAdditionPercent__c;
                 }
     
-                if(orderItem.valorAcrescFin == null || orderItem.valorAcrescFin == ''){
+                if(orderItem.valorAcrescFin == null){
                     orderItem.valorAcrescFin = ordItem.FinancialAdditionValue__c;
                 }
     
-                if(orderItem.porcentagemAcrescComercial == null || orderItem.porcentagemAcrescComercial == ''){
+                if(orderItem.porcentagemAcrescComercial == null){
                     orderItem.porcentagemAcrescComercial = ordItem.CommercialAdditionPercent__c;
                 }
     
-                if(orderItem.valorAcrescComercial == null || orderItem.valorAcrescComercial == ''){
+                if(orderItem.valorAcrescComercial == null){
                    orderItem.valorAcrescComercial = ordItem.CommercialAdditionValue__c;
                 }
     
-                if(orderItem.dosagem == null || orderItem.dosagem == ''){
+                if(orderItem.dosagem == null){
                    orderItem.dosagem = ordItem.Dosage__c;
                 }
     
-                if(orderItem.custoLista == null || orderItem.custoLista == ''){
+                if(orderItem.custoLista == null){
                     orderItem.custoLista = ordItem.ListCost__c;
                 }
     
@@ -256,15 +256,15 @@ global with sharing class IntegrationINOrderItem {
                    orderItem.orderItemCode = ordItem.NumeroSap__c;
                 }
     
-                if(orderItem.custoPreco == null || orderItem.custoPreco == ''){
+                if(orderItem.custoPreco == null){
                     orderItem.custoPreco = ordItem.PracticedCost__c;
                 }
     
-                if(orderItem.precoPraticado == null || orderItem.precoPraticado == ''){
+                if(orderItem.precoPraticado == null){
                     orderItem.precoPraticado = ordItem.PracticedPrice__c;
                 }
     
-                if(orderItem.precoUnitario == null || orderItem.precoUnitario == ''){
+                if(orderItem.precoUnitario == null){
                     orderItem.precoUnitario = ordItem.UnitPrice;
                 }  
             }

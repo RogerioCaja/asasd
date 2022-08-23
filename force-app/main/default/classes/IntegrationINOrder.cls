@@ -219,13 +219,13 @@ global without sharing class IntegrationINOrder {
             if(order.numeroPedidoApp == null || order.numeroPedidoApp == ''){
                 order.numeroPedidoApp = ord.NumeroPedidoApp__c;
             }
-            if (order.paymentDate == null || order.paymentDate == ''){
+            if (order.paymentDate == null || order.paymentDate == Date.valueOf('')){
                 order.paymentDate = ord.PaymentDate__c;
             }
             
                 order.effectiveDate = ord.EffectiveDate;
             
-            if(order.ShippingDate == null || order.ShippingDate == ''){
+            if(order.ShippingDate == null || order.ShippingDate == Date.valueOf('')){
                 order.ShippingDate = ord.ShippingDate__c;
             }
             if(order.status == null || order.status == ''){
@@ -262,14 +262,14 @@ global without sharing class IntegrationINOrder {
             if(order.hectare == null || order.hectare == ''){
                 order.hectare = ord.Hectare__c; 
             }
-            if(order.margemPedido == null || order.margemPedido == ''){
+            if(order.margemPedido == null){
                 order.margemPedido = ord.OrderMargin__c;
             }
             if(order.orderType == null || order.orderType == ''){
                 order.orderType = ord.OrderType__c;
             }
             
-            if(order.pedidoMae == null || order.pedidoMae == ''){
+            if(order.pedidoMae == null){
                 order.pedidoMae = ord.IsOrderMother__c;
             }
 
