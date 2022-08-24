@@ -33,7 +33,6 @@ public without sharing class OrderHelper {
             if(!Test.isRunningTest()){
                 System.enqueueJob(new calloutDatalakeQueue(orderId));
             }
-            
         }
     } 
 
@@ -62,17 +61,24 @@ public without sharing class OrderHelper {
 
         Orderhelper.disableTrigger();
         for(Order order : newRecords){ 
+            
+            
             if(order.StatusSF__c == 'Aprovado'){
                 calloutsQueue job = new calloutsQueue(order.Id);
                 System.enqueueJob(job);
             }
+            else{
+                if(!Test.isRunningTest()) CalloutOrderDatalake.callIntegration(order.Id);
+            }
+            System.debug('System' + System.URL.getCurrentRequestUrl().GetPath());
+            // System.URL.getCurrentRequestUrl().GetPath().contains('/upsertOrderAppdigital/');
             if(order.CodigoSap__c != null && order.StatusSF__c == 'Integrado' && orderMap != null){
                 if(System.URL.getCurrentRequestUrl() != null && System.URL.getCurrentRequestUrl().GetPath() != null && System.URL.getCurrentRequestUrl().GetPath().contains('/upsertOrderAppdigital')){
                     String rmCode = orderMap.get(order.Id).ShippingAccount__r.ExternalId__c;
                     String agCode = orderMap.get(order.Id).Account.ExternalId__c;
                     String zcCode = orderMap.get(order.Id).SalesCTV__r.CodigoSap__c;
                     CalloutOrderUpdate.callIntegration(order.Id, rmCode , agCode , zcCode);
-                    CalloutOrderDatalake.callIntegration(order.Id);
+                    // CalloutOrderDatalake.callIntegration(order.Id);
                 }
                 
             }  
@@ -277,7 +283,7 @@ public without sharing class OrderHelper {
     public static void creatyShareRecord(List<Order> orderList){//after insert,update
         List<OrderShare> orderShareList = new List<OrderShare>();
         for(Order ord : orderList){
-            if(ord.SalesCTV__c != null && ord.SalesCTV__c != ord.OwnerId){
+            if(ord.SalesCTV__c != null && ord.SalesCTV__c != ord.OwnerId && ord.SalesCTV__r.IsActive != false){
                 OrderShare orderShare = new OrderShare (OrderAccessLevel = 'Edit', RowCause = 'Manual', UserOrGroupId = ord.SalesCTV__c, OrderId = ord.Id);
                 orderShareList.add(orderShare);
             }

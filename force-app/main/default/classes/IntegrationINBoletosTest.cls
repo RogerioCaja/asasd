@@ -45,7 +45,7 @@ public with sharing class IntegrationINBoletosTest {
         User u = new User(Alias = 'standt', Email='standarduser@testorg.com', 
         EmailEncodingKey='UTF-8', LastName='Testing', LanguageLocaleKey='en_US', 
         LocaleSidKey='en_US', ProfileId = p.Id, 
-        TimeZoneSidKey='America/Los_Angeles', UserName='testes@testes.com');
+        TimeZoneSidKey='America/Los_Angeles', UserName='testes_BOLETO_TEST@testes.com');
 
         insert u;
         
