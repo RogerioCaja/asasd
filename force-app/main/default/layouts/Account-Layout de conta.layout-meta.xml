@@ -245,14 +245,6 @@
         <relatedList>AccountUserTerritory2RelatedList</relatedList>
     </relatedLists>
     <relatedLists>
-        <fields>FULL_NAME</fields>
-        <fields>CORE.USERS.EMAIL</fields>
-        <fields>ROLE_IN_TERRITORY</fields>
-        <fields>TERRITORY.NAME</fields>
-        <fields>MODEL.NAME</fields>
-        <relatedList>AccountUserTerritory2RelatedList</relatedList>
-    </relatedLists>
-    <relatedLists>
         <fields>TASK.SUBJECT</fields>
         <fields>TASK.WHO_NAME</fields>
         <fields>TASK.WHAT_NAME</fields>
