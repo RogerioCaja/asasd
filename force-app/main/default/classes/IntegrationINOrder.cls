@@ -102,7 +102,6 @@ global without sharing class IntegrationINOrder {
             paymentConditionLookups.add(order.paymentCondition);
             activitySectorLookups.add(order.ActivitySector);
             idOrders.add(order.CodigoSap);
-            //order.company = order.PaymentAccount + order.CentroFornecedor + order.salesOrg + order.activitySector + order.distributionChannel + order.EscritorioVendas + order.EquipeVendas;
             for (TemplateDataIntegrationFields.OrderItemINData orderItem : order.orderItems) {
                 orderItem.orderExternalId = order.CodigoSap;
                 orderItem.orderItemCode = orderItem.orderItemCode.replaceFirst('^0+','');
@@ -184,7 +183,7 @@ global without sharing class IntegrationINOrder {
                     }
             }
 
-                order.company = order.PaymentAccount + order.CentroFornecedor + order.salesOrg + order.activitySector + order.distributionChannel + order.EscritorioVendas + order.EquipeVendas;
+                //order.company = order.PaymentAccount + order.CentroFornecedor + order.salesOrg + order.activitySector + order.distributionChannel + order.EscritorioVendas + order.EquipeVendas;
                 conditionList.addAll(order.conditions);
                 
             
