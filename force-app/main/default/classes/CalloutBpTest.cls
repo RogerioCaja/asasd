@@ -36,7 +36,7 @@
             User u = new User(Alias = 'standt', Email='standarduser@testorg.com', 
             EmailEncodingKey='UTF-8', LastName='Testing', LanguageLocaleKey='en_US', 
             LocaleSidKey='en_US', ProfileId = p.Id, 
-            TimeZoneSidKey='America/Los_Angeles', UserName='testes@testes.com',CodigoSap__c = 'test1');
+            TimeZoneSidKey='America/Los_Angeles', UserName='testes_BP_TEST@testes.com',CodigoSap__c = 'test1');
             INSERT u;
             User u2 = new User(Alias = 'standt', Email='standarduser@testorg.com', 
             EmailEncodingKey='UTF-8', LastName='Testing2', LanguageLocaleKey='en_US', 
@@ -83,7 +83,7 @@
         @isTest
         static void calloutBpSuccess(){
             Account account = [SELECT Id FROM Account LIMIT 1];
-            User u = [SELECT Id FROM User WHERE UserName='testes@testes.com' LIMIT 1];
+            User u = [SELECT Id FROM User WHERE UserName='testes_BP_TEST@testes.com' LIMIT 1];
             Territory2Type terrModel = [SELECT Id FROM Territory2Type LIMIT 1];
             Territory2Model model = [SELECT Id FROM Territory2Model LIMIT 1];
             Territory2 objTerr = new Territory2(); 

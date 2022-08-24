@@ -2,5 +2,5 @@
 <RemoteSiteSetting xmlns="http://soap.sforce.com/2006/04/metadata">
     <disableProtocolSecurity>false</disableProtocolSecurity>
     <isActive>true</isActive>
-    <url>https://agrogalaxy-qas-01.it-cpi008-rt.cfapps.br10.hana.ondemand.com</url>
+    <url>https://agrogalaxy-prd-01.it-cpi008-rt.cfapps.br10.hana.ondemand.com</url>
 </RemoteSiteSetting>
