@@ -178,6 +178,7 @@ global with sharing class TemplateDataIntegrationFields {
     global class OrgVProductINData implements FieldDataChild{
         
         //JSON fields Example
+        public String productExternalId;
         public String OrgVId;
         public String centroFilial;
         public String OrganizacaoVendas;
@@ -401,7 +402,8 @@ global with sharing class TemplateDataIntegrationFields {
                 /* ATUALIZAÇÃO 05.07.2022*/
                 RecordTypeId = this.salesType != null ? Schema.SObjectType.Order.getRecordTypeInfosByName().get(this.salesType).getRecordTypeId() : this.recordIdToUpdate,//
                 Type = this.salesType != null ? this.salesType : Schema.getGlobalDescribe().get('Order').getDescribe().getRecordTypeInfosById().get(this.recordIdToUpdate).getName(),
-                OrderType__c = this.pedidoMae ? 'Pedido Mãe' : 'Pedido Normal',
+                OrderType__c = this.orderReference != '' ? 'Pedido Filho' : (this.pedidoMae ? 'Pedido Mãe' : 'Pedido Normal'),
+                
                 OwnerId = lookups.containsKey('User'+this.salesCTV) ? lookups.get('User'+this.salesCTV) : null
                 
             );

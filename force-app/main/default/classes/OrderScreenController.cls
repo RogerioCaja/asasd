@@ -693,6 +693,7 @@ public without sharing class OrderScreenController {
                 List<Database.UpsertResult> insOrderItemResults = Database.upsert(listOrderItems, false);
                 OrderHelper.enableTrigger();
                 for (Database.UpsertResult result : insOrderItemResults){
+                    System.debug('result => ' + result);
                     if(!result.isSuccess()){
                         for (Database.error error: insResults.getErrors()){
                             orderItemErrors += '\n' + error.getMessage();
