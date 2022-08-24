@@ -61,6 +61,8 @@ public without sharing class OrderHelper {
 
         Orderhelper.disableTrigger();
         for(Order order : newRecords){ 
+            
+            
             if(order.StatusSF__c == 'Aprovado'){
                 calloutsQueue job = new calloutsQueue(order.Id);
                 System.enqueueJob(job);

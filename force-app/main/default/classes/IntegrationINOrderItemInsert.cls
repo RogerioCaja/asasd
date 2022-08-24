@@ -15,13 +15,15 @@ global with sharing class IntegrationINOrderItemInsert {
 
         List<String> idsOrderItem = new List<String>();
         //Application of business rules
+        
         for(TemplateDataIntegrationFields.OrderItemINData OrderItemINData : request){
             idsOrderItem.add(OrderItemINData.orderExternalId + '|' + OrderItemINData.orderItemCode);
             productLookups.add(OrderItemINData.material);
         }
 
         Map<String, Product2> prdtMap = new Map<String, Product2>();
-        List<Product2> prdList = new List<Product2>([SELECT ProductCode__c, GrossWeightUnitOfMeasure__c FROM Product2  WHERE ProductCode__c IN: productLookups]);
+        List<Product2> prdList = new List<Product2>([SELECT ProductCode__c, UnidadeMedida__c FROM Product2  WHERE ProductCode__c IN: productLookups]);
+        
         for(Product2 product : prdList){
             prdtMap.put(product.ProductCode__c, product);
         }
@@ -38,8 +40,12 @@ global with sharing class IntegrationINOrderItemInsert {
             OrderItemINData.dosagem = OrderItemINData.quantidade;
             idsOrderItem.add(OrderItemINData.orderExternalId + '|' + OrderItemINData.orderItemCode);
 
-            Product2 prdItem = prdtMap.get(OrderItemINData.material);
-            OrderItemINData.unidadeMedida = prdItem.GrossWeightUnitOfMeasure__c;
+            
+            if(prdtMap.containsKey(OrderItemINData.material)){
+                Product2 prdItem = prdtMap.get(OrderItemINData.material);
+                OrderItemINData.unidadeMedida = prdItem.UnidadeMedida__c;
+            }
+            
 
             for(TemplateDataIntegrationFields.ConditionInsert  conditions : conditionList){
                 conditions.KPOSN = conditions.KPOSN.replaceFirst('^0+','');
@@ -48,6 +54,7 @@ global with sharing class IntegrationINOrderItemInsert {
                     if(conditions.KSCHL == 'ZPR0'){
                         OrderItemINData.precoUnitario = (Decimal.valueOf(conditions.KBETR) / Decimal.valueOf(conditions.KPEIN));
                         System.debug('OrderItemINData.precoUnitario ' + OrderItemINData.precoUnitario);
+                        OrderItemINData.precoPraticado = OrderItemINData.precoUnitario;
                        //OrderItemINData.multiplicador == conditions.KPEIN;
                     }
                     

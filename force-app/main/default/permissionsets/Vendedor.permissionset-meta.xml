@@ -2602,7 +2602,7 @@
     </recordTypeVisibilities>
     <recordTypeVisibilities>
         <recordType>Order.VendaEntregaFutura</recordType>
-        <visible>false</visible>
+        <visible>true</visible>
     </recordTypeVisibilities>
     <recordTypeVisibilities>
         <recordType>Order.VendaNormal</recordType>
@@ -2614,7 +2614,7 @@
     </recordTypeVisibilities>
     <recordTypeVisibilities>
         <recordType>Order.VendaServico</recordType>
-        <visible>true</visible>
+        <visible>false</visible>
     </recordTypeVisibilities>
     <recordTypeVisibilities>
         <recordType>Pricebook2.RecordTypeId</recordType>

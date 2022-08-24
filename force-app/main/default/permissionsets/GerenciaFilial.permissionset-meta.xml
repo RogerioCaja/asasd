@@ -1244,6 +1244,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Order.ClientGroup__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Order.CompanyAuthorizedById</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -2611,7 +2616,7 @@
     </recordTypeVisibilities>
     <recordTypeVisibilities>
         <recordType>Order.VendaContaOrdem</recordType>
-        <visible>true</visible>
+        <visible>false</visible>
     </recordTypeVisibilities>
     <recordTypeVisibilities>
         <recordType>Order.VendaEntregaFutura</recordType>
@@ -2623,11 +2628,11 @@
     </recordTypeVisibilities>
     <recordTypeVisibilities>
         <recordType>Order.VendaOrdemSimplesFaturamento</recordType>
-        <visible>true</visible>
+        <visible>false</visible>
     </recordTypeVisibilities>
     <recordTypeVisibilities>
         <recordType>Order.VendaServico</recordType>
-        <visible>true</visible>
+        <visible>false</visible>
     </recordTypeVisibilities>
     <recordTypeVisibilities>
         <recordType>Pricebook2.RecordTypeId</recordType>
