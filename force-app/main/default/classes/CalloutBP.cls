@@ -368,7 +368,7 @@ public without sharing class CalloutBP {
         //Get Culture
         List<Cultura__c> cultureList = new List<Cultura__c>([SELECT Id, Codigo__c FROM Cultura__c WHERE Codigo__c =: cultureIdsList]);
         for (Cultura__c cult : cultureList) {
-            lookups.put('Cultura__c' + cult.Codigo__c, cult.Id);
+            lookups.put('Culture__c' + cult.Codigo__c, cult.Id);
         }
         //Get Safra
         List<Safra__c> safraList = new List<Safra__c>([SELECT Id, Code__c FROM Safra__c WHERE Code__c =: safraIdsList]);
