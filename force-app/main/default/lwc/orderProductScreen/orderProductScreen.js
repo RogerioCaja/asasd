@@ -1144,8 +1144,10 @@ export default class OrderProductScreen extends LightningElement {
 
     deleteProduct(position) {
         let excludeProduct = JSON.parse(JSON.stringify(this.products));
-        
+        let excludedProducts = this.isFilled(this.excludedItems) ? JSON.parse(JSON.stringify(this.excludedItems)) : [];
+        excludedProducts.push(excludeProduct[position].orderItemId);
         excludeProduct.splice(position, 1);
+        
         if(excludeProduct.lenght - 1 != position){
             excludeProduct.forEach((product) => {
                 if(product.position > position) product.position -= 1
@@ -1168,6 +1170,8 @@ export default class OrderProductScreen extends LightningElement {
             this.recalculateCommodities()  ;
         }
 
+        this.excludedItems = this.isFilled(excludedProducts) ? excludedProducts : [];
+        this._setExcludedesItems();
         this._setData();
         this.showToast('success', 'Produto removido!', '');
     }
