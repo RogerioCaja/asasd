@@ -110,8 +110,10 @@ public without sharing class OrderScreenController {
               FROM OrderItem
              WHERE OrderId =: orderId
         ]){
-            totalCost += item.PracticedCost__c * item.Quantity;
-            totalDiscount += item.DiscountValue__c;
+            Decimal itemPracticedCost = item.PracticedCost__c != null ? item.PracticedCost__c : 0;
+            Decimal itemDiscount = item.DiscountValue__c != null ? item.DiscountValue__c : 0;
+            totalCost += itemPracticedCost * item.Quantity;
+            totalDiscount += itemDiscount;
             totalQuantity += item.Quantity;
             prods.add(new ProductSerialize(item, counter, cloneOrder));
             orderItemsPosition.put(item.Id, counter);
@@ -183,9 +185,9 @@ public without sharing class OrderScreenController {
 			
             if (profileName != 'Balcão') {
                 Set<Id> relatedAccounts = getTerritoryAccounts();
-                accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE ParentId =: accountId AND Id IN: relatedAccounts AND ExternalId__c LIKE '0002%'];
+                accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE (ParentId =: accountId AND Id IN: relatedAccounts AND ExternalId__c LIKE '0002%') OR (Id =: accountId AND CNPJ__c != null AND CPF__c = null)];
             } else {
-                accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE ParentId =: accountId AND ExternalId__c LIKE '0002%'];
+                accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE (ParentId =: accountId AND ExternalId__c LIKE '0002%') OR (Id =: accountId AND CNPJ__c != null AND CPF__c = null)];
             }
             
             for(Account account : accountList) accountListSerialize.add(new AccountSerialize(account));
@@ -293,6 +295,7 @@ public without sharing class OrderScreenController {
                 FROM Order WHERE Id =: orderId LIMIT 1];
             } else {
                 order = new Order();
+                order.OwnerId = orderData.headerData.ctv_venda.Id;
                 order.RecordTypeId = Schema.SObjectType.Order.getRecordTypeInfosByName().get(orderData.headerData.tipo_venda).getRecordTypeId();
             }
             System.debug('order: ' + order);

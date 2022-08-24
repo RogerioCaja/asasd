@@ -107,7 +107,7 @@ public with sharing class IntegrationINOrderTest {
       Company__c company = new Company__c(
             Name = 'Company',
             Blocked__c = false,
-            ClientGroup__c = 'NÃO SEGMENTADO',
+            ClientGroup__c = '11',
             Conta__c = parentAccount.Id,
             SalesOrg__c = salesOrg.Id,
             SalesOffice__c = salesOffice.Id,
@@ -222,12 +222,12 @@ public with sharing class IntegrationINOrderTest {
         ProductCode__c = '0001',
         ProductCode = '0001',
         ClasseAvaliacao__c = 'av01',
+        UnidadeMedida__c = 'L',
         GrupoQuimico__c = 'bg1',
         MarcadoEliminacao__c = 'tes01',
         NCM__c = '85432000',
         NumeroRegistro__c = '2',
-        OrigemMaterial__c = 'sp',
-        UnidadeMedida__c = 'un'
+        OrigemMaterial__c = 'sp'
     );
     INSERT prod;
 
@@ -236,7 +236,7 @@ public with sharing class IntegrationINOrderTest {
         OrderId = order.Id,
         Product2Id = prod.Id,
         NumeroSap__c = '10',
-        UnitMeasure__c = 'L',
+        UnitMeasure__c = prod.UnidadeMedida__c,
         UnitPrice = 10000,
         Quantity = 1,
         ExternalId__c = order.Id + '|' + '10',
@@ -249,7 +249,7 @@ public with sharing class IntegrationINOrderTest {
         OrderId = order3.Id,
         Product2Id = prod.Id,
         NumeroSap__c = '10',
-        UnitMeasure__c = 'L',
+        UnitMeasure__c = '',
         UnitPrice = 10000,
         Quantity = 1,
         ExternalId__c = order3.Id + '|' + '10',

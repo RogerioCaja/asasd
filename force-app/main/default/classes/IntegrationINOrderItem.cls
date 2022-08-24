@@ -89,6 +89,7 @@ global with sharing class IntegrationINOrderItem {
                     Decimal valorAcrescimoComercial = 0;
                     
                     Decimal valorFinal = OrderItemINData.precoUnitario * OrderItemINData.quantidade;
+                    OrderItemINData.valorTotal = valorFinal;
                     
                     if(OrderItemINData.porcentagemDescontoFin > 0){
                         //porcentagemDescontoFinanceiro = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemDescontoFin / 100);
@@ -162,7 +163,7 @@ global with sharing class IntegrationINOrderItem {
     
                 System.debug('orderItem.orderExternalId '+ orderItem.orderExternalId);
                 
-                if(orderItem.orderExternalId == null){
+                if(orderItem.orderExternalId == null || orderItem.orderExternalId == ''){
                     System.debug('ordItem.OrderId '+ ordItem.OrderId);
                     if(ordItem.OrderId != null){
                         orderItem.orderExternalId = ordItem.OrderId; 
@@ -171,7 +172,7 @@ global with sharing class IntegrationINOrderItem {
                     }
                 }
                 
-                if(orderItem.material == null){
+                if(orderItem.material == null || orderItem.material == ''){
                     if(ordItem.Product2Id != null){
                         orderItem.material = ordItem.Product2.ProductCode__c;
                         lookups.put('PricebookEntry' + ordItem.Product2.ProductCode__c, ordItem.Product2Id);
@@ -179,7 +180,7 @@ global with sharing class IntegrationINOrderItem {
                 }
                 
     
-                if(orderItem.material == null){
+                if(orderItem.material == null || orderItem.material == ''){
                     if(ordItem.Product2Id != null){
                         orderItem.material = ordItem.Product2.ProductCode__c;
                         lookups.put('Product2' + ordItem.Product2.ProductCode__c, ordItem.Product2Id);
@@ -191,7 +192,7 @@ global with sharing class IntegrationINOrderItem {
                     orderItem.quantidade = ordItem.Quantity;
                 }
     
-                if(orderItem.unidadeMedida == null){
+                if(orderItem.unidadeMedida == null || orderItem.unidadeMedida == ''){
                     orderItem.unidadeMedida = ordItem.UnitMeasure__c;
                 }
     
@@ -251,7 +252,7 @@ global with sharing class IntegrationINOrderItem {
                     orderItem.custoLista = ordItem.ListCost__c;
                 }
     
-                if(orderItem.orderItemCode == null){
+                if(orderItem.orderItemCode == null || orderItem.orderItemCode == ''){
                    orderItem.orderItemCode = ordItem.NumeroSap__c;
                 }
     
