@@ -56,7 +56,8 @@ global without sharing class IntegrationINOrderInsert {
             orderReferenceLookups.add(order.orderReference);
             activitySectorLookups.add(order.ActivitySector);
             distributionChannelLookups.add(order.DistributionChannel);
-            order.company = order.PaymentAccount + order.CentroFornecedor + order.salesOrg + order.activitySector + order.distributionChannel + order.EscritorioVendas + order.EquipeVendas;
+            
+            order.hectare = order.hectare == null ? 1 : order.hectare;
             companyLookups.add(order.company);
 
             
@@ -145,7 +146,7 @@ global without sharing class IntegrationINOrderInsert {
                     order.salesCTV = partnerList.KUNNR;
                 }
         }
-
+            order.company = order.PaymentAccount + order.CentroFornecedor + order.salesOrg + order.activitySector + order.distributionChannel + order.EscritorioVendas + order.EquipeVendas;
             conditionList.addAll(order.conditions);
              
             System.debug('shippingDivisonListToUpsert' + shippingDivisonListToUpsert);
@@ -279,7 +280,7 @@ global without sharing class IntegrationINOrderInsert {
              order.FinalTotalValue__c  = (Decimal)resulTotal[0].get('somatoria');
              System.debug('order.FinalTotalValue__c ' + order.FinalTotalValue__c);
              OrderHelper.disableTrigger();
-             update order;
+             Database.update(order, false);
              OrderHelper.enableTrigger();
         
         

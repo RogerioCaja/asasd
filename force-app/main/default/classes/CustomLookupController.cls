@@ -208,66 +208,80 @@ public without sharing class CustomLookupController {
                 List<JurosDescontoAntecipao__c> jdaList = productsPriceById.get((Id) s.get('Id'));
                 Boolean productIncluded = false;
                 for (JurosDescontoAntecipao__c jda : jdaList) {
-                    String productGroupId = (String)s.get('ProductGroup__c');
-                    String productSubgroupId = (String)s.get('ProductSubgroup__c');
-                    String productHierarchyId = (String)s.get('ProductHierarchy__c');
-                    String productGroupName = '';
-                    String productSubgroupName = '';
-                    Boolean isPtaProduct = false;
-                    
-                    if (productGroupId != null) {
-                        productGroupName = productsGroupById.get(productGroupId) != null ? productsGroupById.get(productGroupId).Name : '';
-                    }
+                    if ((jda.SalesOrg__c == salesResult.salesOrgId || jda.SalesOrg__c == null) &&
+                        (jda.SalesOffice__c == salesResult.salesOfficeId || jda.SalesOffice__c == null) &&
+                        (jda.SalesTeam__c == salesResult.salesTeamId || jda.SalesTeam__c == null) &&
+                        (jda.Account__c == productParams.accountId || jda.Account__c == null))  {
+                        String productGroupId = (String)s.get('ProductGroup__c');
+                        String productSubgroupId = (String)s.get('ProductSubgroup__c');
+                        String productHierarchyId = (String)s.get('ProductHierarchy__c');
+                        String productGroupName = '';
+                        String productSubgroupName = '';
+                        Boolean isPtaProduct = false;
+                        
+                        if (productGroupId != null) {
+                            productGroupName = productsGroupById.get(productGroupId) != null ? productsGroupById.get(productGroupId).Name : '';
+                        }
 
-                    if (productSubgroupId != null) {
-                        productSubgroupName = productsSubgroupById.get(productSubgroupId) != null ? productsSubgroupById.get(productSubgroupId).Name : '';
-                    }
+                        if (productSubgroupId != null) {
+                            productSubgroupName = productsSubgroupById.get(productSubgroupId) != null ? productsSubgroupById.get(productSubgroupId).Name : '';
+                        }
 
-                    if (ptaProducts.contains((String)s.get('Id'))) {
-                        isPtaProduct = true;
-                    }
-    
-                    Decimal commissionPercentage = commissionByHierarchy.get(productHierarchyId) != null ? commissionByHierarchy.get(productHierarchyId) : 0;
-                    ProductData productData = new ProductData((String)s.get('Id'), (String)s.get('Name'), (String)s.get('ExternalId__c'), (String)s.get('UnidadeMedida__c'), (String)s.get('PrincipleActive__c'), (Decimal)s.get('Multiplicity__c'), productGroupId, productHierarchyId, productGroupName, productSubgroupId, productSubgroupName, jda.Currency__c, jda.Id, jda.UnitPrice__c, jda.Cost__c, commissionPercentage, jda.ProductMultiplier__c, isPtaProduct, jda.ExternalId__c);
-                    if (!productIncluded) {
-                        result.recordsDataList.add(productData);
-                        productIncluded = true;
-                    }
-                    
-                    String key = jda.Account__c + '-' + (String)s.get('Id');
-                    if (!result.recordsDataMap.containsKey(key)) {
-                        result.recordsDataMap.put(key, productData);
-                    }
-    
-                    String accountSegment = jda.Account__c != null ? industryByAccountIds.get(jda.Account__c).Industry : '';
-                    key = accountSegment + '-' + (String)s.get('Id');
-                    if (!result.recordsDataMap.containsKey(key)) {
-                        result.recordsDataMap.put(key, productData);
-                    }
-    
-                    key = jda.Culture__c + '-' + jda.SalesTeam__c + '-' + (String)s.get('Id');
-                    if (!result.recordsDataMap.containsKey(key)) {
-                        result.recordsDataMap.put(key, productData);
-                    }
-    
-                    key = jda.SalesTeam__c + '-' + (String)s.get('Id');
-                    if (!result.recordsDataMap.containsKey(key)) {
-                        result.recordsDataMap.put(key, productData);
-                    }
-    
-                    key = jda.SalesOffice__c + '-' + (String)s.get('Id');
-                    if (!result.recordsDataMap.containsKey(key)) {
-                        result.recordsDataMap.put(key, productData);
-                    }
-    
-                    key = jda.ProductGroup__c;
-                    if (!result.recordsDataMap.containsKey(key)) {
-                        result.recordsDataMap.put(key, productData);
-                    }
-    
-                    key = (String)s.get('Id');
-                    if (!result.recordsDataMap.containsKey(key)) {
-                        result.recordsDataMap.put(key, productData);
+                        if (ptaProducts.contains((String)s.get('Id'))) {
+                            isPtaProduct = true;
+                        }
+        
+                        Decimal commissionPercentage = commissionByHierarchy.get(productHierarchyId) != null ? commissionByHierarchy.get(productHierarchyId) : 0;
+                        ProductData productData = new ProductData((String)s.get('Id'), (String)s.get('Name'), (String)s.get('ExternalId__c'), (String)s.get('UnidadeMedida__c'), (String)s.get('PrincipleActive__c'), (Decimal)s.get('Multiplicity__c'), productGroupId, productHierarchyId, productGroupName, productSubgroupId, productSubgroupName, jda.Currency__c, jda.Id, jda.UnitPrice__c, jda.Cost__c, commissionPercentage, jda.ProductMultiplier__c, isPtaProduct, jda.ExternalId__c);
+                        
+                        Boolean priceIncluded = false;
+                        String key = jda.Account__c + '-' + (String)s.get('Id');
+                        if (jda.Account__c != null && !result.recordsDataMap.containsKey(key)) {
+                            result.recordsDataMap.put(key, productData);
+                            priceIncluded = true;
+                        }
+        
+                        String accountSegment = jda.Account__c != null ? industryByAccountIds.get(jda.Account__c).Industry : '';
+                        key = accountSegment + '-' + (String)s.get('Id');
+                        if (!priceIncluded && accountSegment != '' && !result.recordsDataMap.containsKey(key)) {
+                            result.recordsDataMap.put(key, productData);
+                            priceIncluded = true;
+                        }
+        
+                        key = jda.Culture__c + '-' + jda.SalesTeam__c + '-' + (String)s.get('Id');
+                        if (!priceIncluded && jda.Culture__c != null && jda.SalesTeam__c != null && !result.recordsDataMap.containsKey(key)) {
+                            result.recordsDataMap.put(key, productData);
+                            priceIncluded = true;
+                        }
+        
+                        key = jda.SalesTeam__c + '-' + (String)s.get('Id');
+                        if (!priceIncluded && jda.SalesTeam__c != null && !result.recordsDataMap.containsKey(key)) {
+                            result.recordsDataMap.put(key, productData);
+                            priceIncluded = true;
+                        }
+        
+                        key = jda.SalesOffice__c + '-' + (String)s.get('Id');
+                        if (!priceIncluded && jda.SalesOffice__c != null && !result.recordsDataMap.containsKey(key)) {
+                            result.recordsDataMap.put(key, productData);
+                            priceIncluded = true;
+                        }
+        
+                        key = jda.ProductGroup__c;
+                        if (!priceIncluded && jda.ProductGroup__c != null && !result.recordsDataMap.containsKey(key)) {
+                            result.recordsDataMap.put(key, productData);
+                            priceIncluded = true;
+                        }
+        
+                        key = (String)s.get('Id');
+                        if (!priceIncluded && !result.recordsDataMap.containsKey(key)) {
+                            result.recordsDataMap.put(key, productData);
+                            priceIncluded = true;
+                        }
+                        
+                        if (!productIncluded && priceIncluded) {
+                            result.recordsDataList.add(productData);
+                            productIncluded = true;
+                        }
                     }
                 }
 	        }

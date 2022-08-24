@@ -17,6 +17,18 @@ global with sharing class IntegrationINOrderItemInsert {
         //Application of business rules
         
         for(TemplateDataIntegrationFields.OrderItemINData OrderItemINData : request){
+            idsOrderItem.add(OrderItemINData.orderExternalId + '|' + OrderItemINData.orderItemCode);
+            productLookups.add(OrderItemINData.material);
+        }
+
+        Map<String, Product2> prdtMap = new Map<String, Product2>();
+        List<Product2> prdList = new List<Product2>([SELECT ProductCode__c, UnidadeMedida__c FROM Product2  WHERE ProductCode__c IN: productLookups]);
+        
+        for(Product2 product : prdList){
+            prdtMap.put(product.ProductCode__c, product);
+        }
+
+        for(TemplateDataIntegrationFields.OrderItemINData OrderItemINData : request){
 
             // Pega a relação do OrderItem com Order
             //Getting order parameters to search
@@ -25,7 +37,15 @@ global with sharing class IntegrationINOrderItemInsert {
             // Pega a relação do Product com o OrderItem
             //Getting product parameters to search
             productLookups.add(OrderItemINData.material);
+            OrderItemINData.dosagem = OrderItemINData.quantidade;
             idsOrderItem.add(OrderItemINData.orderExternalId + '|' + OrderItemINData.orderItemCode);
+
+            
+            if(prdtMap.containsKey(OrderItemINData.material)){
+                Product2 prdItem = prdtMap.get(OrderItemINData.material);
+                OrderItemINData.unidadeMedida = prdItem.UnidadeMedida__c;
+            }
+            
 
             for(TemplateDataIntegrationFields.ConditionInsert  conditions : conditionList){
                 conditions.KPOSN = conditions.KPOSN.replaceFirst('^0+','');
@@ -90,6 +110,7 @@ global with sharing class IntegrationINOrderItemInsert {
         Decimal valorAcrescimoComercial = 0;
         
         Decimal valorFinal = OrderItemINData.precoUnitario * OrderItemINData.quantidade;
+        OrderItemINData.valorTotal = valorFinal;
         
         if(OrderItemINData.porcentagemDescontoFin > 0){
             //porcentagemDescontoFinanceiro = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemDescontoFin / 100);
