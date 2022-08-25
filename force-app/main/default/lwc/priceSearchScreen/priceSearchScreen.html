@@ -1,0 +1,109 @@
+<template>
+    <template if:true={showLoading}>
+		<div class="exampleHolder">
+			<lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
+		</div>
+	</template>
+	
+	<template if:false={showLoading}>
+        <div class="container">
+            <div>
+                <p class="title">Busca de preços</p>
+            </div>
+
+            <div class="fields-div">
+                <div class="lookup-style">
+                    <c-lookup 
+                        name="safra"
+                        data-name="safra"
+                        input-label="Safras" 
+                        object-icon-name="standard:action_list_component"
+                        target-object={redispatchSafraObject} 
+                        record-id={searchData.safra.Id}
+                        search-fields={redispatchSafraSearchFields}
+                        list-item-options={redispatchSafraListItemOptions} 
+                        standard-form-layout=true
+                        price-screen="false"
+                        onclearselectedrecord={removeItemRegister}
+                        onselectrecord={selectItemRegister} 
+                        placeholder="Pesquisar Safras"
+                        required="true">
+                    </c-lookup>
+                </div>
+
+                <div class="lookup-style">
+                    <c-lookup 
+                        name="account"
+                        data-name="account"
+                        input-label="Conta" 
+                        object-icon-name="standard:action_list_component"
+                        target-object={redispatchAccountObject} 
+                        record-id={searchData.account.Id}
+                        search-fields={redispatchAccountSearchFields}
+                        list-item-options={redispatchAccountListItemOptions}
+                        price-screen="false"
+                        standard-form-layout=true
+                        onclearselectedrecord={removeItemRegister}
+                        onselectrecord={selectItemRegister} 
+                        placeholder="Pesquisar Contas">
+                    </c-lookup>
+                </div>
+
+                <div class="lookup-style">
+                    <lightning-input 
+                        name="paymentDate"
+                        label="Data de Pagamento" 
+                        field-name="paymentDate"
+                        value={searchData.paymentDate} 
+                        date-style="short" 
+                        onchange={selectItemRegister} 
+                        type="date" 
+                        required="true"
+                        min={currentDate}>
+                    </lightning-input>
+                </div>
+
+                <div class="lookup-style">
+                    <c-lookup 
+                        name="ctv"
+                        data-name="ctv"
+                        input-label="CTV da Venda" 
+                        object-icon-name="standard:action_list_component"
+                        target-object={redispatchCtvObject}
+                        search-fields={redispatchCtvSearchFields} 
+                        record-id={searchData.ctv.Id}
+                        list-item-options={redispatchCtvListItemOptions} 
+                        standard-form-layout="true"
+                        account-id={searchData.account.Id}
+                        price-screen="true"
+                        onclearselectedrecord={removeItemRegister}
+                        onselectrecord={selectItemRegister} 
+                        placeholder="Pesquisar CTV da Venda"
+                        required="true">
+                    </c-lookup>
+                </div>
+            </div>
+
+            <div>
+                <div class="search-div">
+                    <input type="text" class="input-style" value={productSearch} placeholder="Pesquisar Produto...">
+                    <button class="button-style" onclick={searchProducts}>Buscar</button>
+                </div>
+
+                <div class="products-result" if:true={showBaseProducts}>
+                    <h2>Produtos Encontrados:</h2>
+
+                    <lightning-datatable class="slds-is-relative"
+                        data={baseProducts}
+                        columns={columns}
+                        key-field="id"
+                        onrowaction={handleRowActions}
+                        hide-checkbox-column
+                    >
+                    </lightning-datatable>
+                </div>
+                <!-- <c-custom-order-search data-target-id="product-search" object-name="Product2" field-name="Name" product-params={productParams} onshowresults={showResults} label="Pesquisar PRODUTO:" placeholder="Digite o nome do Produto" required="true" onchild={getFieldsValueProduct}></c-custom-order-search> -->
+            </div>
+        </div>
+    </template>
+</template>

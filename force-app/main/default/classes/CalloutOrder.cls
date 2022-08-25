@@ -14,8 +14,8 @@ public without sharing class CalloutOrder {
 
 		Order parentOrder = [SELECT Id, CodigoSap__c, ShippingAccount__r.ExternalId__c, Company__r.SupplierCenter__c, Account.ExternalId__c, Type, SalesOrg__r.SalesOrganizationCode__c, DistributionChannel__c, DistributionChannel__r.Codigo__c, SalesCondition__r.ExternalId__c,
                             ActivitySector__c, ActivitySector__r.Codigo__c, PaymentCondition__r.CashPayment__c, Incoterms__c, Incoterms2__c, PaymentCondition__r.Code__c, OrderReason__c , SalesCTV__r.CodigoSap__c, PaymentDate__c,EffectiveDate, OrderReference__r.CodigoSap__c,
-                            OrderNumber, Crop__r.Code__c, Crop__r.StartDateOrderInsertion__c, Crop__r.EndDateInsertionOrders__c ,Culture__r.Codigo__c, EndDate, TotalAmount, PaymentForm__c, OrderReference__c, CustomerOrderNumber__c, SalesCTV__r.SellerType__c, EffectiveOrderDate__c,
-                            Currency__c, Crop__r.PaymentBaseDate__c,IsOrderMother__c, RecordTypeId,Description, (SELECT Id FROM OrderItems) 
+                            OrderNumber, Crop__r.Code__c, Crop__r.StartDateOrderInsertion__c, Crop__r.EndDateInsertionOrders__c ,Culture__r.Codigo__c, EndDate, TotalAmount, PaymentForm__c, OrderReference__c, CustomerOrderNumber__c, SalesCTV__r.SellerType__c, EffectiveOrderDate__c, NumeroPedidoApp__c,
+                            Currency__c, Crop__r.PaymentBaseDate__c,IsOrderMother__c, RecordTypeId,Description,DescriptionBillingSale__c, DistributionCenter__r.Code__c, (SELECT Id FROM OrderItems) 
                             FROM Order WHERE Id = :orderId];
 		
 		List<Order> allOrders = new List<Order>{parentOrder};
@@ -213,9 +213,24 @@ public without sharing class CalloutOrder {
             IS_HEADER_IN.ZZDATA_CARENCIA = String.valueOf(order.Crop__r.PaymentBaseDate__c).replace('-', '');
             IS_HEADER_IN.ZZDATA_VENCTO = String.valueOf(order.PaymentDate__c).replace('-', '');
             IS_HEADER_IN.PRICE_LIST = String.valueOf(order.SalesCondition__r.ExternalId__c).leftPad(2, '0');
-            IS_HEADER_IN.PRICE_DATE = order.EffectiveOrderDate__c == null ? String.valueOf(order.EffectiveDate).replace('-', '') : String.valueOf(order.EffectiveOrderDate__c).replace('-', '');
+            if(order.OrderReference__c != null){
+                Order orderReference = [SELECT EffectiveOrderDate__c, EffectiveDate FROM Order WHERE Id =: order.OrderReference__c LIMIT 1];
+                if(orderReference != null){
+                    IS_HEADER_IN.PRICE_DATE = orderReference.EffectiveOrderDate__c == null ? String.valueOf(orderReference.EffectiveDate).replace('-', '') : String.valueOf(orderReference.EffectiveOrderDate__c).replace('-', '');
+                }
+            }
+            else{
+                IS_HEADER_IN.PRICE_DATE = order.EffectiveOrderDate__c == null ? String.valueOf(order.EffectiveDate).replace('-', '') : String.valueOf(order.EffectiveOrderDate__c).replace('-', '');
+            }
             IS_HEADER_IN.REF_DOC = order.OrderReference__c != null ? order.OrderReference__r.CodigoSap__c : '';
             IS_HEADER_IN.CSTCNDGRP1 = statusSeller.get(order.SalesCTV__r.SellerType__c);
+
+            IS_HEADER_IN.PO_METHOD = order.NumeroPedidoApp__c != null ? 'APP' : 'SFOR';
+            
+            //Add fields to descriptions
+            if(order.Description != null) order.Description = order.Description.replace('1n73gr4ção N3sc4r4 5F x 4PP', '');
+            IS_HEADER_IN.TEXT_ADICIONAL = order.Description != null ? order.Description : '';
+            IS_HEADER_IN.TEXT_DANFE = order.DescriptionBillingSale__c != null ? order.DescriptionBillingSale__c : '';
 
             Map<String, String> referenceItemMotherMap = new Map<String, String>();
             if(order.OrderReference__c != null){
@@ -232,7 +247,7 @@ public without sharing class CalloutOrder {
 
             Map<Id, OrderItem> orderItemMap = new Map<Id, OrderItem>([
                 SELECT Id, NumeroSap__c, Product2.ExternalId__c, Product2.DistributionCenter__r.Code__c, Quantity, UnitPrice, ListCost__c, DiscountValue__c, FinancialAdditionValue__c, FinancialDiscountValue__c, CommercialAdditionValue__c,
-                FinancialAdditionPercent__c, FinancialDiscountPercent__c, CommercialMargin__c, DiscountPercent__c, CommercialAdditionPercent__c
+                FinancialAdditionPercent__c, FinancialDiscountPercent__c, CommercialMargin__c, DiscountPercent__c, CommercialAdditionPercent__c, ListPrice__c, Class__c, Sieve__c
                 FROM OrderItem
                 WHERE Id IN: orderItemIds
             ]);
@@ -260,15 +275,19 @@ public without sharing class CalloutOrder {
                     }
                 }
                 
-                IT_ITEMS_IN.add(new CalloutOrder.OrderItemParameters(orderItem, referenceItemMotherMap.containsKey(orderItem.Product2.ExternalId__c) ?  referenceItemMotherMap.get(orderItem.Product2.ExternalId__c) : '', order.Company__r.SupplierCenter__c ));
+                IT_ITEMS_IN.add(new CalloutOrder.OrderItemParameters(orderItem, referenceItemMotherMap.containsKey(orderItem.Product2.ExternalId__c) ?  referenceItemMotherMap.get(orderItem.Product2.ExternalId__c) : '', order.DistributionCenter__r.Code__c == null ? order.Company__r.SupplierCenter__c : order.DistributionCenter__r.Code__c));
                 if(orderItem.CommercialAdditionPercent__c > 0){
                     IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDEC', (CalloutOrder.isNotation(orderItem.CommercialAdditionPercent__c)).toPlainString(), ''));
                 }
                 else{
                     IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDEC', (CalloutOrder.isNotation(orderItem.DiscountPercent__c)*-1).toPlainString(), ''));
                 }
+                
+                if(IS_HEADER_IN.PRICE_LIST == '99'){
+                    IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZPR0', String.valueOf(CalloutOrder.isNotation(orderItem.ListPrice__c)), ''));
+                }
+               
                 // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZPRS', String.valueOf(CalloutOrder.isNotation(orderItem.ListCost__c)), order.Currency__c));
-                // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZPR0', String.valueOf(CalloutOrder.isNotation(orderItem.UnitPrice)), order.Currency__c));
                 // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZJUR', String.valueOf(CalloutOrder.isNotation(orderItem.FinancialAdditionPercent__c)), '%'));
                 // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDAN', String.valueOf(CalloutOrder.isNotation(orderItem.FinancialDiscountPercent__c)), '%'));
                 IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZMAR', String.valueOf(CalloutOrder.isNotation(orderItem.CommercialMargin__c)), ''));
@@ -299,7 +318,9 @@ public without sharing class CalloutOrder {
         public String PRICE_LIST;
         public String PRICE_DATE;
         public String CSTCNDGRP1;
-
+        public String PO_METHOD;
+        public String TEXT_ADICIONAL;
+        public String TEXT_DANFE;
         public Header(){}
     }
 
@@ -346,6 +367,8 @@ public without sharing class CalloutOrder {
         public String PLANT;
         public String TARGET_QTY;
         public String REF_DOC_IT;
+        public String ZZPENEIRA;
+        public String ZZCLAS_CAT;
 
 
         public OrderItemParameters(OrderItem orderItem, String numReference, String plant){
@@ -354,6 +377,8 @@ public without sharing class CalloutOrder {
             this.PLANT = plant;
             this.TARGET_QTY =  String.valueOf(orderItem.Quantity);
             this.REF_DOC_IT = numReference != '' ? numReference.leftPad(6, '0') : '';
+            this.ZZPENEIRA = orderItem.Sieve__c;
+            this.ZZCLAS_CAT = orderItem.Class__c;
         }
     }
 

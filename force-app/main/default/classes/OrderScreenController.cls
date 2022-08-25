@@ -648,7 +648,7 @@ public without sharing class OrderScreenController {
                     orderItem.Quantity = orderProduct.quantity;
                     orderItem.ListPrice__c = orderProduct.listPrice != null ? orderProduct.listPrice : 0;
                     orderItem.PracticedPrice__c = orderProduct.unitPrice != null ? orderProduct.unitPrice : 0;
-                    orderItem.Dosage__c = orderProduct.dosage != null ? orderProduct.dosage.setScale(2) : 0;
+                    orderItem.Dosage__c = orderProduct.dosage != null ? orderProduct.dosage.setScale(6) : 0;
                     orderItem.Status__c = orderProduct.sapStatus != null ? statusValueByLabel.get(orderProduct.sapStatus) : null;
                     orderItem.UnitMeasure__c = orderProduct.unity;
                     orderItem.FinalTotalValue__c = orderProduct.totalPrice;
@@ -693,6 +693,7 @@ public without sharing class OrderScreenController {
                 List<Database.UpsertResult> insOrderItemResults = Database.upsert(listOrderItems, false);
                 OrderHelper.enableTrigger();
                 for (Database.UpsertResult result : insOrderItemResults){
+                    System.debug('result => ' + result);
                     if(!result.isSuccess()){
                         for (Database.error error: insResults.getErrors()){
                             orderItemErrors += '\n' + error.getMessage();
@@ -903,7 +904,7 @@ public without sharing class OrderScreenController {
     }
 
     @AuraEnabled
-    public static String getAccountCompanies(String data, Boolean isHeader, Boolean verifyUserType) {
+    public static String getAccountCompanies(String data, Boolean isHeader, Boolean verifyUserType, Boolean priceScreen) {
         GetCompanyInfos companyInfos = (GetCompanyInfos) JSON.deserialize(data, GetCompanyInfos.class);
         Id userTerritoryId;
         Boolean sellerPosition = false;
@@ -979,7 +980,7 @@ public without sharing class OrderScreenController {
         };
         Q proQuery = new Q(Company__c.SObjectType);
         proQuery.selectFields(fieldSet);
-        proQuery.add(Q.condition('Conta__c').equalsTo(companyInfos.accountId));
+        if (companyInfos.accountId != '') proQuery.add(Q.condition('Conta__c').equalsTo(companyInfos.accountId));
         
 
         List<CompanyInfos> companyList = new List<CompanyInfos>();

@@ -1,5 +1,5 @@
 @RestResource(urlMapping='/upsertPricebook2/*')
-global with sharing class IntegrationINPricebook2 {
+global without sharing class IntegrationINPricebook2 {
 
     global static Boolean hasError = false;
     // This example of request
@@ -294,7 +294,7 @@ global with sharing class IntegrationINPricebook2 {
                 pricesList.add(prices);
             }
         }
-        
+     
         for(JurosDescontoAntecipao__c prices : [ SELECT Id, ExternalId__c, UnitPrice__c, DescriptionExternalId__c
                                                 FROM JurosDescontoAntecipao__c
                                                 WHERE DescriptionExternalId__c IN: pricesMap.keySet()

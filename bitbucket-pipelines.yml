@@ -13,6 +13,12 @@ pipelines:
             - sfdx force:source:convert -r force-app -d converted/main
             - sfdx force:auth:jwt:grant --clientid $QA_CLIENTID --jwtkeyfile build/serverQa.key --setdefaultusername --username=$QA_USERNAME --instanceurl $QA_INSTANCE_URL
             - sfdx force:mdapi:deploy -c -d converted/main -w 250
+    mergeqa2/*: #run check only on qa2 when creating/commiting pull request to qa2 
+      - step:
+          script:
+            - sfdx force:source:convert -r force-app -d converted/main
+            - sfdx force:auth:jwt:grant --clientid $QA2_CLIENTID --jwtkeyfile build/serverQa2.key --setdefaultusername --username=$QA2_USERNAME --instanceurl $QA2_INSTANCE_URL
+            - sfdx force:mdapi:deploy -c -d converted/main -w 250
     mergemain/*: #run check only on prod when creating/commiting pull request to main 
       - step:
           script:
@@ -32,6 +38,12 @@ pipelines:
           script:
             - sfdx force:source:convert -r force-app -d converted/main
             - sfdx force:auth:jwt:grant --clientid $QA_CLIENTID --jwtkeyfile build/serverQa.key --setdefaultusername --username=$QA_USERNAME --instanceurl $QA_INSTANCE_URL
+            - sfdx force:mdapi:deploy -d converted/main -w 250
+    qa2: #deploy to qa2 when commiting on qa2 
+      - step:
+          script:
+            - sfdx force:source:convert -r force-app -d converted/main
+            - sfdx force:auth:jwt:grant --clientid $QA2_CLIENTID --jwtkeyfile build/serverQa2.key --setdefaultusername --username=$QA2_USERNAME --instanceurl $QA2_INSTANCE_URL
             - sfdx force:mdapi:deploy -d converted/main -w 250
     main: #deploy to prod when commiting on main branch
       - step:

@@ -798,6 +798,26 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>false</editable>
+        <field>FormPayment__c.Amount__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>FormPayment__c.Order__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>FormPayment__c.PaymentDate__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>FormPayment__c.PaymentType__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>true</editable>
         <field>Fotos__c.ClienteVisita__c</field>
         <readable>true</readable>
@@ -1235,6 +1255,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Order.BillingAddress</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Order.ClientGroup__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -2084,6 +2109,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>SalesOrg__c.Freight__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>SalesTeam__c.Address__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -2592,23 +2622,11 @@
         <visible>true</visible>
     </recordTypeVisibilities>
     <recordTypeVisibilities>
-        <recordType>Order.VendaContaOrdem</recordType>
-        <visible>false</visible>
-    </recordTypeVisibilities>
-    <recordTypeVisibilities>
         <recordType>Order.VendaEntregaFutura</recordType>
-        <visible>false</visible>
-    </recordTypeVisibilities>
-    <recordTypeVisibilities>
-        <recordType>Order.VendaNormal</recordType>
         <visible>true</visible>
     </recordTypeVisibilities>
     <recordTypeVisibilities>
-        <recordType>Order.VendaOrdemSimplesFaturamento</recordType>
-        <visible>false</visible>
-    </recordTypeVisibilities>
-    <recordTypeVisibilities>
-        <recordType>Order.VendaServico</recordType>
+        <recordType>Order.VendaNormal</recordType>
         <visible>true</visible>
     </recordTypeVisibilities>
     <recordTypeVisibilities>
@@ -2673,6 +2691,10 @@
     </tabSettings>
     <tabSettings>
         <tab>PotencialCompra__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>PriceSearch</tab>
         <visibility>Visible</visibility>
     </tabSettings>
     <tabSettings>

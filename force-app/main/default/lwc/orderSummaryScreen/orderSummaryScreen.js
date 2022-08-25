@@ -41,7 +41,7 @@ export default class OrderSummaryScreen extends LightningElement {
             approvalNumber: 1
         }
 
-        getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: false, verifyUserType: true})
+        getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: false, verifyUserType: true, priceScreen: false})
         .then((result) => {
             this.hideMargin = JSON.parse(result);
         });
