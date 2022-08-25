@@ -247,7 +247,7 @@ public without sharing class CalloutOrder {
 
             Map<Id, OrderItem> orderItemMap = new Map<Id, OrderItem>([
                 SELECT Id, NumeroSap__c, Product2.ExternalId__c, Product2.DistributionCenter__r.Code__c, Quantity, UnitPrice, ListCost__c, DiscountValue__c, FinancialAdditionValue__c, FinancialDiscountValue__c, CommercialAdditionValue__c,
-                FinancialAdditionPercent__c, FinancialDiscountPercent__c, CommercialMargin__c, DiscountPercent__c, CommercialAdditionPercent__c, ListPrice__c
+                FinancialAdditionPercent__c, FinancialDiscountPercent__c, CommercialMargin__c, DiscountPercent__c, CommercialAdditionPercent__c, ListPrice__c, Class__c, Sieve__c
                 FROM OrderItem
                 WHERE Id IN: orderItemIds
             ]);
@@ -367,6 +367,8 @@ public without sharing class CalloutOrder {
         public String PLANT;
         public String TARGET_QTY;
         public String REF_DOC_IT;
+        public String ZZPENEIRA;
+        public String ZZCLAS_CAT;
 
 
         public OrderItemParameters(OrderItem orderItem, String numReference, String plant){
@@ -375,6 +377,8 @@ public without sharing class CalloutOrder {
             this.PLANT = plant;
             this.TARGET_QTY =  String.valueOf(orderItem.Quantity);
             this.REF_DOC_IT = numReference != '' ? numReference.leftPad(6, '0') : '';
+            this.ZZPENEIRA = orderItem.Sieve__c;
+            this.ZZCLAS_CAT = orderItem.Class__c;
         }
     }
 
