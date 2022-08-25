@@ -8,6 +8,10 @@
         <layoutColumns>
             <layoutItems>
                 <behavior>Required</behavior>
+                <field>ExternalId__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Required</behavior>
                 <field>OrderId</field>
             </layoutItems>
             <layoutItems>
@@ -132,7 +136,11 @@
         <layoutColumns/>
         <style>TwoColumnsLeftToRight</style>
     </layoutSections>
+    <miniLayout>
+        <fields>ExternalId__c</fields>
+    </miniLayout>
     <multilineLayoutFields>Product2Id</multilineLayoutFields>
+    <multilineLayoutFields>ExternalId__c</multilineLayoutFields>
     <multilineLayoutFields>Quantity</multilineLayoutFields>
     <multilineLayoutFields>ListPrice</multilineLayoutFields>
     <multilineLayoutFields>UnitPrice</multilineLayoutFields>
