@@ -902,7 +902,7 @@ public without sharing class OrderScreenController {
     }
 
     @AuraEnabled
-    public static String getAccountCompanies(String data, Boolean isHeader, Boolean verifyUserType) {
+    public static String getAccountCompanies(String data, Boolean isHeader, Boolean verifyUserType, Boolean priceScreen) {
         GetCompanyInfos companyInfos = (GetCompanyInfos) JSON.deserialize(data, GetCompanyInfos.class);
         Id userTerritoryId;
         Boolean sellerPosition = false;
@@ -978,7 +978,7 @@ public without sharing class OrderScreenController {
         };
         Q proQuery = new Q(Company__c.SObjectType);
         proQuery.selectFields(fieldSet);
-        proQuery.add(Q.condition('Conta__c').equalsTo(companyInfos.accountId));
+        if (companyInfos.accountId != '') proQuery.add(Q.condition('Conta__c').equalsTo(companyInfos.accountId));
         
 
         List<CompanyInfos> companyList = new List<CompanyInfos>();

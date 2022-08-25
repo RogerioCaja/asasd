@@ -48,18 +48,19 @@ public without sharing class CustomLookupController {
 	}
 
     @AuraEnabled
-    public static ProductDataResult fetchProductsRecords(String searchString, String data, Boolean isCommodity, List<String> productsIds) {
+    public static ProductDataResult fetchProductsRecords(String searchString, String data, Boolean isCommodity, List<String> productsIds, Boolean priceScreen) {
         try {
             ProductDataResult result = new ProductDataResult();
             ProductParams productParams = (ProductParams) JSON.deserialize(data, ProductParams.class);
             System.debug('productParams: ' + productParams);
             Id commodityRecType = Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get('ZPR0').getRecordTypeId();
+            List<Account> lstAccount = [SELECT Industry FROM Account WHERE Id =: productParams.accountId];
 
             SalesResult salesResult = new SalesResult();
             salesResult.salesOrgId = productParams.salesOrgId;
             salesResult.salesOfficeId = productParams.salesOfficeId;
             salesResult.salesTeamId = productParams.salesTeamId;
-            salesResult.segmento = [SELECT Industry FROM Account WHERE Id =: productParams.accountId].Industry;
+            salesResult.segmento = lstAccount.size() > 0 ? lstAccount[0].Industry : '';
             salesResult.searchString = searchString;
             result.salesResult = salesResult;
 
@@ -67,14 +68,16 @@ public without sharing class CustomLookupController {
             Q priceQuery = new Q(JurosDescontoAntecipao__c.SObjectType)
                                 .selectFields(priceFields)
                                 .add(Q.condition('RecordTypeId').equalsTo(commodityRecType))
-                                .add(Q.condition('SalesCondition__c').equalsTo(productParams.salesConditionId))
                                 .add(Q.condition('harvest__c').equalsTo(productParams.safra))
-                                .add(Q.condition('Currency__c').equalsTo(productParams.productCurrency))
                                 .add(Q.condition('SalesOrg__c').equalsTo(salesResult.salesOrgId))
                                 .add(Q.condition('IsActive__c').equalsTo(true))
                                 .add(Q.condition('StartDate__c').isLessOrEquals(System.today()))
                                 .add(Q.condition('EndDate__c').isGreaterOrEquals(System.today()));
 
+            if (!priceScreen) {
+                priceQuery.add(Q.condition('SalesCondition__c').equalsTo(productParams.salesConditionId))
+                          .add(Q.condition('Currency__c').equalsTo(productParams.productCurrency));
+            }
             if (productsIds.size() > 0) {
                 priceQuery.add(Q.condition('Product__c').isIn(productsIds));
             }
