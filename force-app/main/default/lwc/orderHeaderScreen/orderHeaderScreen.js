@@ -564,7 +564,7 @@ export default class OrderHeaderScreen extends LightningElement {
                             orderType: this.headerData.tipo_venda,
                             approvalNumber: 1
                         }
-                        getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: true, verifyUserType: false})
+                        getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: true, verifyUserType: false, priceScreen: false})
                         .then((result) => {
                            this.salesOrgId = result;
                         });
