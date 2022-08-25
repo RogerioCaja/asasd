@@ -129,9 +129,10 @@ public without sharing class Lookup {
                             }
                         }
     
-                        territoryQuery =+ 'Id IN: relatedTerritories AND ';
+                        territoryQuery += 'Id IN: relatedTerritories';
                     }
     
+                    if (userTerritoryType != '') territoryQuery += ' AND';
                     if (userTerritoryType == 'Torre') territoryQuery += 'ParentTerritory2.ParentTerritory2.ParentTerritory2.ParentTerritory2Id IN: userTerritories';
                     else if (userTerritoryType == 'SalesOrg') territoryQuery += 'ParentTerritory2.ParentTerritory2.ParentTerritory2Id IN: userTerritories';
                     else if (userTerritoryType == 'SalesOffice') territoryQuery += 'ParentTerritory2.ParentTerritory2Id IN: userTerritories';
