@@ -186,13 +186,12 @@ public without sharing class OrderScreenController {
             List<SObject> recordsData = new List<SObject>();
 			String profileName = [SELECT Name FROM Profile WHERE Id =: UserInfo.getProfileId()].Name;
 			
-            /* if (profileName != 'Balcão') {
+            if (profileName != 'Balcão') {
                 Set<Id> relatedAccounts = getTerritoryAccounts();
                 accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE Status__c = 'Ativo' AND ((ParentId =: accountId AND Id IN: relatedAccounts AND ExternalId__c LIKE '0002%') OR (Id =: accountId AND CNPJ__c != null AND CPF__c = null))];
             } else {
                 accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE Status__c = 'Ativo' AND ((ParentId =: accountId AND ExternalId__c LIKE '0002%') OR (Id =: accountId AND CNPJ__c != null AND CPF__c = null))];
-            } */
-            accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE Status__c = 'Ativo'];
+            }
 
             
             for(Account account : accountList) accountListSerialize.add(new AccountSerialize(account));
