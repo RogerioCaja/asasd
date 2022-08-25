@@ -145,7 +145,7 @@ public without sharing class CalloutCTVCarteira {
             if(header.TipoTerritorio == 'SellerPosition'){
                 if(accountExternalIds != null){
                     for(String acc : accountExternalIds){
-                            clientList.add(new CalloutCTVCarteira.ClienteParameters(acc, companyMap));
+                        clientList.add(new CalloutCTVCarteira.ClienteParameters(acc, companyMap));
                         System.debug('clientList'+ clientList);
                     }
                 }
