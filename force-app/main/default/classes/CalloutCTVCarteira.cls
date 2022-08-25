@@ -143,9 +143,11 @@ public without sharing class CalloutCTVCarteira {
             header.TipoTerritorio = territory.Territory2Type.DeveloperName;
             List<CalloutCTVCarteira.ClienteParameters> clientList= new List<CalloutCTVCarteira.ClienteParameters>();
             if(header.TipoTerritorio == 'SellerPosition'){
-                for(String acc : accountExternalIds){
-                    clientList.add(new CalloutCTVCarteira.ClienteParameters(acc, companyMap));
-                    System.debug('clientList'+ clientList);
+                if(accountExternalIds != null){
+                    for(String acc : accountExternalIds){
+                            clientList.add(new CalloutCTVCarteira.ClienteParameters(acc, companyMap));
+                        System.debug('clientList'+ clientList);
+                    }
                 }
             }
 
