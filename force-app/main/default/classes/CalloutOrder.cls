@@ -15,7 +15,7 @@ public without sharing class CalloutOrder {
 		Order parentOrder = [SELECT Id, CodigoSap__c, ShippingAccount__r.ExternalId__c, Company__r.SupplierCenter__c, Account.ExternalId__c, Type, SalesOrg__r.SalesOrganizationCode__c, DistributionChannel__c, DistributionChannel__r.Codigo__c, SalesCondition__r.ExternalId__c,
                             ActivitySector__c, ActivitySector__r.Codigo__c, PaymentCondition__r.CashPayment__c, Incoterms__c, Incoterms2__c, PaymentCondition__r.Code__c, OrderReason__c , SalesCTV__r.CodigoSap__c, PaymentDate__c,EffectiveDate, OrderReference__r.CodigoSap__c,
                             OrderNumber, Crop__r.Code__c, Crop__r.StartDateOrderInsertion__c, Crop__r.EndDateInsertionOrders__c ,Culture__r.Codigo__c, EndDate, TotalAmount, PaymentForm__c, OrderReference__c, CustomerOrderNumber__c, SalesCTV__r.SellerType__c, EffectiveOrderDate__c, NumeroPedidoApp__c,
-                            Currency__c, Crop__r.PaymentBaseDate__c,IsOrderMother__c, RecordTypeId,Description, DescriptionBillingSale__c, (SELECT Id FROM OrderItems) 
+                            Currency__c, Crop__r.PaymentBaseDate__c,IsOrderMother__c, RecordTypeId,Description,DescriptionBillingSale__c, DistributionCenter__r.Code__c, (SELECT Id FROM OrderItems) 
                             FROM Order WHERE Id = :orderId];
 		
 		List<Order> allOrders = new List<Order>{parentOrder};
@@ -275,7 +275,7 @@ public without sharing class CalloutOrder {
                     }
                 }
                 
-                IT_ITEMS_IN.add(new CalloutOrder.OrderItemParameters(orderItem, referenceItemMotherMap.containsKey(orderItem.Product2.ExternalId__c) ?  referenceItemMotherMap.get(orderItem.Product2.ExternalId__c) : '', order.Company__r.SupplierCenter__c ));
+                IT_ITEMS_IN.add(new CalloutOrder.OrderItemParameters(orderItem, referenceItemMotherMap.containsKey(orderItem.Product2.ExternalId__c) ?  referenceItemMotherMap.get(orderItem.Product2.ExternalId__c) : '', order.DistributionCenter__r.Code__c == null ? order.Company__r.SupplierCenter__c : order.DistributionCenter__r.Code__c));
                 if(orderItem.CommercialAdditionPercent__c > 0){
                     IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDEC', (CalloutOrder.isNotation(orderItem.CommercialAdditionPercent__c)).toPlainString(), ''));
                 }
