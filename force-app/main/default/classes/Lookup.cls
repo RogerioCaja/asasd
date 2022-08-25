@@ -40,6 +40,7 @@ public without sharing class Lookup {
             String userTerritoryType = '';
             List<String> territoryTypes = new List<String>{'Torre', 'SalesOrg', 'SalesOffice', 'SalesTeam', 'SellerPosition'};
 
+            String profileName = [SELECT Name FROM Profile WHERE Id =: UserInfo.getProfileId()].Name;
             for (UserTerritory2Association userAssociation : [
                 SELECT Id,
                        Territory2Id,
@@ -48,7 +49,7 @@ public without sharing class Lookup {
                  WHERE UserId =: UserInfo.getUserId()
             ]) {
                 userTerritories.add(userAssociation.Territory2Id);
-                if (userAssociation.Territory2.Territory2Type.DeveloperName == 'SellerPosition') {
+                if (userAssociation.Territory2.Territory2Type.DeveloperName == 'SellerPosition' && profileName != 'Balcão') {
                     userRelatedToTerritory = true;
                 }
 
@@ -59,7 +60,6 @@ public without sharing class Lookup {
             System.debug('userRelatedToTerritory: ' + userRelatedToTerritory);
             Set<Id> relatedTerritories = new Set<Id>();
             if (!userRelatedToTerritory) {
-                String profileName = [SELECT Name FROM Profile WHERE Id =: UserInfo.getProfileId()].Name;
                 System.debug('profileName: ' + profileName);
                 for (ObjectTerritory2Association objAssociation : [
                     SELECT Id,
