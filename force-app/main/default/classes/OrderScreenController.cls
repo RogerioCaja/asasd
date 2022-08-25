@@ -106,18 +106,21 @@ public without sharing class OrderScreenController {
                    CommercialMargin__c,
                    AmountUsed__c,
                    PTA__c,
-                   PriceListCode__c
+                   PriceListCode__c,
+                   ReasonRefuse__c
               FROM OrderItem
              WHERE OrderId =: orderId
         ]){
-            Decimal itemPracticedCost = item.PracticedCost__c != null ? item.PracticedCost__c : 0;
-            Decimal itemDiscount = item.DiscountValue__c != null ? item.DiscountValue__c : 0;
-            totalCost += itemPracticedCost * item.Quantity;
-            totalDiscount += itemDiscount;
-            totalQuantity += item.Quantity;
-            prods.add(new ProductSerialize(item, counter, cloneOrder));
-            orderItemsPosition.put(item.Id, counter);
-            counter++;
+            if (item.ReasonRefuse__c == null || item.ReasonRefuse__c == '') {
+                Decimal itemPracticedCost = item.PracticedCost__c != null ? item.PracticedCost__c : 0;
+                Decimal itemDiscount = item.DiscountValue__c != null ? item.DiscountValue__c : 0;
+                totalCost += itemPracticedCost * item.Quantity;
+                totalDiscount += itemDiscount;
+                totalQuantity += item.Quantity;
+                prods.add(new ProductSerialize(item, counter, cloneOrder));
+                orderItemsPosition.put(item.Id, counter);
+                counter++;
+            }
         }
 
         return prods;
@@ -185,10 +188,11 @@ public without sharing class OrderScreenController {
 			
             if (profileName != 'Balcão') {
                 Set<Id> relatedAccounts = getTerritoryAccounts();
-                accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE (ParentId =: accountId AND Id IN: relatedAccounts AND ExternalId__c LIKE '0002%') OR (Id =: accountId AND CNPJ__c != null AND CPF__c = null)];
+                accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE Status__c = 'Ativo' AND ((ParentId =: accountId AND Id IN: relatedAccounts AND ExternalId__c LIKE '0002%') OR (Id =: accountId AND CNPJ__c != null AND CPF__c = null))];
             } else {
-                accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE (ParentId =: accountId AND ExternalId__c LIKE '0002%') OR (Id =: accountId AND CNPJ__c != null AND CPF__c = null)];
+                accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE Status__c = 'Ativo' AND ((ParentId =: accountId AND ExternalId__c LIKE '0002%') OR (Id =: accountId AND CNPJ__c != null AND CPF__c = null))];
             }
+
             
             for(Account account : accountList) accountListSerialize.add(new AccountSerialize(account));
             return JSON.serialize(new AccountSerialize(accountListSerialize));

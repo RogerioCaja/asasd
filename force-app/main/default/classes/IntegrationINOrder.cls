@@ -69,7 +69,8 @@ global without sharing class IntegrationINOrder {
         Set<String> salesOrgLookups = new Set<String>();
         Set<String> salesCTVLookups = new Set<String>();
         Set<String> pricebook2IdLookups = new Set<String>();
-        Set<String> paymentConditionLookups = new Set<String>(); 
+        Set<String> paymentConditionLookups = new Set<String>();
+        Set<String> salesConditionLookups = new Set<String>(); 
         Set<String> activitySectorLookups = new Set<String>();
         
         
@@ -101,6 +102,7 @@ global without sharing class IntegrationINOrder {
             pricebook2IdLookups.add(order.pricebook2Id);
             paymentConditionLookups.add(order.paymentCondition);
             activitySectorLookups.add(order.ActivitySector);
+            salesConditionLookups.add(order.condicaoVenda);
             idOrders.add(order.CodigoSap);
             for (TemplateDataIntegrationFields.OrderItemINData orderItem : order.orderItems) {
                 orderItem.orderExternalId = order.CodigoSap;
@@ -420,6 +422,9 @@ global without sharing class IntegrationINOrder {
             lookups.put('ActivitySector__c' + activitySector.Codigo__c, activitySector.Id);
         }
 
+        for(SalesCondition__c salesCondition : [SELECT Id, ExternalId__c FROM SalesCondition__c WHERE ExternalId__c IN : salesConditionLookups]){
+            lookups.put('SalesCondition__c' + salesCondition.ExternalId__c, salesCondition.Id);
+        }
 
         //Converting template to object list and validating required fields
         // Valida e adiciona objeto na lista para upsert
