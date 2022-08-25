@@ -2811,6 +2811,10 @@
         <visibility>Visible</visibility>
     </tabSettings>
     <tabSettings>
+        <tab>PriceSearch</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
         <tab>ProductFamily__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
