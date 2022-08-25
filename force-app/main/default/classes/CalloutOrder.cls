@@ -378,7 +378,7 @@ public without sharing class CalloutOrder {
             this.TARGET_QTY =  String.valueOf(orderItem.Quantity);
             this.REF_DOC_IT = numReference != '' ? numReference.leftPad(6, '0') : '';
             this.ZZPENEIRA = orderItem.Sieve__c;
-            this.ZZCLAS_CAT = orderItem.Class__c
+            this.ZZCLAS_CAT = orderItem.Class__c;
         }
     }
 
