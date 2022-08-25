@@ -228,7 +228,7 @@ public without sharing class CalloutOrder {
             IS_HEADER_IN.PO_METHOD = order.NumeroPedidoApp__c != null ? 'APP' : 'SFOR';
             
             //Add fields to descriptions
-            if(order.Description != null) order.Description.replace('1n73gr4ção N3sc4r4 5F x 4PP', '');
+            if(order.Description != null) order.Description = order.Description.replace('1n73gr4ção N3sc4r4 5F x 4PP', '');
             IS_HEADER_IN.TEXT_ADICIONAL = order.Description != null ? order.Description : '';
             IS_HEADER_IN.TEXT_DANFE = order.DescriptionBillingSale__c != null ? order.DescriptionBillingSale__c : '';
 
