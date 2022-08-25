@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>Dosage__c</fullName>
+    <fullName>PaymentDate__c</fullName>
     <externalId>false</externalId>
-    <label>Dosagem</label>
-    <precision>18</precision>
+    <label>Data de Pagamento</label>
     <required>false</required>
-    <scale>6</scale>
     <trackHistory>false</trackHistory>
-    <type>Number</type>
-    <unique>false</unique>
+    <trackTrending>false</trackTrending>
+    <type>Date</type>
 </CustomField>
