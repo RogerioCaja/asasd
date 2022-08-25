@@ -1,6 +1,6 @@
 public without sharing class Lookup {
     @AuraEnabled(cacheable=true)
-    public static List<SObject> getRecords(String data, Boolean barterSale, String salesConditionData) {
+    public static List<SObject> getRecords(String data, Boolean barterSale, String salesConditionData, Boolean priceScreen) {
         RequestDTO requestData = (RequestDTO) JSON.deserialize(data, RequestDTO.class);
         SalesConditionDTO requestSalesCondition = (SalesConditionDTO) JSON.deserialize(salesConditionData, SalesConditionDTO.class);
         
@@ -35,8 +35,12 @@ public without sharing class Lookup {
         }
 
         if (requestData.targetObject == 'User') {
-            Boolean userRelatedToTerritory = false;
             Set<Id> userTerritories = new Set<Id>();
+            Set<Id> relatedTerritories = new Set<Id>();
+            Set<Id> relatedUsers = new Set<Id>();
+            
+            String profileName = [SELECT Name FROM Profile WHERE Id =: UserInfo.getProfileId()].Name;
+            Boolean userRelatedToTerritory = false;
             String userTerritoryType = '';
             List<String> territoryTypes = new List<String>{'Torre', 'SalesOrg', 'SalesOffice', 'SalesTeam', 'SellerPosition'};
 
@@ -56,55 +60,101 @@ public without sharing class Lookup {
                                     territoryTypes.indexOf(userTerritoryType) > -1 ? userTerritoryType : userAssociation.Territory2.Territory2Type.DeveloperName;
             }
 
-            System.debug('userRelatedToTerritory: ' + userRelatedToTerritory);
-            Set<Id> relatedTerritories = new Set<Id>();
-            if (!userRelatedToTerritory) {
-                String profileName = [SELECT Name FROM Profile WHERE Id =: UserInfo.getProfileId()].Name;
-                System.debug('profileName: ' + profileName);
-                for (ObjectTerritory2Association objAssociation : [
-                    SELECT Id,
-                           Territory2Id,
-                           Territory2.Territory2Type.DeveloperName
-                      FROM ObjectTerritory2Association
-                     WHERE ObjectId =: requestData.accountId
-                ]) {
-                    relatedTerritories.add(objAssociation.Territory2Id);
-
-                    if (profileName == 'Balcão') {
-                        userTerritories.add(objAssociation.Territory2Id);
-                        userTerritoryType = territoryTypes.indexOf(objAssociation.Territory2.Territory2Type.DeveloperName) > territoryTypes.indexOf(userTerritoryType) &&
-                                            territoryTypes.indexOf(userTerritoryType) > -1 ? userTerritoryType : objAssociation.Territory2.Territory2Type.DeveloperName;
+            Boolean priceScreenLogic = false;
+            if (priceScreen && userTerritories.size() == 0) {
+                priceScreenLogic = true;
+                if (requestData.accountId == '') {
+                    for (UserTerritory2Association userAssociation : [
+                        SELECT Id,
+                               UserId,
+                               Territory2Id,
+                               Territory2.Territory2Type.DeveloperName
+                          FROM UserTerritory2Association
+                         WHERE Territory2.Territory2Type.DeveloperName = 'SellerPosition'
+                    ]) {
+                        relatedUsers.add(userAssociation.UserId);
                     }
-                }
-
-                System.debug('relatedTerritories: ' + relatedTerritories);
-                System.debug('userTerritoryType: ' + userTerritoryType);
-                System.debug('userTerritories: ' + userTerritories);
-                String territoryQuery = 'SELECT Id, Territory2Type.DeveloperName FROM Territory2 WHERE Id IN: relatedTerritories ';
-                if (userTerritoryType == 'Torre') territoryQuery += 'AND ParentTerritory2.ParentTerritory2.ParentTerritory2.ParentTerritory2Id IN: userTerritories';
-                else if (userTerritoryType == 'SalesOrg') territoryQuery += 'AND ParentTerritory2.ParentTerritory2.ParentTerritory2Id IN: userTerritories';
-                else if (userTerritoryType == 'SalesOffice') territoryQuery += 'AND ParentTerritory2.ParentTerritory2Id IN: userTerritories';
-                else if (userTerritoryType == 'SalesTeam') territoryQuery += 'AND ParentTerritory2Id IN: userTerritories';
-                
-                System.debug('territoryQuery: ' + territoryQuery);
-                for(SObject sobj : Database.query(territoryQuery)) {
-                    relatedTerritories.add((Id)sobj.get('Id'));
+                } else {
+                    for (ObjectTerritory2Association objAssociation : [
+                        SELECT Id,
+                               Territory2Id,
+                               Territory2.Territory2Type.DeveloperName
+                          FROM ObjectTerritory2Association
+                         WHERE ObjectId =: requestData.accountId
+                    ]) {
+                        relatedTerritories.add(objAssociation.Territory2Id);
+                    }
+    
+                    String territoryQuery = 'SELECT Id, Territory2Type.DeveloperName FROM Territory2 WHERE Id IN: relatedTerritories ';
+                    if (userTerritoryType == 'Torre') territoryQuery += 'AND ParentTerritory2.ParentTerritory2.ParentTerritory2.ParentTerritory2Id IN: userTerritories';
+                    else if (userTerritoryType == 'SalesOrg') territoryQuery += 'AND ParentTerritory2.ParentTerritory2.ParentTerritory2Id IN: userTerritories';
+                    else if (userTerritoryType == 'SalesOffice') territoryQuery += 'AND ParentTerritory2.ParentTerritory2Id IN: userTerritories';
+                    else if (userTerritoryType == 'SalesTeam') territoryQuery += 'AND ParentTerritory2Id IN: userTerritories';
+                    
+                    for(SObject sobj : Database.query(territoryQuery)) {
+                        relatedTerritories.add((Id)sobj.get('Id'));
+                    }
+    
+                    for (UserTerritory2Association userAssociation : [
+                        SELECT Id,
+                               UserId,
+                               Territory2Id,
+                               Territory2.Territory2Type.DeveloperName
+                          FROM UserTerritory2Association
+                         WHERE Territory2Id IN: relatedTerritories
+                           AND Territory2.Territory2Type.DeveloperName = 'SellerPosition'
+                    ]) {
+                        relatedUsers.add(userAssociation.UserId);
+                    }
                 }
             }
 
-            System.debug('relatedTerritories: ' + relatedTerritories);
-            Set<Id> relatedUsers = new Set<Id>();
-            if (userRelatedToTerritory) {
-                relatedUsers.add(UserInfo.getUserId());
-            } else {
-                for (UserTerritory2Association userAssociation : [
-                    SELECT Id,
-                           UserId
-                      FROM UserTerritory2Association
-                     WHERE Territory2Id IN: relatedTerritories
-                       AND Territory2.Territory2Type.DeveloperName = 'SellerPosition'
-                   ]) {
-                    relatedUsers.add(userAssociation.UserId);
+            if (!priceScreenLogic) {
+                if (!userRelatedToTerritory) {
+                    String territoryQuery = 'SELECT Id, Territory2Type.DeveloperName FROM Territory2 WHERE ';
+                    if (requestData.accountId != '') {
+                        for (ObjectTerritory2Association objAssociation : [
+                            SELECT Id,
+                                   Territory2Id,
+                                   Territory2.Territory2Type.DeveloperName
+                              FROM ObjectTerritory2Association
+                             WHERE ObjectId =: requestData.accountId
+                        ]) {
+                            relatedTerritories.add(objAssociation.Territory2Id);
+    
+                            if (profileName == 'Balcão') {
+                                userTerritories.add(objAssociation.Territory2Id);
+                                userTerritoryType = territoryTypes.indexOf(objAssociation.Territory2.Territory2Type.DeveloperName) > territoryTypes.indexOf(userTerritoryType) &&
+                                                    territoryTypes.indexOf(userTerritoryType) > -1 ? userTerritoryType : objAssociation.Territory2.Territory2Type.DeveloperName;
+                            }
+                        }
+    
+                        territoryQuery += 'Id IN: relatedTerritories';
+                    }
+    
+                    if (userTerritoryType != '') territoryQuery += ' AND';
+                    if (userTerritoryType == 'Torre') territoryQuery += 'ParentTerritory2.ParentTerritory2.ParentTerritory2.ParentTerritory2Id IN: userTerritories';
+                    else if (userTerritoryType == 'SalesOrg') territoryQuery += 'ParentTerritory2.ParentTerritory2.ParentTerritory2Id IN: userTerritories';
+                    else if (userTerritoryType == 'SalesOffice') territoryQuery += 'ParentTerritory2.ParentTerritory2Id IN: userTerritories';
+                    else if (userTerritoryType == 'SalesTeam') territoryQuery += 'ParentTerritory2Id IN: userTerritories';
+                    
+                    for(SObject sobj : Database.query(territoryQuery)) {
+                        relatedTerritories.add((Id)sobj.get('Id'));
+                    }
+                }
+    
+                if (userRelatedToTerritory) {
+                    relatedUsers.add(UserInfo.getUserId());
+                } else {
+                    for (UserTerritory2Association userAssociation : [
+                        SELECT Id,
+                               UserId
+                          FROM UserTerritory2Association
+                         WHERE Territory2Id IN: relatedTerritories
+                           AND Territory2.Territory2Type.DeveloperName = 'SellerPosition'
+                       ]) {
+                        relatedUsers.add(userAssociation.UserId);
+                    }
                 }
             }
 
