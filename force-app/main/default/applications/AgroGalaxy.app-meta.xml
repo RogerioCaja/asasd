@@ -12,14 +12,14 @@
     <isNavPersonalizationDisabled>false</isNavPersonalizationDisabled>
     <label>AgroGalaxy</label>
     <navType>Standard</navType>
-    <!-- <profileActionOverrides>
+    <profileActionOverrides>
         <actionName>Tab</actionName>
         <content>Home_Page_Default</content>
         <formFactor>Large</formFactor>
         <pageOrSobjectType>standard-home</pageOrSobjectType>
         <type>Flexipage</type>
         <profile>Admin</profile>
-    </profileActionOverrides> -->
+    </profileActionOverrides>
     <tabs>standard-home</tabs>
     <tabs>standard-Account</tabs>
     <tabs>standard-Lead</tabs>
