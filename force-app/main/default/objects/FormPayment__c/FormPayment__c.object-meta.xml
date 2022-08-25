@@ -167,7 +167,6 @@
         <searchResultsAdditionalFields>PaymentDate__c</searchResultsAdditionalFields>
         <searchResultsAdditionalFields>PaymentType__c</searchResultsAdditionalFields>
         <searchResultsAdditionalFields>Amount__c</searchResultsAdditionalFields>
-        <searchResultsAdditionalFields>Order__c</searchResultsAdditionalFields>
     </searchLayouts>
     <sharingModel>ReadWrite</sharingModel>
     <visibility>Public</visibility>
