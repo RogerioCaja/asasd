@@ -1,4 +1,4 @@
-public with sharing class CalloutCTVCarteira {
+public without sharing class CalloutCTVCarteira {
 
     @future(callout = true)
     public static void processIntegration(){
@@ -9,17 +9,88 @@ public with sharing class CalloutCTVCarteira {
     public static void sendOrder(List<Territory2> territoryList) {
 
         List<RequestParameters> request = new List<RequestParameters>();
-        
+        List<String> territoryIdList = new List<String>();
+        List<String> territoryParrentIdList = new List<String>();
+        for (Territory2 territory : territoryList) {
+            territoryIdList.add(territory.Id);
+            if(territory.ParentTerritory2Id != null){
+                territoryParrentIdList.add(territory.ParentTerritory2Id);
+            }
+        }
+        List<UserTerritory2Association> territoryAssoList  = new List<UserTerritory2Association>([SELECT id, Territory2Id, User.CodigoSAP__c FROM UserTerritory2Association WHERE Territory2Id =: territoryIdList]);
+        Map<String,UserTerritory2Association> territoryUserAssociationMap = new Map<String,UserTerritory2Association>();
+        for (UserTerritory2Association territory : territoryAssoList) {
+            territoryUserAssociationMap.put(territory.Territory2Id, territory);
+        }
+        UserTerritory2Association territoryUserAsso;
+        //
+        Map<String,Territory2> territoryParentMap = new Map<String,Territory2>();
+        List<Territory2> territoryParentList = new List<Territory2>([SELECT id, DeveloperName, lastmodifieddate, ParentTerritory2.DeveloperName, name, Territory2Type.DeveloperName FROM territory2 WHERE Id =: territoryParrentIdList]);
+        for (Territory2 territory : territoryParentList) {
+            territoryParentMap.put(territory.id, territory);
+        }
+        Territory2 territoryParent;
+        //
+        List<ObjectTerritory2Association> terrytoryObject = new List<ObjectTerritory2Association>([SELECT Id, Territory2Id, ObjectId  FROM ObjectTerritory2Association WHERE Territory2Id =: territoryIdList]);
+        List<String> accountIdList = new List<String>();
+        for(ObjectTerritory2Association terrytory : terrytoryObject){
+            accountIdList.add(terrytory.ObjectId);
+        }
+        Map<Id,Account> accountObjectMap = new Map<Id,Account>([SELECT Id, ExternalId__c  FROM Account WHERE Id =: accountIdList]);
+        List<Company__c> companyList = new List<Company__c>([SELECT Id, Conta__c, Conta__r.ExternalId__c, DistributionChannel__r.Codigo__c, ActivitySector__r.Codigo__c, SalesOrg__r.SalesOrganizationCode__c, SalesOffice__r.Codigo__c, SalesTeam__r.ExternalId__c, SupplierCenter__c, Blocked__c  FROM Company__c WHERE Conta__c =: accountIdList]);
+        Map<String,List<Company__c>> companyMap = new Map<String,List<Company__c>>();
+        for(Company__c comp : companyList){
+            if(companyMap.containsKey(comp.Conta__r.ExternalId__c)){
+                List<Company__c> companList = companyMap.get(comp.Conta__r.ExternalId__c);
+                companList.add(comp);
+                companyMap.put(comp.Conta__r.ExternalId__c,companList);
+            }else{
+                List<Company__c> newCompanyList = new List<Company__c>();
+                newCompanyList.add(comp);
+                companyMap.put(comp.Conta__r.ExternalId__c,newCompanyList);
+            }
+        }
+        System.debug('companyMap'+ companyMap);
+        Map<String,List<String>> terrytoryObjectMap = new Map<String,List<String>>();
+        for(ObjectTerritory2Association terrytory : terrytoryObject){
+            Account acc = accountObjectMap.get(terrytory.ObjectId);
+            if(terrytoryObjectMap.containsKey(terrytory.Territory2Id)){
+                List<String> accountObjectList = terrytoryObjectMap.get(terrytory.Territory2Id);
+                accountObjectList.add(acc.ExternalId__c);
+                terrytoryObjectMap.put(terrytory.Territory2Id,accountObjectList);
+            }else{
+                List<String> objectTerritoryAccountList = new List<String>();
+                objectTerritoryAccountList.add(acc.ExternalId__c);
+                terrytoryObjectMap.put(terrytory.Territory2Id,objectTerritoryAccountList);
+            }
+        }
+
+        List<String> objectAccountExternalList;
         for (Territory2 territory : territoryList) {
             System.debug('territory: '+ territory);
-            request.add(new RequestParameters(territory));
+            if(territoryUserAssociationMap.containsKey(territory.Id)){
+                territoryUserAsso = territoryUserAssociationMap.get(territory.Id);
+            }else{
+                territoryUserAsso = null;
+            }
+            if(terrytoryObjectMap.containsKey(territory.Id)){
+                objectAccountExternalList = terrytoryObjectMap.get(territory.Id);
+            }else{
+                objectAccountExternalList = null;
+            }
+            if(territoryParentMap.containsKey(territory.ParentTerritory2Id)){
+                territoryParent = territoryParentMap.get(territory.ParentTerritory2Id);
+            }else{
+                territoryParent = null;
+            }
+            request.add(new RequestParameters(territory,territoryUserAsso, objectAccountExternalList, territoryParent, companyMap));
         }
         String code = (!Test.isRunningTest() ? getAcessCode() : 'acessToken');
         System.debug('AcessCode: '+ code);
         String payload = JSON.serialize(request);
         System.debug('PayloadCheck: '+ payload);
         //Metodo para busca de Access Token, depende de cada projeto, podendo estar presente dentro de uma custom settings ou relacionado com outra requisição.
-        String accessToken = code;//! FALTA SABER A RESPOSTA DO SAP QUANTO A AUTENTICAÇÃO! F
+        String accessToken = code;
         //Url mock: https://aabb2740-69b0-4737-925c-2c40367a3737.mock.pstmn.io//CalloutCTVCarteira
         //Path geralmente cadastrado dentro de ua customSettings 
         String endpoint = (!Test.isRunningTest() ? 'https://apim.agrogalaxy.com.br/gtw/sales-territory/v1/webhook/_notify' : 'http://callout.My_Named_Credential.com/some/path');
@@ -61,36 +132,20 @@ public with sharing class CalloutCTVCarteira {
         public Object header;
         //public List<CalloutCTVCarteira.ClienteParameters> Clientes;
 
-        public RequestParameters(Territory2 territory){
-            List<String> accountIds = new List<String>();
+        public RequestParameters(Territory2 territory, UserTerritory2Association territoryAsso, List<String> accountExternalIds, Territory2 territoryParent, Map<String,List<Company__c>> companyMap){
             CalloutCTVCarteira.HeaderInsert header = new CalloutCTVCarteira.HeaderInsert();
-            UserTerritory2Association territoryAsso;
 
-            Try{
-                territoryAsso = [SELECT id, User.CodigoSAP__c FROM UserTerritory2Association WHERE Territory2Id =: territory.Id];
-             } 
-             Catch(System.QueryException e){
-                territoryAsso = null;
-            }
-            List<ObjectTerritory2Association> terrytoryObject = new List<ObjectTerritory2Association>([SELECT Id, ObjectId  FROM ObjectTerritory2Association WHERE Territory2Id =: territory.Id]);
-            for(ObjectTerritory2Association terrytory : terrytoryObject){
-                accountIds.add(terrytory.ObjectId);
-            }
-            Territory2 territoryParrent;
-            if(territory.ParentTerritory2Id != null){
-                territoryParrent = [SELECT id, DeveloperName, lastmodifieddate, ParentTerritory2.DeveloperName, name, Territory2Type.DeveloperName FROM territory2 WHERE Id =: territory.ParentTerritory2Id];
-            }
-            List<Account> accountList = new List<Account>([SELECT Id, ExternalId__c  FROM Account WHERE Id =: accountIds]);
             header.IdTerritorio = territory.DeveloperName;
             header.VendedorSAP = territoryAsso != null ?  territoryAsso.User.CodigoSAP__c : null;
             header.DataHoraAtualizacao = territory.LastModifiedDate;
-            header.TerritorioPai = territoryParrent != null ? territoryParrent.DeveloperName : null;
+            header.TerritorioPai = territoryParent != null ? territoryParent.DeveloperName : null;
             header.NamePosition = territory.Name;
             header.TipoTerritorio = territory.Territory2Type.DeveloperName;
             List<CalloutCTVCarteira.ClienteParameters> clientList= new List<CalloutCTVCarteira.ClienteParameters>();
             if(header.TipoTerritorio == 'SellerPosition'){
-                for(Account acc : accountList){
-                    clientList.add(new CalloutCTVCarteira.ClienteParameters(acc.ExternalId__c));
+                for(String acc : accountExternalIds){
+                    clientList.add(new CalloutCTVCarteira.ClienteParameters(acc, companyMap));
+                    System.debug('clientList'+ clientList);
                 }
             }
 
@@ -108,12 +163,48 @@ public with sharing class CalloutCTVCarteira {
         public List<CalloutCTVCarteira.ClienteParameters> Clientes;
         public HeaderInsert(){}
     }
-
+    public class EmpresaParameters{
+        public String CanalDistribuicao;
+        public String SetorAtividade;
+        public String OrganizacaoVendas;
+        public String EscritorioVendas;
+        public String EquipeVendas;
+        public String CentroFornecedor;
+        public Boolean Bloqueado;
+        public EmpresaParameters(){}
+    }
 
     public class ClienteParameters{
         public String CodigoCliente;
-
-        public ClienteParameters(String codigo){
+        public List<CalloutCTVCarteira.EmpresaParameters> Empresa;
+        public ClienteParameters(String codigo, Map<String,List<Company__c>> companyMap){
+            List<CalloutCTVCarteira.EmpresaParameters> companyList = new List<CalloutCTVCarteira.EmpresaParameters>();
+            if(companyMap.containsKey(codigo)){
+                List<Company__c> companList = companyMap.get(codigo);
+                for(Company__c comp : companList){
+                    CalloutCTVCarteira.EmpresaParameters company = new CalloutCTVCarteira.EmpresaParameters();
+                    company.CanalDistribuicao = comp.DistributionChannel__r.Codigo__c;
+                    company.SetorAtividade = comp.ActivitySector__r.Codigo__c;
+                    company.OrganizacaoVendas = comp.SalesOrg__r.SalesOrganizationCode__c;
+                    company.EscritorioVendas = comp.SalesOffice__r.Codigo__c;
+                    company.EquipeVendas = comp.SalesTeam__r.ExternalId__c;
+                    company.CentroFornecedor = comp.SupplierCenter__c;
+                    company.Bloqueado = comp.Blocked__c;
+                    companyList.add(company);
+                }
+            }else{
+                CalloutCTVCarteira.EmpresaParameters company = new CalloutCTVCarteira.EmpresaParameters();
+                company.CanalDistribuicao = null;
+                company.SetorAtividade = null;
+                company.OrganizacaoVendas = null;
+                company.EscritorioVendas = null;
+                company.EquipeVendas = null;
+                company.CentroFornecedor = null;
+                company.Bloqueado = null;
+                companyList.add(company);
+            }
+            
+            this.Empresa = companyList;
             this.CodigoCliente = codigo;
         }
     }
