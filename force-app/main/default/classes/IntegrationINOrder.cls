@@ -101,6 +101,7 @@ global without sharing class IntegrationINOrder {
             pricebook2IdLookups.add(order.pricebook2Id);
             paymentConditionLookups.add(order.paymentCondition);
             activitySectorLookups.add(order.ActivitySector);
+            orderLookups.add(order.orderReference);
             idOrders.add(order.CodigoSap);
             for (TemplateDataIntegrationFields.OrderItemINData orderItem : order.orderItems) {
                 orderItem.orderExternalId = order.CodigoSap;
