@@ -163,17 +163,4 @@ public class LookupTest {
         
         Lookup.getRecords('{"targetObject":"User","searchFields":["Name"],"searchValue":"User","moreFields":[], "relations": [], "differentRelations": [], "accountId":"' + parentAccountId + '"}', false, JSON.serialize(conditionData), false);
     }
-
-    @isTest public static void getUserPriceTest() {
-        Id parentAccountId = [SELECT Id FROM Account WHERE Name = 'Parent Account' LIMIT 1].Id;
-        Id salesOrgId = [SELECT Id FROM SalesOrg__c LIMIT 1].Id;
-
-        Lookup.SalesConditionDTO conditionData = new Lookup.SalesConditionDTO();
-        conditionData.safraName = 'Safra 01';
-        conditionData.SalesOrgId = salesOrgId;
-        conditionData.currencyGet = 'BRL';
-        conditionData.typeOrder = 'Venda Barter';
-        
-        Lookup.getRecords('{"targetObject":"User","searchFields":["Name"],"searchValue":"User","moreFields":[], "relations": [], "differentRelations": [], "accountId":"' + parentAccountId + '"}', false, JSON.serialize(conditionData), true);
-    }
 }
