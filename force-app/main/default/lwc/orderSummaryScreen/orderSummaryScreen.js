@@ -1,6 +1,7 @@
 import { LightningElement, api, track } from 'lwc';
 import approval from '@salesforce/apex/OrderScreenController.approvals';
 import getAccountCompanies from '@salesforce/apex/OrderScreenController.getAccountCompanies';
+import getAccountDistrCenters from '@salesforce/apex/OrderScreenController.getAccountDistrCenters';
 
 export default class OrderSummaryScreen extends LightningElement {
     staticValue = 'hidden';
@@ -15,6 +16,10 @@ export default class OrderSummaryScreen extends LightningElement {
     @track orderMargin = 0;
     @track approval = '';
     @track approvalMargin = 'Dispensado';
+
+    distrCenterResult=[];
+    selectDistributionCenter = false;
+    selectedDistributionCenter;
 
     @api accountData;
     @api productData;
@@ -44,6 +49,31 @@ export default class OrderSummaryScreen extends LightningElement {
         getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: false, verifyUserType: true})
         .then((result) => {
             this.hideMargin = JSON.parse(result);
+        });
+
+        if(this.headerData.IsOrderChild && this.headerData.tipo_venda == 'Biscoito'){}
+        getAccountDistrCenters({salesOrgId: this.headerData.organizacao_vendas.Id})
+        .then((result) => {
+            try{
+            this.distrCenterResult = JSON.parse(result).distributionCenterInfosList;
+            if (this.headerData.centerId != null) {
+                this.selectedDistributionCenter = this.distrCenterResult.find(element => element.centerId == this.headerData.centerId)
+            } else {
+                if(this.distrCenterResult.lenght == 0){
+                    this.showToast('warning', 'Atenção!', 'Não foi encontrado centro de distribuição relacionado a organização de vendas. Contate o administrador do sistema.');
+                }
+                else if(this.distrCenterResult.lenght == 1){
+                    this.selectedDistributionCenter = this.distrCenterResult[0];
+                    this.headerData.centerId = this.selectedDistributionCenter;
+                    this.onSelectDistrCenter();
+                }
+                else if(this.distrCenterResult.length > 1){
+                    this.selectDistributionCenter = true;
+                }
+            }
+        }catch(err){
+            console.log(err)
+        }
         });
 
         const data = {accountData: this.accountData, headerData: this.headerData, productData: this.productData, divisionData: this.divisionData, summaryData: this.summaryData};
@@ -142,6 +172,41 @@ export default class OrderSummaryScreen extends LightningElement {
         }
     }
 
+    chooseDistributionCenter(event){
+        var oldDC = this.isFilled(this.selectedDistributionCenter) ? this.selectedDistributionCenter : null;
+        let DCs = this.distrCenterResult;
+        if(this.isFilled(event)){
+            try{
+                this.selectedDistributionCenter = event.target.dataset.targetId;
+                if(this.isFilled(oldDC)) DCs.find(element => element.centerId == oldDC).selected = false;
+                DCs.find(element => element.centerId == this.selectedDistributionCenter).selected = true;
+            }catch(err){
+                console.log(err);
+            }
+        }
+
+        this.distrCenterResult = JSON.parse(JSON.stringify(DCs));
+    }
+
+    onSelectDistrCenter(){
+        try{
+        if(!this.isFilled(this.headerData.centerId)){
+            this.selectDistributionCenter = !this.selectDistributionCenter;
+            this.summaryDataLocale.centerId =  this.selectedDistributionCenter;
+        }
+    
+        const setSummaryData = new CustomEvent('setsummarydata');
+        setSummaryData.data = this.summaryDataLocale;
+      
+        this.dispatchEvent(setSummaryData);
+        console.log('Passed');
+    }catch(err){
+        console.log(err)
+    }
+        
+
+    }
+
     formatCurrency(num){
         try{
             return parseFloat(num).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
@@ -208,6 +273,10 @@ export default class OrderSummaryScreen extends LightningElement {
         this.dispatchEvent(setSummaryData);
     }
    
+    isFilled(field) {
+        return ((field !== undefined && field != null && field != '') || field == 0);
+    }
+    
     @api showandHiddenTextArea(){
         // let values;
         // let buttons;

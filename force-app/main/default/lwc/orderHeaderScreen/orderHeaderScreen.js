@@ -567,6 +567,7 @@ export default class OrderHeaderScreen extends LightningElement {
                         getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: true, verifyUserType: false})
                         .then((result) => {
                            this.salesOrgId = result;
+                           this.headerDictLocale.organizacao_vendas = {Id: result};
                         });
                     }
                 }

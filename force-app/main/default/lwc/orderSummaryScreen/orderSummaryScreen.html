@@ -245,4 +245,34 @@
           </div>
           
     </div>
+
+    
+		<template if:true={selectDistributionCenter}>
+			<div id="select-distribution-center-modal" class="modal">
+				<div class="modal-content" style="width: 700px;">
+					<p class="new-product-title">Escolha um dos seguintes centros de distribuições:</p>
+
+					<template for:each={distrCenterResult} for:item="distrCenter">
+						<div key={distrCenter.centerId} class="company-card">
+							<div class="container">
+								<div class="company-card-01">
+									<p><b>Código:</b> {distrCenter.code}</p>
+									<p><b>Organização de Vendas:</b> {distrCenter.salesOrgName}</p>
+								</div>
+								<div class="company-card-02">
+									<input type="checkbox" class="checkbox-round" onclick={chooseDistributionCenter} checked={distrCenter.selected} data-target-id={distrCenter.centerId}>
+								</div>
+							</div>
+						</div>
+					</template>
+
+					<div class="row">
+						<div class="column" style="width: 100%;">
+							<button class="confirm-button" onclick={onSelectDistrCenter}>Confirmar</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</template>
+
 </template>
