@@ -50,7 +50,7 @@ public with sharing class OrderPageController {
             'Company__r.salesTeam__r.Registration__c','Company__r.salesTeam__r.State__c', 'Company__r.salesTeam__r.Subsidiary__c', 'Company__r.salesTeam__r.ZipCode__c',
             'Account.CPF__c', 'Account.CNPJ__c', 'TotalAmount', 'Description', 'FinalTotalValue__c', 'Status',
             'Account.BillingPostalCode', 'Crop__r.Name', 'PaymentForm__c', 'PaymentDate__c', 'RecordTypeId',
-            'Currency__c', 'Culture__r.Name', 'CodigoSap__c', 'SalesCTV__r.CodigoSap__c', 'SalesCTV__r.Name'
+            'Currency__c', 'Culture__r.Name', 'CodigoSap__c', 'SalesCTV__r.CodigoSap__c', 'SalesCTV__r.Name', 'IsOrderMother__c'
         };
 
         String query = new Q(Order.SObjectType)
@@ -152,6 +152,8 @@ public with sharing class OrderPageController {
         public String totalAmount {get; set;}
         public String observation {get; set;}
         public String status {get; set;}
+        public Boolean isMother {get; set;}
+        public String messageDivisionOrNo {get; set;}
 
         public String salesTeamName {get;set;}
         public String salesTeamLocale {get;set;}
@@ -181,6 +183,8 @@ public with sharing class OrderPageController {
             this.totalAmount = formatCurrency(order.FinalTotalValue__c, this.currencyOrder);
             this.observation = order.Description;
             this.status = getLabelForPage(order.Status);
+            this.isMother = order.IsOrderMother__c;
+            this.messageDivisionOrNo = order.IsOrderMother__c ? 'Quantidade' : 'Data de Entrega(s) - Quant.';
             this.codCTV = order.SalesCTV__r.CodigoSap__c;
             this.nameCTV = order.SalesCTV__r.Name;
             this.salesTeamName = order.Company__r.salesTeam__r.Subsidiary__c;
