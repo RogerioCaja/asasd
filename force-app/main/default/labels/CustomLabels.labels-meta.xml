@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+    <labels>
+        <fullName>VendaAmostraGratis</fullName>
+        <categories>Record Types</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Venda Amostra Grátis</shortDescription>
+        <value>ZRAG</value>
+    </labels>
+    <labels>
+        <fullName>VendaBarter</fullName>
+        <categories>Record Types</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Venda Barter</shortDescription>
+        <value>ZVBA</value>
+    </labels>
+    <labels>
+        <fullName>VendaBonificacao</fullName>
+        <categories>Record Types</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Venda Bonificação</shortDescription>
+        <value>ZRBO</value>
+    </labels>
+    <labels>
+        <fullName>VendaContaOrdem</fullName>
+        <categories>Record Types</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Venda Conta e Ordem</shortDescription>
+        <value>ZCCO</value>
+    </labels>
+    <labels>
+        <fullName>VendaContaOrdemPedidoMae</fullName>
+        <categories>Record Types</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Venda Conta e Ordem Pedido Mãe</shortDescription>
+        <value>ZRCO</value>
+    </labels>
+    <labels>
+        <fullName>VendaEntregaFutura</fullName>
+        <categories>Record Types</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Venda Entrega Futura</shortDescription>
+        <value>ZCVF</value>
+    </labels>
+    <labels>
+        <fullName>VendaEntregaFuturaPedidoMae</fullName>
+        <categories>Record Types</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Venda Entrega Futura Pedido Mãe</shortDescription>
+        <value>ZVEF</value>
+    </labels>
+    <labels>
+        <fullName>VendaFinsEspecificosExportacao</fullName>
+        <categories>Record Types</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Venda Fins Específicos Exportação</shortDescription>
+        <value>ZVFE</value>
+    </labels>
+    <labels>
+        <fullName>VendaNormal</fullName>
+        <categories>Record Types</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Venda Normal</shortDescription>
+        <value>ZCVN</value>
+    </labels>
+    <labels>
+        <fullName>VendaNormalPedidoMae</fullName>
+        <categories>Record Types</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Venda Normal Pedido Mãe</shortDescription>
+        <value>ZVNO</value>
+    </labels>
+    <labels>
+        <fullName>VendaNormalSemTransitoEstadoOrigem</fullName>
+        <categories>Record Types</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Venda Normal Sem Trânsito Estado Origem</shortDescription>
+        <value>ZVST</value>
+    </labels>
+    <labels>
+        <fullName>VendaOrdemSimplesFaturamento</fullName>
+        <categories>Record Types</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Venda Ordem Simples Faturamento</shortDescription>
+        <value>ZVVO</value>
+    </labels>
+    <labels>
+        <fullName>VendaServico</fullName>
+        <categories>Record Types</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Venda de Serviço</shortDescription>
+        <value>ZSER</value>
+    </labels>
+    <labels>
+        <fullName>VendaZonaFranca</fullName>
+        <categories>Record Types</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Venda Zona Franca</shortDescription>
+        <value>ZVZF</value>
+    </labels>
+</CustomLabels>
