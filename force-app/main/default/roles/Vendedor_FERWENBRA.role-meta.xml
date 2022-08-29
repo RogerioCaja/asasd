@@ -5,5 +5,5 @@
     <mayForecastManagerShare>false</mayForecastManagerShare>
     <name>Vendedor FER-WENBRA</name>
     <opportunityAccessLevel>Edit</opportunityAccessLevel>
-    <parentRole>FER_WENBRA</parentRole>
+    <parentRole>BalcaoWenbra</parentRole>
 </Role>
