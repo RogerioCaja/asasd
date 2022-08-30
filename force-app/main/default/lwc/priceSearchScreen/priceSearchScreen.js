@@ -55,6 +55,7 @@ export default class PriceSearchScreen extends LightningElement {
         {label: 'Produto', fieldName: 'name'},
         {label: 'Grupo', fieldName: 'productGroupName'},
         {label: 'Safra', fieldName: 'safra'},
+        {label: 'Tabela de Preços', fieldName: 'salesCondition'},
         {label: 'Valor Data Informada', fieldName: 'valueDiscounted'},
         {label: 'Valor Data Safra', fieldName: 'realValue'}
     ];
@@ -96,6 +97,10 @@ export default class PriceSearchScreen extends LightningElement {
         } catch (err) {
             console.log(err);
         }
+    }
+
+    changeSearchValue(event) {
+        this.productSearch = event.target.value;
     }
 
     searchProducts() {
@@ -148,14 +153,16 @@ export default class PriceSearchScreen extends LightningElement {
                     this.showBaseProducts = result.recordsDataList.length > 0;
                     let productRecords = [];
                     for (let index = 0; index < result.recordsDataList.length; index++) {
+                        let realValue = this.fixDecimalPlacesFront(result.recordsDataList[index].listPrice);
                         let discountedValue = this.calculateDiscountValues(result.recordsDataList[index]);
                         productRecords.push({
                             sapProductCode: result.recordsDataList[index].sapProductCode,
                             name: result.recordsDataList[index].Name,
                             productGroupName: result.recordsDataList[index].productGroupName,
                             safra: this.searchData.safra.Name,
+                            salesCondition: result.recordsDataList[index].salesCondition,
                             valueDiscounted: discountedValue,
-                            realValue: this.fixDecimalPlacesFront(result.recordsDataList[index].listPrice),
+                            realValue: realValue.split(',').length == 1 ? realValue + ',00' : realValue,
                         })
                     }
                     this.baseProducts = JSON.parse(JSON.stringify(productRecords));
