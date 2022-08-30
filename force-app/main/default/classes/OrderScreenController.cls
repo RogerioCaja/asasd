@@ -106,18 +106,21 @@ public without sharing class OrderScreenController {
                    CommercialMargin__c,
                    AmountUsed__c,
                    PTA__c,
-                   PriceListCode__c
+                   PriceListCode__c,
+                   ReasonRefuse__c
               FROM OrderItem
              WHERE OrderId =: orderId
         ]){
-            Decimal itemPracticedCost = item.PracticedCost__c != null ? item.PracticedCost__c : 0;
-            Decimal itemDiscount = item.DiscountValue__c != null ? item.DiscountValue__c : 0;
-            totalCost += itemPracticedCost * item.Quantity;
-            totalDiscount += itemDiscount;
-            totalQuantity += item.Quantity;
-            prods.add(new ProductSerialize(item, counter, cloneOrder));
-            orderItemsPosition.put(item.Id, counter);
-            counter++;
+            if (item.ReasonRefuse__c == null || item.ReasonRefuse__c == '') {
+                Decimal itemPracticedCost = item.PracticedCost__c != null ? item.PracticedCost__c : 0;
+                Decimal itemDiscount = item.DiscountValue__c != null ? item.DiscountValue__c : 0;
+                totalCost += itemPracticedCost * item.Quantity;
+                totalDiscount += itemDiscount;
+                totalQuantity += item.Quantity;
+                prods.add(new ProductSerialize(item, counter, cloneOrder));
+                orderItemsPosition.put(item.Id, counter);
+                counter++;
+            }
         }
 
         return prods;
@@ -185,10 +188,11 @@ public without sharing class OrderScreenController {
 			
             if (profileName != 'Balcão') {
                 Set<Id> relatedAccounts = getTerritoryAccounts();
-                accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE (ParentId =: accountId AND Id IN: relatedAccounts AND ExternalId__c LIKE '0002%') OR (Id =: accountId AND CNPJ__c != null AND CPF__c = null)];
+                accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE Status__c = 'Ativo' AND ((ParentId =: accountId AND Id IN: relatedAccounts AND ExternalId__c LIKE '0002%') OR (Id =: accountId AND CNPJ__c != null AND CPF__c = null))];
             } else {
-                accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE (ParentId =: accountId AND ExternalId__c LIKE '0002%') OR (Id =: accountId AND CNPJ__c != null AND CPF__c = null)];
+                accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE Status__c = 'Ativo' AND ((ParentId =: accountId AND ExternalId__c LIKE '0002%') OR (Id =: accountId AND CNPJ__c != null AND CPF__c = null))];
             }
+
             
             for(Account account : accountList) accountListSerialize.add(new AccountSerialize(account));
             return JSON.serialize(new AccountSerialize(accountListSerialize));
@@ -1622,14 +1626,14 @@ public without sharing class OrderScreenController {
             this.dosage = orderItem.Dosage__c;
             this.sapStatus = orderItem.Status__c;
             this.unity = orderItem.UnitMeasure__c;
-            this.commercialDiscountPercentage = orderItem.DiscountPercent__c == 0 ? '0%' : String.valueOf(orderItem.DiscountPercent__c) + '%';
-            this.commercialDiscountValue = orderItem.DiscountValue__c;
-            this.commercialAdditionPercentage = orderItem.CommercialAdditionPercent__c == 0 ? '0%' : String.valueOf(orderItem.CommercialAdditionPercent__c) + '%';
-            this.commercialAdditionValue = orderItem.CommercialAdditionValue__c;
-            this.financialAdditionPercentage = orderItem.FinancialAdditionPercent__c == 0 ? '0%' : String.valueOf(orderItem.FinancialAdditionPercent__c) + '%';
-            this.financialAdditionValue = orderItem.FinancialAdditionValue__c;
-            this.financialDecreasePercentage = orderItem.FinancialDiscountPercent__c == 0 ? '0%' : String.valueOf(orderItem.FinancialDiscountPercent__c) + '%';
-            this.financialDecreaseValue = orderItem.FinancialDiscountValue__c;
+            this.commercialDiscountPercentage = orderItem.DiscountPercent__c != null ? (orderItem.DiscountPercent__c == 0 ? '0%' : String.valueOf(orderItem.DiscountPercent__c) + '%') : '0%';
+            this.commercialDiscountValue = orderItem.DiscountValue__c != null ? orderItem.DiscountValue__c : 0;
+            this.commercialAdditionPercentage = orderItem.CommercialAdditionPercent__c != null ? (orderItem.CommercialAdditionPercent__c == 0 ? '0%' : String.valueOf(orderItem.CommercialAdditionPercent__c) + '%') : '0%';
+            this.commercialAdditionValue = orderItem.CommercialAdditionValue__c != null ? orderItem.CommercialAdditionValue__c : 0;
+            this.financialAdditionPercentage = orderItem.FinancialAdditionPercent__c != null ? (orderItem.FinancialAdditionPercent__c == 0 ? '0%' : String.valueOf(orderItem.FinancialAdditionPercent__c) + '%') : '0%';
+            this.financialAdditionValue = orderItem.FinancialAdditionValue__c != null ? orderItem.FinancialAdditionValue__c : 0;
+            this.financialDecreasePercentage = orderItem.FinancialDiscountPercent__c != null ? (orderItem.FinancialDiscountPercent__c == 0 ? '0%' : String.valueOf(orderItem.FinancialDiscountPercent__c) + '%') : '0%';
+            this.financialDecreaseValue = orderItem.FinancialDiscountValue__c != null ? orderItem.FinancialDiscountValue__c : 0;
             this.comissionValue = orderItem.ComissionValue__c;
             this.commercialMarginPercentage = orderItem.CommercialMargin__c;
             this.ptaProduct = orderItem.PTA__c;

@@ -731,6 +731,8 @@ export default class OrderProductScreen extends LightningElement {
             if (remainder == 0) {
                 return quantity;
             } else {
+                quantity = this.fixDecimalPlacesFront(quantity);
+                quantity = quantity.toString().includes(',') ? Number(quantity.replace(',', '.')) : quantity;
                 quantity = Math.ceil(quantity / this.multiplicity) * this.multiplicity;
                 this.showToast('warning', 'Atenção!', 'A quantidade foi arredondada para ' + quantity + '.');
                 return quantity;
