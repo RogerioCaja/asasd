@@ -997,6 +997,8 @@ public without sharing class OrderScreenController {
             else {
                 proQuery.add(Q.condition('ActivitySector__r.Codigo__c').equalsTo('40'));
             }
+
+            if (companyInfos.accountId == '') proQuery.addLimit(1);
             for (Company__c salesTeamCompany : Database.query(proQuery.build())) {
                 CompanyInfos company = new CompanyInfos();
                 company.companyId = salesTeamCompany.Id;

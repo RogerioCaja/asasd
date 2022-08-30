@@ -86,7 +86,7 @@
 
             <div>
                 <div class="search-div">
-                    <input type="text" class="input-style" value={productSearch} placeholder="Pesquisar Produto...">
+                    <input type="text" class="input-style" value={productSearch} placeholder="Pesquisar Produto..." onblur={changeSearchValue}>
                     <button class="button-style" onclick={searchProducts}>Buscar</button>
                 </div>
 
