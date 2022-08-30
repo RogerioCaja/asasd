@@ -1,0 +1,75 @@
+
+* {
+    box-sizing: border-box;
+}
+body {
+    font-family: Salesforce Sans;
+}
+
+.container{
+    background-color: white;
+    padding: 40px;
+    margin-left: 13%;
+    width: 75%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    gap:10px;
+    border-radius: 15px;
+}
+
+a, a:hover, a:focus, a:active {
+    text-decoration: none;
+    color: white;
+    border: 1px solid #2A9676;
+    background-color: #2A9676;
+    padding: 10px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+a:hover{
+    background: linear-gradient(to right,rgb(99, 206, 174), rgba(42, 150, 118, 1));
+}
+.title{
+    font-size: 24px;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    border-bottom: 1px solid rgba(157, 151, 151, 0.51);
+}
+
+.fields-to-search{
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+c-custom-order-search{
+    width: 100% !important;
+}
+
+.table-and-pagination{
+    display: flex;
+    flex-direction: column;
+    gap:5px;
+}
+
+.pagination{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+}
+.execution > div > span{
+    margin: 10px;
+    cursor: pointer;
+}
+
+
+.execution{
+    width: 100%;
+    display: flex;
+    justify-content: end;
+}

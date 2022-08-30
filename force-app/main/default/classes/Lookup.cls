@@ -1,6 +1,6 @@
 public without sharing class Lookup {
     @AuraEnabled(cacheable=true)
-    public static List<SObject> getRecords(String data, Boolean barterSale, String salesConditionData, Boolean priceScreen) {
+    public static List<SObject> getRecords(String data, Boolean barterSale, String salesConditionData, Boolean priceScreen, Boolean clientTerritoriesScreen) {
         RequestDTO requestData = (RequestDTO) JSON.deserialize(data, RequestDTO.class);
         SalesConditionDTO requestSalesCondition = (SalesConditionDTO) JSON.deserialize(salesConditionData, SalesConditionDTO.class);
         
@@ -34,7 +34,7 @@ public without sharing class Lookup {
             query += ' AND Id IN: availableSalesCondition';
         }
 
-        if (requestData.targetObject == 'User') {
+        if (requestData.targetObject == 'User' && !clientTerritoriesScreen) {
             Boolean userRelatedToTerritory = false;
             Set<Id> userTerritories = new Set<Id>();
             String userTerritoryType = '';
