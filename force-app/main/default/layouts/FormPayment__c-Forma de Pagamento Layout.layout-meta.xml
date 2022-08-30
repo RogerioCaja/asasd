@@ -27,6 +27,10 @@
         <layoutColumns>
             <layoutItems>
                 <behavior>Edit</behavior>
+                <field>OwnerId</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
                 <field>Order__c</field>
             </layoutItems>
         </layoutColumns>
@@ -41,10 +45,6 @@
             <layoutItems>
                 <behavior>Readonly</behavior>
                 <field>CreatedById</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
-                <field>OwnerId</field>
             </layoutItems>
         </layoutColumns>
         <layoutColumns>
@@ -90,7 +90,7 @@
     <showRunAssignmentRulesCheckbox>false</showRunAssignmentRulesCheckbox>
     <showSubmitAndAttachButton>false</showSubmitAndAttachButton>
     <summaryLayout>
-        <masterLabel>00h3F000008Mpqq</masterLabel>
+        <masterLabel>00hP0000004ey7h</masterLabel>
         <sizeX>4</sizeX>
         <sizeY>0</sizeY>
         <summaryLayoutStyle>Default</summaryLayoutStyle>

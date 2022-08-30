@@ -21,6 +21,10 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>CallExcludePageController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>CalloutBP</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -754,6 +758,16 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>DistributionCenter__c.SalesOrg__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>DistributionCenter__c.SalesTeam__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>DistributionChannel__c.Codigo__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -786,6 +800,26 @@
         <editable>true</editable>
         <field>Event.WhoId</field>
         <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>FormPayment__c.Amount__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>FormPayment__c.Order__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>FormPayment__c.PaymentDate__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>FormPayment__c.PaymentType__c</field>
+        <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
@@ -1303,6 +1337,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>false</editable>
+        <field>Order.DistributionCenter__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>true</editable>
         <field>Order.DistributionChannel__c</field>
         <readable>true</readable>
@@ -1533,6 +1572,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>true</editable>
+        <field>OrderItem.Class__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>false</editable>
         <field>OrderItem.Client_OrderItem__c</field>
         <readable>true</readable>
@@ -1665,6 +1709,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>OrderItem.ServiceDate</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>OrderItem.Sieve__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -2079,6 +2128,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>SalesOrg__c.Freight__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>SalesTeam__c.Address__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -2325,6 +2379,15 @@
         <viewAllRecords>true</viewAllRecords>
     </objectPermissions>
     <objectPermissions>
+        <allowCreate>false</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>false</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>DistributionCenter__c</object>
+        <viewAllRecords>false</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
         <allowCreate>true</allowCreate>
         <allowDelete>false</allowDelete>
         <allowEdit>true</allowEdit>
@@ -2550,6 +2613,10 @@
         <viewAllRecords>false</viewAllRecords>
     </objectPermissions>
     <pageAccesses>
+        <apexPage>CallExcludePage</apexPage>
+        <enabled>true</enabled>
+    </pageAccesses>
+    <pageAccesses>
         <apexPage>OrderPagePDF</apexPage>
         <enabled>true</enabled>
     </pageAccesses>
@@ -2586,24 +2653,8 @@
         <visible>true</visible>
     </recordTypeVisibilities>
     <recordTypeVisibilities>
-        <recordType>Order.VendaContaOrdem</recordType>
-        <visible>false</visible>
-    </recordTypeVisibilities>
-    <recordTypeVisibilities>
-        <recordType>Order.VendaEntregaFutura</recordType>
-        <visible>false</visible>
-    </recordTypeVisibilities>
-    <recordTypeVisibilities>
         <recordType>Order.VendaNormal</recordType>
         <visible>true</visible>
-    </recordTypeVisibilities>
-    <recordTypeVisibilities>
-        <recordType>Order.VendaOrdemSimplesFaturamento</recordType>
-        <visible>false</visible>
-    </recordTypeVisibilities>
-    <recordTypeVisibilities>
-        <recordType>Order.VendaServico</recordType>
-        <visible>false</visible>
     </recordTypeVisibilities>
     <recordTypeVisibilities>
         <recordType>Pricebook2.RecordTypeId</recordType>
@@ -2635,6 +2686,10 @@
     </tabSettings>
     <tabSettings>
         <tab>Cultura__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>DistributionCenter__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
     <tabSettings>

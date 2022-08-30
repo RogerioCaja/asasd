@@ -764,6 +764,16 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>DistributionCenter__c.SalesOrg__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>DistributionCenter__c.SalesTeam__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>DistributionChannel__c.Codigo__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1334,6 +1344,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Order.DistributionCenter__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Order.DistributionChannel__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1559,6 +1574,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>OrderItem.Class__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>OrderItem.Client_OrderItem__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1690,6 +1710,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>OrderItem.ServiceDate</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>OrderItem.Sieve__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -2104,6 +2129,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>SalesOrg__c.Freight__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>SalesTeam__c.Address__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -2347,6 +2377,15 @@
         <allowRead>true</allowRead>
         <modifyAllRecords>false</modifyAllRecords>
         <object>Cultura__c</object>
+        <viewAllRecords>false</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>DistributionCenter__c</object>
         <viewAllRecords>false</viewAllRecords>
     </objectPermissions>
     <objectPermissions>
@@ -2621,11 +2660,27 @@
         <visible>true</visible>
     </recordTypeVisibilities>
     <recordTypeVisibilities>
+        <recordType>Order.VendaEntregaFutura</recordType>
+        <visible>true</visible>
+    </recordTypeVisibilities>
+    <recordTypeVisibilities>
+        <recordType>Order.VendaFinsEspecificosExportacao</recordType>
+        <visible>true</visible>
+    </recordTypeVisibilities>
+    <recordTypeVisibilities>
         <recordType>Order.VendaNormal</recordType>
         <visible>true</visible>
     </recordTypeVisibilities>
     <recordTypeVisibilities>
+        <recordType>Order.VendaNormalSemTransitoEstadoOrigem</recordType>
+        <visible>true</visible>
+    </recordTypeVisibilities>
+    <recordTypeVisibilities>
         <recordType>Order.VendaServico</recordType>
+        <visible>true</visible>
+    </recordTypeVisibilities>
+    <recordTypeVisibilities>
+        <recordType>Order.VendaZonaFranca</recordType>
         <visible>true</visible>
     </recordTypeVisibilities>
     <recordTypeVisibilities>
@@ -2658,6 +2713,10 @@
     </tabSettings>
     <tabSettings>
         <tab>Cultura__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>DistributionCenter__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
     <tabSettings>
