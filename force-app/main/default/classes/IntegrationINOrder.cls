@@ -3,9 +3,18 @@ global without sharing class IntegrationINOrder {
     public IntegrationINOrder() {
 			
     }
+    public static void sleep(Integer secs) {
+        Long epochToDate = System.currentTimeMillis();
+        Long epochStop = epochToDate + (secs * 1000);
+    
+        while (epochToDate <= epochStop) {
+            epochToDate = System.currentTimeMillis();
+        }
+    }
+
     @HttpPost
     global static ResponseModel upsertOrderValidation(List<TemplateDataIntegrationFields.OrderINData> request){
-        
+        sleep(5);
 		List<String> idOrders = new List<String>();
 
         List<TemplateDataIntegrationFields.ConditionInsert> conditionList = new List<TemplateDataIntegrationFields.ConditionInsert>();
