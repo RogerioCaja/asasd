@@ -22,6 +22,10 @@ public without sharing class CalloutBP {
                     accountIdsList.add(valor.ContaPai);
                     accountFatherIdsList.add(valor.ContaPai);
                 }
+                if(valor.ZZCRED != null){
+                    accountIdsList.add(valor.ZZCRED);
+                    accountFatherIdsList.add(valor.ZZCRED);
+                }
             }
             System.debug('accountIdsList: '+ accountIdsList);
             List<Account> accountListExternalId = new List<Account>([SELECT Id, ExternalId__c FROM Account WHERE ExternalId__c =: accountIdsList]);
@@ -36,7 +40,12 @@ public without sharing class CalloutBP {
                 }
                 for(CompanyINData company : valor.EstruturaOrganizacional){
                     company.CodigoExternoAccount = valor.CodigoExterno;
-                    company.CodigoExternoFatherAccount = valor.ContaPai;
+                    if(valor.ContaPai != null && valor.ContaPai != ''){
+                        company.CodigoExternoFatherAccount = valor.ContaPai;
+                    }else{
+                        company.CodigoExternoFatherAccount = valor.ZZCRED;
+                    }
+                    
                     companyList.add(company);
                 }
                 String statusType;
@@ -57,7 +66,6 @@ public without sharing class CalloutBP {
                 Name = valor.Nome,
                 Company__c = valor.Nome,    
                 ExternalId__c = valor.CodigoExterno,
-                ParentId = lookups.containsKey('Account'+valor.ContaPai) ? lookups.get('Account'+valor.ContaPai) : null,
                 CNPJ__c = valor.CNPJ,
                 CPF__c = valor.CPF,
                 MunicipalRegistration__c = valor.InscricaoMunicipal,
@@ -65,7 +73,13 @@ public without sharing class CalloutBP {
                 Email__c = email,
                 Phone = valor.Telefone,
                 Status__c = statusType);
-                
+                if(valor.ContaPai != null){
+                    ac.ParentId = lookups.containsKey('Account'+valor.ContaPai) ? lookups.get('Account'+valor.ContaPai) : null;
+                }else{
+                    ac.ParentId = lookups.containsKey('Account'+valor.ZZCRED) ? lookups.get('Account'+valor.ZZCRED) : null;
+                }
+                ac.RegisterTipe__c = valor.TipoRegistro;
+                ac.BpType__c = valor.TipoBp;
                 ac.ShippingStreet = valor.RuaEntrega;
                 ac.ShippingCity = valor.CidadeEntrega;
                 ac.ShippingState = valor.Estado;
@@ -166,6 +180,10 @@ public without sharing class CalloutBP {
                     accountIdsList.add(valor.ContaPai);
                     accountFatherIdsList.add(valor.ContaPai);
                 }
+                if(valor.ZZCRED != null){
+                    accountIdsList.add(valor.ZZCRED);
+                    accountFatherIdsList.add(valor.ZZCRED);
+                }
             }
             System.debug('accountIdsList: '+ accountIdsList);
             List<Account> accountListExternalId = new List<Account>([SELECT Id, ExternalId__c FROM Account WHERE ExternalId__c =: accountIdsList]);
@@ -180,7 +198,11 @@ public without sharing class CalloutBP {
                 }
                 for(CompanyINData company : valor.EstruturaOrganizacional){
                     company.CodigoExternoAccount = valor.CodigoExterno;
-                    company.CodigoExternoFatherAccount = valor.ContaPai;
+                    if(valor.ContaPai != null && valor.ContaPai != ''){
+                        company.CodigoExternoFatherAccount = valor.ContaPai;
+                    }else{
+                        company.CodigoExternoFatherAccount = valor.ZZCRED;
+                    }
                     companyList.add(company);
                 }
                 String statusType;
@@ -201,7 +223,6 @@ public without sharing class CalloutBP {
                 Name = valor.Nome,
                 Company__c = valor.Nome,    
                 ExternalId__c = valor.CodigoExterno,
-                ParentId = lookups.containsKey('Account'+valor.ContaPai) ? lookups.get('Account'+valor.ContaPai) : null,
                 CNPJ__c = valor.CNPJ,
                 CPF__c = valor.CPF,
                 MunicipalRegistration__c = valor.InscricaoMunicipal,
@@ -209,7 +230,13 @@ public without sharing class CalloutBP {
                 Email__c = email,
                 Phone = valor.Telefone,
                 Status__c = statusType);
-                
+                if(valor.ContaPai != null){
+                    ac.ParentId = lookups.containsKey('Account'+valor.ContaPai) ? lookups.get('Account'+valor.ContaPai) : null;
+                }else{
+                    ac.ParentId = lookups.containsKey('Account'+valor.ZZCRED) ? lookups.get('Account'+valor.ZZCRED) : null;
+                }
+                ac.RegisterTipe__c = valor.TipoRegistro;
+                ac.BpType__c = valor.TipoBp;
                 ac.ShippingStreet = valor.RuaEntrega;
                 ac.ShippingCity = valor.CidadeEntrega;
                 ac.ShippingState = valor.Estado;
@@ -765,6 +792,9 @@ public without sharing class CalloutBP {
         public String Nome;
         public String CodigoExterno;
         public String RuaEntrega;
+        public String TipoRegistro;
+        public String TipoBp;
+        public String ZZCRED;
         public String CidadeEntrega;
         public String Estado;
         public String PaisEntrega;
