@@ -5,5 +5,5 @@
     <mayForecastManagerShare>false</mayForecastManagerShare>
     <name>Vendedor FER-TAQUA</name>
     <opportunityAccessLevel>Edit</opportunityAccessLevel>
-    <parentRole>FER_TAQUA</parentRole>
+    <parentRole>BalcaoTaqua</parentRole>
 </Role>

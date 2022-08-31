@@ -101,6 +101,7 @@ global without sharing class IntegrationINOrder {
             paymentConditionLookups.add(order.paymentCondition);
             activitySectorLookups.add(order.ActivitySector);
             salesConditionLookups.add(order.condicaoVenda);
+            orderLookups.add(order.orderReference);
             idOrders.add(order.CodigoSap);
             
             for (TemplateDataIntegrationFields.OrderItemINData orderItem : order.orderItems) {

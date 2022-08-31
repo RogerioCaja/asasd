@@ -262,7 +262,7 @@ export default class OrderProductScreen extends LightningElement {
             listCost: currentProduct.listCost,
             practicedCost: currentProduct.practicedCost,
             initialTotalValue: currentProduct.initialTotalValue,
-            dosage: this.isFilled(currentProduct.dosage) ? currentProduct.dosage : '',
+            dosage: this.headerData.emptyHectar ? currentProduct.quantity : (this.isFilled(currentProduct.dosage) ? currentProduct.dosage : currentProduct.quantity / this.hectares),
             dosageFront: this.isFilled(currentProduct.dosage) ? this.fixDecimalPlacesFront(currentProduct.dosage) : '',
             quantity: currentProduct.quantity,
             motherAvailableQuantity: currentProduct.motherAvailableQuantity,
