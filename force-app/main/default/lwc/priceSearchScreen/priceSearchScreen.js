@@ -127,6 +127,7 @@ export default class PriceSearchScreen extends LightningElement {
                 salesOrgId: companyResult[0].salesOrgId != null ? companyResult[0].salesOrgId : '',
                 salesOfficeId: companyResult[0].salesOfficeId != null ? companyResult[0].salesOfficeId : '',
                 salesTeamId: companyResult[0].salesTeamId != null ? companyResult[0].salesTeamId : '',
+                accountId: this.isFilled(this.searchData.account.Id) ? this.searchData.account.Id : '',
                 numberOfRowsToSkip: 0
             };
 
