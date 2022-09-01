@@ -52,7 +52,8 @@ global with sharing class IntegrationINOrderItem {
                     }
 
                     if(conditions.KSCHL == 'ZCP0'){
-                        OrderItemINData.custoPreco = Decimal.valueOf(conditions.KBETR);
+                        Decimal custoPraticado = Decimal.valueOf(conditions.KBETR) / OrderItemINData.quantidade;
+                        OrderItemINData.custoPreco = custoPraticado;
                     }
                     
                     if(conditions.KSCHL == 'ZDEC'){
