@@ -22,7 +22,7 @@ public without sharing class OrderItemHelper {
         List<String> ordList = new List<String>();
         List<String> orderList = new List<String>();
         List<OrderItem> orderItemListM = new List<OrderItem>();
-        
+
         for(OrderItem ord : orderItemList){
             orderList.add(ord.OrderId);
         }
@@ -67,7 +67,7 @@ public without sharing class OrderItemHelper {
             if(ordMap.containsKey(concProductOrderRef)){
                 System.debug('ordMap Dentro' + ordMap);
                 OrderItem ordrItem = ordMap.get(concProductOrderRef);
-                System.debug('ordrItem ' + ordrItem);
+				System.debug('ordrItem ' + ordrItem);
                 if(ordemItem.Product2Id == ordrItem.Product2Id){
                     System.debug('orderItemListM ' + orderItemListM);
                     OrderItem orddItem = New OrderItem();

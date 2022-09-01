@@ -195,7 +195,7 @@ export default class OrderProductScreen extends LightningElement {
             approvalNumber: 1
         }
 
-        getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: false, verifyUserType: false})
+        getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: false, verifyUserType: false, priceScreen: false})
         .then((result) => {
             this.companyResult = JSON.parse(result).listCompanyInfos;
             if (this.headerData.companyId != null) {
@@ -262,7 +262,7 @@ export default class OrderProductScreen extends LightningElement {
             listCost: currentProduct.listCost,
             practicedCost: currentProduct.practicedCost,
             initialTotalValue: currentProduct.initialTotalValue,
-            dosage: this.isFilled(currentProduct.dosage) ? currentProduct.dosage : '',
+            dosage: this.headerData.emptyHectar ? currentProduct.quantity : (this.isFilled(currentProduct.dosage) ? currentProduct.dosage : currentProduct.quantity / this.hectares),
             dosageFront: this.isFilled(currentProduct.dosage) ? this.fixDecimalPlacesFront(currentProduct.dosage) : '',
             quantity: currentProduct.quantity,
             motherAvailableQuantity: currentProduct.motherAvailableQuantity,
@@ -358,7 +358,8 @@ export default class OrderProductScreen extends LightningElement {
                         searchString: '',
                         data: JSON.stringify(this.productParams),
                         isCommodity: false,
-                        productsIds: prodsIds
+                        productsIds: prodsIds,
+                        priceScreen: false
                     })
                     .then(result => {
                         this.productsPriceMap = result.recordsDataMap;
@@ -730,6 +731,8 @@ export default class OrderProductScreen extends LightningElement {
             if (remainder == 0) {
                 return quantity;
             } else {
+                quantity = this.fixDecimalPlacesFront(quantity);
+                quantity = quantity.toString().includes(',') ? Number(quantity.replace(',', '.')) : quantity;
                 quantity = Math.ceil(quantity / this.multiplicity) * this.multiplicity;
                 this.showToast('warning', 'Atenção!', 'A quantidade foi arredondada para ' + quantity + '.');
                 return quantity;
@@ -1144,8 +1147,10 @@ export default class OrderProductScreen extends LightningElement {
 
     deleteProduct(position) {
         let excludeProduct = JSON.parse(JSON.stringify(this.products));
-        
+        let excludedProducts = this.isFilled(this.excludedItems) ? JSON.parse(JSON.stringify(this.excludedItems)) : [];
+        excludedProducts.push(excludeProduct[position].orderItemId);
         excludeProduct.splice(position, 1);
+        
         if(excludeProduct.lenght - 1 != position){
             excludeProduct.forEach((product) => {
                 if(product.position > position) product.position -= 1
@@ -1168,6 +1173,8 @@ export default class OrderProductScreen extends LightningElement {
             this.recalculateCommodities()  ;
         }
 
+        this.excludedItems = this.isFilled(excludedProducts) ? excludedProducts : [];
+        this._setExcludedesItems();
         this._setData();
         this.showToast('success', 'Produto removido!', '');
     }
