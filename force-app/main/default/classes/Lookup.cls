@@ -8,7 +8,11 @@ public without sharing class Lookup {
 
         String query = getQueryBase(requestData);
         Set<Id> availableSalesCondition = new Set<Id>();
+        String position = 'SellerPosition';
 
+        if(requestData.targetObject == 'Territory2'){
+            query +=  'AND Territory2Type.DeveloperName =: position';
+        }
         if(requestData.targetObject == 'SalesCondition__c'){
             List<String> typeProducts;
             if( requestSalesCondition.typeOrder == 'Venda de Serviço'){

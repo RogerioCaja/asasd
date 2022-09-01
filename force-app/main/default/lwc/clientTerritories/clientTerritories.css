@@ -19,7 +19,7 @@ body {
     border-radius: 15px;
 }
 
-a, a:hover, a:focus, a:active {
+a, a:hover, a:focus, a:active, button {
     text-decoration: none;
     color: white;
     border: 1px solid #2A9676;
@@ -29,7 +29,7 @@ a, a:hover, a:focus, a:active {
     font-weight: bold;
 }
 
-a:hover{
+a:hover, button:hover{
     background: linear-gradient(to right,rgb(99, 206, 174), rgba(42, 150, 118, 1));
 }
 .title{
@@ -55,6 +55,9 @@ c-custom-order-search{
     flex-direction: column;
     gap:5px;
 }
+
+
+
 
 .pagination{
     display: flex;

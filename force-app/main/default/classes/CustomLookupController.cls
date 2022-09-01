@@ -297,6 +297,134 @@ public without sharing class CustomLookupController {
 	    }
     }
 
+    @AuraEnabled
+    public static TerritoryDataresult fetchAccountsWithTerritories(String searchString, String data){
+        try {
+            TerritoryDataresult result = new TerritoryDataresult();
+            result.dataList = new List<InformationData>();
+            TerritoryParams territoryParams = (TerritoryParams) JSON.deserialize(data, TerritoryParams.class);
+            if(territoryParams.ctv != '' && territoryParams.territory == ''){
+                List<UserTerritory2Association> territories = [SELECT User.Name, Territory2Id FROM UserTerritory2Association WHERE UserId =: territoryParams.ctv];
+                if(territories.size() > 0){
+                    UserTerritory2Association territory = territories[0];
+                    Set<String> fieldsSet = new Set<String>{'Id', 'Name', 'ExternalId__c'};
+                    Q accountQuery = new Q(Account.SObjectType)
+                                .selectFields(fieldsSet)
+                                .add(Q.condition('Name').isLike('%' + String.escapeSingleQuotes(searchString.trim()) + '%'));
+
+                    List<Account> accountList = Database.query(accountQuery.build());
+                    Map<Id, Account> accountMap = new Map<Id, Account>();
+                    for(Account acc : accountList){
+                        accountMap.put(acc.Id, acc);
+                    }
+
+                    Integer counter = [SELECT COUNT() FROM ObjectTerritory2Association
+                                        WHERE ObjectId IN: accountMap.keySet() AND Territory2Id =: territory.Territory2Id];
+                    result.counter = counter;
+                    List<ObjectTerritory2Association> objectList = [SELECT ObjectId, Territory2Id, Territory2.Name, Territory2.ParentTerritory2.Name FROM ObjectTerritory2Association
+                                                                    WHERE ObjectId IN: accountMap.keySet() AND Territory2Id =: territory.Territory2Id LIMIT 30 OFFSET : territoryParams.offSet];
+                                                                    System.debug('objectList => ' + objectList);
+                    for(ObjectTerritory2Association objectItem : objectList){
+                        InformationData resultData = new InformationData();
+                        if(accountMap.containsKey(objectItem.ObjectId)){
+                            resultData.accountCode = accountMap.get(objectItem.ObjectId).ExternalId__c;
+                            resultData.accountName = accountMap.get(objectItem.ObjectId).Name;
+                            resultData.actualCTV = territory.User.Name;
+                            resultData.territoryName = objectItem.Territory2.Name;
+                            resultData.territoryFatherName = objectItem.Territory2.ParentTerritory2.Name;
+                            result.dataList.add(resultData);
+                        }
+                    }
+                }
+                return result;
+            }
+            else if(territoryParams.ctv == '' && territoryParams.territory != ''){
+                List<UserTerritory2Association> territories = [SELECT User.Name, Territory2Id FROM UserTerritory2Association WHERE Territory2Id =: territoryParams.territory LIMIT 1];
+                if(territories.size() > 0){
+                    UserTerritory2Association territory = territories[0];
+                    
+                    Set<String> fieldsSet = new Set<String>{'Id', 'Name', 'ExternalId__c'};
+                    Q accountQuery = new Q(Account.SObjectType)
+                    .selectFields(fieldsSet)
+                    .add(Q.condition('Name').isLike('%' + String.escapeSingleQuotes(searchString.trim()) + '%'));
+                    
+                    List<Account> accountList = Database.query(accountQuery.build());
+                    Map<Id, Account> accountMap = new Map<Id, Account>();
+                    for(Account acc : accountList){
+                        accountMap.put(acc.Id, acc);
+                    }
+
+                    Integer counter = [SELECT COUNT() FROM ObjectTerritory2Association
+                                        WHERE ObjectId IN: accountMap.keySet() AND Territory2Id =: territory.Territory2Id];
+                    result.counter = counter;
+
+                    List<ObjectTerritory2Association> objectList = [SELECT ObjectId, Territory2Id, Territory2.Name, Territory2.ParentTerritory2.Name FROM ObjectTerritory2Association
+                                                                    WHERE ObjectId IN: accountMap.keySet() AND Territory2Id =: territory.Territory2Id LIMIT 30 OFFSET : territoryParams.offSet];
+
+                    for(ObjectTerritory2Association objectItem : objectList){
+                        InformationData resultData = new InformationData();
+                        if(accountMap.containsKey(objectItem.ObjectId)){
+                            resultData.accountCode = accountMap.get(objectItem.ObjectId).ExternalId__c;
+                            resultData.accountName = accountMap.get(objectItem.ObjectId).Name;
+                            resultData.actualCTV = territory.User.Name;
+                            resultData.territoryName = objectItem.Territory2.Name;
+                            resultData.territoryFatherName = objectItem.Territory2.ParentTerritory2.Name;
+                            result.dataList.add(resultData);
+                        }
+                    }
+                }
+                return result;
+            }else{
+                Map<Id, Id> ctvToTerritory = new Map<Id, Id>();
+                List<UserTerritory2Association> territoryList = [SELECT User.Name, Territory2Id FROM UserTerritory2Association WHERE UserId =: territoryParams.ctv OR Territory2Id =: territoryParams.territory];
+                if(territoryList != null && territoryList.size() > 0){
+                        for(UserTerritory2Association userTerr : territoryList){
+                            if(!ctvToTerritory.containsKey(userTerr.Territory2Id)){
+                                ctvToTerritory.put(userTerr.Territory2Id, userTerr.User.Name);
+                            }
+                        }
+                    
+                    
+                    Set<String> fieldsSet = new Set<String>{'Id', 'Name', 'ExternalId__c'};
+                    Q accountQuery = new Q(Account.SObjectType)
+                    .selectFields(fieldsSet)
+                    .add(Q.condition('Name').isLike('%' + String.escapeSingleQuotes(searchString.trim()) + '%'));
+
+                    List<Account> accountList = Database.query(accountQuery.build());
+                    Map<Id, Account> accountMap = new Map<Id, Account>();
+                    for(Account acc : accountList){
+                        accountMap.put(acc.Id, acc);
+                    }
+
+                    Integer counter = [SELECT COUNT() FROM ObjectTerritory2Association
+                                        WHERE ObjectId IN: accountMap.keySet() AND Territory2Id IN: ctvToTerritory.keySet()];
+                    result.counter = counter;
+
+                    List<ObjectTerritory2Association> objectList = [SELECT ObjectId, Territory2Id, Territory2.Name, Territory2.ParentTerritory2.Name FROM ObjectTerritory2Association
+                                        WHERE ObjectId IN: accountMap.keySet() AND Territory2Id IN: ctvToTerritory.keySet() LIMIT 30 OFFSET : territoryParams.offSet];
+                    Map<Id, ObjectTerritory2Association> objectMap = new Map<Id, ObjectTerritory2Association>();
+                    for(ObjectTerritory2Association objectItem : objectList){
+                        objectMap.put(objectItem.Territory2Id, objectItem);
+                    }
+                    for(ObjectTerritory2Association objectItem : objectList){
+                        InformationData resultData = new InformationData();
+                        if(accountMap.containsKey(objectItem.ObjectId)){
+                            resultData.accountCode = accountMap.get(objectItem.ObjectId).ExternalId__c;
+                            resultData.accountName = accountMap.get(objectItem.ObjectId).Name;
+                            resultData.actualCTV = ctvToTerritory.get(objectItem.Territory2Id);
+                            resultData.territoryName = objectMap.get(objectItem.Territory2Id).Territory2.Name;
+                            resultData.territoryFatherName = objectMap.get(objectItem.Territory2Id).Territory2.ParentTerritory2.Name;
+                            result.dataList.add(resultData);
+                        }
+                    }
+                }
+                return result;
+            }
+        } catch (Exception e) {
+            throw new AuraHandledException(e.getMessage());
+        }
+    }
+
     public class RecordsData {
 
         @AuraEnabled public String label;
@@ -378,5 +506,25 @@ public without sharing class CustomLookupController {
         @AuraEnabled public Id salesTeamId;
         @AuraEnabled public String segmento;
         @AuraEnabled public String searchString;
+    }
+
+    public class TerritoryParams{
+        public String territory;
+        public String ctv;
+        public Integer offSet;
+    }
+
+    public class InformationData{
+        @AuraEnabled public String accountName;
+        @AuraEnabled public String accountCode;
+        @AuraEnabled public String actualCTV;
+        @AuraEnabled public String territoryName;
+        @AuraEnabled public String territoryFatherName;
+    }
+
+
+    public class TerritoryDataresult{
+        @AuraEnabled public List<InformationData> dataList;
+        @AuraEnabled public Integer counter = 0;
     }
 }

@@ -21,116 +21,17 @@ const columns = [
 ];
 export default class ClientTerritories extends LightningElement {
     columns = columns;
-    @api totalNumberOfRows = 5000;
-    headerData = {
+    flag= true;
+    @api territoryParams = {
         territory: '',
         ctv: '',
-        option: ''
+        offSet: 0,
+        option: 'add'
     }
-    datas = [{
-        
-        accountName: 'A',
-        accountCode: 'A',
-        actualCTV: 'A',
-        territoryName: 'A',
-        territoryFatherName: 'A',
-        
-    },
-    {
-        
-        accountName: 'A',
-        accountCode: 'A',
-        actualCTV: 'A',
-        territoryName: 'A',
-        territoryFatherName: 'A',
-        
-    },
-    {
-        
-        accountName: 'B',
-        accountCode: 'B',
-        actualCTV: 'B',
-        territoryName: 'B',
-        territoryFatherName: 'B',
-        
-    },
-    {
-        
-        accountName: 'C',
-        accountCode: 'C',
-        actualCTV: 'C',
-        territoryName: 'C',
-        territoryFatherName: 'C',
-        
-    },
-    {
-        
-        accountName: 'D',
-        accountCode: 'D',
-        actualCTV: 'D',
-        territoryName: 'D',
-        territoryFatherName: 'D',
-        
-    },
-    {
-        
-        accountName: 'E',
-        accountCode: 'E',
-        actualCTV: 'E',
-        territoryName: 'E',
-        territoryFatherName: 'E',
-        
-    },
-    {
-        
-        accountName: 'F',
-        accountCode: 'F',
-        actualCTV: 'F',
-        territoryName: 'F',
-        territoryFatherName: 'F',
-        
-    },
-    {
-        
-        accountName: 'G',
-        accountCode: 'G',
-        actualCTV: 'G',
-        territoryName: 'G',
-        territoryFatherName: 'G',
-        
-    },
-    {
-        
-        accountName: 'H',
-        accountCode: 'H',
-        actualCTV: 'H',
-        territoryName: 'H',
-        territoryFatherName: 'H',
-        
-    },
-    ]
-
-    value = 'add';
-
-    loadMoreData(event) {
-        //Display a spinner to signal that data is being loaded
-        // event.target.isLoading = true;
-        // //Display "Loading" when more data is being loaded
-        // this.loadMoreStatus = 'Loading';
-        // fetchData(50).then((data) => {
-        //     if (data.length >= this.totalNumberOfRows) {
-        //         event.target.enableInfiniteLoading = false;
-        //         this.loadMoreStatus = 'No more data to load';
-        //     } else {
-        //         const currentData = this.datas;
-        //         //Appends new data to the end of the table
-        //         const newData = currentData.concat(data);
-        //         this.datas = newData;
-        //         this.loadMoreStatus = '';
-        //     }
-        //     event.target.isLoading = false;
-        // });
-    }
+    oldOffset = 0
+    datas = []
+    datasReceived = 0;
+   
     get options() {
         return [
             { label: 'Adicionar', value: 'add' },
@@ -161,15 +62,47 @@ export default class ClientTerritories extends LightningElement {
         loadStyle(this, NoHeader)
     }
 
-    onNextPage(){
-        this.datas = [{
+    selectItemRegister(event){
+        const { record } = event.detail;
+        this.territoryParams[event.target.dataset.targetId] = record.Id;
+    }
+
+    removeItemRegister(event){
+        this.territoryParams[event.target.dataset.targetId] = ''
+    }
+
+    async showMore(){
+        var field = 'object-territory-search';
+        var field2 = 'show-more'
+
+        if(this.datas.length != this.datasReceived) this.template.querySelector(`[data-target-id="${field}"]`).fetchData();
         
-            accountName: 'Z',
-            accountCode: 'Z',
-            actualCTV: 'Z',
-            territoryName: 'Z',
-            territoryFatherName: 'Z',
-            
-        }]
+        if(this.datas.length == this.datasReceived){
+            setTimeout(() => {
+                this.template.querySelector(`[data-target-id="${field2}"]`).disabled = true
+                this.template.querySelector(`[data-target-id="${field2}"]`).innerText = 'Não há mais dados para serem carregados'
+            })
+            this.territoryParams.offSet = 0;
+        }
+    }
+
+    showResults(event){
+        var field2 = 'show-more'
+        
+        if(this.territoryParams.offSet == 0)  {
+                setTimeout(() => {
+                this.template.querySelector(`[data-target-id="${field2}"]`).innerText = 'Mais registros'
+                this.template.querySelector(`[data-target-id="${field2}"]`).disabled = false
+            })
+            this.datas = []
+        }
+        this.datas = this.datas.concat(event.results.dataList);
+        this.datasReceived = event.results.counter;
+        this.territoryParams.offSet += 30;
+    }
+
+    resetData(event){
+        this.datas = [];
+        this.territoryParams.offSet = 0;
     }
 }
