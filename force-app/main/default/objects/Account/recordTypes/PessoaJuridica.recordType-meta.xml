@@ -16,6 +16,17 @@
         </values>
     </picklistValues>
     <picklistValues>
+        <picklist>BpType__c</picklist>
+        <values>
+            <fullName>Propriedade</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Proprietário</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
         <picklist>Industry</picklist>
         <values>
             <fullName>Agriculture</fullName>
@@ -177,6 +188,13 @@
         </values>
         <values>
             <fullName>Warm</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>RegisterTipe__c</picklist>
+        <values>
+            <fullName>FLCU01</fullName>
             <default>false</default>
         </values>
     </picklistValues>
