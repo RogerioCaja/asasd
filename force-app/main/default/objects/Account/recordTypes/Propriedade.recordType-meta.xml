@@ -192,6 +192,13 @@
         </values>
     </picklistValues>
     <picklistValues>
+        <picklist>RegisterTipe__c</picklist>
+        <values>
+            <fullName>FLCU01</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
         <picklist>Status__c</picklist>
         <values>
             <fullName>Ativo</fullName>
