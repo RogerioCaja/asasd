@@ -22,7 +22,7 @@
             <default>false</default>
         </values>
         <values>
-            <fullName>Proprietário</fullName>
+            <fullName>Proprietario</fullName>
             <default>false</default>
         </values>
     </picklistValues>
