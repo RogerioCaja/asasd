@@ -54,7 +54,8 @@ public without sharing class CustomLookupController {
             ProductParams productParams = (ProductParams) JSON.deserialize(data, ProductParams.class);
             System.debug('productParams: ' + productParams);
             Id commodityRecType = Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get('ZPR0').getRecordTypeId();
-            List<Account> lstAccount = [SELECT Industry FROM Account WHERE Id =: productParams.accountId];
+            List<Account> lstAccount = new List<Account>();
+            if (productParams.accountId != '') lstAccount = [SELECT Industry FROM Account WHERE Id =: productParams.accountId];
 
             SalesResult salesResult = new SalesResult();
             salesResult.salesOrgId = productParams.salesOrgId;
