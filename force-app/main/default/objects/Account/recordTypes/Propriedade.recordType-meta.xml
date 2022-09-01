@@ -16,6 +16,17 @@
         </values>
     </picklistValues>
     <picklistValues>
+        <picklist>BpType__c</picklist>
+        <values>
+            <fullName>Propriedade</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Proprietario</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
         <picklist>Industry</picklist>
         <values>
             <fullName>Agriculture</fullName>
