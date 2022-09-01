@@ -18,11 +18,11 @@
     <picklistValues>
         <picklist>BpType__c</picklist>
         <values>
-            <fullName>Cliente</fullName>
+            <fullName>Propriedade</fullName>
             <default>false</default>
         </values>
         <values>
-            <fullName>Propriedade</fullName>
+            <fullName>Proprietário</fullName>
             <default>false</default>
         </values>
     </picklistValues>

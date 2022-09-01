@@ -11,7 +11,7 @@
         <valueSetDefinition>
             <sorted>false</sorted>
             <value>
-                <fullName>Cliente</fullName>
+                <fullName>Proprietário</fullName>
                 <default>false</default>
                 <label>Cliente</label>
             </value>
