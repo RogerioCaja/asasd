@@ -1,10 +1,15 @@
 import { LightningElement, track, api}from 'lwc';
 
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+
 import CTV_OBJECT from '@salesforce/schema/User';
 import CTV_NAME from '@salesforce/schema/User.Name';
 
 import TERRITORY_OBJECT from '@salesforce/schema/Territory2';
 import TERRITORY_NAME from '@salesforce/schema/Territory2.Name';
+
+
+import realizeTransaction from '@salesforce/apex/ClientTerritoryController.realizeTransaction';
 
 import NoHeader from '@salesforce/resourceUrl/NoHeader';
 import {
@@ -22,15 +27,23 @@ const columns = [
 export default class ClientTerritories extends LightningElement {
     columns = columns;
     flag= true;
+    openModal = false;
+    openModalAddOrRemove = false;
+    isRemoved = false;
+    valval = 'utility:close';
+    enableLoad = 'Não há mais Registros para serem carregados';
+    territorySelected;
+    territories = [];
+    accountsCodes = [];
     @api territoryParams = {
         territory: '',
         ctv: '',
         offSet: 0,
         option: 'add'
     }
-    oldOffset = 0
     datas = []
     datasReceived = 0;
+
    
     get options() {
         return [
@@ -64,7 +77,12 @@ export default class ClientTerritories extends LightningElement {
 
     selectItemRegister(event){
         const { record } = event.detail;
-        this.territoryParams[event.target.dataset.targetId] = record.Id;
+        if(event.target.dataset.targetId == 'territory_selected'){
+            this.territorySelected = {Id: record.Id, Name: record.Name};
+        }else{
+            this.territoryParams[event.target.dataset.targetId] = record.Id;
+        }
+        
     }
 
     removeItemRegister(event){
@@ -80,7 +98,8 @@ export default class ClientTerritories extends LightningElement {
         if(this.datas.length == this.datasReceived){
             setTimeout(() => {
                 this.template.querySelector(`[data-target-id="${field2}"]`).disabled = true
-                this.template.querySelector(`[data-target-id="${field2}"]`).innerText = 'Não há mais dados para serem carregados'
+                this.valval = 'utility:close'
+                this.enableLoad = 'Não há mais Registros para serem carregados'
             })
             this.territoryParams.offSet = 0;
         }
@@ -91,8 +110,9 @@ export default class ClientTerritories extends LightningElement {
         
         if(this.territoryParams.offSet == 0)  {
                 setTimeout(() => {
-                this.template.querySelector(`[data-target-id="${field2}"]`).innerText = 'Mais registros'
                 this.template.querySelector(`[data-target-id="${field2}"]`).disabled = false
+                this.valval = 'utility:jump_to_bottom'
+                this.enableLoad = 'Mais registros'
             })
             this.datas = []
         }
@@ -104,5 +124,67 @@ export default class ClientTerritories extends LightningElement {
     resetData(event){
         this.datas = [];
         this.territoryParams.offSet = 0;
+    }
+
+    openModalScreen(){
+        this.territories = [];
+        this.accountsCodes = [];
+        var selectedRows = this.template.querySelector("lightning-datatable").getSelectedRows();
+        selectedRows.forEach((key) => {
+            if(!this.territories.includes(key.territoryName))
+                this.territories.push(key.territoryName)
+            if(!this.accountsCodes.includes(key.accountCode))
+                this.accountsCodes.push(key.accountCode)
+        })
+        if(this.territoryParams.option == 'remove') this.isRemoved = true; else this.isRemoved = false;
+        if(this.territoryParams.option == 'add' || this.territoryParams.option == 'remove') this.openModalAddOrRemove = true;
+        else this.openModal = true;
+    }
+
+    cancel(){
+        this.openModal = false;
+        this.openModalAddOrRemove = false;
+    }
+
+    onChangeOption(event){
+        this.territoryParams.option = event.target.value;
+    }
+
+    onSave(){
+        try{
+        if(!this.territorySelected){
+            this.showToast('warning', 'Atenção', 'Selecione o território de destino')
+            return;
+        }
+        this.territories.forEach((terr) => {
+            if(this.territorySelected.Name == terr){
+                this.showToast('warning', 'Atenção', 'Não é possível adicionar/remover no território atual da conta')
+                return;
+            }
+        })
+        realizeTransaction({
+            data: JSON.stringify({accountCodes: this.accountsCodes, territoryName: this.territories, territoryToGo: this.territorySelected.Id, action: this.territoryParams.option})
+        }).then((result) => {
+            console.log(JSON.stringify(result))
+            if(result.status == true){
+                this.showToast('success', 'Sucesso', 'Ação realizada com Sucesso');
+            }else{
+                this.showToast('error', 'Erro', result.message);
+            }
+            this.cancel()
+        })
+    }catch(err){
+        console.log(err)
+    }
+
+    }
+
+    showToast(type, title, message) {
+        let event = new ShowToastEvent({
+            variant: type,
+            title: title,
+            message: message,
+        });
+        this.dispatchEvent(event);
     }
 }

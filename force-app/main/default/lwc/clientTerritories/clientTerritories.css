@@ -53,7 +53,22 @@ c-custom-order-search{
 .table-and-pagination{
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap:5px;
+}
+
+.table-and-pagination > div > button{
+    width: 400px;
+    background-color: white;
+    border:none;
+    border-radius: 50%;
+    color: black !important;
+}
+
+
+.table-and-pagination > div > button:hover{
+    background: none !important;
+    background-color: white;
 }
 
 
@@ -76,3 +91,71 @@ c-custom-order-search{
     display: flex;
     justify-content: end;
 }
+.back-gray{
+    
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.4);
+   
+}
+.modal{
+    min-height: 280px;
+    width: 520px;
+    padding: 20px;;
+    z-index: 99999;
+    background: white;
+    border-radius: 20px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    /* bring your own prefixes */
+    transform: translate(-50%, -50%);
+}
+
+.choose-territory{
+    display: flex;
+    flex-direction: row;
+    padding-top: 50px;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.buttons-confirm-cancel{
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+    padding-top: 50px;
+    gap: 10px;
+}
+
+.cancel{
+    background-color: white !important;
+    color: black !important;
+}
+
+.cancel:hover{
+    background: none !important;
+    background-color: white !important;
+    color: black !important;
+}
+
+.confirm-action{
+    display: flex;
+    flex-direction: column;
+    padding-top: 10px;
+    gap:10px;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.load-more{
+
+}
+
+

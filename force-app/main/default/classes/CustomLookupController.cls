@@ -375,7 +375,7 @@ public without sharing class CustomLookupController {
                 }
                 return result;
             }else{
-                Map<Id, Id> ctvToTerritory = new Map<Id, Id>();
+                Map<Id, String> ctvToTerritory = new Map<Id, String>();
                 List<UserTerritory2Association> territoryList = [SELECT User.Name, Territory2Id FROM UserTerritory2Association WHERE UserId =: territoryParams.ctv OR Territory2Id =: territoryParams.territory];
                 if(territoryList != null && territoryList.size() > 0){
                         for(UserTerritory2Association userTerr : territoryList){
