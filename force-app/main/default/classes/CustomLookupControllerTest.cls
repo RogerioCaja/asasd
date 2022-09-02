@@ -236,6 +236,10 @@ public class CustomLookupControllerTest {
             ProductGroup__c = productGroup.Id
         );
         insert comission;
+
+      
+        
+        
     }
 
     @isTest
@@ -271,5 +275,49 @@ public class CustomLookupControllerTest {
         Id salesTeamId = [SELECT Id FROM SalesTeam__c LIMIT 1].Id;
 
         CustomLookupController.fetchProductsRecords('Soja', '{"salesConditionId":"' + scId + '","accountId":"' + accountId + '","ctvId":"' + UserInfo.getUserId() + '","safra":"' + cropId +'","productCurrency":"BRL","culture":"' + cultureId + '","orderType":"Venda Normal","supplierCenter":"1010","salesOrgId":"' + salesOrgId + '","salesOfficeId":"' + salesOfficeId + '","salesTeamId":"' + salesTeamId + '","numberOfRowsToSkip":0}', true, new List<String>{}, false);
+    }
+
+    @isTest
+    public static void fetchAccountsWithTerritoriesTest(){
+        Id terr;
+        Id objAss;
+        Id userAss;
+        System.runAs(new User(Id = UserInfo.getUserId())){
+            terr = createTerritory();
+            objAss = createObjectAss(terr);
+            userAss = createUserAss(terr);
+
+            
+        CustomLookupController.fetchAccountsWithTerritories('P','{"territory":"","ctv":"'+ UserInfo.getUserId()+ '","offSet":0,"option":"addRemove"}');
+        CustomLookupController.fetchAccountsWithTerritories('p','{"territory":"'+ terr + '","ctv":"","offSet":0,"option":"addRemove"}');
+        CustomLookupController.fetchAccountsWithTerritories('p','{"territory":"'+ terr + '","ctv":"'+ UserInfo.getUserId()+ '","offSet":0,"option":"addRemove"}');
+        }
+
+    }
+
+    public static Id createObjectAss(Id terr){
+        Id accountId = [SELECT Id FROM Account WHERE Name = 'Parent Account' LIMIT 1].Id;
+        ObjectTerritory2Association objObjectTerritory2Association = new ObjectTerritory2Association(ObjectId = accountId, Territory2Id =terr, AssociationCause='Territory2Manual' );
+        insert objObjectTerritory2Association;
+        return objObjectTerritory2Association.Id;
+    }
+
+    public static Id createTerritory(){
+        Territory2Type terrModel = [SELECT Id FROM Territory2Type LIMIT 1];
+        Territory2Model model = [SELECT Id FROM Territory2Model LIMIT 1];
+        Territory2 objTerr = new Territory2(); 
+            objTerr.Description = 'Description__c';
+            objTerr.Name = 'Name';
+            objTerr.DeveloperName = 'Name';
+            objTerr.Territory2TypeId = terrModel.Id;
+            objTerr.Territory2ModelId = model.Id;
+        insert objTerr;
+        return objTerr.Id;
+    }
+
+    public static Id createUserAss(Id terr){
+        UserTerritory2Association userTerrAssociation = new UserTerritory2Association(Territory2Id= terr, UserId= UserInfo.getUserId(), RoleInTerritory2='Sales / Marketing Manager');
+        insert userTerrAssociation;
+        return userTerrAssociation.Id;
     }
 }
