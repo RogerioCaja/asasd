@@ -1,14 +1,4 @@
 public without sharing class ClientTerritoryController {
-    public ClientTerritoryController() {
-
-    }
-
-    @AuraEnabled
-    public static ResponseTerritory getTerritoriesFrom(List<String> territories){
-        Map<Id, Territory2> territoriesMap = new Map<Id, Territory2>([SELECT Id FROM Territory2 WHERE Name IN: territories]);
-        return new ResponseTerritory(territoriesMap.keySet());
-    }
-
     @AuraEnabled
     public static ResponseData realizeTransaction(string data){
         ParametersWrapper parameters = (ParametersWrapper)JSON.deserialize(data, ParametersWrapper.class);
@@ -126,14 +116,6 @@ public without sharing class ClientTerritoryController {
         }
 
         return response;
-    }
-
-    public class ResponseTerritory{
-        @AuraEnabled public List<Id> territories;
-        
-        public ResponseTerritory(Set<Id> territoriesIds){
-            this.territories = new List<Id>(territoriesIds);
-        }
     }
 
     public class ResponseData{
