@@ -19,7 +19,7 @@ export default class Lookup extends LightningElement {
 	@api salesType = null;
 	@api salesOrg = null;
 	@api currencyOption = null;
-	@api clientTerritoriesScreen;
+	@api clientTerritoriesScreen = false;
 
 	@api parentRecordList; // Valor do WHERE =
 	@api parentRelationFieldList; // Campo do WHERE =
