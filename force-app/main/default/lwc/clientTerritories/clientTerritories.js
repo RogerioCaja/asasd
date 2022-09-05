@@ -25,6 +25,7 @@ const columns = [
     { label: 'Nome do Território Pai', fieldName: 'territoryFatherName' },
 ];
 export default class ClientTerritories extends LightningElement {
+    @api teste;
     columns = columns;
     flag= true;
     openModal = false;
@@ -73,8 +74,16 @@ export default class ClientTerritories extends LightningElement {
 
     connectedCallback(){
         loadStyle(this, NoHeader)
+        this.modifyStyle()
     }
 
+    modifyStyle(){
+        var field2 = 'object-territory-search'
+        setTimeout(() => {
+            this.template.querySelector(`[data-target-id="${field2}"]`).percentage = 15;
+            
+        })
+    }
     selectItemRegister(event){
         const { record } = event.detail;
         if(event.target.dataset.targetId == 'territory_selected'){
