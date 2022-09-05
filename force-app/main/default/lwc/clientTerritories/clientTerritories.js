@@ -140,6 +140,10 @@ export default class ClientTerritories extends LightningElement {
         this.territories = [];
         this.accountsCodes = [];
         var selectedRows = this.template.querySelector("lightning-datatable").getSelectedRows();
+        if(!selectedRows){
+            this.showToast('warning', 'Atenção', 'Selecione pelo menos uma conta')
+            return;
+        }
         selectedRows.forEach((key) => {
             if(!this.territories.includes(key.territoryName))
                 this.territories.push(key.territoryName)
@@ -162,17 +166,19 @@ export default class ClientTerritories extends LightningElement {
 
     onSave(){
         try{
+            let shouldContinue = true;
             this.isLoading = true;
             if(!this.territorySelected && this.territoryParams.option != 'remove'){
                 this.showToast('warning', 'Atenção', 'Selecione o território de destino')
                 return;
             }
             this.territories.forEach((terr) => {
-                if(this.territorySelected.Name == terr){
+                if(this.territorySelected.Name == terr && this.territoryParams.option != 'remove'){
                     this.showToast('warning', 'Atenção', 'Não é possível adicionar/remover no território atual da conta')
-                    return;
+                    shouldContinue = false;
                 }
             })
+            if(!shouldContinue) return;
             realizeTransaction({
                 data: JSON.stringify({accountCodes: this.accountsCodes, territoryName: this.territories, territoryToGo: this.territorySelected.Id, action: this.territoryParams.option})
             }).then((result) => {
