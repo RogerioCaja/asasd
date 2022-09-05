@@ -19,6 +19,7 @@ export default class Lookup extends LightningElement {
 	@api salesType = null;
 	@api salesOrg = null;
 	@api currencyOption = null;
+	@api clientTerritoriesScreen = false;
 
 	@api parentRecordList; // Valor do WHERE =
 	@api parentRelationFieldList; // Campo do WHERE =
@@ -253,7 +254,7 @@ export default class Lookup extends LightningElement {
 				currencyGet: this.currencyOption != null ? this.currencyOption : '',
 				typeOrder: this.salesType != null ? this.salesType : ''
 			}
-			const data = await getRecords({ data: JSON.stringify(requestData), barterSale: this.barterSale, salesConditionData: JSON.stringify(salesConditionData) });
+			const data = await getRecords({ data: JSON.stringify(requestData), barterSale: this.barterSale, salesConditionData: JSON.stringify(salesConditionData), priceScreen:false, clientTerritoriesScreen: this.clientTerritoriesScreen });
 			//console.log('data lookup fon =>', JSON.parse(JSON.stringify(data)));
 
 			var dataResult = [];

@@ -2780,6 +2780,10 @@
         <visibility>Visible</visibility>
     </tabSettings>
     <tabSettings>
+        <tab>Carteiriza_o_de_Clientes</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
         <tab>Comissao__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>

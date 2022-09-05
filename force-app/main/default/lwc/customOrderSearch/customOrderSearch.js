@@ -6,12 +6,14 @@ import {
 import fetchRecords from '@salesforce/apex/CustomLookupController.fetchRecords';
 import fetchOrderRecords from '@salesforce/apex/CustomLookupController.fetchProductsRecords';
 import fetchAccountRecords from '@salesforce/apex/CustomAccountLookupController.fetchAccountRecords';
+import fetchAccountsWithTerritories from '@salesforce/apex/CustomLookupController.fetchAccountsWithTerritories';
 import {
     ShowToastEvent
 } from 'lightning/platformShowToastEvent';
 
 export default class CustomOrderSearch extends LightningElement {
 
+    @api percentage = 30;
     @api objectName;
     @api fieldName;
     @api value;
@@ -20,6 +22,7 @@ export default class CustomOrderSearch extends LightningElement {
     @api placeholder;
     @api className;
     @api productParams;
+    @api territoryParams;
     @api required = false;
     @track searchString;
     @track selectedRecord;
@@ -51,6 +54,10 @@ export default class CustomOrderSearch extends LightningElement {
         },
     ];
 
+    get getStyle() {
+        return 'width: ' + this.percentage + '% !important';
+    }
+
     connectedCallback() {
         if (this.value)
             this.fetchData();
@@ -59,6 +66,8 @@ export default class CustomOrderSearch extends LightningElement {
     searchRecords(event) {
         console.log('searchRecords function');
         this.searchString = this.template.querySelector('input[name="search"]').value;
+        const tabEvent = new CustomEvent("modesearch");
+        this.dispatchEvent(tabEvent)
         console.log(this.searchString);
         if (this.searchString) {
             this.fetchData();
@@ -68,7 +77,7 @@ export default class CustomOrderSearch extends LightningElement {
         }
     }
 
-    fetchData() {
+    @api fetchData() {
         this.showSpinner = true;
         this.message = '';
         this.recordsList = [];
@@ -126,14 +135,49 @@ export default class CustomOrderSearch extends LightningElement {
                         tabEvent.showResults = true;
                         tabEvent.message = "Nenhum registro encontrado para '" + this.searchString + "'";
                     }
-
                     this.dispatchEvent(tabEvent);
                     this.showSpinner = false;
                 }).catch(error => {
                     this.message = error.message;
                     this.showSpinner = false;
                 });
-        } else {
+        }else if(this.objectName == 'ObjectTerritory2Association'){
+            console.log('this.territoryParams: ' + JSON.stringify(this.territoryParams));
+            if(this.territoryParams.territory == '' && this.territoryParams.ctv == '') {
+                this.showSpinner = false;
+                this.showNotification('Pelo menos um dos campos deve estar preenchido(CTV ou Território)')
+                return;
+            }
+            
+            fetchAccountsWithTerritories({
+                searchString: this.searchString,
+                data: JSON.stringify(this.territoryParams)
+            })
+            .then(result => {
+                const tabEvent = new CustomEvent("showresults");
+                if (result && result.length > 0) {
+                    this.recordsList = result;
+                    /*console.log(JSON.parse(JSON.stringify(result)));
+                    if (selectedAccount) { this.recordsList.filter(x => x.Id !== this.selectedRecord.Id); }
+                    console.log(JSON.parse(JSON.stringify( this.recordsList)));*/
+                    this.showResultList = true;
+
+                    tabEvent.results = this.recordsList;
+                    tabEvent.showResults = true;
+                    tabEvent.message = false;
+                } else {
+                    tabEvent.results = result;
+                    tabEvent.showResults = true;
+                    tabEvent.message = "Nenhum registro encontrado para '" + this.searchString + "'";
+                }
+                this.dispatchEvent(tabEvent);
+                this.showSpinner = false;
+            }).catch(error => {
+                this.message = error.message;
+                this.showSpinner = false;
+            });
+        }
+         else {
             fetchRecords({
                     objectName: this.objectName,
                     filterField: this.fieldName,
@@ -164,7 +208,7 @@ export default class CustomOrderSearch extends LightningElement {
                     this.showSpinner = false;
                 });
         }
-
+  
     }
 
     dispatchEventHandler(recordId) {
