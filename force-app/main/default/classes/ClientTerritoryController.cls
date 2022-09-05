@@ -27,7 +27,7 @@ public without sharing class ClientTerritoryController {
         String message = '';
 
         Map<Id, Account> accountMap = new Map<Id, Account>([SELECT Id, Name, ParentId FROM Account WHERE ExternalId__c IN: parameters.accountCodes]);
-        Set<Id> accountSet = accountMap.keySet();
+        Set<Id> accountSet = accountMap.keySet().clone();
         if(isDoubleAction){
             for(Id id : accountMap.keySet()){
                 if(accountMap.get(id).ParentId != null){
@@ -74,7 +74,7 @@ public without sharing class ClientTerritoryController {
         String message = '';
 
         Map<Id, Account> accountMap = new Map<Id, Account>([SELECT Id, Name, ParentId FROM Account WHERE ExternalId__c IN: parameters.accountCodes]);
-        Set<Id> accountSet = accountMap.keySet();
+        Set<Id> accountSet = accountMap.keySet().clone();
         if(isDoubleAction){
             for(Id id : accountMap.keySet()){
                 if(accountMap.get(id).ParentId != null){
