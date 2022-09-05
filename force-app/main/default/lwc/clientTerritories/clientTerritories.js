@@ -173,7 +173,7 @@ export default class ClientTerritories extends LightningElement {
                 return;
             }
             this.territories.forEach((terr) => {
-                if(this.territorySelected.Name == terr){
+                if(this.territorySelected.Name == terr && this.territoryParams.option != 'remove'){
                     this.showToast('warning', 'Atenção', 'Não é possível adicionar/remover no território atual da conta')
                     shouldContinue = false;
                 }
