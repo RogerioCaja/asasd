@@ -140,6 +140,10 @@ export default class ClientTerritories extends LightningElement {
         this.territories = [];
         this.accountsCodes = [];
         var selectedRows = this.template.querySelector("lightning-datatable").getSelectedRows();
+        if(!selectedRows){
+            this.showToast('warning', 'Atenção', 'Selecione pelo menos uma conta')
+            return;
+        }
         selectedRows.forEach((key) => {
             if(!this.territories.includes(key.territoryName))
                 this.territories.push(key.territoryName)
