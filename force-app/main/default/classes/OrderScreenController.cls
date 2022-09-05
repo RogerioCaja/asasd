@@ -193,7 +193,6 @@ public without sharing class OrderScreenController {
                 accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE Status__c = 'Ativo' AND ((ParentId =: accountId AND ExternalId__c LIKE '0002%') OR (Id =: accountId AND CNPJ__c != null AND CPF__c = null))];
             }
 
-            
             for(Account account : accountList) accountListSerialize.add(new AccountSerialize(account));
             return JSON.serialize(new AccountSerialize(accountListSerialize));
         } catch (Exception e) {
@@ -587,6 +586,7 @@ public without sharing class OrderScreenController {
             order.Hectare__c = orderData.headerData.hectares.contains(',') ? Decimal.valueOf(orderData.headerData.hectares.replace(',', '.')) : Decimal.valueOf(orderData.headerData.hectares);
             order.FinalTotalValue__c = orderTotalValue;
             order.Company__c = company.Id;
+            order.DistributionCenter__c = orderData.summaryData.centerId;
             order.OrderType__c = orderData.headerData.pedido_mae.Id != null ? 'Pedido Filho' : (order.IsOrderMother__c ? 'Pedido Mãe' : 'Pedido Normal');
             order.OrderMargin__c = orderData.summaryData.orderMargin != null ? (orderData.summaryData.orderMargin.contains(' sacas') ?
                                    stringToDecimal(orderData.summaryData.orderMargin.replace(' sacas', '')) : stringToDecimal((orderData.summaryData.orderMargin))) : 0;
@@ -1020,6 +1020,70 @@ public without sharing class OrderScreenController {
     }
 
     @AuraEnabled
+    public static String getAccountDistrCenters(String salesOrgId) {
+        List<DistrCenterData> listDistrCenter = new List<DistrCenterData>();
+        for (DistributionCenter__c distrCenter : [
+            SELECT Id,
+                   Name,
+                   Code__c,
+                   SalesOrg__r.Name
+              FROM DistributionCenter__c
+             WHERE SalesOrg__c =: salesOrgId
+        ]) {
+            DistrCenterData distrData = new DistrCenterData();
+            distrData.centerId = distrCenter.Id;
+            distrData.code = distrCenter.Code__c;
+            distrData.salesOrgName = distrCenter.SalesOrg__r.Name;
+            distrData.selected = false;
+            listDistrCenter.add(distrData);
+        }
+
+        return JSON.serialize(listDistrCenter);
+    }
+
+    public class DistrCenterData {
+        public String centerId;
+        public String code;
+        public String salesOrgName;
+        public Boolean selected;
+    }
+
+    @AuraEnabled
+    public static String verifyProductDisponibility(String data) {
+        DisponibilityData disponibilityData = (DisponibilityData) JSON.deserialize(data, DisponibilityData.class);
+        List<String> availableProds = new List<String>();
+        for (OrgVProduct__c orgVProduct : [
+            SELECT Id,
+                   Product__c
+              FROM OrgVProduct__c
+             WHERE Product__c IN: disponibilityData.orderProductsId
+               AND SalesOrg__c =: disponibilityData.salesOrgId
+               AND Status__c = 'Adicionada'
+               AND SupplierCenter__c =: disponibilityData.supplierCenter
+        ]) {
+            availableProds.add(orgVProduct.Product__c);
+        }
+
+        return JSON.serialize(availableProds);
+    }
+
+    @AuraEnabled
+    public static Boolean isSeedSale(String salesOrgId) {
+        String salesOrgCode = [SELECT Id, SalesOrganizationCode__c FROM SalesOrg__c WHERE Id =: salesOrgId].SalesOrganizationCode__c;
+        Boolean isSeed = false;
+        for (SalesOrgSeeds__c seed : [
+            SELECT Id,
+                   SeedCode__c
+              FROM SalesOrgSeeds__c
+             WHERE SeedCode__c =: salesOrgCode
+        ]) {
+            isSeed = true;
+        }
+
+        return isSeed;
+    }
+    
+    @AuraEnabled
     public static String getFinancialInfos(String data) {
         FinancialResult result = new FinancialResult();
         OrderDataDeserialize orderValues = (OrderDataDeserialize) JSON.deserialize(data, OrderDataDeserialize.class);
@@ -1368,6 +1432,7 @@ public without sharing class OrderScreenController {
         public String billing_sale_observation;
         public String orderMargin;
         public String justification;
+        public String centerId;
     }
 
     public class SummarySerialize{
@@ -1804,5 +1869,11 @@ public without sharing class OrderScreenController {
         CompanyInfosSerialize(List<CompanyInfos> companyInfos) {
             this.listCompanyInfos = companyInfos;
         }
+    }
+
+    public class DisponibilityData {
+        public List<String> orderProductsId;
+        public String salesOrgId;
+        public String supplierCenter;
     }
 }
