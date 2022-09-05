@@ -8,6 +8,8 @@ body {
 
 .container{
     background-color: white;
+    box-shadow: 10px 5px 5px black;
+    border: solid 1px #2A9676;
     padding: 40px;
     margin-left: 13%;
     min-width: 560px;
