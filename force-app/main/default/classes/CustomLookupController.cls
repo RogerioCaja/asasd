@@ -214,7 +214,8 @@ public without sharing class CustomLookupController {
                 for (JurosDescontoAntecipao__c jda : jdaList) {
                     if ((jda.SalesOrg__c == salesResult.salesOrgId || jda.SalesOrg__c == null) &&
                         (jda.SalesOffice__c == salesResult.salesOfficeId || jda.SalesOffice__c == null) &&
-                        (jda.SalesTeam__c == salesResult.salesTeamId || jda.SalesTeam__c == null))  {
+                        (jda.SalesTeam__c == salesResult.salesTeamId || jda.SalesTeam__c == null) &&
+                        (productParams.accountId == '' || jda.Account__c == productParams.accountId || jda.Account__c == null))  {
                         String productGroupId = (String)s.get('ProductGroup__c');
                         String productSubgroupId = (String)s.get('ProductSubgroup__c');
                         String productHierarchyId = (String)s.get('ProductHierarchy__c');
