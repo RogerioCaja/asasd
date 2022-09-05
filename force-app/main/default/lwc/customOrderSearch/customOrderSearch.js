@@ -13,6 +13,7 @@ import {
 
 export default class CustomOrderSearch extends LightningElement {
 
+    @api percentage = 30;
     @api objectName;
     @api fieldName;
     @api value;
@@ -52,6 +53,10 @@ export default class CustomOrderSearch extends LightningElement {
             value: 'info'
         },
     ];
+
+    get getStyle() {
+        return 'width: ' + this.percentage + '% !important';
+    }
 
     connectedCallback() {
         if (this.value)
