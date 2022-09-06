@@ -90,7 +90,8 @@ export default class OrderHeaderScreen extends LightningElement {
         IsOrderChild : false,
         isCompleted : false,
         companyId: null,
-        firstTime: true
+        firstTime: true,
+        centerId: null
     };
 
     @api salesOrgId;
