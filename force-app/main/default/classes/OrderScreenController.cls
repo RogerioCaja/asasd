@@ -454,16 +454,17 @@ public without sharing class OrderScreenController {
                            ProductHierarchy__c,
                            SellerType__c,
                            CommissionPercentage__c 
-                    FROM Comissao__c
-                   WHERE ProductHierarchy__c IN: setProductHierarchyIds
-                     AND SellerType__c =: sellerType
+                      FROM Comissao__c
+                     WHERE ProductHierarchy__c IN: setProductHierarchyIds
+                       AND SellerType__c =: sellerType
+                       AND SalesOrg__c =: company.SalesOrg__c
                 ]) {
                     if (!commissionByHierarchy.containsKey(commission.ProductHierarchy__c)) {
                         commissionByHierarchy.put(commission.ProductHierarchy__c, commission);
                     }
                 }
             }
-            System.debug('commissionByHierarchy => ' + commissionByHierarchy);
+
             if (company != null && orderData.headerData.pedido_mae.Id == null) {
                 Id userTerritoryId;
                 for (UserTerritory2Association userAssociation : [
