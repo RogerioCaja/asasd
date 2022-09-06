@@ -140,7 +140,8 @@ export default class ClientTerritories extends LightningElement {
         this.territories = [];
         this.accountsCodes = [];
         var selectedRows = this.template.querySelector("lightning-datatable").getSelectedRows();
-        if(selectedRows == []){
+
+        if(selectedRows.length == 0){
             this.showToast('warning', 'Atenção', 'Selecione pelo menos uma conta')
             return;
         }
@@ -170,14 +171,20 @@ export default class ClientTerritories extends LightningElement {
             this.isLoading = true;
             if(!this.territorySelected && this.territoryParams.option != 'remove'){
                 this.showToast('warning', 'Atenção', 'Selecione o território de destino')
+                this.isLoading = false;
                 return;
             }
-            this.territories.forEach((terr) => {
-                if(this.territorySelected.Name == terr && this.territoryParams.option != 'remove'){
-                    this.showToast('warning', 'Atenção', 'Não é possível adicionar/remover no território atual da conta')
-                    shouldContinue = false;
-                }
-            })
+
+            if(this.territoryParams.option != 'remove'){
+                this.territories.forEach((terr) => {
+                    if(this.territorySelected.Name == terr){
+                        this.showToast('warning', 'Atenção', 'Não é possível adicionar/remover no território atual da conta')
+                        shouldContinue = false;
+                        this.isLoading = false;
+                    }
+                })
+            }
+            
             if(!shouldContinue) return;
             realizeTransaction({
                 data: JSON.stringify({accountCodes: this.accountsCodes, territoryName: this.territories, territoryToGo: this.territorySelected.Id, action: this.territoryParams.option})
@@ -185,6 +192,9 @@ export default class ClientTerritories extends LightningElement {
                 console.log(JSON.stringify(result))
                 if(result.status == true){
                     this.showToast('success', 'Sucesso', 'Ação realizada com Sucesso');
+                    this.datas = []
+                    this.territoryParams.offSet = 0
+                    this.showMore();
                 }else{
                     this.showToast('error', 'Erro', result.message);
                 }
@@ -197,6 +207,10 @@ export default class ClientTerritories extends LightningElement {
             this.isLoading = false;
         }
 
+    }
+
+    isFilled(field) {
+        return ((field !== undefined && field != null && field != '') || field == 0 || field == []);
     }
 
     showToast(type, title, message) {

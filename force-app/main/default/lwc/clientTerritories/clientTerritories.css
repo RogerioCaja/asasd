@@ -6,6 +6,17 @@ body {
     font-family: Salesforce Sans;
 }
 
+.exampleHolder{
+    z-index: 999999;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    /* bring your own prefixes */
+    transform: translate(-50%, -50%);
+    width: 80px;
+    height: 80px;
+}
+
 .container{
     background-color: white;
     box-shadow: 10px 5px 5px rgba(42, 150, 118, 0.2);
