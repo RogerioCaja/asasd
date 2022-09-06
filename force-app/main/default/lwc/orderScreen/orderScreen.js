@@ -79,6 +79,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         org: {Name: " "},
         aprovation: " ",
         companyId: null,
+        centerId: null,
         firstTime: true
     };
     @track productData;
@@ -411,7 +412,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.headerData.data_pagamento = " ";
             this.showNotification('Informe a condição de pagamento novamente', 'Atenção', 'warning');
             return;
-        } else if (!this.headerData.pre_pedido && !this.cloneData.cloneOrder && !this.headerData.IsOrderChild){
+        } else if ((!this.headerData.pre_pedido && !this.cloneData.cloneOrder && !this.headerData.IsOrderChild) || (!this.headerData.pre_pedido && !this.childOrder)){
             this.showNotification('Pedidos Efetivados não podem ser alterados', 'Atenção', 'warning');
             return;
         }
@@ -506,9 +507,13 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         {
             console.log(e);
         }
+
+        if (this.qtdItens == 0 && this.currentTab == 3) {
+            this.handlePrevious();
+            this.disableNextScreen();
+            this.showNotification('Necessário incluir ao menos um produto', 'Atenção!', 'warning');
+        }
         
-        console.log('this.productData: ' + this.productData);
-        console.log('acproductcount data setted:', this.productData, event.detail, event.data, event);
         if (!this.checkProductDivisionAndCommodities()) {
             this.disableNextScreen();
         } else {
