@@ -7,6 +7,7 @@ body {
 }
 
 .exampleHolder{
+    z-index: 999999;
     position: relative;
     display: inline-block;
     width: 80px;
