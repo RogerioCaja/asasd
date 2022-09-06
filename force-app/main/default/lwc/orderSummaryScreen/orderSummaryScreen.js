@@ -108,13 +108,13 @@ export default class OrderSummaryScreen extends LightningElement {
                     this.selectedDistributionCenter = this.distrCenterResult.find(element => element.centerId == this.headerData.centerId)
                     this.showLoading = false;
                 } else {
-                    if(this.distrCenterResult.lenght == 0){
+                    if(this.distrCenterResult.length == 0){
                         this.showToast('warning', 'Atenção!', 'Não foi encontrado centro de distribuição relacionado a organização de vendas. Contate o administrador do sistema.');
                         this.showLoading = false;
                     }
-                    else if(this.distrCenterResult.lenght == 1){
+                    else if(this.distrCenterResult.length == 1){
                         this.selectedDistributionCenter = this.distrCenterResult[0];
-                        this.headerData.centerId = this.selectedDistributionCenter;
+                        this.summaryDataLocale.centerId = this.selectedDistributionCenter.centerId;
                         this.onSelectDistrCenter();
                     }
                     else if(this.distrCenterResult.length > 1){
@@ -222,9 +222,9 @@ export default class OrderSummaryScreen extends LightningElement {
     onSelectDistrCenter(){
         this.showLoading = true;
         try{
-            if(!this.isFilled(this.headerData.centerId)){
+            if(!this.isFilled(this.summaryDataLocale.centerId)){
                 this.selectDistributionCenter = !this.selectDistributionCenter;
-                this.summaryDataLocale.centerId =  this.selectedDistributionCenter;
+                this.summaryDataLocale.centerId = this.selectedDistributionCenter.centerId;
                 this.verifyProdDisponiblity();
             } else {
                 this.showLoading = false;
@@ -249,7 +249,7 @@ export default class OrderSummaryScreen extends LightningElement {
         let disponibilityData = {
             orderProductsId: orderProductsId,
             salesOrgId: this.headerData.organizacao_vendas.Id,
-            supplierCenter: this.distrCenterResult.find(element => element.centerId == this.selectedDistributionCenter).code
+            supplierCenter: this.distrCenterResult.find(element => element.centerId == this.selectedDistributionCenter.centerId).code
         }
 
         this.unavailableProducts = [];
