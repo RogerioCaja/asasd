@@ -1,248 +1,308 @@
 <template>
-    <div class="cabecalho"> 
-       <span class="titulo_agro">
-        <section>
-            <svg width="25" height="27" viewBox="0 0 25 27" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect y="0.000366211" width="25" height="26.0416" rx="4" fill="#2A9676"/>
-                <mask id="mask0_3222_815" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="25" height="27">
-                <rect y="0.000366211" width="25" height="26.0416" rx="4" fill="white"/>
-                </mask>
-                <g mask="url(#mask0_3222_815)">
-                <path fill-rule="evenodd" clip-rule="evenodd" d="M11.5837 18.6678L11.5838 18.6678L11.5843 18.6675C11.6253 18.6441 11.6677 18.6199 11.7117 18.595C12.2649 18.2508 12.8466 17.9591 13.4499 17.7234C13.2692 17.3467 13.1076 16.9604 12.9659 16.566C12.9659 16.5463 12.9561 16.5208 12.947 16.4973C12.9452 16.4925 12.9433 16.4877 12.9416 16.483C12.9405 16.48 12.9394 16.4771 12.9384 16.4742C12.3212 16.7421 11.6593 16.8808 10.9906 16.8824C8.19864 16.8858 5.91424 14.5678 5.84429 11.6604C5.77434 8.75304 7.9444 6.31874 10.733 6.17642C13.5216 6.0341 15.9098 8.23576 16.113 11.1363C17.2691 11.2649 17.9197 11.861 18.2685 12.5244C18.3143 12.1924 18.3379 11.8575 18.3391 11.5221C18.3468 7.33839 15.1277 3.92366 11.1118 3.85576C7.09593 3.78787 3.77208 7.09198 3.64948 11.2738C3.52689 15.4556 6.65098 18.9648 10.6634 19.1523C10.8123 19.0686 10.9632 18.9869 11.1395 18.9032V18.9073C11.2674 18.8481 11.4131 18.7651 11.5837 18.6678ZM10.9906 9.22573C12.2068 9.23137 13.1889 10.262 13.1853 11.5289C13.1817 12.7958 12.1938 13.8204 10.9776 13.8185C9.7613 13.8166 8.77627 12.7891 8.77626 11.5221C8.77626 10.9113 9.00986 10.3257 9.42542 9.89471C9.84097 9.46376 10.4042 9.22302 10.9906 9.22573ZM19.3335 19.2509C19.567 19.3877 19.774 19.5091 19.9577 19.5952L19.9479 19.5973C21.3686 20.2505 21.3686 20.9751 21.351 20.9751V22.1876H10.003V20.9751C10.003 20.9751 10.0108 20.2566 11.4217 19.6054C11.6119 19.5189 11.8267 19.3935 12.0702 19.2515C12.7049 18.8812 13.5342 18.3974 14.6276 18.1909C14.2357 17.7581 13.9476 17.0886 13.6478 16.2884C13.5007 15.8874 13.5029 15.5361 13.5059 15.0798C13.5063 15.0135 13.5067 14.945 13.5067 14.8738C13.5067 14.755 13.5011 14.6176 13.4952 14.4733C13.4801 14.107 13.4633 13.6963 13.5322 13.4327C13.8634 12.1937 14.7079 11.8528 15.6877 11.8528C16.6675 11.8528 17.5082 12.1998 17.8433 13.4246C17.9124 13.6877 17.8952 14.1075 17.8801 14.4744C17.8743 14.6169 17.8688 14.7514 17.8688 14.8657C17.8688 14.9484 17.8695 15.0276 17.8703 15.104C17.8746 15.5436 17.8779 15.8889 17.7277 16.2803C17.4259 17.0784 17.1398 17.75 16.7479 18.1807C17.8524 18.3826 18.6927 18.8752 19.3335 19.2509Z" fill="white"></path>
-                </g>
-            </svg>   
-         <span class="Agro">Agrogalaxy</span> 
-        </section>
-        <section style="display: flex; flex-direction:column; gap:0em;">
+    <template if:true={showLoading}>
+		<div class="exampleHolder">
+			<lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
+		</div>
+	</template>
+	
+	<template if:false={showLoading}>
+        <div class="cabecalho"> 
+        <span class="titulo_agro">
             <section>
-                <span>Condição de Vendas: </span>
-                <span>{ headerData.condicao_venda.Name}</span>
+                <svg width="25" height="27" viewBox="0 0 25 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect y="0.000366211" width="25" height="26.0416" rx="4" fill="#2A9676"/>
+                    <mask id="mask0_3222_815" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="25" height="27">
+                    <rect y="0.000366211" width="25" height="26.0416" rx="4" fill="white"/>
+                    </mask>
+                    <g mask="url(#mask0_3222_815)">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M11.5837 18.6678L11.5838 18.6678L11.5843 18.6675C11.6253 18.6441 11.6677 18.6199 11.7117 18.595C12.2649 18.2508 12.8466 17.9591 13.4499 17.7234C13.2692 17.3467 13.1076 16.9604 12.9659 16.566C12.9659 16.5463 12.9561 16.5208 12.947 16.4973C12.9452 16.4925 12.9433 16.4877 12.9416 16.483C12.9405 16.48 12.9394 16.4771 12.9384 16.4742C12.3212 16.7421 11.6593 16.8808 10.9906 16.8824C8.19864 16.8858 5.91424 14.5678 5.84429 11.6604C5.77434 8.75304 7.9444 6.31874 10.733 6.17642C13.5216 6.0341 15.9098 8.23576 16.113 11.1363C17.2691 11.2649 17.9197 11.861 18.2685 12.5244C18.3143 12.1924 18.3379 11.8575 18.3391 11.5221C18.3468 7.33839 15.1277 3.92366 11.1118 3.85576C7.09593 3.78787 3.77208 7.09198 3.64948 11.2738C3.52689 15.4556 6.65098 18.9648 10.6634 19.1523C10.8123 19.0686 10.9632 18.9869 11.1395 18.9032V18.9073C11.2674 18.8481 11.4131 18.7651 11.5837 18.6678ZM10.9906 9.22573C12.2068 9.23137 13.1889 10.262 13.1853 11.5289C13.1817 12.7958 12.1938 13.8204 10.9776 13.8185C9.7613 13.8166 8.77627 12.7891 8.77626 11.5221C8.77626 10.9113 9.00986 10.3257 9.42542 9.89471C9.84097 9.46376 10.4042 9.22302 10.9906 9.22573ZM19.3335 19.2509C19.567 19.3877 19.774 19.5091 19.9577 19.5952L19.9479 19.5973C21.3686 20.2505 21.3686 20.9751 21.351 20.9751V22.1876H10.003V20.9751C10.003 20.9751 10.0108 20.2566 11.4217 19.6054C11.6119 19.5189 11.8267 19.3935 12.0702 19.2515C12.7049 18.8812 13.5342 18.3974 14.6276 18.1909C14.2357 17.7581 13.9476 17.0886 13.6478 16.2884C13.5007 15.8874 13.5029 15.5361 13.5059 15.0798C13.5063 15.0135 13.5067 14.945 13.5067 14.8738C13.5067 14.755 13.5011 14.6176 13.4952 14.4733C13.4801 14.107 13.4633 13.6963 13.5322 13.4327C13.8634 12.1937 14.7079 11.8528 15.6877 11.8528C16.6675 11.8528 17.5082 12.1998 17.8433 13.4246C17.9124 13.6877 17.8952 14.1075 17.8801 14.4744C17.8743 14.6169 17.8688 14.7514 17.8688 14.8657C17.8688 14.9484 17.8695 15.0276 17.8703 15.104C17.8746 15.5436 17.8779 15.8889 17.7277 16.2803C17.4259 17.0784 17.1398 17.75 16.7479 18.1807C17.8524 18.3826 18.6927 18.8752 19.3335 19.2509Z" fill="white"></path>
+                    </g>
+                </svg>   
+            <span class="Agro">Agrogalaxy</span> 
             </section>
-            <section>
-                <span>OrgV: </span>
-                <span>{headerData.organizacao_vendas.Name}</span>
+            <section style="display: flex; flex-direction:column; gap:0em;">
+                <section>
+                    <span>Condição de Vendas: </span>
+                    <span>{ headerData.condicao_venda.Name}</span>
+                </section>
+                <section>
+                    <span>OrgV: </span>
+                    <span>{headerData.organizacao_vendas.Name}</span>
+                </section>
+                
             </section>
             
-        </section>
-        
 
-        
-    </span>
-        <!-- Parte que engloba todos os dados -->
-        <section>
-             <!-- Parte de dados de cabeçalho -->
-            <div>
+            
+        </span>
+            <!-- Parte que engloba todos os dados -->
+            <section>
+                <!-- Parte de dados de cabeçalho -->
                 <div>
-                    <section>
-                        <span>Cliente Emissor:</span>
-                        <span if:true={accountData.Name}> {accountData.Name} </span>
-                   </section>
-   
-                   <section>
-                       <span>CNPJ/CPF:</span>
-                       <span if:true={accountData.CPF__c}>{accountData.CPF__c}</span>
-                       <span if:true={accountData.CNPJ__c}>{accountData.CNPJ__c}</span>
-                       <span if:true={accountData.CPF}>{accountData.CPF}</span>
-                       <span if:true={accountData.CNPJ}>{accountData.CNPJ}</span>
-                   </section>
-
-                   <section>
-                    <span>Razão Social:</span>
-                    <span if:true={accountData.Company__c}>{accountData.Company__c}</span>
-                    <span if:true={accountData.Company}>{accountData.Company}</span>
-                    
-                </section>
-
-                </div>
-                <div class="dashed-style">
-                    <section>
-                        <span>Cliente de Entrega:</span>
-                        <span if:true={hasData}>{headerData.cliente_entrega.Name}</span>
+                    <div>
+                        <section>
+                            <span>Cliente Emissor:</span>
+                            <span if:true={accountData.Name}> {accountData.Name} </span>
                     </section>
-
-                    <section>
-                        <span>Endereço: </span>
-                        <span if:true={hasData}>{headerData.cliente_entrega.City} - {headerData.cliente_entrega.UF}</span>
-                    </section>
-                    
+    
                     <section>
                         <span>CNPJ/CPF:</span>
-                        <span if:true={hasData}> {headerData.cliente_entrega.CPF}</span>
-                        <span if:true={hasData}> {headerData.cliente_entrega.CNPJ}</span>
-                        <span>Código SAP: </span>
-                        <span>{headerData.cliente_entrega.CodSap}</span>
-                    </section>
-                </div>
-                
-                    
-                    
-            </div>
-
-            <div>
-                <div>
-                    <section>
-                        <span>Tipo de Venda: </span>
-                        <span if:true={hasData}>{headerData.tipo_venda}</span>
-                    </section>
-                    <section>
-                        <span>Safra: </span>
-                        <span if:true={hasData}>{headerData.safra.Name}</span>
-                    </section>
-                    <section if:true={isBarter}>
-                        <span>Total de sacas: </span>
-                        <span if:true={hasData}>{totalDelivery}</span>
+                        <span if:true={accountData.CPF__c}>{accountData.CPF__c}</span>
+                        <span if:true={accountData.CNPJ__c}>{accountData.CNPJ__c}</span>
+                        <span if:true={accountData.CPF}>{accountData.CPF}</span>
+                        <span if:true={accountData.CNPJ}>{accountData.CNPJ}</span>
                     </section>
 
-                    
-                </div>
+                    <section>
+                        <span>Razão Social:</span>
+                        <span if:true={accountData.Company__c}>{accountData.Company__c}</span>
+                        <span if:true={accountData.Company}>{accountData.Company}</span>
+                        
+                    </section>
 
-                <div>
-                    <section>
-                        <span>Condição de Pagto: </span>
-                        <span if:true={hasData}>{headerData.condicao_pagamento.Name}</span>
-                    </section>
-                    <section>
-                        <span>Cultura: </span>
-                        <span if:true={hasData}>{headerData.cultura.Name}</span>
-                    </section>
+                    </div>
+                    <div class="dashed-style">
+                        <section>
+                            <span>Cliente de Entrega:</span>
+                            <span if:true={hasData}>{headerData.cliente_entrega.Name}</span>
+                        </section>
+
+                        <section>
+                            <span>Endereço: </span>
+                            <span if:true={hasData}>{headerData.cliente_entrega.City} - {headerData.cliente_entrega.UF}</span>
+                        </section>
+                        
+                        <section>
+                            <span>CNPJ/CPF:</span>
+                            <span if:true={hasData}> {headerData.cliente_entrega.CPF}</span>
+                            <span if:true={hasData}> {headerData.cliente_entrega.CNPJ}</span>
+                            <span>Código SAP: </span>
+                            <span>{headerData.cliente_entrega.CodSap}</span>
+                        </section>
+                    </div>
                     
+                        
+                        
                 </div>
 
                 <div>
-                    <section>
-                        <span>Data de Pagamento: </span>
-                        <span if:true={hasData}>{formattedPaymentDate}</span>
-                    </section>
+                    <div>
+                        <section>
+                            <span>Tipo de Venda: </span>
+                            <span if:true={hasData}>{headerData.tipo_venda}</span>
+                        </section>
+                        <section>
+                            <span>Safra: </span>
+                            <span if:true={hasData}>{headerData.safra.Name}</span>
+                        </section>
+                        <section if:true={isBarter}>
+                            <span>Total de sacas: </span>
+                            <span if:true={hasData}>{totalDelivery}</span>
+                        </section>
 
-                    <section>
-                        <span>Data de Entrega: </span>
-                        <span if:true={hasData}>{formattedDeliveryDate}</span>
-                    </section>
+                        
+                    </div>
+
+                    <div>
+                        <section>
+                            <span>Condição de Pagto: </span>
+                            <span if:true={hasData}>{headerData.condicao_pagamento.Name}</span>
+                        </section>
+                        <section>
+                            <span>Cultura: </span>
+                            <span if:true={hasData}>{headerData.cultura.Name}</span>
+                        </section>
+                        
+                    </div>
+
+                    <div>
+                        <section>
+                            <span>Data de Pagamento: </span>
+                            <span if:true={hasData}>{formattedPaymentDate}</span>
+                        </section>
+
+                        <section>
+                            <span>Data de Entrega: </span>
+                            <span if:true={hasData}>{formattedDeliveryDate}</span>
+                        </section>
+                        
+                    </div>
+
+                    <div>
                     
+                        <section>
+                            <span>Aprovação Comitê Margem: </span>
+                            <span>{approvalMargin}</span>
+                        </section>
+                        <section>
+                            <span>Aprovação Comercial: </span>
+                            <span>{approval}</span>
+                        </section>
+                        <section if:false={hideMargin}>
+                            <span>Margem do Pedido: </span>
+                            <span>{orderMargin}</span>
+                        </section>
+                    </div>
+
                 </div>
 
-                <div>
-                   
-                    <section>
-                        <span>Aprovação Comitê Margem: </span>
-                        <span>{approvalMargin}</span>
-                    </section>
-                    <section>
-                        <span>Aprovação Comercial: </span>
-                        <span>{approval}</span>
-                    </section>
-                    <section if:false={hideMargin}>
-                        <span>Margem do Pedido: </span>
-                        <span>{orderMargin}</span>
-                    </section>
-                </div>
 
-            </div>
+            </section>
 
-
-        </section>
-
-        <table>
-            <tr>
-              <th>Produto(Código-Nome)</th>
-              <th>U. M.</th>
-              <th>Quantidade</th>
-              <th if:false={isBarter}>Preço Praticado</th>
-              <!-- <th if:true={isBarter}>Preço por saca</th> -->
-              <th if:false={isBarter}>Preço Total</th>
-              <!-- <th if:true={isBarter}>Preço Total em saca</th> -->
-              <th if:false={isBarter}>Valor Desconto Comercial</th>
-              <th if:false={isBarter}>Grupo de Produtos</th>
-              <th if:false={isBarter}>% de Desconto</th>
-              <th if:false={hideMargin}>Margem do Item</th>
-              <th>Calenderização</th>
-            </tr>
-        
-            <template for:each={productDataLocale} for:item="product">
-                <tr key={product.name}>
-                    <td>{product.sapProductCode} - {product.name}  </td>
-                    <td>{product.unity}</td>
-                    <td>{product.quantity}</td>
-                    <td if:false={isBarter}>{product.unitPrice}</td>
-                    <td if:false={isBarter}>{product.totalPrice}</td>
-                    <td if:false={isBarter}>{product.commercialDiscountValue}</td>
-                    <td if:false={isBarter}>{product.productGroupName}</td>
-                    <td if:false={isBarter}>{product.commercialDiscountPercentage}</td>
-                    <td if:false={hideMargin}>{product.commercialMarginPercentage}</td>
-                      <td>
-                          <div class="tooltip">
-                              <a>
-                                <svg viewBox="67.357 79.727 272.705 233.061" width="25" height="45">
-                                    <g>
-                                      <g style="" transform="matrix(0.751509, 0, 0, 0.771743, 16.737623, 34.880585)">
-                                        <path d="M 101.899 88.946 L 395.509 88.946 C 414.586 88.946 430.051 104.411 430.051 123.488 L 430.051 325.561 C 430.051 344.638 414.586 360.103 395.509 360.103 L 101.899 360.103 C 82.822 360.103 67.357 344.638 67.357 325.561 L 67.357 123.488 C 67.357 104.411 82.822 88.946 101.899 88.946 Z" style="fill: rgb(216, 216, 216);"></path>
-                                        <rect x="67.505" y="88.083" width="362.545" height="82.038" style="fill: rgb(255, 66, 66); stroke: rgba(0, 0, 0, 0);" rx="37.996" ry="37.996"></rect>
-                                      </g>
-                                      <rect x="67.662" y="128.827" width="272.4" height="37.997" style="fill-rule: evenodd; paint-order: fill; stroke-miterlimit: 1; stroke-dashoffset: -50px; fill: rgb(255, 66, 66);"></rect>
-                                    </g>
-                                    <g style="" transform="matrix(0.716688, 0, 0, 0.728371, 28.120481, 41.16283)">
-                                      <rect x="126.795" y="193.054" width="54.366" height="42.374" style="fill: rgba(53, 53, 53, 0.5); stroke: rgba(53, 53, 53, 0);"></rect>
-                                      <rect x="191.53" y="192.654" width="54.366" height="42.374" style="fill: rgba(53, 53, 53, 0.5); stroke: rgba(53, 53, 53, 0);"></rect>
-                                      <rect x="256.519" y="192.292" width="54.366" height="42.374" style="fill: rgba(53, 53, 53, 0.5); stroke: rgba(53, 53, 53, 0);"></rect>
-                                      <rect x="320.293" y="193.037" width="54.366" height="42.374" style="fill: rgba(53, 53, 53, 0.5); stroke: rgba(53, 53, 53, 0);"></rect>
-                                      <rect x="125.844" y="246.799" width="54.366" height="42.374" style="fill: rgba(53, 53, 53, 0.5); stroke: rgba(53, 53, 53, 0);"></rect>
-                                      <rect x="190.66" y="246.799" width="54.366" height="42.374" style="fill: rgba(53, 53, 53, 0.5); stroke: rgba(53, 53, 53, 0);"></rect>
-                                      <rect x="255.979" y="246.799" width="54.366" height="42.374" style="fill: rgba(53, 53, 53, 0.5); stroke: rgba(53, 53, 53, 0);"></rect>
-                                      <rect x="319.287" y="246.296" width="54.366" height="42.374" style="fill: rgba(53, 53, 53, 0.5); stroke: rgba(53, 53, 53, 0);"></rect>
-                                      <rect x="125.341" y="299.556" width="54.366" height="42.374" style="fill: rgba(53, 53, 53, 0.5); stroke: rgba(53, 53, 53, 0);"></rect>
-                                      <rect x="190.157" y="300.058" width="54.366" height="42.374" style="fill: rgba(53, 53, 53, 0.5); stroke: rgba(53, 53, 53, 0);"></rect>
-                                      <rect x="254.974" y="299.556" width="54.366" height="42.374" style="fill: rgba(53, 53, 53, 0.5); stroke: rgba(53, 53, 53, 0);"></rect>
-                                      <rect x="318.282" y="299.556" width="54.366" height="42.374" style="fill: rgba(53, 53, 53, 0.5); stroke: rgba(53, 53, 53, 0);"></rect>
-                                    </g>
-                                    <ellipse style="fill: rgb(216, 216, 216); stroke: rgb(122, 0, 0); stroke-width: 5px;" cx="138.596" cy="128.297" rx="17.369" ry="15.761"></ellipse>
-                                    <ellipse style="fill: rgb(216, 216, 216); stroke: rgb(122, 0, 0); stroke-width: 5px;" cx="277.549" cy="129.905" rx="17.369" ry="15.761"></ellipse>
-                                    <rect x="123.801" y="79.727" width="30.235" height="61.757" style="fill: rgb(216, 216, 216); stroke: rgba(0, 0, 0, 0);" rx="15.118" ry="15.118"></rect>
-                                    <rect x="262.596" y="81.088" width="30.235" height="61.757" style="fill: rgb(216, 216, 216); stroke: rgba(0, 0, 0, 0);" rx="15.118" ry="15.118"></rect>
-                                  </svg>
-                              </a>
-                              <div class="tooltiptext">
-                                  <table>
-                                      <tr>
-                                          <th>Data</th>
-                                          <th>Quantidade</th>
-                                      </tr>
-                                      <template for:each={product.divisionData} for:item="division">
-                                        <tr key={division.deliveryId}>
-                                            <td>{division.deliveryDate}</td>
-                                            <td>{division.quantity}</td>
+            <table>
+                <tr>
+                <th>Produto(Código-Nome)</th>
+                <th>U. M.</th>
+                <th>Quantidade</th>
+                <th if:false={isBarter}>Preço Praticado</th>
+                <!-- <th if:true={isBarter}>Preço por saca</th> -->
+                <th if:false={isBarter}>Preço Total</th>
+                <!-- <th if:true={isBarter}>Preço Total em saca</th> -->
+                <th if:false={isBarter}>Valor Desconto Comercial</th>
+                <th if:false={isBarter}>Grupo de Produtos</th>
+                <th if:false={isBarter}>% de Desconto</th>
+                <th if:false={hideMargin}>Margem do Item</th>
+                <th>Calenderização</th>
+                </tr>
+            
+                <template for:each={productDataLocale} for:item="product">
+                    <tr key={product.name}>
+                        <td>{product.sapProductCode} - {product.name}  </td>
+                        <td>{product.unity}</td>
+                        <td>{product.quantity}</td>
+                        <td if:false={isBarter}>{product.unitPrice}</td>
+                        <td if:false={isBarter}>{product.totalPrice}</td>
+                        <td if:false={isBarter}>{product.commercialDiscountValue}</td>
+                        <td if:false={isBarter}>{product.productGroupName}</td>
+                        <td if:false={isBarter}>{product.commercialDiscountPercentage}</td>
+                        <td if:false={hideMargin}>{product.commercialMarginPercentage}</td>
+                        <td>
+                            <div class="tooltip">
+                                <a>
+                                    <svg viewBox="67.357 79.727 272.705 233.061" width="25" height="45">
+                                        <g>
+                                        <g style="" transform="matrix(0.751509, 0, 0, 0.771743, 16.737623, 34.880585)">
+                                            <path d="M 101.899 88.946 L 395.509 88.946 C 414.586 88.946 430.051 104.411 430.051 123.488 L 430.051 325.561 C 430.051 344.638 414.586 360.103 395.509 360.103 L 101.899 360.103 C 82.822 360.103 67.357 344.638 67.357 325.561 L 67.357 123.488 C 67.357 104.411 82.822 88.946 101.899 88.946 Z" style="fill: rgb(216, 216, 216);"></path>
+                                            <rect x="67.505" y="88.083" width="362.545" height="82.038" style="fill: rgb(255, 66, 66); stroke: rgba(0, 0, 0, 0);" rx="37.996" ry="37.996"></rect>
+                                        </g>
+                                        <rect x="67.662" y="128.827" width="272.4" height="37.997" style="fill-rule: evenodd; paint-order: fill; stroke-miterlimit: 1; stroke-dashoffset: -50px; fill: rgb(255, 66, 66);"></rect>
+                                        </g>
+                                        <g style="" transform="matrix(0.716688, 0, 0, 0.728371, 28.120481, 41.16283)">
+                                        <rect x="126.795" y="193.054" width="54.366" height="42.374" style="fill: rgba(53, 53, 53, 0.5); stroke: rgba(53, 53, 53, 0);"></rect>
+                                        <rect x="191.53" y="192.654" width="54.366" height="42.374" style="fill: rgba(53, 53, 53, 0.5); stroke: rgba(53, 53, 53, 0);"></rect>
+                                        <rect x="256.519" y="192.292" width="54.366" height="42.374" style="fill: rgba(53, 53, 53, 0.5); stroke: rgba(53, 53, 53, 0);"></rect>
+                                        <rect x="320.293" y="193.037" width="54.366" height="42.374" style="fill: rgba(53, 53, 53, 0.5); stroke: rgba(53, 53, 53, 0);"></rect>
+                                        <rect x="125.844" y="246.799" width="54.366" height="42.374" style="fill: rgba(53, 53, 53, 0.5); stroke: rgba(53, 53, 53, 0);"></rect>
+                                        <rect x="190.66" y="246.799" width="54.366" height="42.374" style="fill: rgba(53, 53, 53, 0.5); stroke: rgba(53, 53, 53, 0);"></rect>
+                                        <rect x="255.979" y="246.799" width="54.366" height="42.374" style="fill: rgba(53, 53, 53, 0.5); stroke: rgba(53, 53, 53, 0);"></rect>
+                                        <rect x="319.287" y="246.296" width="54.366" height="42.374" style="fill: rgba(53, 53, 53, 0.5); stroke: rgba(53, 53, 53, 0);"></rect>
+                                        <rect x="125.341" y="299.556" width="54.366" height="42.374" style="fill: rgba(53, 53, 53, 0.5); stroke: rgba(53, 53, 53, 0);"></rect>
+                                        <rect x="190.157" y="300.058" width="54.366" height="42.374" style="fill: rgba(53, 53, 53, 0.5); stroke: rgba(53, 53, 53, 0);"></rect>
+                                        <rect x="254.974" y="299.556" width="54.366" height="42.374" style="fill: rgba(53, 53, 53, 0.5); stroke: rgba(53, 53, 53, 0);"></rect>
+                                        <rect x="318.282" y="299.556" width="54.366" height="42.374" style="fill: rgba(53, 53, 53, 0.5); stroke: rgba(53, 53, 53, 0);"></rect>
+                                        </g>
+                                        <ellipse style="fill: rgb(216, 216, 216); stroke: rgb(122, 0, 0); stroke-width: 5px;" cx="138.596" cy="128.297" rx="17.369" ry="15.761"></ellipse>
+                                        <ellipse style="fill: rgb(216, 216, 216); stroke: rgb(122, 0, 0); stroke-width: 5px;" cx="277.549" cy="129.905" rx="17.369" ry="15.761"></ellipse>
+                                        <rect x="123.801" y="79.727" width="30.235" height="61.757" style="fill: rgb(216, 216, 216); stroke: rgba(0, 0, 0, 0);" rx="15.118" ry="15.118"></rect>
+                                        <rect x="262.596" y="81.088" width="30.235" height="61.757" style="fill: rgb(216, 216, 216); stroke: rgba(0, 0, 0, 0);" rx="15.118" ry="15.118"></rect>
+                                    </svg>
+                                </a>
+                                <div class="tooltiptext">
+                                    <table>
+                                        <tr>
+                                            <th>Data</th>
+                                            <th>Quantidade</th>
                                         </tr>
-                                     </template>
-                                  </table>
-                              </div> 
-                          </div>  
-                      </td>
-                  </tr>
-            </template>
-          </table>
+                                        <template for:each={product.divisionData} for:item="division">
+                                            <tr key={division.deliveryId}>
+                                                <td>{division.deliveryDate}</td>
+                                                <td>{division.quantity}</td>
+                                            </tr>
+                                        </template>
+                                    </table>
+                                </div> 
+                            </div>  
+                        </td>
+                    </tr>
+                </template>
+            </table>
 
-          <div class="observation">
-            <div>
-                <span class="titulo">Observações:
-                    <!-- <button type="button" onclick={showandHiddenTextArea}>
-                    <div class="triangle"></div>
-                    </button> -->
-                </span>
-                <template if:true={headerData.IsOrderChild}>
-                    <textarea data-id="observacao" rows="5" placeholder="Observações sobre o pedido" onkeyup={changeObservation} disabled>{summaryDataLocale.observation}</textarea>
-                </template>
-                <template if:false={headerData.IsOrderChild}>
-                    <textarea data-id="observacao" rows="5" placeholder="Observações sobre o pedido" onkeyup={changeObservation} disabled={disabled}>{summaryDataLocale.observation}</textarea>
-                </template>
+            <div class="observation">
+                <div>
+                    <span class="titulo">Observações:
+                        <!-- <button type="button" onclick={showandHiddenTextArea}>
+                        <div class="triangle"></div>
+                        </button> -->
+                    </span>
+                    <template if:true={headerData.IsOrderChild}>
+                        <textarea data-id="observacao" rows="5" placeholder="Observações sobre o pedido" onkeyup={changeObservation} disabled>{summaryDataLocale.observation}</textarea>
+                    </template>
+                    <template if:false={headerData.IsOrderChild}>
+                        <textarea data-id="observacao" rows="5" placeholder="Observações sobre o pedido" onkeyup={changeObservation} disabled={disabled}>{summaryDataLocale.observation}</textarea>
+                    </template>
+                </div>
+                <div>
+                    <span class="titulo">Observações de Nota:
+                        <!-- <button type="button" onclick={showandHiddenTextArea}>
+                        <div class="triangle"></div>
+                        </button> -->
+                    </span>
+                    <textarea data-id="observacao" rows="5" placeholder="Observações sobre a nota do pedido" onkeyup={changeObservationSale} disabled={disabled}>{summaryDataLocale.billing_sale_observation}</textarea>
+                </div>
             </div>
-            <div>
-                <span class="titulo">Observações de Nota:
-                    <!-- <button type="button" onclick={showandHiddenTextArea}>
-                    <div class="triangle"></div>
-                    </button> -->
-                </span>
-                <textarea data-id="observacao" rows="5" placeholder="Observações sobre a nota do pedido" onkeyup={changeObservationSale} disabled={disabled}>{summaryDataLocale.billing_sale_observation}</textarea>
+            
+        </div>
+
+        <template if:true={selectDistributionCenter}>
+            <div id="select-distribution-center-modal" class="modal">
+                <div class="modal-content" style="width: 900px;">
+                    <p class="new-product-title">Escolha um dos seguintes centros de distribuições:</p>
+
+                    <template for:each={distrCenterResult} for:item="distrCenter">
+                        <div key={distrCenter.centerId} class="company-card">
+                            <div class="container">
+                                <div class="company-card-01">
+                                    <p><b>Centro Fornecedor:</b> {distrCenter.code}</p>
+                                    <p><b>Organização de Vendas:</b> {distrCenter.salesOrgName}</p>
+                                </div>
+                                <div class="company-card-02">
+                                    <input type="checkbox" class="checkbox-round" onclick={chooseDistributionCenter} checked={distrCenter.selected} data-target-id={distrCenter.centerId}>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+
+                    <div class="row">
+                        <div class="column" style="width: 100%;">
+                            <button class="confirm-button" onclick={onSelectDistrCenter}>Confirmar</button>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-          
-    </div>
+        </template>
+
+        <template if:true={showUnavailableProducts}>
+            <div class="modal">
+                <div class="modal-content" style="width: 900px;">
+                    <p class="new-product-title">Produtos não disponíveis no Centro Fornecedor escolhido.</p>
+
+                    <lightning-datatable class="slds-is-relative"
+                                        data={unavailableProducts}
+                                        columns={columns}
+                                        key-field="id"
+                                        hide-checkbox-column>
+                    </lightning-datatable>
+
+                    <div class="row">
+                        <div class="column">
+                            <button class="confirm-button" onclick={excludeProducts} data-target-id="saveButton">Excluir Produtos</button>
+                        </div>
+                        <div class="column" if:false={selectCommodityScreen}>
+                            <button class="confirm-button" style="float: left;" onclick={getDistributionCenters} data-target-id="saveButton">Alterar Centro</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </template>
 </template>
