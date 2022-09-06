@@ -8,8 +8,11 @@ body {
 
 .exampleHolder{
     z-index: 999999;
-    position: relative;
-    display: inline-block;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    /* bring your own prefixes */
+    transform: translate(-50%, -50%);
     width: 80px;
     height: 80px;
 }
