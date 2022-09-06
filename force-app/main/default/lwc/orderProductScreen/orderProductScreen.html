@@ -83,10 +83,10 @@
 						<div class="column">
 							<label>Dosagem</label><br>
 							<template if:true={headerData.IsOrderChild}>
-								<input class="input-design" type="text" value={addProduct.dosage} onchange={changeValue} data-target-id="dosage" disabled/>
+								<input class="input-design" type="text" value={addProduct.dosageFront} onchange={changeValue} data-target-id="dosage" disabled/>
 							</template>
 							<template if:false={headerData.IsOrderChild}>
-								<input class="input-design" type="text" value={addProduct.dosage} onchange={changeValue} data-target-id="dosage" disabled={disabled}/>
+								<input class="input-design" type="text" value={addProduct.dosageFront} onchange={changeValue} data-target-id="dosage" disabled={disabled}/>
 							</template>
 						</div>
 
