@@ -6,6 +6,13 @@ body {
     font-family: Salesforce Sans;
 }
 
+.exampleHolder{
+    position: relative;
+    display: inline-block;
+    width: 80px;
+    height: 80px;
+}
+
 .container{
     background-color: white;
     box-shadow: 10px 5px 5px rgba(42, 150, 118, 0.2);
