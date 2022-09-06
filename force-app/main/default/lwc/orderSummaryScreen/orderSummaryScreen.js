@@ -204,12 +204,12 @@ export default class OrderSummaryScreen extends LightningElement {
     }
 
     chooseDistributionCenter(event){
-        var oldDC = this.isFilled(this.selectedDistributionCenter) ? this.selectedDistributionCenter : null;
+        let oldDC = this.isFilled(this.selectedDistributionCenter) ? this.selectedDistributionCenter : null;
         let DCs = this.distrCenterResult;
         if(this.isFilled(event)){
             try{
                 this.selectedDistributionCenter = DCs.find(element => element.centerId == event.target.dataset.targetId);
-                if(this.isFilled(oldDC)) DCs.find(element => element.centerId == oldDC).selected = false;
+                if(this.isFilled(oldDC)) DCs.find(element => element.centerId == oldDC.centerId).selected = false;
                 DCs.find(element => element.centerId == this.selectedDistributionCenter.centerId).selected = true;
             }catch(err){
                 console.log(err);
