@@ -192,6 +192,17 @@
 					<hr class="line-divisor"/>
 					<p class="title-divisor">Informações Adicionais</p>
 
+					<div if:true={seedSale} class="row">
+						<div class="column">
+							<label>Peneira</label><br>
+							<input class="input-design" type="text" value={addProduct.sieve} onchange={changeValue} data-target-id="sieve" maxlength="3"/>
+						</div>
+						<div class="column">
+							<label>Classe/Categoria</label><br>
+							<input class="input-design" type="text" value={addProduct.productClass} onchange={changeValue} data-target-id="productClass" maxlength="6"/>
+						</div>
+					</div>
+
 					<div class="row">
 						<div class="column">
 							<label>Quantidade Faturada</label><br>
@@ -315,6 +326,17 @@
 						<div class="column">
 							<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnFinancialDecreaseValue} data-target-id="columnFinancialDecreaseValue">
 							<label class="column-title">Valor de Decréscimo Financeiro</label><br>
+						</div>
+					</div>
+
+					<div if:true={seedSale} class="row">
+						<div class="column">
+							<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnSieve} data-target-id="columnSieve">
+							<label class="column-title">Peneira</label><br>
+						</div>
+						<div class="column">
+							<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnProductClass} data-target-id="columnProductClass">
+							<label class="column-title">Classe/Categoria</label><br>
 						</div>
 					</div>
 
