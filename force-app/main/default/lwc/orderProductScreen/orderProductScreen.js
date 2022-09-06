@@ -262,7 +262,8 @@ export default class OrderProductScreen extends LightningElement {
             listCost: currentProduct.listCost,
             practicedCost: currentProduct.practicedCost,
             initialTotalValue: currentProduct.initialTotalValue,
-            dosage: this.headerData.emptyHectar ? currentProduct.quantity : (this.isFilled(currentProduct.dosage) ? currentProduct.dosage : currentProduct.quantity / this.hectares),
+            dosage: this.isFilled(currentProduct.dosage) ? currentProduct.dosage : '',
+            dosageFront: this.isFilled(currentProduct.dosage) ? this.fixDecimalPlacesFront(currentProduct.dosage) : '',
             quantity: currentProduct.quantity,
             motherAvailableQuantity: currentProduct.motherAvailableQuantity,
             invoicedQuantity: this.isFilled(currentProduct.invoicedQuantity) ? currentProduct.invoicedQuantity : 0,
@@ -535,6 +536,7 @@ export default class OrderProductScreen extends LightningElement {
                     listCost: this.isFilled(priorityInfos.costPrice) ? this.fixDecimalPlaces(priorityInfos.costPrice) : 0,
                     practicedCost: this.isFilled(priorityInfos.costPrice) ? this.fixDecimalPlaces(priorityInfos.costPrice) : 0,
                     dosage: this.isFilled(currentProduct.dosage) ? currentProduct.dosage : '',
+                    dosageFront: this.isFilled(currentProduct.dosage) ? this.fixDecimalPlacesFront(currentProduct.dosage) : '',
                     quantity: null,
                     unitPrice: this.isFilled(priorityInfos.listPrice) ? this.fixDecimalPlaces(priorityInfos.listPrice) : 0,
                     unitPriceFront: this.isFilled(priorityInfos.listPrice) ? this.fixDecimalPlacesFront(priorityInfos.listPrice) : 0,
@@ -692,6 +694,7 @@ export default class OrderProductScreen extends LightningElement {
                 this.calculateTotalPrice(true, false);
             } else if (fieldId == 'dosage') {
                 if (this.isFilled(this.hectares)) {
+                    this.addProduct.dosageFront = this.fixDecimalPlacesFront(this.addProduct.dosage);
                     this.addProduct.quantity = this.calculateMultiplicity(this.addProduct.dosage * this.hectares, false);
                     this.listTotalPrice = this.addProduct.listPrice * this.addProduct.quantity;
                     this.calculateDiscountOrAddition();
@@ -700,7 +703,8 @@ export default class OrderProductScreen extends LightningElement {
             } else if (fieldId == 'quantity') {
                 this.addProduct.quantity = this.calculateMultiplicity(this.addProduct.quantity, false);
                 if (!this.headerData.IsOrderChild) {
-                    this.addProduct.dosage = this.isFilled(this.hectares) ? this.addProduct.quantity / this.hectares : 0
+                    this.addProduct.dosage = this.isFilled(this.hectares) ? this.addProduct.quantity / this.hectares : 0;
+                    this.addProduct.dosageFront = this.fixDecimalPlacesFront(this.addProduct.dosage);
                     this.listTotalPrice = this.addProduct.listPrice * this.addProduct.quantity;
                     this.calculateDiscountOrAddition();
                     this.calculateTotalPrice(true);
