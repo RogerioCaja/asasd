@@ -1028,6 +1028,7 @@ public without sharing class OrderScreenController {
                    SalesOrg__r.Name
               FROM DistributionCenter__c
              WHERE SalesOrg__c =: salesOrgId
+          ORDER BY Code__c
         ]) {
             DistrCenterData distrData = new DistrCenterData();
             distrData.centerId = distrCenter.Id;
