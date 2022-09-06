@@ -9,7 +9,7 @@
         <operation>equals</operation>
         <value>Concluído</value>
     </summaryFilterItems>
-    <summaryForeignKey>VisitPlanning__c.Main_BP__c</summaryForeignKey>
+    <summaryForeignKey>VisitPlanning__c.Account__c</summaryForeignKey>
     <summaryOperation>max</summaryOperation>
     <type>Summary</type>
 </CustomField>
