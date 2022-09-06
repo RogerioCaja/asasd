@@ -38,6 +38,7 @@
     <tabs>OrgVProduct__c</tabs>
     <tabs>ActivitySector__c</tabs>
     <tabs>ProductSubGroup__c</tabs>
+    <tabs>Carteiriza_o_de_Clientes</tabs>
     <uiType>Lightning</uiType>
     <utilityBar>AgroGalaxy_UtilityBar</utilityBar>
 </CustomApplication>

@@ -31,6 +31,7 @@ export default class OrderProductScreen extends LightningElement {
 
     companyResult=[];
     selectCompany = false;
+    selectedCompany;
     safraData={};
     paymentDate;
     hectares;
@@ -220,6 +221,8 @@ export default class OrderProductScreen extends LightningElement {
                 }
             }
         });
+
+        
     }
 
     newProduct(currentProduct) {
@@ -280,7 +283,7 @@ export default class OrderProductScreen extends LightningElement {
         };
         return newProduct;
     }
-
+ 
     chooseCompany(event) {
         let oldCompanyId;
         let companies = this.companyResult;
@@ -1286,6 +1289,7 @@ export default class OrderProductScreen extends LightningElement {
     }
 
     _setHeaderValues() {
+        console.log(JSON.stringify(this.headerData));
         const setHeaderValues = new CustomEvent('setheadervalues');
         setHeaderValues.data = this.headerData;
         this.dispatchEvent(setHeaderValues);
