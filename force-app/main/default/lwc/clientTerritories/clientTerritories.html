@@ -45,9 +45,11 @@
             style="width: 200px;" ></lightning-combobox>
             
         </div>
-        <div if:true={isLoading}>
-            <lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
-        </div>
+        <template if:true={isLoading}>
+            <div class="exampleHolder">
+                <lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
+            </div>
+        </template>
         <c-custom-order-search data-target-id="object-territory-search" object-name="ObjectTerritory2Association" field-name="Name" territory-params={territoryParams} onshowresults={showResults} onmodesearch={resetData} label="Pesquisar Conta:" placeholder="Digite o nome da Conta" required="true"></c-custom-order-search>
         
         <div class="table-and-pagination" >
