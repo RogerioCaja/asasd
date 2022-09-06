@@ -240,51 +240,53 @@ public without sharing class CustomLookupController {
                         
                         Boolean priceIncluded = false;
                         String key = jda.Account__c + '-' + (String)s.get('Id');
-                        if (jda.Account__c != null && !result.recordsDataMap.containsKey(key)) {
-                            result.recordsDataMap.put(key, productData);
-                            priceIncluded = true;
-                        }
-        
-                        String accountSegment = jda.Account__c != null ? industryByAccountIds.get(jda.Account__c).Industry : '';
-                        key = accountSegment + '-' + (String)s.get('Id');
-                        if (!priceIncluded && accountSegment != '' && !result.recordsDataMap.containsKey(key)) {
-                            result.recordsDataMap.put(key, productData);
-                            priceIncluded = true;
-                        }
-        
-                        key = jda.Culture__c + '-' + jda.SalesTeam__c + '-' + (String)s.get('Id');
-                        if (!priceIncluded && jda.Culture__c != null && jda.SalesTeam__c != null && !result.recordsDataMap.containsKey(key)) {
-                            result.recordsDataMap.put(key, productData);
-                            priceIncluded = true;
-                        }
-        
-                        key = jda.SalesTeam__c + '-' + (String)s.get('Id');
-                        if (!priceIncluded && jda.SalesTeam__c != null && !result.recordsDataMap.containsKey(key)) {
-                            result.recordsDataMap.put(key, productData);
-                            priceIncluded = true;
-                        }
-        
-                        key = jda.SalesOffice__c + '-' + (String)s.get('Id');
-                        if (!priceIncluded && jda.SalesOffice__c != null && !result.recordsDataMap.containsKey(key)) {
-                            result.recordsDataMap.put(key, productData);
-                            priceIncluded = true;
-                        }
-        
-                        key = jda.ProductGroup__c;
-                        if (!priceIncluded && jda.ProductGroup__c != null && !result.recordsDataMap.containsKey(key)) {
-                            result.recordsDataMap.put(key, productData);
-                            priceIncluded = true;
-                        }
-        
-                        key = (String)s.get('Id');
-                        if (!priceIncluded && !result.recordsDataMap.containsKey(key)) {
-                            result.recordsDataMap.put(key, productData);
-                            priceIncluded = true;
-                        }
-                        
-                        if (!productIncluded && priceIncluded) {
-                            result.recordsDataList.add(productData);
-                            productIncluded = true;
+                        if ((productParams.accountId == '' && jda.Account__c == null) || (productParams.accountId != '')) {
+                            if (jda.Account__c != null && !result.recordsDataMap.containsKey(key)) {
+                                result.recordsDataMap.put(key, productData);
+                                priceIncluded = true;
+                            }
+            
+                            String accountSegment = jda.Account__c != null ? industryByAccountIds.get(jda.Account__c).Industry : '';
+                            key = accountSegment + '-' + (String)s.get('Id');
+                            if (!priceIncluded && accountSegment != '' && !result.recordsDataMap.containsKey(key)) {
+                                result.recordsDataMap.put(key, productData);
+                                priceIncluded = true;
+                            }
+            
+                            key = jda.Culture__c + '-' + jda.SalesTeam__c + '-' + (String)s.get('Id');
+                            if (!priceIncluded && jda.Culture__c != null && jda.SalesTeam__c != null && !result.recordsDataMap.containsKey(key)) {
+                                result.recordsDataMap.put(key, productData);
+                                priceIncluded = true;
+                            }
+            
+                            key = jda.SalesTeam__c + '-' + (String)s.get('Id');
+                            if (!priceIncluded && jda.SalesTeam__c != null && !result.recordsDataMap.containsKey(key)) {
+                                result.recordsDataMap.put(key, productData);
+                                priceIncluded = true;
+                            }
+            
+                            key = jda.SalesOffice__c + '-' + (String)s.get('Id');
+                            if (!priceIncluded && jda.SalesOffice__c != null && !result.recordsDataMap.containsKey(key)) {
+                                result.recordsDataMap.put(key, productData);
+                                priceIncluded = true;
+                            }
+            
+                            key = jda.ProductGroup__c;
+                            if (!priceIncluded && jda.ProductGroup__c != null && !result.recordsDataMap.containsKey(key)) {
+                                result.recordsDataMap.put(key, productData);
+                                priceIncluded = true;
+                            }
+            
+                            key = (String)s.get('Id');
+                            if (!priceIncluded && !result.recordsDataMap.containsKey(key)) {
+                                result.recordsDataMap.put(key, productData);
+                                priceIncluded = true;
+                            }
+                            
+                            if (!productIncluded && priceIncluded) {
+                                result.recordsDataList.add(productData);
+                                productIncluded = true;
+                            }
                         }
                     }
                 }
