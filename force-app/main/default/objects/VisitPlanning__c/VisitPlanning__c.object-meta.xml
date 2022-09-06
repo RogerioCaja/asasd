@@ -161,6 +161,6 @@
     </nameField>
     <pluralLabel>Planejamento de Visitas</pluralLabel>
     <searchLayouts></searchLayouts>
-    <sharingModel>ControlledByParent</sharingModel>
+    <sharingModel>Private</sharingModel>
     <visibility>Public</visibility>
 </CustomObject>
