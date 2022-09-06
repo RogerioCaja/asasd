@@ -290,6 +290,15 @@ public  class TemplateDefaultFields {
 
         INSERT order;
 
+        FormPayment__c pF = new FormPayment__c(
+            Amount__c = 5.00,
+            PaymentDate__c = System.today(),
+            PaymentType__c = 'Germoplasma',
+            Order__c = order.Id
+        );
+
+        INSERT pF;
+
         Product2 prod = new Product2(
             Name = 'Laptop X200', 
             Family = 'Hardware',
