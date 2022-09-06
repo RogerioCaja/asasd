@@ -136,6 +136,18 @@ public without sharing class CalloutOrder {
         else return '';
     }
 
+    public static Object addPaymentForm(Order order, CalloutOrder.Header payload){
+        List<FormPayment__c> formPaymentList = [SELECT Amount__c, PaymentDate__c, PaymentType__c FROM FormPayment__c WHERE Order__c =: order.Id LIMIT 10];
+        Map<String, Object> mapStringHeader = (Map<String, Object>) JSON.deserializeUntyped(JSON.serialize(payload));
+        for(Integer i = 0; i<formPaymentList.size(); i++){
+            mapStringHeader.put(('ZZDTAPAG' + i), String.valueOf(formPaymentList[i].PaymentDate__c).replace('-', ''));
+            mapStringHeader.put(('ZZVLRPAG' + i), String.valueOf(formPaymentList[i].Amount__c));
+            mapStringHeader.put(('ZZITMPAG' + i), String.valueOf(formPaymentList[i].PaymentType__c));
+        }
+        String header = JSON.serialize(mapStringHeader);
+        return JSON.deserialize(header, CalloutOrder.Header.class);
+    }
+
     public static Decimal isNotation(Decimal value){
         if(value == 0) return 0;
         else return value;
@@ -284,47 +296,7 @@ public without sharing class CalloutOrder {
                 // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDAN', String.valueOf(CalloutOrder.isNotation(orderItem.FinancialDiscountPercent__c)), '%'));
                 IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZMAR', String.valueOf(CalloutOrder.isNotation(orderItem.CommercialMargin__c)), ''));
             }
-
-            List<FormPayment__c> formPaymentList = [SELECT Amount__c, PaymentDate__c, PaymentType__c FROM FormPayment__c WHERE Order__c =: order.Id LIMIT 10];
-            IS_HEADER_IN.ZZDTAPAG0 = String.valueOf(formPaymentList[0].PaymentDate__c).replace('-', '');
-            IS_HEADER_IN.ZZVLRPAG0 = String.valueOf(formPaymentList[0].Amount__c);
-            IS_HEADER_IN.ZZITMPAG0 = String.valueOf(formPaymentList[0].PaymentType__c);
-
-            IS_HEADER_IN.ZZDTAPAG1 = String.valueOf(formPaymentList[1].PaymentDate__c).replace('-', '');
-            IS_HEADER_IN.ZZVLRPAG1 = String.valueOf(formPaymentList[1].Amount__c);
-            IS_HEADER_IN.ZZITMPAG1 = String.valueOf(formPaymentList[1].PaymentType__c);
-
-            IS_HEADER_IN.ZZDTAPAG2 = String.valueOf(formPaymentList[2].PaymentDate__c).replace('-', '');
-            IS_HEADER_IN.ZZVLRPAG2 = String.valueOf(formPaymentList[2].Amount__c);
-            IS_HEADER_IN.ZZITMPAG2 = String.valueOf(formPaymentList[2].PaymentType__c);
-
-            IS_HEADER_IN.ZZDTAPAG3 = String.valueOf(formPaymentList[3].PaymentDate__c).replace('-', '');
-            IS_HEADER_IN.ZZVLRPAG3 = String.valueOf(formPaymentList[3].Amount__c);
-            IS_HEADER_IN.ZZITMPAG3 = String.valueOf(formPaymentList[3].PaymentType__c);
-
-            IS_HEADER_IN.ZZDTAPAG4 = String.valueOf(formPaymentList[4].PaymentDate__c).replace('-', '');
-            IS_HEADER_IN.ZZVLRPAG4 = String.valueOf(formPaymentList[4].Amount__c);
-            IS_HEADER_IN.ZZITMPAG4 = String.valueOf(formPaymentList[4].PaymentType__c);
-
-            IS_HEADER_IN.ZZDTAPAG5 = String.valueOf(formPaymentList[5].PaymentDate__c).replace('-', '');
-            IS_HEADER_IN.ZZVLRPAG5 = String.valueOf(formPaymentList[5].Amount__c);
-            IS_HEADER_IN.ZZITMPAG5 = String.valueOf(formPaymentList[5].PaymentType__c);
-
-            IS_HEADER_IN.ZZDTAPAG6 = String.valueOf(formPaymentList[6].PaymentDate__c).replace('-', '');
-            IS_HEADER_IN.ZZVLRPAG6 = String.valueOf(formPaymentList[6].Amount__c);
-            IS_HEADER_IN.ZZITMPAG6 = String.valueOf(formPaymentList[6].PaymentType__c);
-
-            IS_HEADER_IN.ZZDTAPAG7 = String.valueOf(formPaymentList[7].PaymentDate__c).replace('-', '');
-            IS_HEADER_IN.ZZVLRPAG7 = String.valueOf(formPaymentList[7].Amount__c);
-            IS_HEADER_IN.ZZITMPAG7 = String.valueOf(formPaymentList[7].PaymentType__c);
-
-            IS_HEADER_IN.ZZDTAPAG8 = String.valueOf(formPaymentList[8].PaymentDate__c).replace('-', '');
-            IS_HEADER_IN.ZZVLRPAG8 = String.valueOf(formPaymentList[8].Amount__c);
-            IS_HEADER_IN.ZZITMPAG8 = String.valueOf(formPaymentList[8].PaymentType__c);
-
-            IS_HEADER_IN.ZZDTAPAG9 = String.valueOf(formPaymentList[9].PaymentDate__c).replace('-', '');
-            IS_HEADER_IN.ZZVLRPAG9 = String.valueOf(formPaymentList[9].Amount__c);
-            IS_HEADER_IN.ZZITMPAG9 = String.valueOf(formPaymentList[9].PaymentType__c);
+            IS_HEADER_IN = (CalloutOrder.Header)addPaymentForm(order, IS_HEADER_IN);
         }
     }
 
