@@ -237,6 +237,21 @@ textarea:hover{
     padding: 40px 0px;
 }
 
+.checkbox-round {
+	width: 1.3em;
+    height: 1.3em;
+    border-radius: 50%;
+    vertical-align: middle;
+    border: 2px solid #ccc;
+    -webkit-appearance: none;
+    outline: none;
+    cursor: pointer;
+}
+
+.checkbox-round:checked {
+    background-color: #2a9676;
+}
+
 .modal {
 	position: fixed;
 	z-index: 99999;
