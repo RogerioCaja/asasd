@@ -272,6 +272,7 @@ textarea:hover{
 	border: 1px solid #888;
 	width: 600px;
 }
+
 .container {
 	border-radius: 5px;
 	border: 1px solid #ccc;
@@ -280,6 +281,7 @@ textarea:hover{
     clear: both;
 	padding: 0px;
 }
+
 .new-product-title {
 	font-size: 20px;
     font-weight: bold;
@@ -296,6 +298,29 @@ textarea:hover{
     float: left;
     width: 50%;
 	padding: 0px 5px 0px 5px;
+}
+
+.payment-column {
+    float: left;
+    width: 30%;
+	padding: 0px 5px 0px 5px;
+}
+
+.openPaymentScreen {
+    float: left;
+    width: 50%;
+    font-size: 14px;
+    padding: 5px;
+    color: #2a9676;
+    cursor: pointer;
+}
+
+.exclude-column {
+    margin: 30px 0px 0px 0px;
+    float: left;
+    width: 10%;
+    padding: 0px 0px 0px 25px;
+    color: #2a9676;
 }
 
 .confirm-button {
@@ -315,6 +340,17 @@ textarea:hover{
 .confirm-button:hover {
 	background-color: #2a9676;
 	color: #ffffff;
+}
+
+.back-button {
+	float: left;
+	width: 50%;
+	padding: 25px;
+	color: #2a9676;
+}
+
+.back-button a {
+	color: #2a9676;
 }
 
 @media screen and (max-width: 520px) {
