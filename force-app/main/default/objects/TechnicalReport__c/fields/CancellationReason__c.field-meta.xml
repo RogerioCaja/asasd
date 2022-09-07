@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>CTVvisit__c</fullName>
+    <fullName>CancellationReason__c</fullName>
     <externalId>false</externalId>
-    <label>(Apagar campo)CTV da Visita</label>
-    <length>100</length>
+    <label>Motivo do Cancelamento</label>
+    <length>255</length>
     <required>false</required>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>

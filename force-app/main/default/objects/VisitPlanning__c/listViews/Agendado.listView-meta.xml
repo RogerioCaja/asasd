@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ListView xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>All</fullName>
+    <fullName>Agendado</fullName>
     <columns>NAME</columns>
     <columns>MainBP__c</columns>
     <columns>BP_Property__c</columns>
     <columns>VisitSeller__c</columns>
     <columns>InitialDate__c</columns>
     <columns>Status__c</columns>
-    <filterScope>Everything</filterScope>
-    <label>All</label>
+    <filterScope>Mine</filterScope>
+    <filters>
+        <field>Status__c</field>
+        <operation>equals</operation>
+        <value>Agendado</value>
+    </filters>
+    <label>Agendado</label>
 </ListView>

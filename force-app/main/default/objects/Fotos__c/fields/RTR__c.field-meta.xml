@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>Safra__c</fullName>
+    <fullName>RTR__c</fullName>
     <deleteConstraint>Restrict</deleteConstraint>
     <externalId>false</externalId>
-    <label>Safra</label>
-    <referenceTo>Safra__c</referenceTo>
-    <relationshipLabel>Planejamento de Visitas</relationshipLabel>
-    <relationshipName>Planejamento_de_Visitas</relationshipName>
+    <label>RTR</label>
+    <referenceTo>TechnicalReport__c</referenceTo>
+    <relationshipLabel>Fotos</relationshipLabel>
+    <relationshipName>Fotos</relationshipName>
     <required>true</required>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>
