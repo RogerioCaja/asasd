@@ -49,13 +49,13 @@
             <c-order-account-screen if:true={account} message={message} onsetaccountdata={_setAccountData} selected-account={accountData} clone-data={cloneData}>
             </c-order-account-screen>
 
-            <c-order-header-screen if:true={header} tab="header" onsetheaderdata={_setHeaderData} account-data={accountData} header-data={headerData} header-data-title={headerDataTitle} product-data={productData} division-data={divisionData} clone-data={cloneData} commodity-data={commodityData} excluded-items={excludedItems}>
+            <c-order-header-screen if:true={header} tab="header" onsetheaderdata={_setHeaderData} account-data={accountData} header-data={headerData} header-data-title={headerDataTitle} product-data={productData} division-data={divisionData} clone-data={cloneData} commodity-data={commodityData} excluded-items={excludedItems} forms-of-payment={formsOfPayment}>
             </c-order-header-screen>
 
-            <c-order-product-screen if:true={product} tab="product" onsetproductdata={_setProductData} onsetheadervalues={_setHeaderValues} onsetdivisiondata={_setDivisionData} onsetcommoditydata={_setCommodityData} onsetexcludedesitems={_setExcludedesItems} account-data={accountData} header-data={headerData} product-data={productData} division-data={divisionData} clone-data={cloneData} commodity-data={commodityData} excluded-items={excludedItems}>
+            <c-order-product-screen if:true={product} tab="product" onsetproductdata={_setProductData} onsetheadervalues={_setHeaderValues} onsetdivisiondata={_setDivisionData} onsetcommoditydata={_setCommodityData} onsetexcludedesitems={_setExcludedesItems} account-data={accountData} header-data={headerData} product-data={productData} division-data={divisionData} clone-data={cloneData} commodity-data={commodityData} excluded-items={excludedItems} forms-of-payment={formsOfPayment}>
             </c-order-product-screen>
 
-            <c-order-summary-screen if:true={summary} tab="summary" onsetsummarydata={_setSummaryData} product-data={productData} division-data={divisionData} header-data={headerData} account-data={accountData} summary-data={summaryData} clone-data={cloneData} commodity-data={commodityData} excluded-items={excludedItems}>
+            <c-order-summary-screen if:true={summary} tab="summary" onsetsummarydata={_setSummaryData} onsetformsofpayment={_setformsofpayment} product-data={productData} division-data={divisionData} header-data={headerData} account-data={accountData} summary-data={summaryData} clone-data={cloneData} commodity-data={commodityData} excluded-items={excludedItems} forms-of-payment={formsOfPayment}>
             </c-order-summary-screen>
 
             <!--COMEÇO NAVBAR BOTTOM-->
