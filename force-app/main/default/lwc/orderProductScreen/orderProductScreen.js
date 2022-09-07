@@ -116,6 +116,7 @@ export default class OrderProductScreen extends LightningElement {
     @api headerData;
     @api cloneData;
     @api excludedItems;
+    @api formsOfPayment
 
     connectedCallback(event) {
         let today = new Date();

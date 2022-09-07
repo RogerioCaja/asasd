@@ -86,6 +86,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     @track divisionData;
     @track commodityData;
     @track excludedItems;
+    @track formsOfPayment;
     @track summaryData = {
         'observation' : "",
         'billing_sale_observation': ""
@@ -302,7 +303,8 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
             this.productData = data.productData;
             this.commodityData = data.commodityData;
-            this.qtdItens = data.productData.length;
+            this.commodityData = data.commodityData;
+            this.formsOfPayment = data.formsOfPayment;
             this.valorTotal = 0;
             try
             {
@@ -417,9 +419,24 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             return;
         }
 
+        let totalPayment = 0;
+        for (let index = 0; index < this.productData.length; index++) {
+            totalPayment += Number(this.productData[index].unitPrice) * Number(this.productData[index].quantity);
+        }
+
+        let orderTotalPrice = 0;
+        for (let index = 0; index < this.formsOfPayment.length; index++) {
+            orderTotalPrice += Number(this.formsOfPayment[index].value);
+        }
+
+        if (this.fixDecimalPlacesFront(totalPayment) != this.fixDecimalPlacesFront(orderTotalPrice)) {
+            this.showNotification('O valor total do pagamento deve ser igual ao do pedido', 'Atenção', 'warning');
+            return;
+        }
+
         const mode = event.detail;
         await this.recordId;
-        const data = {accountData: this.accountData, headerData: this.headerData, productData: this.productData, divisionData: this.divisionData, commodityData: this.commodityData, summaryData: this.summaryData};
+        const data = {accountData: this.accountData, headerData: this.headerData, productData: this.productData, divisionData: this.divisionData, commodityData: this.commodityData, summaryData: this.summaryData, formsOfPayment: this.formsOfPayment};
         console.log(JSON.stringify(data));
         this.isLoading = true;
         //console.log(data);
@@ -456,6 +473,11 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.showNotification(err.message, 'Aconteceram alguns erros', 'error');
             this.isLoading = false;
         });
+    }
+
+    fixDecimalPlacesFront(value) {
+        let formatNumber = new Intl.NumberFormat('de-DE').format(Number(Math.round(value + 'e' + 2) + 'e-' + 2));
+        return formatNumber;
     }
 
     _setAccountData(event) {
@@ -577,6 +599,10 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         this.summaryData = event.data;
         console.log('summary data setted:', this.summaryData);
         this.enableNextScreen();
+    }
+
+    _setformsofpayment(event) {
+        this.formsOfPayment = event.data;
     }
 
     _setExcludedesItems(event) {

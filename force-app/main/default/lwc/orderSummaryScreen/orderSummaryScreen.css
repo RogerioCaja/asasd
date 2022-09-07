@@ -237,21 +237,6 @@ textarea:hover{
     padding: 40px 0px;
 }
 
-.checkbox-round {
-	width: 1.3em;
-    height: 1.3em;
-    border-radius: 50%;
-    vertical-align: middle;
-    border: 2px solid #ccc;
-    -webkit-appearance: none;
-    outline: none;
-    cursor: pointer;
-}
-
-.checkbox-round:checked {
-    background-color: #2a9676;
-}
-
 .modal {
 	position: fixed;
 	z-index: 99999;
@@ -292,10 +277,27 @@ textarea:hover{
     clear: both;
 }
 
-.column {
+.payment-column {
+    float: left;
+    width: 30%;
+	padding: 0px 5px 0px 5px;
+}
+
+.openPaymentScreen {
     float: left;
     width: 50%;
-	padding: 0px 5px 0px 5px;
+    font-size: 14px;
+    padding: 5px;
+    color: #2a9676;
+    cursor: pointer;
+}
+
+.exclude-column {
+    margin: 30px 0px 0px 0px;
+    float: left;
+    width: 10%;
+    padding: 0px 0px 0px 25px;
+    color: #2a9676;
 }
 
 .confirm-button {
@@ -315,6 +317,23 @@ textarea:hover{
 .confirm-button:hover {
 	background-color: #2a9676;
 	color: #ffffff;
+}
+
+.back-button {
+	float: left;
+	width: 50%;
+	padding: 25px;
+	color: #2a9676;
+}
+
+.back-button a {
+	color: #2a9676;
+}
+
+.column {
+    float: left;
+    width: 50%;
+	padding: 0px 5px 0px 5px;
 }
 
 @media screen and (max-width: 520px) {
