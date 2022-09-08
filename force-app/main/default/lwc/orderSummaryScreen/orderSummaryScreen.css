@@ -392,6 +392,25 @@ textarea:hover{
 	color: #2a9676;
 }
 
+.column {
+    float: left;
+    width: 50%;
+	padding: 0px 5px 0px 5px;
+}
+
+.quantities-div {
+	margin: 20px 0px 50px 0px;
+    font-size: 14px;
+}
+
+.quantities-bold {
+    font-weight: bold;
+}
+
+.quantities-red {
+    color: red;
+}
+
 @media screen and (max-width: 520px) {
 	.company-card {
 		width: 100%;
