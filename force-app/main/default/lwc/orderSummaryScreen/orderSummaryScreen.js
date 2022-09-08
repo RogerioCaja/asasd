@@ -413,6 +413,7 @@ export default class OrderSummaryScreen extends LightningElement {
     }
 
     openFormOfPayment(event) {
+        this.recalcTotalToDistribution();
         let allPayments = JSON.parse(JSON.stringify(this.formsOfPayment));
         let savedPayments = []
         for (let index = 0; index < allPayments.length; index++) {
@@ -444,7 +445,7 @@ export default class OrderSummaryScreen extends LightningElement {
                     fieldValue = fieldValue.toString().includes(',') ? fieldValue.toString().replace(',', '.') : fieldValue;
                     allPayments[index].value = this.fixDecimalPlaces(fieldValue);
                     allPayments[index].valueFront = this.fixDecimalPlacesFront(fieldValue);
-                    this.recalcTotalToDistribution(allPayments);
+                    this.recalcTotalToDistribution();
                 }
             }
         }
@@ -452,8 +453,9 @@ export default class OrderSummaryScreen extends LightningElement {
         this.formsOfPayment = JSON.parse(JSON.stringify(allPayments));
     }
 
-    recalcTotalToDistribution(allPayments){
+    recalcTotalToDistribution(){
         let value = 0;
+        let allPayments = JSON.parse(JSON.stringify(this.formsOfPayment))
         for (let index = 0; index < allPayments.length; index++) {
             value += allPayments[index].value;
         }
@@ -527,6 +529,7 @@ export default class OrderSummaryScreen extends LightningElement {
         }
 
         this.formsOfPayment = JSON.parse(JSON.stringify(linesToUse));
+        this.recalcTotalToDistribution();
     }
 
     showToast(type, title, message) {
