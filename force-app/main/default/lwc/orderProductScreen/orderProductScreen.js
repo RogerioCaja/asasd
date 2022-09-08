@@ -317,7 +317,7 @@ export default class OrderProductScreen extends LightningElement {
         }
         this._setHeaderValues();
         
-        isSeedSale({salesOrgId: this.selectedCompany.salesOrgId})
+        isSeedSale({salesOrgId: this.selectedCompany.salesOrgId, productGroupName: null})
         .then((result) => {
             this.seedSale = result;
             if (this.isFilled(this.headerData.safra.Id)) {
@@ -521,6 +521,11 @@ export default class OrderProductScreen extends LightningElement {
     }
 
     showProductModal(event) {
+        let productValidation = this.baseProducts.find(e => e.Id == event.target.dataset.targetId);
+        isSeedSale({salesOrgId: this.selectedCompany.salesOrgId, productGroupName: productValidation.productGroupName})
+        .then((result) => {
+            this.seedSale = result;
+        });
         this.createNewProduct = !this.createNewProduct;
 
         if (this.createNewProduct) {
