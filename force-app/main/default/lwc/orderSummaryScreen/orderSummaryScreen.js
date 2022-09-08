@@ -1,9 +1,11 @@
 import { LightningElement, api, track } from 'lwc';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import approval from '@salesforce/apex/OrderScreenController.approvals';
 import getAccountCompanies from '@salesforce/apex/OrderScreenController.getAccountCompanies';
 import getAccountDistrCenters from '@salesforce/apex/OrderScreenController.getAccountDistrCenters';
 import verifyProductDisponibility from '@salesforce/apex/OrderScreenController.verifyProductDisponibility';
 import isSeedSale from '@salesforce/apex/OrderScreenController.isSeedSale';
+import getPaymentTypes from '@salesforce/apex/OrderScreenController.getPaymentTypes';
 
 export default class OrderSummaryScreen extends LightningElement {
     showLoading = false;
@@ -15,6 +17,16 @@ export default class OrderSummaryScreen extends LightningElement {
     formattedDeliveryDate;
     totalDelivery;
     hideMargin = false;
+    
+    orderTotalPrice = 0;
+    orderTotalToDistribution = 0;
+    showRed;
+    showFormOfPayment = false;
+    blockPaymentFields = false;
+    currentDate;
+    paymentLastPosition = 0;
+    paymentsTypes = [];
+    @api formsOfPayment = [];
 
     @track orderMargin = 0;
     @track approval = '';
@@ -47,6 +59,26 @@ export default class OrderSummaryScreen extends LightningElement {
     @api excludedItems;
 
     connectedCallback(){
+        if (this.formsOfPayment === undefined) {
+            this.formsOfPayment = [];
+        } else {
+            for (let index = 0; index < this.formsOfPayment.length; index++) {
+                this.paymentLastPosition = this.formsOfPayment[index].paymentPosition;
+            }
+        }
+
+        let today = new Date();
+        let dd = String(today.getDate()).padStart(2, '0');
+        let mm = String(today.getMonth() + 1).padStart(2, '0');
+        let yyyy = today.getFullYear();
+
+        this.currentDate = yyyy + '-' + mm + '-' + dd;
+        getPaymentTypes()
+        .then((result) => {
+            let teste = JSON.parse(result);
+            this.paymentsTypes = JSON.parse(JSON.stringify(teste));
+        });
+
         this.summaryDataLocale = {... this.summaryData};
         this.loadData();
 
@@ -191,6 +223,8 @@ export default class OrderSummaryScreen extends LightningElement {
                 }
             }
             
+            this.orderTotalPrice = orderTotalPrice;
+            this.orderTotalToDistribution = orderTotalPrice;
             if (this.headerData.tipo_venda != 'Venda Barter') {
                 let margin = (1 - (orderTotalCost / orderTotalPrice)) * 100;
                 this.orderMargin = this.fixDecimalPlacesFront(margin) + '%';
@@ -310,6 +344,10 @@ export default class OrderSummaryScreen extends LightningElement {
 
     }
 
+    fixDecimalPlaces(value) {
+        return (+(Math.trunc(+(value + 'e' + 6)) + 'e' + -6)).toFixed(6);
+    }
+
     fixDecimalPlacesFront(value) {
         let formatNumber = new Intl.NumberFormat('de-DE').format(Number(Math.round(value + 'e' + 2) + 'e-' + 2));
         return formatNumber;
@@ -319,6 +357,145 @@ export default class OrderSummaryScreen extends LightningElement {
         value = value.toString().includes(',') ? value.toString().replace(',', '.') : value.toString();
         value = value.includes('%') ? Number(value.replace('%', '')) : Number(value);
         return Number(Math.round(value + 'e' + 2) + 'e-' + 2).toString().replace('.', ',') + '%';
+    }
+
+    openFormOfPayment(event) {
+        this.recalcTotalToDistribution();
+        let allPayments = JSON.parse(JSON.stringify(this.formsOfPayment));
+        let savedPayments = []
+        for (let index = 0; index < allPayments.length; index++) {
+            if (allPayments[index].saved) {
+                allPayments[index].valueFront = this.fixDecimalPlacesFront(allPayments[index].value);
+                savedPayments.push(allPayments[index]);
+            }
+        }
+        this.formsOfPayment = JSON.parse(JSON.stringify(savedPayments));
+        this.showFormOfPayment = !this.showFormOfPayment;
+    }
+
+    changeValue(event) {
+        let fieldId = event.target.dataset.targetId;
+        let fieldValue = event.target.value;
+        let paymentPosition = fieldId.split('-')[1];
+        let allPayments = JSON.parse(JSON.stringify(this.formsOfPayment));
+        
+        for (let index = 0; index < allPayments.length; index++) {
+            if (allPayments[index].paymentPosition == paymentPosition) {
+                if (fieldId.includes('paymentTypeId')) {
+                    allPayments[index].paymentType = fieldValue;
+                    if (allPayments[index].paymentDay != '') allPayments[index].paymentKey = fieldValue + '-' + allPayments[index].paymentDay;
+                } else if (fieldId.includes('paymentDayId')) {
+                    allPayments[index].paymentDay = fieldValue;
+                    if (allPayments[index].paymentType != '') allPayments[index].paymentKey = allPayments[index].paymentType + '-' + fieldValue;
+                } else if (fieldId.includes('valueId')) {
+                    fieldValue = fieldValue.toString().includes('.') ? fieldValue.toString().replace('.', '') : fieldValue;
+                    fieldValue = fieldValue.toString().includes(',') ? fieldValue.toString().replace(',', '.') : fieldValue;
+                    allPayments[index].value = this.fixDecimalPlaces(fieldValue);
+                    allPayments[index].valueFront = this.fixDecimalPlacesFront(fieldValue);
+                    this.recalcTotalToDistribution();
+                }
+            }
+        }
+
+        this.formsOfPayment = JSON.parse(JSON.stringify(allPayments));
+    }
+
+    recalcTotalToDistribution(){
+        let value = 0;
+        let allPayments = JSON.parse(JSON.stringify(this.formsOfPayment))
+        for (let index = 0; index < allPayments.length; index++) {
+            value += allPayments[index].value;
+        }
+        this.orderTotalToDistribution = Number(this.orderTotalPrice) - Number(value);
+    }
+
+    newFields() {
+        let allFromsOfPayment = JSON.parse(JSON.stringify(this.formsOfPayment));
+        this.paymentLastPosition = this.paymentLastPosition + 1;
+        let divPosition = this.paymentLastPosition;
+        let paymentTypeId = 'paymentTypeId-' + divPosition;
+        let paymentDayId = 'paymentDayId-' + divPosition;
+        let valueId = 'valueId-' + divPosition;
+        
+        allFromsOfPayment.push({
+            paymentType: '',
+            paymentDay: null,
+            value: '',
+            paymentPosition: this.paymentLastPosition,
+            paymentTypeId: paymentTypeId,
+            paymentDayId: paymentDayId,
+            valueId: valueId,
+            paymentKey: '',
+            saved: false
+        });
+        this.formsOfPayment = JSON.parse(JSON.stringify(allFromsOfPayment));
+    }
+
+    confirmFormOfPayment() {
+        let allPayments = JSON.parse(JSON.stringify(this.formsOfPayment));
+        let groupedFormsOfPayment = [];
+
+        for (let index = 0; index < allPayments.length; index++) {
+            let checkFields = allPayments[index];
+            let pushValue = true;
+            if (allPayments[index].paymentType != '' && allPayments[index].paymentDay != '' && allPayments[index].value != '') {
+                if (checkFields.paymentKey != '') {
+                    for (let i = 0; i < groupedFormsOfPayment.length; i++) {
+                        if (groupedFormsOfPayment[i].paymentKey == checkFields.paymentKey) {
+                            groupedFormsOfPayment[i].value = Number(groupedFormsOfPayment[i].value) + Number(checkFields.value);
+                            pushValue = false;
+                        }
+                    }
+                    if (pushValue) {
+                        checkFields.saved = true;
+                        groupedFormsOfPayment.push(checkFields);
+                    }
+                }
+            } else {
+                this.showToast('warning', 'Atenção!', 'Todos os campos são obrigatórios.');
+                return;
+            }
+        }
+
+        this.formsOfPayment = JSON.parse(JSON.stringify(groupedFormsOfPayment));
+        if (this.formsOfPayment.length > 10) {
+            this.showToast('warning', 'Atenção!', 'É possível inserir no máximo 10 formas de pagamento.');
+        } else {
+            this.showFormOfPayment = !this.showFormOfPayment;
+            this.setFormsOfPayment();
+        }
+    }
+
+    excludeLine(event) {
+        let currentLines = JSON.parse(JSON.stringify(this.formsOfPayment));
+        let linesToUse = [];
+        for (let index = 0; index < currentLines.length; index++) {
+            if (currentLines[index].paymentPosition != event.target.dataset.targetId) {
+                linesToUse.push(currentLines[index]);
+            }
+        }
+
+        this.formsOfPayment = JSON.parse(JSON.stringify(linesToUse));
+        this.recalcTotalToDistribution();
+    }
+
+    showToast(type, title, message) {
+        let event = new ShowToastEvent({
+            variant: type,
+            title: title,
+            message: message,
+        });
+        this.dispatchEvent(event);
+    }
+
+    closeFormOfPayment() {
+        this.showFormOfPayment = !this.showFormOfPayment;
+    }
+
+    setFormsOfPayment(){
+        const setformsofpayment = new CustomEvent('setformsofpayment');
+        setformsofpayment.data = this.formsOfPayment;
+        this.dispatchEvent(setformsofpayment);
     }
 
     changeObservation(event){
