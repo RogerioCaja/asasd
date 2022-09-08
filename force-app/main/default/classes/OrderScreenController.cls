@@ -109,7 +109,9 @@ public without sharing class OrderScreenController {
                    AmountUsed__c,
                    PTA__c,
                    PriceListCode__c,
-                   ReasonRefuse__c
+                   ReasonRefuse__c,
+                   Sieve__c,
+                   Class__c
               FROM OrderItem
              WHERE OrderId =: orderId
         ]){
@@ -696,6 +698,8 @@ public without sharing class OrderScreenController {
                     orderItem.ComissionValue__c = orderItem.PercentComission__c != 0 ? ((orderItem.FinalTotalValue__c * orderItem.PercentComission__c) / 100) : 0;
                     orderItem.PTA__c = orderProduct.ptaProduct;
                     orderItem.PriceListCode__c = orderProduct.priceListCode;
+                    orderItem.Sieve__c = orderProduct.sieve;
+                    orderItem.Class__c = orderProduct.productClass;
                     listOrderItems.add(orderItem);
                 }
 
@@ -1086,6 +1090,28 @@ public without sharing class OrderScreenController {
     }
 
     @AuraEnabled
+    public static Boolean isSeedSale(String salesOrgId, String productGroupName) {
+        String salesOrgCode = [SELECT Id, SalesOrganizationCode__c FROM SalesOrg__c WHERE Id =: salesOrgId].SalesOrganizationCode__c;
+        Boolean isSeed = false;
+        for (SalesOrgSeeds__c seed : [
+            SELECT Id,
+                   SeedCode__c
+              FROM SalesOrgSeeds__c
+             WHERE SeedCode__c =: salesOrgCode
+        ]) {
+            if(productGroupName != null){
+                if(productGroupName == 'SEMENTES'){
+                    isSeed = true;
+                }
+            }else{
+                isSeed = true;
+            }
+        }
+
+        return isSeed;
+    }
+
+    @AuraEnabled
     public static String getFinancialInfos(String data) {
         FinancialResult result = new FinancialResult();
         OrderDataDeserialize orderValues = (OrderDataDeserialize) JSON.deserialize(data, OrderDataDeserialize.class);
@@ -1398,6 +1424,8 @@ public without sharing class OrderScreenController {
         public String  financialAdditionPercentage;
         public String  financialDecreasePercentage;
         public String  priceListCode;
+        public String  sieve;
+        public String  productClass;
         public Integer position;
         public Boolean ptaProduct;
         public Decimal invoicedQuantity;
@@ -1679,6 +1707,8 @@ public without sharing class OrderScreenController {
         public String  financialAdditionPercentage;
         public String  financialDecreasePercentage;
         public String  priceListCode;
+        public String  sieve;
+        public String  productClass;
         public Integer position;
         public Boolean ptaProduct;
         public Decimal multiplicity;
@@ -1739,6 +1769,8 @@ public without sharing class OrderScreenController {
             this.commercialMarginPercentage = orderItem.CommercialMargin__c;
             this.ptaProduct = orderItem.PTA__c;
             this.priceListCode = orderItem.PriceListCode__c;
+            this.sieve = orderItem.Sieve__c != null ? orderItem.Sieve__c : '';
+            this.productClass = orderItem.Class__c != null ? orderItem.Class__c : '';
         }
     }
 
