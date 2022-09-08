@@ -38,14 +38,6 @@
                 <behavior>Edit</behavior>
                 <field>NumberTerritorys__c</field>
             </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
-                <field>RegisterTipe__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
-                <field>BpType__c</field>
-            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>
@@ -393,18 +385,6 @@
         <fields>harvest__c</fields>
         <fields>PotentialPurchaseValue__c</fields>
         <relatedList>PotencialCompra__c.Client__c</relatedList>
-    </relatedLists>
-    <relatedLists>
-        <fields>NAME</fields>
-        <fields>BP_Property__c</fields>
-        <fields>InitialDate__c</fields>
-        <relatedList>VisitPlanning__c.MainBP__c</relatedList>
-    </relatedLists>
-    <relatedLists>
-        <fields>NAME</fields>
-        <fields>MainBP__c</fields>
-        <fields>InitialDate__c</fields>
-        <relatedList>VisitPlanning__c.BP_Property__c</relatedList>
     </relatedLists>
     <relatedObjects>ParentId</relatedObjects>
     <showEmailCheckbox>false</showEmailCheckbox>

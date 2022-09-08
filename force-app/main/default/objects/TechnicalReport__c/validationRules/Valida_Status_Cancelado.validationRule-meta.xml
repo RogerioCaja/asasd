@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>Valida_Status_Cancelado</fullName>
-    <active>true</active>
-    <description>Ao cancelar um RTR, é obrigatório o preenchimento do campo Motivo do Cancelamento.</description>
-    <errorConditionFormula>ISPICKVAL( Status__c , &quot;Cancelado&quot;) &amp;&amp;
- ISBLANK(CancellationReason__c)</errorConditionFormula>
-    <errorMessage>Informe o Motivo do Cancelamento.</errorMessage>
-</ValidationRule>
