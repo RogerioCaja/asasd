@@ -1152,7 +1152,13 @@ public without sharing class OrderScreenController {
               FROM SalesOrgSeeds__c
              WHERE SeedCode__c =: salesOrgCode
         ]) {
-            if(productGroupName == 'SEM001') isSeed = true;
+            if(productGroupName != null){
+                if(productGroupName == 'SEM001'){
+                    isSeed = true;
+                }
+            }else{
+                isSeed = true;
+            }
         }
 
         return isSeed;
