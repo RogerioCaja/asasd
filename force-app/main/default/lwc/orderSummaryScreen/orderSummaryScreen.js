@@ -222,7 +222,7 @@ export default class OrderSummaryScreen extends LightningElement {
     onSelectDistrCenter(){
         this.showLoading = true;
         try{
-            if(!this.isFilled(this.summaryDataLocale.centerId)){
+            if(this.isFilled(this.summaryDataLocale.centerId)){
                 this.selectDistributionCenter = !this.selectDistributionCenter;
                 this.summaryDataLocale.centerId = this.selectedDistributionCenter.centerId;
                 this.verifyProdDisponiblity();
