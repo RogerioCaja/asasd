@@ -252,6 +252,22 @@
             <div class="modal-content" style="width: 900px;">
                 <p class="new-product-title">Escolha as formas de pagamento:</p>
 
+                <div class="quantities-div">
+                    <div class="column">
+                        Total de pagamento: <label class="quantities-bold">{orderTotalPrice}</label><br>
+                    </div>
+                    <template if:true={showRed}>
+                        <div class="column">
+                            Total a distribuir: <label class="quantities-red">{orderTotalToDistribution}</label><br>
+                        </div>
+                    </template>
+                    <template if:false={showRed}>
+                        <div class="column">
+                            Total a distribuir: <label class="quantities-bold">{orderTotalToDistribution}</label><br>
+                        </div>
+                    </template>
+                </div>
+
                 <template for:each={formsOfPayment} for:item="payments">
                     <div class="slds-form-element__row" key={payments.paymentPosition}>
                         <div class="slds-form-element payment-column">
