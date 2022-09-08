@@ -282,11 +282,10 @@ export default class OrderSummaryScreen extends LightningElement {
 
         this.showUnavailableProducts = false;
         this.productData = JSON.parse(JSON.stringify(availableProducts));
+        this._setProductData();
         if (availableProducts.length > 0) {
             this.loadData();
         }
-        
-        this._setProductData();
     }
 
     formatCurrency(num){
