@@ -317,175 +317,172 @@ export default class OrderProductScreen extends LightningElement {
         }
         this._setHeaderValues();
         
-        isSeedSale({salesOrgId: this.selectedCompany.salesOrgId})
-        .then((result) => {
-            this.seedSale = result;
-            if (this.isFilled(this.headerData.safra.Id)) {
-                getSafraInfos({safraId: this.headerData.safra.Id})
-                .then((result) => {
-                    let safraResult = JSON.parse(result);
-                    this.safraData = {
-                        initialDate: safraResult.initialDate,
-                        endDate: safraResult.endDateBilling
-                    };
+        
+        if (this.isFilled(this.headerData.safra.Id)) {
+            getSafraInfos({safraId: this.headerData.safra.Id})
+            .then((result) => {
+                let safraResult = JSON.parse(result);
+                this.safraData = {
+                    initialDate: safraResult.initialDate,
+                    endDate: safraResult.endDateBilling
+                };
 
-                    this.productParams = {
-                        salesConditionId: this.headerData.condicao_venda.Id,
-                        accountId: this.accountData.Id,
-                        ctvId: this.headerData.ctv_venda.Id,
-                        safra: this.headerData.safra.Id,
-                        productCurrency: this.headerData.moeda,
-                        culture: this.headerData.cultura.Id,
-                        orderType: this.headerData.tipo_venda,
-                        supplierCenter: this.selectedCompany.supplierCenter,
-                        salesOrgId: this.selectedCompany.salesOrgId != null ? this.selectedCompany.salesOrgId : '',
-                        salesOfficeId: this.selectedCompany.salesOfficeId != null ? this.selectedCompany.salesOfficeId : '',
-                        salesTeamId: this.selectedCompany.salesTeamId != null ? this.selectedCompany.salesTeamId : '',
-                        numberOfRowsToSkip: this.numberOfRowsToSkip
-                    };
+                this.productParams = {
+                    salesConditionId: this.headerData.condicao_venda.Id,
+                    accountId: this.accountData.Id,
+                    ctvId: this.headerData.ctv_venda.Id,
+                    safra: this.headerData.safra.Id,
+                    productCurrency: this.headerData.moeda,
+                    culture: this.headerData.cultura.Id,
+                    orderType: this.headerData.tipo_venda,
+                    supplierCenter: this.selectedCompany.supplierCenter,
+                    salesOrgId: this.selectedCompany.salesOrgId != null ? this.selectedCompany.salesOrgId : '',
+                    salesOfficeId: this.selectedCompany.salesOfficeId != null ? this.selectedCompany.salesOfficeId : '',
+                    salesTeamId: this.selectedCompany.salesTeamId != null ? this.selectedCompany.salesTeamId : '',
+                    numberOfRowsToSkip: this.numberOfRowsToSkip
+                };
 
-                    let orderData = {
-                        paymentDate: this.headerData.data_pagamento != null ? this.headerData.data_pagamento : '',
-                        salesOrg: this.selectedCompany.salesOrgId != null ? this.selectedCompany.salesOrgId : '',
-                        salesOffice: this.selectedCompany.salesOfficeId != null ? this.selectedCompany.salesOfficeId : '',
-                        salesTeam: this.selectedCompany.salesTeamId != null ? this.selectedCompany.salesTeamId : '',
-                        safra: this.headerData.safra.Id != null ? this.headerData.safra.Id : '',
-                        culture: this.headerData.cultura.Id != null ? this.headerData.cultura.Id : ''
-                    };
+                let orderData = {
+                    paymentDate: this.headerData.data_pagamento != null ? this.headerData.data_pagamento : '',
+                    salesOrg: this.selectedCompany.salesOrgId != null ? this.selectedCompany.salesOrgId : '',
+                    salesOffice: this.selectedCompany.salesOfficeId != null ? this.selectedCompany.salesOfficeId : '',
+                    salesTeam: this.selectedCompany.salesTeamId != null ? this.selectedCompany.salesTeamId : '',
+                    safra: this.headerData.safra.Id != null ? this.headerData.safra.Id : '',
+                    culture: this.headerData.cultura.Id != null ? this.headerData.cultura.Id : ''
+                };
 
-                    let allowChange = (this.headerData.tipo_pedido != 'Pedido Filho' && !this.headerData.IsOrderChild && this.isFilled(this.headerData.codigo_sap)) ||
-                                    (this.headerData.tipo_pedido == 'Pedido Filho' && this.isFilled(this.headerData.codigo_sap)) ? false : true;
-                                    
-                    if (this.headerData.pre_pedido && allowChange) {
-                        let prodsIds = [];
+                let allowChange = (this.headerData.tipo_pedido != 'Pedido Filho' && !this.headerData.IsOrderChild && this.isFilled(this.headerData.codigo_sap)) ||
+                                (this.headerData.tipo_pedido == 'Pedido Filho' && this.isFilled(this.headerData.codigo_sap)) ? false : true;
+                                
+                if (this.headerData.pre_pedido && allowChange) {
+                    let prodsIds = [];
+                    for (let index = 0; index < this.products.length; index++) {
+                        prodsIds.push(this.products[index].productId);
+                    }
+
+                    fetchOrderRecords({
+                        searchString: '',
+                        data: JSON.stringify(this.productParams),
+                        isCommodity: false,
+                        productsIds: prodsIds
+                    })
+                    .then(result => {
+                        this.productsPriceMap = result.recordsDataMap;
+                        this.salesInfos = result.salesResult;
+                        let orderProducts = [];
+                        let listPriceChange = false;
+                        let productsWithoutPrice = '';
+                        let itemToExclude = [];
+
                         for (let index = 0; index < this.products.length; index++) {
-                            prodsIds.push(this.products[index].productId);
+                            this.addProduct = this.products[index];
+                            let priorityInfos = this.getProductByPriority(this.addProduct);
+                            
+                            if (this.isFilled(priorityInfos)) {
+                                if (priorityInfos.listPrice != this.addProduct.listPrice || priorityInfos.costPrice != this.addProduct.listCost) {
+                                    this.addProduct.listPrice = this.isFilled(priorityInfos.listPrice) ? this.fixDecimalPlaces(priorityInfos.listPrice) : 0;
+                                    this.addProduct.listPriceFront = this.isFilled(priorityInfos.listPrice) ? this.fixDecimalPlacesFront(priorityInfos.listPrice) : 0;
+                                    this.addProduct.listCost = this.isFilled(priorityInfos.costPrice) ? this.fixDecimalPlaces(priorityInfos.costPrice) : 0;
+                                    this.addProduct.practicedCost = this.isFilled(priorityInfos.costPrice) ? this.fixDecimalPlaces(priorityInfos.costPrice) : 0;
+                                    this.addProduct.priceListCode = priorityInfos.priceListCode;
+                                    
+                                    if (this.addProduct.commercialAdditionPercentage != '0%') {
+                                        this.addProduct.unitPrice = this.addProduct.listPrice + this.calculateValue(this.addProduct.commercialAdditionPercentage, this.addProduct.listPrice);
+                                    } else if (this.addProduct.commercialDiscountPercentage != '0%') {
+                                        this.addProduct.unitPrice = this.addProduct.listPrice - this.calculateValue(this.addProduct.commercialDiscountPercentage, this.addProduct.listPrice);
+                                    }
+                                    this.addProduct.unitPriceFront = this.fixDecimalPlacesFront(this.addProduct.unitPrice);
+
+                                    this.calculateDiscountOrAddition();
+                                    this.calculateTotalPrice(true, this.addProduct.commercialDiscountValue > 0);
+
+                                    let margin = this.isFilled(this.addProduct.practicedCost) ? this.fixDecimalPlaces((1 - (Number(this.addProduct.practicedCost) / (this.addProduct.totalPrice / this.addProduct.quantity))) * 100) : 0;
+                                    this.addProduct.commercialMarginPercentage = margin;
+                                    listPriceChange = true;
+                                }
+
+                                orderProducts.push(this.addProduct);
+                            } else {
+                                productsWithoutPrice = productsWithoutPrice != '' ? productsWithoutPrice + ', ' + this.addProduct.name : this.addProduct.name;
+                                itemToExclude.push(this.addProduct.orderItemId)
+                            }
                         }
 
-                        fetchOrderRecords({
-                            searchString: '',
-                            data: JSON.stringify(this.productParams),
-                            isCommodity: false,
-                            productsIds: prodsIds
-                        })
-                        .then(result => {
-                            this.productsPriceMap = result.recordsDataMap;
-                            this.salesInfos = result.salesResult;
-                            let orderProducts = [];
-                            let listPriceChange = false;
-                            let productsWithoutPrice = '';
-                            let itemToExclude = [];
+                        this.products = JSON.parse(JSON.stringify(orderProducts));
+                        this.excludedItems = this.isFilled(this.excludedItems) ? this.excludedItems : JSON.parse(JSON.stringify(itemToExclude));
+                        this._setExcludedesItems();
+                        this._setData();
+                        if (listPriceChange) {
+                            this.showToast('warning', 'Alteração na lista de preço!', 'Os preços foram ajustados de acordo com os valores da lista de preço. Verifique-os.');
+                        }
 
-                            for (let index = 0; index < this.products.length; index++) {
-                                this.addProduct = this.products[index];
-                                let priorityInfos = this.getProductByPriority(this.addProduct);
-                                
-                                if (this.isFilled(priorityInfos)) {
-                                    if (priorityInfos.listPrice != this.addProduct.listPrice || priorityInfos.costPrice != this.addProduct.listCost) {
-                                        this.addProduct.listPrice = this.isFilled(priorityInfos.listPrice) ? this.fixDecimalPlaces(priorityInfos.listPrice) : 0;
-                                        this.addProduct.listPriceFront = this.isFilled(priorityInfos.listPrice) ? this.fixDecimalPlacesFront(priorityInfos.listPrice) : 0;
-                                        this.addProduct.listCost = this.isFilled(priorityInfos.costPrice) ? this.fixDecimalPlaces(priorityInfos.costPrice) : 0;
-                                        this.addProduct.practicedCost = this.isFilled(priorityInfos.costPrice) ? this.fixDecimalPlaces(priorityInfos.costPrice) : 0;
-                                        this.addProduct.priceListCode = priorityInfos.priceListCode;
-                                        
-                                        if (this.addProduct.commercialAdditionPercentage != '0%') {
-                                            this.addProduct.unitPrice = this.addProduct.listPrice + this.calculateValue(this.addProduct.commercialAdditionPercentage, this.addProduct.listPrice);
-                                        } else if (this.addProduct.commercialDiscountPercentage != '0%') {
-                                            this.addProduct.unitPrice = this.addProduct.listPrice - this.calculateValue(this.addProduct.commercialDiscountPercentage, this.addProduct.listPrice);
-                                        }
-                                        this.addProduct.unitPriceFront = this.fixDecimalPlacesFront(this.addProduct.unitPrice);
+                        if (productsWithoutPrice != '') {
+                            this.showToast('warning', 'Produtos sem preço!', 'Os produtos ' + productsWithoutPrice + ' foram removidos do pedido.');
+                        }
+                    });
+                }
 
-                                        this.calculateDiscountOrAddition();
-                                        this.calculateTotalPrice(true, this.addProduct.commercialDiscountValue > 0);
-
-                                        let margin = this.isFilled(this.addProduct.practicedCost) ? this.fixDecimalPlaces((1 - (Number(this.addProduct.practicedCost) / (this.addProduct.totalPrice / this.addProduct.quantity))) * 100) : 0;
-                                        this.addProduct.commercialMarginPercentage = margin;
-                                        listPriceChange = true;
-                                    }
-
-                                    orderProducts.push(this.addProduct);
-                                } else {
-                                    productsWithoutPrice = productsWithoutPrice != '' ? productsWithoutPrice + ', ' + this.addProduct.name : this.addProduct.name;
-                                    itemToExclude.push(this.addProduct.orderItemId)
-                                }
-                            }
-
-                            this.products = JSON.parse(JSON.stringify(orderProducts));
-                            this.excludedItems = this.isFilled(this.excludedItems) ? this.excludedItems : JSON.parse(JSON.stringify(itemToExclude));
-                            this._setExcludedesItems();
-                            this._setData();
-                            if (listPriceChange) {
-                                this.showToast('warning', 'Alteração na lista de preço!', 'Os preços foram ajustados de acordo com os valores da lista de preço. Verifique-os.');
-                            }
-
-                            if (productsWithoutPrice != '') {
-                                this.showToast('warning', 'Produtos sem preço!', 'Os produtos ' + productsWithoutPrice + ' foram removidos do pedido.');
-                            }
-                        });
-                    }
-
-                    if (!this.headerData.IsOrderChild && allowChange) {
-                        getFinancialInfos({data: JSON.stringify(orderData)})
-                        .then((result) => {
-                            this.financialInfos = JSON.parse(result);
+                if (!this.headerData.IsOrderChild && allowChange) {
+                    getFinancialInfos({data: JSON.stringify(orderData)})
+                    .then((result) => {
+                        this.financialInfos = JSON.parse(result);
+                        
+                        if (this.products.length > 0) {
+                            let showPriceChange = false;
+                            let showQuantityChange = false;
+                            let priceChangeMessage = '';
+                            let currentProducts = this.products;
                             
-                            if (this.products.length > 0) {
-                                let showPriceChange = false;
-                                let showQuantityChange = false;
-                                let priceChangeMessage = '';
-                                let currentProducts = this.products;
+                            for (let index = 0; index < currentProducts.length; index++) {
+                                this.recalculatePrice = true;
+                                this.editProduct(currentProducts[index].position, true);
+                                let oldQUantity = currentProducts[index].quantity;
+                                this.addProduct.quantity = this.calculateMultiplicity(this.addProduct.dosage * this.hectares, false);
                                 
-                                for (let index = 0; index < currentProducts.length; index++) {
-                                    this.recalculatePrice = true;
-                                    this.editProduct(currentProducts[index].position, true);
-                                    let oldQUantity = currentProducts[index].quantity;
-                                    this.addProduct.quantity = this.calculateMultiplicity(this.addProduct.dosage * this.hectares, false);
-                                    
-                                    if (this.addProduct.quantity != oldQUantity) {
-                                        showQuantityChange = true;
-                                    }
-
-                                    let oldPrice = currentProducts[index].unitPrice;
-                                    this.calculateTotalPrice(true);
-                                    let newPrice = this.changeProduct();
-                                    
-                                    if (oldPrice != newPrice) {
-                                        showPriceChange = true;
-                                        priceChangeMessage += 'O preço do ' + currentProducts[index].name + ' foi alterado de ' + oldPrice + ' para ' + newPrice + '.\n';
-                                    }
-                                }
-                                
-                                this.recalculatePrice = false;
-                                
-                                if (showPriceChange) {
-                                    if (currentProducts.length > 1) {
-                                        priceChangeMessage = 'Os preços foram recalculados devido a alteração de data de pagamento. Verifique-os.';
-                                    }
-                                    this.showToast('warning', 'Alteração nos preços!', priceChangeMessage);
+                                if (this.addProduct.quantity != oldQUantity) {
+                                    showQuantityChange = true;
                                 }
 
-                                if (showQuantityChange) {
-                                    this.showToast('warning', 'Alteração nas quantidades!', 'As quantidades foram recalculados devido a alteração no hectar. Verifique-os.');
+                                let oldPrice = currentProducts[index].unitPrice;
+                                this.calculateTotalPrice(true);
+                                let newPrice = this.changeProduct();
+                                
+                                if (oldPrice != newPrice) {
+                                    showPriceChange = true;
+                                    priceChangeMessage += 'O preço do ' + currentProducts[index].name + ' foi alterado de ' + oldPrice + ' para ' + newPrice + '.\n';
                                 }
-
-                                if ((showPriceChange || showQuantityChange) && this.headerData.tipo_venda == 'Venda Barter') {
-                                    this.recalculateCommodities();
+                            }
+                            
+                            this.recalculatePrice = false;
+                            
+                            if (showPriceChange) {
+                                if (currentProducts.length > 1) {
+                                    priceChangeMessage = 'Os preços foram recalculados devido a alteração de data de pagamento. Verifique-os.';
                                 }
-                                this.showLoading = false;
-                            } else {
-                                this.showLoading = false;
+                                this.showToast('warning', 'Alteração nos preços!', priceChangeMessage);
                             }
 
-                            this._setData();
-                        })
-                    } else {
-                        this.showLoading = false;
-                    }
-                })
-            } else {
-                this.showLoading = false;
-            }
-        });
+                            if (showQuantityChange) {
+                                this.showToast('warning', 'Alteração nas quantidades!', 'As quantidades foram recalculados devido a alteração no hectar. Verifique-os.');
+                            }
+
+                            if ((showPriceChange || showQuantityChange) && this.headerData.tipo_venda == 'Venda Barter') {
+                                this.recalculateCommodities();
+                            }
+                            this.showLoading = false;
+                        } else {
+                            this.showLoading = false;
+                        }
+
+                        this._setData();
+                    })
+                } else {
+                    this.showLoading = false;
+                }
+            })
+        } else {
+            this.showLoading = false;
+        }
     }
 
     getProductByPriority(selectedProduct) {
@@ -523,6 +520,7 @@ export default class OrderProductScreen extends LightningElement {
     showProductModal(event) {
         this.createNewProduct = !this.createNewProduct;
 
+        
         if (this.createNewProduct) {
             let existProduct = this.products.find(e => e.productId == event.target.dataset.targetId);
 
@@ -532,7 +530,10 @@ export default class OrderProductScreen extends LightningElement {
             } else {
                 let currentProduct = this.baseProducts.find(e => e.Id == event.target.dataset.targetId);
                 let priorityInfos = this.getProductByPriority(currentProduct);
-    
+                isSeedSale({salesOrgId: this.selectedCompany.salesOrgId, productGroupName: currentProduct.productGroupName})
+                .then((result) => {
+                    this.seedSale = result;
+                });
                 this.multiplicity = this.isFilled(currentProduct.multiplicity) ? currentProduct.multiplicity : 1;
                 this.costPrice = priorityInfos.costPrice;
                 this.addProduct = {
