@@ -1115,6 +1115,10 @@ export default class OrderProductScreen extends LightningElement {
     editProduct(position, recalculateFinancialValues) {
         this.productPosition = position;
         let currentProduct = this.products.find(e => e.position == position);
+        isSeedSale({salesOrgId: this.selectedCompany.salesOrgId, productGroupName: currentProduct.productGroupName})
+        .then((result) => {
+            this.seedSale = result;
+        });
         this.multiplicity = this.isFilled(currentProduct.multiplicity) ? currentProduct.multiplicity : 1;
 
         this.addProduct = this.newProduct(currentProduct);
