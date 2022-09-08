@@ -22,6 +22,8 @@ export default class OrderSummaryScreen extends LightningElement {
     hideMargin = false;
     
     orderTotalPrice = 0;
+    orderTotalToDistribution = 0;
+    showRed;
     showFormOfPayment = false;
     blockPaymentFields = false;
     currentDate;
@@ -247,6 +249,7 @@ export default class OrderSummaryScreen extends LightningElement {
             }
             
             this.orderTotalPrice = orderTotalPrice;
+            this.orderTotalToDistribution = orderTotalPrice;
             if (this.headerData.tipo_venda != 'Venda Barter') {
                 let margin = (1 - (orderTotalCost / orderTotalPrice)) * 100;
                 this.orderMargin = this.fixDecimalPlacesFront(margin) + '%';
@@ -441,11 +444,20 @@ export default class OrderSummaryScreen extends LightningElement {
                     fieldValue = fieldValue.toString().includes(',') ? fieldValue.toString().replace(',', '.') : fieldValue;
                     allPayments[index].value = this.fixDecimalPlaces(fieldValue);
                     allPayments[index].valueFront = this.fixDecimalPlacesFront(fieldValue);
+                    this.recalcTotalToDistribution(allPayments);
                 }
             }
         }
 
         this.formsOfPayment = JSON.parse(JSON.stringify(allPayments));
+    }
+
+    recalcTotalToDistribution(allPayments){
+        let value = 0;
+        for (let index = 0; index < allPayments.length; index++) {
+            value += allPayments[index].value;
+        }
+        this.orderTotalToDistribution = Number(this.orderTotalPrice) - Number(value);
     }
 
     newFields() {
