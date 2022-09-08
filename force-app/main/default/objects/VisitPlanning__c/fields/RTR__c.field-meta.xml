@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>RTR__c</fullName>
+    <externalId>false</externalId>
+    <label>RTR Gerado</label>
+    <summaryFilterItems>
+        <field>TechnicalReport__c.Status__c</field>
+        <operation>equals</operation>
+        <value>Gerado</value>
+    </summaryFilterItems>
+    <summaryForeignKey>TechnicalReport__c.VisitPlanning__c</summaryForeignKey>
+    <summaryOperation>count</summaryOperation>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Summary</type>
+</CustomField>
