@@ -1143,7 +1143,7 @@ public without sharing class OrderScreenController {
     }
 
     @AuraEnabled
-    public static Boolean isSeedSale(String salesOrgId) {
+    public static Boolean isSeedSale(String salesOrgId, String productGroupName) {
         String salesOrgCode = [SELECT Id, SalesOrganizationCode__c FROM SalesOrg__c WHERE Id =: salesOrgId].SalesOrganizationCode__c;
         Boolean isSeed = false;
         for (SalesOrgSeeds__c seed : [
@@ -1152,7 +1152,7 @@ public without sharing class OrderScreenController {
               FROM SalesOrgSeeds__c
              WHERE SeedCode__c =: salesOrgCode
         ]) {
-            isSeed = true;
+            if(productGroupName == 'SEM001') isSeed = true;
         }
 
         return isSeed;
