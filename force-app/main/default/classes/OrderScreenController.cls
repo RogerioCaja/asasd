@@ -1032,7 +1032,7 @@ public without sharing class OrderScreenController {
              WHERE SeedCode__c =: salesOrgCode
         ]) {
             if(productGroupName != null){
-                if(productGroupName == 'SEM001'){
+                if(productGroupName == 'SEMENTES'){
                     isSeed = true;
                 }
             }else{
