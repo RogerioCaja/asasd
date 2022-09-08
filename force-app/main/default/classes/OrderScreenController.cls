@@ -53,7 +53,7 @@ public without sharing class OrderScreenController {
         ShippingAccount__r.BillingCity, ShippingAccount__r.BillingState ,ShippingAccount__r.CPF__c, ShippingAccount__r.CNPJ__c , SalesCondition__c, SalesCondition__r.Name, 
         Pricebook2.InitialDate__c, Pricebook2.EndDate__c, PaymentDate__c,  CustomerOrderNumber__c, Crop__c , Crop__r.Name, Culture__c , Culture__r.Name, OrderMargin__c, RecordTypeId,
         PaymentForm__c, StatusSF__c, CodigoSAP__c, SalesOrg__c, SalesOrg__r.Name, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, SalesCTV__r.Name, OrderType__c,
-        PaymentCondition__c, PaymentCondition__r.Name, ShippingDate__c, Incoterms__c, OrderReference__c, OrderReference__r.Name, IsOrderMother__c, Company__c, Hectare__c, Status
+        PaymentCondition__c, PaymentCondition__r.Name, ShippingDate__c, Incoterms__c, OrderReference__c, OrderReference__r.Name, IsOrderMother__c, Company__c, Hectare__c, Status, DistributionCenter__c
         FROM Order 
         WHERE Id = :orderId LIMIT 1];
         return new HeaderSerialize(order, cloneOrder);
@@ -586,6 +586,7 @@ public without sharing class OrderScreenController {
             order.Hectare__c = orderData.headerData.hectares.contains(',') ? Decimal.valueOf(orderData.headerData.hectares.replace(',', '.')) : Decimal.valueOf(orderData.headerData.hectares);
             order.FinalTotalValue__c = orderTotalValue;
             order.Company__c = company.Id;
+            order.DistributionCenter__c = orderData.summaryData.centerId != null ? orderData.summaryData.centerId : orderData.headerData.centerId;
             order.OrderType__c = orderData.headerData.pedido_mae.Id != null ? 'Pedido Filho' : (order.IsOrderMother__c ? 'Pedido Mãe' : 'Pedido Normal');
             order.OrderMargin__c = orderData.summaryData.orderMargin != null ? (orderData.summaryData.orderMargin.contains(' sacas') ?
                                    stringToDecimal(orderData.summaryData.orderMargin.replace(' sacas', '')) : stringToDecimal((orderData.summaryData.orderMargin))) : 0;
@@ -989,7 +990,7 @@ public without sharing class OrderScreenController {
         if (salesTeamTerritory != null && salesTeamTerritory.DeveloperName != null) {
             String salesTeamDevName = salesTeamTerritory.DeveloperName.substring(0, 1) == 'X' ? salesTeamTerritory.DeveloperName.substring(1, salesTeamTerritory.DeveloperName.length()) : salesTeamTerritory.DeveloperName;
             proQuery.add(Q.condition('SalesTeam__r.ExternalId__c').equalsTo(salesTeamDevName));
-            proQuery.add(Q.condition('SalesOrg__r.SalesOrganizationCode__c').equalsTo('1000'));
+            proQuery.add(Q.condition('SalesOrg__r.SalesOrganizationCode__c').isIn(new List<String>{'1000', '1300'}));
             if(companyInfos.orderType != 'Venda de Serviço')
                 proQuery.add(Q.condition('ActivitySector__r.Codigo__c').notEqualsTo('40'));
             else {
@@ -1017,6 +1018,71 @@ public without sharing class OrderScreenController {
             return JSON.serialize(new CompanyInfosSerialize(companyList));
     }
 
+    @AuraEnabled
+    public static String getAccountDistrCenters(String salesOrgId) {
+        List<DistrCenterData> listDistrCenter = new List<DistrCenterData>();
+        for (DistributionCenter__c distrCenter : [
+            SELECT Id,
+                   Name,
+                   Code__c,
+                   SalesOrg__r.Name
+              FROM DistributionCenter__c
+             WHERE SalesOrg__c =: salesOrgId
+          ORDER BY Code__c
+        ]) {
+            DistrCenterData distrData = new DistrCenterData();
+            distrData.centerId = distrCenter.Id;
+            distrData.code = distrCenter.Code__c;
+            distrData.salesOrgName = distrCenter.SalesOrg__r.Name;
+            distrData.selected = false;
+            listDistrCenter.add(distrData);
+        }
+
+        return JSON.serialize(listDistrCenter);
+    }
+
+    public class DistrCenterData {
+        public String centerId;
+        public String code;
+        public String salesOrgName;
+        public Boolean selected;
+    }
+
+    @AuraEnabled
+    public static String verifyProductDisponibility(String data) {
+        DisponibilityData disponibilityData = (DisponibilityData) JSON.deserialize(data, DisponibilityData.class);
+        List<String> availableProds = new List<String>();
+        for (OrgVProduct__c orgVProduct : [
+            SELECT Id,
+                   Product__c
+              FROM OrgVProduct__c
+             WHERE Product__c IN: disponibilityData.orderProductsId
+               AND SalesOrg__c =: disponibilityData.salesOrgId
+               AND Status__c = 'Adicionada'
+               AND SupplierCenter__c =: disponibilityData.supplierCenter
+        ]) {
+            availableProds.add(orgVProduct.Product__c);
+        }
+
+        return JSON.serialize(availableProds);
+    }
+
+    @AuraEnabled
+    public static Boolean isSeedSale(String salesOrgId) {
+        String salesOrgCode = [SELECT Id, SalesOrganizationCode__c FROM SalesOrg__c WHERE Id =: salesOrgId].SalesOrganizationCode__c;
+        Boolean isSeed = false;
+        for (SalesOrgSeeds__c seed : [
+            SELECT Id,
+                   SeedCode__c
+              FROM SalesOrgSeeds__c
+             WHERE SeedCode__c =: salesOrgCode
+        ]) {
+            isSeed = true;
+        }
+
+        return isSeed;
+    }
+    
     @AuraEnabled
     public static String getFinancialInfos(String data) {
         FinancialResult result = new FinancialResult();
@@ -1277,6 +1343,7 @@ public without sharing class OrderScreenController {
         public String  companyId;
         public String  hectares;
         public Boolean emptyHectar;
+        public String  centerId;
         public Boolean pedido_mae_check;
         public Boolean pre_pedido;
         public Boolean firstTime;
@@ -1367,6 +1434,7 @@ public without sharing class OrderScreenController {
         public String billing_sale_observation;
         public String orderMargin;
         public String justification;
+        public String centerId;
     }
 
     public class SummarySerialize{
@@ -1374,6 +1442,7 @@ public without sharing class OrderScreenController {
         public String billing_sale_observation;
         public String orderMargin;
         public String justification;
+        public String centerId;
 
         public SummarySerialize(){}
         public SummarySerialize(String observation, String billing_sale_observation){
@@ -1486,6 +1555,7 @@ public without sharing class OrderScreenController {
         public String  recTypeId;
         public String  hectares;
         public Boolean emptyHectar;
+        public String  centerId;
         public Boolean pedido_mae_check;
         public Boolean pre_pedido;
         public Boolean firstTime;
@@ -1540,6 +1610,7 @@ public without sharing class OrderScreenController {
             this.frete = order.Incoterms__c;
             this.observation = order.Description;
             this.billing_sale_observation = order.DescriptionBillingSale__c;
+            this.centerId = order.DistributionCenter__c;
             this.orderMargin = String.valueOf(order.OrderMargin__c) + '%';
             this.companyId = order.Company__c;
             this.recTypeId = order.RecordTypeId;
@@ -1805,5 +1876,11 @@ public without sharing class OrderScreenController {
         CompanyInfosSerialize(List<CompanyInfos> companyInfos) {
             this.listCompanyInfos = companyInfos;
         }
+    }
+
+    public class DisponibilityData {
+        public List<String> orderProductsId;
+        public String salesOrgId;
+        public String supplierCenter;
     }
 }
