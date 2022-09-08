@@ -198,6 +198,7 @@
             <default>false</default>
         </values>
     </picklistValues>
+    <picklistValues>
         <picklist>Status__c</picklist>
         <values>
             <fullName>Ativo</fullName>
