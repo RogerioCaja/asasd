@@ -253,8 +253,8 @@
                 <p class="new-product-title">Escolha as formas de pagamento:</p>
 
                 <template for:each={formsOfPayment} for:item="payments">
-                    <div class="row" key={payments.paymentPosition}>
-                        <div class="payment-column" style="overflow: overlay;">
+                    <div class="slds-form-element__row" key={payments.paymentPosition}>
+                        <div class="slds-form-element payment-column">
                             <lightning-combobox 
                                 data-target-id={payments.paymentTypeId}
                                 label="Tipo de Pagamento"
@@ -267,7 +267,7 @@
                             </lightning-combobox>
                         </div>
 
-                        <div class="payment-column">
+                        <div class="slds-form-element payment-column">
                             <lightning-input
                                 data-target-id={payments.paymentDayId}
                                 label="Data de Pagamento" 
@@ -281,7 +281,7 @@
                             </lightning-input>
                         </div>
 
-                        <div class="payment-column">
+                        <div class="slds-form-element payment-column">
                             <lightning-input 
                                 data-target-id={payments.valueId}
                                 label="Valor" 
@@ -294,13 +294,13 @@
                             </lightning-input>
                         </div>
 
-                        <div class="exclude-column"><a onclick={excludeLine} data-target-id={payments.paymentPosition}>X</a></div>
+                        <div class="slds-form-element exclude-column"><a onclick={excludeLine} data-target-id={payments.paymentPosition}>X</a></div>
                     </div>
                 </template>
 
                 <div class="row">
                     <div class="back-button">
-                        <a onclick={newFields}>Adicionar Froma de Pagamento</a>
+                        <a onclick={newFields}>Adicionar Forma de Pagamento</a>
                     </div>
                 </div>
 
