@@ -89,7 +89,8 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     @track formsOfPayment;
     @track summaryData = {
         'observation' : "",
-        'billing_sale_observation': ""
+        'billing_sale_observation': "",
+        'freightValue': 0
     };
 
     qtdItens = 0;
@@ -230,6 +231,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.divisionData = data.divisionData;
             this.summaryData['observation'] = this.headerData.observation;
             this.summaryData['billing_sale_observation'] = this.headerData.billing_sale_observation;
+            this.summaryData['freightValue'] = this.headerData.freightValue === undefined || this.headerData.freightValue == null ? 0 : this.headerData.freightValue;
             
             this.isLoading = false;
             this.cloneData.cloneOrder = this.clone.cloneOrder;
@@ -322,6 +324,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.divisionData = data.divisionData;
             this.summaryData['observation'] = this.headerData.observation;
             this.summaryData['billing_sale_observation'] = this.headerData.billing_sale_observation;
+            this.summaryData['freightValue'] = this.headerData.freightValue === undefined || this.headerData.freightValue == null ? 0 : this.headerData.freightValue;
             this.isLoading = false;
             this.cloneData.cloneOrder = this.clone.cloneOrder;
             if(this.cloneData.cloneOrder){
@@ -597,7 +600,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
     _setSummaryData(event) {
         this.summaryData = event.data;
-        console.log('summary data setted:', this.summaryData);
+        console.log('summary data setted:', JSON.stringify(this.summaryData));
         this.enableNextScreen();
     }
 

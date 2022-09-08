@@ -6,10 +6,13 @@ import getAccountDistrCenters from '@salesforce/apex/OrderScreenController.getAc
 import verifyProductDisponibility from '@salesforce/apex/OrderScreenController.verifyProductDisponibility';
 import isSeedSale from '@salesforce/apex/OrderScreenController.isSeedSale';
 import getPaymentTypes from '@salesforce/apex/OrderScreenController.getPaymentTypes';
+import checkSalesOrgFreight from '@salesforce/apex/OrderScreenController.checkSalesOrgFreight';
 
 export default class OrderSummaryScreen extends LightningElement {
     showLoading = false;
     staticValue = 'hidden';
+    showFreightScreen=false;
+    allowCloseFreightScreen=false;
     hasData = true;
     disabled=false;
     isBarter = false;
@@ -160,7 +163,6 @@ export default class OrderSummaryScreen extends LightningElement {
     }
 
     loadData(){
-       
         if(this.productData){
             this.productDataLocale = JSON.parse(JSON.stringify(this.productData));
            
@@ -168,7 +170,30 @@ export default class OrderSummaryScreen extends LightningElement {
             if(this.commodityData){
                 this.commodityDataLocale= JSON.parse(JSON.stringify(this.commodityData));
             }
-            
+
+            let getCompanyData = {
+                ctvId: this.headerData.ctv_venda.Id != null ? this.headerData.ctv_venda.Id : '',
+                accountId: this.accountData.Id != null ? this.accountData.Id : '',
+                orderType: this.headerData.tipo_venda,
+                approvalNumber: 1
+            }
+
+            getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: true, verifyUserType: false})
+            .then((result) => {
+               this.salesOrgId = result;
+               checkSalesOrgFreight({salesOrgId: this.salesOrgId})
+               .then((result) => {
+                   this.showFreightScreen = result;
+                   let summary = JSON.parse(JSON.stringify(this.summaryDataLocale));
+                   summary.freightValue = summary.freightValue === undefined ? 0 : summary.freightValue;
+                   summary.freightValueFront = this.fixDecimalPlacesFront(summary.freightValue);
+                   this.summaryDataLocale = JSON.parse(JSON.stringify(summary));
+
+                   if (this.showFreightScreen && this.headerData.frete == 'FOB') {
+                       this.allowCloseFreightScreen = true;
+                   }
+               });
+            });
            
             if (this.headerData.status_pedido == 'Em aprovação - Gerente Filial' || this.headerData.status_pedido == 'Em aprovação - Gerente Regional' ||
                 this.headerData.status_pedido == 'Em aprovação - Diretor' || this.headerData.status_pedido == 'Em aprovação - Comitê Margem' || this.headerData.status_pedido == 'Em aprovação - Mesa de Grãos') {
@@ -314,6 +339,34 @@ export default class OrderSummaryScreen extends LightningElement {
         if (availableProducts.length > 0) {
             this.loadData();
         }
+    }
+    
+    changeFreightValue(event) {
+        let fieldValue = event.target.value;
+        fieldValue = fieldValue.toString().includes('.') ? fieldValue.toString().replace('.', '') : fieldValue;
+        fieldValue = fieldValue.toString().includes(',') ? fieldValue.toString().replace(',', '.') : fieldValue;
+        
+        let summary = JSON.parse(JSON.stringify(this.summaryDataLocale));
+        summary.freightValue = this.fixFreightDecimalPlaces(fieldValue);
+        summary.freightValueFront = this.fixDecimalPlacesFront(fieldValue);
+        this.summaryDataLocale = JSON.parse(JSON.stringify(summary));
+    }
+
+    closeFreightScreen() {
+        this.showFreightScreen = false;
+        let summary = JSON.parse(JSON.stringify(this.summaryDataLocale));
+        summary.freightValue = 0;
+        summary.freightValueFront = 0;
+        this.summaryDataLocale = JSON.parse(JSON.stringify(summary));
+    }
+
+    confirmFreight() {
+        this.showFreightScreen = false;
+        this.changeFreight();
+    }
+
+    fixFreightDecimalPlaces(value) {
+        return (+(Math.trunc(+(value + 'e' + 4)) + 'e' + -4)).toFixed(4);
     }
 
     formatCurrency(num){
@@ -481,6 +534,12 @@ export default class OrderSummaryScreen extends LightningElement {
         const setformsofpayment = new CustomEvent('setformsofpayment');
         setformsofpayment.data = this.formsOfPayment;
         this.dispatchEvent(setformsofpayment);
+    }
+    
+    changeFreight(){
+        const setSummaryData = new CustomEvent('setsummarydata');
+        setSummaryData.data = this.summaryDataLocale;
+        this.dispatchEvent(setSummaryData);
     }
 
     changeObservation(event){
