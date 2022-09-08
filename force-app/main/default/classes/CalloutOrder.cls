@@ -15,7 +15,7 @@ public without sharing class CalloutOrder {
 		Order parentOrder = [SELECT Id, CodigoSap__c, ShippingAccount__r.ExternalId__c, Company__r.SupplierCenter__c, Account.ExternalId__c, Type, SalesOrg__r.SalesOrganizationCode__c, DistributionChannel__c, DistributionChannel__r.Codigo__c, SalesCondition__r.ExternalId__c,
                             ActivitySector__c, ActivitySector__r.Codigo__c, PaymentCondition__r.CashPayment__c, Incoterms__c, Incoterms2__c, PaymentCondition__r.Code__c, OrderReason__c , SalesCTV__r.CodigoSap__c, PaymentDate__c,EffectiveDate, OrderReference__r.CodigoSap__c,
                             OrderNumber, Crop__r.Code__c, Crop__r.StartDateOrderInsertion__c, Crop__r.EndDateInsertionOrders__c ,Culture__r.Codigo__c, EndDate, TotalAmount, PaymentForm__c, OrderReference__c, CustomerOrderNumber__c, SalesCTV__r.SellerType__c, EffectiveOrderDate__c, NumeroPedidoApp__c,
-                            Currency__c, Crop__r.PaymentBaseDate__c,IsOrderMother__c, RecordTypeId,Description,DescriptionBillingSale__c, DistributionCenter__r.Code__c, (SELECT Id FROM OrderItems) 
+                            Currency__c, Crop__r.PaymentBaseDate__c,IsOrderMother__c, RecordTypeId,Description,DescriptionBillingSale__c, DistributionCenter__r.Code__c, RecordType.DeveloperName, (SELECT Id FROM OrderItems) 
                             FROM Order WHERE Id = :orderId];
 		
 		List<Order> allOrders = new List<Order>{parentOrder};
@@ -79,6 +79,11 @@ public without sharing class CalloutOrder {
 			
 		RequestParameters request = new RequestParameters(orders[0]);
 
+        Integration__mdt integrationOUT = Integration__mdt.getInstance('PedidosOUT');
+        if(integrationOUT != null && integrationOUT.IsInactive__c){
+            IntegrationLog.createLog('Pedido OUT SAP', 'OUT', '', 'Integração INATIVA', true);
+			return new IntegrationUtils.CalloutResponse('Integração INATIVA');
+        }
 		// for (Order ord : orders) {
 		// 	request.add(new RequestParameters(ord));
 		// }
@@ -122,25 +127,25 @@ public without sharing class CalloutOrder {
     }
 
     public static String getCodeTypeOrder(String typeOrder, Boolean isOrderMother){
-        Map<String, String> codTypeOrder = new Map<String, String>();
-        if(!isOrderMother){
-            
-            codTypeOrder.put('VendaAmostraGratis', 'ZRAG');
-            codTypeOrder.put('VendaBonificacao', 'ZRBO');
-            codTypeOrder.put('VendaBarter', 'ZVBA');
-            codTypeOrder.put('VendaContaOrdem', 'ZRCO');
-            codTypeOrder.put('VendaServico', 'ZSER');
-            codTypeOrder.put('VendaEntregaFutura', 'ZVEF');
-            codTypeOrder.put('VendaNormal', 'ZVNO');
-            codTypeOrder.put('VendaOrdemSimplesFaturamento', 'ZVVO');
-        }
-        else{
-            codTypeOrder.put('VendaContaOrdem', 'ZCCO');
-            codTypeOrder.put('VendaEntregaFutura', 'ZCVF');
-            codTypeOrder.put('VendaNormal', 'ZCVN');
-        }
 
-        return codTypeOrder.containsKey(typeOrder) ? codTypeOrder.get(typeOrder) : '';
+        String orderType = typeOrder + (isOrderMother ? 'PedidoMae' : '');
+
+        RecordTypes__mdt recordType = RecordTypes__mdt.getInstance(orderType);
+
+        if(recordType != null) return recordType.Code__c;
+        else return '';
+    }
+
+    public static Object addPaymentForm(Order order, CalloutOrder.Header payload){
+        List<FormPayment__c> formPaymentList = [SELECT Amount__c, PaymentDate__c, PaymentType__c FROM FormPayment__c WHERE Order__c =: order.Id LIMIT 10];
+        Map<String, Object> mapStringHeader = (Map<String, Object>) JSON.deserializeUntyped(JSON.serialize(payload));
+        for(Integer i = 0; i<formPaymentList.size(); i++){
+            mapStringHeader.put(('ZZDTAPAG' + i), String.valueOf(formPaymentList[i].PaymentDate__c).replace('-', ''));
+            mapStringHeader.put(('ZZVLRPAG' + i), String.valueOf(formPaymentList[i].Amount__c));
+            mapStringHeader.put(('ZZITMPAG' + i), String.valueOf(formPaymentList[i].PaymentType__c));
+        }
+        String header = JSON.serialize(mapStringHeader);
+        return JSON.deserialize(header, CalloutOrder.Header.class);
     }
 
     public static Decimal isNotation(Decimal value){
@@ -169,7 +174,6 @@ public without sharing class CalloutOrder {
             IT_CONDITIONS_IN = new List<CalloutOrder.ConditionParameters>();
 
             IT_PARTNERS.add(new CalloutOrder.PartnerParameters(order.Account.ExternalId__c, 'AG'));
-            System.debug('order.ShippingAccount__r.ExternalId__c =>' + order.ShippingAccount__r.ExternalId__c);
             IT_PARTNERS.add(new CalloutOrder.PartnerParameters(order.ShippingAccount__r.ExternalId__c, 'RM'));
             IT_PARTNERS.add(new CalloutOrder.PartnerParameters(order.SalesCTV__r.CodigoSap__c, 'ZC'));
 
@@ -192,7 +196,7 @@ public without sharing class CalloutOrder {
                 dateF = String.valueOf(order.Crop__r.StartDateOrderInsertion__c).replace('-', '');
             }
             
-            IS_HEADER_IN.DOC_TYPE = getCodeTypeOrder(String.valueOf([SELECT DeveloperName FROM RecordType WHERE Id =: order.RecordTypeId][0].DeveloperName), IV_TYPE == 'G' ? true : false); 
+            IS_HEADER_IN.DOC_TYPE = getCodeTypeOrder(String.valueOf(order.RecordType.DeveloperName), IV_TYPE == 'G' ? true : false); 
             if(IS_HEADER_IN.DOC_TYPE == 'ZVNO' && order.PaymentCondition__r.CashPayment__c) IS_HEADER_IN.DOC_TYPE = 'ZVAB';
             IS_HEADER_IN.SALES_ORG = order.SalesOrg__r.SalesOrganizationCode__c;
             IS_HEADER_IN.DISTR_CHAN =order.DistributionChannel__r.Codigo__c;
@@ -292,6 +296,7 @@ public without sharing class CalloutOrder {
                 // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDAN', String.valueOf(CalloutOrder.isNotation(orderItem.FinancialDiscountPercent__c)), '%'));
                 IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZMAR', String.valueOf(CalloutOrder.isNotation(orderItem.CommercialMargin__c)), ''));
             }
+            IS_HEADER_IN = (CalloutOrder.Header)addPaymentForm(order, IS_HEADER_IN);
         }
     }
 
@@ -321,6 +326,37 @@ public without sharing class CalloutOrder {
         public String PO_METHOD;
         public String TEXT_ADICIONAL;
         public String TEXT_DANFE;
+        public String ZZDTAPAG0;
+        public String ZZVLRPAG0;
+        public String ZZITMPAG0;
+        public String ZZDTAPAG1;
+        public String ZZVLRPAG1;
+        public String ZZITMPAG1;
+        public String ZZDTAPAG2;
+        public String ZZVLRPAG2;
+        public String ZZITMPAG2;
+        public String ZZDTAPAG3;
+        public String ZZVLRPAG3;
+        public String ZZITMPAG3;
+        public String ZZDTAPAG4;
+        public String ZZVLRPAG4;
+        public String ZZITMPAG4;
+        public String ZZDTAPAG5;
+        public String ZZVLRPAG5;
+        public String ZZITMPAG5;
+        public String ZZDTAPAG6;
+        public String ZZVLRPAG6;
+        public String ZZITMPAG6;
+        public String ZZDTAPAG7;
+        public String ZZVLRPAG7;
+        public String ZZITMPAG7;
+        public String ZZDTAPAG8;
+        public String ZZVLRPAG8;
+        public String ZZITMPAG8;
+        public String ZZDTAPAG9;
+        public String ZZVLRPAG9;
+        public String ZZITMPAG9;
+        
         public Header(){}
     }
 
