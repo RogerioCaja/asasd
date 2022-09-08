@@ -28,7 +28,7 @@ public with sharing class CalendarHelper {
 
         for(VisitPlanning__c visitPlanning : visitPlanningList){
             //if()//DateTime.newInstance(withDate.date(), withTime.time())
-            Event event = new Event(OwnerId =  visitPlanning.VisitSeller__c, StartDateTime = DateTime.newInstance(visitPlanning.InitialDate__c.date(), visitPlanning.StartTime__c.time()), 	EndDateTime = visitPlanning.EndDate__c);
+            Event event = new Event(OwnerId =  visitPlanning.VisitSeller__c, StartDateTime = DateTime.newInstance(visitPlanning.InitialDate__c, visitPlanning.StartTime__c), 	EndDateTime = visitPlanning.EndDate__c);
             eventList.add(event);
         }
 
