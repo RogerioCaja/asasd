@@ -305,4 +305,75 @@
             </div>
         </template>
     </template>
+
+    <div onclick={openFormOfPayment} class="openPaymentScreen">Adicionar formas de pagamento</div>
+
+    <template if:true={showFormOfPayment}>
+        <div class="modal">
+            <div class="modal-content" style="width: 900px;">
+                <p class="new-product-title">Escolha as formas de pagamento:</p>
+
+                <template for:each={formsOfPayment} for:item="payments">
+                    <div class="row" key={payments.paymentPosition}>
+                        <div class="payment-column" style="overflow: overlay;">
+                            <lightning-combobox 
+                                data-target-id={payments.paymentTypeId}
+                                label="Tipo de Pagamento"
+                                placeholder="Escolha a Tipo de Pagamento"
+                                value={payments.paymentType}  
+                                onblur={changeValue}
+                                options={paymentsTypes} 
+                                required="true"
+                                disabled={blockPaymentFields}>
+                            </lightning-combobox>
+                        </div>
+
+                        <div class="payment-column">
+                            <lightning-input
+                                data-target-id={payments.paymentDayId}
+                                label="Data de Pagamento" 
+                                field-name="paymentDay" 
+                                value={payments.paymentDay} 
+                                type="date" 
+                                onblur={changeValue} 
+                                required="true"
+                                min={currentDate}
+                                disabled={blockPaymentFields}>
+                            </lightning-input>
+                        </div>
+
+                        <div class="payment-column">
+                            <lightning-input 
+                                data-target-id={payments.valueId}
+                                label="Valor" 
+                                field-name="value"
+                                value={payments.valueFront}
+                                onblur={changeValue}
+                                type="text" 
+                                required="true"
+                                disabled={blockPaymentFields}>
+                            </lightning-input>
+                        </div>
+
+                        <div class="exclude-column"><a onclick={excludeLine} data-target-id={payments.paymentPosition}>X</a></div>
+                    </div>
+                </template>
+
+                <div class="row">
+                    <div class="back-button">
+                        <a onclick={newFields}>Adicionar Froma de Pagamento</a>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="back-button">
+                        <a onclick={closeFormOfPayment}>Fechar</a>
+                    </div>
+                    <div class="column">
+                        <button class="confirm-button" onclick={confirmFormOfPayment}>Confirmar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
 </template>
