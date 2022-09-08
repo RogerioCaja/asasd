@@ -5,7 +5,7 @@ public with sharing class CalendarTriggerHandler {
         Map<Id, Event> oldMap {get; set;} // Trigger.oldMap
         Map<Id, Event> newMap {get; set;} // Trigger.newMap
 
-    public CalendarTriggerHandler(List<Event> oldRecords, List<Event> newRecords, Map<Id, Event> oldMap, Map<Id, Event> newMap) {
+    public CalendarTriggerHandler(List<VisitPlanning__c> oldRecords, List<VisitPlanning__c> newRecords, Map<Id, VisitPlanning__c> oldMap, Map<Id, VisitPlanning__c> newMap) {
             this.oldRecords = oldRecords;
             this.newRecords = newRecords;
             this.oldMap = oldMap;
