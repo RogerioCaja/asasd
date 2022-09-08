@@ -394,6 +394,18 @@
         <fields>PotentialPurchaseValue__c</fields>
         <relatedList>PotencialCompra__c.Client__c</relatedList>
     </relatedLists>
+    <relatedLists>
+        <fields>NAME</fields>
+        <fields>BP_Property__c</fields>
+        <fields>InitialDate__c</fields>
+        <relatedList>VisitPlanning__c.MainBP__c</relatedList>
+    </relatedLists>
+    <relatedLists>
+        <fields>NAME</fields>
+        <fields>MainBP__c</fields>
+        <fields>InitialDate__c</fields>
+        <relatedList>VisitPlanning__c.BP_Property__c</relatedList>
+    </relatedLists>
     <relatedObjects>ParentId</relatedObjects>
     <showEmailCheckbox>false</showEmailCheckbox>
     <showHighlightsPanel>true</showHighlightsPanel>
