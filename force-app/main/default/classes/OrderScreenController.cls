@@ -52,7 +52,7 @@ public without sharing class OrderScreenController {
 
     public static HeaderSerialize getOrderData(Id orderId, Boolean cloneOrder){
         Order order = [SELECT Id, OrderNumber, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c , ShippingAccount__r.Phone,  ShippingAccount__r.Name, 
-        ShippingAccount__r.BillingCity, ShippingAccount__r.BillingState ,ShippingAccount__r.CPF__c, ShippingAccount__r.CNPJ__c , SalesCondition__c, SalesCondition__r.Name, 
+        ShippingAccount__r.BillingCity, ShippingAccount__r.BillingState ,ShippingAccount__r.CPF__c, ShippingAccount__r.CNPJ__c , SalesCondition__c, SalesCondition__r.Name, FreightValue__c,
         Pricebook2.InitialDate__c, Pricebook2.EndDate__c, PaymentDate__c,  CustomerOrderNumber__c, Crop__c , Crop__r.Name, Culture__c , Culture__r.Name, OrderMargin__c, RecordTypeId,
         PaymentForm__c, StatusSF__c, CodigoSAP__c, SalesOrg__c, SalesOrg__r.Name, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, SalesCTV__r.Name, OrderType__c,
         PaymentCondition__c, PaymentCondition__r.Name, ShippingDate__c, Incoterms__c, OrderReference__c, OrderReference__r.Name, IsOrderMother__c, Company__c, Hectare__c, Status, DistributionCenter__c
@@ -316,7 +316,7 @@ public without sharing class OrderScreenController {
             if (orderId != null && !cloneOrder) {
                 newOrder = false;
                 order = [SELECT Id, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c, SalesCondition__c, PaymentDate__c, ShippingDate__c, PaymentCondition__c, CustomerOrderNumber__c, OrderType__c, OrderReference__c,
-                                Crop__c, Culture__c, PaymentForm__c, StatusSF__c, SalesOrg__c, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, EffectiveDate, Company__c, Hectare__c, OrderMargin__c, Status
+                                Crop__c, Culture__c, PaymentForm__c, StatusSF__c, SalesOrg__c, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, EffectiveDate, Company__c, Hectare__c, OrderMargin__c, Status, FreightValue__c
                 FROM Order WHERE Id =: orderId LIMIT 1];
             } else {
                 order = new Order();
@@ -614,6 +614,13 @@ public without sharing class OrderScreenController {
             order.OrderMargin__c = orderData.summaryData.orderMargin != null ? (orderData.summaryData.orderMargin.contains(' sacas') ?
                                    stringToDecimal(orderData.summaryData.orderMargin.replace(' sacas', '')) : stringToDecimal((orderData.summaryData.orderMargin))) : 0;
             order.ApprovalJustification__c = orderData.summaryData.justification;
+
+            if (order.Incoterms__c == 'CIF') {
+                order.FreightValue__c = null;
+                order.FinalTotalValue__c = order.FinalTotalValue__c + orderData.summaryData.freightValue;
+            } else {
+                order.FreightValue__c = orderData.summaryData.freightValue;
+            }
 
             if (Test.isRunningTest()) {
                 OrderHelper.disableTrigger();
@@ -1400,6 +1407,12 @@ public without sharing class OrderScreenController {
         }
     }
 
+    @AuraEnabled
+    public static Boolean checkSalesOrgFreight(String salesOrgId) {
+        Boolean showFreight = [SELECT Id, Freight__c FROM SalesOrg__c WHERE Id =: salesOrgId].Freight__c;
+        return showFreight;
+    }
+
     public static Decimal stringToDecimal(String value) {
         if (value.contains(',')) value = value.replaceAll(',', '.');
         if (value.contains('%')) value = value.replaceAll('%', '');
@@ -1443,6 +1456,7 @@ public without sharing class OrderScreenController {
         public String  companyId;
         public String  hectares;
         public String  centerId;
+        public Decimal freightValue;
         public Boolean emptyHectar;
         public Boolean pedido_mae_check;
         public Boolean pre_pedido;
@@ -1545,25 +1559,28 @@ public without sharing class OrderScreenController {
     }
 
     public class SummaryDeserialize{
-        public String observation;
-        public String billing_sale_observation;
-        public String orderMargin;
-        public String justification;
-        public String centerId;
+        public String  observation;
+        public String  billing_sale_observation;
+        public String  orderMargin;
+        public String  justification;
+        public String  centerId;
+        public Decimal freightValue;
     }
 
     public class SummarySerialize{
-        public String observation;
-        public String billing_sale_observation;
-        public String orderMargin;
-        public String justification;
-        public String centerId;
+        public String  observation;
+        public String  billing_sale_observation;
+        public String  orderMargin;
+        public String  justification;
+        public String  centerId;
+        public Decimal freightValue;
 
         public SummarySerialize(){}
-        public SummarySerialize(String observation, String billing_sale_observation){
+        public SummarySerialize(String observation, String billing_sale_observation, Decimal freightValue){
             this.observation = observation;
             this.billing_sale_observation = billing_sale_observation;
             this.orderMargin = orderMargin;
+            this.freightValue = freightValue;
         }
     }
 
@@ -1672,6 +1689,7 @@ public without sharing class OrderScreenController {
         public String  recTypeId;
         public String  hectares;
         public String  centerId;
+        public Decimal freightValue;
         public Boolean emptyHectar;
         public Boolean pedido_mae_check;
         public Boolean pre_pedido;
@@ -1728,6 +1746,7 @@ public without sharing class OrderScreenController {
             this.observation = order.Description;
             this.billing_sale_observation = order.DescriptionBillingSale__c;
             this.centerId = order.DistributionCenter__c;
+            this.freightValue = order.FreightValue__c;
             this.orderMargin = String.valueOf(order.OrderMargin__c) + '%';
             this.companyId = order.Company__c;
             this.recTypeId = order.RecordTypeId;

@@ -346,7 +346,7 @@ public class OrderScreenControllerTest {
         OrderScreenController.AccountSerialize account = OrderScreenController.getOrderAccountData(ord.AccountId);
         List<OrderScreenController.ProductSerialize> ordItemList = OrderScreenController.getOrderItemData(ord.Id, false);
         List<OrderScreenController.DivisionSerialize> divisionList = OrderScreenController.getShippingDivison();
-        OrderScreenController.SummarySerialize summary = new OrderScreenController.SummarySerialize('Observation', 'Observation Sales');
+        OrderScreenController.SummarySerialize summary = new OrderScreenController.SummarySerialize('Observation', 'Observation Sales', 150);
 
         OrderScreenController.CommodityDeserialize commodity = new OrderScreenController.CommodityDeserialize();
         commodity.product = 'Soja';
