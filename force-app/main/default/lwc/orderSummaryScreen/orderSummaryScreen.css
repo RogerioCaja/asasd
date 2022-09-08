@@ -195,8 +195,6 @@ button{
     border: none;
 }
 
-
-
 textarea{
     border-radius: 5px;
     font-size: 10pt;
@@ -280,6 +278,21 @@ textarea:hover{
     clear: both;
 	padding: 0px;
 }
+
+.close {
+	color: #aaaaaa;
+	float: right;
+	font-size: 28px;
+	font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+	color: #000;
+	text-decoration: none;
+	cursor: pointer;
+}
+
 .new-product-title {
 	font-size: 20px;
     font-weight: bold;
@@ -315,6 +328,26 @@ textarea:hover{
     color: #2a9676;
 }
 
+.input-design {
+	width: 100%;
+    padding: 8px 6px;
+    margin: 3px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+
+.input-design:focus {
+	outline: none !important;
+    border: 1px solid #2a9676;
+    box-shadow: 0 0 7px #2a9676;
+}
+
+.input-design:disabled {
+	background-color: #f3f3f3 !important;
+}
+
 .confirm-button {
 	transition-duration: 0.5s;
     background-color: #ffffff;
@@ -334,7 +367,8 @@ textarea:hover{
 	color: #ffffff;
 }
 
-.back-button {
+.back-button,
+.close-modal-button {
 	float: left;
 	width: 50%;
 	padding: 25px;
