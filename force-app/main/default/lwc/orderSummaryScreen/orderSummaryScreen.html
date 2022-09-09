@@ -306,7 +306,10 @@
         </template>
     </template>
 
-    <div if:true={seedSale} onclick={openFormOfPayment} class="openPaymentScreen">Adicionar formas de pagamento</div>
+    <div if:true={seedSale} class="openPaymentScreen">
+        <div onclick={openFormOfPayment} class="confirm-button">Adicionar formas de pagamento</div>
+    </div>
+    
 
     <template if:true={showFormOfPayment}>
         <div class="modal">
@@ -367,7 +370,8 @@
                                 value={payments.valueFront}
                                 onblur={changeValue}
                                 type="text" 
-                                pattern="[0-9]*"
+                                pattern="([0-9]+[.]{0,1}[0-9]+[,]{0,1}[0-9]+)"
+                                message-when-pattern-mismatch = "Erro no dado inserido"
                                 required="true"
                                 disabled={blockPaymentFields}>
                             </lightning-input>
@@ -404,7 +408,7 @@
                 <div class="row">
                     <div class="column">
                         <label>Valor do Frete</label><br>
-                        <input class="input-design" type="text" value={summaryDataLocale.freightValueFront} onchange={changeFreightValue}/>
+                        <input class="input-design" type="text" pattern="([0-9]+[.]{0,1}[0-9]+[,]{0,1}[0-9]+)" value={summaryDataLocale.freightValueFront} onchange={changeFreightValue}/>
                     </div>
                 </div>
 
