@@ -370,13 +370,15 @@ export default class OrderSummaryScreen extends LightningElement {
     }
 
     confirmFreight() {
-        this.showFreightScreen = false;
+        
         let variable = 'freight-value';
         if(!this.template.querySelector(`[data-target-id="${variable}"]`).checkValidity()){
-           this.showToast('warning', 'Atenção', 'Valor de frete inválido');
-           return;
-        }
-            
+            this.showToast('warning', 'Atenção', 'Valor de frete inválido');
+            return;
+         }
+
+        this.showFreightScreen = false;
+
         this.changeFreight();
     }
 
