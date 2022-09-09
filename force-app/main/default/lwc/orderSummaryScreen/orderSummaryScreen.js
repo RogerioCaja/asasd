@@ -492,11 +492,15 @@ export default class OrderSummaryScreen extends LightningElement {
     }
 
     validRegexField(allPayment){
-        let isPassed = true;
-        for (let index = 0; index < allPayments.length; index++) {
-            if(!this.template.querySelector(`[data-target-id="${allPayments[index].valueId}"]`).checkValidity()){
-                isPassed = false
+        try{
+            let isPassed = true;
+            for (let index = 0; index < allPayment.length; index++) {
+                if(!this.template.querySelector(`[data-target-id="${allPayment[index].valueId}"]`).checkValidity()){
+                    isPassed = false
+                }
             }
+        }catch(err){
+            console.log(err)
         }
         return isPassed;
     }
@@ -526,10 +530,14 @@ export default class OrderSummaryScreen extends LightningElement {
             }
         }
 
-        const result = this.validRegexField(allPayments)
-        if(!result){
-            this.showToast('warning', 'Atenção!', 'Valor inserido no formato incorreto.');
-            return;
+        try{
+            const result = this.validRegexField(allPayments)
+            if(!result){
+                this.showToast('warning', 'Atenção!', 'Valor inserido no formato incorreto.');
+                return;
+            }
+        }catch(err){
+            console.log(err)
         }
 
         this.formsOfPayment = JSON.parse(JSON.stringify(groupedFormsOfPayment));
