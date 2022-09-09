@@ -306,7 +306,10 @@
         </template>
     </template>
 
-    <div if:true={seedSale} onclick={openFormOfPayment} class="confirm-button">Adicionar formas de pagamento</div>
+    <div if:true={seedSale} class="openPaymentScreen">
+        <div onclick={openFormOfPayment} class="confirm-button">Adicionar formas de pagamento</div>
+    </div>
+    
 
     <template if:true={showFormOfPayment}>
         <div class="modal">
