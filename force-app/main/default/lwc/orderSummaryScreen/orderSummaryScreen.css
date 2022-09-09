@@ -270,7 +270,6 @@ textarea:hover{
 	border: 1px solid #888;
 	width: 600px;
 }
-
 .container {
 	border-radius: 5px;
 	border: 1px solid #ccc;
@@ -304,12 +303,6 @@ textarea:hover{
 .row {
     overflow: hidden;
     clear: both;
-}
-
-.column {
-    float: left;
-    width: 50%;
-	padding: 0px 5px 0px 5px;
 }
 
 .payment-column {
@@ -374,13 +367,7 @@ textarea:hover{
 	color: #ffffff;
 }
 
-.back-button {
-    float: left;
-	width: 50%;
-	padding: 25px;
-	color: #2a9676;
-}
-
+.back-button,
 .close-modal-button {
 	float: left;
 	width: 50%;

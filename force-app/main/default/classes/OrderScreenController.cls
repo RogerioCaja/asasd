@@ -1455,9 +1455,9 @@ public without sharing class OrderScreenController {
         public String  orderMargin;
         public String  companyId;
         public String  hectares;
-        public String  centerId;
         public Decimal freightValue;
         public Boolean emptyHectar;
+        public String  centerId;
         public Boolean pedido_mae_check;
         public Boolean pre_pedido;
         public Boolean firstTime;
@@ -1574,7 +1574,7 @@ public without sharing class OrderScreenController {
         public String  justification;
         public String  centerId;
         public Decimal freightValue;
-
+        
         public SummarySerialize(){}
         public SummarySerialize(String observation, String billing_sale_observation, Decimal freightValue){
             this.observation = observation;
@@ -1688,9 +1688,9 @@ public without sharing class OrderScreenController {
         public String  companyId;
         public String  recTypeId;
         public String  hectares;
-        public String  centerId;
         public Decimal freightValue;
         public Boolean emptyHectar;
+        public String  centerId;
         public Boolean pedido_mae_check;
         public Boolean pre_pedido;
         public Boolean firstTime;
