@@ -238,6 +238,7 @@ export default class OrderSummaryScreen extends LightningElement {
             }
             else{
                 for(var i= 0; i< this.productDataLocale.length; i++){
+                    console.log('Entreii')
                     orderTotalPrice += Number(this.productDataLocale[i].unitPrice) * Number(this.productDataLocale[i].quantity);
                     orderTotalCost += Number(this.productDataLocale[i].practicedCost) * Number(this.productDataLocale[i].quantity);
                     this.productDataLocale[i]['unitPrice'] = 'R$ ' + this.fixDecimalPlacesFront(this.productDataLocale[i].unitPrice);
@@ -438,7 +439,7 @@ export default class OrderSummaryScreen extends LightningElement {
         let fieldValue = event.target.value;
         let paymentPosition = fieldId.split('-')[1];
         let allPayments = JSON.parse(JSON.stringify(this.formsOfPayment));
-        
+
         for (let index = 0; index < allPayments.length; index++) {
             if (allPayments[index].paymentPosition == paymentPosition) {
                 if (fieldId.includes('paymentTypeId')) {
@@ -491,6 +492,19 @@ export default class OrderSummaryScreen extends LightningElement {
         this.formsOfPayment = JSON.parse(JSON.stringify(allFromsOfPayment));
     }
 
+    validRegexField(allPayment){
+        try{
+            let isPassed = true;
+            for (let index = 0; index < allPayment.length; index++) {
+                if(!this.template.querySelector(`[data-target-id="${allPayment[index].valueId}"]`).checkValidity()){
+                    isPassed = false
+                }
+            }
+        }catch(err){
+            console.log(err)
+        }
+        return isPassed;
+    }
     confirmFormOfPayment() {
         let allPayments = JSON.parse(JSON.stringify(this.formsOfPayment));
         let groupedFormsOfPayment = [];
@@ -515,6 +529,16 @@ export default class OrderSummaryScreen extends LightningElement {
                 this.showToast('warning', 'Atenção!', 'Todos os campos são obrigatórios.');
                 return;
             }
+        }
+
+        try{
+            const result = this.validRegexField(allPayments)
+            if(!result){
+                this.showToast('warning', 'Atenção!', 'Valor inserido no formato incorreto.');
+                return;
+            }
+        }catch(err){
+            console.log(err)
         }
 
         this.formsOfPayment = JSON.parse(JSON.stringify(groupedFormsOfPayment));
