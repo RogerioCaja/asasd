@@ -923,11 +923,14 @@ public without sharing class OrderScreenController {
                 }
 
                 Set<Id> setPaymentIds = new Set<Id>();
-                for (FormOfPaymentDeserialize payment : orderData.formsOfPayment) {
-                    if (payment.paymentId != null && payment.paymentId != '') {
-                        setPaymentIds.add(payment.paymentId);
+                if(orderData.formsOfPayment != null){
+                    for (FormOfPaymentDeserialize payment : orderData.formsOfPayment) {
+                        if (payment.paymentId != null && payment.paymentId != '') {
+                            setPaymentIds.add(payment.paymentId);
+                        }
                     }
                 }
+                
 
                 List<FormPayment__c> upsFormsOfPayment = new List<FormPayment__c>();
                 Map<Id, FormPayment__c> paymentFormsById = new Map<Id, FormPayment__c>();
@@ -939,19 +942,21 @@ public without sharing class OrderScreenController {
                     paymentFormsById.put(formOfPayment.Id, formOfPayment);
                 }
 
-                for (FormOfPaymentDeserialize payment : orderData.formsOfPayment) {
-                    FormPayment__c formOfPayment;
-                    if (payment.paymentId != null && payment.paymentId != '' && !newOrder && !cloneOrder && paymentFormsById.containsKey(payment.paymentId)) {
-                        formOfPayment = paymentFormsById.get(payment.paymentId);
-                    } else {
-                        formOfPayment = new FormPayment__c();
-                        formOfPayment.Order__c = order.Id;
-                    }
+                if(orderData.formsOfPayment != null){
+                    for (FormOfPaymentDeserialize payment : orderData.formsOfPayment) {
+                        FormPayment__c formOfPayment;
+                        if (payment.paymentId != null && payment.paymentId != '' && !newOrder && !cloneOrder && paymentFormsById.containsKey(payment.paymentId)) {
+                            formOfPayment = paymentFormsById.get(payment.paymentId);
+                        } else {
+                            formOfPayment = new FormPayment__c();
+                            formOfPayment.Order__c = order.Id;
+                        }
 
-                    formOfPayment.PaymentType__c = payment.paymentType;
-                    formOfPayment.PaymentDate__c = Date.valueOf(payment.paymentDay);
-                    formOfPayment.Amount__c = Decimal.valueOf(payment.value);
-                    upsFormsOfPayment.add(formOfPayment);
+                        formOfPayment.PaymentType__c = payment.paymentType;
+                        formOfPayment.PaymentDate__c = Date.valueOf(payment.paymentDay);
+                        formOfPayment.Amount__c = Decimal.valueOf(payment.value);
+                        upsFormsOfPayment.add(formOfPayment);
+                    }
                 }
                 
                 if (upsFormsOfPayment.size() > 0) {
