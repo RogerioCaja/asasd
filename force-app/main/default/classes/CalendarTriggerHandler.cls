@@ -17,14 +17,14 @@ public with sharing class CalendarTriggerHandler {
     }
     
     public void OnAfterInsert(){
-        //calendarHelper.createCalendarEvent(this.newRecords);
+        
     }
     
     public void OnBeforeUpdate(){
     }
     
     public void OnAfterUpdate(){
-    
+        calendarHelper.createCalendarEvent(this.newMap);
     }
     
     public void OnBeforeDelete(){}
