@@ -40,7 +40,10 @@ public static void createCalendarEvent(List<VisitPlanning__c> visitPlanningList)
         System.debug('seconds ' + seconds);
         Long minutes = seconds / 60;
         System.debug('minutes ' + minutes);
-        Event event = new Event(Subject = 'Meeting', DurationInMinutes = integer.valueOf(minutes), OwnerId =  visitPlanning.VisitSeller__c, StartDateTime = DateTime.newInstance(visitPlanning.InitialDate__c, visitPlanning.StartTime__c), EndDateTime = DateTime.newInstance(visitPlanning.EndDate__c, visitPlanning.EndTime__c));
+        
+        Long reminderSet = dt1Long.addMinutes(-15);
+        
+        Event event = new Event(Subject = 'Meeting', IsReminderSet = true, ReminderDateTime = DateTime.newInstance(visitPlanning.InitialDate__c, visitPlanning.StartTime__c).addMinutes(-15), DurationInMinutes = integer.valueOf(minutes), OwnerId =  visitPlanning.VisitSeller__c, StartDateTime = DateTime.newInstance(visitPlanning.InitialDate__c, visitPlanning.StartTime__c), EndDateTime = DateTime.newInstance(visitPlanning.EndDate__c, visitPlanning.EndTime__c));
         eventList.add(event);
     }
 
@@ -60,7 +63,7 @@ public static void updateCalendarEvent(Map<Id, VisitPlanning__c> visitPlanningMa
     }
 
     
-    List<Event> eventList = new List<Event>([SELECT Id, WhatId, Subject, DurationInMinutes, OwnerId, StartDateTime, EndDateTime FROM Event WHERE WhatId =: visitId]);
+    List<Event> eventList = new List<Event>([SELECT Id, WhatId, Subject, DurationInMinutes, OwnerId, StartDateTime,ReminderDateTime, IsReminderSet,EndDateTime FROM Event WHERE WhatId =: visitId]);
 
     for(Event event : eventList){
         VisitPlanning__c visitPlanning = visitPlanningMap.get(event.WhatId);
@@ -79,6 +82,8 @@ public static void updateCalendarEvent(Map<Id, VisitPlanning__c> visitPlanningMa
         event.OwnerId = visitPlanning.VisitSeller__c;
         event.StartDateTime = DateTime.newInstance(visitPlanning.InitialDate__c, visitPlanning.StartTime__c);
         event.EndDateTime = DateTime.newInstance(visitPlanning.EndDate__c, visitPlanning.EndTime__c);
+        event.IsReminderSet = true;
+        event.ReminderDateTime = DateTime.newInstance(visitPlanning.InitialDate__c, visitPlanning.StartTime__c).addMinutes(-15);
     }
     upsert eventList;
 }
