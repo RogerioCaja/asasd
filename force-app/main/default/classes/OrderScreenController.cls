@@ -612,7 +612,7 @@ public without sharing class OrderScreenController {
             order.DescriptionBillingSale__c = orderData.summaryData.billing_sale_observation;
             order.OrderReference__c = order.OrderReference__c != null ? order.OrderReference__c : orderData.headerData.pedido_mae.Id;
             order.IsOrderMother__c = orderData.headerData.pedido_mae.Id != null ? false : Boolean.valueOf(orderData.headerData.pedido_mae_check);
-            order.Hectare__c = orderData.headerData.hectares.contains(',') ? Decimal.valueOf(orderData.headerData.hectares.replace(',', '.')) : Decimal.valueOf(orderData.headerData.hectares);
+            order.Hectare__c = orderData.headerData.hectares.contains(',') ? Decimal.valueOf(orderData.headerData.hectares.replace(',', '.').trim()) : Decimal.valueOf(orderData.headerData.hectares.trim());
             order.FinalTotalValue__c = orderTotalValue;
             order.Company__c = company.Id;
             order.DistributionCenter__c = orderData.summaryData.centerId != null ? orderData.summaryData.centerId : orderData.headerData.centerId;
