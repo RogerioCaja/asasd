@@ -306,7 +306,7 @@
         </template>
     </template>
 
-    <div onclick={openFormOfPayment} class="openPaymentScreen">Adicionar formas de pagamento</div>
+    <div if:true={seedSale} onclick={openFormOfPayment} class="openPaymentScreen">Adicionar formas de pagamento</div>
 
     <template if:true={showFormOfPayment}>
         <div class="modal">
@@ -351,6 +351,7 @@
                                 field-name="paymentDay" 
                                 value={payments.paymentDay} 
                                 type="date" 
+                                date-style="short" 
                                 onblur={changeValue} 
                                 required="true"
                                 min={currentDate}
