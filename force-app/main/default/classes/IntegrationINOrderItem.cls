@@ -164,6 +164,8 @@ global with sharing class IntegrationINOrderItem {
     
                 System.debug('orderItem.orderExternalId '+ orderItem.orderExternalId);
                 
+                ordItem.Description += 'In73gr ins37t x';
+
                 if(orderItem.orderExternalId == null || orderItem.orderExternalId == ''){
                     System.debug('ordItem.OrderId '+ ordItem.OrderId);
                     if(ordItem.OrderId != null){
