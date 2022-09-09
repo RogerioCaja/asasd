@@ -13,58 +13,58 @@
     <label>AgroGalaxy</label>
     <navType>Standard</navType>
     <profileActionOverrides>
-        <actionName>View</actionName>
-        <content>Relatorio_Tecnico</content>
-        <formFactor>Small</formFactor>
-        <pageOrSobjectType>TechnicalReport__c</pageOrSobjectType>
-        <type>Flexipage</type>
-        <profile>Admin</profile>
-    </profileActionOverrides>
-    <profileActionOverrides>
-        <actionName>View</actionName>
-        <content>Relatorio_Tecnico</content>
-        <formFactor>Large</formFactor>
-        <pageOrSobjectType>TechnicalReport__c</pageOrSobjectType>
-        <type>Flexipage</type>
-        <profile>Admin</profile>
-    </profileActionOverrides>
-    <profileActionOverrides>
-        <actionName>View</actionName>
-        <content>Foto_Record_Page</content>
-        <formFactor>Small</formFactor>
-        <pageOrSobjectType>Fotos__c</pageOrSobjectType>
-        <type>Flexipage</type>
-        <profile>Admin</profile>
-    </profileActionOverrides>
-    <profileActionOverrides>
-        <actionName>View</actionName>
-        <content>Foto_Record_Page</content>
-        <formFactor>Large</formFactor>
-        <pageOrSobjectType>Fotos__c</pageOrSobjectType>
-        <type>Flexipage</type>
-        <profile>Admin</profile>
-    </profileActionOverrides>
-    <profileActionOverrides>
-        <actionName>View</actionName>
-        <content>Planejamento_da_Visita</content>
-        <formFactor>Small</formFactor>
-        <pageOrSobjectType>VisitPlanning__c</pageOrSobjectType>
-        <type>Flexipage</type>
-        <profile>Admin</profile>
-    </profileActionOverrides>
-    <profileActionOverrides>
-        <actionName>View</actionName>
-        <content>Planejamento_da_Visita</content>
-        <formFactor>Large</formFactor>
-        <pageOrSobjectType>VisitPlanning__c</pageOrSobjectType>
-        <type>Flexipage</type>
-        <profile>Admin</profile>
-    </profileActionOverrides>
-    <profileActionOverrides>
         <actionName>Tab</actionName>
         <content>Home_Page_Default</content>
         <formFactor>Large</formFactor>
         <pageOrSobjectType>standard-home</pageOrSobjectType>
+        <type>Flexipage</type>
+        <profile>Admin</profile>
+    </profileActionOverrides>
+    <profileActionOverrides>
+        <actionName>View</actionName>
+        <content>Relatorio_Tecnico</content>
+        <formFactor>Small</formFactor>
+        <pageOrSobjectType>TechnicalReport__c</pageOrSobjectType>
+        <type>Flexipage</type>
+        <profile>Admin</profile>
+    </profileActionOverrides>
+    <profileActionOverrides>
+        <actionName>View</actionName>
+        <content>Relatorio_Tecnico</content>
+        <formFactor>Large</formFactor>
+        <pageOrSobjectType>TechnicalReport__c</pageOrSobjectType>
+        <type>Flexipage</type>
+        <profile>Admin</profile>
+    </profileActionOverrides>
+    <profileActionOverrides>
+        <actionName>View</actionName>
+        <content>Foto_Record_Page</content>
+        <formFactor>Small</formFactor>
+        <pageOrSobjectType>Fotos__c</pageOrSobjectType>
+        <type>Flexipage</type>
+        <profile>Admin</profile>
+    </profileActionOverrides>
+    <profileActionOverrides>
+        <actionName>View</actionName>
+        <content>Foto_Record_Page</content>
+        <formFactor>Large</formFactor>
+        <pageOrSobjectType>Fotos__c</pageOrSobjectType>
+        <type>Flexipage</type>
+        <profile>Admin</profile>
+    </profileActionOverrides>
+    <profileActionOverrides>
+        <actionName>View</actionName>
+        <content>Planejamento_da_Visita</content>
+        <formFactor>Small</formFactor>
+        <pageOrSobjectType>VisitPlanning__c</pageOrSobjectType>
+        <type>Flexipage</type>
+        <profile>Admin</profile>
+    </profileActionOverrides>
+    <profileActionOverrides>
+        <actionName>View</actionName>
+        <content>Planejamento_da_Visita</content>
+        <formFactor>Large</formFactor>
+        <pageOrSobjectType>VisitPlanning__c</pageOrSobjectType>
         <type>Flexipage</type>
         <profile>Admin</profile>
     </profileActionOverrides>
@@ -84,6 +84,7 @@
     <tabs>ProductFamily__c</tabs>
     <tabs>ProductGroup__c</tabs>
     <tabs>OrgVProduct__c</tabs>
+    <tabs>DistributionCenter__c</tabs>
     <tabs>ActivitySector__c</tabs>
     <tabs>ProductSubGroup__c</tabs>
     <tabs>Carteiriza_o_de_Clientes</tabs>
