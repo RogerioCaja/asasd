@@ -312,12 +312,8 @@ textarea:hover{
 }
 
 .openPaymentScreen {
-    float: left;
-    width: 50%;
-    font-size: 14px;
-    padding: 5px;
-    color: #2a9676;
-    cursor: pointer;
+    display: flex;
+    justify-content: end;
 }
 
 .exclude-column {
