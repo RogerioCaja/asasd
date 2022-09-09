@@ -642,6 +642,10 @@ export default class OrderProductScreen extends LightningElement {
         this.changeColumns = !this.changeColumns;
     }
 
+    hideProductModal(){
+        this.createNewProduct = !this.createNewProduct;
+    }
+
     changeToPercentage(event) {
         event.target.value = event.target.value.replace('.', ',');
         let int = event.target.value.slice(0, event.target.value.length - 1);
