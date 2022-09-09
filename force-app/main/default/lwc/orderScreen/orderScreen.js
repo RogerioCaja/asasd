@@ -81,6 +81,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         aprovation: " ",
         companyId: null,
         centerId: null,
+        hectares: ' ',
         firstTime: true
     };
     @track productData;
