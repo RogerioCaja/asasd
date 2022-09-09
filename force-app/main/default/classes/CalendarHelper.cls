@@ -41,8 +41,6 @@ public static void createCalendarEvent(List<VisitPlanning__c> visitPlanningList)
         Long minutes = seconds / 60;
         System.debug('minutes ' + minutes);
         
-        Long reminderSet = dt1Long.addMinutes(-15);
-        
         Event event = new Event(Subject = 'Meeting', IsReminderSet = true, ReminderDateTime = DateTime.newInstance(visitPlanning.InitialDate__c, visitPlanning.StartTime__c).addMinutes(-15), DurationInMinutes = integer.valueOf(minutes), OwnerId =  visitPlanning.VisitSeller__c, StartDateTime = DateTime.newInstance(visitPlanning.InitialDate__c, visitPlanning.StartTime__c), EndDateTime = DateTime.newInstance(visitPlanning.EndDate__c, visitPlanning.EndTime__c));
         eventList.add(event);
     }
