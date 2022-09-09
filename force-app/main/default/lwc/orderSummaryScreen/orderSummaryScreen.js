@@ -98,6 +98,11 @@ export default class OrderSummaryScreen extends LightningElement {
             this.hideMargin = JSON.parse(result);
         });
 
+        isSeedSale({salesOrgId: this.headerData.organizacao_vendas.Id, productGroupName: null})
+            .then((result) => {
+                this.seedSale = result
+        });
+        
         if (this.headerData.IsOrderChild) {
             this.showLoading = true;
             isSeedSale({salesOrgId: this.headerData.organizacao_vendas.Id, productGroupName: null})
