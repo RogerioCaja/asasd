@@ -90,7 +90,7 @@ export default class OrderHeaderScreen extends LightningElement {
         IsOrderChild : false,
         isCompleted : false,
         companyId: null,
-        hectares: ' ',
+        hectares: '',
         firstTime: true,
         centerId: null
     };
@@ -685,7 +685,7 @@ export default class OrderHeaderScreen extends LightningElement {
                 this.headerDictLocale.cliente_entrega.Id !== undefined) &&
                 this.headerDictLocale.hectares !== 0 &&
                 this.headerDictLocale.hectares !== undefined &&
-                this.headerDictLocale.hectares !== ' ' || this.pass
+                this.headerDictLocale.hectares !== '' || this.pass
             ) {
                 return true;
             }
