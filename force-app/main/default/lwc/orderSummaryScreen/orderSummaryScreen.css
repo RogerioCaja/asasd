@@ -313,7 +313,7 @@ textarea:hover{
 
 .openPaymentScreen {
     display: flex;
-    justify-content: end;
+    justify-content: end !important; 
 }
 
 .exclude-column {

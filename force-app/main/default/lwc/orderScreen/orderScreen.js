@@ -448,8 +448,10 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
         let orderTotalPrice = 0;
         if(this.template.querySelector(this.tabs[3].component).seedSale){
-            for (let index = 0; index < this.formsOfPayment.length; index++) {
-                orderTotalPrice += Number(this.formsOfPayment[index].value);
+            if(this.formsOfPayment != undefined && this.formsOfPayment != null){
+                for (let index = 0; index < this.formsOfPayment.length; index++) {
+                    orderTotalPrice += Number(this.formsOfPayment[index].value);
+                }
             }
 
             if (this.fixDecimalPlacesFront(totalPayment) != this.fixDecimalPlacesFront(orderTotalPrice)) {

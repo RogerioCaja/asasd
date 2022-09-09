@@ -238,7 +238,6 @@ export default class OrderSummaryScreen extends LightningElement {
             }
             else{
                 for(var i= 0; i< this.productDataLocale.length; i++){
-                    console.log('Entreii')
                     orderTotalPrice += Number(this.productDataLocale[i].unitPrice) * Number(this.productDataLocale[i].quantity);
                     orderTotalCost += Number(this.productDataLocale[i].practicedCost) * Number(this.productDataLocale[i].quantity);
                     this.productDataLocale[i]['unitPrice'] = 'R$ ' + this.fixDecimalPlacesFront(this.productDataLocale[i].unitPrice);
@@ -373,6 +372,12 @@ export default class OrderSummaryScreen extends LightningElement {
 
     confirmFreight() {
         this.showFreightScreen = false;
+        let variable = 'freight-value';
+        if(!this.template.querySelector(`[data-target-id="${variable}"]`).checkValidity()){
+           this.showToast('warning', 'Atenção', 'Valor de frete inválido');
+           return;
+        }
+            
         this.changeFreight();
     }
 
@@ -493,8 +498,8 @@ export default class OrderSummaryScreen extends LightningElement {
     }
 
     validRegexField(allPayment){
+        let isPassed = true;
         try{
-            let isPassed = true;
             for (let index = 0; index < allPayment.length; index++) {
                 if(!this.template.querySelector(`[data-target-id="${allPayment[index].valueId}"]`).checkValidity()){
                     isPassed = false
