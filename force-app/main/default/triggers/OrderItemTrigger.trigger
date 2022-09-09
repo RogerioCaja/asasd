@@ -8,7 +8,7 @@ trigger OrderItemTrigger on OrderItem (after insert, before insert, before updat
             when AFTER_INSERT {
             }
             when BEFORE_INSERT{
-                //BEFORE INSERT Method
+                handler.OnBeforeInsert();
             }
             when AFTER_UPDATE{
                 handler.OnAfterUpdate();
