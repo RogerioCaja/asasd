@@ -83,4 +83,64 @@ public without sharing class OrderItemHelper {
         update orderItemListM;
         OrderItemHelper.enableTrigger();
     }
+
+    public static void insertOrderItem (List<OrderItem> orderItemList){
+        List<String> ordList = new List<String>();
+        List<String> orderList = new List<String>();
+        List<OrderItem> orderItemListM = new List<OrderItem>();
+        
+        for(OrderItem ord : orderItemList){
+            orderList.add(ord.OrderId);
+        }
+        List<Order> orderIdList = new List<Order>([SELECT Id, OrderReference__c, IsOrderMother__c FROM Order WHERE Id =: orderList]);
+        Map<String, Order> ordIdMap = New Map<String, Order>();
+        for(Order ordIds : orderIdList){
+            ordIdMap.put(ordIds.Id, ordIds);
+            System.debug('ordIdMap ' + ordIdMap);
+        }
+        for(OrderItem ordIt : orderItemList){
+            Order ord = ordIdMap.get(ordIt.OrderId);
+            
+            System.debug('OrderReference__c ' + ord);
+            System.debug('teste'+ ordIt.Order.IsOrderMother__c);                         
+            if(ordIt.Order.IsOrderMother__c != true && ord.OrderReference__c != null && ord.Description.Contains('In73gr ins37t x')){
+                System.debug('Entrou no IF');
+                System.debug('OrderReference__c ' + ordIt.Order.OrderReference__c);
+                ordList.add(ord.OrderReference__c);
+                System.debug('ordList ' + ordList);
+                //ordIt.Quantity =  ordIt.Quantity - ordIt.AmountUsed__c; 
+            }
+        }
+
+        List<OrderItem> ordItemList = ([SELECT Id, OrderId, Order.IsOrderMother__c, Product2Id, AmountUsed__c, Quantity  FROM OrderItem WHERE OrderId =: ordList]);
+        Map<String, OrderItem> ordMap = new Map<String, OrderItem>();
+        for(OrderItem ordItem : ordItemList){
+            string concProductOrder = String.valueOf(ordItem.Product2Id) + String.valueOf(ordItem.OrderId);
+            System.debug('concatenação ' + concProductOrder);
+            System.debug('ordItem' + ordItem);
+            ordMap.put(concProductOrder, ordItem);
+            System.debug('ordMap' + ordMap);
+            
+        }
+        for(OrderItem ordemItem : orderItemList){
+            Order ord = ordIdMap.get(ordemItem.OrderId);
+            
+            string concProductOrderRef = String.valueOf(ordemItem.Product2Id) + String.valueOf(ord.OrderReference__c);
+            System.debug('ordMap Fora ' + ordMap);
+            System.debug('concProductOrderRef ' + concProductOrderRef);
+            if(ordMap.containsKey(concProductOrderRef)){
+                System.debug('ordMap Dentro' + ordMap);
+                OrderItem ordrItem = ordMap.get(concProductOrderRef);
+                System.debug('ordrItem ' + ordrItem);
+                if(ordemItem.Product2Id == ordrItem.Product2Id){
+                    System.debug('orderItemListM ' + orderItemListM);
+                    OrderItem orddItem = New OrderItem();
+                    orddItem.Id = ordrItem.Id;
+                    orddItem.AmountUsed__c =  ordemItem.Quantity + ordrItem.AmountUsed__c; 
+                    orddItem.Description = orddItem.Description.replace('In73gr ins37t x', '');
+                }
+            }
+        }
+
+    }
 }
