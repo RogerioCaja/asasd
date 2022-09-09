@@ -603,6 +603,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     _setSummaryData(event) {
         this.summaryData = event.data;
         console.log('summary data setted:', JSON.stringify(this.summaryData));
+        this.frete = this.summaryData.freightValue != undefined ? this.summaryData.freightValue : '-----';
         this.enableNextScreen();
     }
 
