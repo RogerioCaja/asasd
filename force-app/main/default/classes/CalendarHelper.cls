@@ -28,7 +28,17 @@ public with sharing class CalendarHelper {
 
         for(VisitPlanning__c visitPlanning : visitPlanningList){
             //if()//DateTime.newInstance(withDate.date(), withTime.time())
-            Event event = new Event(OwnerId =  visitPlanning.VisitSeller__c, StartDateTime = DateTime.newInstance(visitPlanning.InitialDate__c, visitPlanning.StartTime__c), 	EndDateTime = visitPlanning.EndDate__c);
+            Long dt1Long = DateTime.newInstance(visitPlanning.InitialDate__c, visitPlanning.StartTime__c).getTime();
+            System.debug('dt1Long ' + dt1Long);
+			Long dt2Long = DateTime.newInstance(visitPlanning.EndDate__c, visitPlanning.EndTime__c).getTime();
+            System.debug('dt2Long ' + dt2Long);
+			Long milliseconds = dt2Long - dt1Long;
+            System.debug('milliseconds ' + milliseconds);
+			Long seconds = milliseconds / 1000;
+            System.debug('seconds ' + seconds);
+			Long minutes = seconds / 60;
+            System.debug('minutes ' + minutes);
+            Event event = new Event(Subject = 'Meeting', DurationInMinutes = integer.valueOf(minutes), OwnerId =  visitPlanning.VisitSeller__c, StartDateTime = DateTime.newInstance(visitPlanning.InitialDate__c, visitPlanning.StartTime__c), EndDateTime = DateTime.newInstance(visitPlanning.EndDate__c, visitPlanning.EndTime__c));
             eventList.add(event);
         }
 
