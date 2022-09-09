@@ -24,7 +24,7 @@ public with sharing class CalendarTriggerHandler {
     }
     
     public void OnAfterUpdate(){
-        calendarHelper.createCalendarEvent(this.newMap);
+        calendarHelper.updateCalendarEvent(this.newMap);
     }
     
     public void OnBeforeDelete(){}
