@@ -924,11 +924,14 @@ public without sharing class OrderScreenController {
                 }
 
                 Set<Id> setPaymentIds = new Set<Id>();
-                for (FormOfPaymentDeserialize payment : orderData.formsOfPayment) {
-                    if (payment.paymentId != null && payment.paymentId != '') {
-                        setPaymentIds.add(payment.paymentId);
+                if(orderData.formsOfPayment != null){
+                    for (FormOfPaymentDeserialize payment : orderData.formsOfPayment) {
+                        if (payment.paymentId != null && payment.paymentId != '') {
+                            setPaymentIds.add(payment.paymentId);
+                        }
                     }
                 }
+                
 
                 List<FormPayment__c> upsFormsOfPayment = new List<FormPayment__c>();
                 Map<Id, FormPayment__c> paymentFormsById = new Map<Id, FormPayment__c>();
@@ -940,19 +943,21 @@ public without sharing class OrderScreenController {
                     paymentFormsById.put(formOfPayment.Id, formOfPayment);
                 }
 
-                for (FormOfPaymentDeserialize payment : orderData.formsOfPayment) {
-                    FormPayment__c formOfPayment;
-                    if (payment.paymentId != null && payment.paymentId != '' && !newOrder && !cloneOrder && paymentFormsById.containsKey(payment.paymentId)) {
-                        formOfPayment = paymentFormsById.get(payment.paymentId);
-                    } else {
-                        formOfPayment = new FormPayment__c();
-                        formOfPayment.Order__c = order.Id;
-                    }
+                if(orderData.formsOfPayment != null){
+                    for (FormOfPaymentDeserialize payment : orderData.formsOfPayment) {
+                        FormPayment__c formOfPayment;
+                        if (payment.paymentId != null && payment.paymentId != '' && !newOrder && !cloneOrder && paymentFormsById.containsKey(payment.paymentId)) {
+                            formOfPayment = paymentFormsById.get(payment.paymentId);
+                        } else {
+                            formOfPayment = new FormPayment__c();
+                            formOfPayment.Order__c = order.Id;
+                        }
 
-                    formOfPayment.PaymentType__c = payment.paymentType;
-                    formOfPayment.PaymentDate__c = Date.valueOf(payment.paymentDay);
-                    formOfPayment.Amount__c = Decimal.valueOf(payment.value);
-                    upsFormsOfPayment.add(formOfPayment);
+                        formOfPayment.PaymentType__c = payment.paymentType;
+                        formOfPayment.PaymentDate__c = Date.valueOf(payment.paymentDay);
+                        formOfPayment.Amount__c = Decimal.valueOf(payment.value);
+                        upsFormsOfPayment.add(formOfPayment);
+                    }
                 }
                 
                 if (upsFormsOfPayment.size() > 0) {
@@ -1455,9 +1460,9 @@ public without sharing class OrderScreenController {
         public String  orderMargin;
         public String  companyId;
         public String  hectares;
-        public String  centerId;
         public Decimal freightValue;
         public Boolean emptyHectar;
+        public String  centerId;
         public Boolean pedido_mae_check;
         public Boolean pre_pedido;
         public Boolean firstTime;
@@ -1574,7 +1579,7 @@ public without sharing class OrderScreenController {
         public String  justification;
         public String  centerId;
         public Decimal freightValue;
-
+        
         public SummarySerialize(){}
         public SummarySerialize(String observation, String billing_sale_observation, Decimal freightValue){
             this.observation = observation;
@@ -1688,9 +1693,9 @@ public without sharing class OrderScreenController {
         public String  companyId;
         public String  recTypeId;
         public String  hectares;
-        public String  centerId;
         public Decimal freightValue;
         public Boolean emptyHectar;
+        public String  centerId;
         public Boolean pedido_mae_check;
         public Boolean pre_pedido;
         public Boolean firstTime;

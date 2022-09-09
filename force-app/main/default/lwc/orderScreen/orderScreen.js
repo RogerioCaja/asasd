@@ -428,13 +428,15 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         }
 
         let orderTotalPrice = 0;
-        for (let index = 0; index < this.formsOfPayment.length; index++) {
-            orderTotalPrice += Number(this.formsOfPayment[index].value);
-        }
+        if(this.template.querySelector(this.tabs[3].component).seedSale){
+            for (let index = 0; index < this.formsOfPayment.length; index++) {
+                orderTotalPrice += Number(this.formsOfPayment[index].value);
+            }
 
-        if (this.fixDecimalPlacesFront(totalPayment) != this.fixDecimalPlacesFront(orderTotalPrice)) {
-            this.showNotification('O valor total do pagamento deve ser igual ao do pedido', 'Atenção', 'warning');
-            return;
+            if (this.fixDecimalPlacesFront(totalPayment) != this.fixDecimalPlacesFront(orderTotalPrice)) {
+                this.showNotification('O valor total do pagamento deve ser igual ao do pedido', 'Atenção', 'warning');
+                return;
+            }
         }
 
         const mode = event.detail;
@@ -601,6 +603,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     _setSummaryData(event) {
         this.summaryData = event.data;
         console.log('summary data setted:', JSON.stringify(this.summaryData));
+        this.frete = this.summaryData.freightValue != undefined ? this.summaryData.freightValue : '-----';
         this.enableNextScreen();
     }
 

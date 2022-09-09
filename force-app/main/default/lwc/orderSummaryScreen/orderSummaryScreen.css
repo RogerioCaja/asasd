@@ -373,8 +373,9 @@ textarea:hover{
 	color: #ffffff;
 }
 
-.back-button {
-    float: left;
+.back-button,
+.close-modal-button {
+	float: left;
 	width: 50%;
 	padding: 25px;
 	color: #2a9676;
@@ -389,6 +390,19 @@ textarea:hover{
 	width: 50%;
 	padding: 25px;
 	color: #2a9676;
+}
+
+.quantities-div {
+	margin: 20px 0px 50px 0px;
+    font-size: 14px;
+}
+
+.quantities-bold {
+    font-weight: bold;
+}
+
+.quantities-red {
+    color: red;
 }
 
 @media screen and (max-width: 520px) {

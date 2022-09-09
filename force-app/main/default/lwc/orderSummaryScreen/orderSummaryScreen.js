@@ -20,8 +20,11 @@ export default class OrderSummaryScreen extends LightningElement {
     formattedDeliveryDate;
     totalDelivery;
     hideMargin = false;
+    @api seedSale = false;
     
     orderTotalPrice = 0;
+    orderTotalToDistribution = 0;
+    showRed;
     showFormOfPayment = false;
     blockPaymentFields = false;
     currentDate;
@@ -97,8 +100,9 @@ export default class OrderSummaryScreen extends LightningElement {
 
         if (this.headerData.IsOrderChild) {
             this.showLoading = true;
-            isSeedSale({salesOrgId: this.headerData.organizacao_vendas.Id})
+            isSeedSale({salesOrgId: this.headerData.organizacao_vendas.Id, productGroupName: null})
             .then((result) => {
+                this.seedSale = result
                 console.log('result: ' + result);
                 if (result) {
                     this.getDistributionCenters();
@@ -247,6 +251,7 @@ export default class OrderSummaryScreen extends LightningElement {
             }
             
             this.orderTotalPrice = orderTotalPrice;
+            this.orderTotalToDistribution = orderTotalPrice;
             if (this.headerData.tipo_venda != 'Venda Barter') {
                 let margin = (1 - (orderTotalCost / orderTotalPrice)) * 100;
                 this.orderMargin = this.fixDecimalPlacesFront(margin) + '%';
@@ -410,6 +415,7 @@ export default class OrderSummaryScreen extends LightningElement {
     }
 
     openFormOfPayment(event) {
+        this.recalcTotalToDistribution();
         let allPayments = JSON.parse(JSON.stringify(this.formsOfPayment));
         let savedPayments = []
         for (let index = 0; index < allPayments.length; index++) {
@@ -441,11 +447,21 @@ export default class OrderSummaryScreen extends LightningElement {
                     fieldValue = fieldValue.toString().includes(',') ? fieldValue.toString().replace(',', '.') : fieldValue;
                     allPayments[index].value = this.fixDecimalPlaces(fieldValue);
                     allPayments[index].valueFront = this.fixDecimalPlacesFront(fieldValue);
+                    this.recalcTotalToDistribution();
                 }
             }
         }
 
         this.formsOfPayment = JSON.parse(JSON.stringify(allPayments));
+    }
+
+    recalcTotalToDistribution(){
+        let value = 0;
+        let allPayments = JSON.parse(JSON.stringify(this.formsOfPayment))
+        for (let index = 0; index < allPayments.length; index++) {
+            value += Number(allPayments[index].value);
+        }
+        this.orderTotalToDistribution = this.fixDecimalPlacesFront(Number(this.orderTotalPrice) - Number(value));
     }
 
     newFields() {
@@ -515,6 +531,7 @@ export default class OrderSummaryScreen extends LightningElement {
         }
 
         this.formsOfPayment = JSON.parse(JSON.stringify(linesToUse));
+        this.recalcTotalToDistribution();
     }
 
     showToast(type, title, message) {
@@ -535,7 +552,7 @@ export default class OrderSummaryScreen extends LightningElement {
         setformsofpayment.data = this.formsOfPayment;
         this.dispatchEvent(setformsofpayment);
     }
-
+    
     changeFreight(){
         const setSummaryData = new CustomEvent('setsummarydata');
         setSummaryData.data = this.summaryDataLocale;
