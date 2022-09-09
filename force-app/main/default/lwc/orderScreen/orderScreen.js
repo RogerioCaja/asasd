@@ -18,6 +18,7 @@ import getOrder from '@salesforce/apex/OrderScreenController.getOrder';
 import getAccount from '@salesforce/apex/OrderScreenController.getAccount';
 import getOrderByOrderItem from '@salesforce/apex/OrderScreenController.getOrderByOrderItem';
 import checkMotherQuantities from '@salesforce/apex/OrderScreenController.checkMotherQuantities';
+import getOrderByFormOfPayment from '@salesforce/apex/OrderScreenController.getOrderByFormOfPayment';
 import { NavigationMixin } from 'lightning/navigation';
 
 export default class OrderScreen extends NavigationMixin(LightningElement) {
@@ -80,6 +81,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         aprovation: " ",
         companyId: null,
         centerId: null,
+        hectares: ' ',
         firstTime: true
     };
     @track productData;
@@ -172,6 +174,10 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.getAccount();
            
         }
+        else if(this.originScreen.includes('FormPayment__c')){
+            this.getFormOfPayment();
+        }
+
         //console.log(this.recordId, this.originScreen);
 
     }
@@ -193,6 +199,19 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         .catch((err)=>{
             this.showNotification(err.message, 'Ocorreu algum erro');
             this.isLoading = false;
+        });
+    }
+
+    getFormOfPayment(){
+        console.log('getFormOfPayment');
+        if(this.headerData.Id != " ")
+            return;
+
+        this.isLoading = true;
+        getOrderByFormOfPayment({recordId: this.recordId})
+        .then((result) =>{
+            this.recordId = result;
+            this.getOrder();
         });
     }
 
@@ -232,7 +251,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.summaryData['observation'] = this.headerData.observation;
             this.summaryData['billing_sale_observation'] = this.headerData.billing_sale_observation;
             this.summaryData['freightValue'] = this.headerData.freightValue === undefined || this.headerData.freightValue == null ? 0 : this.headerData.freightValue;
-            
+            this.frete = this.summaryData.freightValue != undefined && this.summaryData.freightValue != null ? parseFloat(this.summaryData.freightValue).toLocaleString("pt-BR", {style:"currency", currency:"BRL"}) : (0).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
             this.isLoading = false;
             this.cloneData.cloneOrder = this.clone.cloneOrder;
             if(this.cloneData.cloneOrder){
@@ -325,6 +344,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.summaryData['observation'] = this.headerData.observation;
             this.summaryData['billing_sale_observation'] = this.headerData.billing_sale_observation;
             this.summaryData['freightValue'] = this.headerData.freightValue === undefined || this.headerData.freightValue == null ? 0 : this.headerData.freightValue;
+            this.frete = this.summaryData.freightValue != undefined && this.summaryData.freightValue != null ? parseFloat(this.summaryData.freightValue).toLocaleString("pt-BR", {style:"currency", currency:"BRL"}) : (0).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
             this.isLoading = false;
             this.cloneData.cloneOrder = this.clone.cloneOrder;
             if(this.cloneData.cloneOrder){
@@ -428,13 +448,17 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         }
 
         let orderTotalPrice = 0;
-        for (let index = 0; index < this.formsOfPayment.length; index++) {
-            orderTotalPrice += Number(this.formsOfPayment[index].value);
-        }
+        if(this.template.querySelector(this.tabs[3].component).seedSale){
+            if(this.formsOfPayment != undefined && this.formsOfPayment != null){
+                for (let index = 0; index < this.formsOfPayment.length; index++) {
+                    orderTotalPrice += Number(this.formsOfPayment[index].value);
+                }
+            }
 
-        if (this.fixDecimalPlacesFront(totalPayment) != this.fixDecimalPlacesFront(orderTotalPrice)) {
-            this.showNotification('O valor total do pagamento deve ser igual ao do pedido', 'Atenção', 'warning');
-            return;
+            if (this.fixDecimalPlacesFront(totalPayment) != this.fixDecimalPlacesFront(orderTotalPrice)) {
+                this.showNotification('O valor total do pagamento deve ser igual ao do pedido', 'Atenção', 'warning');
+                return;
+            }
         }
 
         const mode = event.detail;
@@ -601,6 +625,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     _setSummaryData(event) {
         this.summaryData = event.data;
         console.log('summary data setted:', JSON.stringify(this.summaryData));
+        this.frete = this.summaryData.freightValue != undefined && this.summaryData.freightValue != null ? parseFloat(this.summaryData.freightValue).toLocaleString("pt-BR", {style:"currency", currency:"BRL"}) : (0).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
         this.enableNextScreen();
     }
 

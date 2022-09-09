@@ -65,7 +65,7 @@
 		<template if:true={createNewProduct}>
 			<div id="product-modal" class="modal">
 				<div class="modal-content">
-					<span class="close" onclick={showProductModal}>&times;</span>
+					<span class="close" onclick={hideProductModal}>&times;</span>
 					<p class="new-product-title">Incluir novo produto: {addProduct.name}</p>
 
 					<div class="row">
@@ -227,7 +227,7 @@
 
 					<div class="row">
 						<div class="back-button">
-							<a onclick={showProductModal}>Fechar</a>
+							<a onclick={hideProductModal}>Fechar</a>
 						</div>
 						<template if:false={disabled}>
 							<template if:true={updateProduct}>
