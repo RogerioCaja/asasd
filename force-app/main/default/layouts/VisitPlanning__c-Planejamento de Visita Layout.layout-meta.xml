@@ -25,6 +25,10 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Required</behavior>
+                <field>EndDate__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Required</behavior>
                 <field>StartTime__c</field>
             </layoutItems>
             <layoutItems>
