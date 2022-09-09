@@ -34,6 +34,12 @@ public without sharing class OrderScreenController {
         return getOrder(orderId, false, false);
     }
 
+    @AuraEnabled 
+    public static String getOrderByFormOfPayment(String recordId){
+        String orderId = [SELECT Order__c FROM FormPayment__c WHERE Id =: recordId LIMIT 1].Order__c;
+        return orderId;
+    }
+
     public static String getOrderId(String recordId){
         String orderId = [SELECT OrderId FROM OrderItem WHERE Id =: recordId].OrderId;
         return orderId;
