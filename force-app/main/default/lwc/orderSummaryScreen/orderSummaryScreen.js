@@ -20,6 +20,7 @@ export default class OrderSummaryScreen extends LightningElement {
     formattedDeliveryDate;
     totalDelivery;
     hideMargin = false;
+    @api seedSale = false;
     
     orderTotalPrice = 0;
     orderTotalToDistribution = 0;
@@ -99,8 +100,9 @@ export default class OrderSummaryScreen extends LightningElement {
 
         if (this.headerData.IsOrderChild) {
             this.showLoading = true;
-            isSeedSale({salesOrgId: this.headerData.organizacao_vendas.Id})
+            isSeedSale({salesOrgId: this.headerData.organizacao_vendas.Id, productGroupName: null})
             .then((result) => {
+                this.seedSale = result
                 console.log('result: ' + result);
                 if (result) {
                     this.getDistributionCenters();
@@ -456,9 +458,9 @@ export default class OrderSummaryScreen extends LightningElement {
         let value = 0;
         let allPayments = JSON.parse(JSON.stringify(this.formsOfPayment))
         for (let index = 0; index < allPayments.length; index++) {
-            value += allPayments[index].value;
+            value += Number(allPayments[index].value);
         }
-        this.orderTotalToDistribution = Number(this.orderTotalPrice) - Number(value);
+        this.orderTotalToDistribution = this.fixDecimalPlacesFront(Number(this.orderTotalPrice) - Number(value));
     }
 
     newFields() {
