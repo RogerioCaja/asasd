@@ -1072,7 +1072,6 @@ export default class OrderProductScreen extends LightningElement {
     handleRowActions(event) {
         const actionName = event.detail.action.name;
         const row = event.detail.row;
-        console.log('row: ' + JSON.stringify(row));
         switch (actionName) {
             case 'visualize':
                 this.editProduct(row.position, false);
@@ -1144,9 +1143,7 @@ export default class OrderProductScreen extends LightningElement {
     }
 
     deleteProduct(position) {
-        console.log('position: ' + position);
         let excludeProduct = JSON.parse(JSON.stringify(this.products));
-        console.log('excludeProduct: ' + JSON.stringify(excludeProduct));
         let excludedProducts = this.isFilled(this.excludedItems) ? JSON.parse(JSON.stringify(this.excludedItems)) : [];
         
         let counter;
@@ -1156,11 +1153,8 @@ export default class OrderProductScreen extends LightningElement {
             }
         }
         
-        console.log('counter: ' + counter);
         excludedProducts.push(excludeProduct[counter].orderItemId);
-        console.log('excludedProducts: ' + JSON.stringify(excludedProducts));
         excludeProduct.splice(counter, 1);
-        console.log('excludeProduct: ' + JSON.stringify(excludeProduct));
         
         if(excludeProduct.lenght - 1 != position){
             excludeProduct.forEach((product) => {
@@ -1168,7 +1162,6 @@ export default class OrderProductScreen extends LightningElement {
             })
         }
         this.products = JSON.parse(JSON.stringify(excludeProduct));
-        console.log('products: ' + JSON.stringify(this.products));
 
         if (this.products.length == 0) {
             this.showIncludedProducts = false;
