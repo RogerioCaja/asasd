@@ -2689,10 +2689,10 @@
         <tab>PotencialCompra__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
-    <tabSettings>
+    <!-- <tabSettings>
         <tab>PriceSearch</tab>
         <visibility>Visible</visibility>
-    </tabSettings>
+    </tabSettings> -->
     <tabSettings>
         <tab>ProductGroup__c</tab>
         <visibility>Visible</visibility>
