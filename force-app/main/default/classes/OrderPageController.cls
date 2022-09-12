@@ -32,7 +32,7 @@ public with sharing class OrderPageController {
         for(OrderItemDAO orderItem : this.orderToPage.orderItemList){
             totalValue += Decimal.valueOf(orderItem.totalAmount.replace(' sacas', '').replace('R$', '').replace(',', '.').trim());
         }
-        this.orderToPage.totalAmount = this.orderToPage.currencyOrder == 'Barter' ? String.valueOf(totalValue) + ' sacas' : String.valueOf(totalValue);
+        this.orderToPage.totalAmount = this.orderToPage.currencyOrder == 'Barter' ? String.valueOf(totalValue) + ' sacas' : 'R$ ' + String.valueOf(totalValue).replace('.', ',');
        
         String downloadingFileName = 'Pedido de Venda-' + this.orderToPage.codeSap + '.pdf';
         Apexpages.currentPage().getHeaders().put( 'content-disposition', 'inline; filename=' + downloadingFileName );

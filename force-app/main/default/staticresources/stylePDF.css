@@ -1,100 +1,131 @@
 /* Estilos globais */
 @page { 
-    size: a4;
+    margin: 0;
+    padding: 0;
 } 
 
-table {
-    margin-top: 10px;
+@font-face {
+    font-family: "FontPoppins";
+    src: url("{!URLFOR($Resource.FontPoppins, '/Poppins-Regular.ttf')}") format("ttf");
+    font-weight: 300;
+}
+
+.page-header img {
     width: 100%;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 9pt;
-    border: 1px solid #000;
-    border-collapse: collapse;
 }
 
-th,
-td {
-    border: 1px solid #000;
+body{
+    margin: 0;
+    font-family: FontPoppins;
 }
 
-th{
-    text-align: center;
+table {
+    width: 100%;
 }
-/* ----------------------------------------------- */
-
-/* Estilos para parte 1 */
-.information_logo{
-    width: 200px;
-    text-align: center;
+.divider-top { 
+    margin-top: 40px;               
+    border-top: 1px solid #dadada;
 }
 
-.information_org{
-    width: 400px;
-}
-.information_org > div{
-    padding-bottom: 4px;
-    padding-left: 5px;
-}
-.information_monetary{
-    text-align: center;
-    width: 250px;
-}
-.information_monetary > div:first-child{
-    padding-top: 10px;
+.highlight {
+    display: inline-block;
+    padding: 4px;
+    background-color: #dadada;
+    font-size: 14px;
 }
 
-.information_monetary > div{
-    padding-bottom: 10px;
-}
-/* ------------------------------ */
-
-
-/* Estilos para parte 2 */
-.information_order > tr > td{
-    padding: 5px;
-}
-/* -------------------- */
-
-
-/* Estilos para parte 3 */
-.information_order_item_header{
-    background-color: green;
-    color: white;
+.divider-bottom {
+    border-bottom: 1px solid #dadada;
 }
 
-.information_order_item{
-    text-align: center;
-    
+.main-table{
+    padding: 0 50px;
 }
-.container-items{
-    min-height: 500px;
+.main-table td{
+    padding: 8px 16px;
 }
 
-.information_order_item > tr > td {
-    padding: 5px;
-}
-/* ---------------------- */
-
-.observation{
-    border: 1px solid black;
-    font-size: 10pt;
+.main-table .title {
     text-transform: uppercase;
-    padding: 3px;
-    min-height:100px;
-    /* margin-top: 100px; */
+    font-size: 14px;
+    font-weight: 700;
+    color: #444;
+}  
+
+.field-item {
+    color: #444;
+    font-size: 10px;
 }
 
-.total_amount > tbody{
-    text-align: right;
-    padding: 5px;
-}
-
-.total_amount > tbody > tr :first-child{
-    border-top: none;
-    border-left: none;
-    border-bottom: none;
+.bolder {
+    font-size: 11px;
     font-weight: bold;
+    color: #000000;
 }
+
+.padd-b {
+    padding-bottom: 32px !important;
+}
+
+.tb-item-ped {
+    width: 100%;
+    margin-top: 8px;
+}
+
+.tb-item-ped td,
+.tb-comp-valores-imp td,
+.tb-comp-valores-total td {
+    font-size: 10px !important;
+    padding: 4px 8px;
+    text-align: left;
+}
+
+.tb-item-ped .header td,
+.tb-comp-valores-imp .header td,
+.tb-comp-valores-total .header td {
+    padding: 4px 8px;
+    font-size: 9px !important;
+    font-weight: bold;
+    text-transform: uppercase;                
+    background-color: #dadada;
+    border-left: 1px solid #FFF;
+    text-align: left;
+}
+
+.container-text-area {
+    padding: 0px 40px;
+}
+
+.container-obs-header {
+    width: 100%;
+    margin: 0px;                
+    padding: 4px 8px;
+    
+    background-color: #dadada;
+    font-size: 8px;
+    border: 1px solid #dadada;
+}
+
+.container-obs-value {
+    width: 100%;
+    margin-bottom: 8px;
+    padding: 4px 8px;
+    font-size: 8px;
+    border: 1px solid #dadada;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 .appointments{
