@@ -30,39 +30,7 @@
                         required="true">
                     </c-lookup>
                 </div>
-
-                <div class="lookup-style">
-                    <c-lookup 
-                        name="account"
-                        data-name="account"
-                        input-label="Conta" 
-                        object-icon-name="standard:action_list_component"
-                        target-object={redispatchAccountObject} 
-                        record-id={searchData.account.Id}
-                        search-fields={redispatchAccountSearchFields}
-                        list-item-options={redispatchAccountListItemOptions}
-                        price-screen="false"
-                        standard-form-layout=true
-                        onclearselectedrecord={removeItemRegister}
-                        onselectrecord={selectItemRegister} 
-                        placeholder="Pesquisar Contas">
-                    </c-lookup>
-                </div>
-
-                <div class="lookup-style">
-                    <lightning-input 
-                        name="paymentDate"
-                        label="Data de Pagamento" 
-                        field-name="paymentDate"
-                        value={searchData.paymentDate} 
-                        date-style="short" 
-                        onchange={selectItemRegister} 
-                        type="date" 
-                        required="true"
-                        min={currentDate}>
-                    </lightning-input>
-                </div>
-
+                
                 <div class="lookup-style">
                     <c-lookup 
                         name="ctv"
@@ -82,11 +50,43 @@
                         required="true">
                     </c-lookup>
                 </div>
+
+                <div class="lookup-style">
+                    <lightning-input 
+                        name="paymentDate"
+                        label="Data de Pagamento" 
+                        field-name="paymentDate"
+                        value={searchData.paymentDate} 
+                        date-style="short" 
+                        onchange={selectItemRegister} 
+                        type="date" 
+                        required="true"
+                        min={currentDate}>
+                    </lightning-input>
+                </div>
+                
+                <div class="lookup-style">
+                    <c-lookup 
+                        name="account"
+                        data-name="account"
+                        input-label="Conta" 
+                        object-icon-name="standard:action_list_component"
+                        target-object={redispatchAccountObject} 
+                        record-id={searchData.account.Id}
+                        search-fields={redispatchAccountSearchFields}
+                        list-item-options={redispatchAccountListItemOptions}
+                        price-screen="false"
+                        standard-form-layout=true
+                        onclearselectedrecord={removeItemRegister}
+                        onselectrecord={selectItemRegister} 
+                        placeholder="Pesquisar Contas">
+                    </c-lookup>
+                </div>
             </div>
 
             <div>
                 <div class="search-div">
-                    <input type="text" class="input-style" value={productSearch} placeholder="Pesquisar Produto...">
+                    <input type="text" class="input-style" value={productSearch} placeholder="Pesquisar Produto..." onblur={changeSearchValue}>
                     <button class="button-style" onclick={searchProducts}>Buscar</button>
                 </div>
 

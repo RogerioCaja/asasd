@@ -1,0 +1,172 @@
+<template>
+    <div class="container">
+        
+        <div class="title">
+            <div>Carteirização de Clientes</div>
+        </div>
+        
+        <div class="fields-to-search">
+            <c-lookup 
+                name="territory"
+                data-target-id="territory"
+                input-label="Território" 
+                object-icon-name="standard:action_list_component"
+                target-object={redispatchtTerritoryObject}
+                search-fields={redispatchTerritorySearchFields} 
+                list-item-options={redispatchTerritoryListItemOptions} 
+                onclearselectedrecord={removeItemRegister}
+                onselectrecord={selectItemRegister}
+                standard-form-layout="true" 
+                placeholder="Pesquisar por territórios">
+            </c-lookup>
+
+            <c-lookup 
+                name="ctv_venda"
+                data-target-id="ctv"
+                input-label="CTV da Venda" 
+                object-icon-name="standard:action_list_component"
+                target-object={redispatchCtvVendaObject}
+                search-fields={redispatchCtvSearchFields} 
+                list-item-options={redispatchCtvVendaListItemOptions} 
+                onclearselectedrecord={removeItemRegister}
+                onselectrecord={selectItemRegister}
+                standard-form-layout="true"
+                client-territories-screen="true" 
+                placeholder="Pesquisar CTV da Venda">
+            </c-lookup>
+
+            <lightning-combobox
+            name="action"
+            label="Ação"
+            value={territoryParams.option}
+            placeholder="Selecione a ação"
+            options={options}
+            onchange={onChangeOption}
+            style="width: 200px;" ></lightning-combobox>
+            
+        </div>
+        <template if:true={isLoading}>
+            <div class="exampleHolder">
+                <lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
+            </div>
+        </template>
+        <c-custom-order-search data-target-id="object-territory-search" object-name="ObjectTerritory2Association" field-name="Name" territory-params={territoryParams} onshowresults={showResults} onmodesearch={resetData} label="Pesquisar Conta:" placeholder="Digite o nome da Conta" required="true"></c-custom-order-search>
+        
+        <div class="table-and-pagination" >
+                <lightning-datatable
+                key-field="id"
+                columns={columns}
+                data={datas}
+                style="min-width: 520px"
+                ></lightning-datatable>
+                <div>
+                    <button data-target-id="show-more" onclick={showMore} disabled={flag}><lightning-icon icon-name={valval}></lightning-icon> {enableLoad} </button>
+                </div>
+                
+        </div>
+     
+
+        <div class="execution">
+            <a onclick={openModalScreen}>
+                <span>Executar</span>
+                <svg style="margin-left: 15px;color: white" width="11" height="19" viewBox="0 0 11 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill="#FFF" d="M2.1868 18.1771L10.6971 9.33859L2.18681 0.500045L0.76758 1.97296L7.8607 9.33859L0.767579 16.7042L2.1868 18.1771Z"></path>
+                </svg> 
+            </a>
+        </div>
+        
+    </div>
+    
+    <template if:true={openModal}>
+        <div class="back-gray">
+
+            <div class="modal">
+                <div class="title">
+                    <div>Confirmação</div>
+                </div>
+                <div class="choose-territory">
+                        <div >
+                            <template for:each={territories} for:item="territory">
+                                <lightning-input
+                                    key={territory}
+                                    name="territory"
+                                    value={territory}
+                                    disabled="true"
+                                    >
+                                </lightning-input>
+                            </template>
+                            
+                        </div>
+                    <lightning-icon icon-name="utility:forward" style="padding-top: 20px"></lightning-icon>
+                    <c-lookup 
+                        name="territory"
+                        data-target-id="territory_selected"
+                        input-label="Território" 
+                        object-icon-name="standard:action_list_component"
+                        target-object={redispatchtTerritoryObject}
+                        search-fields={redispatchTerritorySearchFields} 
+                        list-item-options={redispatchTerritoryListItemOptions} 
+                        onclearselectedrecord={removeItemRegister}
+                        onselectrecord={selectItemRegister}
+                        standard-form-layout="true" 
+                        placeholder="Pesquisar por territórios">
+                    </c-lookup>
+                </div>
+                <div class="buttons-confirm-cancel">
+                    <button onclick={cancel} class="cancel">Cancelar</button>
+                    <button onclick={onSave}>Confirmar</button>
+                </div>
+            </div>
+            
+        </div>
+    </template>
+
+    <template if:true={openModalAddOrRemove}>
+        <div class="back-gray">
+
+            <div class="modal">
+                <div class="title">
+                    <div>Confirmação</div>
+                </div>
+                <div class="confirm-action">
+                    
+                    <div if:true={isRemoved}>
+                        <span>As contas selecionadas serão retiradas deste território:</span>
+                        <template for:each={territories} for:item="territory">
+                            <lightning-input
+                                key={territory}
+                                name="territory"
+                                value={territory}
+                                disabled="true"
+                                >
+                            </lightning-input>
+                        </template>
+                    </div>
+                    <div if:false={isRemoved}>
+                        <div style="padding-bottom: 20px;">Selecione qual território deseja adicionar as contas:</div>
+                        <c-lookup 
+                            name="territory"
+                            data-target-id="territory_selected"
+                            input-label="Território" 
+                            object-icon-name="standard:action_list_component"
+                            target-object={redispatchtTerritoryObject}
+                            search-fields={redispatchTerritorySearchFields} 
+                            list-item-options={redispatchTerritoryListItemOptions} 
+                            onclearselectedrecord={removeItemRegister}
+                            onselectrecord={selectItemRegister}
+                            standard-form-layout="true" 
+                            placeholder="Pesquisar por territórios"
+                            >
+                        </c-lookup>
+                    </div>
+                </div>
+                <div class="buttons-confirm-cancel">
+                    <button onclick={cancel} class="cancel">Cancelar</button>
+                    <button onclick={onSave}>Confirmar</button>
+                </div>
+            </div>
+            
+        </div>
+    </template>
+</template>
+

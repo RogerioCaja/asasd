@@ -135,7 +135,7 @@ public class LookupTest {
         conditionData.currencyGet = 'BRL';
         conditionData.typeOrder = 'Venda Barter';
         
-        Lookup.getRecords('{"targetObject":"Company__c","searchFields":["Name"],"searchValue":"Empresa","moreFields":[], "relations": [{"parentRelationField": "Conta__c", "parentRecord": "' + parentAccountId + '"}], "differentRelations": [{"parentRelationField": "Conta__c", "parentRecord": "' + childAccountId + '"}], "accountId":"' + parentAccountId + '"}', false, JSON.serialize(conditionData), false);
+        Lookup.getRecords('{"targetObject":"Company__c","searchFields":["Name"],"searchValue":"Empresa","moreFields":[], "relations": [{"parentRelationField": "Conta__c", "parentRecord": "' + parentAccountId + '"}], "differentRelations": [{"parentRelationField": "Conta__c", "parentRecord": "' + childAccountId + '"}], "accountId":"' + parentAccountId + '"}', false, JSON.serialize(conditionData), false, false);
     }
 
     @isTest public static void getSalesConditionTest() {
@@ -148,7 +148,7 @@ public class LookupTest {
         conditionData.currencyGet = 'BRL';
         conditionData.typeOrder = 'Venda Barter';
         
-        Lookup.getRecords('{"targetObject":"SalesCondition__c","searchFields":["Name"],"searchValue":"Condição","moreFields":[], "relations": [], "differentRelations": [], "accountId":"' + parentAccountId + '"}', false, JSON.serialize(conditionData), false);
+        Lookup.getRecords('{"targetObject":"SalesCondition__c","searchFields":["Name"],"searchValue":"Condição","moreFields":[], "relations": [], "differentRelations": [], "accountId":"' + parentAccountId + '"}', false, JSON.serialize(conditionData), false,false);
     }
 
     @isTest public static void getUserTest() {
@@ -161,10 +161,10 @@ public class LookupTest {
         conditionData.currencyGet = 'BRL';
         conditionData.typeOrder = 'Venda Barter';
         
-        Lookup.getRecords('{"targetObject":"User","searchFields":["Name"],"searchValue":"User","moreFields":[], "relations": [], "differentRelations": [], "accountId":"' + parentAccountId + '"}', false, JSON.serialize(conditionData), false);
+        Lookup.getRecords('{"targetObject":"User","searchFields":["Name"],"searchValue":"User","moreFields":[], "relations": [], "differentRelations": [], "accountId":"' + parentAccountId + '"}', false, JSON.serialize(conditionData), false, false);
     }
 
-    @isTest public static void getUserPriceTest() {
+    @isTest public static void getTerritoryTest() {
         Id parentAccountId = [SELECT Id FROM Account WHERE Name = 'Parent Account' LIMIT 1].Id;
         Id salesOrgId = [SELECT Id FROM SalesOrg__c LIMIT 1].Id;
 
@@ -174,6 +174,6 @@ public class LookupTest {
         conditionData.currencyGet = 'BRL';
         conditionData.typeOrder = 'Venda Barter';
         
-        Lookup.getRecords('{"targetObject":"User","searchFields":["Name"],"searchValue":"User","moreFields":[], "relations": [], "differentRelations": [], "accountId":"' + parentAccountId + '"}', false, JSON.serialize(conditionData), true);
+        Lookup.getRecords('{"targetObject":"Territory2","searchFields":["Name"],"searchValue":"User","moreFields":[], "relations": [], "differentRelations": [], "accountId":"' + parentAccountId + '"}', false, JSON.serialize(conditionData), false, false);
     }
 }

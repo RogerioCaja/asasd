@@ -55,6 +55,7 @@ export default class PriceSearchScreen extends LightningElement {
         {label: 'Produto', fieldName: 'name'},
         {label: 'Grupo', fieldName: 'productGroupName'},
         {label: 'Safra', fieldName: 'safra'},
+        {label: 'Tabela de Preços', fieldName: 'salesCondition'},
         {label: 'Valor Data Informada', fieldName: 'valueDiscounted'},
         {label: 'Valor Data Safra', fieldName: 'realValue'}
     ];
@@ -98,6 +99,10 @@ export default class PriceSearchScreen extends LightningElement {
         }
     }
 
+    changeSearchValue(event) {
+        this.productSearch = event.target.value;
+    }
+
     searchProducts() {
         if (this.searchData.ctv.Id === undefined || this.searchData.safra.Id === undefined || this.searchData.paymentDate == '') {
             this.showToast('warning', 'Atenção', 'Campos obrigatórios não preenchidos.');
@@ -122,6 +127,7 @@ export default class PriceSearchScreen extends LightningElement {
                 salesOrgId: companyResult[0].salesOrgId != null ? companyResult[0].salesOrgId : '',
                 salesOfficeId: companyResult[0].salesOfficeId != null ? companyResult[0].salesOfficeId : '',
                 salesTeamId: companyResult[0].salesTeamId != null ? companyResult[0].salesTeamId : '',
+                accountId: this.isFilled(this.searchData.account.Id) ? this.searchData.account.Id : '',
                 numberOfRowsToSkip: 0
             };
 
@@ -130,6 +136,7 @@ export default class PriceSearchScreen extends LightningElement {
                 salesOrg: companyResult[0].salesOrgId != null ? companyResult[0].salesOrgId : '',
                 salesOffice: companyResult[0].salesOfficeId != null ? companyResult[0].salesOfficeId : '',
                 salesTeam: companyResult[0].salesTeamId != null ? companyResult[0].salesTeamId : '',
+                accountId: this.isFilled(this.searchData.account.Id) ? this.searchData.account.Id : '',
                 safra: this.searchData.safra.Id != null ? this.searchData.safra.Id : ''
             };
 
@@ -148,14 +155,16 @@ export default class PriceSearchScreen extends LightningElement {
                     this.showBaseProducts = result.recordsDataList.length > 0;
                     let productRecords = [];
                     for (let index = 0; index < result.recordsDataList.length; index++) {
+                        let realValue = this.fixDecimalPlacesFront(result.recordsDataList[index].listPrice);
                         let discountedValue = this.calculateDiscountValues(result.recordsDataList[index]);
                         productRecords.push({
                             sapProductCode: result.recordsDataList[index].sapProductCode,
                             name: result.recordsDataList[index].Name,
                             productGroupName: result.recordsDataList[index].productGroupName,
                             safra: this.searchData.safra.Name,
+                            salesCondition: result.recordsDataList[index].salesCondition,
                             valueDiscounted: discountedValue,
-                            realValue: this.fixDecimalPlacesFront(result.recordsDataList[index].listPrice),
+                            realValue: realValue.split(',').length == 1 ? realValue + ',00' : realValue,
                         })
                     }
                     this.baseProducts = JSON.parse(JSON.stringify(productRecords));
