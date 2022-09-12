@@ -1,6 +1,5 @@
 public with sharing class CalendarTriggerHandler {
-
-        List<VisitPlanning__c> oldRecords {get; set;} // Trigger.old 
+    List<VisitPlanning__c> oldRecords {get; set;} // Trigger.old 
         List<VisitPlanning__c> newRecords {get; set;} // Trigger.new
         Map<Id, VisitPlanning__c> oldMap {get; set;} // Trigger.oldMap
         Map<Id, VisitPlanning__c> newMap {get; set;} // Trigger.newMap
@@ -18,14 +17,14 @@ public with sharing class CalendarTriggerHandler {
     }
     
     public void OnAfterInsert(){
-        //calendarHelper.createCalendarEvent(this.newRecords);
+        
     }
     
     public void OnBeforeUpdate(){
     }
     
     public void OnAfterUpdate(){
-    
+        calendarHelper.updateCalendarEvent(this.newMap);
     }
     
     public void OnBeforeDelete(){}
@@ -33,5 +32,4 @@ public with sharing class CalendarTriggerHandler {
     public void OnAfterDelete(){}
     
     public void OnUndelete(){}
-    
 }
