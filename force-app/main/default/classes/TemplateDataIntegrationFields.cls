@@ -485,7 +485,6 @@ global with sharing class TemplateDataIntegrationFields {
                 PracticedCost__c = this.custoPreco,
                 PracticedPrice__c = this.precoPraticado,
                 UnitPrice = this.precoPraticado,
-                AmountUsed__c = 0,
                 ReasonRefuse__c = this.motivoRecusa
             );
         }
