@@ -146,7 +146,10 @@ export default class OrderProductScreen extends LightningElement {
         }
         this.products = JSON.parse(JSON.stringify(newProducts));
 
-        if(this.headerData.IsOrderChild) this._setData();
+        if(this.headerData.IsOrderChild) {
+            this.disabled = true;
+            this._setData();
+        }
 
         if (this.headerData.status_pedido == 'Em aprovação - Gerente Filial' || this.headerData.status_pedido == 'Em aprovação - Gerente Regional' ||
             this.headerData.status_pedido == 'Em aprovação - Diretor' || this.headerData.status_pedido == 'Em aprovação - Comitê Margem' || this.headerData.status_pedido == 'Em aprovação - Mesa de Grãos') {
