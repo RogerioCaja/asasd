@@ -2534,6 +2534,10 @@
         <enabled>true</enabled>
     </pageAccesses>
     <pageAccesses>
+        <apexPage>CallExcludePage</apexPage>
+        <enabled>true</enabled>
+    </pageAccesses>
+    <pageAccesses>
         <apexPage>OrderPagePDF</apexPage>
         <enabled>true</enabled>
     </pageAccesses>

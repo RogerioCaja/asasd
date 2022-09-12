@@ -1,0 +1,13 @@
+<apex:page standardController="OrderItem" extensions="CallExcludePageController" showHeader="false">
+    <script>
+        let compDefinition = { 
+            "componentDef" : "c:CallOrderPage", 
+            "attributes" : { 
+                "recordId" : '{!orderItemId}',
+                "origin" : 'OrderItem'
+            } 
+        };
+        let encodedCompDef = btoa(JSON.stringify(compDefinition));
+        window.parent.location = "/one/one.app#" + encodedCompDef;
+        </script>
+</apex:page>
