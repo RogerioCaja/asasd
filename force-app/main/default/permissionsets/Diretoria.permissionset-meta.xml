@@ -2813,6 +2813,10 @@
         <visibility>Visible</visibility>
     </tabSettings> -->
     <tabSettings>
+        <tab>PriceSearch</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
         <tab>ProductGroup__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
