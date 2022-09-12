@@ -1148,9 +1148,18 @@ export default class OrderProductScreen extends LightningElement {
         let excludeProduct = JSON.parse(JSON.stringify(this.products));
         console.log('excludeProduct: ' + JSON.stringify(excludeProduct));
         let excludedProducts = this.isFilled(this.excludedItems) ? JSON.parse(JSON.stringify(this.excludedItems)) : [];
-        excludedProducts.push(excludeProduct[position].orderItemId);
+        
+        let counter;
+        for (let index = 0; index < excludeProduct.length; index++) {
+            if (excludeProduct[index].position == position) {
+                counter = index;
+            }
+        }
+        
+        console.log('counter: ' + counter);
+        excludedProducts.push(excludeProduct[counter].orderItemId);
         console.log('excludedProducts: ' + JSON.stringify(excludedProducts));
-        excludeProduct.splice(position, 1);
+        excludeProduct.splice(counter, 1);
         console.log('excludeProduct: ' + JSON.stringify(excludeProduct));
         
         if(excludeProduct.lenght - 1 != position){
