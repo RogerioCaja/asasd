@@ -146,7 +146,10 @@ export default class OrderProductScreen extends LightningElement {
         }
         this.products = JSON.parse(JSON.stringify(newProducts));
 
-        if(this.headerData.IsOrderChild) this._setData();
+        if(this.headerData.IsOrderChild) {
+            this.disabled = true;
+            this._setData();
+        }
 
         if (this.headerData.status_pedido == 'Em aprovação - Gerente Filial' || this.headerData.status_pedido == 'Em aprovação - Gerente Regional' ||
             this.headerData.status_pedido == 'Em aprovação - Diretor' || this.headerData.status_pedido == 'Em aprovação - Comitê Margem' || this.headerData.status_pedido == 'Em aprovação - Mesa de Grãos') {
@@ -1177,8 +1180,16 @@ export default class OrderProductScreen extends LightningElement {
     deleteProduct(position) {
         let excludeProduct = JSON.parse(JSON.stringify(this.products));
         let excludedProducts = this.isFilled(this.excludedItems) ? JSON.parse(JSON.stringify(this.excludedItems)) : [];
-        excludedProducts.push(excludeProduct[position].orderItemId);
-        excludeProduct.splice(position, 1);
+        
+        let counter;
+        for (let index = 0; index < excludeProduct.length; index++) {
+            if (excludeProduct[index].position == position) {
+                counter = index;
+            }
+        }
+        
+        excludedProducts.push(excludeProduct[counter].orderItemId);
+        excludeProduct.splice(counter, 1);
         
         if(excludeProduct.lenght - 1 != position){
             excludeProduct.forEach((product) => {
