@@ -168,7 +168,7 @@
         <type>AutoNumber</type>
     </nameField>
     <pluralLabel>Comissões</pluralLabel>
-    <searchLayouts/>
+    <searchLayouts></searchLayouts>
     <sharingModel>Private</sharingModel>
     <visibility>Public</visibility>
 </CustomObject>

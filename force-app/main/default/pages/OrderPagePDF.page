@@ -93,7 +93,7 @@
             <th style="width: 30%;">Descrição</th>
             <th>Cultura</th>
             <th>Unid. Medida</th>
-            <th>Data de Entrega(s) - Quant.</th>
+            <th>{! orderToPage.messageDivisionOrNo }</th>
             <th>Preço Unit.</th>
             <th>Valor Total</th>
         </tr>
@@ -116,9 +116,12 @@
                 </td>
                 
                 <td>
-                    <apex:repeat value="{! oI.divisonList }" var='dV'>
+                    <apex:repeat rendered="{!orderToPage.isMother == false}" value="{! oI.divisonList }" var='dV'>
                         {! dV.deliveryDate} - {! dV.quantity} <br/>
                     </apex:repeat>
+                    <apex:outputText rendered="{!orderToPage.isMother == true}">
+                        {! oI.quantity}
+                    </apex:outputText>
                 </td>
                 <td>
                     {! oI.unitPrice}

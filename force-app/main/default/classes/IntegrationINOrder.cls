@@ -3,9 +3,18 @@ global without sharing class IntegrationINOrder {
     public IntegrationINOrder() {
 			
     }
+    public static void sleep(Integer secs) {
+        Long epochToDate = System.currentTimeMillis();
+        Long epochStop = epochToDate + (secs * 1000);
+    
+        while (epochToDate <= epochStop) {
+            epochToDate = System.currentTimeMillis();
+        }
+    }
+
     @HttpPost
     global static ResponseModel upsertOrderValidation(List<TemplateDataIntegrationFields.OrderINData> request){
-        
+        sleep(5);
 		List<String> idOrders = new List<String>();
 
         List<TemplateDataIntegrationFields.ConditionInsert> conditionList = new List<TemplateDataIntegrationFields.ConditionInsert>();
@@ -69,7 +78,8 @@ global without sharing class IntegrationINOrder {
         Set<String> salesOrgLookups = new Set<String>();
         Set<String> salesCTVLookups = new Set<String>();
         Set<String> pricebook2IdLookups = new Set<String>();
-        Set<String> paymentConditionLookups = new Set<String>(); 
+        Set<String> paymentConditionLookups = new Set<String>();
+        Set<String> salesConditionLookups = new Set<String>(); 
         Set<String> activitySectorLookups = new Set<String>();
         
         
@@ -101,6 +111,8 @@ global without sharing class IntegrationINOrder {
             pricebook2IdLookups.add(order.pricebook2Id);
             paymentConditionLookups.add(order.paymentCondition);
             activitySectorLookups.add(order.ActivitySector);
+            orderLookups.add(order.orderReference);
+            salesConditionLookups.add(order.condicaoVenda);
             idOrders.add(order.CodigoSap);
             for (TemplateDataIntegrationFields.OrderItemINData orderItem : order.orderItems) {
                 orderItem.orderExternalId = order.CodigoSap;
@@ -420,6 +432,9 @@ global without sharing class IntegrationINOrder {
             lookups.put('ActivitySector__c' + activitySector.Codigo__c, activitySector.Id);
         }
 
+        for(SalesCondition__c salesCondition : [SELECT Id, ExternalId__c FROM SalesCondition__c WHERE ExternalId__c IN : salesConditionLookups]){
+            lookups.put('SalesCondition__c' + salesCondition.ExternalId__c, salesCondition.Id);
+        }
 
         //Converting template to object list and validating required fields
         // Valida e adiciona objeto na lista para upsert

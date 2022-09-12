@@ -5,5 +5,5 @@
     <mayForecastManagerShare>false</mayForecastManagerShare>
     <name>Vendedor AGF-PATO BRANCO</name>
     <opportunityAccessLevel>Edit</opportunityAccessLevel>
-    <parentRole>AGF_PATO_BRANCO</parentRole>
+    <parentRole>BalcaoPatoBranco</parentRole>
 </Role>

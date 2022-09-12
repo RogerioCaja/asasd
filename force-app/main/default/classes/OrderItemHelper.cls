@@ -22,7 +22,7 @@ public without sharing class OrderItemHelper {
         List<String> ordList = new List<String>();
         List<String> orderList = new List<String>();
         List<OrderItem> orderItemListM = new List<OrderItem>();
-		
+
         for(OrderItem ord : orderItemList){
             orderList.add(ord.OrderId);
         }
