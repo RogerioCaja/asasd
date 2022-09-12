@@ -88,6 +88,7 @@ export default class OrderProductScreen extends LightningElement {
     visualizeCommodityColumns = [];
 
     disabled=false;
+    disableSearch=false;
     numberOfRowsToSkip=0;
     showLoading=true;
 
@@ -147,13 +148,14 @@ export default class OrderProductScreen extends LightningElement {
         this.products = JSON.parse(JSON.stringify(newProducts));
 
         if(this.headerData.IsOrderChild) {
-            this.disabled = true;
+            this.disableSearch = true;
             this._setData();
         }
 
         if (this.headerData.status_pedido == 'Em aprovação - Gerente Filial' || this.headerData.status_pedido == 'Em aprovação - Gerente Regional' ||
             this.headerData.status_pedido == 'Em aprovação - Diretor' || this.headerData.status_pedido == 'Em aprovação - Comitê Margem' || this.headerData.status_pedido == 'Em aprovação - Mesa de Grãos') {
             this.disabled = true;
+            this.disableSearch = true;
         }
 
         if (this.isFilled(this.commoditiesData) && this.commoditiesData.length > 0) this.showCommodityData = true;
