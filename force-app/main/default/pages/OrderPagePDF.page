@@ -1,27 +1,11 @@
 <apex:page standardController="Order" applyBodyTag="false" docType="html-5.0" readOnly="true" renderAs="advanced_pdf" extensions="OrderPageController">
-<apex:stylesheet value="{!$Resource.stylePDF}"/>
 
-<!-- O PDF inicialmente são divididos em 3 partes -->
-<!-- PRIMEIRA PARTE - DADOS DA ORGANIZAÇÃO DE VENDAS E SEUS DADOS -->
-<!-- SEGUNDA PARTE - CABEÇALHO DO PEDIDO-->
-<!-- TERCEIRA PARTE - LISTAGEM DE PRODUTOS -->
-<!-- Não é uma parte em si, mas lá no final as Obs. -->
+<apex:stylesheet value="{!$Resource.stylePDF}"/>
 <body>
     <div class="page-header">
-        <img src="{!$Resource.AgroHeader}" />
+        <apex:image id="theImage" value="{! IF(orderToPage.isNormalSales == true, $Resource.AgroHeader, $Resource.SementesHeader)}"/>
+        <!-- <img src="{!$Resource.AgroHeader}" /> -->
     </div>
-<!-- PRIMEIRA PARTE -->
-<!-- <div> {! orderToPage.codeSapOrder } </div>
-                <div> Codigo SF: {! orderToPage.orderNumber } </div>
-                <div> Status do Pedido: {! orderToPage.status } </div>
-                <div>
-                    <section><apex:image value="{!If(orderToPage.currencyOrder == 'BRL', '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}"/> Reais</section>
-                    <section><apex:image value="{!If(orderToPage.currencyOrder == 'USD', '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}"/> Dólar</section>
-                    <section><apex:image value="{!If(orderToPage.currencyOrder == 'Barter', '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}"/> Barter</section>
-                </div>
-                <div>
-                    Data de emissão: {! Datetime}
-                </div> -->
 
 
 <table class="main-table">
@@ -218,47 +202,46 @@
     </tbody>
 </table>
 
-    
+<p style="page-break-after:always;"></p>
 
-    <p style="page-break-after:always;"></p>
-    <div class="appointments" >
-        Compromisso – O(A) Comprador(a) se compromete a utilizar os produtos deste pedido apenas para fins agrícolas, observadas as restrições existentes na legislação ambiental, abstendo-se de utilizá-los em áreas protegidas e/ou embargadas.<br/>  
+<div class="appointments" >
+    Compromisso – O(A) Comprador(a) se compromete a utilizar os produtos deste pedido apenas para fins agrícolas, observadas as restrições existentes na legislação ambiental, abstendo-se de utilizá-los em áreas protegidas e/ou embargadas.<br/>  
 
  
 
-1– Este pedido está sujeito a confirmação de preço, disponibilidade de entrega e aprovação de crédito pela Vendedora, bem como análise das regras ambientais aplicáveis ao Comprador(a).<br/>
+    1– Este pedido está sujeito a confirmação de preço, disponibilidade de entrega e aprovação de crédito pela Vendedora, bem como análise das regras ambientais aplicáveis ao Comprador(a).<br/>
 
-2– A Vendedora poderá manifestar a recusa do Pedido no prazo de até 10 (dez) dias úteis da solicitação de faturamento do produto pelo(a) Comprador(a).<br/>
+    2– A Vendedora poderá manifestar a recusa do Pedido no prazo de até 10 (dez) dias úteis da solicitação de faturamento do produto pelo(a) Comprador(a).<br/>
 
-3– A alteração das condições pactuadas neste Pedido (quantidade, volume, produto, preço etc), parciais e/ou totais, através de adições, restrições, ou modificações, deverá ser processada através de novo pedido.<br/>
+    3– A alteração das condições pactuadas neste Pedido (quantidade, volume, produto, preço etc), parciais e/ou totais, através de adições, restrições, ou modificações, deverá ser processada através de novo pedido.<br/>
 
-4– O cancelamento verbal desse pedido pelo(a) Comprador(a) não será considerado, devendo a solicitação ser encaminhada por escrito através do e-mail ao responsável da Vendedora.<br/>
+    4– O cancelamento verbal desse pedido pelo(a) Comprador(a) não será considerado, devendo a solicitação ser encaminhada por escrito através do e-mail ao responsável da Vendedora.<br/>
 
-5– Nas vendas a prazo poderá a Vendedora emitir títulos de crédito, correspondentes ao negócio ora formalizado, obrigando-se o(a) comprador(a) a aceita-las nas datas e, que se tornarem exigíveis, sob pena de se sujeitar a cobrança judicial.<br/>
+    5– Nas vendas a prazo poderá a Vendedora emitir títulos de crédito, correspondentes ao negócio ora formalizado, obrigando-se o(a) comprador(a) a aceita-las nas datas e, que se tornarem exigíveis, sob pena de se sujeitar a cobrança judicial.<br/>
 
-6– No caso de atraso na liquidação dos títulos decorrentes deste pedido, o(a) comprador(a) concorda, desde já, em pagar juros de 0,20% ao dia, mais multa de 2% após dez dias do vencimento.<br/>
+    6– No caso de atraso na liquidação dos títulos decorrentes deste pedido, o(a) comprador(a) concorda, desde já, em pagar juros de 0,20% ao dia, mais multa de 2% após dez dias do vencimento.<br/>
 
-7– O(A) Comprador(a) declara-se ciente que deverá, na forma da lei, dar correta destinação aos vasilhames e embalagens onde acondicionam os produtos, notadamente daqueles que possuem toxicidade. <br/>
+    7– O(A) Comprador(a) declara-se ciente que deverá, na forma da lei, dar correta destinação aos vasilhames e embalagens onde acondicionam os produtos, notadamente daqueles que possuem toxicidade. <br/>
 
-8– Nas operações de trocas em grãos, fica estabelecido que correrão por conta do(a) comprador(a) todos os riscos e as despesas de transporte, armazenagem, secagem, limpeza transgenia etc, e tudo o mais que for cobrado pelo armazém depositário do produto.<br/>
+    8– Nas operações de trocas em grãos, fica estabelecido que correrão por conta do(a) comprador(a) todos os riscos e as despesas de transporte, armazenagem, secagem, limpeza transgenia etc, e tudo o mais que for cobrado pelo armazém depositário do produto.<br/>
 
-9– O(A) Comprador(a) declara ciência de que os produtos ora adquiridos são produzidos pela indústria/fabricante e não pela Vendedora, que tem por atividade a revenda/distribuição de insumos/produtos, de modo que a não entrega e/ou o atraso na entrega de produtos e/ou a majoração dos preços praticados pela indústria/fabricante à VENDEDORA deverão ser entendidos como eventos alheios à vontade e poder de atuação da VENDEDORA, ficando a VENDEDORA isenta de qualquer ônus e/ou responsabilidade daí decorrentes e ainda, podendo a VENDEDORA repassar ao(a) Comprador(a) as novas condições informadas pela indústria/fabricante.<br/>
+    9– O(A) Comprador(a) declara ciência de que os produtos ora adquiridos são produzidos pela indústria/fabricante e não pela Vendedora, que tem por atividade a revenda/distribuição de insumos/produtos, de modo que a não entrega e/ou o atraso na entrega de produtos e/ou a majoração dos preços praticados pela indústria/fabricante à VENDEDORA deverão ser entendidos como eventos alheios à vontade e poder de atuação da VENDEDORA, ficando a VENDEDORA isenta de qualquer ônus e/ou responsabilidade daí decorrentes e ainda, podendo a VENDEDORA repassar ao(a) Comprador(a) as novas condições informadas pela indústria/fabricante.<br/>
 
-10– A assinatura do(a) Comprador(a) neste pedido significa a aceitação total e irrestrita das condições nele descritas, comportando cancelamento, modificação, ou alteração do pedido, apenas caso seja feita em até 5 (cinco) dias após a assinatura do presente Pedido. Ressaltando que só serão aceitas devoluções de produtos em caso de produtos danificados e/ou contenham irregularidades encontradas no momento da entrega.<br/>
+    10– A assinatura do(a) Comprador(a) neste pedido significa a aceitação total e irrestrita das condições nele descritas, comportando cancelamento, modificação, ou alteração do pedido, apenas caso seja feita em até 5 (cinco) dias após a assinatura do presente Pedido. Ressaltando que só serão aceitas devoluções de produtos em caso de produtos danificados e/ou contenham irregularidades encontradas no momento da entrega.<br/>
 
-11– Se, entre a data da aceitação do pedido e sua entrega por parte da Vendedora, houver a criação ou alteração de legislação e/ou instruções normativas ou a criação de novo tributo, aumento na alíquota, modificação na base de cálculo, extinção de benefícios fiscais ou outra alteração que modifique as condições de tributos e/ou de formação do preço existentes no momento da venda, ou que nela interfira, referidos aumentos incorporarão automaticamente o valor do preço do produto, devendo ser pago pelo(a) Comprador(a).<br/>
+    11– Se, entre a data da aceitação do pedido e sua entrega por parte da Vendedora, houver a criação ou alteração de legislação e/ou instruções normativas ou a criação de novo tributo, aumento na alíquota, modificação na base de cálculo, extinção de benefícios fiscais ou outra alteração que modifique as condições de tributos e/ou de formação do preço existentes no momento da venda, ou que nela interfira, referidos aumentos incorporarão automaticamente o valor do preço do produto, devendo ser pago pelo(a) Comprador(a).<br/>
 
-12– A oscilação de preço dos insumos agrícolas é de conhecimento geral e notório no mercado e, portanto, não poderá ser considerado motivo justificável para cancelamento do pedido, uma vez transcorrido o prazo mencionado no item 10, sob pena do(a) Comprador(a) responder pelos prejuízos sofridos pela Vendedora daí decorrentes.<br/>
+    12– A oscilação de preço dos insumos agrícolas é de conhecimento geral e notório no mercado e, portanto, não poderá ser considerado motivo justificável para cancelamento do pedido, uma vez transcorrido o prazo mencionado no item 10, sob pena do(a) Comprador(a) responder pelos prejuízos sofridos pela Vendedora daí decorrentes.<br/>
 
-13– Nas compras de sementes serão obedecidos estritamente os critérios de germinação existentes nas determinações legais.<br/>
+    13– Nas compras de sementes serão obedecidos estritamente os critérios de germinação existentes nas determinações legais.<br/>
 
-14– A Vendedora, em hipótese alguma será responsável por indenizar prejuízos causados ao comprador, ou a terceiros, em razão da utilização inadequada dos produtos adquiridos.<br/>
+    14– A Vendedora, em hipótese alguma será responsável por indenizar prejuízos causados ao comprador, ou a terceiros, em razão da utilização inadequada dos produtos adquiridos.<br/>
 
-15– O pagamento pela aquisição dos produtos deverá ser realizado através de Cobrança Bancária, Ordem de Pagamento Bancário, Documento de Crédito (Doc) ou cheque nominativo à VENDEDORA ou cessionários, que não se responsabilizarão por pagamentos feitos de forma diversa da acima especificada.<br/>
+    15– O pagamento pela aquisição dos produtos deverá ser realizado através de Cobrança Bancária, Ordem de Pagamento Bancário, Documento de Crédito (Doc) ou cheque nominativo à VENDEDORA ou cessionários, que não se responsabilizarão por pagamentos feitos de forma diversa da acima especificada.<br/>
 
-16– Em caso de pedido vinculado a "Dólar", fica convencionado que o mesmo deverá ser pago em moeda corrente nacional (Real) mediante a sua conversão de acordo com a PTAX equivalente à taxa de câmbio de reais por dólar cotação de fechamento do dia útil imediatamente anterior à data do pagamento, conforme divulgada pelo Banco Central do Brasil, por meio do seu sitio na rede mundial de computadores (www.bcb.gov.br; ver “Cotações e boletins”), como cotação “Fechamento PTAX”. <br/>
+    16– Em caso de pedido vinculado a "Dólar", fica convencionado que o mesmo deverá ser pago em moeda corrente nacional (Real) mediante a sua conversão de acordo com a PTAX equivalente à taxa de câmbio de reais por dólar cotação de fechamento do dia útil imediatamente anterior à data do pagamento, conforme divulgada pelo Banco Central do Brasil, por meio do seu sitio na rede mundial de computadores (www.bcb.gov.br; ver “Cotações e boletins”), como cotação “Fechamento PTAX”. <br/>
 
-17– Caso o Comprador não realize a retirada dos produtos, após a confirmação do pedido, nem efetue o pagamento, este documento servirá como meio de prova para buscar a cobrança judicial dos prejuízos que porventura a não retirada/falta de pagamento venha a causar à Vendedora.<br/>
+    17– Caso o Comprador não realize a retirada dos produtos, após a confirmação do pedido, nem efetue o pagamento, este documento servirá como meio de prova para buscar a cobrança judicial dos prejuízos que porventura a não retirada/falta de pagamento venha a causar à Vendedora.<br/>
     </div>
     <div class="assign">
         <div class="sales">
@@ -272,11 +255,8 @@
             </div>
         </div>
     </div>
+
 </body>
 
     
-   
-
-
-
 </apex:page>

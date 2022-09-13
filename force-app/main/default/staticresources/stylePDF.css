@@ -4,11 +4,6 @@
     padding: 0;
 } 
 
-@font-face {
-    font-family: "FontPoppins";
-    src: url("{!URLFOR($Resource.FontPoppins, '/Poppins-Regular.ttf')}") format("ttf");
-    font-weight: 300;
-}
 
 .page-header img {
     width: 100%;
@@ -16,7 +11,7 @@
 
 body{
     margin: 0;
-    font-family: FontPoppins;
+    font-family: Arial Unicode MS, Arial, Helvetica;
 }
 
 table {
@@ -114,32 +109,17 @@ table {
     border: 1px solid #dadada;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 .appointments{
     border: 1px solid black;
-    font-size: 9pt;
-    padding: 3px;
-    margin-bottom: 5px;
+    font-size: 9px;
+    padding: 0 50px;
+    margin: 20px;
 }
 
 .assign{
     position: relative;
     margin-top: 10px;
     height: 60px;
-    border: 1px solid black;
 }
 
 .sales{
