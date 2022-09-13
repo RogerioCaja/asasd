@@ -3,7 +3,7 @@
     <fullName>IsInactive__c</fullName>
     <defaultValue>false</defaultValue>
     <externalId>false</externalId>
-    <fieldManageability>DeveloperControlled</fieldManageability>
     <label>Inativo?</label>
+    <trackTrending>false</trackTrending>
     <type>Checkbox</type>
 </CustomField>
