@@ -77,13 +77,13 @@ public without sharing class CalloutOrder {
 
 	public static IntegrationUtils.CalloutResponse sendOrder(List<Order> orders) {
 			
-		RequestParameters request = new RequestParameters(orders[0]);
-
-        Integration__mdt integrationOUT = Integration__mdt.getInstance('PedidosOUT');
+        Integration__c integrationOUT = Integration__c.getInstance('Pedidos OUT');
         if(integrationOUT != null && integrationOUT.IsInactive__c){
             IntegrationLog.createLog('Pedido OUT SAP', 'OUT', '', 'Integração INATIVA', true);
 			return new IntegrationUtils.CalloutResponse('Integração INATIVA');
         }
+		RequestParameters request = new RequestParameters(orders[0]);
+
 		// for (Order ord : orders) {
 		// 	request.add(new RequestParameters(ord));
 		// }
