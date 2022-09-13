@@ -68,7 +68,7 @@ public without sharing class CalloutOrderDatalake {
             
         List<RequestParameters> request = new List<RequestParameters>();
         
-        Integration__mdt integrationOUT = Integration__mdt.getInstance('PedidosOUT');
+        Integration__c integrationOUT = Integration__c.getInstance('Pedidos OUT');
         if(integrationOUT != null && integrationOUT.IsInactive__c){
             IntegrationLog.createLog('Pedido OUT Lake', 'OUT', '', 'Integração INATIVA', true);
 			return new IntegrationUtils.CalloutDatalakeResponse('Integração INATIVA');
