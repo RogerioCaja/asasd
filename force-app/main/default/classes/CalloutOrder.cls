@@ -77,11 +77,11 @@ public without sharing class CalloutOrder {
 
 	public static IntegrationUtils.CalloutResponse sendOrder(List<Order> orders) {
 			
-        // Integration__c integrationOUT = Integration__c.getInstance('Pedidos OUT');
-        // if(integrationOUT != null && integrationOUT.IsInactive__c){
-        //     IntegrationLog.createLog('Pedido OUT SAP', 'OUT', '', 'Integração INATIVA', true);
-		// 	return new IntegrationUtils.CalloutResponse('Integração INATIVA');
-        // }
+        Integration__c integrationOUT = Integration__c.getInstance('Pedidos OUT');
+        if(integrationOUT != null && integrationOUT.IsInactive__c){
+            IntegrationLog.createLog('Pedido OUT SAP', 'OUT', '', 'Integração INATIVA', true);
+			return new IntegrationUtils.CalloutResponse('Integração INATIVA');
+        }
 		RequestParameters request = new RequestParameters(orders[0]);
 
 		// for (Order ord : orders) {
