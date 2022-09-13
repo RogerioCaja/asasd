@@ -93,7 +93,7 @@ export default class OrderSummaryScreen extends LightningElement {
             approvalNumber: 1
         }
 
-        getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: false, verifyUserType: true})
+        getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: false, verifyUserType: true, priceScreen: false})
         .then((result) => {
             this.hideMargin = JSON.parse(result);
         });
@@ -350,6 +350,7 @@ export default class OrderSummaryScreen extends LightningElement {
             this.loadData();
         }
     }
+    
     changeFreightValue(event) {
         let fieldValue = event.target.value;
         fieldValue = fieldValue.toString().includes('.') ? fieldValue.toString().replace('.', '') : fieldValue;
@@ -587,6 +588,7 @@ export default class OrderSummaryScreen extends LightningElement {
         setformsofpayment.data = this.formsOfPayment;
         this.dispatchEvent(setformsofpayment);
     }
+    
     changeFreight(){
         const setSummaryData = new CustomEvent('setsummarydata');
         setSummaryData.data = this.summaryDataLocale;

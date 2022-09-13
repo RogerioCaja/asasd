@@ -325,6 +325,12 @@ textarea:hover{
     color: #2a9676;
 }
 
+.column {
+    float: left;
+    width: 50%;
+	padding: 0px 5px 0px 5px;
+}
+
 .input-design {
 	width: 100%;
     padding: 8px 6px;
@@ -376,10 +382,11 @@ textarea:hover{
 	color: #2a9676;
 }
 
-.column {
-    float: left;
-    width: 50%;
-	padding: 0px 5px 0px 5px;
+.close-modal-button {
+	float: left;
+	width: 50%;
+	padding: 25px;
+	color: #2a9676;
 }
 
 .quantities-div {
@@ -399,6 +406,7 @@ textarea:hover{
 	.company-card {
 		width: 100%;
 	}
+    
     .confirm-button {
 		width: 100%;
 	}

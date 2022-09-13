@@ -1,4 +1,5 @@
 import { LightningElement, api } from 'lwc';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
 export default class JustificationScreen extends LightningElement {
     @api justification = '';
@@ -11,9 +12,22 @@ export default class JustificationScreen extends LightningElement {
     }
 
     save(){
-        const response = new CustomEvent('save',{
-            detail : this.justification
+        if(this.justification != ''){
+            const response = new CustomEvent('save',{
+                detail : this.justification
+            });
+            this.dispatchEvent(response);
+        }else{
+            this.showToast('warning', 'Atenção', 'A justificativa não pode estar vazia');
+        }
+    }
+
+    showToast(type, title, message) {
+        let event = new ShowToastEvent({
+            variant: type,
+            title: title,
+            message: message,
         });
-        this.dispatchEvent(response);
+        this.dispatchEvent(event);
     }
 }
