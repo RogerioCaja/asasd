@@ -305,10 +305,6 @@ global with sharing class IntegrationINOrderItem {
             lookups, 
             parentMapKeys
         );
-
-        for(OrderItem ordItemDesc : orderItemListToUpsert){
-            ordItemDesc.Description += 'In73gr ins37t x';
-        }
         System.debug('orderItemListToUpsert ' + orderItemListToUpsert);
 
         //Upserting records
