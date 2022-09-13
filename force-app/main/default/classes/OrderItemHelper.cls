@@ -137,10 +137,26 @@ public without sharing class OrderItemHelper {
                     OrderItem orddItem = New OrderItem();
                     orddItem.Id = ordrItem.Id;
                     orddItem.AmountUsed__c =  ordemItem.Quantity + ordrItem.AmountUsed__c; 
-                    orddItem.Description = orddItem.Description.replace('In73gr ins37t x', '');
+                    orderItemListM.add(orddItem);
                 }
             }
         }
+        upsert orderItemListM;
 
+    }
+
+    public static void cleanDescriptionOrderItem (List<OrderItem> orderItemList){
+        List<OrderItem> cleanOrdItemDesc = new List<OrderItem>();
+        
+        for(OrderItem ordItemClean : orderItemList){
+            OrderItem ordItemCl = new OrderItem();
+            ordItemCl.Id = ordItemClean.Id;
+            ordItemCl.Description = ordItemClean.Description.replace('In73gr ins37t x', '');
+            
+            cleanOrdItemDesc.add(ordItemCl);
+        }
+        OrderItemHelper.disableTrigger();
+        update cleanOrdItemDesc; 
+        OrderItemHelper.enableTrigger();
     }
 }

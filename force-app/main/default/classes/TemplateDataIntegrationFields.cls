@@ -484,7 +484,8 @@ global with sharing class TemplateDataIntegrationFields {
                 PracticedCost__c = this.custoPreco,
                 PracticedPrice__c = this.precoPraticado,
                 UnitPrice = this.precoPraticado,
-                ReasonRefuse__c = this.motivoRecusa
+                ReasonRefuse__c = this.motivoRecusa,
+                Description = ''
             );
         }
         public List<String> getRequiredFields(){
