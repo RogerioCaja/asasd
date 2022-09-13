@@ -212,13 +212,25 @@ public without sharing class OrderScreenController {
             List<Account> accountList = new List<Account>();
             List<AccountSerialize> accountListSerialize = new List<AccountSerialize>();
             List<SObject> recordsData = new List<SObject>();
+            Set<Id> familyAccountIds = new Set<Id>();
 			String profileName = [SELECT Name FROM Profile WHERE Id =: UserInfo.getProfileId()].Name;
+
+            familyAccountIds.add(accountId);
+            for (Account familyAccount : [
+                SELECT Id
+                  FROM Account
+                 WHERE ParentId =: accountId
+                   AND ExternalId__c LIKE '0001%'
+                   AND Status__c = 'Ativo'
+            ]) {
+                familyAccountIds.add(familyAccount.Id);
+            }
 			
             if (profileName != 'Balcão') {
                 Set<Id> relatedAccounts = getTerritoryAccounts();
-                accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE Status__c = 'Ativo' AND ((ParentId =: accountId AND Id IN: relatedAccounts AND ExternalId__c LIKE '0002%') OR (Id =: accountId AND CNPJ__c != null AND CPF__c = null))];
+                accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE Status__c = 'Ativo' AND ((ParentId =: accountId AND Id IN: relatedAccounts AND ExternalId__c LIKE '0002%') OR (Id =: accountId AND CNPJ__c != null AND CPF__c = null) OR (ParentId IN: familyAccountIds AND ExternalId__c LIKE '0002%' AND Id IN: relatedAccounts))];
             } else {
-                accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE Status__c = 'Ativo' AND ((ParentId =: accountId AND ExternalId__c LIKE '0002%') OR (Id =: accountId AND CNPJ__c != null AND CPF__c = null))];
+                accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE Status__c = 'Ativo' AND ((ParentId =: accountId AND ExternalId__c LIKE '0002%') OR (Id =: accountId AND CNPJ__c != null AND CPF__c = null) OR ((ParentId IN: familyAccountIds AND ExternalId__c LIKE '0002%')))];
             }
 
             for(Account account : accountList) accountListSerialize.add(new AccountSerialize(account));
@@ -482,16 +494,17 @@ public without sharing class OrderScreenController {
                            ProductHierarchy__c,
                            SellerType__c,
                            CommissionPercentage__c 
-                    FROM Comissao__c
-                   WHERE ProductHierarchy__c IN: setProductHierarchyIds
-                     AND SellerType__c =: sellerType
+                      FROM Comissao__c
+                     WHERE ProductHierarchy__c IN: setProductHierarchyIds
+                       AND SellerType__c =: sellerType
+                       AND SalesOrg__c =: company.SalesOrg__c
                 ]) {
                     if (!commissionByHierarchy.containsKey(commission.ProductHierarchy__c)) {
                         commissionByHierarchy.put(commission.ProductHierarchy__c, commission);
                     }
                 }
             }
-            System.debug('commissionByHierarchy => ' + commissionByHierarchy);
+
             if (company != null && orderData.headerData.pedido_mae.Id == null) {
                 Id userTerritoryId;
                 for (UserTerritory2Association userAssociation : [
@@ -998,7 +1011,7 @@ public without sharing class OrderScreenController {
     }
 
     @AuraEnabled
-    public static String getAccountCompanies(String data, Boolean isHeader, Boolean verifyUserType) {
+    public static String getAccountCompanies(String data, Boolean isHeader, Boolean verifyUserType, Boolean priceScreen) {
         GetCompanyInfos companyInfos = (GetCompanyInfos) JSON.deserialize(data, GetCompanyInfos.class);
         Id userTerritoryId;
         Boolean sellerPosition = false;
@@ -1074,7 +1087,7 @@ public without sharing class OrderScreenController {
         };
         Q proQuery = new Q(Company__c.SObjectType);
         proQuery.selectFields(fieldSet);
-        proQuery.add(Q.condition('Conta__c').equalsTo(companyInfos.accountId));
+        if (companyInfos.accountId != '') proQuery.add(Q.condition('Conta__c').equalsTo(companyInfos.accountId));
         
         List<CompanyInfos> companyList = new List<CompanyInfos>();
         if (salesTeamTerritory != null && salesTeamTerritory.DeveloperName != null) {
@@ -1086,6 +1099,8 @@ public without sharing class OrderScreenController {
             else {
                 proQuery.add(Q.condition('ActivitySector__r.Codigo__c').equalsTo('40'));
             }
+
+            if (companyInfos.accountId == '') proQuery.addLimit(1);
             for (Company__c salesTeamCompany : Database.query(proQuery.build())) {
                 CompanyInfos company = new CompanyInfos();
                 company.companyId = salesTeamCompany.Id;

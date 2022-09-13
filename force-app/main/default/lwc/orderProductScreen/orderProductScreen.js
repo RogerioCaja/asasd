@@ -88,6 +88,7 @@ export default class OrderProductScreen extends LightningElement {
     visualizeCommodityColumns = [];
 
     disabled=false;
+    disableSearch=false;
     numberOfRowsToSkip=0;
     showLoading=true;
 
@@ -146,11 +147,15 @@ export default class OrderProductScreen extends LightningElement {
         }
         this.products = JSON.parse(JSON.stringify(newProducts));
 
-        if(this.headerData.IsOrderChild) this._setData();
+        if(this.headerData.IsOrderChild) {
+            this.disableSearch = true;
+            this._setData();
+        }
 
         if (this.headerData.status_pedido == 'Em aprovação - Gerente Filial' || this.headerData.status_pedido == 'Em aprovação - Gerente Regional' ||
             this.headerData.status_pedido == 'Em aprovação - Diretor' || this.headerData.status_pedido == 'Em aprovação - Comitê Margem' || this.headerData.status_pedido == 'Em aprovação - Mesa de Grãos') {
             this.disabled = true;
+            this.disableSearch = true;
         }
 
         if (this.isFilled(this.commoditiesData) && this.commoditiesData.length > 0) this.showCommodityData = true;
@@ -199,7 +204,7 @@ export default class OrderProductScreen extends LightningElement {
             approvalNumber: 1
         }
 
-        getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: false, verifyUserType: false})
+        getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: false, verifyUserType: false, priceScreen: false})
         .then((result) => {
             this.companyResult = JSON.parse(result).listCompanyInfos;
             if (this.headerData.companyId != null) {
@@ -756,6 +761,8 @@ export default class OrderProductScreen extends LightningElement {
             if (remainder == 0) {
                 return quantity;
             } else {
+                quantity = this.fixDecimalPlacesFront(quantity);
+                quantity = quantity.toString().includes(',') ? Number(quantity.replace(',', '.')) : quantity;
                 quantity = Math.ceil(quantity / this.multiplicity) * this.multiplicity;
                 this.showToast('warning', 'Atenção!', 'A quantidade foi arredondada para ' + quantity + '.');
                 return quantity;
@@ -1174,8 +1181,18 @@ export default class OrderProductScreen extends LightningElement {
 
     deleteProduct(position) {
         let excludeProduct = JSON.parse(JSON.stringify(this.products));
+        let excludedProducts = this.isFilled(this.excludedItems) ? JSON.parse(JSON.stringify(this.excludedItems)) : [];
         
-        excludeProduct.splice(position, 1);
+        let counter;
+        for (let index = 0; index < excludeProduct.length; index++) {
+            if (excludeProduct[index].position == position) {
+                counter = index;
+            }
+        }
+        
+        excludedProducts.push(excludeProduct[counter].orderItemId);
+        excludeProduct.splice(counter, 1);
+        
         if(excludeProduct.lenght - 1 != position){
             excludeProduct.forEach((product) => {
                 if(product.position > position) product.position -= 1
@@ -1198,6 +1215,8 @@ export default class OrderProductScreen extends LightningElement {
             this.recalculateCommodities()  ;
         }
 
+        this.excludedItems = this.isFilled(excludedProducts) ? excludedProducts : [];
+        this._setExcludedesItems();
         this._setData();
         this.showToast('success', 'Produto removido!', '');
     }
