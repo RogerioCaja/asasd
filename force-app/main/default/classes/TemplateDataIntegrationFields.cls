@@ -289,6 +289,7 @@ global with sharing class TemplateDataIntegrationFields {
         //public String clienteCode; 
         public List<TemplateDataIntegrationFields.OrderItemINData> orderItems;
         public List<TemplateDataIntegrationFields.ShippingDivisonINData> shippingDivison;
+        public List<TemplateDataIntegrationFields.FormPaymentINData> formPayment;
         public List<TemplateDataIntegrationFields.PartnerInsert> partners;
         public List<TemplateDataIntegrationFields.ConditionInsert> conditions;
         public Order serialize(Map<String, Id> lookups){
@@ -452,6 +453,8 @@ global with sharing class TemplateDataIntegrationFields {
         public Decimal precoPraticado;
         public Decimal precoUnitario;
         public String motivoRecusa;
+        public String peneira;
+        public String classeCategoria;
         public OrderItem serialize(Map<String, Id> lookups){
 
             
@@ -485,7 +488,9 @@ global with sharing class TemplateDataIntegrationFields {
                 PracticedPrice__c = this.precoPraticado,
                 UnitPrice = this.precoPraticado,
                 ReasonRefuse__c = this.motivoRecusa,
-                Description = ''
+                Description = '',
+                Sieve__c = this.peneira,
+                Class__c = this.classeCategoria
             );
         }
         public List<String> getRequiredFields(){
