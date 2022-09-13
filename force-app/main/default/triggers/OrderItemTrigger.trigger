@@ -6,6 +6,7 @@ trigger OrderItemTrigger on OrderItem (after insert, before insert, before updat
     if (OrderItemHelper.isTriggerEnabled()) {
         switch on Trigger.operationType {
             when AFTER_INSERT {
+                handler.OnAfterInsert();
             }
             when BEFORE_INSERT{
                 //BEFORE INSERT Method
