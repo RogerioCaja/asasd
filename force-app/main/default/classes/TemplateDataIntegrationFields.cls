@@ -573,7 +573,7 @@ global with sharing class TemplateDataIntegrationFields {
 
         public FormPayment__c serialize(Map<String, Id> lookups){
             return new FormPayment__c(
-                ExternalId__c = orderExternalId + '-' + orderCode + '-' + paymentItemCode,
+                //ExternalId__c = orderExternalId + '-' + orderCode + '-' + paymentItemCode,
                 Order__c = this.orderExternalId,
                 //ExternalId__c = this.orderCode, //Elaborar
                 PaymentDate__c = this.paymentDate,
