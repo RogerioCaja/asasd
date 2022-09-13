@@ -563,6 +563,42 @@ global with sharing class TemplateDataIntegrationFields {
         }
     }
 
+    global class FormPaymentINData implements FieldDataChild{
+        public String orderExternalId;
+        //public String OrderItemCode;
+        public String orderCode;
+        public Date paymentDate;
+        public String paymentItemCode;
+        public Decimal paymentAndValue;
+
+        public FormPayment__c serialize(Map<String, Id> lookups){
+            return new FormPayment__c(
+                ExternalId__c = orderExternalId + '-' + orderCode + '-' + paymentItemCode,
+                Order__c = this.orderExternalId,
+                //ExternalId__c = this.orderCode, //Elaborar
+                PaymentDate__c = this.paymentDate,
+                Amount__c = this.paymentAndValue
+            );
+        }
+
+        public List<String> getRequiredFields(){
+            return new List<String>{
+
+            };
+        }
+
+        public String getFieldKey(){
+            return 'Id';
+        }
+
+        public String getFieldExternal(){
+            return 'ExternalId__c';
+        }
+
+        public String getParentKey(){
+            return 'OrderId';
+        }
+    }
     
     global class NotaFiscalINData implements FieldData{
         //JSON fields Example
