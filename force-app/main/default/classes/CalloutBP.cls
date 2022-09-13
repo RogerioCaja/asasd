@@ -79,7 +79,12 @@ public without sharing class CalloutBP {
                     ac.ParentId = lookups.containsKey('Account'+valor.ZZCRED) ? lookups.get('Account'+valor.ZZCRED) : null;
                 }
                 ac.RegisterTipe__c = valor.TipoRegistro;
-                ac.BpType__c = valor.TipoBp;
+                if(valor.TipoBp == 'Cliente'){
+                    ac.BpType__c = 'Proprietario';
+                }else{
+                    ac.BpType__c = valor.TipoBp;
+                }
+                
                 ac.ShippingStreet = valor.RuaEntrega;
                 ac.ShippingCity = valor.CidadeEntrega;
                 ac.ShippingState = valor.Estado;
@@ -236,7 +241,11 @@ public without sharing class CalloutBP {
                     ac.ParentId = lookups.containsKey('Account'+valor.ZZCRED) ? lookups.get('Account'+valor.ZZCRED) : null;
                 }
                 ac.RegisterTipe__c = valor.TipoRegistro;
-                ac.BpType__c = valor.TipoBp;
+                if(valor.TipoBp == 'Cliente'){
+                    ac.BpType__c = 'Proprietario';
+                }else{
+                    ac.BpType__c = valor.TipoBp;
+                }
                 ac.ShippingStreet = valor.RuaEntrega;
                 ac.ShippingCity = valor.CidadeEntrega;
                 ac.ShippingState = valor.Estado;

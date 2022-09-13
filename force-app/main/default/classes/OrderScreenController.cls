@@ -633,6 +633,10 @@ public without sharing class OrderScreenController {
                                    stringToDecimal(orderData.summaryData.orderMargin.replace(' sacas', '')) : stringToDecimal((orderData.summaryData.orderMargin))) : 0;
             order.ApprovalJustification__c = orderData.summaryData.justification;
 
+            if (order.OrderType__c == 'Pedido Filho') {
+                order.AccountId = [SELECT Id, ParentId FROM Account WHERE Id =: order.ShippingAccount__c].ParentId;
+            }
+
             if (order.Incoterms__c == 'CIF') {
                 order.FreightValue__c = null;
                 order.FinalTotalValue__c = order.FinalTotalValue__c + orderData.summaryData.freightValue;
