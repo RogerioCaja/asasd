@@ -209,6 +209,10 @@ global with sharing class IntegrationINOrderItemInsert {
             parentMapKeys
         );
 
+        for(OrderItem ordItemDesc : orderItemListToUpsert){
+            ordItemDesc.Description += 'In73gr ins37t x';
+        }
+        
         //Upserting records
         List<Database.UpsertResult> upsResults = Database.upsert(orderItemListToUpsert, OrderItem.ExternalId__c, false);
 
