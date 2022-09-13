@@ -682,7 +682,9 @@ public without sharing class OrderScreenController {
                 List<OrderItem> itemsToDelete = new List<OrderItem>();
                 for (String itemToDeleteId : deleteItems) {
                     OrderItem itemToDelete = orderItemsById.get(itemToDeleteId);
-                    itemsToDelete.add(itemToDelete);
+                    if (itemToDelete.OrderId == order.Id) {
+                        itemsToDelete.add(itemToDelete);
+                    }
                 }
 
                 OrderHelper.disableTrigger();
