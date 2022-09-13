@@ -437,7 +437,7 @@ public without sharing class OrderScreenController {
             
             List<String> deleteItems = itemsToExclude != null ? (List<String>) JSON.deserialize(itemsToExclude, List<String>.class) : new List<String>();
             Map<Id, OrderItem> orderItemsById = new Map<Id, OrderItem>([
-                SELECT Id, Product2Id
+                SELECT Id, Product2Id, OrderId
                   FROM OrderItem
                  WHERE Id IN: setOrderItemsIds
                     OR Id IN: deleteItems
