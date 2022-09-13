@@ -102,8 +102,8 @@ public without sharing class OrderItemHelper {
             Order ord = ordIdMap.get(ordIt.OrderId);
             
             System.debug('OrderReference__c ' + ord);
-            System.debug('teste'+ ordIt.Order.IsOrderMother__c);                         
-            if(ordIt.Order.IsOrderMother__c != true && ord.OrderReference__c != null && ordIt.Description.Contains('In73gr ins37t x')){
+            System.debug('teste'+ ordIt.Order.IsOrderMother__c);                     
+            if(ordIt.Description !=null && ordIt.Order.IsOrderMother__c != true && ord.OrderReference__c != null && ordIt.Description.Contains('In73gr ins37t x')){
                 System.debug('Entrou no IF');
                 System.debug('OrderReference__c ' + ordIt.Order.OrderReference__c);
                 ordList.add(ord.OrderReference__c);
