@@ -49,6 +49,16 @@
         <style>CustomLinks</style>
     </layoutSections>
     <relatedLists>
+        <fields>PRODUCT2.NAME</fields>
+        <fields>PRODUCT2.CUSTOMER_PRODUCT_ID</fields>
+        <fields>PRODUCT2.DESCRIPTION</fields>
+        <relatedList>Product2.ProductHierarchy__c</relatedList>
+    </relatedLists>
+    <relatedLists>
+        <fields>NAME</fields>
+        <relatedList>Comissao__c.ProductHierarchy__c</relatedList>
+    </relatedLists>
+    <relatedLists>
         <fields>TASK.SUBJECT</fields>
         <fields>TASK.WHO_NAME</fields>
         <fields>ACTIVITY.TASK</fields>
@@ -73,7 +83,7 @@
     <showRunAssignmentRulesCheckbox>false</showRunAssignmentRulesCheckbox>
     <showSubmitAndAttachButton>false</showSubmitAndAttachButton>
     <summaryLayout>
-        <masterLabel>00h1D000007LWnM</masterLabel>
+        <masterLabel>00h8N000000NUgS</masterLabel>
         <sizeX>4</sizeX>
         <sizeY>0</sizeY>
         <summaryLayoutStyle>Default</summaryLayoutStyle>
