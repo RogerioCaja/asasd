@@ -73,6 +73,9 @@ public without sharing class OrderItemHelper {
                     OrderItem orddItem = New OrderItem();
                     orddItem.Id = ordrItem.Id;
                     orddItem.AmountUsed__c =  ordemItem.Quantity - ordrItem.AmountUsed__c; 
+                    if(orddItem.AmountUsed__c < 0){
+                           orddItem.AmountUsed__c = orddItem.AmountUsed__c * (-1);                            
+                       }
                     orderItemListM.add(orddItem);
                     
                 }
