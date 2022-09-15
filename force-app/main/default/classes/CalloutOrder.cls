@@ -37,7 +37,7 @@ public without sharing class CalloutOrder {
             for(Messages message : resp.responses.ET_RETURN.item){
                 if(message.TYPE != 'S' && message.TYPE != 'W'){
                     calloutResponse.success = false;
-                    calloutResponse.errorMessage = message.MESSAGE;
+                    calloutResponse.errorMessage = (calloutResponse.errorMessage != null ? calloutResponse.errorMessage : '') + message.MESSAGE + '\n';
                 }
             }
             if(!calloutResponse.success){

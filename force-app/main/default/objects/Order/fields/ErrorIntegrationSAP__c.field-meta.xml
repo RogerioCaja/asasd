@@ -4,7 +4,9 @@
     <externalId>false</externalId>
     <inlineHelpText>Quando houver a tentativa de integrar com SAP e ocorrer um erro a mensagem estará aqui</inlineHelpText>
     <label>Mensagem de Erro ao Integrar</label>
+    <length>5000</length>
+    <visibleLines>5</visibleLines>
     <required>false</required>
     <trackHistory>false</trackHistory>
-    <type>TextArea</type>
+    <type>LongTextArea</type>
 </CustomField>
