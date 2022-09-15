@@ -1,0 +1,4 @@
+Name,BarterCondition__c,CashPayment__c,Code__c
+Boleto,false,false,Boleto
+A vista,false,true,1
+Barter,true,false,2
