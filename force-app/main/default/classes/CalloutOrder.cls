@@ -40,6 +40,11 @@ public without sharing class CalloutOrder {
                     calloutResponse.errorMessage = message.MESSAGE;
                 }
             }
+            if(!calloutResponse.success){
+                allOrders[0].ErrorIntegrationSAP__c = calloutResponse.errorMessage;
+                orderList.add(allOrders[0]);
+            }
+
             if(calloutResponse.success){
                 allOrders[0].CodigoSap__c = resp.responses.EV_SALES_DOC;
                 allOrders[0].StatusSF__c = 'Integrado';
@@ -107,7 +112,11 @@ public without sharing class CalloutOrder {
 
 			HttpResponse response = responseObject.response;
 
-            IntegrationLog.createLog('Pedido OUT - SAP', 'OUT', response.getBody(), payload, false);
+            if(response.getBody().contais('"TYPE":"E"')){
+                IntegrationLog.createLog('Pedido OUT - SAP', 'OUT', response.getBody(), payload, true);
+            }else{
+                IntegrationLog.createLog('Pedido OUT - SAP', 'OUT', response.getBody(), payload, false);
+            }
 			// .WSLog('Pedido', 'OUTBOUND', response.getBody(), payload, false);
 			try {
 
