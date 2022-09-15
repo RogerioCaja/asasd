@@ -460,7 +460,7 @@ export default class OrderSummaryScreen extends LightningElement {
                     allPayments[index].paymentDay = fieldValue;
                     if (allPayments[index].paymentType != '') allPayments[index].paymentKey = allPayments[index].paymentType + '-' + fieldValue;
                 } else if (fieldId.includes('valueId')) {
-                    fieldValue = fieldValue.toString().includes('.') ? fieldValue.toString().replace('.', '') : fieldValue;
+                    fieldValue = fieldValue.toString().includes('.') ? fieldValue.toString().replaceAll('.', '') : fieldValue;
                     fieldValue = fieldValue.toString().includes(',') ? fieldValue.toString().replace(',', '.') : fieldValue;
                     allPayments[index].value = this.fixDecimalPlaces(fieldValue);
                     allPayments[index].valueFront = this.fixDecimalPlacesFront(fieldValue);
