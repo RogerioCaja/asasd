@@ -113,7 +113,7 @@ public without sharing class CalloutOrder {
 
 			HttpResponse response = responseObject.response;
 
-            if(response.getBody().contais('"TYPE":"E"')){
+            if(response.getBody().contains('"TYPE":"E"')){
                 IntegrationLog.createLog('Pedido OUT - SAP', 'OUT', response.getBody(), payload, true);
             }else{
                 IntegrationLog.createLog('Pedido OUT - SAP', 'OUT', response.getBody(), payload, false);
