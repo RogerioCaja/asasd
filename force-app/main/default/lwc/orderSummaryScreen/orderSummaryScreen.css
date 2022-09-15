@@ -353,7 +353,8 @@ textarea:hover{
 
 .confirm-button {
 	transition-duration: 0.5s;
-    background-color: #ffffff;
+    background-color: #2a9676;
+	color: #ffffff;
     border: 1px solid #2a9676;
     font-size: 12px;
     width: 150px;
@@ -366,8 +367,8 @@ textarea:hover{
 }
 
 .confirm-button:hover {
-	background-color: #2a9676;
-	color: #ffffff;
+	background-color: #ffffff;
+    color: #000;
 }
 
 .back-button,
