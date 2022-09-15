@@ -56,6 +56,9 @@
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
+        <fields>CommissionPercentage__c</fields>
+        <fields>SellerType__c</fields>
+        <fields>SalesOrg__c</fields>
         <relatedList>Comissao__c.ProductHierarchy__c</relatedList>
     </relatedLists>
     <relatedLists>
