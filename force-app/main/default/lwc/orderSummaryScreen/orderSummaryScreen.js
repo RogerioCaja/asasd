@@ -347,9 +347,26 @@ export default class OrderSummaryScreen extends LightningElement {
             }
         }
 
+        let availableDivisions = [];
+        let divisions = JSON.parse(JSON.stringify(this.divisionData));
+        console.log('divisions: ' + JSON.stringify(divisions));
+        for (let index = 0; index < divisions.length; index++) {
+            console.log('divisions[index].productId: ' + divisions[index].productId);
+            let deletedProduct = this.unavailableProducts.find(e => e.productId == divisions[index].productId);
+            if (!this.isFilled(deletedProduct)) {
+                console.log('add - divisions[index].productId: ' + divisions[index].productId);
+                availableDivisions.push(divisions[index]);
+            }
+        }
+
+        console.log('availableDivisions: ' + JSON.stringify(availableDivisions));
+
         this.showUnavailableProducts = false;
         this.productData = JSON.parse(JSON.stringify(availableProducts));
         this._setProductData();
+
+        this.divisionData = JSON.parse(JSON.stringify(availableDivisions));
+        this._setDivisionData();
         if (availableProducts.length > 0) {
             this.loadData();
         }
@@ -460,7 +477,7 @@ export default class OrderSummaryScreen extends LightningElement {
                     allPayments[index].paymentDay = fieldValue;
                     if (allPayments[index].paymentType != '') allPayments[index].paymentKey = allPayments[index].paymentType + '-' + fieldValue;
                 } else if (fieldId.includes('valueId')) {
-                    fieldValue = fieldValue.toString().includes('.') ? fieldValue.toString().replace('.', '') : fieldValue;
+                    fieldValue = fieldValue.toString().includes('.') ? fieldValue.toString().replaceAll('.', '') : fieldValue;
                     fieldValue = fieldValue.toString().includes(',') ? fieldValue.toString().replace(',', '.') : fieldValue;
                     allPayments[index].value = this.fixDecimalPlaces(fieldValue);
                     allPayments[index].valueFront = this.fixDecimalPlacesFront(fieldValue);
@@ -633,6 +650,12 @@ export default class OrderSummaryScreen extends LightningElement {
         const setProductData = new CustomEvent('setproductdata');
         setProductData.data = this.productData;
         this.dispatchEvent(setProductData);
+    }
+
+    _setDivisionData() {
+        const setdivisiondata = new CustomEvent('setdivisiondata');
+        setdivisiondata.data = this.divisionData;
+        this.dispatchEvent(setdivisiondata);
     }
    
     isFilled(field) {

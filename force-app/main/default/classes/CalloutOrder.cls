@@ -37,13 +37,19 @@ public without sharing class CalloutOrder {
             for(Messages message : resp.responses.ET_RETURN.item){
                 if(message.TYPE != 'S' && message.TYPE != 'W'){
                     calloutResponse.success = false;
-                    calloutResponse.errorMessage = message.MESSAGE;
+                    calloutResponse.errorMessage = (calloutResponse.errorMessage != null ? calloutResponse.errorMessage : '') + message.MESSAGE + '\n';
                 }
             }
+            if(!calloutResponse.success){
+                allOrders[0].ErrorIntegrationSAP__c = calloutResponse.errorMessage;
+                orderList.add(allOrders[0]);
+            }
+
             if(calloutResponse.success){
                 allOrders[0].CodigoSap__c = resp.responses.EV_SALES_DOC;
                 allOrders[0].StatusSF__c = 'Integrado';
                 allOrders[0].Status =  resp.responses.EV_STATUS;
+                allOrders[0].ErrorIntegrationSAP__c = '';
                 orderList.add(allOrders[0]);
             }
             
@@ -107,7 +113,11 @@ public without sharing class CalloutOrder {
 
 			HttpResponse response = responseObject.response;
 
-            IntegrationLog.createLog('Pedido OUT - SAP', 'OUT', response.getBody(), payload, false);
+            if(response.getBody().contains('"TYPE":"E"')){
+                IntegrationLog.createLog('Pedido OUT - SAP', 'OUT', response.getBody(), payload, true);
+            }else{
+                IntegrationLog.createLog('Pedido OUT - SAP', 'OUT', response.getBody(), payload, false);
+            }
 			// .WSLog('Pedido', 'OUTBOUND', response.getBody(), payload, false);
 			try {
 
