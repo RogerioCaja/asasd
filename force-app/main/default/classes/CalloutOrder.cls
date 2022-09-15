@@ -49,6 +49,7 @@ public without sharing class CalloutOrder {
                 allOrders[0].CodigoSap__c = resp.responses.EV_SALES_DOC;
                 allOrders[0].StatusSF__c = 'Integrado';
                 allOrders[0].Status =  resp.responses.EV_STATUS;
+                allOrders[0].ErrorIntegrationSAP__c = '';
                 orderList.add(allOrders[0]);
             }
             
