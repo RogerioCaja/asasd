@@ -1,0 +1,2 @@
+Name,ActivitySector__r.Codigo__c,Blocked__c,ClientGroup__c,DistributionChannel__c,ExternalID__c,FiscalDomicile__c,SalesOffice__r.Codigo__c,SalesOrg__r.SalesOrganizationCode__c,SalesSector__c,SalesTeam__r.ExternalId__c,Status__c,SupplierCenter__c,Conta__r.ExternalId__c
+Empresa 1,0001,false,04,,a,,01,001,Tralala,001,Adicionada,1,001
