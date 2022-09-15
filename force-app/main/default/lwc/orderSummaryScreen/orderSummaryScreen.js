@@ -23,6 +23,7 @@ export default class OrderSummaryScreen extends LightningElement {
     @api seedSale = false;
     
     orderTotalPrice = 0;
+    orderTotalPriceFront = 0;
     orderTotalToDistribution = 0;
     showRed;
     showFormOfPayment = false;
@@ -190,18 +191,20 @@ export default class OrderSummaryScreen extends LightningElement {
             getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: true, verifyUserType: false})
             .then((result) => {
                this.salesOrgId = result;
-               checkSalesOrgFreight({salesOrgId: this.salesOrgId})
-               .then((result) => {
-                   this.showFreightScreen = result;
-                   let summary = JSON.parse(JSON.stringify(this.summaryDataLocale));
-                   summary.freightValue = summary.freightValue === undefined ? 0 : summary.freightValue;
-                   summary.freightValueFront = this.fixDecimalPlacesFront(summary.freightValue);
-                   this.summaryDataLocale = JSON.parse(JSON.stringify(summary));
+               if(this.headerData.frete == 'CIF'){
+                    checkSalesOrgFreight({salesOrgId: this.salesOrgId})
+                    .then((result) => {
+                        this.showFreightScreen = result;
+                        let summary = JSON.parse(JSON.stringify(this.summaryDataLocale));
+                        summary.freightValue = summary.freightValue === undefined ? 0 : summary.freightValue;
+                        summary.freightValueFront = this.fixDecimalPlacesFront(summary.freightValue);
+                        this.summaryDataLocale = JSON.parse(JSON.stringify(summary));
 
-                   if (this.showFreightScreen && this.headerData.frete == 'FOB') {
-                       this.allowCloseFreightScreen = true;
-                   }
-               });
+                        if (this.showFreightScreen && this.headerData.frete == 'FOB') {
+                            this.allowCloseFreightScreen = true;
+                        }
+                    });
+               }
             });
            
             if (this.headerData.status_pedido == 'Em aprovação - Gerente Filial' || this.headerData.status_pedido == 'Em aprovação - Gerente Regional' ||
@@ -256,6 +259,7 @@ export default class OrderSummaryScreen extends LightningElement {
             }
             
             this.orderTotalPrice = orderTotalPrice;
+            this.orderTotalPriceFront = this.fixDecimalPlacesFront(orderTotalPrice);
             this.orderTotalToDistribution = orderTotalPrice;
             if (this.headerData.tipo_venda != 'Venda Barter') {
                 let margin = (1 - (orderTotalCost / orderTotalPrice)) * 100;
