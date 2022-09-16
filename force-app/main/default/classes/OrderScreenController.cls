@@ -1304,6 +1304,7 @@ public without sharing class OrderScreenController {
 
         for (Company__c accountCompany : [
             SELECT Id,
+                    SalesOrg__c,
                    ClientGroup__c
               FROM Company__c
              WHERE Id =: orderData.headerData.companyId
