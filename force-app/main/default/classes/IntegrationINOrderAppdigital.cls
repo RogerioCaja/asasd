@@ -576,7 +576,7 @@ global without sharing class IntegrationINOrderAppdigital {
                    
                 }
 
-                Order orders = [SELECT Id, Company__r.ClientGroup__c FROM Order WHERE Id =: orderDiscount.Id];
+                Order orders = [SELECT Id, Company__r.ClientGroup__c, Company__r.SalesOrg__c FROM Order WHERE Id =: orderDiscount.Id];
                 Discount__c orderDisc = new Discount__c();
                 
                 System.debug('ClientGroup__c => ' + orders.Company__r.ClientGroup__c);
@@ -588,6 +588,7 @@ global without sharing class IntegrationINOrderAppdigital {
                       FROM Discount__c
                      WHERE Status__c = 'Aprovado'
                        AND ClientGroup__c =: orders.Company__r.ClientGroup__c
+                       AND SalesOrg__c =: orders.Company__r.SalesOrg__c
                        AND ProductGroup__c =: productGroupId //Vamos rever esse daqui
                        AND InitialDate__c <=: System.today()
                        AND EndDate__c >=: System.today()
