@@ -101,7 +101,7 @@ public without sharing class OrderItemHelper {
         for(OrderItem ordItem : orderItemList){
             Order order = orderList.get(ordItem.OrderId);
 
-            if(ordItemClean.Description != null && ordItem.ReasonRefuse__c != null && ordItem.Description.contains('In73gr ins37t x') && order.SalesOrg__r.SalesOrganizationCode__c == '1300'){
+            if(ordItemClean.Description != null && ordItem.ReasonRefuse__c != null && ordItem.Description.contains('In73gr ins37t x') && order.SalesOrg__c != null && order.SalesOrg__r.SalesOrganizationCode__c == '1300'){
                 individualQuotasId.add(ordItem.IndividualQuotas__c); 
                 generalQuotasId.add(ordItem.IndividualQuotas__r.GeneralQuotas__c); 
             } 
