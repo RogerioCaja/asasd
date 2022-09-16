@@ -90,9 +90,18 @@ public without sharing class OrderItemHelper {
     public static void updateQuotes(List<OrderItem> orderItemList){
         Set<Id> generalQuotasId = new Set<Id>();
         Set<Id> individualQuotasId = new Set<Id>();
+        Set<Id> orderId = new Set<Id>();
+
+        for(OrderItem ordItemForOrder : orderItemList){
+            orderId.add(ordItemForOrder.OrderId);
+        }
+        Map<Id, Order> orderList = new Map<Id, Order>([SELECT id, SalesOrg__c, SalesOrg__r.SalesOrganizationCode__c FROM Order WHERE Id =: orderId]);
+    
 
         for(OrderItem ordItem : orderItemList){
-            if(ordItemClean.Description != null && ordItem.ReasonRefuse__c != null && ordItem.Description.contains('In73gr ins37t x')){
+            Order order = orderList.get(ordItem.OrderId);
+
+            if(ordItemClean.Description != null && ordItem.ReasonRefuse__c != null && ordItem.Description.contains('In73gr ins37t x') && order.SalesOrg__r.SalesOrganizationCode__c == '1300'){
                 individualQuotasId.add(ordItem.IndividualQuotas__c); 
                 generalQuotasId.add(ordItem.IndividualQuotas__r.GeneralQuotas__c); 
             } 
