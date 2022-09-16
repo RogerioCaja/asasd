@@ -112,7 +112,7 @@ public without sharing class OrderItemHelper {
        
         List<IndividualQuotas__c> individualQuotasList = new List<IndividualQuotas__c>([SELECT id, Quantity__c, Balance__c, Consumed__c, GeneralQuotas__c FROM IndividualQuotas__c WHERE id  =: individualQuotasId]);
         
-        List<IndividualQuotas__c> sumIndividualQuotasList = new List<IndividualQuotas__c>([SELECT id, Sum(Quantity__c), Balance__c, Consumed__c, GeneralQuotas__c FROM IndividualQuotas__c WHERE id  !=: individualQuotasId AND GeneralQuotas__c =: generalQuotasId]);
+        List<IndividualQuotas__c> sumIndividualQuotasList = new List<IndividualQuotas__c>([SELECT id, Quantity__c, Balance__c, Consumed__c, GeneralQuotas__c FROM IndividualQuotas__c WHERE id  !=: individualQuotasId AND GeneralQuotas__c =: generalQuotasId]);
 
         Map<Id, IndividualQuotas__c> individualQuotasMap = new Map<Id, IndividualQuotas__c>();
 
@@ -143,7 +143,7 @@ public without sharing class OrderItemHelper {
         for(IndividualQuotas__c indQuotas : sumIndividualQuotasList){
     
             IndividualQuotas__c individualQuotas = new IndividualQuotas__c();
-            if(individualQuotasMap.contains(indQuotas.GeneralQuotas__c)){
+            if(individualQuotasMap.containsKey(indQuotas.GeneralQuotas__c)){
                 individualQuotas = individualQuotasMap.get(indQuotas.GeneralQuotas__c);
                 individualQuotas.Consumed__c += indQuotas.Consumed__c;
                 
