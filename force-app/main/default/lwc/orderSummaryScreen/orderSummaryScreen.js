@@ -506,18 +506,23 @@ export default class OrderSummaryScreen extends LightningElement {
         let paymentDayId = 'paymentDayId-' + divPosition;
         let valueId = 'valueId-' + divPosition;
         
-        allFromsOfPayment.push({
-            paymentType: '',
-            paymentDay: null,
-            value: '',
-            paymentPosition: this.paymentLastPosition,
-            paymentTypeId: paymentTypeId,
-            paymentDayId: paymentDayId,
-            valueId: valueId,
-            paymentKey: '',
-            saved: false
-        });
-        this.formsOfPayment = JSON.parse(JSON.stringify(allFromsOfPayment));
+        if(allFromsOfPayment.length < 10){
+            allFromsOfPayment.push({
+                paymentType: '',
+                paymentDay: null,
+                value: '',
+                paymentPosition: this.paymentLastPosition,
+                paymentTypeId: paymentTypeId,
+                paymentDayId: paymentDayId,
+                valueId: valueId,
+                paymentKey: '',
+                saved: false
+            });
+            
+            this.formsOfPayment = JSON.parse(JSON.stringify(allFromsOfPayment));  
+        }else{
+            this.showToast('warning', 'Atenção!', 'É possível inserir no máximo 10 formas de pagamento.');
+        }
     }
 
     validRegexField(allPayment){
