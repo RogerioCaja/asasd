@@ -143,7 +143,7 @@ public without sharing class OrderItemHelper {
         for(IndividualQuotas__c indQuotas : sumIndividualQuotasList){
     
             IndividualQuotas__c individualQuotas = new IndividualQuotas__c();
-            if(individualQuotas.contains(indQuotas.GeneralQuotas__c)){
+            if(individualQuotasMap.contains(indQuotas.GeneralQuotas__c)){
                 individualQuotas = individualQuotasMap.get(indQuotas.GeneralQuotas__c);
                 individualQuotas.Consumed__c += indQuotas.Consumed__c;
                 
