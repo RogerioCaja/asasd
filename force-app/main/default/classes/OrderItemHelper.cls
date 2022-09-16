@@ -22,7 +22,7 @@ public without sharing class OrderItemHelper {
         List<String> ordList = new List<String>();
         List<String> orderList = new List<String>();
         List<OrderItem> orderItemListM = new List<OrderItem>();
-        
+
         for(OrderItem ord : orderItemList){
             orderList.add(ord.OrderId);
         }
@@ -67,15 +67,15 @@ public without sharing class OrderItemHelper {
             if(ordMap.containsKey(concProductOrderRef)){
                 System.debug('ordMap Dentro' + ordMap);
                 OrderItem ordrItem = ordMap.get(concProductOrderRef);
-                System.debug('ordrItem ' + ordrItem);
+				System.debug('ordrItem ' + ordrItem);
                 if(ordemItem.Product2Id == ordrItem.Product2Id){
                     System.debug('orderItemListM ' + orderItemListM);
                     OrderItem orddItem = New OrderItem();
                     orddItem.Id = ordrItem.Id;
-                    orddItem.AmountUsed__c =  ordemItem.Quantity - ordrItem.AmountUsed__c; 
+                    orddItem.AmountUsed__c =  ordemItem.Quantity - ordrItem.AmountUsed__c;
                     if(orddItem.AmountUsed__c < 0){
-                           orddItem.AmountUsed__c = orddItem.AmountUsed__c * (-1);                            
-                       }
+                        orddItem.AmountUsed__c = orddItem.AmountUsed__c * (-1);                            
+                    } 
                     orderItemListM.add(orddItem);
                     
                 }
@@ -105,8 +105,8 @@ public without sharing class OrderItemHelper {
             Order ord = ordIdMap.get(ordIt.OrderId);
             
             System.debug('OrderReference__c ' + ord);
-            System.debug('teste'+ ordIt.Order.IsOrderMother__c);                         
-            if(ordIt.Order.IsOrderMother__c != true && ord.OrderReference__c != null && ordIt.Description.Contains('In73gr ins37t x')){
+            System.debug('teste'+ ordIt.Order.IsOrderMother__c);                     
+            if(ordIt.Description !=null && ordIt.Order.IsOrderMother__c != true && ord.OrderReference__c != null && ordIt.Description.Contains('In73gr ins37t x')){
                 System.debug('Entrou no IF');
                 System.debug('OrderReference__c ' + ordIt.Order.OrderReference__c);
                 ordList.add(ord.OrderReference__c);
@@ -144,8 +144,10 @@ public without sharing class OrderItemHelper {
                 }
             }
         }
+        
+        OrderItemHelper.disableTrigger();
         upsert orderItemListM;
-
+		OrderItemHelper.enableTrigger();
     }
 
     public static void cleanDescriptionOrderItem (List<OrderItem> orderItemList){
@@ -154,7 +156,10 @@ public without sharing class OrderItemHelper {
         for(OrderItem ordItemClean : orderItemList){
             OrderItem ordItemCl = new OrderItem();
             ordItemCl.Id = ordItemClean.Id;
-            ordItemCl.Description = ordItemClean.Description.replace('In73gr ins37t x', '');
+            if(ordItemClean.Description != null && ordItemClean.Description.contains('In73gr ins37t x')){
+                ordItemCl.Description = ordItemClean.Description.replace('In73gr ins37t x', '');
+            }
+            
             
             cleanOrdItemDesc.add(ordItemCl);
         }
@@ -162,4 +167,5 @@ public without sharing class OrderItemHelper {
         update cleanOrdItemDesc; 
         OrderItemHelper.enableTrigger();
     }
+    
 }
