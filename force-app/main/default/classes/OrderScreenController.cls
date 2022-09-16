@@ -430,6 +430,7 @@ public without sharing class OrderScreenController {
                      WHERE Status__c = 'Aprovado'
                        AND Approver__c = 'ComiteMargem'
                        AND ClientGroup__c =: company.ClientGroup__c
+                       AND SalesOrg__c =: company.SalesOrg__c
                        AND ProductGroup__c IN: smallerMarginByProductGroup.keySet()
                        AND InitialDate__c <=: System.today()
                        AND EndDate__c >=: System.today()
@@ -535,6 +536,7 @@ public without sharing class OrderScreenController {
                       FROM Discount__c
                      WHERE Status__c = 'Aprovado'
                        AND ClientGroup__c =: company.ClientGroup__c
+                       AND SalesOrg__c =: company.SalesOrg__c
                        AND ProductGroup__c =: productGroupId
                        AND InitialDate__c <=: System.today()
                        AND EndDate__c >=: System.today()
@@ -1370,6 +1372,7 @@ public without sharing class OrderScreenController {
                      WHERE Status__c = 'Aprovado'
                        AND Approver__c = 'ComiteMargem'
                        AND ClientGroup__c =: company.ClientGroup__c
+                       AND SalesOrg__c =: company.SalesOrg__c
                        AND ProductGroup__c IN: smallerMarginByProductGroup.keySet()
                        AND InitialDate__c <=: System.today()
                        AND EndDate__c >=: System.today()
@@ -1394,6 +1397,7 @@ public without sharing class OrderScreenController {
                   FROM Discount__c
                  WHERE Status__c = 'Aprovado'
                    AND ClientGroup__c =: company.ClientGroup__c
+                   AND SalesOrg__c =: company.SalesOrg__c
                    AND ProductGroup__c =: productGroupId
                    AND InitialDate__c <=: System.today()
                    AND EndDate__c >=: System.today()
