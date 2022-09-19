@@ -87,7 +87,7 @@ public without sharing class CalloutOrderDatalake {
 
 
 		//Path geralmente cadastrado dentro de ua customSettings
-		String endpoint = (!Test.isRunningTest() ? 'https://apim.agrogalaxy.com.br/gtw/sales-order/v1/webhook/order' : 'http://callout.My_Named_Credential.com/some/path');
+		String endpoint = (!Test.isRunningTest() ? integrationOUT.Url__c : 'http://callout.My_Named_Credential.com/some/path');
 		Map<String, String> ordersMap = new Map<String, String>();
 		ordersMap.put('Content-type', 'application/json');
 		ordersMap.put('Authorization', 'Bearer '+ accessToken);
@@ -546,11 +546,12 @@ public without sharing class CalloutOrderDatalake {
 
 //Método para atualizar access token
     public static String getAcessCode(){
+        Integration__c data = Integration__c.getInstance('Pedidos OUT');
         String payloadToken = 'grant_type=client_credentials';
-        String endpointToken = (!Test.isRunningTest() ? 'https://apim.agrogalaxy.com.br/identityserver/oauth2/token' : 'http://callout.My_Named_Credential.com/some/path');
+        String endpointToken = (!Test.isRunningTest() ? data.UrlToken__c : 'http://callout.My_Named_Credential.com/some/path');
         Map<String, String> headersMapToken = new Map<String, String>();
         headersMapToken.put('Content-type', 'application/x-www-form-urlencoded');
-        headersMapToken.put('Authorization', 'Basic dEQxV2M0bWtXdnRWNWVtRXZSOHlVRF9iUFZvYTpmZmVJQUs5SmdPNXNsbXI1UzVMUXNNcTBOME1h');
+        headersMapToken.put('Authorization', data.Token__c);
         IntegrationUtils.RequestResponseObject responseObject2 = IntegrationUtils.executeCallout(endpointToken, payloadToken, headersMapToken);
         System.debug('responseObject2: '+ responseObject2);
         if (responseObject2.success) {
