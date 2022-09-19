@@ -623,11 +623,9 @@ public without sharing class OrderScreenController {
             order.ApprovalJustification__c = orderData.summaryData.justification;
 
             if (order.Incoterms__c == 'CIF') {
-                order.FreightValue__c = null;
                 order.FinalTotalValue__c = order.FinalTotalValue__c + orderData.summaryData.freightValue;
-            } else {
-                order.FreightValue__c = orderData.summaryData.freightValue;
             }
+            order.FreightValue__c = (orderData.summaryData.freightValue != null) ? orderData.summaryData.freightValue : 0;
 
             if (Test.isRunningTest()) {
                 OrderHelper.disableTrigger();

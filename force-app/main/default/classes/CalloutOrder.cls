@@ -83,7 +83,7 @@ public without sharing class CalloutOrder {
 
 	public static IntegrationUtils.CalloutResponse sendOrder(List<Order> orders) {
 			
-        Integration__c integrationOUT = Integration__c.getInstance('Pedidos OUT');
+        Integration__c integrationOUT = Integration__c.getInstance('Pedidos OUT SAP');
         if(integrationOUT != null && integrationOUT.IsInactive__c){
             IntegrationLog.createLog('Pedido OUT SAP', 'OUT', '', 'Integração INATIVA', true);
 			return new IntegrationUtils.CalloutResponse('Integração INATIVA');
@@ -102,7 +102,7 @@ public without sharing class CalloutOrder {
 		String accessToken = !Test.isRunningTest() ? getAccessToken() : 'testeToken';
 		
 		//Path geralmente cadastrado dentro de ua customSettings
-		String endpoint = (!Test.isRunningTest() ? 'https://agrogalaxy-prd-01.it-cpi008-rt.cfapps.br10.hana.ondemand.com/http/SI_CRIA_OV_OUT' : 'http://callout.My_Named_Credential.com/some/path');
+		String endpoint = (!Test.isRunningTest() ? integrationOUT.Url__c : 'http://callout.My_Named_Credential.com/some/path');
 		Map<String, String> headersMap = new Map<String, String>();
 		headersMap.put('Content-type', 'application/json');
 		headersMap.put('Authorization', 'Bearer '+ accessToken);
