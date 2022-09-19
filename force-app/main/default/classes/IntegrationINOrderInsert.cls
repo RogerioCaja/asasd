@@ -263,7 +263,7 @@ global without sharing class IntegrationINOrderInsert {
             String orderId;
 
             if(formPayment.orderExternalId != null){
-                orderId = orderUpMap.get(formPayment.orderExternalId).Id;
+                orderId = orderUpMap.get(formPayment.orderExternalId);
 
                 formPayment.orderExternalId = orderId;
                 System.debug('orderId ' + orderId);
