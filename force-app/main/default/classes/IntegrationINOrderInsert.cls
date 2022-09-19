@@ -263,7 +263,7 @@ global without sharing class IntegrationINOrderInsert {
             String orderId;
 
             if(formPayment.orderExternalId != null){
-                orderId = ordersIdsMap.get(formPayment.orderExternalId).Id;
+                orderId = orderUpMap.get(formPayment.orderExternalId).Id;
 
                 formPayment.orderExternalId = orderId;
                 System.debug('orderId ' + orderId);
@@ -323,7 +323,7 @@ global without sharing class IntegrationINOrderInsert {
             if(formPaymentResponse.size() != 0 && formPaymentResponse.containsKey(response.idSalesforce)){
                 response.items.addAll(formPaymentResponse.get(response.idSalesforce));
             }
-            
+
             if(orderItemsResponse.size() != 0 && orderItemsResponse.containsKey(response.idSalesforce)){
                 response.items.addAll(orderItemsResponse.get(response.idSalesforce));
                 
