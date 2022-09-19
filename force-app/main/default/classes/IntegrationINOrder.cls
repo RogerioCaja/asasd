@@ -3,9 +3,18 @@ global without sharing class IntegrationINOrder {
     public IntegrationINOrder() {
 			
     }
+    public static void sleep(Integer secs) {
+        Long epochToDate = System.currentTimeMillis();
+        Long epochStop = epochToDate + (secs * 1000);
+    
+        while (epochToDate <= epochStop) {
+            epochToDate = System.currentTimeMillis();
+        }
+    }
+
     @HttpPost
     global static ResponseModel upsertOrderValidation(List<TemplateDataIntegrationFields.OrderINData> request){
-        
+        sleep(5);
 		List<String> idOrders = new List<String>();
 
         List<TemplateDataIntegrationFields.ConditionInsert> conditionList = new List<TemplateDataIntegrationFields.ConditionInsert>();
@@ -69,9 +78,12 @@ global without sharing class IntegrationINOrder {
         Set<String> salesOrgLookups = new Set<String>();
         Set<String> salesCTVLookups = new Set<String>();
         Set<String> pricebook2IdLookups = new Set<String>();
-        Set<String> paymentConditionLookups = new Set<String>(); 
+        Set<String> paymentConditionLookups = new Set<String>();
+        Set<String> salesConditionLookups = new Set<String>(); 
         Set<String> activitySectorLookups = new Set<String>();
-
+        
+        
+        
         // Guarda uma lista de respostas
         List<TemplateDataIntegrationFields.ResponseParent> responseList = new List<TemplateDataIntegrationFields.ResponseParent>();
         // Guarda uma lista de orderItem para fazer o upsert
@@ -99,8 +111,9 @@ global without sharing class IntegrationINOrder {
             pricebook2IdLookups.add(order.pricebook2Id);
             paymentConditionLookups.add(order.paymentCondition);
             activitySectorLookups.add(order.ActivitySector);
+            orderLookups.add(order.orderReference);
+            salesConditionLookups.add(order.condicaoVenda);
             idOrders.add(order.CodigoSap);
-            
             for (TemplateDataIntegrationFields.OrderItemINData orderItem : order.orderItems) {
                 orderItem.orderExternalId = order.CodigoSap;
                 orderItem.orderItemCode = orderItem.orderItemCode.replaceFirst('^0+','');
@@ -110,7 +123,9 @@ global without sharing class IntegrationINOrder {
 
             orderItemListToUpsert.addAll(order.orderItems);
             System.debug('orderItemListToUpsert ' + orderItemListToUpsert);
-
+            if(order.salesType == 'ZVAB'){
+                order.salesType = 'ZVNO';
+            }
             switch on order.salesType {
                 // ---- Pedido mãe  ----
                  when 'ZCCO' {
@@ -180,7 +195,7 @@ global without sharing class IntegrationINOrder {
                     }
             }
 
-                
+                //order.company = order.PaymentAccount + order.CentroFornecedor + order.salesOrg + order.activitySector + order.distributionChannel + order.EscritorioVendas + order.EquipeVendas;
                 conditionList.addAll(order.conditions);
                 
             
@@ -214,44 +229,44 @@ global without sharing class IntegrationINOrder {
         for (TemplateDataIntegrationFields.OrderINData order : request){
             Order ord = ordersIdsMap.get(order.CodigoSap);
             
-            if(order.numeroPedidoApp == null){
+            if(order.numeroPedidoApp == null || order.numeroPedidoApp == ''){
                 order.numeroPedidoApp = ord.NumeroPedidoApp__c;
             }
             if (order.paymentDate == null){
                 order.paymentDate = ord.PaymentDate__c;
             }
-            if (order.effectiveDate == null){
+            
                 order.effectiveDate = ord.EffectiveDate;
-            }
+            
             if(order.ShippingDate == null){
                 order.ShippingDate = ord.ShippingDate__c;
             }
-            if(order.status == null){
+            if(order.status == null || order.status == ''){
                 order.status = ord.Status;
             }
           
-            if(order.type == null){
+            if(order.type == null || order.type == ''){
                 order.type = ord.Type;
             }
-            if(order.customerOrderNumber == null){
+            if(order.customerOrderNumber == null || order.customerOrderNumber == ''){
                 order.customerOrderNumber = ord.CustomerOrderNumber__c;
             }
-            if(order.paymentForm == null){
+            if(order.paymentForm == null || order.paymentForm == ''){
                 order.paymentForm = ord.PaymentForm__c;
             }
-            if(order.CurrencyOrder == null){
+            if(order.CurrencyOrder == null || order.CurrencyOrder == ''){
                 order.CurrencyOrder = ord.Currency__c;
             }
-            if(order.incoterms == null){
+            if(order.incoterms == null || order.incoterms == ''){
                 order.incoterms = ord.Incoterms__c;
             }
-            if(order.incoterms2 == null){
+            if(order.incoterms2 == null || order.incoterms2 == ''){
                 order.incoterms2 = ord.Incoterms2__c;
             }
-            if(order.description == null){
+            if(order.description == null || order.description == ''){
                 order.description = ord.Description;
             }
-            if(order.descriptionBillingSale == null){
+            if(order.descriptionBillingSale == null || order.descriptionBillingSale == ''){
                 order.descriptionBillingSale = ord.DescriptionBillingSale__c;
             }
             if(order.valorFinalTotal == null){
@@ -263,7 +278,7 @@ global without sharing class IntegrationINOrder {
             if(order.margemPedido == null){
                 order.margemPedido = ord.OrderMargin__c;
             }
-            if(order.orderType == null){
+            if(order.orderType == null || order.orderType == ''){
                 order.orderType = ord.OrderType__c;
             }
             
@@ -273,11 +288,11 @@ global without sharing class IntegrationINOrder {
 
             
 
-            if(order.salesType == null){
+            if(order.salesType == null || order.salesType == ''){
                 order.recordIdToUpdate = ord.RecordTypeId;
             }
             
-			if(order.pricebook2Id == null){
+			if(order.pricebook2Id == null || order.pricebook2Id == ''){
                 if(ord.Pricebook2Id != null){
                     order.pricebook2Id = ord.Pricebook2.Name;
                     lookups.put('Pricebook2Id' + ord.Pricebook2.Name, ord.Pricebook2Id);
@@ -286,19 +301,19 @@ global without sharing class IntegrationINOrder {
 
 
         
-            if(order.shippingAccount == null){
+            if(order.shippingAccount == null || order.shippingAccount == ''){
                 if(ord.ShippingAccount__c != null){
                     order.shippingAccount = ord.ShippingAccount__r.ExternalId__c;
                     lookups.put('Account' + ord.ShippingAccount__r.ExternalId__c, ord.ShippingAccount__c);
                 }
             }
-            if(order.PaymentAccount == null){
+            if(order.PaymentAccount == null || order.PaymentAccount == ''){
                 if(ord.AccountId != null){
                     order.PaymentAccount = ord.AccountId;
                     lookups.put('Account' + ord.Account.ExternalId__c, ord.AccountId);
                 }
             }
-            if(order.orderReference == null){
+            if(order.orderReference == null || order.orderReference == ''){
                 if(ord.OrderReference__c != null){
                     order.orderReference = ord.OrderReference__r.CodigoSap__c;
                     lookups.put('Order' + ord.OrderReference__r.CodigoSap__c, ord.OrderReference__c);
@@ -306,21 +321,21 @@ global without sharing class IntegrationINOrder {
             }
            
             
-            if(order.crop == null){
+            if(order.crop == null || order.crop == ''){
                 if(ord.Crop__c != null){
                     order.crop = ord.Crop__r.Code__c;
                     lookups.put('Safra__c' + ord.Crop__r.Code__c, ord.Crop__c);
                 }
             }
 
-            if(order.culture == null){
+            if(order.culture == null || order.culture == ''){
                 if(ord.Culture__c != null){
                     order.culture = ord.Culture__r.Codigo__c;
                     lookups.put('Cultura__c' + ord.Culture__r.Codigo__c, ord.Culture__c);
                 }
             }
 
-            if(order.salesOrg == null){
+            if(order.salesOrg == null || order.salesOrg == ''){
                 if(ord.SalesOrg__c != null){
                     order.salesOrg = ord.SalesOrg__r.SalesOrganizationCode__c;
                     lookups.put('SalesOrg__c' + ord.SalesOrg__r.SalesOrganizationCode__c, ord.SalesOrg__c);
@@ -339,26 +354,26 @@ global without sharing class IntegrationINOrder {
                 }
             }
             
-            if(order.paymentCondition == null){
+            if(order.paymentCondition == null || order.paymentCondition == ''){
                 if(ord.PaymentCondition__c != null){
                     order.paymentCondition = ord.PaymentCondition__r.Code__c;
                     lookups.put('CondicaoPagamento__c' + ord.PaymentCondition__r.Code__c, ord.PaymentCondition__c);    
                 }
             } 
-            if (order.company == null){
+            if (order.company == null || order.company == ''){
                 if(ord.Company__c != null){
                     order.company = ord.Company__r.ExternalID__c;
                     lookups.put('Company__c' + ord.Company__r.ExternalID__c, ord.Company__c);
                 }
             }
-            if(order.distributionChannel == null){
+            if(order.distributionChannel == null || order.distributionChannel == ''){
                 if(ord.DistributionChannel__c != null){
                     order.distributionChannel = ord.DistributionChannel__r.Codigo__c;
                     lookups.put('DistributionChannel__c' + ord.DistributionChannel__r.Codigo__c, ord.DistributionChannel__c);
                 }
             }
             
-            if(order.condicaoVenda == null){
+            if(order.condicaoVenda == null || order.condicaoVenda == ''){
                 if(ord.SalesCondition__c != null){
                     order.condicaoVenda = ord.SalesCondition__r.ExternalId__c;
                     lookups.put('SalesCondition__c' + ord.SalesCondition__r.ExternalId__c, ord.SalesCondition__c);
@@ -366,7 +381,7 @@ global without sharing class IntegrationINOrder {
                 
             }
 
-            if(order.activitySector == null){
+            if(order.activitySector == null || order.activitySector == ''){
                 if(ord.ActivitySector__c != null){
                     order.activitySector = ord.ActivitySector__r.Codigo__c;
                     lookups.put('ActivitySector__c' + ord.ActivitySector__r.Codigo__c, ord.ActivitySector__c);
@@ -417,6 +432,9 @@ global without sharing class IntegrationINOrder {
             lookups.put('ActivitySector__c' + activitySector.Codigo__c, activitySector.Id);
         }
 
+        for(SalesCondition__c salesCondition : [SELECT Id, ExternalId__c FROM SalesCondition__c WHERE ExternalId__c IN : salesConditionLookups]){
+            lookups.put('SalesCondition__c' + salesCondition.ExternalId__c, salesCondition.Id);
+        }
 
         //Converting template to object list and validating required fields
         // Valida e adiciona objeto na lista para upsert
@@ -478,16 +496,17 @@ global without sharing class IntegrationINOrder {
                 IntegrationINShippingDivison.upsertShippingDivison(shippingDivisonListToUpsert)
             );
         }
-
-        AggregateResult[] resulTotal =[SELECT SUM(FinalTotalValue__c) somatoria FROM OrderItem WHERE OrderId =: orderIdEx.keySet() AND ReasonRefuse__c  =: null AND ReasonRefuse__c  =: ''];
-        Order order = new Order();
-        order.Id = (new List<String>(orderIdEx.keySet()))[0]; //(new List<String>(posts.keySet()))[0]
-        //Object avgAmount = resulTotal[0].get('somatoria');
-        order.FinalTotalValue__c  = (Decimal)resulTotal[0].get('somatoria');
-        System.debug('order.FinalTotalValue__c ' + order.FinalTotalValue__c);
-        OrderHelper.disableTrigger();
-        update order;
-        OrderHelper.enableTrigger();
+       
+       
+            AggregateResult[] resulTotal =[SELECT SUM(FinalTotalValue__c) somatoria FROM OrderItem WHERE OrderId =: orderIdEx.keySet() AND ReasonRefuse__c  =: null AND ReasonRefuse__c  =: ''];
+             Order order = new Order();
+             order.Id = (new List<String>(orderIdEx.keySet()))[0]; //(new List<String>(posts.keySet()))[0]
+             //Object avgAmount = resulTotal[0].get('somatoria');
+             order.FinalTotalValue__c  = (Decimal)resulTotal[0].get('somatoria');
+             System.debug('order.FinalTotalValue__c ' + order.FinalTotalValue__c);
+             OrderHelper.disableTrigger();
+             Database.update(order, false);
+             OrderHelper.enableTrigger();         
         
         
 

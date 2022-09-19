@@ -5,5 +5,5 @@
     <mayForecastManagerShare>false</mayForecastManagerShare>
     <name>Vendedor FER-SCRP</name>
     <opportunityAccessLevel>Edit</opportunityAccessLevel>
-    <parentRole>FER_SCRP</parentRole>
+    <parentRole>BalcaoScrp</parentRole>
 </Role>

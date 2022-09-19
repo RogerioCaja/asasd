@@ -90,7 +90,9 @@ export default class OrderHeaderScreen extends LightningElement {
         IsOrderChild : false,
         isCompleted : false,
         companyId: null,
-        firstTime: true
+        hectares: '',
+        firstTime: true,
+        centerId: null
     };
 
     @api salesOrgId;
@@ -99,6 +101,7 @@ export default class OrderHeaderScreen extends LightningElement {
     @api commodityData;
     @api cloneData;
     @api excludedItems;
+    @api formsOfPayment
 
     @track pass = false;
 
@@ -560,13 +563,14 @@ export default class OrderHeaderScreen extends LightningElement {
                     if(field == 'ctv_venda'){
                         let getCompanyData = {
                             ctvId: this.headerDictLocale.ctv_venda.Id != null ? this.headerDictLocale.ctv_venda.Id : '',
-                            accountId: this.headerDictLocale.cliente_entrega.Id != null ? this.headerDictLocale.cliente_entrega.Id : '',
+                            accountId: this.accountData.Id != null ? this.accountData.Id : '',
                             orderType: this.headerData.tipo_venda,
                             approvalNumber: 1
                         }
-                        getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: true, verifyUserType: false})
+                        getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: true, verifyUserType: false, priceScreen: false})
                         .then((result) => {
                            this.salesOrgId = result;
+                           this.headerDictLocale.organizacao_vendas = {Id: result};
                         });
                     }
                 }
@@ -678,7 +682,10 @@ export default class OrderHeaderScreen extends LightningElement {
                 this.headerDictLocale.numero_pedido_cliente !== undefined &&
                 this.headerDictLocale.ctv_venda.Id !==undefined &&
                 this.headerDictLocale.forma_pagamento !== undefined &&
-                this.headerDictLocale.cliente_entrega.Id !== undefined) || this.pass
+                this.headerDictLocale.cliente_entrega.Id !== undefined) &&
+                this.headerDictLocale.hectares !== 0 &&
+                this.headerDictLocale.hectares !== undefined &&
+                this.headerDictLocale.hectares !== '' || this.pass
             ) {
                 return true;
             }

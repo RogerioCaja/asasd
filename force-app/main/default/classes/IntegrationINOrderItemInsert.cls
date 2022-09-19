@@ -17,6 +17,18 @@ global with sharing class IntegrationINOrderItemInsert {
         //Application of business rules
         
         for(TemplateDataIntegrationFields.OrderItemINData OrderItemINData : request){
+            idsOrderItem.add(OrderItemINData.orderExternalId + '|' + OrderItemINData.orderItemCode);
+            productLookups.add(OrderItemINData.material);
+        }
+
+        Map<String, Product2> prdtMap = new Map<String, Product2>();
+        List<Product2> prdList = new List<Product2>([SELECT ProductCode__c, UnidadeMedida__c FROM Product2  WHERE ProductCode__c IN: productLookups]);
+        
+        for(Product2 product : prdList){
+            prdtMap.put(product.ProductCode__c, product);
+        }
+
+        for(TemplateDataIntegrationFields.OrderItemINData OrderItemINData : request){
 
             // Pega a relação do OrderItem com Order
             //Getting order parameters to search
@@ -25,7 +37,15 @@ global with sharing class IntegrationINOrderItemInsert {
             // Pega a relação do Product com o OrderItem
             //Getting product parameters to search
             productLookups.add(OrderItemINData.material);
+            OrderItemINData.dosagem = OrderItemINData.quantidade;
             idsOrderItem.add(OrderItemINData.orderExternalId + '|' + OrderItemINData.orderItemCode);
+
+            
+            if(prdtMap.containsKey(OrderItemINData.material)){
+                Product2 prdItem = prdtMap.get(OrderItemINData.material);
+                OrderItemINData.unidadeMedida = prdItem.UnidadeMedida__c;
+            }
+            
 
             for(TemplateDataIntegrationFields.ConditionInsert  conditions : conditionList){
                 conditions.KPOSN = conditions.KPOSN.replaceFirst('^0+','');
@@ -34,6 +54,7 @@ global with sharing class IntegrationINOrderItemInsert {
                     if(conditions.KSCHL == 'ZPR0'){
                         OrderItemINData.precoUnitario = (Decimal.valueOf(conditions.KBETR) / Decimal.valueOf(conditions.KPEIN));
                         System.debug('OrderItemINData.precoUnitario ' + OrderItemINData.precoUnitario);
+                        OrderItemINData.precoPraticado = OrderItemINData.precoUnitario;
                        //OrderItemINData.multiplicador == conditions.KPEIN;
                     }
                     
@@ -52,7 +73,8 @@ global with sharing class IntegrationINOrderItemInsert {
                     }
 
                     if(conditions.KSCHL == 'ZCP0'){
-                        OrderItemINData.custoPreco = Decimal.valueOf(conditions.KBETR);
+                        Decimal custoPraticado = Decimal.valueOf(conditions.KBETR) / OrderItemINData.quantidade;
+                        OrderItemINData.custoPreco = custoPraticado;
                     }
                     
                     if(conditions.KSCHL == 'ZDEC'){
@@ -89,6 +111,7 @@ global with sharing class IntegrationINOrderItemInsert {
         Decimal valorAcrescimoComercial = 0;
         
         Decimal valorFinal = OrderItemINData.precoUnitario * OrderItemINData.quantidade;
+        OrderItemINData.valorTotal = valorFinal;
         
         if(OrderItemINData.porcentagemDescontoFin > 0){
             //porcentagemDescontoFinanceiro = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemDescontoFin / 100);
@@ -185,7 +208,9 @@ global with sharing class IntegrationINOrderItemInsert {
             lookups, 
             parentMapKeys
         );
-
+        for(OrderItem ordItemDesc : orderItemListToUpsert){
+            ordItemDesc.Description += 'In73gr ins37t x';
+        }
         //Upserting records
         List<Database.UpsertResult> upsResults = Database.upsert(orderItemListToUpsert, OrderItem.ExternalId__c, false);
 

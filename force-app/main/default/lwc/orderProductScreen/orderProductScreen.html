@@ -6,7 +6,7 @@
 	</template>
 	
 	<template if:false={showLoading}>
-		<template if:false={disabled}>
+		<template if:false={disableSearch}>
 			<div class="search-title">
 				<span>Pesquisar <b>PRODUTO</b>:</span>
 			</div>
@@ -65,7 +65,7 @@
 		<template if:true={createNewProduct}>
 			<div id="product-modal" class="modal">
 				<div class="modal-content">
-					<span class="close" onclick={showProductModal}>&times;</span>
+					<span class="close" onclick={hideProductModal}>&times;</span>
 					<p class="new-product-title">Incluir novo produto: {addProduct.name}</p>
 
 					<div class="row">
@@ -83,10 +83,10 @@
 						<div class="column">
 							<label>Dosagem</label><br>
 							<template if:true={headerData.IsOrderChild}>
-								<input class="input-design" type="text" value={addProduct.dosage} onchange={changeValue} data-target-id="dosage" disabled/>
+								<input class="input-design" type="text" value={addProduct.dosageFront} onchange={changeValue} data-target-id="dosage" disabled/>
 							</template>
 							<template if:false={headerData.IsOrderChild}>
-								<input class="input-design" type="text" value={addProduct.dosage} onchange={changeValue} data-target-id="dosage" disabled={disabled}/>
+								<input class="input-design" type="text" value={addProduct.dosageFront} onchange={changeValue} data-target-id="dosage" disabled={disabled}/>
 							</template>
 						</div>
 
@@ -192,6 +192,17 @@
 					<hr class="line-divisor"/>
 					<p class="title-divisor">Informações Adicionais</p>
 
+					<div if:true={seedSale} class="row">
+						<div class="column">
+							<label>Peneira</label><br>
+							<input class="input-design" type="text" value={addProduct.sieve} onchange={changeValue} data-target-id="sieve" maxlength="3"/>
+						</div>
+						<div class="column">
+							<label>Classe/Categoria</label><br>
+							<input class="input-design" type="text" value={addProduct.productClass} onchange={changeValue} data-target-id="productClass" maxlength="6"/>
+						</div>
+					</div>
+
 					<div class="row">
 						<div class="column">
 							<label>Quantidade Faturada</label><br>
@@ -216,7 +227,7 @@
 
 					<div class="row">
 						<div class="back-button">
-							<a onclick={showProductModal}>Fechar</a>
+							<a onclick={hideProductModal}>Fechar</a>
 						</div>
 						<template if:false={disabled}>
 							<template if:true={updateProduct}>
@@ -315,6 +326,17 @@
 						<div class="column">
 							<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnFinancialDecreaseValue} data-target-id="columnFinancialDecreaseValue">
 							<label class="column-title">Valor de Decréscimo Financeiro</label><br>
+						</div>
+					</div>
+
+					<div if:true={seedSale} class="row">
+						<div class="column">
+							<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnSieve} data-target-id="columnSieve">
+							<label class="column-title">Peneira</label><br>
+						</div>
+						<div class="column">
+							<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnProductClass} data-target-id="columnProductClass">
+							<label class="column-title">Classe/Categoria</label><br>
 						</div>
 					</div>
 
