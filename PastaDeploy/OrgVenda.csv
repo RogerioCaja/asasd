@@ -1,0 +1,5 @@
+SalesOrganizationCode__c,Name,Freight__c
+001,Organização 1,false
+002,Organização 2,false
+003,Organização 3,true
+004,Organização 4,true

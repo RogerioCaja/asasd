@@ -22,6 +22,10 @@ public without sharing class CalloutBP {
                     accountIdsList.add(valor.ContaPai);
                     accountFatherIdsList.add(valor.ContaPai);
                 }
+                if(valor.ZZCRED != null){
+                    accountIdsList.add(valor.ZZCRED);
+                    accountFatherIdsList.add(valor.ZZCRED);
+                }
             }
             System.debug('accountIdsList: '+ accountIdsList);
             List<Account> accountListExternalId = new List<Account>([SELECT Id, ExternalId__c FROM Account WHERE ExternalId__c =: accountIdsList]);
@@ -36,7 +40,12 @@ public without sharing class CalloutBP {
                 }
                 for(CompanyINData company : valor.EstruturaOrganizacional){
                     company.CodigoExternoAccount = valor.CodigoExterno;
-                    company.CodigoExternoFatherAccount = valor.ContaPai;
+                    if(valor.ContaPai != null && valor.ContaPai != ''){
+                        company.CodigoExternoFatherAccount = valor.ContaPai;
+                    }else{
+                        company.CodigoExternoFatherAccount = valor.ZZCRED;
+                    }
+                    
                     companyList.add(company);
                 }
                 String statusType;
@@ -57,7 +66,6 @@ public without sharing class CalloutBP {
                 Name = valor.Nome,
                 Company__c = valor.Nome,    
                 ExternalId__c = valor.CodigoExterno,
-                ParentId = lookups.containsKey('Account'+valor.ContaPai) ? lookups.get('Account'+valor.ContaPai) : null,
                 CNPJ__c = valor.CNPJ,
                 CPF__c = valor.CPF,
                 MunicipalRegistration__c = valor.InscricaoMunicipal,
@@ -65,6 +73,17 @@ public without sharing class CalloutBP {
                 Email__c = email,
                 Phone = valor.Telefone,
                 Status__c = statusType);
+                if(valor.ContaPai != null){
+                    ac.ParentId = lookups.containsKey('Account'+valor.ContaPai) ? lookups.get('Account'+valor.ContaPai) : null;
+                }else{
+                    ac.ParentId = lookups.containsKey('Account'+valor.ZZCRED) ? lookups.get('Account'+valor.ZZCRED) : null;
+                }
+                ac.RegisterTipe__c = valor.TipoRegistro;
+                if(valor.TipoBp == 'Cliente'){
+                    ac.BpType__c = 'Proprietario';
+                }else{
+                    ac.BpType__c = valor.TipoBp;
+                }
                 
                 ac.ShippingStreet = valor.RuaEntrega;
                 ac.ShippingCity = valor.CidadeEntrega;
@@ -166,6 +185,10 @@ public without sharing class CalloutBP {
                     accountIdsList.add(valor.ContaPai);
                     accountFatherIdsList.add(valor.ContaPai);
                 }
+                if(valor.ZZCRED != null){
+                    accountIdsList.add(valor.ZZCRED);
+                    accountFatherIdsList.add(valor.ZZCRED);
+                }
             }
             System.debug('accountIdsList: '+ accountIdsList);
             List<Account> accountListExternalId = new List<Account>([SELECT Id, ExternalId__c FROM Account WHERE ExternalId__c =: accountIdsList]);
@@ -180,7 +203,11 @@ public without sharing class CalloutBP {
                 }
                 for(CompanyINData company : valor.EstruturaOrganizacional){
                     company.CodigoExternoAccount = valor.CodigoExterno;
-                    company.CodigoExternoFatherAccount = valor.ContaPai;
+                    if(valor.ContaPai != null && valor.ContaPai != ''){
+                        company.CodigoExternoFatherAccount = valor.ContaPai;
+                    }else{
+                        company.CodigoExternoFatherAccount = valor.ZZCRED;
+                    }
                     companyList.add(company);
                 }
                 String statusType;
@@ -201,7 +228,6 @@ public without sharing class CalloutBP {
                 Name = valor.Nome,
                 Company__c = valor.Nome,    
                 ExternalId__c = valor.CodigoExterno,
-                ParentId = lookups.containsKey('Account'+valor.ContaPai) ? lookups.get('Account'+valor.ContaPai) : null,
                 CNPJ__c = valor.CNPJ,
                 CPF__c = valor.CPF,
                 MunicipalRegistration__c = valor.InscricaoMunicipal,
@@ -209,7 +235,17 @@ public without sharing class CalloutBP {
                 Email__c = email,
                 Phone = valor.Telefone,
                 Status__c = statusType);
-                
+                if(valor.ContaPai != null){
+                    ac.ParentId = lookups.containsKey('Account'+valor.ContaPai) ? lookups.get('Account'+valor.ContaPai) : null;
+                }else{
+                    ac.ParentId = lookups.containsKey('Account'+valor.ZZCRED) ? lookups.get('Account'+valor.ZZCRED) : null;
+                }
+                ac.RegisterTipe__c = valor.TipoRegistro;
+                if(valor.TipoBp == 'Cliente'){
+                    ac.BpType__c = 'Proprietario';
+                }else{
+                    ac.BpType__c = valor.TipoBp;
+                }
                 ac.ShippingStreet = valor.RuaEntrega;
                 ac.ShippingCity = valor.CidadeEntrega;
                 ac.ShippingState = valor.Estado;
@@ -368,7 +404,7 @@ public without sharing class CalloutBP {
         //Get Culture
         List<Cultura__c> cultureList = new List<Cultura__c>([SELECT Id, Codigo__c FROM Cultura__c WHERE Codigo__c =: cultureIdsList]);
         for (Cultura__c cult : cultureList) {
-            lookups.put('Cultura__c' + cult.Codigo__c, cult.Id);
+            lookups.put('Culture__c' + cult.Codigo__c, cult.Id);
         }
         //Get Safra
         List<Safra__c> safraList = new List<Safra__c>([SELECT Id, Code__c FROM Safra__c WHERE Code__c =: safraIdsList]);
@@ -721,7 +757,7 @@ public without sharing class CalloutBP {
         String endpointToken = (!Test.isRunningTest() ? 'https://apim.agrogalaxy.com.br/identityserver/oauth2/token' : 'http://callout.My_Named_Credential.com/some/path');
         Map<String, String> headersMapToken = new Map<String, String>();
         headersMapToken.put('Content-type', 'application/x-www-form-urlencoded');
-        headersMapToken.put('Authorization', 'Basic ZVBwb0ZlUm1XZGtUNk9tRnlMQl9Ma2pBUUVrYTpsV3diUVBpa2dNeTRyTnQ5UkNSWmRpS3luMmdh');
+        headersMapToken.put('Authorization', 'Basic dEQxV2M0bWtXdnRWNWVtRXZSOHlVRF9iUFZvYTpmZmVJQUs5SmdPNXNsbXI1UzVMUXNNcTBOME1h');
         IntegrationUtils.RequestResponseObject responseObject2 = IntegrationUtils.executeCallout(endpointToken, payloadToken, headersMapToken);
         System.debug('responseObject2: '+ responseObject2);
         if (responseObject2.success) {
@@ -765,6 +801,9 @@ public without sharing class CalloutBP {
         public String Nome;
         public String CodigoExterno;
         public String RuaEntrega;
+        public String TipoRegistro;
+        public String TipoBp;
+        public String ZZCRED;
         public String CidadeEntrega;
         public String Estado;
         public String PaisEntrega;

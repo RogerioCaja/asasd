@@ -402,8 +402,10 @@ global with sharing class TemplateDataIntegrationFields {
                 /* ATUALIZAÇÃO 05.07.2022*/
                 RecordTypeId = this.salesType != null ? Schema.SObjectType.Order.getRecordTypeInfosByName().get(this.salesType).getRecordTypeId() : this.recordIdToUpdate,//
                 Type = this.salesType != null ? this.salesType : Schema.getGlobalDescribe().get('Order').getDescribe().getRecordTypeInfosById().get(this.recordIdToUpdate).getName(),
-                OrderType__c = this.pedidoMae ? 'Pedido Mãe' : 'Pedido Normal',
+                OrderType__c = this.orderReference != '' ? 'Pedido Filho' : (this.pedidoMae ? 'Pedido Mãe' : 'Pedido Normal'),
+                
                 OwnerId = lookups.containsKey('User'+this.salesCTV) ? lookups.get('User'+this.salesCTV) : null
+
                 
             );
         }
@@ -483,7 +485,6 @@ global with sharing class TemplateDataIntegrationFields {
                 PracticedCost__c = this.custoPreco,
                 PracticedPrice__c = this.precoPraticado,
                 UnitPrice = this.precoPraticado,
-                AmountUsed__c = 0,
                 ReasonRefuse__c = this.motivoRecusa
             );
         }
@@ -632,6 +633,7 @@ global with sharing class TemplateDataIntegrationFields {
             public String instrucoes;
             public String numeroBoleto;
             public String bancoEmpresa;
+            public String boletoBasePdf;
             public Boletos__c serialize(Map<String, Id> lookups){
 
                 //Returning Object with Fields
@@ -646,7 +648,8 @@ global with sharing class TemplateDataIntegrationFields {
                 BankName__c = this.bancoEmpresa,
                 OurNumber__c = this.numeroBoleto,
                 BusinessLocation__c = this.localNegocio, 
-                Instructions__c = this.instrucoes
+                Instructions__c = this.instrucoes,
+                Base64__c = this.boletoBasePdf
             );
         }
 

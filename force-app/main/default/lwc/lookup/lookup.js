@@ -2,6 +2,7 @@ import { LightningElement, api, track, wire } from 'lwc';
 import { getRecord } from 'lightning/uiRecordApi';
 
 import getRecords from '@salesforce/apex/Lookup.getRecords';
+import fetchAccountRecords from '@salesforce/apex/CustomAccountLookupController.fetchAccountRecords';
 
 export default class Lookup extends LightningElement {
 	// APIs
@@ -15,10 +16,12 @@ export default class Lookup extends LightningElement {
 	@api required;
 	@api disabled;
 	@api barterSale;
+	@api priceScreen;
 	@api safraName = null;
 	@api salesType = null;
 	@api salesOrg = null;
 	@api currencyOption = null;
+	@api clientTerritoriesScreen = false;
 
 	@api parentRecordList; // Valor do WHERE =
 	@api parentRelationFieldList; // Campo do WHERE =
@@ -247,14 +250,18 @@ export default class Lookup extends LightningElement {
 		}
 
 		try {
-			let salesConditionData = {
-				salesOrgId: this.salesOrg  != null ? this.salesOrg  : '',
-				safraName:  this.safraName != null ?  this.safraName : '',
-				currencyGet: this.currencyOption != null ? this.currencyOption : '',
-				typeOrder: this.salesType != null ? this.salesType : ''
+			let data;
+			if (requestData.targetObject == 'Account') {
+				data = await fetchAccountRecords({searchString: requestData.searchValue});
+			} else {
+				let salesConditionData = {
+					salesOrgId: this.salesOrg  != null ? this.salesOrg  : '',
+					safraName:  this.safraName != null ?  this.safraName : '',
+					currencyGet: this.currencyOption != null ? this.currencyOption : '',
+					typeOrder: this.salesType != null ? this.salesType : ''
+				}
+				data = await getRecords({ data: JSON.stringify(requestData), barterSale: this.barterSale, salesConditionData: JSON.stringify(salesConditionData), priceScreen:false, clientTerritoriesScreen: this.clientTerritoriesScreen });
 			}
-			const data = await getRecords({ data: JSON.stringify(requestData), barterSale: this.barterSale, salesConditionData: JSON.stringify(salesConditionData) });
-			//console.log('data lookup fon =>', JSON.parse(JSON.stringify(data)));
 
 			var dataResult = [];
 			if (data) {

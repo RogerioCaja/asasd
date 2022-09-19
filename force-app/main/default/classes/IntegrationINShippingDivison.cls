@@ -40,7 +40,7 @@ global with sharing class IntegrationINShippingDivison {
             for (TemplateDataIntegrationFields.ShippingDivisonINData shipping : request){
                 ShippingDivison__c ship = shippingIdsMap.get(shipping.orderExternalId + '|' + shipping.OrderItemCode + '|' + shipping.DivisaoRemessa);
                 
-                if(shipping.material == null){
+                if(shipping.material == null || shipping.material == ''){
                     if(ship.OrderItem__c != null){
                         shipping.material = ship.OrderItem__r.Product2.ProductCode__c;
                         lookups.put('OrderItem__c' + ship.OrderItem__r.Product2.ProductCode__c, ship.OrderItem__r.Product2Id);

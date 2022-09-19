@@ -346,7 +346,7 @@ public class OrderScreenControllerTest {
         OrderScreenController.AccountSerialize account = OrderScreenController.getOrderAccountData(ord.AccountId);
         List<OrderScreenController.ProductSerialize> ordItemList = OrderScreenController.getOrderItemData(ord.Id, false);
         List<OrderScreenController.DivisionSerialize> divisionList = OrderScreenController.getShippingDivison();
-        OrderScreenController.SummarySerialize summary = new OrderScreenController.SummarySerialize('Observation', 'Observation Sales');
+        OrderScreenController.SummarySerialize summary = new OrderScreenController.SummarySerialize('Observation', 'Observation Sales', 150);
 
         OrderScreenController.CommodityDeserialize commodity = new OrderScreenController.CommodityDeserialize();
         commodity.product = 'Soja';
@@ -389,7 +389,7 @@ public class OrderScreenControllerTest {
     @isTest
     public static void getAccountCompaniesTest() {
         Id accountId = [SELECT Id FROM Account WHERE Name = 'Parent Account' LIMIT 1].Id;
-        OrderScreenController.getAccountCompanies('{"ctvId":"' + UserInfo.getUserId() + '","accountId":"' + accountId + '","approvalNumber":1}', false, false);
+        OrderScreenController.getAccountCompanies('{"ctvId":"' + UserInfo.getUserId() + '","accountId":"' + accountId + '","approvalNumber":1}', false, false, false);
     }
 
     @isTest

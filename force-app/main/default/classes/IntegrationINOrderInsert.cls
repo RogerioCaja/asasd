@@ -56,7 +56,8 @@ global without sharing class IntegrationINOrderInsert {
             orderReferenceLookups.add(order.orderReference);
             activitySectorLookups.add(order.ActivitySector);
             distributionChannelLookups.add(order.DistributionChannel);
-            order.company = order.PaymentAccount + order.CentroFornecedor + order.salesOrg + order.activitySector + order.distributionChannel + order.EscritorioVendas + order.EquipeVendas;
+            
+            order.hectare = order.hectare == null ? 1 : order.hectare;
             companyLookups.add(order.company);
 
             
@@ -74,7 +75,9 @@ global without sharing class IntegrationINOrderInsert {
                 //Getting list of order items
                 orderItemListToUpsert.addAll(order.orderItems);
                 System.debug('orderItemListToUpsert' + orderItemListToUpsert); 
-
+                if(order.salesType == 'ZVAB'){
+                	order.salesType = 'ZVNO';
+            	}
                 switch on order.salesType {
                     // ---- Pedido mãe  ----
                      when 'ZCCO' {
@@ -143,6 +146,8 @@ global without sharing class IntegrationINOrderInsert {
                     order.salesCTV = partnerList.KUNNR;
                 }
         }
+
+            order.company = order.PaymentAccount + order.CentroFornecedor + order.salesOrg + order.activitySector + order.distributionChannel + order.EscritorioVendas + order.EquipeVendas;
 
             conditionList.addAll(order.conditions);
              
@@ -266,18 +271,19 @@ global without sharing class IntegrationINOrderInsert {
             );
             System.debug('shippingDivisonResponse' + shippingDivisonResponse);
         }
-        AggregateResult[] resulTotal =[SELECT SUM(FinalTotalValue__c) somatoria FROM OrderItem WHERE OrderId =: orderIdEx.keySet() AND ReasonRefuse__c  =: null AND ReasonRefuse__c  =: ''];
-        List<OrderItem> orderItemListT = [SELECT Id,  FinalTotalValue__c FROM OrderItem WHERE OrderId =: orderIdEx.keySet()];
-        System.debug('orderItemListT ' + orderItemListT);
-        System.debug('resulTotal ' + resulTotal);
-        Order order = new Order();
-        order.Id = (new List<String>(orderIdEx.keySet()))[0]; //(new List<String>(posts.keySet()))[0]
-        //Object avgAmount = resulTotal[0].get('somatoria');
-        order.FinalTotalValue__c  = (Decimal)resulTotal[0].get('somatoria');
-        System.debug('order.FinalTotalValue__c ' + order.FinalTotalValue__c);
-        OrderHelper.disableTrigger();
-        update order;
-        OrderHelper.enableTrigger();
+        
+            AggregateResult[] resulTotal =[SELECT SUM(FinalTotalValue__c) somatoria FROM OrderItem WHERE OrderId =: orderIdEx.keySet() AND ReasonRefuse__c  =: null AND ReasonRefuse__c  =: ''];
+        	 List<OrderItem> orderItemListT = [SELECT Id,  FinalTotalValue__c FROM OrderItem WHERE OrderId =: orderIdEx.keySet()];
+        	 System.debug('orderItemListT ' + orderItemListT);
+             System.debug('resulTotal ' + resulTotal);
+             Order order = new Order();
+             order.Id = (new List<String>(orderIdEx.keySet()))[0]; //(new List<String>(posts.keySet()))[0]
+             //Object avgAmount = resulTotal[0].get('somatoria');
+             order.FinalTotalValue__c  = (Decimal)resulTotal[0].get('somatoria');
+             System.debug('order.FinalTotalValue__c ' + order.FinalTotalValue__c);
+             OrderHelper.disableTrigger();
+             Database.update(order, false);
+             OrderHelper.enableTrigger();
         
         
         System.debug('Chegou!? ');

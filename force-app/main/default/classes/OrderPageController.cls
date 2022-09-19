@@ -32,7 +32,7 @@ public with sharing class OrderPageController {
         for(OrderItemDAO orderItem : this.orderToPage.orderItemList){
             totalValue += Decimal.valueOf(orderItem.totalAmount.replace(' sacas', '').replace('R$', '').replace(',', '.').trim());
         }
-        this.orderToPage.totalAmount = this.orderToPage.currencyOrder == 'Barter' ? String.valueOf(totalValue) + ' sacas' : String.valueOf(totalValue);
+        this.orderToPage.totalAmount = this.orderToPage.currencyOrder == 'Barter' ? String.valueOf(totalValue) + ' sacas' : 'R$ ' + String.valueOf(totalValue).replace('.', ',');
        
         String downloadingFileName = 'Pedido de Venda-' + this.orderToPage.codeSap + '.pdf';
         Apexpages.currentPage().getHeaders().put( 'content-disposition', 'inline; filename=' + downloadingFileName );
@@ -45,12 +45,12 @@ public with sharing class OrderPageController {
   
         Set<String> fieldSet = new Set<String>{
             'Id', 'Account.ExternalId__c', 'Account.Name', 'Account.BillingStreet', 'OrderNumber',
-            'ShippingAccount__r.Name','Account.BillingCity', 'Account.StateRegistration__c',
+            'ShippingAccount__r.Name','Account.BillingCity', 'Account.StateRegistration__c', 'SalesOrg__r.SalesOrganizationCode__c',
             'Company__r.salesTeam__r.Address__c','Company__r.salesTeam__r.CNPJ__c', 'Company__r.salesTeam__r.Country__c', 'Company__r.salesTeam__r.Locale__c','Company__r.salesTeam__r.Phone__c',
             'Company__r.salesTeam__r.Registration__c','Company__r.salesTeam__r.State__c', 'Company__r.salesTeam__r.Subsidiary__c', 'Company__r.salesTeam__r.ZipCode__c',
             'Account.CPF__c', 'Account.CNPJ__c', 'TotalAmount', 'Description', 'FinalTotalValue__c', 'Status',
             'Account.BillingPostalCode', 'Crop__r.Name', 'PaymentForm__c', 'PaymentDate__c', 'RecordTypeId',
-            'Currency__c', 'Culture__r.Name', 'CodigoSap__c', 'SalesCTV__r.CodigoSap__c', 'SalesCTV__r.Name'
+            'Currency__c', 'Culture__r.Name', 'CodigoSap__c', 'SalesCTV__r.CodigoSap__c', 'SalesCTV__r.Name', 'IsOrderMother__c'
         };
 
         String query = new Q(Order.SObjectType)
@@ -132,33 +132,36 @@ public with sharing class OrderPageController {
     public class OrderDAO{
         //Cód. Pessoa, Pessoa, Local, Fazenda, municipio, CPF/CNPJ, I.E., CEP
         //safra, Cond. de Pagamento, Vencimento
-        public String codCTV {get; set;}
-        public String orderNumber {get; set;}
-        public String nameCTV {get; set;}
-        public String codeSap {get; set;}
-        public String codeSapOrder {get; set;}
-        public String account {get; set;}
-        public String accountAddress {get; set;}
-        public String ranch {get; set;}
-        public String district {get; set;}
-        public String CPF_CNPJ {get; set;}
-        public String IE {get; set;}
-        public String CEP{get; set;}
-        public String safra {get; set;}
-        public String paymentCondition {get; set;}
-        public String dueDate {get; set;}
-        public String currencyOrder {get; set;}
-        public String culture {get; set;}
-        public String totalAmount {get; set;}
-        public String observation {get; set;}
-        public String status {get; set;}
+        public String codCTV                    {get; set;}
+        public String orderNumber               {get; set;}
+        public String nameCTV                   {get; set;}
+        public String codeSap                   {get; set;}
+        public String codeSapOrder              {get; set;}
+        public String account                   {get; set;}
+        public String accountAddress            {get; set;}
+        public String ranch                     {get; set;}
+        public String district                  {get; set;}
+        public String CPF_CNPJ                  {get; set;}
+        public String IE                        {get; set;}
+        public String CEP                       {get; set;}
+        public String safra                     {get; set;}
+        public String paymentCondition          {get; set;}
+        public String dueDate                   {get; set;}
+        public String currencyOrder             {get; set;}
+        public String culture                   {get; set;}
+        public String totalAmount               {get; set;}
+        public String observation               {get; set;}
+        public String status                    {get; set;}
+        public Boolean isMother                 {get; set;}
+        public String messageDivisionOrNo       {get; set;}
 
-        public String salesTeamName {get;set;}
-        public String salesTeamLocale {get;set;}
-        public String salesTeamLocation {get;set;}
-        public String salesTeamPhone {get;set;}
-        public String salesTeamCNPJ {get;set;}
-        public String salesTeamIE {get;set;}
+        public String salesTeamName             {get; set;}
+        public String salesTeamLocale           {get; set;}
+        public String salesTeamLocation         {get; set;}
+        public String salesTeamPhone            {get; set;}
+        public String salesTeamCNPJ             {get; set;}
+        public String salesTeamIE               {get; set;}
+        public Boolean isNormalSales            {get; set;}
 
         public List<OrderItemDAO> orderItemList {get; set;}
 
@@ -181,6 +184,8 @@ public with sharing class OrderPageController {
             this.totalAmount = formatCurrency(order.FinalTotalValue__c, this.currencyOrder);
             this.observation = order.Description;
             this.status = getLabelForPage(order.Status);
+            this.isMother = order.IsOrderMother__c;
+            this.messageDivisionOrNo = order.IsOrderMother__c ? 'Quantidade' : 'Data de Entrega(s) - Quant.';
             this.codCTV = order.SalesCTV__r.CodigoSap__c;
             this.nameCTV = order.SalesCTV__r.Name;
             this.salesTeamName = order.Company__r.salesTeam__r.Subsidiary__c;
@@ -189,6 +194,7 @@ public with sharing class OrderPageController {
             this.salesTeamPhone = order.Company__r.salesTeam__r.Phone__c;
             this.salesTeamCNPJ = order.Company__r.salesTeam__r.CNPJ__c;
             this.salesTeamIE = order.Company__r.salesTeam__r.Registration__c;
+            this.isNormalSales = order.SalesOrg__r.SalesOrganizationCode__c == '1300' ? false : true;
             this.orderItemList = new List<OrderItemDAO>();
         }
 
@@ -225,13 +231,13 @@ public with sharing class OrderPageController {
 
     public class OrderItemDAO{
         // Cód. Produto Descrição Cultura Unid. Medida Quant. Preço Unit. Valor Total
-        public String productCode {get; set;}
-        public String description {get; set;}
-        public String culture {get;set;}
-        public String unitOfMeasure {get; set;}
-        public String unitPrice {get; set;}
-        public String quantity {get; set;}
-        public String totalAmount {get; set;}
+        public String productCode           {get; set;}
+        public String description           {get; set;}
+        public String culture               {get; set;}
+        public String unitOfMeasure         {get; set;}
+        public String unitPrice             {get; set;}
+        public String quantity              {get; set;}
+        public String totalAmount           {get; set;}
         public List<DivisonDAO> divisonList {get; set;}
 
         public OrderItemDAO(OrderItem orderItem, String culture, String currencyCode, List<DivisonDAO> divisonList, OrderCommodity__c commodity){
@@ -261,7 +267,7 @@ public with sharing class OrderPageController {
 
     public class DivisonDAO{
         public String deliveryDate {get; set;}
-        public String quantity {get; set;}
+        public String quantity     {get; set;}
 
         public DivisonDAO(ShippingDivison__c divison){
             this.deliveryDate =  divison.DeliveryDate__c.format();
@@ -270,9 +276,9 @@ public with sharing class OrderPageController {
     }
 
     public class CommodityDAO{
-        public String price {get; set;}
+        public String price    {get; set;}
         public String quantity {get; set;}
-        public String product {get; set;}
+        public String product  {get; set;}
 
         public CommodityDAO(OrderCommodity__c commodity){
             this.quantity = String.valueOf(commodity.BagQuantity__c);
