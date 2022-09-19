@@ -1,4 +1,4 @@
-public without sharing class IntegrationINPaymentFormInsert {
+global without sharing class IntegrationINPaymentFormInsert {
     public IntegrationINPaymentFormInsert() {
 
     }
@@ -63,5 +63,5 @@ public without sharing class IntegrationINPaymentFormInsert {
 
         return responseMap;
     }
-    
+
 }
