@@ -37,13 +37,19 @@ public without sharing class CalloutOrder {
             for(Messages message : resp.responses.ET_RETURN.item){
                 if(message.TYPE != 'S' && message.TYPE != 'W'){
                     calloutResponse.success = false;
-                    calloutResponse.errorMessage = message.MESSAGE;
+                    calloutResponse.errorMessage = (calloutResponse.errorMessage != null ? calloutResponse.errorMessage : '') + message.MESSAGE + '\n';
                 }
             }
+            if(!calloutResponse.success){
+                allOrders[0].ErrorIntegrationSAP__c = calloutResponse.errorMessage;
+                orderList.add(allOrders[0]);
+            }
+
             if(calloutResponse.success){
                 allOrders[0].CodigoSap__c = resp.responses.EV_SALES_DOC;
                 allOrders[0].StatusSF__c = 'Integrado';
                 allOrders[0].Status =  resp.responses.EV_STATUS;
+                allOrders[0].ErrorIntegrationSAP__c = '';
                 orderList.add(allOrders[0]);
             }
             
@@ -77,7 +83,7 @@ public without sharing class CalloutOrder {
 
 	public static IntegrationUtils.CalloutResponse sendOrder(List<Order> orders) {
 			
-        Integration__c integrationOUT = Integration__c.getInstance('Pedidos OUT');
+        Integration__c integrationOUT = Integration__c.getInstance('Pedidos OUT SAP');
         if(integrationOUT != null && integrationOUT.IsInactive__c){
             IntegrationLog.createLog('Pedido OUT SAP', 'OUT', '', 'Integração INATIVA', true);
 			return new IntegrationUtils.CalloutResponse('Integração INATIVA');
@@ -96,7 +102,7 @@ public without sharing class CalloutOrder {
 		String accessToken = !Test.isRunningTest() ? getAccessToken() : 'testeToken';
 		
 		//Path geralmente cadastrado dentro de ua customSettings
-		String endpoint = (!Test.isRunningTest() ? 'https://agrogalaxy-qas-01.it-cpi008-rt.cfapps.br10.hana.ondemand.com/http/SI_CRIA_OV_OUT' : 'http://callout.My_Named_Credential.com/some/path');
+		String endpoint = (!Test.isRunningTest() ? integrationOUT.Url__c : 'http://callout.My_Named_Credential.com/some/path');
 		Map<String, String> headersMap = new Map<String, String>();
 		headersMap.put('Content-type', 'application/json');
 		headersMap.put('Authorization', 'Bearer '+ accessToken);
@@ -107,7 +113,11 @@ public without sharing class CalloutOrder {
 
 			HttpResponse response = responseObject.response;
 
-            IntegrationLog.createLog('Pedido OUT - SAP', 'OUT', response.getBody(), payload, false);
+            if(response.getBody().contains('"TYPE":"E"')){
+                IntegrationLog.createLog('Pedido OUT - SAP', 'OUT', response.getBody(), payload, true);
+            }else{
+                IntegrationLog.createLog('Pedido OUT - SAP', 'OUT', response.getBody(), payload, false);
+            }
 			// .WSLog('Pedido', 'OUTBOUND', response.getBody(), payload, false);
 			try {
 

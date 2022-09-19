@@ -430,6 +430,7 @@ public without sharing class OrderScreenController {
                      WHERE Status__c = 'Aprovado'
                        AND Approver__c = 'ComiteMargem'
                        AND ClientGroup__c =: company.ClientGroup__c
+                       AND SalesOrg__c =: company.SalesOrg__c
                        AND ProductGroup__c IN: smallerMarginByProductGroup.keySet()
                        AND InitialDate__c <=: System.today()
                        AND EndDate__c >=: System.today()
@@ -535,6 +536,7 @@ public without sharing class OrderScreenController {
                       FROM Discount__c
                      WHERE Status__c = 'Aprovado'
                        AND ClientGroup__c =: company.ClientGroup__c
+                       AND SalesOrg__c =: company.SalesOrg__c
                        AND ProductGroup__c =: productGroupId
                        AND InitialDate__c <=: System.today()
                        AND EndDate__c >=: System.today()
@@ -638,11 +640,9 @@ public without sharing class OrderScreenController {
             }
 
             if (order.Incoterms__c == 'CIF') {
-                order.FreightValue__c = null;
                 order.FinalTotalValue__c = order.FinalTotalValue__c + orderData.summaryData.freightValue;
-            } else {
-                order.FreightValue__c = orderData.summaryData.freightValue;
             }
+            order.FreightValue__c = (orderData.summaryData.freightValue != null) ? orderData.summaryData.freightValue : 0;
 
             if (Test.isRunningTest()) {
                 OrderHelper.disableTrigger();
@@ -1323,6 +1323,7 @@ public without sharing class OrderScreenController {
 
         for (Company__c accountCompany : [
             SELECT Id,
+                    SalesOrg__c,
                    ClientGroup__c
               FROM Company__c
              WHERE Id =: orderData.headerData.companyId
@@ -1370,6 +1371,7 @@ public without sharing class OrderScreenController {
                      WHERE Status__c = 'Aprovado'
                        AND Approver__c = 'ComiteMargem'
                        AND ClientGroup__c =: company.ClientGroup__c
+                       AND SalesOrg__c =: company.SalesOrg__c
                        AND ProductGroup__c IN: smallerMarginByProductGroup.keySet()
                        AND InitialDate__c <=: System.today()
                        AND EndDate__c >=: System.today()
@@ -1394,6 +1396,7 @@ public without sharing class OrderScreenController {
                   FROM Discount__c
                  WHERE Status__c = 'Aprovado'
                    AND ClientGroup__c =: company.ClientGroup__c
+                   AND SalesOrg__c =: company.SalesOrg__c
                    AND ProductGroup__c =: productGroupId
                    AND InitialDate__c <=: System.today()
                    AND EndDate__c >=: System.today()

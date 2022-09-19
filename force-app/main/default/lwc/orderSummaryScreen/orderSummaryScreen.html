@@ -235,10 +235,10 @@
                         </button> -->
                     </span>
                     <template if:true={headerData.IsOrderChild}>
-                        <textarea data-id="observacao" rows="5" placeholder="Observações sobre o pedido" onkeyup={changeObservation} disabled>{summaryDataLocale.observation}</textarea>
+                        <textarea data-id="observacao" rows="5" placeholder="Observações Sobre o Pedido" onkeyup={changeObservation} disabled>{summaryDataLocale.observation}</textarea>
                     </template>
                     <template if:false={headerData.IsOrderChild}>
-                        <textarea data-id="observacao" rows="5" placeholder="Observações sobre o pedido" onkeyup={changeObservation} disabled={disabled}>{summaryDataLocale.observation}</textarea>
+                        <textarea data-id="observacao" rows="5" placeholder="Observações Sobre o Pedido" onkeyup={changeObservation} disabled={disabled}>{summaryDataLocale.observation}</textarea>
                     </template>
                 </div>
                 <div>
@@ -247,7 +247,7 @@
                         <div class="triangle"></div>
                         </button> -->
                     </span>
-                    <textarea data-id="observacao" rows="5" placeholder="Observações sobre a nota do pedido" onkeyup={changeObservationSale} disabled={disabled}>{summaryDataLocale.billing_sale_observation}</textarea>
+                    <textarea data-id="observacao" rows="5" placeholder="Observações Sobre a Nota do Pedido" onkeyup={changeObservationSale} disabled={disabled}>{summaryDataLocale.billing_sale_observation}</textarea>
                 </div>
             </div>
             
@@ -307,7 +307,7 @@
     </template>
 
     <div if:true={seedSale} class="openPaymentScreen">
-        <div onclick={openFormOfPayment} class="confirm-button">Adicionar formas de pagamento</div>
+        <div onclick={openFormOfPayment} class="confirm-button" style=" width: 200px; text-align:center;">Adicionar Formas de Pagamento</div>
     </div>
     
 
@@ -318,7 +318,7 @@
 
                 <div class="quantities-div">
                     <div class="column">
-                        Total de pagamento: <label class="quantities-bold">{orderTotalPrice}</label><br>
+                        Total de pagamento: <label class="quantities-bold">{orderTotalPriceFront}</label><br>
                     </div>
                     <template if:true={showRed}>
                         <div class="column">
@@ -370,7 +370,7 @@
                                 value={payments.valueFront}
                                 onblur={changeValue}
                                 type="text" 
-                                pattern="([0-9]+[.]{0,1}[0-9]+[,]{0,1}[0-9]*)"
+                                pattern="(([0-9]+[.]{0,1}[0-9]+)*([.]{0,1}[0-9]+)*[,]{0,1}[0-9]*)"
                                 message-when-pattern-mismatch = "Erro no dado inserido"
                                 required="true"
                                 disabled={blockPaymentFields}>
@@ -401,20 +401,20 @@
           
     <template if:true={showFreightScreen}>
         <div class="modal">
-            <div class="modal-content">
-                <span if:true={allowCloseFreightScreen} class="close" onclick={closeFreightScreen}>&times;</span>
+            <div class="modal-content"  style="width: 350px; border-radius: 5px;">
+                <span class="close" onclick={closeFreightScreen}>&times;</span>
                 <p class="new-product-title">Frete do pedido</p>
 
                 <div class="row">
-                    <div class="column">
+                    <div class="column" style="width: 100%;">
                         <label>Valor do Frete</label><br>
-                        <input class="input-design" data-target-id="freight-value" type="text" pattern="([0-9]+[.]{0,1}[0-9]+[,]{0,1}[0-9]*)" value={summaryDataLocale.freightValueFront} onchange={changeFreightValue}/>
+                        <input class="input-design" data-target-id="freight-value" type="text" pattern="(([0-9]+[.]{0,1}[0-9]+)*([.]{0,1}[0-9]+)*[,]{0,1}[0-9]*)" value={summaryDataLocale.freightValueFront} onchange={changeFreightValue}/>
                     </div>
                 </div>
 
                 <div class="row">
-                    <div class="close-modal-button">
-                        <a if:true={allowCloseFreightScreen} onclick={closeFreightScreen}>Fechar</a>
+                    <div>
+                        <a class="close-modal-button" onclick={closeFreightScreen}>Fechar</a>
                     </div>
                     <div class="column">
                         <button class="confirm-button" onclick={confirmFreight}>Confirmar</button>

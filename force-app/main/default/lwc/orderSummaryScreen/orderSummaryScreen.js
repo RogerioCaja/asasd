@@ -23,6 +23,7 @@ export default class OrderSummaryScreen extends LightningElement {
     @api seedSale = false;
     
     orderTotalPrice = 0;
+    orderTotalPriceFront = 0;
     orderTotalToDistribution = 0;
     showRed;
     showFormOfPayment = false;
@@ -190,18 +191,20 @@ export default class OrderSummaryScreen extends LightningElement {
             getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: true, verifyUserType: false})
             .then((result) => {
                this.salesOrgId = result;
-               checkSalesOrgFreight({salesOrgId: this.salesOrgId})
-               .then((result) => {
-                   this.showFreightScreen = result;
-                   let summary = JSON.parse(JSON.stringify(this.summaryDataLocale));
-                   summary.freightValue = summary.freightValue === undefined ? 0 : summary.freightValue;
-                   summary.freightValueFront = this.fixDecimalPlacesFront(summary.freightValue);
-                   this.summaryDataLocale = JSON.parse(JSON.stringify(summary));
+               if(this.headerData.frete == 'CIF'){
+                    checkSalesOrgFreight({salesOrgId: this.salesOrgId})
+                    .then((result) => {
+                        this.showFreightScreen = result;
+                        let summary = JSON.parse(JSON.stringify(this.summaryDataLocale));
+                        summary.freightValue = summary.freightValue === undefined ? 0 : summary.freightValue;
+                        summary.freightValueFront = this.fixDecimalPlacesFront(summary.freightValue);
+                        this.summaryDataLocale = JSON.parse(JSON.stringify(summary));
 
-                   if (this.showFreightScreen && this.headerData.frete == 'FOB') {
-                       this.allowCloseFreightScreen = true;
-                   }
-               });
+                        if (this.showFreightScreen && this.headerData.frete == 'FOB') {
+                            this.allowCloseFreightScreen = true;
+                        }
+                    });
+               }
             });
            
             if (this.headerData.status_pedido == 'Em aprovação - Gerente Filial' || this.headerData.status_pedido == 'Em aprovação - Gerente Regional' ||
@@ -256,6 +259,7 @@ export default class OrderSummaryScreen extends LightningElement {
             }
             
             this.orderTotalPrice = orderTotalPrice;
+            this.orderTotalPriceFront = this.fixDecimalPlacesFront(orderTotalPrice);
             this.orderTotalToDistribution = orderTotalPrice;
             if (this.headerData.tipo_venda != 'Venda Barter') {
                 let margin = (1 - (orderTotalCost / orderTotalPrice)) * 100;
@@ -343,9 +347,26 @@ export default class OrderSummaryScreen extends LightningElement {
             }
         }
 
+        let availableDivisions = [];
+        let divisions = JSON.parse(JSON.stringify(this.divisionData));
+        console.log('divisions: ' + JSON.stringify(divisions));
+        for (let index = 0; index < divisions.length; index++) {
+            console.log('divisions[index].productId: ' + divisions[index].productId);
+            let deletedProduct = this.unavailableProducts.find(e => e.productId == divisions[index].productId);
+            if (!this.isFilled(deletedProduct)) {
+                console.log('add - divisions[index].productId: ' + divisions[index].productId);
+                availableDivisions.push(divisions[index]);
+            }
+        }
+
+        console.log('availableDivisions: ' + JSON.stringify(availableDivisions));
+
         this.showUnavailableProducts = false;
         this.productData = JSON.parse(JSON.stringify(availableProducts));
         this._setProductData();
+
+        this.divisionData = JSON.parse(JSON.stringify(availableDivisions));
+        this._setDivisionData();
         if (availableProducts.length > 0) {
             this.loadData();
         }
@@ -456,7 +477,7 @@ export default class OrderSummaryScreen extends LightningElement {
                     allPayments[index].paymentDay = fieldValue;
                     if (allPayments[index].paymentType != '') allPayments[index].paymentKey = allPayments[index].paymentType + '-' + fieldValue;
                 } else if (fieldId.includes('valueId')) {
-                    fieldValue = fieldValue.toString().includes('.') ? fieldValue.toString().replace('.', '') : fieldValue;
+                    fieldValue = fieldValue.toString().includes('.') ? fieldValue.toString().replaceAll('.', '') : fieldValue;
                     fieldValue = fieldValue.toString().includes(',') ? fieldValue.toString().replace(',', '.') : fieldValue;
                     allPayments[index].value = this.fixDecimalPlaces(fieldValue);
                     allPayments[index].valueFront = this.fixDecimalPlacesFront(fieldValue);
@@ -485,18 +506,23 @@ export default class OrderSummaryScreen extends LightningElement {
         let paymentDayId = 'paymentDayId-' + divPosition;
         let valueId = 'valueId-' + divPosition;
         
-        allFromsOfPayment.push({
-            paymentType: '',
-            paymentDay: null,
-            value: '',
-            paymentPosition: this.paymentLastPosition,
-            paymentTypeId: paymentTypeId,
-            paymentDayId: paymentDayId,
-            valueId: valueId,
-            paymentKey: '',
-            saved: false
-        });
-        this.formsOfPayment = JSON.parse(JSON.stringify(allFromsOfPayment));
+        if(allFromsOfPayment.length < 10){
+            allFromsOfPayment.push({
+                paymentType: '',
+                paymentDay: null,
+                value: '',
+                paymentPosition: this.paymentLastPosition,
+                paymentTypeId: paymentTypeId,
+                paymentDayId: paymentDayId,
+                valueId: valueId,
+                paymentKey: '',
+                saved: false
+            });
+            
+            this.formsOfPayment = JSON.parse(JSON.stringify(allFromsOfPayment));  
+        }else{
+            this.showToast('warning', 'Atenção!', 'É possível inserir no máximo 10 formas de pagamento.');
+        }
     }
 
     validRegexField(allPayment){
@@ -629,6 +655,12 @@ export default class OrderSummaryScreen extends LightningElement {
         const setProductData = new CustomEvent('setproductdata');
         setProductData.data = this.productData;
         this.dispatchEvent(setProductData);
+    }
+
+    _setDivisionData() {
+        const setdivisiondata = new CustomEvent('setdivisiondata');
+        setdivisiondata.data = this.divisionData;
+        this.dispatchEvent(setdivisiondata);
     }
    
     isFilled(field) {
