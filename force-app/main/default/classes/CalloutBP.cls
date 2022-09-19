@@ -714,7 +714,8 @@ public without sharing class CalloutBP {
         String accessToken = code;//! FALTA SABER A RESPOSTA DO SAP QUANTO A AUTENTICAÇÃO! F
         //Url mock: https://aabb2740-69b0-4737-925c-2c40367a3737.mock.pstmn.io//CalloutBP
         //Path geralmente cadastrado dentro de ua customSettings 
-        String endpoint = (!Test.isRunningTest() ? 'https://apim.agrogalaxy.com.br/gtw/sf-bp-out/v1/sf-bp-out' : 'http://callout.My_Named_Credential.com/some/path');
+        Integration__c data = Integration__c.getInstance('BP OUT');
+        String endpoint = (!Test.isRunningTest() ? data.Url__c : 'http://callout.My_Named_Credential.com/some/path');
         Map<String, String> headersMap = new Map<String, String>();
         headersMap.put('Content-type', 'application/json');
         headersMap.put('Authorization', 'Bearer '+ accessToken);
@@ -753,11 +754,12 @@ public without sharing class CalloutBP {
         }
     }
     public static String getAcessCode(){
+        Integration__c data = Integration__c.getInstance('BP OUT');
         String payloadToken = 'grant_type=client_credentials';
-        String endpointToken = (!Test.isRunningTest() ? 'https://apim.agrogalaxy.com.br/identityserver/oauth2/token' : 'http://callout.My_Named_Credential.com/some/path');
+        String endpointToken = (!Test.isRunningTest() ? data.UrlToken__c : 'http://callout.My_Named_Credential.com/some/path');
         Map<String, String> headersMapToken = new Map<String, String>();
         headersMapToken.put('Content-type', 'application/x-www-form-urlencoded');
-        headersMapToken.put('Authorization', 'Basic dEQxV2M0bWtXdnRWNWVtRXZSOHlVRF9iUFZvYTpmZmVJQUs5SmdPNXNsbXI1UzVMUXNNcTBOME1h');
+        headersMapToken.put('Authorization', data.Token__c);
         IntegrationUtils.RequestResponseObject responseObject2 = IntegrationUtils.executeCallout(endpointToken, payloadToken, headersMapToken);
         System.debug('responseObject2: '+ responseObject2);
         if (responseObject2.success) {
