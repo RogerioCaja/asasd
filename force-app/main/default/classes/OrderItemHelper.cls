@@ -249,5 +249,4 @@ public without sharing class OrderItemHelper {
         update cleanOrdItemDesc; 
         OrderItemHelper.enableTrigger();
     }
-
 }
