@@ -203,6 +203,8 @@
         <fields>ORDERS.ORDER_NUMBER</fields>
         <fields>ORDERS.STATUS</fields>
         <fields>CodigoSap__c</fields>
+        <fields>Crop__c</fields>
+        <fields>PaymentDate__c</fields>
         <fields>ORDERS.TOTAL_AMOUNT</fields>
         <relatedList>RelatedOrderList</relatedList>
     </relatedLists>
