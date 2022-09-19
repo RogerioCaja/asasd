@@ -135,7 +135,7 @@ public without sharing class CalloutOrderDatalake {
                 CommercialMargin__c, DiscountValue__c, FinalTotalValue__c,
                 FinancialDiscountPercent__c, FinancialDiscountValue__c, FinancialAdditionPercent__c,
                 FinancialAdditionValue__c, CommercialAdditionPercent__c, CommercialAdditionValue__c,
-                Dosage__c, ListCost__c, NumeroSap__c, PracticedCost__c, PracticedPrice__c, UnitPrice
+                Dosage__c, ListCost__c, NumeroSap__c, PracticedCost__c, PracticedPrice__c, UnitPrice, ReasonRefuse__c
                 FROM OrderItem
                 WHERE Id IN: orderItemIds
             ]);
@@ -480,6 +480,7 @@ public without sharing class CalloutOrderDatalake {
         public Decimal practicedCost;
         public Decimal practicedPrice;
         public Decimal unitPrice;
+        public String motivoRecusa;
 
 
 
@@ -507,6 +508,7 @@ public without sharing class CalloutOrderDatalake {
             this.practicedCost = orderItem.PracticedCost__c;
             this.practicedPrice = orderItem.PracticedPrice__c;
             this.unitPrice = orderItem.UnitPrice;
+            this.motivoRecusa = orderItem.ReasonRefuse__c;
         }
     }
 
