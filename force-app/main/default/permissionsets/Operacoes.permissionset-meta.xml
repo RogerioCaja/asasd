@@ -1313,6 +1313,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Order.ErrorIntegrationSAP__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Order.FinalTotalValue__c</field>
         <readable>true</readable>
     </fieldPermissions>

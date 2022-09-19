@@ -63,7 +63,7 @@ public without sharing class OrderHelper {
         for(Order order : newRecords){ 
             
             
-            if(order.StatusSF__c == 'Aprovado'){
+            if(order.StatusSF__c == 'Aprovado' && order.Status != 'X'){
                 calloutsQueue job = new calloutsQueue(order.Id);
                 System.enqueueJob(job);
             }
