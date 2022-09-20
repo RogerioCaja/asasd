@@ -1072,11 +1072,12 @@ public without sharing class OrderScreenController {
         Set<String> fieldSet = new Set<String>{
             'Id','SalesOrg__c', 'SalesTeam__r.Name', 'SalesOffice__c',
             'SupplierCenter__c','ActivitySector__c','ActivitySector__r.Name',
-             'DistributionChannel__c','DistributionChannel__r.Name'
+             'DistributionChannel__c','DistributionChannel__r.Name', 'Status__c'
         };
         Q proQuery = new Q(Company__c.SObjectType);
         proQuery.selectFields(fieldSet);
         proQuery.add(Q.condition('Conta__c').equalsTo(companyInfos.accountId));
+        proQuery.add(Q.condition('Status__c').equalsTo('Adicionada'));
         
         List<CompanyInfos> companyList = new List<CompanyInfos>();
         if (salesTeamTerritory != null && salesTeamTerritory.DeveloperName != null) {
