@@ -11,7 +11,7 @@ import checkSalesOrgFreight from '@salesforce/apex/OrderScreenController.checkSa
 export default class OrderSummaryScreen extends LightningElement {
     showLoading = false;
     staticValue = 'hidden';
-    @api showFreightScreen=false;
+    showFreightScreen=false;
     allowCloseFreightScreen=false;
     hasData = true;
     disabled=false;
@@ -191,7 +191,7 @@ export default class OrderSummaryScreen extends LightningElement {
             getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: true, verifyUserType: false})
             .then((result) => {
                this.salesOrgId = result;
-               if(this.headerData.frete == 'CIF' && (this.summaryDataLocale.freightValue == undefined || this.summaryDataLocale.freightValue == 0)){
+               if(this.headerData.frete == 'CIF'){
                     checkSalesOrgFreight({salesOrgId: this.salesOrgId})
                     .then((result) => {
                         this.showFreightScreen = result;
