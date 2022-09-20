@@ -492,6 +492,7 @@ public without sharing class CalloutOrderDatalake {
         public Decimal practicedPrice;
         public Decimal unitPrice;
         public String motivoRecusa;
+        public String descMotivoRecusa;
 
 
 
@@ -520,6 +521,7 @@ public without sharing class CalloutOrderDatalake {
             this.practicedPrice = orderItem.PracticedPrice__c;
             this.unitPrice = orderItem.UnitPrice;
             this.motivoRecusa = orderItem.ReasonRefuse__c;
+            this.descMotivoRecusa = motivoRecusa.get(orderItem.ReasonRefuse__c);
         }
     }
 
