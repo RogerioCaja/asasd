@@ -25,14 +25,24 @@ global without sharing class IntegrationINPaymentForm {
         
 
         Map<String, FormPayment__c> formPaymentIdsMap = new Map<String, FormPayment__c>();
-        List<FormPayment__c> formPaymentSelectList = new List<FormPayment__c>([SELECT Id FROM FormPayment__c WHERE ExternalId__c IN: idsOrderItem]);
-    
+        List<FormPayment__c> formPaymentSelectList = new List<FormPayment__c>([SELECT Id, PaymentDate__c, Amount__c, ExternalId__c FROM FormPayment__c WHERE ExternalId__c IN: idsOrderItem]);
+    	System.debug('formPaymentSelectList ' + formPaymentSelectList);
+        
         for(FormPayment__c formPayment : formPaymentSelectList){
             formPaymentIdsMap.put(formPayment.ExternalId__c, formPayment);
+            System.debug('ExternalId__c ' + formPayment.ExternalId__c);
         }
         System.debug('formPaymentIdsMap ' + formPaymentIdsMap);
         for (TemplateDataIntegrationFields.FormPaymentINData formPay : request){
-            
+            FormPayment__c formPayment = formPaymentIdsMap.get(formPay.orderExternalId + '|' + formPay.paymentItemCode);
+
+            if(formPay.paymentDate == null){
+                formPay.paymentDate = formPayment.PaymentDate__c;
+            }
+
+            if(formPay.paymentAndValue == null){
+                formPay.paymentAndValue = formPayment.Amount__c;
+            }
         }
         System.debug('orderLookups ' + orderLookups);
         for (Order order : [SELECT Id, NumeroPedidoApp__c FROM Order WHERE NumeroPedidoApp__c IN : orderLookups]) {
