@@ -213,6 +213,11 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.recordId = result;
             this.getOrder();
         });
+        this.tabs[0].current = false;
+        this.tabs[3].current = true;
+        this.currentTab = 3;
+        this.changeTab()
+        this.changeStyle()
     }
 
     getOrderItem(){
@@ -268,6 +273,11 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             }else{
                 this.enableScreens([0, 1, 2, 3]);
                 this.completeScreens([0, 1, 2, 3]);
+                this.tabs[0].current = false;
+                this.tabs[2].current = true;
+                this.currentTab = 2;
+                this.changeTab()
+                this.changeStyle()
             }
             this.headerData.condicao_venda = this.headerData.condicao_venda != null ? this.headerData.condicao_venda : ' ';
             
@@ -655,6 +665,17 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
                     if(inputCheck)
                         this.template.querySelector(`[data-tab-name="${element.name}"] input[type="checkbox"]`).checked = true;
                 }
+
+                let value = 'footer'
+                if(index == 3 && element.current === true){
+                  let footer = this.template.querySelector(`[data-name="${value}"]`)
+                  if(footer)
+                    footer.cursor = 'pointer'
+                }else{
+                    let footer = this.template.querySelector(`[data-name="${value}"]`)
+                    if(footer)
+                        footer.cursor = 'default'
+                }
             }
         }
     }
@@ -834,6 +855,13 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     enableAndJumpToNext() {
         this.enableNextScreen();
         this.handleNext();
+    }
+
+    async openFreight(){
+        if(this.currentTab == 3){
+            let tab = await this.template.querySelector(this.tabs[3].component);
+            tab.showFreightScreen = true
+        }
     }
 
 }
