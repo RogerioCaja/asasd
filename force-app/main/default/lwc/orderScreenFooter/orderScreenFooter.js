@@ -52,7 +52,6 @@ export default class OrderScreenFooter extends LightningElement {
     }
 
     callScreen(){
-        console.log('Hey')
         try{
             const openScreen = new CustomEvent('openfreight');
             this.dispatchEvent(openScreen);
