@@ -1,6 +1,7 @@
 import { LightningElement, api, track } from 'lwc';
 import needJustification from '@salesforce/apex/OrderScreenController.needJustification';
 export default class OrderScreenFooter extends LightningElement {
+    @api cursor = 'default';
     @api valorTotal;
     @api qtdItens;
     @api frete;
@@ -11,7 +12,11 @@ export default class OrderScreenFooter extends LightningElement {
     @api justification;
     question = false;
     barterSale = false;
-
+    
+    get getStyle() {
+        return 'cursor: ' + this.cursor + ' !important';
+    }
+    
     connectedCallback(event) {
         if (this.headerData.tipo_venda == 'Venda Barter') {
             this.barterSale = true;
@@ -44,6 +49,16 @@ export default class OrderScreenFooter extends LightningElement {
 
     closeJustification(){
         this.question = !this.question;
+    }
+
+    callScreen(){
+        try{
+            const openScreen = new CustomEvent('openfreight');
+            this.dispatchEvent(openScreen);
+        }catch(err){
+            console.log(err)
+        }
+        
     }
 
     saveOrderReal(event){
