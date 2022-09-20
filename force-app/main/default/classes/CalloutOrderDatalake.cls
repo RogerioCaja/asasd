@@ -161,12 +161,7 @@ public without sharing class CalloutOrderDatalake {
                     statusDesc.put(stsPickList.getValue(), stsPickList.getLabel());
                 }
                 System.debug(statusDesc.get('1'));
-            Map<String, String> motivoRecusa = new Map<String, String>();
-            Schema.DescribeFieldResult mtrecusaFieldDescribe = Schema.OrderItem.ReasonRefuse__c.getDescribe();
-            List<Schema.PicklistEntry> motivoRecusaPickListValues = mtrecusaFieldDescribe.getPickListValues();
-            for(Schema.PicklistEntry mtrPickList : motivoRecusaPickListValues){
-                motivoRecusa.put(mtrPickList.getValue(), mtrPickList.getLabel());
-            }
+            
             List<ShippingDivison__c> divisonList = [SELECT Id,Name, DeliveryDate__c, Quantity__c, OrderItem__c, ExternalId__c, SapNumber__c FROM ShippingDivison__c WHERE OrderItem__c IN: orderItemIds];
             Map<Id, List<ShippingDivison__c>> divisionMap = new  Map<Id, List<ShippingDivison__c>>();
 
@@ -497,6 +492,12 @@ public without sharing class CalloutOrderDatalake {
 
 
         public OrderItemParameters(OrderItem orderItem, List<Integer> shippingDivison){
+            Map<String, String> motivoRecusa = new Map<String, String>();
+            Schema.DescribeFieldResult mtrecusaFieldDescribe = Schema.OrderItem.ReasonRefuse__c.getDescribe();
+            List<Schema.PicklistEntry> motivoRecusaPickListValues = mtrecusaFieldDescribe.getPickListValues();
+            for(Schema.PicklistEntry mtrPickList : motivoRecusaPickListValues){
+                motivoRecusa.put(mtrPickList.getValue(), mtrPickList.getLabel());
+            }
             this.orderId = orderItem.OrderId;
             this.material = orderItem.Product2.ExternalId__c;
             //this.orderExternalId = orderItem.ExternalId__c;
