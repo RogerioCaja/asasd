@@ -289,6 +289,7 @@ global with sharing class TemplateDataIntegrationFields {
         //public String clienteCode; 
         public List<TemplateDataIntegrationFields.OrderItemINData> orderItems;
         public List<TemplateDataIntegrationFields.ShippingDivisonINData> shippingDivison;
+        public List<TemplateDataIntegrationFields.FormPaymentINData> formPayment;
         public List<TemplateDataIntegrationFields.PartnerInsert> partners;
         public List<TemplateDataIntegrationFields.ConditionInsert> conditions;
         public Order serialize(Map<String, Id> lookups){
