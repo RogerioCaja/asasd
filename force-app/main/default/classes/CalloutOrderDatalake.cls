@@ -161,7 +161,12 @@ public without sharing class CalloutOrderDatalake {
                     statusDesc.put(stsPickList.getValue(), stsPickList.getLabel());
                 }
                 System.debug(statusDesc.get('1'));
-            
+            Map<String, String> motivoRecusa = new Map<String, String>();
+            Schema.DescribeFieldResultt mtrecusaFieldDescribe = Schema.OrderItem.ReasonRefuse__c.getDescibe();
+            List<Schema.PicklistEntry> motivoRecusaPickListValues = mtrecusaFieldDescribe.getPickListValues();
+            for(Schema.PicklistEntry mtrPickList : motivoRecusaPickListValues){
+                motivoRecusa.put(mtrPickList.getValue(), mtrPickList.getLabel());
+            }
             List<ShippingDivison__c> divisonList = [SELECT Id,Name, DeliveryDate__c, Quantity__c, OrderItem__c, ExternalId__c, SapNumber__c FROM ShippingDivison__c WHERE OrderItem__c IN: orderItemIds];
             Map<Id, List<ShippingDivison__c>> divisionMap = new  Map<Id, List<ShippingDivison__c>>();
 
