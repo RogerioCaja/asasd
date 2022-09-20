@@ -162,7 +162,7 @@ public without sharing class CalloutOrderDatalake {
                 }
                 System.debug(statusDesc.get('1'));
             Map<String, String> motivoRecusa = new Map<String, String>();
-            Schema.DescribeFieldResultt mtrecusaFieldDescribe = Schema.OrderItem.ReasonRefuse__c.getDescibe();
+            Schema.DescribeFieldResult mtrecusaFieldDescribe = Schema.OrderItem.ReasonRefuse__c.getDescibe();
             List<Schema.PicklistEntry> motivoRecusaPickListValues = mtrecusaFieldDescribe.getPickListValues();
             for(Schema.PicklistEntry mtrPickList : motivoRecusaPickListValues){
                 motivoRecusa.put(mtrPickList.getValue(), mtrPickList.getLabel());
