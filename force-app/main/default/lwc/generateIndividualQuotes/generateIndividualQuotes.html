@@ -81,6 +81,17 @@
     <div class="slds-form-element__row">
         <div class="slds-form-element column">
             <lightning-input
+                name="balance"
+                label="Saldo"
+                field-name="balance"
+                value={individualQuoteData.balance}
+                type="text"
+                required="true"
+                disabled="true">
+            </lightning-input>
+        </div>
+        <div class="slds-form-element column">
+            <lightning-input
                 name="quantity"
                 label="Quantidade"
                 field-name="quantity"
@@ -90,26 +101,15 @@
                 required="true">
             </lightning-input>
         </div>
+    </div>
+
+    <div class="slds-form-element__row">
         <div class="slds-form-element column">
             <lightning-input
                 name="consumed"
                 label="Consumido"
                 field-name="consumed"
                 value={individualQuoteData.consumed}
-                type="text"
-                required="true"
-                disabled="true">
-            </lightning-input>
-        </div>
-    </div>
-
-    <div class="slds-form-element__row">
-        <div class="slds-form-element column">
-            <lightning-input
-                name="balance"
-                label="Saldo"
-                field-name="balance"
-                value={individualQuoteData.balance}
                 type="text"
                 required="true"
                 disabled="true">
