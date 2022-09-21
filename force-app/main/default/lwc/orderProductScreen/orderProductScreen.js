@@ -4,11 +4,12 @@ import {
     track
 } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import isSeedSale from '@salesforce/apex/OrderScreenController.isSeedSale';
 import getSafraInfos from '@salesforce/apex/OrderScreenController.getSafraInfos';
 import getFinancialInfos from '@salesforce/apex/OrderScreenController.getFinancialInfos';
+import checkQuotaQuantity from '@salesforce/apex/OrderScreenController.checkQuotaQuantity';
 import getAccountCompanies from '@salesforce/apex/OrderScreenController.getAccountCompanies';
 import fetchOrderRecords from '@salesforce/apex/CustomLookupController.fetchProductsRecords';
-import isSeedSale from '@salesforce/apex/OrderScreenController.isSeedSale';
 
 let actions = [];
 let commodityActions = [{label: 'Excluir', name: 'delete'}];
@@ -20,6 +21,8 @@ export default class OrderProductScreen extends LightningElement {
     productPosition;
     currentDate;
     seedSale;
+    verifyQuota;
+    allProductQuotas = [];
 
     selectedColumns={
         columnUnity: true,
@@ -329,6 +332,31 @@ export default class OrderProductScreen extends LightningElement {
         isSeedSale({salesOrgId: this.selectedCompany.salesOrgId, productGroupName: null})
         .then((result) => {
             this.seedSale = result;
+            let prodsIds = [];
+            for (let index = 0; index < this.products.length; index++) {
+                prodsIds.push(this.products[index].productId);
+            }
+
+            if (this.seedSale && this.headerData.tipo_pedido != 'Pedido Filho' && !this.headerData.IsOrderChild) {
+                this.verifyQuota = true;
+                if (prodsIds.length > 0) {
+                    let quoteData = {
+                        cropId: this.headerData.safra.Id,
+                        sellerId: this.headerData.ctv_venda.Id,
+                        productsIds: prodsIds
+                    };
+            
+                    if (this.verifyQuota) {
+                        checkQuotaQuantity({data: JSON.stringify(quoteData)})
+                        .then((result) => {
+                            this.allProductQuotas = JSON.parse(result);
+                        });
+                    }
+                }
+            } else {
+                this.verifyQuota = true;
+            }
+
             if (this.isFilled(this.headerData.safra.Id)) {
                 getSafraInfos({safraId: this.headerData.safra.Id})
                 .then((result) => {
@@ -366,11 +394,6 @@ export default class OrderProductScreen extends LightningElement {
                                     (this.headerData.tipo_pedido == 'Pedido Filho' && this.isFilled(this.headerData.codigo_sap)) ? false : true;
                                     
                     if (this.headerData.pre_pedido && allowChange) {
-                        let prodsIds = [];
-                        for (let index = 0; index < this.products.length; index++) {
-                            prodsIds.push(this.products[index].productId);
-                        }
-
                         fetchOrderRecords({
                             searchString: '',
                             data: JSON.stringify(this.productParams),
@@ -456,7 +479,7 @@ export default class OrderProductScreen extends LightningElement {
 
                                     let oldPrice = currentProducts[index].unitPrice;
                                     this.calculateTotalPrice(true);
-                                    let newPrice = this.changeProduct();
+                                    let newPrice = this.changeProduct(this.addProduct);
                                     
                                     if (oldPrice != newPrice) {
                                         showPriceChange = true;
@@ -530,7 +553,46 @@ export default class OrderProductScreen extends LightningElement {
     }
 
     showProductModal(event) {
-        let productValidation = this.baseProducts.find(e => e.Id == event.target.dataset.targetId);
+        let productId = event.target.dataset.targetId;
+        let productValidation = this.baseProducts.find(e => e.Id == productId);
+        let quoteData = {
+            cropId: this.headerData.safra.Id,
+            sellerId: this.headerData.ctv_venda.Id,
+            productsIds: [productValidation.Id]
+        };
+
+        if (this.verifyQuota) {
+            this.showLoading = true;
+            checkQuotaQuantity({data: JSON.stringify(quoteData)})
+            .then((result) => {
+                let allQuotas = JSON.parse(JSON.stringify(this.allProductQuotas));
+                let productQuota = JSON.parse(result);
+
+                let currentQuota;
+                if (allQuotas.length > 0) {
+                    currentQuota = allQuotas.find(e => e.individualQuotaId == productQuota.individualQuotaId);
+                }
+                
+                if (!this.isFilled(currentQuota) && productQuota.length > 0) {
+                    allQuotas.push(productQuota[0]);
+                }
+                this.allProductQuotas = JSON.parse(JSON.stringify(allQuotas));
+
+                if (productQuota.length == 0 || productQuota[0].balance == 0) {
+                    this.showLoading = false;
+                    this.showToast('warning', 'Quantidade indisponível', 'Cota indisponível para o produto nos parâmetros atuais');
+                } else {
+                    this.showLoading = false;
+                    this.openModalLogic(productValidation, productId);
+                }
+            });
+        } else {
+            this.openModalLogic(productValidation, productId);
+        }
+        
+    }
+
+    openModalLogic(productValidation, productId) {
         isSeedSale({salesOrgId: this.selectedCompany.salesOrgId, productGroupName: productValidation.productGroupName})
         .then((result) => {
             this.seedSale = result;
@@ -538,13 +600,15 @@ export default class OrderProductScreen extends LightningElement {
         this.createNewProduct = !this.createNewProduct;
 
         if (this.createNewProduct) {
-            let existProduct = this.products.find(e => e.productId == event.target.dataset.targetId);
+            let existProduct = this.products.find(e => e.productId == productId);
 
             if (this.isFilled(existProduct)) {
                 this.createNewProduct = false;
                 this.editProduct(existProduct.position, false);
             } else {
-                let currentProduct = this.baseProducts.find(e => e.Id == event.target.dataset.targetId);
+                console.log('this.baseProducts: ' + JSON.stringify(this.baseProducts));
+                console.log('productId: ' + productId);
+                let currentProduct = this.baseProducts.find(e => e.Id == productId);
                 let priorityInfos = this.getProductByPriority(currentProduct);
     
                 this.multiplicity = this.isFilled(currentProduct.multiplicity) ? currentProduct.multiplicity : 1;
@@ -963,6 +1027,12 @@ export default class OrderProductScreen extends LightningElement {
     includeProduct() {
         console.log('this.addProduct: ' + JSON.stringify(this.addProduct));
         let prod = this.addProduct;
+
+        if (this.verifyQuota) {
+            let availableQuota = this.verifyProductQuota(prod);
+            if (!availableQuota) return;
+        }
+
         if (this.checkRequiredFields(prod)) {
             let allProducts = JSON.parse(JSON.stringify(this.products));
             let margin = this.isFilled(this.addProduct.practicedCost) ? this.fixDecimalPlaces((1 - (Number(this.addProduct.practicedCost) / (prod.totalPrice / prod.quantity))) * 100) : 0;
@@ -990,11 +1060,27 @@ export default class OrderProductScreen extends LightningElement {
         this.recalculateCommodities();
     }
 
+    verifyProductQuota(actualProduct) {
+        let allQuotas = JSON.parse(JSON.stringify(this.allProductQuotas));
+        let currentQuota = allQuotas.find(e => e.productId == actualProduct.productId);
+        if (Number(actualProduct.quantity) > Number(currentQuota.balance)) {
+            this.showToast('warning', 'Atenção!', 'Quantidade do item indisponível.');
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     changeProduct() {
         let includedProducts = JSON.parse(JSON.stringify(this.products));
         for (let index = 0; index < includedProducts.length; index++) {
             if (includedProducts[index].position == this.productPosition) {
                 if (this.checkRequiredFields(this.addProduct)) {
+                    if (this.verifyQuota) {
+                        let availableQuota = this.verifyProductQuota(this.addProduct);
+                        if (!availableQuota) return;
+                    }
+
                     let margin = this.isFilled(this.addProduct.practicedCost) ? this.fixDecimalPlaces(((1 - (Number(this.addProduct.practicedCost) / (Number(this.addProduct.totalPrice) / Number(this.addProduct.quantity)))) * 100)) : null;
                     this.addProduct.commercialMarginPercentage = this.headerData.IsOrderChild ? this.addProduct.commercialMarginPercentage : margin;
                     this.addProduct.multiplicity = this.multiplicity;

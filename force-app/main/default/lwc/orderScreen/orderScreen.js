@@ -16,9 +16,11 @@ import saveOrder from '@salesforce/apex/OrderScreenController.saveOrder';
 // import calloutOrder from '@salesforce/apex/OrderScreenController.callout';
 import getOrder from '@salesforce/apex/OrderScreenController.getOrder';
 import getAccount from '@salesforce/apex/OrderScreenController.getAccount';
+import checkQuotaQuantity from '@salesforce/apex/OrderScreenController.checkQuotaQuantity';
 import getOrderByOrderItem from '@salesforce/apex/OrderScreenController.getOrderByOrderItem';
 import checkMotherQuantities from '@salesforce/apex/OrderScreenController.checkMotherQuantities';
 import getOrderByFormOfPayment from '@salesforce/apex/OrderScreenController.getOrderByFormOfPayment';
+import isSeedSale from '@salesforce/apex/OrderScreenController.isSeedSale';
 import { NavigationMixin } from 'lightning/navigation';
 
 export default class OrderScreen extends NavigationMixin(LightningElement) {
@@ -43,6 +45,9 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     account = true;
     header = false;
     product = false;
+    changeProductInfos = false;
+    allProductQuotas = [];
+    quotaProducts = [];
     @track summary = false;
 
     customErrorMessage = '';
@@ -421,7 +426,36 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         await this.recordId;
     }
 
+    excludeProducts() {
+        let allQuotas = JSON.parse(JSON.stringify(this.allProductQuotas));
+        let currentProducts = JSON.parse(JSON.stringify(this.productData));
+        let products = [];
+        for (let index = 0; index < currentProducts.length; index++) {
+            let currentQuota = allQuotas.find(e => e.productId == currentProducts[index].productId);
+            if (!this.isFilled(currentQuota)) {
+                products.push(currentProducts[index]);
+            }
+        }
+
+        this.productData = products;
+        if (this.productData.length == 0) {
+            this.tabs[this.currentTab].enable = false;
+            this.handlePrevious();
+        }
+        this.changeProductInfos = false;
+    }
+
+    changeQuantity() {
+        this.changeProductInfos = false;
+        this.handlePrevious();
+    }
+
+    isFilled(field) {
+        return ((field !== undefined && field != null && field != '') || field == 0);
+    }
+
     async saveOrder(event){
+        this.isLoading = true;
         let today = new Date();
         let dd = String(today.getDate()).padStart(2, '0');
         let mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -431,20 +465,25 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         if (this.headerData.status_pedido.toLowerCase() == 'em aprovação - gerente filial' || this.headerData.status_pedido.toLowerCase() == 'em aprovação - gerente regional' ||
             this.headerData.status_pedido.toLowerCase() == 'em aprovação - diretor' || this.headerData.status_pedido.toLowerCase() == 'em aprovação - comitê margem' || this.headerData.status_pedido.toLowerCase() == 'em aprovação - mesa de grãos') {
             this.showNotification('O pedido está Em Aprovação, portanto não pode ser alterado', 'Atenção', 'warning');
+            this.isLoading = false;
             return;
         } else if (this.headerData.pre_pedido && event.detail == 'gerarpedido' && this.headerData.condicao_pagamento.CashPayment && this.headerData.data_pagamento != currentDate) {
             this.headerData.condicao_pagamento = {Id: null, Name: null, CashPayment: null};
             this.headerData.data_pagamento = " ";
             this.showNotification('Informe a condição de pagamento novamente', 'Atenção', 'warning');
+            this.isLoading = false;
             return;
         } else if ((!this.headerData.pre_pedido && !this.cloneData.cloneOrder && !this.headerData.IsOrderChild) || (!this.headerData.pre_pedido && !this.childOrder)){
             this.showNotification('Pedidos Efetivados não podem ser alterados', 'Atenção', 'warning');
+            this.isLoading = false;
             return;
         }
 
         let totalPayment = 0;
+        let prodsIds = [];
         for (let index = 0; index < this.productData.length; index++) {
             totalPayment += Number(this.productData[index].unitPrice) * Number(this.productData[index].quantity);
+            prodsIds.push(this.productData[index].productId);
         }
 
         let orderTotalPrice = 0;
@@ -457,48 +496,111 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
             if (this.fixDecimalPlacesFront(totalPayment) != this.fixDecimalPlacesFront(orderTotalPrice)) {
                 this.showNotification('O valor total do pagamento deve ser igual ao do pedido', 'Atenção', 'warning');
+                this.isLoading = false;
                 return;
             }
         }
 
-        const mode = event.detail;
-        await this.recordId;
-        const data = {accountData: this.accountData, headerData: this.headerData, productData: this.productData, divisionData: this.divisionData, commodityData: this.commodityData, summaryData: this.summaryData, formsOfPayment: this.formsOfPayment};
-        console.log(JSON.stringify(data));
-        this.isLoading = true;
-        //console.log(data);
-        saveOrder({
-            orderId: (this.recordId && this.originScreen.includes('Order') && !this.childOrder) ? this.recordId : null,
-            cloneOrder: this.cloneData.cloneOrder,
-            data: JSON.stringify(data),
-            typeOrder: mode,
-            itemsToExclude: JSON.stringify(this.excludedItems)
-        })
-        .then((result) => {
-            console.log(JSON.stringify(result));
-            result = JSON.parse(result);
+        let quotaResponse;
+        quotaResponse = await this.verifyQuotas(prodsIds);
+        if (quotaResponse) {
+            const mode = event.detail;
+            await this.recordId;
+            const data = {accountData: this.accountData, headerData: this.headerData, productData: this.productData, divisionData: this.divisionData, commodityData: this.commodityData, summaryData: this.summaryData, formsOfPayment: this.formsOfPayment};
+            console.log(JSON.stringify(data));
+            this.isLoading = true;
+            //console.log(data);
+            saveOrder({
+                orderId: (this.recordId && this.originScreen.includes('Order') && !this.childOrder) ? this.recordId : null,
+                cloneOrder: this.cloneData.cloneOrder,
+                data: JSON.stringify(data),
+                typeOrder: mode,
+                itemsToExclude: JSON.stringify(this.excludedItems)
+            })
+            .then((result) => {
+                console.log(JSON.stringify(result));
+                result = JSON.parse(result);
+                this.isLoading = false;
 
-            if(!result.hasError){
-                this.showNotification(result.message, 'Sucesso', 'success');
-              
-                this[NavigationMixin.Navigate]({
-                    type: 'standard__recordPage',
-                    attributes: {
-                        recordId: result.orderId,
-                        objectApiName: 'Order',
-                        actionName: 'view'
-                    }
-                });
-               
-            }
-            else
-                this.showNotification(result.message, 'Algo de errado aconteceu','erro');
+                if(!result.hasError){
+                    this.showNotification(result.message, 'Sucesso', 'success');
+                
+                    this[NavigationMixin.Navigate]({
+                        type: 'standard__recordPage',
+                        attributes: {
+                            recordId: result.orderId,
+                            objectApiName: 'Order',
+                            actionName: 'view'
+                        }
+                    });
+                
+                }
+                else
+                    this.showNotification(result.message, 'Algo de errado aconteceu','erro');
 
+                this.isLoading = false;
+            }).catch((err)=>{
+                console.log(JSON.stringify(err));
+                this.showNotification(err.message, 'Aconteceram alguns erros', 'error');
+                this.isLoading = false;
+            });
+        } else {
             this.isLoading = false;
-        }).catch((err)=>{
-            console.log(JSON.stringify(err));
-            this.showNotification(err.message, 'Aconteceram alguns erros', 'error');
-            this.isLoading = false;
+            return;
+        }
+    }
+
+    async verifyQuotas(prodsIds) {
+        let verifyQuota = false;
+        return new Promise(resolve => {
+            isSeedSale({salesOrgId: this.headerData.organizacao_vendas.Id, productGroupName: null})
+            .then((result) => {
+                let seedType = result;
+                if (seedType && this.headerData.tipo_pedido != 'Pedido Filho' && !this.headerData.IsOrderChild) {
+                    verifyQuota = true;
+                }
+
+                console.log('verifyQuota: ' + verifyQuota);
+                if (verifyQuota) {
+                    let quoteData = {
+                        cropId: this.headerData.safra.Id,
+                        sellerId: this.headerData.ctv_venda.Id,
+                        productsIds: prodsIds
+                    };
+            
+                    checkQuotaQuantity({data: JSON.stringify(quoteData)})
+                    .then((result) => {
+                        this.allProductQuotas = JSON.parse(result);
+                        console.log('this.allProductQuotas: ' + JSON.stringify(this.allProductQuotas));
+                        let productsWithoutQuota = [];
+                        for (let index = 0; index < this.productData.length; index++) {
+                            let allQuotas = JSON.parse(JSON.stringify(this.allProductQuotas));
+                            let currentQuota = allQuotas.find(e => e.productId == this.productData[index].productId);
+                            console.log('this.productData[index].quantity: ' + this.productData[index].quantity);
+                            console.log('currentQuota.balance: ' + currentQuota.balance);
+                            if (Number(this.productData[index].quantity) > Number(currentQuota.balance)) {
+                                this.changeProductInfos = true;
+                                productsWithoutQuota.push({
+                                    id: this.productData[index].productId,
+                                    name: this.productData[index].name,
+                                    currentQuantity: this.productData[index].quantity,
+                                    availableQuantity: currentQuota.balance
+                                })
+                            }
+                        }
+                        console.log('productsWithoutQuota: ' + JSON.stringify(productsWithoutQuota));
+                        
+                        if (this.changeProductInfos) {
+                            this.quotaProducts = productsWithoutQuota;
+                            resolve(false);
+                        } else {
+                            resolve(true);
+                        }
+                    });
+                } else {
+                    resolve(true);
+                }
+            });
         });
     }
 
