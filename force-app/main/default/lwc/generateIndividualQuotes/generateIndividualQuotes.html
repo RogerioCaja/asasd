@@ -1,0 +1,124 @@
+<template>
+    <p class="modal-title">Criar Cota Individual</p>
+
+    <div class="slds-form-element__row">
+        <div class="slds-form-element column">
+            <c-lookup
+                name="generalQuote"
+                data-name="generalQuote"
+                input-label="Cota Geral"
+                object-icon-name="standard:action_list_component"
+                target-object={redispatchGeneralQuoteObject}
+                record-id={individualQuoteData.quoteId}
+                search-fields={redispatchGeneralQuoteSearchFields}
+                list-item-options={redispatchGeneralQuoteListItemOptions}
+                standard-form-layout="true"
+                placeholder="Pesquisar Cota Geral"
+                style="width: 100%;"
+                required="false"
+                disabled="true">
+            </c-lookup>
+        </div>
+
+        <div class="slds-form-element column">
+            <c-lookup
+                name="crop"
+                data-name="crop"
+                input-label="Safras"
+                object-icon-name="standard:action_list_component"
+                target-object={redispatchCropObject}
+                record-id={individualQuoteData.cropId}
+                search-fields={redispatchCropSearchFields}
+                list-item-options={redispatchCropListItemOptions}
+                standard-form-layout="true"
+                placeholder="Pesquisar Safras"
+                style="width: 100%;"
+                required="false"
+                disabled="true">
+            </c-lookup>
+        </div>
+    </div>
+
+    <div class="slds-form-element__row">
+        <div class="slds-form-element column">
+            <c-lookup
+                name="cultivate"
+                data-name="cultivate"
+                input-label="Cultivar"
+                object-icon-name="standard:action_list_component"
+                target-object={redispatchCultivateObject}
+                record-id={individualQuoteData.cultivateId}
+                search-fields={redispatchCultivateSearchFields}
+                list-item-options={redispatchCultivateListItemOptions}
+                standard-form-layout="true"
+                placeholder="Pesquisar Safras"
+                style="width: 100%;"
+                required="false"
+                disabled="true">
+            </c-lookup>
+        </div>
+        <div class="slds-form-element column">
+            <c-lookup
+                name="seller"
+                data-name="seller"
+                input-label="Vendedor"
+                object-icon-name="standard:action_list_component"
+                target-object={redispatchSellerObject}
+                record-id={individualQuoteData.sellerId}
+                search-fields={redispatchSellerSearchFields}
+                list-item-options={redispatchSellerListItemOptions}
+                onclearselectedrecord={removeItemRegister}
+                onselectrecord={selectItemRegister}
+                standard-form-layout="true"
+                placeholder="Pesquisar Vendedores"
+                style="width: 100%;"
+                required="true">
+            </c-lookup>
+        </div>
+    </div>
+
+    <div class="slds-form-element__row">
+        <div class="slds-form-element column">
+            <lightning-input
+                name="quantity"
+                label="Quantidade"
+                field-name="quantity"
+                value={individualQuoteData.quantity}
+                onchange={selectItemRegister}
+                type="text"
+                required="true">
+            </lightning-input>
+        </div>
+        <div class="slds-form-element column">
+            <lightning-input
+                name="consumed"
+                label="Consumido"
+                field-name="consumed"
+                value={individualQuoteData.consumed}
+                type="text"
+                required="true"
+                disabled="true">
+            </lightning-input>
+        </div>
+    </div>
+
+    <div class="slds-form-element__row">
+        <div class="slds-form-element column">
+            <lightning-input
+                name="balance"
+                label="Saldo"
+                field-name="balance"
+                value={individualQuoteData.balance}
+                type="text"
+                required="true"
+                disabled="true">
+            </lightning-input>
+        </div>
+    </div>
+
+    <br/>
+
+    <div class="button-footer">
+        <button class="confirm-button" onclick={createQuote}>Criar Cota Individual</button>
+    </div>
+</template>
