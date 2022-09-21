@@ -1283,6 +1283,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>NotaFiscal__c.Base64__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>NotaFiscal__c.BranchOffice__c</field>
         <readable>true</readable>
     </fieldPermissions>
