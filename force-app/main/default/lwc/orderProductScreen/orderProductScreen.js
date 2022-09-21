@@ -204,7 +204,7 @@ export default class OrderProductScreen extends LightningElement {
             approvalNumber: 1
         }
 
-        getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: false, verifyUserType: false})
+        getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: false, verifyUserType: false, priceScreen: false})
         .then((result) => {
             this.companyResult = JSON.parse(result).listCompanyInfos;
             if (this.headerData.companyId != null) {
@@ -761,6 +761,8 @@ export default class OrderProductScreen extends LightningElement {
             if (remainder == 0) {
                 return quantity;
             } else {
+                quantity = this.fixDecimalPlacesFront(quantity);
+                quantity = quantity.toString().includes(',') ? Number(quantity.replace(',', '.')) : quantity;
                 quantity = Math.ceil(quantity / this.multiplicity) * this.multiplicity;
                 this.showToast('warning', 'Atenção!', 'A quantidade foi arredondada para ' + quantity + '.');
                 return quantity;

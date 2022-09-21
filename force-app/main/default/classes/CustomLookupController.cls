@@ -48,33 +48,37 @@ public without sharing class CustomLookupController {
 	}
 
     @AuraEnabled
-    public static ProductDataResult fetchProductsRecords(String searchString, String data, Boolean isCommodity, List<String> productsIds) {
+    public static ProductDataResult fetchProductsRecords(String searchString, String data, Boolean isCommodity, List<String> productsIds, Boolean priceScreen) {
         try {
             ProductDataResult result = new ProductDataResult();
             ProductParams productParams = (ProductParams) JSON.deserialize(data, ProductParams.class);
             System.debug('productParams: ' + productParams);
             Id commodityRecType = Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get('ZPR0').getRecordTypeId();
+            List<Account> lstAccount = new List<Account>();
+            if (productParams.accountId != '') lstAccount = [SELECT Industry FROM Account WHERE Id =: productParams.accountId];
 
             SalesResult salesResult = new SalesResult();
             salesResult.salesOrgId = productParams.salesOrgId;
             salesResult.salesOfficeId = productParams.salesOfficeId;
             salesResult.salesTeamId = productParams.salesTeamId;
-            salesResult.segmento = [SELECT Industry FROM Account WHERE Id =: productParams.accountId].Industry;
+            salesResult.segmento = lstAccount.size() > 0 ? lstAccount[0].Industry : '';
             salesResult.searchString = searchString;
             result.salesResult = salesResult;
 
-            Set<String> priceFields = new Set<String>{'Id', 'UnitPrice__c', 'Cost__c', 'Product__c', 'ProductGroup__c', 'Currency__c', 'SalesOrg__c', 'SalesTeam__c', 'SalesOffice__c', 'Account__c', 'Culture__c', 'ProductMultiplier__c', 'ExternalId__c'};
+            Set<String> priceFields = new Set<String>{'Id', 'UnitPrice__c', 'Cost__c', 'Product__c', 'ProductGroup__c', 'Currency__c', 'SalesOrg__c', 'SalesTeam__c', 'SalesOffice__c', 'Account__c', 'Culture__c', 'ProductMultiplier__c', 'ExternalId__c', 'SalesCondition__r.Name'};
             Q priceQuery = new Q(JurosDescontoAntecipao__c.SObjectType)
                                 .selectFields(priceFields)
                                 .add(Q.condition('RecordTypeId').equalsTo(commodityRecType))
-                                .add(Q.condition('SalesCondition__c').equalsTo(productParams.salesConditionId))
                                 .add(Q.condition('harvest__c').equalsTo(productParams.safra))
-                                .add(Q.condition('Currency__c').equalsTo(productParams.productCurrency))
                                 .add(Q.condition('SalesOrg__c').equalsTo(salesResult.salesOrgId))
                                 .add(Q.condition('IsActive__c').equalsTo(true))
                                 .add(Q.condition('StartDate__c').isLessOrEquals(System.today()))
                                 .add(Q.condition('EndDate__c').isGreaterOrEquals(System.today()));
 
+            if (!priceScreen) {
+                priceQuery.add(Q.condition('SalesCondition__c').equalsTo(productParams.salesConditionId))
+                          .add(Q.condition('Currency__c').equalsTo(productParams.productCurrency));
+            }
             if (productsIds.size() > 0) {
                 priceQuery.add(Q.condition('Product__c').isIn(productsIds));
             }
@@ -232,55 +236,57 @@ public without sharing class CustomLookupController {
                         }
         
                         Decimal commissionPercentage = commissionByHierarchy.get(productHierarchyId) != null ? commissionByHierarchy.get(productHierarchyId) : 0;
-                        ProductData productData = new ProductData((String)s.get('Id'), (String)s.get('Name'), (String)s.get('ExternalId__c'), (String)s.get('UnidadeMedida__c'), (String)s.get('PrincipleActive__c'), (Decimal)s.get('Multiplicity__c'), productGroupId, productHierarchyId, productGroupName, productSubgroupId, productSubgroupName, jda.Currency__c, jda.Id, jda.UnitPrice__c, jda.Cost__c, commissionPercentage, jda.ProductMultiplier__c, isPtaProduct, jda.ExternalId__c);
+                        ProductData productData = new ProductData((String)s.get('Id'), (String)s.get('Name'), (String)s.get('ExternalId__c'), (String)s.get('UnidadeMedida__c'), (String)s.get('PrincipleActive__c'), (Decimal)s.get('Multiplicity__c'), productGroupId, productHierarchyId, productGroupName, productSubgroupId, productSubgroupName, jda.Currency__c, jda.Id, jda.UnitPrice__c, jda.Cost__c, commissionPercentage, jda.ProductMultiplier__c, isPtaProduct, jda.ExternalId__c, jda.SalesCondition__r.Name);
                         
                         Boolean priceIncluded = false;
                         String key = jda.Account__c + '-' + (String)s.get('Id');
-                        if (jda.Account__c != null && !result.recordsDataMap.containsKey(key)) {
-                            result.recordsDataMap.put(key, productData);
-                            priceIncluded = true;
-                        }
-        
-                        String accountSegment = jda.Account__c != null ? industryByAccountIds.get(jda.Account__c).Industry : '';
-                        key = accountSegment + '-' + (String)s.get('Id');
-                        if (!priceIncluded && accountSegment != '' && !result.recordsDataMap.containsKey(key)) {
-                            result.recordsDataMap.put(key, productData);
-                            priceIncluded = true;
-                        }
-        
-                        key = jda.Culture__c + '-' + jda.SalesTeam__c + '-' + (String)s.get('Id');
-                        if (!priceIncluded && jda.Culture__c != null && jda.SalesTeam__c != null && !result.recordsDataMap.containsKey(key)) {
-                            result.recordsDataMap.put(key, productData);
-                            priceIncluded = true;
-                        }
-        
-                        key = jda.SalesTeam__c + '-' + (String)s.get('Id');
-                        if (!priceIncluded && jda.SalesTeam__c != null && !result.recordsDataMap.containsKey(key)) {
-                            result.recordsDataMap.put(key, productData);
-                            priceIncluded = true;
-                        }
-        
-                        key = jda.SalesOffice__c + '-' + (String)s.get('Id');
-                        if (!priceIncluded && jda.SalesOffice__c != null && !result.recordsDataMap.containsKey(key)) {
-                            result.recordsDataMap.put(key, productData);
-                            priceIncluded = true;
-                        }
-        
-                        key = jda.ProductGroup__c;
-                        if (!priceIncluded && jda.ProductGroup__c != null && !result.recordsDataMap.containsKey(key)) {
-                            result.recordsDataMap.put(key, productData);
-                            priceIncluded = true;
-                        }
-        
-                        key = (String)s.get('Id');
-                        if (!priceIncluded && !result.recordsDataMap.containsKey(key)) {
-                            result.recordsDataMap.put(key, productData);
-                            priceIncluded = true;
-                        }
-                        
-                        if (!productIncluded && priceIncluded) {
-                            result.recordsDataList.add(productData);
-                            productIncluded = true;
+                        if ((productParams.accountId == '' && jda.Account__c == null) || (productParams.accountId != '')) {
+                            if (jda.Account__c != null && !result.recordsDataMap.containsKey(key)) {
+                                result.recordsDataMap.put(key, productData);
+                                priceIncluded = true;
+                            }
+            
+                            String accountSegment = jda.Account__c != null ? industryByAccountIds.get(jda.Account__c).Industry : '';
+                            key = accountSegment + '-' + (String)s.get('Id');
+                            if (!priceIncluded && accountSegment != '' && !result.recordsDataMap.containsKey(key)) {
+                                result.recordsDataMap.put(key, productData);
+                                priceIncluded = true;
+                            }
+            
+                            key = jda.Culture__c + '-' + jda.SalesTeam__c + '-' + (String)s.get('Id');
+                            if (!priceIncluded && jda.Culture__c != null && jda.SalesTeam__c != null && !result.recordsDataMap.containsKey(key)) {
+                                result.recordsDataMap.put(key, productData);
+                                priceIncluded = true;
+                            }
+            
+                            key = jda.SalesTeam__c + '-' + (String)s.get('Id');
+                            if (!priceIncluded && jda.SalesTeam__c != null && !result.recordsDataMap.containsKey(key)) {
+                                result.recordsDataMap.put(key, productData);
+                                priceIncluded = true;
+                            }
+            
+                            key = jda.SalesOffice__c + '-' + (String)s.get('Id');
+                            if (!priceIncluded && jda.SalesOffice__c != null && !result.recordsDataMap.containsKey(key)) {
+                                result.recordsDataMap.put(key, productData);
+                                priceIncluded = true;
+                            }
+            
+                            key = jda.ProductGroup__c;
+                            if (!priceIncluded && jda.ProductGroup__c != null && !result.recordsDataMap.containsKey(key)) {
+                                result.recordsDataMap.put(key, productData);
+                                priceIncluded = true;
+                            }
+            
+                            key = (String)s.get('Id');
+                            if (!priceIncluded && !result.recordsDataMap.containsKey(key)) {
+                                result.recordsDataMap.put(key, productData);
+                                priceIncluded = true;
+                            }
+                            
+                            if (!productIncluded && priceIncluded) {
+                                result.recordsDataList.add(productData);
+                                productIncluded = true;
+                            }
                         }
                     }
                 }
@@ -450,13 +456,14 @@ public without sharing class CustomLookupController {
         @AuraEnabled public String  entryId;
         @AuraEnabled public String  productCurrency;
         @AuraEnabled public String  priceListCode;
+        @AuraEnabled public String  salesCondition;
         @AuraEnabled public Boolean ptaProduct;
         @AuraEnabled public Decimal multiplicity;
         @AuraEnabled public Decimal listPrice;
         @AuraEnabled public Decimal costPrice;
         @AuraEnabled public Decimal commissionPercentage;
         
-        public ProductData(String Id, String Name, String sapProductCode, String unity, String activePrinciple, Decimal multiplicity, String productGroup, String productHierarchy, String productGroupName, String productSubgroup, String productSubgroupName, String productCurrency, Id entryId, Decimal listPrice, Decimal costPrice, Decimal commissionPercentage, Decimal multiplier, Boolean ptaProduct, String priceListCode) {
+        public ProductData(String Id, String Name, String sapProductCode, String unity, String activePrinciple, Decimal multiplicity, String productGroup, String productHierarchy, String productGroupName, String productSubgroup, String productSubgroupName, String productCurrency, Id entryId, Decimal listPrice, Decimal costPrice, Decimal commissionPercentage, Decimal multiplier, Boolean ptaProduct, String priceListCode, String salesCondition) {
             multiplier = multiplier != null ? multiplier : 1;
             this.Id = Id;
             this.Name = Name;
@@ -476,6 +483,7 @@ public without sharing class CustomLookupController {
             this.costPrice = costPrice != null ? costPrice / multiplier : 0;
             this.commissionPercentage = commissionPercentage != null ? commissionPercentage : 0;
             this.priceListCode = priceListCode != null ? priceListCode : '';
+            this.salesCondition = salesCondition != null ? salesCondition : '';
         }
     }
 

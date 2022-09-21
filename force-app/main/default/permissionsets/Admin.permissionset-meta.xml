@@ -863,6 +863,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>FormPayment__c.ExternalId__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>FormPayment__c.Order__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -912,34 +917,34 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>IndividualQuotas__c.Balance__c</field>
-        <readable>false</readable>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
         <field>IndividualQuotas__c.Consumed__c</field>
-        <readable>false</readable>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>IndividualQuotas__c.Crop__c</field>
-        <readable>false</readable>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>IndividualQuotas__c.Cultivate__c</field>
-        <readable>false</readable>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>IndividualQuotas__c.Quantity__c</field>
-        <readable>false</readable>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>IndividualQuotas__c.Seller__c</field>
-        <readable>false</readable>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
@@ -1274,6 +1279,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>NotaFiscal__c.AccountCode__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>NotaFiscal__c.Base64__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -1910,11 +1920,6 @@
         <editable>true</editable>
         <field>OrderItem.UnitPricePerBag__c</field>
         <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>OrderItem.ValorFaturado__c</field>
-        <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
@@ -2681,6 +2686,15 @@
         <allowEdit>true</allowEdit>
         <allowRead>true</allowRead>
         <modifyAllRecords>true</modifyAllRecords>
+        <object>IndividualQuotas__c</object>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>true</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>true</modifyAllRecords>
         <object>IntegrationLog__c</object>
         <viewAllRecords>true</viewAllRecords>
     </objectPermissions>
@@ -3112,7 +3126,7 @@
         <tab>PotencialCompra__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
-    <tabSettings>
+   <tabSettings>
         <tab>PriceSearch</tab>
         <visibility>Visible</visibility>
     </tabSettings>
