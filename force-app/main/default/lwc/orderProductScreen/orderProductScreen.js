@@ -349,7 +349,7 @@ export default class OrderProductScreen extends LightningElement {
                     }
                 }
             } else {
-                this.verifyQuota = true;
+                this.verifyQuota = false;
             }
 
             if (this.isFilled(this.headerData.safra.Id)) {

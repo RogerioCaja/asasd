@@ -6,6 +6,7 @@ import getRecords from '@salesforce/apex/Lookup.getRecords';
 export default class Lookup extends LightningElement {
 	// APIs
 	@api recordId;
+	@api quote;
 	@api targetObject;
 	@api searchFields = [];
 	@api moreFields = [];
@@ -254,7 +255,8 @@ export default class Lookup extends LightningElement {
 				currencyGet: this.currencyOption != null ? this.currencyOption : '',
 				typeOrder: this.salesType != null ? this.salesType : ''
 			}
-			const data = await getRecords({ data: JSON.stringify(requestData), barterSale: this.barterSale, salesConditionData: JSON.stringify(salesConditionData), priceScreen:false, clientTerritoriesScreen: this.clientTerritoriesScreen });
+			console.log('this.quote: '+ this.quote);
+			const data = await getRecords({ data: JSON.stringify(requestData), barterSale: this.barterSale, salesConditionData: JSON.stringify(salesConditionData), priceScreen:false, clientTerritoriesScreen: this.clientTerritoriesScreen, quoteScreen: this.quote});
 			//console.log('data lookup fon =>', JSON.parse(JSON.stringify(data)));
 
 			var dataResult = [];
