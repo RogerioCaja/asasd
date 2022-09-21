@@ -21,10 +21,6 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
-        <apexClass>CallExcludePageController</apexClass>
-        <enabled>true</enabled>
-    </classAccesses>
-    <classAccesses>
         <apexClass>CalloutBP</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -2854,10 +2850,6 @@
         <object>VisitPlanning__c</object>
         <viewAllRecords>false</viewAllRecords>
     </objectPermissions>
-    <pageAccesses>
-        <apexPage>CallExcludePage</apexPage>
-        <enabled>true</enabled>
-    </pageAccesses>
     <pageAccesses>
         <apexPage>OrderPagePDF</apexPage>
         <enabled>true</enabled>
