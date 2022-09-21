@@ -390,15 +390,15 @@ public without sharing class OrderScreenController {
             } else {
                 GeneralQuotas__c generalQuota = generalQuotasById.get(quota.generalQuotaId);
                 System.debug('generalQuota: ' + generalQuota);
-                generalQuota.Balance__c = generalQuota.Balance__c - productQuantity;
-                generalQuota.Consumed__c = generalQuota.Consumed__c + productQuantity;
+                generalQuota.Balance__c = (generalQuota.Balance__c != null ? generalQuota.Balance__c : 0) - productQuantity;
+                generalQuota.Consumed__c = (generalQuota.Consumed__c != null ? generalQuota.Consumed__c : 0) + productQuantity;
                 System.debug('generalQuota: ' + generalQuota);
                 result.generalQuotasToUpdate.add(generalQuota);
 
                 IndividualQuotas__c individualQuota = individualQuotasById.get(quota.individualQuotaId);
                 System.debug('individualQuota: ' + individualQuota);
-                individualQuota.Balance__c = individualQuota.Balance__c - productQuantity;
-                individualQuota.Consumed__c = individualQuota.Consumed__c + productQuantity;
+                individualQuota.Balance__c = (individualQuota.Balance__c != null ? individualQuota.Balance__c : 0) - productQuantity;
+                individualQuota.Consumed__c = (individualQuota.Consumed__c != null ? individualQuota.Consumed__c : 0) + productQuantity;
                 System.debug('individualQuota: ' + individualQuota);
                 result.individualQuotasToUpdate.add(individualQuota);
 
