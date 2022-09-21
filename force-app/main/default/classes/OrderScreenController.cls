@@ -310,7 +310,95 @@ public without sharing class OrderScreenController {
     }
 
     @AuraEnabled
-    public static String saveOrder(Id orderId, Boolean cloneOrder, String data, string typeOrder, String itemsToExclude) {
+    public static String checkQuotaQuantity(String data){
+        QuotaData quotaData = (QuotaData) JSON.deserialize(data, QuotaData.class);
+        List<QuotaResult> result = new List<QuotaResult>();
+        for (IndividualQuotas__c individualQuota : [
+            SELECT Id,
+                   Balance__c,
+                   Consumed__c,
+                   Cultivate__c,
+                   Cultivate__r.Name,
+                   GeneralQuotas__c,
+                   GeneralQuotas__r.Balance__c
+              FROM IndividualQuotas__c
+             WHERE Crop__c =: quotaData.cropId
+               AND Seller__c =: quotaData.sellerId
+               AND Cultivate__c IN: quotaData.productsIds
+        ]) {
+            QuotaResult quota = new QuotaResult();
+            quota.productId = individualQuota.Cultivate__c;
+            quota.productName = individualQuota.Cultivate__r.Name;
+            quota.generalQuotaId = individualQuota.GeneralQuotas__c;
+            quota.individualQuotaId = individualQuota.Id;
+            quota.balance = individualQuota.Balance__c;
+            quota.generalBalance = individualQuota.GeneralQuotas__r.Balance__c;
+            quota.consumed = individualQuota.Consumed__c;
+            result.add(quota);
+        }
+
+        return JSON.serialize(result);
+    }
+
+    public static QuantitiesResult checkItemQuota(QuotaData quotaData, Map<String, Decimal> quantitiesById) {
+        QuantitiesResult result = new QuantitiesResult();
+        System.debug('quotaData: ' + quotaData);
+        String data = checkQuotaQuantity(JSON.serialize(quotaData));
+        List<QuotaResult> quotaResult = (List<QuotaResult>) JSON.deserialize(data, List<QuotaResult>.class);
+
+        Set<Id> generalQuotasIds = new Set<Id>();
+        Set<Id> individualQuotasIds = new Set<Id>();
+        for (QuotaResult getIds : quotaResult) {
+            generalQuotasIds.add(getIds.generalQuotaId);
+            individualQuotasIds.add(getIds.individualQuotaId);
+        }
+
+        System.debug('generalQuotasIds: ' + generalQuotasIds);
+        Map<Id, GeneralQuotas__c> generalQuotasById = new Map<Id, GeneralQuotas__c>([
+            SELECT Id, Balance__c, Consumed__c
+              FROM GeneralQuotas__c
+             WHERE Id IN: generalQuotasIds
+        ]);
+
+        System.debug('individualQuotasIds: ' + individualQuotasIds);
+        Map<Id, IndividualQuotas__c> individualQuotasById = new Map<Id, IndividualQuotas__c>([
+            SELECT Id, Balance__c, Consumed__c
+              FROM IndividualQuotas__c
+             WHERE Id IN: individualQuotasIds
+        ]);
+        
+        for (QuotaResult quota : quotaResult) {
+            System.debug('quota: ' + quota);
+            Decimal productQuantity = quantitiesById.get(quota.productId);
+            System.debug('productQuantity: ' + productQuantity);
+            
+            if (productQuantity > quota.balance || productQuantity > quota.generalBalance) {
+                result.hasQuota = false;
+                result.invalidProductsNames = result.invalidProductsNames != '' ? result.invalidProductsNames + ', ' + quota.productName : quota.productName;
+            } else {
+                GeneralQuotas__c generalQuota = generalQuotasById.get(quota.generalQuotaId);
+                System.debug('generalQuota: ' + generalQuota);
+                generalQuota.Balance__c = generalQuota.Balance__c - productQuantity;
+                generalQuota.Consumed__c = generalQuota.Consumed__c + productQuantity;
+                System.debug('generalQuota: ' + generalQuota);
+                result.generalQuotasToUpdate.add(generalQuota);
+
+                IndividualQuotas__c individualQuota = individualQuotasById.get(quota.individualQuotaId);
+                System.debug('individualQuota: ' + individualQuota);
+                individualQuota.Balance__c = individualQuota.Balance__c - productQuantity;
+                individualQuota.Consumed__c = individualQuota.Consumed__c + productQuantity;
+                System.debug('individualQuota: ' + individualQuota);
+                result.individualQuotasToUpdate.add(individualQuota);
+
+                result.individualQuotasByProdId.put(quota.productId, quota.individualQuotaId);
+            }
+        }
+
+        return result;
+    }
+
+    @AuraEnabled
+    public static String saveOrder(Id orderId, Boolean cloneOrder, String data, String typeOrder, String itemsToExclude) {
         Savepoint sp = Database.setSavepoint();
         try {
             Order order;
@@ -367,8 +455,9 @@ public without sharing class OrderScreenController {
             Decimal biggerDiscount = 0;
             Id productGroupId;
             Set<Id> setOrderItemsIds = new Set<Id>();
-            Set<Id> setProductsIds = new Set<Id>();
+            List<Id> listProductsIds = new List<Id>();
             Set<Id> setProductHierarchyIds = new Set<Id>();
+            Map<String, Decimal> quantitiesById = new Map<String, Decimal>();
             Map<String, Decimal> smallerMarginByProductGroup = new Map<String, Decimal>();
             for (ProductDeserialize orderProduct : orderData.productData) {
                 orderTotalValue += orderProduct.totalPrice;
@@ -377,7 +466,7 @@ public without sharing class OrderScreenController {
                 }
 
                 if (orderProduct.productId != null) {
-                    setProductsIds.add(orderProduct.productId);
+                    listProductsIds.add(orderProduct.productId);
                 }
 
                 if (orderProduct.productGroupId != null) {
@@ -405,6 +494,25 @@ public without sharing class OrderScreenController {
                     if (motherItem.AmountUsed__c + orderProduct.quantity > motherItem.Quantity) {
                         return JSON.serializePretty(new AGRO_RemotingResult(true, '200', 'Não é possível efetivar o pedido por ter excedido as quantidades do pedido mãe.'));
                     }
+                }
+
+                quantitiesById.put(orderProduct.productId, orderProduct.quantity);
+            }
+
+            Boolean seedSale = isSeedSale(company.SalesOrg__c, null);
+            QuantitiesResult quantitiesResult;
+            if (seedSale) {
+                QuotaData quotaData = new QuotaData();
+                quotaData.cropId = orderData.headerData.safra.Id;
+                quotaData.sellerId = orderData.headerData.ctv_venda.Id;
+                quotaData.productsIds = new List<String>();
+                quotaData.productsIds.addAll(listProductsIds);
+                
+                quantitiesResult = new QuantitiesResult();
+                quantitiesResult = checkItemQuota(quotaData, quantitiesById);
+                System.debug('quantitiesResult: ' + quantitiesResult);
+                if (!quantitiesResult.hasQuota) {
+                    return JSON.serializePretty(new AGRO_RemotingResult(true, '200', 'Quantidade indisponível no(s) produto(s) ' + quantitiesResult.invalidProductsNames + '.'));
                 }
             }
 
@@ -443,7 +551,7 @@ public without sharing class OrderScreenController {
                            Pricebook2Id,
                            UnitPrice
                       FROM PricebookEntry
-                     WHERE Product2Id IN: setProductsIds
+                     WHERE Product2Id IN: listProductsIds
                 ]) {
                     pricebookId = entry.Pricebook2Id;
                     entriesByProductsIds.put(entry.Product2Id, entry);
@@ -456,7 +564,7 @@ public without sharing class OrderScreenController {
                            UnitPrice
                       FROM PricebookEntry
                      WHERE Pricebook2.IsStandard = true
-                       AND Product2Id IN: setProductsIds
+                       AND Product2Id IN: listProductsIds
                 ]) {
                     pricebookId = entry.Pricebook2Id;
                     entriesByProductsIds.put(entry.Product2Id, entry);
@@ -682,6 +790,10 @@ public without sharing class OrderScreenController {
                         orderItem.CommitteeTrigger__c = true;
                     }
 
+                    if (quantitiesResult != null && typeOrder != 'prepedido') {
+                        orderItem.IndividualQuotas__c = quantitiesResult.individualQuotasByProdId.get(orderProduct.productId);
+                    }
+
                     orderItem.UnitPricePerBag__c = commodityPrice > 0 ? (orderProduct.unitPrice / commodityPrice) : null;
                     orderItem.TotalPricePerBag__c = commodityPrice > 0 ? (orderItem.UnitPricePerBag__c * orderProduct.quantity) : null;
                     orderItem.Quantity = orderProduct.quantity;
@@ -744,6 +856,13 @@ public without sharing class OrderScreenController {
                     } else {
                         itemsIds.add(result.getId());
                     }
+                }
+
+                if (typeOrder != 'prepedido' && quantitiesResult != null) {
+                    System.debug('quantitiesResult.generalQuotasToUpdate: ' + quantitiesResult.generalQuotasToUpdate);
+                    update quantitiesResult.generalQuotasToUpdate;
+                    System.debug('quantitiesResult.individualQuotasToUpdate: ' + quantitiesResult.individualQuotasToUpdate);
+                    update quantitiesResult.individualQuotasToUpdate;
                 }
 
                 Integer divisionCounter = 1;
@@ -2058,5 +2177,30 @@ public without sharing class OrderScreenController {
         public List<String> orderProductsId;
         public String salesOrgId;
         public String supplierCenter;
+    }
+
+    
+    public class QuotaData {
+        public String cropId;
+        public String sellerId;
+        public List<String> productsIds;
+    }
+
+    public class QuotaResult {
+        public String  productId;
+        public String  productName;
+        public String  generalQuotaId;
+        public String  individualQuotaId;
+        public Decimal balance;
+        public Decimal generalBalance;
+        public Decimal consumed;
+    }
+
+    public class QuantitiesResult {
+        public Boolean hasQuota = true;
+        public String invalidProductsNames = '';
+        public Map<Id, Id> individualQuotasByProdId = new Map<Id, Id>();
+        public List<GeneralQuotas__c> generalQuotasToUpdate = new List<GeneralQuotas__c>();
+        public List<IndividualQuotas__c> individualQuotasToUpdate = new List<IndividualQuotas__c>();
     }
 }

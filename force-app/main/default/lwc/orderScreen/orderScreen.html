@@ -58,6 +58,31 @@
             <c-order-summary-screen if:true={summary} tab="summary" onsetproductdata={_setProductData} onsetsummarydata={_setSummaryData} onsetformsofpayment={_setformsofpayment} product-data={productData} division-data={divisionData} header-data={headerData} account-data={accountData} summary-data={summaryData} clone-data={cloneData} commodity-data={commodityData} excluded-items={excludedItems} forms-of-payment={formsOfPayment}>
             </c-order-summary-screen>
 
+            <template if:true={changeProductInfos}>
+                <div class="modal">
+                    <div class="modal-content">
+                        <p class="product-title">Quantidade indisponível nos seguintes produtos:</p>
+
+                        <template for:each={quotaProducts} for:item="prod">
+                            <div key={prod.id}>
+                                <div class="column-33"><b>Produto: </b> {prod.name}</div>
+                                <div class="column-33"><b>Quantidade Atual: </b> {prod.currentQuantity}</div>
+                                <div class="column-33"><b>Quantidade Disponível: </b> {prod.availableQuantity}</div>
+                            </div>
+                        </template>
+
+                        <div class="row">
+                            <div class="column">
+                                <button class="confirm-button" style="float: left;" onclick={excludeProducts}>Excluir Produtos</button>
+                            </div>
+                            <div class="column">
+                                <button class="confirm-button" onclick={changeQuantity}>Alterar Quantidade</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
             <!--COMEÇO NAVBAR BOTTOM-->
             <div class="navbar_bottom" style="padding-top: 20px;">
                 <span onclick={handlePrevious}>
