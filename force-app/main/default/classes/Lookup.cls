@@ -208,6 +208,8 @@ public without sharing class Lookup {
                 String sellerType = 'CTV';
                 query += ' AND SellerType__c =: sellerType';
             }
+
+            query += ' AND Id IN: relatedUsers';
         } else if (requestData.targetObject == 'CondicaoPagamento__c') {
             query += ' AND BarterCondition__c =: barterSale';
         }
