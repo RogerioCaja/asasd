@@ -85,7 +85,7 @@ public without sharing class CalloutOrderUpdate {
 		String accessToken = !Test.isRunningTest() ? getAccessToken() : 'testeToken';
 
 		//Path geralmente cadastrado dentro de ua customSettings
-		String endpoint = (!Test.isRunningTest() ? 'https://agrogalaxy-prd-01.it-cpi008-rt.cfapps.br10.hana.ondemand.com/http/SI_ALTERA_OV_OUT' : 'http://callout.My_Named_Credential.com/some/path');
+		String endpoint = (!Test.isRunningTest() ? 'https://agrogalaxy-qas-01.it-cpi008-rt.cfapps.br10.hana.ondemand.com/http/SI_ALTERA_OV_OUT' : 'http://callout.My_Named_Credential.com/some/path');
 		Map<String, String> headersMap = new Map<String, String>();
 		headersMap.put('Content-type', 'application/json');
 		headersMap.put('Authorization', 'Bearer '+ accessToken);

@@ -495,16 +495,17 @@ public without sharing class OrderScreenController {
                            ProductHierarchy__c,
                            SellerType__c,
                            CommissionPercentage__c 
-                    FROM Comissao__c
-                   WHERE ProductHierarchy__c IN: setProductHierarchyIds
-                     AND SellerType__c =: sellerType
+                      FROM Comissao__c
+                     WHERE ProductHierarchy__c IN: setProductHierarchyIds
+                       AND SellerType__c =: sellerType
+                       AND SalesOrg__c =: company.SalesOrg__c
                 ]) {
                     if (!commissionByHierarchy.containsKey(commission.ProductHierarchy__c)) {
                         commissionByHierarchy.put(commission.ProductHierarchy__c, commission);
                     }
                 }
             }
-            System.debug('commissionByHierarchy => ' + commissionByHierarchy);
+
             if (company != null && orderData.headerData.pedido_mae.Id == null) {
                 Id userTerritoryId;
                 for (UserTerritory2Association userAssociation : [
@@ -1016,7 +1017,7 @@ public without sharing class OrderScreenController {
     }
 
     @AuraEnabled
-    public static String getAccountCompanies(String data, Boolean isHeader, Boolean verifyUserType) {
+    public static String getAccountCompanies(String data, Boolean isHeader, Boolean verifyUserType, Boolean priceScreen) {
         GetCompanyInfos companyInfos = (GetCompanyInfos) JSON.deserialize(data, GetCompanyInfos.class);
         Id userTerritoryId;
         Boolean sellerPosition = false;
@@ -1092,7 +1093,7 @@ public without sharing class OrderScreenController {
         };
         Q proQuery = new Q(Company__c.SObjectType);
         proQuery.selectFields(fieldSet);
-        proQuery.add(Q.condition('Conta__c').equalsTo(companyInfos.accountId));
+        if (companyInfos.accountId != '') proQuery.add(Q.condition('Conta__c').equalsTo(companyInfos.accountId));
         proQuery.add(Q.condition('Status__c').equalsTo('Adicionada'));
         
         List<CompanyInfos> companyList = new List<CompanyInfos>();
@@ -1105,6 +1106,8 @@ public without sharing class OrderScreenController {
             else {
                 proQuery.add(Q.condition('ActivitySector__r.Codigo__c').equalsTo('40'));
             }
+
+            if (companyInfos.accountId == '') proQuery.addLimit(1);
             for (Company__c salesTeamCompany : Database.query(proQuery.build())) {
                 CompanyInfos company = new CompanyInfos();
                 company.companyId = salesTeamCompany.Id;
