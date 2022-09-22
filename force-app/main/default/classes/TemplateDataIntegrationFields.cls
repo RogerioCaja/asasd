@@ -289,6 +289,7 @@ global with sharing class TemplateDataIntegrationFields {
         //public String clienteCode; 
         public List<TemplateDataIntegrationFields.OrderItemINData> orderItems;
         public List<TemplateDataIntegrationFields.ShippingDivisonINData> shippingDivison;
+        public List<TemplateDataIntegrationFields.FormPaymentINData> formPayment;
         public List<TemplateDataIntegrationFields.PartnerInsert> partners;
         public List<TemplateDataIntegrationFields.ConditionInsert> conditions;
         public Order serialize(Map<String, Id> lookups){
@@ -453,6 +454,8 @@ global with sharing class TemplateDataIntegrationFields {
         public Decimal precoPraticado;
         public Decimal precoUnitario;
         public String motivoRecusa;
+        public String peneira;
+        public String classeCategoria;
         public OrderItem serialize(Map<String, Id> lookups){
 
             
@@ -485,7 +488,10 @@ global with sharing class TemplateDataIntegrationFields {
                 PracticedCost__c = this.custoPreco,
                 PracticedPrice__c = this.precoPraticado,
                 UnitPrice = this.precoPraticado,
-                ReasonRefuse__c = this.motivoRecusa
+                ReasonRefuse__c = this.motivoRecusa,
+                Description = '',
+                Sieve__c = this.peneira,
+                Class__c = this.classeCategoria
             );
         }
         public List<String> getRequiredFields(){
@@ -558,6 +564,43 @@ global with sharing class TemplateDataIntegrationFields {
         }
     }
 
+    global class FormPaymentINData implements FieldDataChild{
+        public String orderExternalId;
+        //public String OrderItemCode;
+        public String orderCode;
+        public Date paymentDate;
+        public String paymentItemCode;
+        public Decimal paymentAndValue;
+
+        public FormPayment__c serialize(Map<String, Id> lookups){
+            return new FormPayment__c(
+                ExternalId__c = orderExternalId + '|' + paymentItemCode, 
+                Order__c = this.orderExternalId,
+                //ExternalId__c = this.orderCode, //Elaborar
+                PaymentDate__c = this.paymentDate,
+                Amount__c = this.paymentAndValue
+            );
+        }
+
+        public List<String> getRequiredFields(){
+            return new List<String>{
+
+            };
+        }
+
+        public String getFieldKey(){
+            return 'Id';
+        }
+
+        public String getFieldExternal(){
+            return 'ExternalId__c';
+        }
+
+        public String getParentKey(){
+            return 'OrderId';
+        }
+    }
+
     
     global class NotaFiscalINData implements FieldData{
         //JSON fields Example
@@ -577,6 +620,7 @@ global with sharing class TemplateDataIntegrationFields {
         public Decimal valorTotalNf;
         public String naturezaOperacao;
         public String numeroPedido; //
+        public String nfBasePdf;
         public List<TemplateDataIntegrationFields.ItensNotaFiscalINData> itensNotaFiscal; 
         public NotaFiscal__c serialize(Map<String, Id> lookups){
 
@@ -597,7 +641,8 @@ global with sharing class TemplateDataIntegrationFields {
                 Invoice_CreationDate__c = this.dataCriacao,
                 HoraCriacao__c = this.horaCriacao,
                 Invoice_TotalAmount__c = this.valorTotalNf,
-                CFOP__c = this.naturezaOperacao
+                CFOP__c = this.naturezaOperacao,
+                Base64__c = this.nfBasePdf
             );
         }
         
