@@ -427,11 +427,11 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     }
 
     excludeProducts() {
-        let allQuotas = JSON.parse(JSON.stringify(this.allProductQuotas));
+        let allQuotas = JSON.parse(JSON.stringify(this.quotaProducts));
         let currentProducts = JSON.parse(JSON.stringify(this.productData));
         let products = [];
         for (let index = 0; index < currentProducts.length; index++) {
-            let currentQuota = allQuotas.find(e => e.productId == currentProducts[index].productId);
+            let currentQuota = allQuotas.find(e => e.id == currentProducts[index].productId);
             if (!this.isFilled(currentQuota)) {
                 products.push(currentProducts[index]);
             }
@@ -441,6 +441,9 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         if (this.productData.length == 0) {
             this.tabs[this.currentTab].enable = false;
             this.handlePrevious();
+        } else {
+            const objChild = this.template.querySelector('c-order-summary-screen');
+            objChild.loadData(true, this.productData);
         }
         this.changeProductInfos = false;
     }
