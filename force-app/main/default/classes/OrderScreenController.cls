@@ -212,13 +212,25 @@ public without sharing class OrderScreenController {
             List<Account> accountList = new List<Account>();
             List<AccountSerialize> accountListSerialize = new List<AccountSerialize>();
             List<SObject> recordsData = new List<SObject>();
+            Set<Id> familyAccountIds = new Set<Id>();
 			String profileName = [SELECT Name FROM Profile WHERE Id =: UserInfo.getProfileId()].Name;
+
+            familyAccountIds.add(accountId);
+            for (Account familyAccount : [
+                SELECT Id
+                  FROM Account
+                 WHERE ParentId =: accountId
+                   AND ExternalId__c LIKE '0001%'
+                   AND Status__c = 'Ativo'
+            ]) {
+                familyAccountIds.add(familyAccount.Id);
+            }
 			
             if (profileName != 'Balcão') {
                 Set<Id> relatedAccounts = getTerritoryAccounts();
-                accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE Status__c = 'Ativo' AND ((ParentId =: accountId AND Id IN: relatedAccounts AND ExternalId__c LIKE '0002%') OR (Id =: accountId AND CNPJ__c != null AND CPF__c = null))];
+                accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE Status__c = 'Ativo' AND ((ParentId =: accountId AND Id IN: relatedAccounts AND ExternalId__c LIKE '0002%') OR (Id =: accountId AND CNPJ__c != null AND CPF__c = null) OR (ParentId IN: familyAccountIds AND ExternalId__c LIKE '0002%' AND Id IN: relatedAccounts))];
             } else {
-                accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE Status__c = 'Ativo' AND ((ParentId =: accountId AND ExternalId__c LIKE '0002%') OR (Id =: accountId AND CNPJ__c != null AND CPF__c = null))];
+                accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE Status__c = 'Ativo' AND ((ParentId =: accountId AND ExternalId__c LIKE '0002%') OR (Id =: accountId AND CNPJ__c != null AND CPF__c = null) OR ((ParentId IN: familyAccountIds AND ExternalId__c LIKE '0002%')))];
             }
 
             for(Account account : accountList) accountListSerialize.add(new AccountSerialize(account));
@@ -621,6 +633,10 @@ public without sharing class OrderScreenController {
             order.OrderMargin__c = orderData.summaryData.orderMargin != null ? (orderData.summaryData.orderMargin.contains(' sacas') ?
                                    stringToDecimal(orderData.summaryData.orderMargin.replace(' sacas', '')) : stringToDecimal((orderData.summaryData.orderMargin))) : 0;
             order.ApprovalJustification__c = orderData.summaryData.justification;
+
+            if (order.OrderType__c == 'Pedido Filho') {
+                order.AccountId = [SELECT Id, ParentId FROM Account WHERE Id =: order.ShippingAccount__c].ParentId;
+            }
 
             if (order.Incoterms__c == 'CIF') {
                 order.FinalTotalValue__c = order.FinalTotalValue__c + orderData.summaryData.freightValue;
