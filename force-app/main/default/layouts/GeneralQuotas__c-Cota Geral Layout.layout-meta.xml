@@ -39,11 +39,15 @@
                 <field>Quantity__c</field>
             </layoutItems>
             <layoutItems>
-                <behavior>Required</behavior>
-                <field>Balance__c</field>
+                <behavior>Edit</behavior>
+                <field>PendingDistributionIndividualQuota__c</field>
             </layoutItems>
         </layoutColumns>
         <layoutColumns>
+            <layoutItems>
+                <behavior>Required</behavior>
+                <field>Balance__c</field>
+            </layoutItems>
             <layoutItems>
                 <behavior>Readonly</behavior>
                 <field>Consumed__c</field>
