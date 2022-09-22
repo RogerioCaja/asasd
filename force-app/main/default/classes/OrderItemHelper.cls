@@ -103,43 +103,45 @@ public without sharing class OrderItemHelper {
 
             if(ordItem.Description != null && ordItem.ReasonRefuse__c != null && ordItem.Description.contains('In73gr ins37t x') && order.SalesOrg__c != null && order.SalesOrg__r.SalesOrganizationCode__c == '1300'){
                 individualQuotasId.add(ordItem.IndividualQuotas__c); 
-                generalQuotasId.add(ordItem.IndividualQuotas__r.GeneralQuotas__c); 
             } 
         }
 
-
-        List<GeneralQuotas__c> generalQuotasList = new List<GeneralQuotas__c>([SELECT id,Quantity__c,Consumed__c,Balance__c FROM GeneralQuotas__c WHERE Id =: generalQuotasId]);
-       
+        
         List<IndividualQuotas__c> individualQuotasList = new List<IndividualQuotas__c>([SELECT id, Quantity__c, Balance__c, Consumed__c, GeneralQuotas__c FROM IndividualQuotas__c WHERE id  =: individualQuotasId]);
         
-        List<IndividualQuotas__c> sumIndividualQuotasList = new List<IndividualQuotas__c>([SELECT id, Quantity__c, Balance__c, Consumed__c, GeneralQuotas__c FROM IndividualQuotas__c WHERE id  !=: individualQuotasId AND GeneralQuotas__c =: generalQuotasId]);
+        for(IndividualQuotas__c indQuotas : individualQuotasList){
+            generalQuotasId.add(indQuotas.GeneralQuotas__c); 
+        }
+        
+        List<GeneralQuotas__c> generalQuotasList = new List<GeneralQuotas__c>([SELECT id, Quantity__c,Consumed__c,Balance__c FROM GeneralQuotas__c WHERE Id =: generalQuotasId]);
+      
+        List<IndividualQuotas__c> individualQuotasListUpdate = new List<IndividualQuotas__c>();
+        
+        for(IndividualQuotas__c indQuotas : individualQuotasList){
+            indQuotas.Balance__c = indQuotas.Quantity__c; 
+            
+            indQuotas.Consumed__c = 0;
+          
+            
+            IndividualQuotas__c individualQuotas = new IndividualQuotas__c();
+          
+            individualQuotasListUpdate.add(indQuotas);
+        }
+        
+        OrderItemHelper.disableTrigger();
+        upsert individualQuotasListUpdate;
+        OrderItemHelper.enableTrigger();
+        
+        List<IndividualQuotas__c> sumIndividualQuotasList = new List<IndividualQuotas__c>([SELECT id, Quantity__c, Balance__c, Consumed__c, GeneralQuotas__c FROM IndividualQuotas__c WHERE  GeneralQuotas__c =: generalQuotasId]);
 
         Map<Id, IndividualQuotas__c> individualQuotasMap = new Map<Id, IndividualQuotas__c>();
 
         Map<Id, Decimal> sumIndividualQuotasMap = new Map<Id, Decimal>();
 
-        List<IndividualQuotas__c> individualQuotasListUpdate = new List<IndividualQuotas__c>();
-
-        for(IndividualQuotas__c indQuotas : individualQuotasList){
-            indQuotas.Balance__c = indQuotas.Quantity__c; //Qualquer coisa colocar Quantity__c
-            //if(indQuotas.Balance__c == indQuotas.Quantity__c){
-            indQuotas.Consumed__c = 0;
-            //} 
-            
-            IndividualQuotas__c individualQuotas = new IndividualQuotas__c();
-            /*
-            if(individualQuotas.contains(indQuotas.GeneralQuotas__c)){
-                individualQuotas = individualQuotasMap.get(indQuotas.GeneralQuotas__c);
-                individualQuotas.Balance__c += indQuotas.Balance__c;
-                individualQuotasMap.put(indQuotas.GeneralQuotas__c, individualQuotas);
-            }
-            else {
-                individualQuotasMap.put(indQuotas.GeneralQuotas__c, indQuotas);
-            }
-            */
-            individualQuotasListUpdate.add(indQuotas);
-        }
         
+
+        
+        System.debug('sumIndividualQuotasList ' + sumIndividualQuotasList);
         for(IndividualQuotas__c indQuotas : sumIndividualQuotasList){
     
             IndividualQuotas__c individualQuotas = new IndividualQuotas__c();
@@ -156,15 +158,24 @@ public without sharing class OrderItemHelper {
         }
 
         List<GeneralQuotas__c> generalQuotasListUpdate = new List<GeneralQuotas__c>();
+        System.debug('generalQuotasList ' + generalQuotasList);
         for(GeneralQuotas__c generalQuotas: generalQuotasList){
-            IndividualQuotas__c individualQuotas = individualQuotasMap.get(generalQuotas.Id);
-            generalQuotas.Consumed__c = individualQuotas.Consumed__c;
-            generalQuotas.Balance__c = generalQuotas.Quantity__c - individualQuotas.Consumed__c;
-            generalQuotasListUpdate.add(generalQuotas);
+            System.debug('individualQuotasMap ' + individualQuotasMap);
+            
+                IndividualQuotas__c individualQuotas = individualQuotasMap.get(generalQuotas.Id);
+                System.debug('individualQuotas ' + individualQuotas);
+            	generalQuotas.Consumed__c = individualQuotas.Consumed__c;
+            	generalQuotas.Balance__c = generalQuotas.Quantity__c - individualQuotas.Consumed__c;
+            	generalQuotasListUpdate.add(generalQuotas);
+               
         }
+        
+        
+        
+        
         OrderItemHelper.disableTrigger();
         upsert generalQuotasListUpdate;
-        upsert individualQuotasListUpdate;
+        
         OrderItemHelper.enableTrigger();
     }
 
