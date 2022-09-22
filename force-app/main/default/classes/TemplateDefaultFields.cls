@@ -196,6 +196,7 @@ public  class TemplateDefaultFields {
         Account account = new Account(
             Name = 'Teste 1',
             BillingStreet = ' ',
+            BpType__c = 'Proprietario',
             BillingState = '' ,
             Phone= '', 
             BillingCity = ' ', 
@@ -205,6 +206,7 @@ public  class TemplateDefaultFields {
             ExternalId__c = '11111',
             Company__c = 'Empresa 01'
         );
+        
 
         Safra__c safra = new Safra__c(
             Code__c = '1223',
@@ -260,6 +262,38 @@ public  class TemplateDefaultFields {
         INSERT so;
         INSERT distributionChannel;
         INSERT u;
+        
+
+        Account account3 = new Account(
+            Name = 'Teste 3',
+            BillingStreet = ' ',
+            BillingState = '' ,
+            BpType__c = 'Propriedade',
+            Phone= '', 
+            BillingCity = ' ', 
+            BillingLongitude = 000000,
+            BillingLatitude = 00000,
+            BillingPostalCode = '',
+            ExternalId__c = '113123',
+            Company__c = 'Empresa 02'
+        );
+        INSERT account3;
+
+        Account account2 = new Account(
+            Name = 'Teste 2',
+            BillingStreet = ' ',
+            ParentId = account.Id,
+            BillingState = '' ,
+            BpType__c = 'Propriedade',
+            Phone= '', 
+            BillingCity = ' ', 
+            BillingLongitude = 000000,
+            BillingLatitude = 00000,
+            BillingPostalCode = '',
+            ExternalId__c = '11122',
+            Company__c = 'Empresa 02'
+        );
+        INSERT account2;
         Map <String,Schema.RecordTypeInfo> recordTypeMap = Order.sObjectType.getDescribe().getRecordTypeInfosByName();
 
         Order order = new Order(
@@ -355,7 +389,15 @@ public  class TemplateDefaultFields {
         insert shipping;
 
         VisitPlanning__c vp = new VisitPlanning__c(
+            Name = 'test Visit',
+            MainBP__c = account.Id,
+            BP_Property__c = account2.Id,
             CTVvisit__c = 'Teste',
+            VisitSeller__c = u.Id,
+            Status__c = 'Agendado',
+            Objetivo__c = 'Evento',
+            EndTime__c  = Time.newInstance(1, 2, 3, 6),  
+			StartTime__c = Time.newInstance(1, 2, 3, 1),
             Culture__c = cultura.Id,
             EndDate__c = System.today(),
             InitialDate__c = System.today(),
@@ -375,38 +417,22 @@ public  class TemplateDefaultFields {
         );
 
         insert ccv;
-
+        TechnicalReport__c technicalReport = new TechnicalReport__c(
+            EndDate__c  = System.today(),
+            EndTime__c = Time.newInstance(1, 2, 3, 1),
+            CancellationReason__c = '',
+            Note__c = 'test',
+            Status__c = 'Gerado',
+            VisitPlanning__c = vp.Id
+        );
+        insert technicalReport;
         List<Cadastro_ClientedaVisita__c> cvList = [SELECT Id FROM Cadastro_ClientedaVisita__c LIMIT 1];
         Fotos__c photo = new Fotos__c(
             ClienteVisita__c = ccv.Id,
-            Observation__c = 'Teste'
+            Observation__c = 'Teste',
+            RTR__c = technicalReport.Id
         );
         insert photo;
         
     }
-    
-
-       
-       
-
-        
-
-        
-
-        
-    
-
-        
-
-       
-
-        
-
-    
-
-   
-
-  
-
-   
 }
