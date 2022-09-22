@@ -13,6 +13,14 @@
     <label>AgroGalaxy</label>
     <navType>Standard</navType>
     <profileActionOverrides>
+        <actionName>Tab</actionName>
+        <content>Home_Page_Default</content>
+        <formFactor>Large</formFactor>
+        <pageOrSobjectType>standard-home</pageOrSobjectType>
+        <type>Flexipage</type>
+        <profile>Admin</profile>
+    </profileActionOverrides>
+    <profileActionOverrides>
         <actionName>View</actionName>
         <content>Relatorio_Tecnico</content>
         <formFactor>Small</formFactor>
@@ -82,7 +90,6 @@
     <tabs>Carteiriza_o_de_Clientes</tabs>
     <tabs>TechnicalReport__c</tabs>
     <tabs>VisitPlanning__c</tabs>
-    <tabs>GeneralQuotas__c</tabs>
     <uiType>Lightning</uiType>
     <utilityBar>AgroGalaxy_UtilityBar</utilityBar>
 </CustomApplication>
