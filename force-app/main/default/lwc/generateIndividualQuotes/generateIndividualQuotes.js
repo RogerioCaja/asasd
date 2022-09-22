@@ -51,12 +51,14 @@ export default class GenerateIndividualQuotes extends NavigationMixin(LightningE
     };
 
     @api recordId;
+    generalQuotaQuantity;
     individualQuoteData = {}
 
     connectedCallback() {
         getQuoteData({generalQuoteId: this.recordId})
         .then((result) => {
             this.individualQuoteData = JSON.parse(result);
+            this.generalQuotaQuantity = this.individualQuoteData.quantity;
             console.log('result: ' + JSON.stringify(this.individualQuoteData));
         });
     }
@@ -92,18 +94,21 @@ export default class GenerateIndividualQuotes extends NavigationMixin(LightningE
     }
 
     createQuote() {
-        createIndividualQuote({individualQuoteData: JSON.stringify(this.individualQuoteData)})
-        .then((result) => {
-            let quoteResponse = result;
-            console.log('quoteResponse: ' + quoteResponse);
-            if (!quoteResponse.includes('Erro')) {
-                this.showToast('success', 'Sucesso!', 'Cota criada.');
-                this.redirectToIndividualQuote(quoteResponse);
-            } else {
+        if (this.individualQuoteData.quantity > this.generalQuotaQuantity) {
+            this.showToast('warning', 'Atenção', 'A quantidade não pode ultrapassar o valor cadastrado na cota geral(' + this.generalQuotaQuantity + ').');
+        } else {
+            createIndividualQuote({individualQuoteData: JSON.stringify(this.individualQuoteData)})
+            .then((result) => {
+                let quoteResponse = result;
                 console.log('quoteResponse: ' + quoteResponse);
-                this.showToast('error', 'Erro', 'Erro na criação da cota, tente novamente mais tarde.');
-            }
-        });
+                if (!quoteResponse.includes('Erro')) {
+                    this.showToast('success', 'Sucesso!', 'Cota criada.');
+                    this.redirectToIndividualQuote(quoteResponse);
+                } else {
+                    this.showToast('error', 'Erro', 'Erro na criação da cota, tente novamente mais tarde.');
+                }
+            });
+        }
     }
 
     isFilled(field) {
