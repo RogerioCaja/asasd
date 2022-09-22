@@ -171,7 +171,12 @@ export default class OrderSummaryScreen extends LightningElement {
         });
     }
 
-    loadData(){
+    @api
+    loadData(orderScreen, newProductData){
+        if (orderScreen) {
+            this.productData = JSON.parse(JSON.stringify(newProductData));
+        }
+
         if(this.productData){
             this.productDataLocale = JSON.parse(JSON.stringify(this.productData));
            
