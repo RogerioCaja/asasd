@@ -1,4 +1,4 @@
-public class GenerateIndividualQuotesController {
+public without sharing class GenerateIndividualQuotesController {
     @AuraEnabled
     public static String getQuoteData(Id generalQuoteId) {
         GeneralQuotas__c quote = [
