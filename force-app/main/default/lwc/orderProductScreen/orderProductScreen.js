@@ -354,7 +354,7 @@ export default class OrderProductScreen extends LightningElement {
                     }
                 }
             } else {
-                this.verifyQuota = true;
+                this.verifyQuota = false;
             }
 
             if (this.isFilled(this.headerData.safra.Id)) {
@@ -1064,7 +1064,7 @@ export default class OrderProductScreen extends LightningElement {
         let allQuotas = JSON.parse(JSON.stringify(this.allProductQuotas));
         let currentQuota = allQuotas.find(e => e.productId == actualProduct.productId);
         if (Number(actualProduct.quantity) > Number(currentQuota.balance)) {
-            this.showToast('warning', 'Atenção!', 'Quantidade do item indisponível.');
+            this.showToast('warning', 'Atenção!', 'Você inseriu a quantidade ' + actualProduct.quantity + '. Existem apenas ' + currentQuota.balance + ' do item ' + actualProduct.name + ' disponíveis para venda.');
             return false;
         } else {
             return true;
