@@ -573,7 +573,7 @@ global with sharing class TemplateDataIntegrationFields {
 
         public FormPayment__c serialize(Map<String, Id> lookups){
             return new FormPayment__c(
-                ExternalId__c = orderExternalId + '|' + paymentItemCode,
+                ExternalId__c = orderExternalId + '|' + paymentItemCode, 
                 Order__c = this.orderExternalId,
                 //ExternalId__c = this.orderCode, //Elaborar
                 PaymentDate__c = this.paymentDate,
@@ -618,6 +618,7 @@ global with sharing class TemplateDataIntegrationFields {
         public Decimal valorTotalNf;
         public String naturezaOperacao;
         public String numeroPedido; //
+        public String nfBasePdf;
         public List<TemplateDataIntegrationFields.ItensNotaFiscalINData> itensNotaFiscal; 
         public NotaFiscal__c serialize(Map<String, Id> lookups){
 
@@ -638,7 +639,8 @@ global with sharing class TemplateDataIntegrationFields {
                 Invoice_CreationDate__c = this.dataCriacao,
                 HoraCriacao__c = this.horaCriacao,
                 Invoice_TotalAmount__c = this.valorTotalNf,
-                CFOP__c = this.naturezaOperacao
+                CFOP__c = this.naturezaOperacao,
+                Base64__c = this.nfBasePdf
             );
         }
         
