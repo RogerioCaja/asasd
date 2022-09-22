@@ -51,14 +51,14 @@ export default class GenerateIndividualQuotes extends NavigationMixin(LightningE
     };
 
     @api recordId;
-    generalQuotaQuantity;
+    generalQuotaBalance;
     individualQuoteData = {}
 
     connectedCallback() {
         getQuoteData({generalQuoteId: this.recordId})
         .then((result) => {
             this.individualQuoteData = JSON.parse(result);
-            this.generalQuotaQuantity = this.individualQuoteData.quantity;
+            this.generalQuotaBalance = this.individualQuoteData.balance;
             console.log('result: ' + JSON.stringify(this.individualQuoteData));
         });
     }
@@ -94,8 +94,8 @@ export default class GenerateIndividualQuotes extends NavigationMixin(LightningE
     }
 
     createQuote() {
-        if (this.individualQuoteData.quantity > this.generalQuotaQuantity) {
-            this.showToast('warning', 'Atenção', 'A quantidade não pode ultrapassar o valor cadastrado na cota geral(' + this.generalQuotaQuantity + ').');
+        if (this.individualQuoteData.quantity > this.generalQuotaBalance) {
+            this.showToast('warning', 'Atenção', 'A quantidade não pode ultrapassar o valor cadastrado na cota geral(' + this.generalQuotaBalance + ').');
         } else {
             createIndividualQuote({individualQuoteData: JSON.stringify(this.individualQuoteData)})
             .then((result) => {
