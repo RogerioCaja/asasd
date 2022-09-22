@@ -156,7 +156,7 @@
     <label>Cota Geral</label>
     <nameField>
         <label>Nome</label>
-        <trackHistory>false</trackHistory>
+        <trackHistory>true</trackHistory>
         <type>Text</type>
     </nameField>
     <pluralLabel>Cotas Gerais</pluralLabel>
