@@ -912,11 +912,6 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
-        <field>GeneralQuotas__c.PendingDistributionIndividualQuota__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
         <editable>true</editable>
         <field>GeneralQuotas__c.Quantity__c</field>
         <readable>true</readable>
