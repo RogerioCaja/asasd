@@ -17,6 +17,12 @@ public without sharing class GeneralQuotasTriggerHelper {
         return isEnabled = true;
     }
 
+    public static void fillBalanceField(List<GeneralQuotas__c> newRecords) {
+        for (GeneralQuotas__c currentQuota : newRecords) {
+            currentQuota.Balance__c = currentQuota.Quantity__c;
+        }
+    }
+
     public static void verifyUsedQuantities(List<GeneralQuotas__c> newRecords, Map<Id, GeneralQuotas__c> newMap) {
         Map<Id, Decimal> distributedQuantitiesByGeneralQuota = new Map<Id, Decimal>();
         for (IndividualQuotas__c individualQuota : [
@@ -44,6 +50,8 @@ public without sharing class GeneralQuotasTriggerHelper {
                     individualQuantities = individualQuantities == null ? 0 : individualQuantities;
                     currentQuota.Balance__c = currentQuota.Quantity__c - individualQuantities;
                 }
+            } else {
+                currentQuota.Balance__c = currentQuota.Quantity__c;
             }
         }
     }
