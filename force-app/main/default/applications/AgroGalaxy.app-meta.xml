@@ -12,7 +12,7 @@
     <isNavPersonalizationDisabled>false</isNavPersonalizationDisabled>
     <label>AgroGalaxy</label>
     <navType>Standard</navType>
-    <profileActionOverrides>
+  <profileActionOverrides>
         <actionName>Tab</actionName>
         <content>Home_Page_Default</content>
         <formFactor>Large</formFactor>
@@ -90,6 +90,7 @@
     <tabs>Carteiriza_o_de_Clientes</tabs>
     <tabs>TechnicalReport__c</tabs>
     <tabs>VisitPlanning__c</tabs>
+    <tabs>GeneralQuotas__c</tabs>
     <uiType>Lightning</uiType>
     <utilityBar>AgroGalaxy_UtilityBar</utilityBar>
 </CustomApplication>
