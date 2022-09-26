@@ -366,11 +366,11 @@ public without sharing class OrderScreenController {
         }
 
         System.debug('generalQuotasIds: ' + generalQuotasIds);
-        Map<Id, GeneralQuotas__c> generalQuotasById = new Map<Id, GeneralQuotas__c>([
+        /* Map<Id, GeneralQuotas__c> generalQuotasById = new Map<Id, GeneralQuotas__c>([
             SELECT Id, Balance__c, Consumed__c
               FROM GeneralQuotas__c
              WHERE Id IN: generalQuotasIds
-        ]);
+        ]); */
 
         System.debug('individualQuotasIds: ' + individualQuotasIds);
         Map<Id, IndividualQuotas__c> individualQuotasById = new Map<Id, IndividualQuotas__c>([
@@ -384,16 +384,16 @@ public without sharing class OrderScreenController {
             Decimal productQuantity = quantitiesById.get(quota.productId);
             System.debug('productQuantity: ' + productQuantity);
             
-            if (productQuantity > quota.balance || productQuantity > quota.generalBalance) {
+            if (productQuantity > quota.balance) {
                 result.hasQuota = false;
                 result.invalidProductsNames = result.invalidProductsNames != '' ? result.invalidProductsNames + ', ' + quota.productName : quota.productName;
             } else {
-                GeneralQuotas__c generalQuota = generalQuotasById.get(quota.generalQuotaId);
+                /* GeneralQuotas__c generalQuota = generalQuotasById.get(quota.generalQuotaId);
                 System.debug('generalQuota: ' + generalQuota);
                 generalQuota.Balance__c = (generalQuota.Balance__c != null ? generalQuota.Balance__c : 0) - productQuantity;
                 generalQuota.Consumed__c = (generalQuota.Consumed__c != null ? generalQuota.Consumed__c : 0) + productQuantity;
                 System.debug('generalQuota: ' + generalQuota);
-                result.generalQuotasToUpdate.add(generalQuota);
+                result.generalQuotasToUpdate.add(generalQuota); */
 
                 IndividualQuotas__c individualQuota = individualQuotasById.get(quota.individualQuotaId);
                 System.debug('individualQuota: ' + individualQuota);
@@ -878,10 +878,14 @@ public without sharing class OrderScreenController {
                 }
 
                 if (typeOrder != 'prepedido' && quantitiesResult != null) {
-                    System.debug('quantitiesResult.generalQuotasToUpdate: ' + quantitiesResult.generalQuotasToUpdate);
-                    update quantitiesResult.generalQuotasToUpdate;
+                    // System.debug('quantitiesResult.generalQuotasToUpdate: ' + quantitiesResult.generalQuotasToUpdate);
+                    // update quantitiesResult.generalQuotasToUpdate;
                     System.debug('quantitiesResult.individualQuotasToUpdate: ' + quantitiesResult.individualQuotasToUpdate);
+                    IndividualQuotasHelper.disableTrigger();
+                    GeneralQuotasTriggerHelper.disableTrigger();
                     update quantitiesResult.individualQuotasToUpdate;
+                    GeneralQuotasTriggerHelper.enableTrigger();
+                    IndividualQuotasHelper.enableTrigger();
                 }
 
                 Integer divisionCounter = 1;
@@ -2225,7 +2229,7 @@ public without sharing class OrderScreenController {
         public Boolean hasQuota = true;
         public String invalidProductsNames = '';
         public Map<Id, Id> individualQuotasByProdId = new Map<Id, Id>();
-        public List<GeneralQuotas__c> generalQuotasToUpdate = new List<GeneralQuotas__c>();
+        // public List<GeneralQuotas__c> generalQuotasToUpdate = new List<GeneralQuotas__c>();
         public List<IndividualQuotas__c> individualQuotasToUpdate = new List<IndividualQuotas__c>();
     }
 }
