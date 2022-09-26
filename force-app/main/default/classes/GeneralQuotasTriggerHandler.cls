@@ -13,6 +13,10 @@ public without sharing class GeneralQuotasTriggerHandler {
         this.newMap = newMap;
     }
 
+    public void onBeforeInsert() {
+        GeneralQuotasTriggerHelper.fillBalanceField(newRecords);
+    }
+
     public void onBeforeUpdate() {
         GeneralQuotasTriggerHelper.verifyUsedQuantities(newRecords, newMap);
     }

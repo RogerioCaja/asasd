@@ -6,7 +6,7 @@ trigger GeneralQuotasTrigger on GeneralQuotas__c (before insert, after insert, b
     if (GeneralQuotasTriggerHelper.isTriggerEnabled()) {
         switch on Trigger.operationType {
             when BEFORE_INSERT {
-                //BEFORE INSERT Method
+                handler.onBeforeInsert();
             }
             when AFTER_INSERT {
                 //AFTER INSERT method
