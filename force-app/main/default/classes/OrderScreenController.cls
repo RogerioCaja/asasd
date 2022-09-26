@@ -1135,7 +1135,9 @@ public without sharing class OrderScreenController {
         } catch (Exception ex) {
             Database.rollback(sp);
             System.debug('Erro: ' + ex.getMessage() + '   -   ' + ex.getStackTraceString());
-			throw new AuraHandledException('Exception occured:\r\n' + ex.getMessage() + '\r\n' + ex.getStackTraceString() + '\r\n');
+			String msg = 'Ocorreu um erro em OrderScreenController Linha: ' +ex.getLineNumber() + '. Contate o administrador';
+            
+            return JSON.serializePretty(new AGRO_RemotingResult(true, '200', msg));
 		}
     }
 
