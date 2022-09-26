@@ -20,7 +20,7 @@ public without sharing class GenerateIndividualQuotesController {
         quoteData.cropName = quote.Crop__r.Name;
         quoteData.cultivateId = quote.Cultivate__c;
         quoteData.cultivateName = quote.Cultivate__r.Name;
-        quoteData.quantity = quote.Quantity__c;
+        quoteData.quantity = quote.Balance__c;
         quoteData.consumed = 0;
         quoteData.balance = quote.Balance__c;
         System.debug('quoteData: ' + generalQuoteId);

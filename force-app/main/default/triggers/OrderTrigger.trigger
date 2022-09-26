@@ -15,7 +15,7 @@ trigger OrderTrigger on Order (after insert, before insert, before update, after
                 handler.OnAfterUpdate();
             }
             when BEFORE_UPDATE{
-                //handler.OnBeforeUpdate();
+                handler.OnBeforeUpdate();
             }
             when AFTER_DELETE{
                 //BEFORE DELETE Method
