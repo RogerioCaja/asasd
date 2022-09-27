@@ -66,7 +66,6 @@ public without sharing class CalloutOrder {
 
         IntegrationUtils.RequestResponseObject responseObject = IntegrationUtils.executeCallout(endpoint, payload, headersMap);
         AuthToken auth = (AuthToken)JSON.deserialize(responseObject.response.getBody(), AuthToken.class);
-        System.debug(responseObject);
         return auth.access_token;
     }
 
@@ -84,9 +83,7 @@ public without sharing class CalloutOrder {
 		RequestParameters request = new RequestParameters(orders[0]);
 
 		String payload = JSON.serialize(request, true);
-        System.debug(payload);
         payload = payload.replace('TYPE_CURRENCY', 'CURRENCY');
-        System.debug(JSON.serializePretty(request));
 
 		//Metodo para busca de Access Token, depende de cada projeto, podendo estar presente dentro de uma custom settings ou relacionado com outra requisição.
 		String accessToken = !Test.isRunningTest() ? getAccessToken() : 'testeToken';
