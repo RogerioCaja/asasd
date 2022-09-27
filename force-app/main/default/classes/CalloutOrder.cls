@@ -55,7 +55,7 @@ public without sharing class CalloutOrder {
 			}
 
             if(Schema.getGlobalDescribe().get('Order').getDescribe().getRecordTypeInfosById().get(allOrders[0].RecordTypeId).getName() == 'Venda Barter'){
-                CalloutOrderUpdate.callIntegration(orderId, allOrders[0].order.ShippingAccount__r.ExternalId__c, allOrders[0].order.order.Account.ExternalId__c, allOrders[0].order.SalesCTV__r.CodigoSap__c);
+                CalloutOrderUpdate.callIntegration(orderId, allOrders[0].ShippingAccount__r.ExternalId__c, allOrders[0].Account.ExternalId__c, allOrders[0].SalesCTV__r.CodigoSap__c);
             }
 		}
 		
