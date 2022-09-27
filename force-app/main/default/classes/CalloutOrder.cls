@@ -136,9 +136,9 @@ public without sharing class CalloutOrder {
         List<FormPayment__c> formPaymentList = [SELECT Amount__c, PaymentDate__c, PaymentType__c FROM FormPayment__c WHERE Order__c =: order.Id LIMIT 10];
         Map<String, Object> mapStringHeader = (Map<String, Object>) JSON.deserializeUntyped(JSON.serialize(payload));
         for(Integer i = 0; i<formPaymentList.size(); i++){
-            mapStringHeader.put(('ZZDTAPAG' + i), String.valueOf(formPaymentList[i].PaymentDate__c == null ? '' : formPaymentList[i].PaymentDate__c).replace('-', ''));
-            mapStringHeader.put(('ZZVLRPAG' + i), String.valueOf(formPaymentList[i].Amount__c == null ? '' : formPaymentList[i].Amount__c));
-            mapStringHeader.put(('ZZITMPAG' + i), String.valueOf(formPaymentList[i].PaymentType__c == null ? '' : formPaymentList[i].PaymentType__c));
+            mapStringHeader.put(('ZZDTAPAG' + i), String.valueOf(formPaymentList[i].PaymentDate__c).replace('-', '')  == null ? '' : String.valueOf(formPaymentList[i].PaymentDate__c).replace('-', ''));
+            mapStringHeader.put(('ZZVLRPAG' + i), String.valueOf(formPaymentList[i].Amount__c) == null ? '' : String.valueOf(formPaymentList[i].Amount__c));
+            mapStringHeader.put(('ZZITMPAG' + i), String.valueOf(formPaymentList[i].PaymentType__c)  == null ? '' : String.valueOf(formPaymentList[i].PaymentType__c));
         }
         String header = JSON.serialize(mapStringHeader);
         return JSON.deserialize(header, CalloutOrder.Header.class);
