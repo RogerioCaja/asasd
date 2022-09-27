@@ -896,7 +896,7 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>GeneralQuotas__c.Balance__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -921,7 +921,7 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>IndividualQuotas__c.Balance__c</field>
         <readable>true</readable>
     </fieldPermissions>
