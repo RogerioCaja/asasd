@@ -52,11 +52,14 @@ public without sharing class CalloutOrder {
                 OrderHelper.disableTrigger();
                 Database.SaveResult[] upsResult = Database.update(orderList, false);
                 OrderHelper.enableTrigger();
+                if(calloutResponse.success){
+                    if(Schema.getGlobalDescribe().get('Order').getDescribe().getRecordTypeInfosById().get(allOrders[0].RecordTypeId).getName() == 'Venda Barter'){
+                        CalloutOrderUpdate.callIntegration(orderId, allOrders[0].ShippingAccount__r.ExternalId__c, allOrders[0].Account.ExternalId__c, allOrders[0].SalesCTV__r.CodigoSap__c);
+                    }
+                }
 			}
 
-            if(Schema.getGlobalDescribe().get('Order').getDescribe().getRecordTypeInfosById().get(allOrders[0].RecordTypeId).getName() == 'Venda Barter'){
-                CalloutOrderUpdate.callIntegration(orderId, allOrders[0].ShippingAccount__r.ExternalId__c, allOrders[0].Account.ExternalId__c, allOrders[0].SalesCTV__r.CodigoSap__c);
-            }
+            
 		}
 		
 		return calloutResponse;
