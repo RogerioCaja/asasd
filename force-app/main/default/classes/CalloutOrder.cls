@@ -53,6 +53,10 @@ public without sharing class CalloutOrder {
                 Database.SaveResult[] upsResult = Database.update(orderList, false);
                 OrderHelper.enableTrigger();
 			}
+
+            if(Schema.getGlobalDescribe().get('Order').getDescribe().getRecordTypeInfosById().get(allOrders[0].RecordTypeId).getName() == 'Venda Barter'){
+                CalloutOrderUpdate.callIntegration(orderId, allOrders[0].order.ShippingAccount__r.ExternalId__c, allOrders[0].order.order.Account.ExternalId__c, allOrders[0].order.SalesCTV__r.CodigoSap__c);
+            }
 		}
 		
 		return calloutResponse;
@@ -227,9 +231,6 @@ public without sharing class CalloutOrder {
             if(order.Description != null) order.Description = order.Description.replace('1n73gr4ção N3sc4r4 5F x 4PP', '');
             IS_HEADER_IN.TEXT_ADICIONAL = order.Description != null ? order.Description : '';
             IS_HEADER_IN.TEXT_DANFE = order.DescriptionBillingSale__c != null ? order.DescriptionBillingSale__c : '';
-            IS_HEADER_IN.WABRS_PURCH = order.Currency__c;
-            IS_HEADER_IN.VKGRP = order.Company__r.salesOffice__r.Codigo__c;
-            IS_HEADER_IN.VKBUR = order.Company__r.salesTeam__r.ExternalId__c;
 
             Map<String, String> referenceItemMotherMap = new Map<String, String>();
             if(order.OrderReference__c != null){
