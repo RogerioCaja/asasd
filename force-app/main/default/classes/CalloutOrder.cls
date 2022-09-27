@@ -1,9 +1,5 @@
 public without sharing class CalloutOrder {
-    public CalloutOrder() {
-        
-    }
-
-
+    public CalloutOrder() { }
 
     @future(callout = true)
     public static void callIntegration(Id orderId){
@@ -12,8 +8,8 @@ public without sharing class CalloutOrder {
 
     public static IntegrationUtils.CalloutResponse processIntegration(Id orderId){
 
-		Order parentOrder = [SELECT Id, CodigoSap__c, ShippingAccount__r.ExternalId__c, Company__r.SupplierCenter__c, Account.ExternalId__c, Type, SalesOrg__r.SalesOrganizationCode__c, DistributionChannel__c, DistributionChannel__r.Codigo__c, SalesCondition__r.ExternalId__c,
-                            ActivitySector__c, ActivitySector__r.Codigo__c, PaymentCondition__r.CashPayment__c, Incoterms__c, Incoterms2__c, PaymentCondition__r.Code__c, OrderReason__c , SalesCTV__r.CodigoSap__c, PaymentDate__c,EffectiveDate, OrderReference__r.CodigoSap__c,
+		Order parentOrder = [SELECT Id, CodigoSap__c, ShippingAccount__r.ExternalId__c, Company__r.SupplierCenter__c, Account.ExternalId__c, Type, SalesOrg__r.SalesOrganizationCode__c, DistributionChannel__c, DistributionChannel__r.Codigo__c, SalesCondition__r.ExternalId__c, Company__r.salesOffice__r.Codigo__c,
+                            ActivitySector__c, ActivitySector__r.Codigo__c, PaymentCondition__r.CashPayment__c, Incoterms__c, Incoterms2__c, PaymentCondition__r.Code__c, OrderReason__c , SalesCTV__r.CodigoSap__c, PaymentDate__c,EffectiveDate, OrderReference__r.CodigoSap__c, Company__r.salesTeam__r.ExternalId__c,
                             OrderNumber, Crop__r.Code__c, Crop__r.StartDateOrderInsertion__c, Crop__r.EndDateInsertionOrders__c ,Culture__r.Codigo__c, EndDate, TotalAmount, PaymentForm__c, OrderReference__c, CustomerOrderNumber__c, SalesCTV__r.SellerType__c, EffectiveOrderDate__c, NumeroPedidoApp__c,
                             Currency__c, Crop__r.PaymentBaseDate__c,IsOrderMother__c, RecordTypeId,Description,DescriptionBillingSale__c, DistributionCenter__r.Code__c, RecordType.DeveloperName, (SELECT Id FROM OrderItems) 
                             FROM Order WHERE Id = :orderId];
@@ -32,7 +28,6 @@ public without sharing class CalloutOrder {
 			}
 
 			List<Order> orderList = new List<Order>();
-            //test
 			
             for(Messages message : resp.responses.ET_RETURN.item){
                 if(message.TYPE != 'S' && message.TYPE != 'W'){
@@ -40,7 +35,7 @@ public without sharing class CalloutOrder {
                     calloutResponse.errorMessage = (calloutResponse.errorMessage != null ? calloutResponse.errorMessage : '') + message.MESSAGE + '\n';
                 }
             }
-            if(!calloutResponse.success){
+            if(!calloutResponse.success || resp.responses.ET_RETURN.item == null){
                 allOrders[0].ErrorIntegrationSAP__c = calloutResponse.errorMessage;
                 orderList.add(allOrders[0]);
             }
@@ -57,8 +52,6 @@ public without sharing class CalloutOrder {
                 OrderHelper.disableTrigger();
                 Database.SaveResult[] upsResult = Database.update(orderList, false);
                 OrderHelper.enableTrigger();
-                // if(upsResult[0].isSuccess())
-                //     CalloutOrderDatalake.processIntegration(orderId);
 			}
 		}
 		
@@ -90,11 +83,8 @@ public without sharing class CalloutOrder {
         }
 		RequestParameters request = new RequestParameters(orders[0]);
 
-		// for (Order ord : orders) {
-		// 	request.add(new RequestParameters(ord));
-		// }
-
-		String payload = JSON.serialize(request);
+		String payload = JSON.serialize(request, true);
+        System.debug(payload);
         payload = payload.replace('TYPE_CURRENCY', 'CURRENCY');
         System.debug(JSON.serializePretty(request));
 
@@ -113,12 +103,11 @@ public without sharing class CalloutOrder {
 
 			HttpResponse response = responseObject.response;
 
-            if(response.getBody().contains('"TYPE":"E"')){
+            if(response.getBody().contains('"TYPE":"E"') || response.getBody().contains('"An internal server error occured')){
                 IntegrationLog.createLog('Pedido OUT - SAP', 'OUT', response.getBody(), payload, true);
             }else{
                 IntegrationLog.createLog('Pedido OUT - SAP', 'OUT', response.getBody(), payload, false);
             }
-			// .WSLog('Pedido', 'OUTBOUND', response.getBody(), payload, false);
 			try {
 
 				ResponseParametersWrapper responses = (ResponseParametersWrapper) JSON.deserialize(response.getBody(), ResponseParametersWrapper.class);
@@ -150,9 +139,9 @@ public without sharing class CalloutOrder {
         List<FormPayment__c> formPaymentList = [SELECT Amount__c, PaymentDate__c, PaymentType__c FROM FormPayment__c WHERE Order__c =: order.Id LIMIT 10];
         Map<String, Object> mapStringHeader = (Map<String, Object>) JSON.deserializeUntyped(JSON.serialize(payload));
         for(Integer i = 0; i<formPaymentList.size(); i++){
-            mapStringHeader.put(('ZZDTAPAG' + i), String.valueOf(formPaymentList[i].PaymentDate__c).replace('-', ''));
-            mapStringHeader.put(('ZZVLRPAG' + i), String.valueOf(formPaymentList[i].Amount__c));
-            mapStringHeader.put(('ZZITMPAG' + i), String.valueOf(formPaymentList[i].PaymentType__c));
+            mapStringHeader.put(('ZZDTAPAG' + i), String.valueOf(formPaymentList[i].PaymentDate__c == null ? '' : formPaymentList[i].PaymentDate__c).replace('-', ''));
+            mapStringHeader.put(('ZZVLRPAG' + i), String.valueOf(formPaymentList[i].Amount__c == null ? '' : formPaymentList[i].Amount__c));
+            mapStringHeader.put(('ZZITMPAG' + i), String.valueOf(formPaymentList[i].PaymentType__c == null ? '' : formPaymentList[i].PaymentType__c));
         }
         String header = JSON.serialize(mapStringHeader);
         return JSON.deserialize(header, CalloutOrder.Header.class);
@@ -173,10 +162,6 @@ public without sharing class CalloutOrder {
         public List<CalloutOrder.OrderItemParameters> IT_ITEMS_IN;
 
         public RequestParameters(Order order){
-
-            Decimal valueAmount = 0;
-            Decimal valueDiscount = 0;
-            Decimal valueInterest = 0;
 
             IT_PARTNERS = new List<CalloutOrder.PartnerParameters>();
             IT_ORDER_SCHEDULES_IN = new List<CalloutOrder.ScheduleParameters>();
@@ -245,6 +230,9 @@ public without sharing class CalloutOrder {
             if(order.Description != null) order.Description = order.Description.replace('1n73gr4ção N3sc4r4 5F x 4PP', '');
             IS_HEADER_IN.TEXT_ADICIONAL = order.Description != null ? order.Description : '';
             IS_HEADER_IN.TEXT_DANFE = order.DescriptionBillingSale__c != null ? order.DescriptionBillingSale__c : '';
+            IS_HEADER_IN.WABRS_PURCH = order.Currency__c;
+            IS_HEADER_IN.VKGRP = order.Company__r.salesOffice__r.Codigo__c;
+            IS_HEADER_IN.VKBUR = order.Company__r.salesTeam__r.ExternalId__c;
 
             Map<String, String> referenceItemMotherMap = new Map<String, String>();
             if(order.OrderReference__c != null){
@@ -306,7 +294,8 @@ public without sharing class CalloutOrder {
                 // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDAN', String.valueOf(CalloutOrder.isNotation(orderItem.FinancialDiscountPercent__c)), '%'));
                 IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZMAR', String.valueOf(CalloutOrder.isNotation(orderItem.CommercialMargin__c)), ''));
             }
-            IS_HEADER_IN = (CalloutOrder.Header)addPaymentForm(order, IS_HEADER_IN);
+            if(order.SalesOrg__r.SalesOrganizationCode__c == '1300')
+                IS_HEADER_IN = (CalloutOrder.Header)addPaymentForm(order, IS_HEADER_IN);
         }
     }
 
@@ -336,6 +325,12 @@ public without sharing class CalloutOrder {
         public String PO_METHOD;
         public String TEXT_ADICIONAL;
         public String TEXT_DANFE;
+
+        public String WABRS_PURCH;
+        public String TKRATE_MM;
+        public String VKGRP;
+        public String VKBUR;
+
         public String ZZDTAPAG0;
         public String ZZVLRPAG0;
         public String ZZITMPAG0;
