@@ -897,7 +897,7 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>GeneralQuotas__c.Balance__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -922,7 +922,7 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>IndividualQuotas__c.Balance__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -2625,7 +2625,7 @@
     </objectPermissions>
     <objectPermissions>
         <allowCreate>true</allowCreate>
-        <allowDelete>true</allowDelete>
+        <allowDelete>false</allowDelete>
         <allowEdit>true</allowEdit>
         <allowRead>true</allowRead>
         <modifyAllRecords>false</modifyAllRecords>
