@@ -115,6 +115,87 @@ public without sharing class OrderHelper {
         Orderhelper.enableTrigger(); 
     }
 
+    public static void checkOrderStatus(List<Order> newRecords, Map<Id, Order> oldMap) {
+        Set<Id> salesOrgsIds = new Set<Id>();
+        for (Order order : newRecords) {
+            salesOrgsIds.add(order.SalesOrg__c);
+        }
+
+        Map<Id, String> salesCodeById = new Map<Id, String>();
+        for (SalesOrg__c salesOrg : [
+            SELECT Id,
+                   SalesOrganizationCode__c
+              FROM SalesOrg__c
+             WHERE Id IN: salesOrgsIds
+        ]) {
+            System.debug('salesOrg.SalesOrganizationCode__c: ' + salesOrg.SalesOrganizationCode__c);
+            salesCodeById.put(salesOrg.Id, salesOrg.SalesOrganizationCode__c);
+        }
+
+        Set<String> seedsCodes = new Set<String>();
+        for (SalesOrgSeeds__c seed : [
+            SELECT Id,
+                   SeedCode__c
+              FROM SalesOrgSeeds__c
+             WHERE SeedCode__c IN: salesCodeById.values()
+        ]) {
+            System.debug('seed.SeedCode__c: ' + seed.SeedCode__c);
+            seedsCodes.add(seed.SeedCode__c);
+        }
+
+        Set<Id> ordersToRemoveQuotas = new Set<Id>();
+        for (Order order : newRecords) {
+            String salesCodeOfOrder = salesCodeById.get(order.SalesOrg__c);
+            System.debug('salesCodeOfOrder: ' + salesCodeOfOrder);
+            if (seedsCodes.contains(salesCodeOfOrder)) {
+                Order oldValues = oldMap.get(order.Id);
+                System.debug('oldValues.Status: ' + oldValues.Status);
+                System.debug('order.Status: ' + order.Status);
+                if (oldValues.Status != 'X' && oldValues.Status != '0' && order.Status == 'X') {
+                    ordersToRemoveQuotas.add(order.Id);
+                }
+            }
+        }
+
+        if (ordersToRemoveQuotas.size() > 0) {
+            Map<Id, Decimal> quantitiesToRemove = new Map<Id, Decimal>();
+            for (OrderItem item : [
+                SELECT Id,
+                       Quantity,
+                       IndividualQuotas__c
+                  FROM OrderItem
+                 WHERE OrderId IN: ordersToRemoveQuotas
+            ]) {
+                if (!quantitiesToRemove.containsKey(item.IndividualQuotas__c)) {
+                    quantitiesToRemove.put(item.IndividualQuotas__c, item.Quantity);
+                } else {
+                    Decimal quantity = quantitiesToRemove.get(item.IndividualQuotas__c);
+                    quantity += item.Quantity;
+                    quantitiesToRemove.put(item.IndividualQuotas__c, quantity);
+                }
+            }
+            System.debug('quantitiesToRemove: ' + quantitiesToRemove);
+
+            List<IndividualQuotas__c> individualsQuotasToUpdate = new List<IndividualQuotas__c>();
+            for (IndividualQuotas__c individualQuota : [
+                SELECT Id,
+                       Balance__c,
+                       Consumed__c
+                  FROM IndividualQuotas__c
+                 WHERE Id IN: quantitiesToRemove.keySet()
+            ]) {
+                Decimal quatityToRemove = quantitiesToRemove.get(individualQuota.Id);
+                System.debug('quatityToRemove: ' + quatityToRemove);
+                System.debug('individualQuota: ' + individualQuota);
+                individualQuota.Balance__c = individualQuota.Balance__c + quatityToRemove;
+                individualQuota.Consumed__c = individualQuota.Consumed__c - quatityToRemove;
+                individualsQuotasToUpdate.add(individualQuota);
+                System.debug('individualQuota: ' + individualQuota);
+            }
+            update individualsQuotasToUpdate;
+        }
+    }
+
     public static void sendApprovalProccess(List<Order> newRecords){
 
         Set<Id> orderToUpdate = new Set<Id>();
