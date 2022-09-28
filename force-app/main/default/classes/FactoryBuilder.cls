@@ -158,7 +158,12 @@ public without sharing class FactoryBuilder {
             this.IT_ORDER_SCHEDULES_IN = generateScheduleParametersList(this.orderItemMap);
         }
 
+        public void setFormPayment(){
+            this.IS_HEADER_IN = addPaymentForm(this.order, this.IS_HEADER_IN);
+        }
+
         public RequestSeeds getResult(){
+            setFormPayment();
             return new RequestSeeds(this.IS_HEADER_IN, this.IT_PARTNERS, this.IT_ORDER_SCHEDULES_IN, this.IT_CONDITIONS_IN, this.IT_ITEMS_IN, this.IV_TYPE);
         }
     }
@@ -469,8 +474,9 @@ public without sharing class FactoryBuilder {
             if(order.Description != null) order.Description = order.Description.replace('1n73gr4ção N3sc4r4 5F x 4PP', '');
             this.TEXT_ADICIONAL = order.Description != null ? order.Description : '';
             this.TEXT_DANFE = order.DescriptionBillingSale__c != null ? order.DescriptionBillingSale__c : '';
-            addPaymentForm(order, this);
         }
+
+        
     }
 
     private class HeaderBarter{
@@ -646,7 +652,7 @@ public without sharing class FactoryBuilder {
         else return '';
     }
 
-    private static void addPaymentForm(Order order, HeaderSeeds payload){
+    private static HeaderSeeds addPaymentForm(Order order, HeaderSeeds payload){
         List<FormPayment__c> formPaymentList = [SELECT Amount__c, PaymentDate__c, PaymentType__c FROM FormPayment__c WHERE Order__c =: order.Id LIMIT 10];
         Map<String, Object> mapStringHeader = (Map<String, Object>) JSON.deserializeUntyped(JSON.serialize(payload));
         for(Integer i = 0; i<formPaymentList.size(); i++){
@@ -656,6 +662,7 @@ public without sharing class FactoryBuilder {
         }
         String header = JSON.serialize(mapStringHeader);
         payload = (HeaderSeeds)JSON.deserialize(header, HeaderSeeds.class);
+        return payload;
     }
 
     private static Decimal isNotation(Decimal value){
