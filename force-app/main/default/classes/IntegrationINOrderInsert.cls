@@ -30,6 +30,8 @@ global without sharing class IntegrationINOrderInsert {
         // Guarda uma lista de pedidos para fazer o upsert
         List<TemplateDataINtegrationFields.ShippingDivisonINData> shippingDivisonListToUpsert = new List<TemplateDataIntegrationFields.ShippingDivisonINData>();
 
+        List<TemplateDataIntegrationFields.FormPaymentINData> formPaymentListToUpsert = new List<TemplateDataIntegrationFields.FormPaymentINData>();
+
         List<TemplateDataIntegrationFields.ConditionInsert> conditionList = new List<TemplateDataIntegrationFields.ConditionInsert>();
         
         List<String> idOrders = new List<String>();
@@ -124,6 +126,14 @@ global without sharing class IntegrationINOrderInsert {
                 }
                 shippingDivisonListToUpsert.addAll(order.shippingDivison);
             }
+
+            for(TemplateDataIntegrationFields.FormPaymentINData paymentFormItem : order.formPayment){
+                paymentFormItem.orderExternalId = order.CodigoSap;
+                System.debug('orderExternalId ' + paymentFormItem.orderExternalId); 
+                paymentFormItem.paymentItemCode = paymentFormItem.paymentItemCode.replaceFirst('^0+', '');
+            }
+                formPaymentListToUpsert.addAll(order.formPayment);
+                System.debug('formPaymentListToUpsert ' + formPaymentListToUpsert);
 
             for (TemplateDataIntegrationFields.PartnerInsert partnerList : order.partners){
                 
@@ -248,6 +258,17 @@ global without sharing class IntegrationINOrderInsert {
                     shipIt.orderExternalId = orderId;
                 } 
         }
+
+        for(TemplateDataIntegrationFields.FormPaymentINData formPayment : formPaymentListToUpsert){
+            String orderId;
+
+            if(formPayment.orderExternalId != null){
+                orderId = orderUpMap.get(formPayment.orderExternalId);
+
+                formPayment.orderExternalId = orderId;
+                System.debug('orderId ' + orderId);
+            }
+        }
         
       
          //Confirmar com o Helder
@@ -269,6 +290,15 @@ global without sharing class IntegrationINOrderInsert {
             );
             System.debug('shippingDivisonResponse' + shippingDivisonResponse);
         }
+
+        Map<String, List<TemplateDataIntegrationFields.Response>> formPaymentResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
+        System.debug('formPaymentListToUpsert ' + formPaymentListToUpsert.size());
+        if(formPaymentListToUpsert.size() != 0){
+            formPaymentResponse.putAll(
+                IntegrationINPaymentForm.upsertFormPayment(formPaymentListToUpsert)   
+            );
+            System.debug('teste de entrada'  + formPaymentResponse);
+        }
         
             AggregateResult[] resulTotal =[SELECT SUM(FinalTotalValue__c) somatoria FROM OrderItem WHERE OrderId =: orderIdEx.keySet() AND ReasonRefuse__c  =: null AND ReasonRefuse__c  =: ''];
         	 List<OrderItem> orderItemListT = [SELECT Id,  FinalTotalValue__c FROM OrderItem WHERE OrderId =: orderIdEx.keySet()];
@@ -289,6 +319,11 @@ global without sharing class IntegrationINOrderInsert {
         // Pega todas as respostas dos OrderItem
         for(TemplateDataIntegrationFields.ResponseParent response : responseList){
             response.items = new List<TemplateDataIntegrationFields.Response>();
+
+            if(formPaymentResponse.size() != 0 && formPaymentResponse.containsKey(response.idSalesforce)){
+                response.items.addAll(formPaymentResponse.get(response.idSalesforce));
+            }
+
             if(orderItemsResponse.size() != 0 && orderItemsResponse.containsKey(response.idSalesforce)){
                 response.items.addAll(orderItemsResponse.get(response.idSalesforce));
                 
@@ -300,6 +335,7 @@ global without sharing class IntegrationINOrderInsert {
                 
                 System.debug('orderItemsResponse' + orderItemsResponse);
                 System.debug('shippingDivisonResponse' + shippingDivisonResponse);
+                System.debug('formPaymentListToUpsert' + formPaymentResponse);
             } 
             else if(orderItemsResponse.size() != 0 && orderItemsResponse.containsKey(response.externalCode)){
                 response.items.addAll(orderItemsResponse.get(response.externalCode));
