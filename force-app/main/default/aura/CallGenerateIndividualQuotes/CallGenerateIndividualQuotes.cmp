@@ -1,0 +1,4 @@
+<aura:component implements="force:lightningQuickActionWithoutHeader,force:hasRecordId,lightning:actionOverride,lightning:hasPageReference" access="global">
+    <aura:attribute name="recordId" type="Id"/>
+    <c:generateIndividualQuotes recordId="{!v.recordId}"/>
+</aura:component>
