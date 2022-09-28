@@ -1,5 +1,9 @@
 public without sharing class CalloutOrder {
-    public CalloutOrder() { }
+    public CalloutOrder() {
+        
+    }
+
+
 
     @future(callout = true)
     public static void callIntegration(Id orderId){
@@ -8,8 +12,8 @@ public without sharing class CalloutOrder {
 
     public static IntegrationUtils.CalloutResponse processIntegration(Id orderId){
 
-		Order parentOrder = [SELECT Id, CodigoSap__c, ShippingAccount__r.ExternalId__c, Company__r.SupplierCenter__c, Account.ExternalId__c, Type, SalesOrg__r.SalesOrganizationCode__c, DistributionChannel__c, DistributionChannel__r.Codigo__c, SalesCondition__r.ExternalId__c, Company__r.salesOffice__r.Codigo__c,
-                            ActivitySector__c, ActivitySector__r.Codigo__c, PaymentCondition__r.CashPayment__c, Incoterms__c, Incoterms2__c, PaymentCondition__r.Code__c, OrderReason__c , SalesCTV__r.CodigoSap__c, PaymentDate__c,EffectiveDate, OrderReference__r.CodigoSap__c, Company__r.salesTeam__r.ExternalId__c,
+		Order parentOrder = [SELECT Id, CodigoSap__c, ShippingAccount__r.ExternalId__c, Company__r.SupplierCenter__c, Account.ExternalId__c, Type, SalesOrg__r.SalesOrganizationCode__c, DistributionChannel__c, DistributionChannel__r.Codigo__c, SalesCondition__r.ExternalId__c,
+                            ActivitySector__c, ActivitySector__r.Codigo__c, PaymentCondition__r.CashPayment__c, Incoterms__c, Incoterms2__c, PaymentCondition__r.Code__c, OrderReason__c , SalesCTV__r.CodigoSap__c, PaymentDate__c,EffectiveDate, OrderReference__r.CodigoSap__c,
                             OrderNumber, Crop__r.Code__c, Crop__r.StartDateOrderInsertion__c, Crop__r.EndDateInsertionOrders__c ,Culture__r.Codigo__c, EndDate, TotalAmount, PaymentForm__c, OrderReference__c, CustomerOrderNumber__c, SalesCTV__r.SellerType__c, EffectiveOrderDate__c, NumeroPedidoApp__c,
                             Currency__c, Crop__r.PaymentBaseDate__c,IsOrderMother__c, RecordTypeId,Description,DescriptionBillingSale__c, DistributionCenter__r.Code__c, RecordType.DeveloperName, (SELECT Id FROM OrderItems) 
                             FROM Order WHERE Id = :orderId];
@@ -28,6 +32,7 @@ public without sharing class CalloutOrder {
 			}
 
 			List<Order> orderList = new List<Order>();
+            //test
 			
             for(Messages message : resp.responses.ET_RETURN.item){
                 if(message.TYPE != 'S' && message.TYPE != 'W'){
@@ -35,7 +40,7 @@ public without sharing class CalloutOrder {
                     calloutResponse.errorMessage = (calloutResponse.errorMessage != null ? calloutResponse.errorMessage : '') + message.MESSAGE + '\n';
                 }
             }
-            if(!calloutResponse.success || resp.responses.ET_RETURN.item == null){
+            if(!calloutResponse.success){
                 allOrders[0].ErrorIntegrationSAP__c = calloutResponse.errorMessage;
                 orderList.add(allOrders[0]);
             }
@@ -66,6 +71,7 @@ public without sharing class CalloutOrder {
 
         IntegrationUtils.RequestResponseObject responseObject = IntegrationUtils.executeCallout(endpoint, payload, headersMap);
         AuthToken auth = (AuthToken)JSON.deserialize(responseObject.response.getBody(), AuthToken.class);
+        System.debug(responseObject);
         return auth.access_token;
     }
 
@@ -101,11 +107,12 @@ public without sharing class CalloutOrder {
 
 			HttpResponse response = responseObject.response;
 
-            if(response.getBody().contains('"TYPE":"E"') || response.getBody().contains('"An internal server error occured')){
+            if(response.getBody().contains('"TYPE":"E"')){
                 IntegrationLog.createLog('Pedido OUT - SAP', 'OUT', response.getBody(), payload, true);
             }else{
                 IntegrationLog.createLog('Pedido OUT - SAP', 'OUT', response.getBody(), payload, false);
             }
+			// .WSLog('Pedido', 'OUTBOUND', response.getBody(), payload, false);
 			try {
 
 				ResponseParametersWrapper responses = (ResponseParametersWrapper) JSON.deserialize(response.getBody(), ResponseParametersWrapper.class);
