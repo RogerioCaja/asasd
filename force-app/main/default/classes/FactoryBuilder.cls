@@ -15,7 +15,7 @@ public without sharing class FactoryBuilder {
     }
 
     public class Director{
-        public void contructRequestBasic(Builder builder, Order order){
+        public void constructRequestBasic(Builder builder, Order order){
             builder.setOrder(order);
             builder.setRefMap();
             builder.setOrderItemMap();
@@ -27,7 +27,7 @@ public without sharing class FactoryBuilder {
             builder.setShippingDivision();
         }
 
-        public void contructRequestSeed(Builder builder, Order order){
+        public void constructRequestSeed(Builder builder, Order order){
             builder.setOrder(order);
             builder.setRefMap();
             builder.setOrderItemMap();
@@ -39,7 +39,7 @@ public without sharing class FactoryBuilder {
             builder.setShippingDivision();
         }
 
-        public void contructRequestBarter(Builder builder, Order order){
+        public void constructRequestBarter(Builder builder, Order order){
             builder.setOrder(order);
             builder.setRefMap();
             builder.setOrderItemMap();
