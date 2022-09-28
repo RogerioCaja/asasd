@@ -1,3 +1,4 @@
+
 public  class TemplateDefaultFields {
 	public TemplateDefaultFields(){
 
@@ -240,6 +241,11 @@ public  class TemplateDefaultFields {
             SalesOrganizationCode__c = '1111'
         );
 
+        SalesOrg__c so1 = new SalesOrg__c(
+            Name = 'Sementes',
+            SalesOrganizationCode__c = '1300'
+        );
+
         DistributionChannel__c distributionChannel = new DistributionChannel__c(
             Name = 'Teste',
             Codigo__c = '0001'
@@ -256,6 +262,7 @@ public  class TemplateDefaultFields {
         );
 
         INSERT sales;
+        INSERT so1;
         INSERT account;
         INSERT safra;
         INSERT cultura;
@@ -322,7 +329,61 @@ public  class TemplateDefaultFields {
             Incoterms__c = 'CIF'
         );
 
+        Order order1 = new Order(
+            AccountId =  account.Id,
+            CodigoSap__c = '002',
+            Status = 'Draft',
+            PriceBook2Id = Test.getStandardPricebookId(),
+            Type =  'Venda Normal',
+            RecordTypeId = recordTypeMap.get('Venda Normal').getRecordTypeId(),
+            ShippingAccount__c =   account.Id,
+            ShippingDate__c =  Date.today(),
+            PaymentDate__c =  Date.today(),
+            CustomerOrderNumber__c = '0001',
+            EffectiveDate = Date.today(),
+            Crop__c =  safra.Id,
+            Culture__c = cultura.Id,
+            PaymentForm__c =  'B',
+            SalesOrg__c =  so1.Id,
+            FinalTotalValue__c = 1000.00,
+            SalesCondition__c = sales.Id,
+            DistributionChannel__c =  distributionChannel.Id,
+            Currency__c =  'BRL',
+            SalesCTV__c =  u.Id,
+            StatusSF__c = 'Em digitação',
+            EndDate = Date.today(),
+            Incoterms__c = 'CIF'
+        );
+        
+        Order order2 = new Order(
+            AccountId =  account.Id,
+            CodigoSap__c = '003',
+            Status = 'Draft',
+            PriceBook2Id = Test.getStandardPricebookId(),
+            Type =  'Venda Barter',
+            RecordTypeId = recordTypeMap.get('Venda Barter').getRecordTypeId(),
+            ShippingAccount__c =   account.Id,
+            ShippingDate__c =  Date.today(),
+            PaymentDate__c =  Date.today(),
+            CustomerOrderNumber__c = '0001',
+            EffectiveDate = Date.today(),
+            Crop__c =  safra.Id,
+            Culture__c = cultura.Id,
+            PaymentForm__c =  'B',
+            SalesOrg__c =  so.Id,
+            FinalTotalValue__c = 1000.00,
+            SalesCondition__c = sales.Id,
+            DistributionChannel__c =  distributionChannel.Id,
+            Currency__c =  'BRL',
+            SalesCTV__c =  u.Id,
+            StatusSF__c = 'Em digitação',
+            EndDate = Date.today(),
+            Incoterms__c = 'CIF'
+        );
+
         INSERT order;
+        INSERT order1;
+        INSERT order2;
 
         FormPayment__c pF = new FormPayment__c(
             Amount__c = 5.00,
