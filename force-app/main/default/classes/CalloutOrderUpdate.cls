@@ -158,7 +158,6 @@ public without sharing class CalloutOrderUpdate {
 
             Set<Id> orderItemIds = new Set<Id>();
             String IV_TYPE = order.IsOrderMother__c != false ? 'G' : 'C';
-
             String dateF;
 
             if(order.Crop__r.StartDateOrderInsertion__c < System.today() && IV_TYPE == 'G' ){
@@ -190,8 +189,6 @@ public without sharing class CalloutOrderUpdate {
             IS_HEADER_IN.ZZDATA_CARENCIA = String.valueOf(order.Crop__r.PaymentBaseDate__c).replace('-', '');
             IS_HEADER_IN.ZZDATA_VENCTO = String.valueOf(order.PaymentDate__c).replace('-', '');
            
-          
-
             for(OrderItem orderItem : order.OrderItems){
                 orderItemIds.add(orderItem.Id);
             }
