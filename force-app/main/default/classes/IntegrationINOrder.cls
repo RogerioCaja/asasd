@@ -91,6 +91,8 @@ global without sharing class IntegrationINOrder {
 
         List<TemplateDataIntegrationFields.ShippingDivisonINData> shippingDivisonListToUpsert = new List<TemplateDataIntegrationFields.ShippingDivisonINData>();
         
+        List<TemplateDataIntegrationFields.FormPaymentINData> formPaymentListToUpsert = new List<TemplateDataIntegrationFields.FormPaymentINData>();
+
         List<TemplateDataIntegrationFields.ConditionInsert> conditionList = new List<TemplateDataIntegrationFields.ConditionInsert>();
         
         List<String> idOrders = new List<String>();
@@ -172,6 +174,13 @@ global without sharing class IntegrationINOrder {
                 shippingDivisonListToUpsert.addAll(order.shippingDivison);
             }
             
+            for(TemplateDataIntegrationFields.FormPaymentINData paymentFormItem : order.formPayment){
+                paymentFormItem.orderExternalId = order.CodigoSap;
+                System.debug('orderExternalId ' + paymentFormItem.orderExternalId); 
+                paymentFormItem.paymentItemCode = paymentFormItem.paymentItemCode.replaceFirst('^0+', '');
+            }
+                formPaymentListToUpsert.addAll(order.formPayment);
+                System.debug('formPaymentListToUpsert ' + formPaymentListToUpsert);
             
             for (TemplateDataIntegrationFields.PartnerInsert partnerList : order.partners){
                 
@@ -475,9 +484,18 @@ global without sharing class IntegrationINOrder {
                     orderId = ordersIdsMap.get(shipIt.orderExternalId).Id;
                     
                     shipIt.orderExternalId = orderId;
-                } 
-            
-                
+                }          
+        }
+
+        for(TemplateDataIntegrationFields.FormPaymentINData formPayment : formPaymentListToUpsert){
+            String orderId;
+
+            if(formPayment.orderExternalId != null){
+                orderId = ordersIdsMap.get(formPayment.orderExternalId).Id;
+
+                formPayment.orderExternalId = orderId;
+                System.debug('orderId ' + orderId);
+            }
         }
         //Upserting records (OrderItem)
         // Upsert OrderItem
@@ -496,7 +514,17 @@ global without sharing class IntegrationINOrder {
                 IntegrationINShippingDivison.upsertShippingDivison(shippingDivisonListToUpsert)
             );
         }
-       
+
+        
+        Map<String, List<TemplateDataIntegrationFields.Response>> formPaymentResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
+        System.debug('formPaymentListToUpsert ' + formPaymentListToUpsert.size());
+        if(formPaymentListToUpsert.size() != 0){
+            formPaymentResponse.putAll(
+                IntegrationINPaymentForm.upsertFormPayment(formPaymentListToUpsert)   
+            );
+            System.debug('teste de entrada'  + formPaymentResponse);
+        }
+        
        
             AggregateResult[] resulTotal =[SELECT SUM(FinalTotalValue__c) somatoria FROM OrderItem WHERE OrderId =: orderIdEx.keySet() AND ReasonRefuse__c  =: null AND ReasonRefuse__c  =: ''];
              Order order = new Order();
@@ -518,8 +546,12 @@ global without sharing class IntegrationINOrder {
             
             System.debug('shippingDivisonResponse=>'+shippingDivisonResponse);
             System.debug('orderItemResponse=>'+orderItemsResponse);
+            System.debug('formPaymentListToUpsert' + formPaymentResponse);
             System.debug('responseList=>'+responseList);
             
+            if(formPaymentResponse.size() != 0 && formPaymentResponse.containsKey(response.idSalesforce)){
+                response.items.addAll(formPaymentResponse.get(response.idSalesforce));
+            }
             
             if(orderItemsResponse.size() != 0 && orderItemsResponse.containsKey(response.idSalesforce)){
                 response.items.addAll(orderItemsResponse.get(response.idSalesforce));
@@ -539,6 +571,8 @@ global without sharing class IntegrationINOrder {
                 }
             }
         }
+
+
 
         //Checking integration errors to log
         // Verifica erros de integração para o log

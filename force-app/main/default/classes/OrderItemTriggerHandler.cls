@@ -19,7 +19,8 @@ public without sharing class OrderItemTriggerHandler {
     }
     
     public void OnAfterInsert(){
-        
+        OrderItemHelper.insertOrderItem(this.newRecords);
+        OrderItemHelper.cleanDescriptionOrderItem(this.newRecords);
     }
     
     public void OnBeforeUpdate(){

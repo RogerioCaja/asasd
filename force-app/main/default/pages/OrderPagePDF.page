@@ -1,227 +1,247 @@
 <apex:page standardController="Order" applyBodyTag="false" docType="html-5.0" readOnly="true" renderAs="advanced_pdf" extensions="OrderPageController">
+
 <apex:stylesheet value="{!$Resource.stylePDF}"/>
-
-<!-- O PDF inicialmente são divididos em 3 partes -->
-<!-- PRIMEIRA PARTE - DADOS DA ORGANIZAÇÃO DE VENDAS E SEUS DADOS -->
-<!-- SEGUNDA PARTE - CABEÇALHO DO PEDIDO-->
-<!-- TERCEIRA PARTE - LISTAGEM DE PRODUTOS -->
-<!-- Não é uma parte em si, mas lá no final as Obs. -->
 <body>
+    <div class="page-header">
+        <apex:image id="theImage" value="{! IF(orderToPage.isNormalSales == true, $Resource.AgroHeader, $Resource.SementesHeader)}"/>
+        <!-- <img src="{!$Resource.AgroHeader}" /> -->
+    </div>
 
-<!-- PRIMEIRA PARTE -->
-<table>
+
+<table class="main-table">
     <tbody>
+       
         <tr>
-            <td class="information_logo">
-                <apex:image url="{!URLFOR($Resource.Images_logo, 'ImageToPDF/imgs/agro3-960x540.jpg')}" width="160" height="90" alt="Description of image here"/>
-            </td>
-            <td class="information_org">
-                <div>{! orderToPage.salesTeamName }</div>
-                <div>{! orderToPage.salesTeamLocale }</div>
-                <div>{! orderToPage.salesTeamLocation }</div>
-                <div>FONE {! orderToPage.salesTeamPhone }</div>
-                <div>CNPJ {! orderToPage.salesTeamCNPJ }</div>
-                <div>INSCRIÇÃO ESTADUAL {! orderToPage.salesTeamIE }</div>
-            </td>
-            <td class="information_monetary">
-                <div> {! orderToPage.codeSapOrder } </div>
-                <div> Codigo SF: {! orderToPage.orderNumber } </div>
-                <div> Status do Pedido: {! orderToPage.status } </div>
-                <div>
-                    <section><apex:image value="{!If(orderToPage.currencyOrder == 'BRL', '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}"/> Reais</section>
-                    <section><apex:image value="{!If(orderToPage.currencyOrder == 'USD', '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}"/> Dólar</section>
-                    <section><apex:image value="{!If(orderToPage.currencyOrder == 'Barter', '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}"/> Barter</section>
+            <td class="divider-bottom" valign="top">
+                <div class="field-item">
+                    <span>Código Sap: </span>
+                    <span class="bolder">{!orderToPage.codeSapOrder}</span>
                 </div>
-                <div>
-                    Data de emissão: {! Datetime}
+                <div class="field-item">
+                    <span>Código SF: </span>
+                    <span class="bolder">{!orderToPage.orderNumber}</span>
+                </div>
+                <div class="field-item">
+                    <span>Status do Pedido: </span>
+                    <span class="bolder">{!orderToPage.status}</span>
                 </div>
             </td>
+            <td class="divider-bottom" valign="top">
+                <div class="field-item">
+                    <span>Moeda: </span>
+                    <span class="bolder">{!orderToPage.currencyOrder}</span>
+                </div>
+                <div class="field-item">
+                    <span>Data de emissão: </span>
+                    <span class="bolder">{! Datetime}</span>
+                </div>
+               
+            </td>
         </tr>
-    </tbody>
-</table>
+       
+        <tr>
+           <td class="divider-bottom" valign="top">
+                <div class="field-item">
+                    <span class="bolder">Nome da Filial: </span>
+                    <span>{!orderToPage.salesTeamName}</span>
+                </div>
+                <div class="field-item">
+                    <span class="bolder">Endereço: </span>
+                    <span>{!orderToPage.salesTeamLocale}</span>
+                </div>
+                <div class="field-item">
+                    <span class="bolder">Localização: </span>
+                    <span>{!orderToPage.salesTeamLocation}</span>
+                </div>
+           </td>
+           <td class="divider-bottom" valign="top">
+                <div class="field-item">
+                    <span class="bolder">Telefone: </span>
+                    <span>{!orderToPage.salesTeamPhone}</span>
+                </div>
+                <div class="field-item">
+                    <span class="bolder">CNPJ: </span>
+                    <span>{!orderToPage.salesTeamCNPJ}</span>
+                </div>
+                <div class="field-item">
+                    <span class="bolder">Inscrição Estadual: </span>
+                    <span>{!orderToPage.salesTeamIE}</span>
+                </div>
+           </td>
+        </tr>
+        
+        <tr>
 
-<!-- SEGUNDA PARTE -->
-<table >
-    <tbody class="information_order">
-        <tr>
-            <td><strong> Cód. Consultor</strong></td>
-            <td>{! orderToPage.codCTV }</td>
-            <td><strong>Consultor</strong></td>
-            <td colspan="3">{! orderToPage.nameCTV }</td>
-        </tr>
-        <tr>
-            <td><strong> Cód. Comprador</strong></td>
-            <td>{! orderToPage.codeSap }</td>
-            <td><strong>Comprador</strong></td>
-            <td colspan="3">{! orderToPage.account }</td>
-        </tr>
-        <tr>
-            <td><strong>Local</strong></td>
-            <td colspan="5">{! orderToPage.accountAddress }</td>
-        </tr>
-        <tr>
-            <td><strong>Fazenda</strong></td>
-            <td colspan="2">{! orderToPage.ranch }</td>
-            <td><strong>municipio</strong></td>
-            <td colspan="2">{! orderToPage.district }</td>
-        </tr>
-        <tr>
-            <td><strong>CPF/CNPJ</strong></td>
-            <td >{! orderToPage.CPF_CNPJ }</td>
-            <td><strong>I.E.</strong></td>
-            <td >{! orderToPage.IE }</td>
-            <td><strong>CEP</strong></td>
-            <td >{! orderToPage.CEP }</td>
-        </tr>
-        <tr>
-            <td><strong>Safra</strong></td>
-            <td >{! orderToPage.safra }</td>
-            <td><strong>Cond. de Pagamento</strong></td>
-            <td >{! orderToPage.paymentCondition }</td>
-            <td><strong>Vencimento</strong></td>
-            <td >{! orderToPage.dueDate }</td>
-        </tr>
-    </tbody>
-</table>
+           <td valign="top">
+                <div class="field-item">
+                    <span class="bolder">Cód. Consultor: </span>
+                    <span>{!orderToPage.codCTV}</span>
+                </div>
+                <div class="field-item">
+                    <span class="bolder">Local: </span>
+                    <span>{!orderToPage.accountAddress}</span>
+                </div>
+                <div class="field-item">
+                    <span class="bolder">Fazenda: </span>
+                    <span>{!orderToPage.ranch}</span>
+                </div>
+                <div class="field-item">
+                    <span class="bolder">Municipio: </span>
+                    <span>{!orderToPage.district}</span>
+                </div>
+                <div class="field-item">
+                    <span class="bolder">CPF/CNPJ: </span>
+                    <span>{!orderToPage.CPF_CNPJ}</span>
+                </div>
+                <div class="field-item">
+                    <span class="bolder">I.E.: </span>
+                    <span>{!orderToPage.IE}</span>
+                </div>
+            </td>
 
-<!-- TERCEIRA PARTE -->
-<div class="container-items">
-<table>
-    <thead class="information_order_item_header">
-        <tr style="height: 40px;">
-            <th>Cód. Produto</th>
-            <th style="width: 30%;">Descrição</th>
-            <th>Cultura</th>
-            <th>Unid. Medida</th>
-            <th>{! orderToPage.messageDivisionOrNo }</th>
-            <th>Preço Unit.</th>
-            <th>Valor Total</th>
+            <td  valign="top">
+                <div class="field-item">
+                    <span class="bolder">Consultor: </span>
+                    <span>{!orderToPage.nameCTV}</span>
+                </div>
+                <div class="field-item">
+                    <span class="bolder">CEP: </span>
+                    <span>{!orderToPage.CEP}</span>
+                </div>
+                <div class="field-item">
+                    <span class="bolder">Safra: </span>
+                    <span>{!orderToPage.safra}</span>
+                </div>
+                <div class="field-item">
+                    <span class="bolder">Cond. de Pagamento: </span>
+                    <span>{!orderToPage.paymentCondition}</span>
+                </div>
+                <div class="field-item">
+                    <span class="bolder">Vencimento: </span>
+                    <span>{!orderToPage.dueDate}</span>
+                </div>
+            </td>
+        
         </tr>
-    </thead>
-    <tbody  class="information_order_item">
-        <!-- Esperando para o pedido conseguir gerar produtos do pedido -->
-        <apex:repeat value="{! orderToPage.orderItemList }" var='oI'>
-            <tr>
-                <td>
-                    {! oI.productCode}
-                </td>
-                <td>
-                    {! oI.description}
-                </td>
-                <td>
-                    {! oI.culture}
-                </td>
-                <td>
-                    {! oI.unitOfMeasure}
-                </td>
-                
-                <td>
-                    <apex:repeat rendered="{!orderToPage.isMother == false}" value="{! oI.divisonList }" var='dV'>
-                        {! dV.deliveryDate} - {! dV.quantity} <br/>
+
+        <tr>
+            <td colspan="2" class="padd-b">
+                <table class="tb-item-ped" cellSpacing="0">
+                    <tr class="header">
+                        <td valign="top">Cód. Produto</td>
+                        <td valign="top" style="width: 30%;">Descrição</td>
+                        <td valign="top">Cultura</td>
+                        <td valign="top">Unid. Medida</td>
+                        <td valign="top">{! orderToPage.messageDivisionOrNo }</td>
+                        <td valign="top">Preço Unit.</td>
+                        <td valign="top">Valor Total</td>
+                    </tr>
+                    <apex:repeat value="{! orderToPage.orderItemList }" var='oI'>
+                        <tr>
+                            <td>
+                                {! oI.productCode}
+                            </td>
+                            <td>
+                                {! oI.description}
+                            </td>
+                            <td>
+                                {! oI.culture}
+                            </td>
+                            <td>
+                                {! oI.unitOfMeasure}
+                            </td>
+                            
+                            <td>
+                                <apex:repeat rendered="{!orderToPage.isMother == false}" value="{! oI.divisonList }" var='dV'>
+                                    {! dV.deliveryDate} - {! dV.quantity} <br/>
+                                </apex:repeat>
+                                <apex:outputText rendered="{!orderToPage.isMother == true}">
+                                    {! oI.quantity}
+                                </apex:outputText>
+                            </td>
+                            <td>
+                                {! oI.unitPrice}
+                            </td>
+                            <td>
+                                {! oI.totalAmount}
+                            </td>
+                        </tr>
                     </apex:repeat>
-                    <apex:outputText rendered="{!orderToPage.isMother == true}">
-                        {! oI.quantity}
-                    </apex:outputText>
-                </td>
-                <td>
-                    {! oI.unitPrice}
-                </td>
-                <td>
-                    {! oI.totalAmount}
-                </td>
-            </tr>
-        </apex:repeat>
-        <!-- <tr>
-            <td>
-                0215412
-            </td>
-            <td>
-                COMPACT Item
-            </td>
-            <td>
-                SOJA
-            </td>
-            <td>
-                L
-            </td>
-            <td>
-               1
-            </td>
-            <td>
-                R$48,99
-            </td>
-            <td>
-                R$48,99
-            </td>
-        </tr> -->
-    </tbody>
-</table>
-
-<table class="total_amount">
-    <tbody>
-        <tr>
-            <td style="padding-right: 10px">
-                Valor total do Pedido:
-            </td>
-            <td style="width: 120px; text-align: center;">
-                {! orderToPage.totalAmount}
+                </table>
             </td>
         </tr>
+
+        <tr>
+            <td class="title divider-top divider-bottom">
+                Valor total
+            </td>
+            <td class="divider-top divider-bottom">
+                <div class="container-total-value">
+                    <span class="highlight">{!orderToPage.totalAmount}</span>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="2" class="padd-h">
+                <div class="container-text-area">                    
+                    <div class="container-obs-header">
+                        Observações adicionais
+                    </div>
+                    <div class="container-obs-value">
+                        {!orderToPage.observation}
+                    </div>  
+                    <apex:outputText rendered="{!orderToPage.status == 'Pré Pedido'}">
+                        <span style="font-size: 10px;font-family: Arial, Helvetica, sans-serif;">*Pedidos com status do pedido com <strong>Pré Pedido</strong> podem sofrer alterações</span>
+                    </apex:outputText>               
+                </div>
+                
+            </td>
+        </tr>
+        
     </tbody>
 </table>
 
-</div>
+<p style="page-break-after:always;"></p>
 
-    <div class="observation footer">
-        Obs:<br/>
-        {! orderToPage.observation}
-    </div>
-
-    <div class="footer">
-        <apex:outputText rendered="{!orderToPage.status == 'Pré Pedido'}">
-    		<span style="font-size: 8pt;font-family: Arial, Helvetica, sans-serif;">*Pedidos com status do pedido com <strong>Pré Pedido</strong> podem sofrer alterações</span>
-		</apex:outputText>
-    </div>
-
-    <p style="page-break-after:always;"></p>
-    <div class="appointments" >
-        Compromisso – O(A) Comprador(a) se compromete a utilizar os produtos deste pedido apenas para fins agrícolas, observadas as restrições existentes na legislação ambiental, abstendo-se de utilizá-los em áreas protegidas e/ou embargadas.<br/>  
+<div class="appointments" >
+    Compromisso – O(A) Comprador(a) se compromete a utilizar os produtos deste pedido apenas para fins agrícolas, observadas as restrições existentes na legislação ambiental, abstendo-se de utilizá-los em áreas protegidas e/ou embargadas.<br/>  
 
  
 
-1– Este pedido está sujeito a confirmação de preço, disponibilidade de entrega e aprovação de crédito pela Vendedora, bem como análise das regras ambientais aplicáveis ao Comprador(a).<br/>
+    1– Este pedido está sujeito a confirmação de preço, disponibilidade de entrega e aprovação de crédito pela Vendedora, bem como análise das regras ambientais aplicáveis ao Comprador(a).<br/>
 
-2– A Vendedora poderá manifestar a recusa do Pedido no prazo de até 10 (dez) dias úteis da solicitação de faturamento do produto pelo(a) Comprador(a).<br/>
+    2– A Vendedora poderá manifestar a recusa do Pedido no prazo de até 10 (dez) dias úteis da solicitação de faturamento do produto pelo(a) Comprador(a).<br/>
 
-3– A alteração das condições pactuadas neste Pedido (quantidade, volume, produto, preço etc), parciais e/ou totais, através de adições, restrições, ou modificações, deverá ser processada através de novo pedido.<br/>
+    3– A alteração das condições pactuadas neste Pedido (quantidade, volume, produto, preço etc), parciais e/ou totais, através de adições, restrições, ou modificações, deverá ser processada através de novo pedido.<br/>
 
-4– O cancelamento verbal desse pedido pelo(a) Comprador(a) não será considerado, devendo a solicitação ser encaminhada por escrito através do e-mail ao responsável da Vendedora.<br/>
+    4– O cancelamento verbal desse pedido pelo(a) Comprador(a) não será considerado, devendo a solicitação ser encaminhada por escrito através do e-mail ao responsável da Vendedora.<br/>
 
-5– Nas vendas a prazo poderá a Vendedora emitir títulos de crédito, correspondentes ao negócio ora formalizado, obrigando-se o(a) comprador(a) a aceita-las nas datas e, que se tornarem exigíveis, sob pena de se sujeitar a cobrança judicial.<br/>
+    5– Nas vendas a prazo poderá a Vendedora emitir títulos de crédito, correspondentes ao negócio ora formalizado, obrigando-se o(a) comprador(a) a aceita-las nas datas e, que se tornarem exigíveis, sob pena de se sujeitar a cobrança judicial.<br/>
 
-6– No caso de atraso na liquidação dos títulos decorrentes deste pedido, o(a) comprador(a) concorda, desde já, em pagar juros de 0,20% ao dia, mais multa de 2% após dez dias do vencimento.<br/>
+    6– No caso de atraso na liquidação dos títulos decorrentes deste pedido, o(a) comprador(a) concorda, desde já, em pagar juros de 0,20% ao dia, mais multa de 2% após dez dias do vencimento.<br/>
 
-7– O(A) Comprador(a) declara-se ciente que deverá, na forma da lei, dar correta destinação aos vasilhames e embalagens onde acondicionam os produtos, notadamente daqueles que possuem toxicidade. <br/>
+    7– O(A) Comprador(a) declara-se ciente que deverá, na forma da lei, dar correta destinação aos vasilhames e embalagens onde acondicionam os produtos, notadamente daqueles que possuem toxicidade. <br/>
 
-8– Nas operações de trocas em grãos, fica estabelecido que correrão por conta do(a) comprador(a) todos os riscos e as despesas de transporte, armazenagem, secagem, limpeza transgenia etc, e tudo o mais que for cobrado pelo armazém depositário do produto.<br/>
+    8– Nas operações de trocas em grãos, fica estabelecido que correrão por conta do(a) comprador(a) todos os riscos e as despesas de transporte, armazenagem, secagem, limpeza transgenia etc, e tudo o mais que for cobrado pelo armazém depositário do produto.<br/>
 
-9– O(A) Comprador(a) declara ciência de que os produtos ora adquiridos são produzidos pela indústria/fabricante e não pela Vendedora, que tem por atividade a revenda/distribuição de insumos/produtos, de modo que a não entrega e/ou o atraso na entrega de produtos e/ou a majoração dos preços praticados pela indústria/fabricante à VENDEDORA deverão ser entendidos como eventos alheios à vontade e poder de atuação da VENDEDORA, ficando a VENDEDORA isenta de qualquer ônus e/ou responsabilidade daí decorrentes e ainda, podendo a VENDEDORA repassar ao(a) Comprador(a) as novas condições informadas pela indústria/fabricante.<br/>
+    9– O(A) Comprador(a) declara ciência de que os produtos ora adquiridos são produzidos pela indústria/fabricante e não pela Vendedora, que tem por atividade a revenda/distribuição de insumos/produtos, de modo que a não entrega e/ou o atraso na entrega de produtos e/ou a majoração dos preços praticados pela indústria/fabricante à VENDEDORA deverão ser entendidos como eventos alheios à vontade e poder de atuação da VENDEDORA, ficando a VENDEDORA isenta de qualquer ônus e/ou responsabilidade daí decorrentes e ainda, podendo a VENDEDORA repassar ao(a) Comprador(a) as novas condições informadas pela indústria/fabricante.<br/>
 
-10– A assinatura do(a) Comprador(a) neste pedido significa a aceitação total e irrestrita das condições nele descritas, comportando cancelamento, modificação, ou alteração do pedido, apenas caso seja feita em até 5 (cinco) dias após a assinatura do presente Pedido. Ressaltando que só serão aceitas devoluções de produtos em caso de produtos danificados e/ou contenham irregularidades encontradas no momento da entrega.<br/>
+    10– A assinatura do(a) Comprador(a) neste pedido significa a aceitação total e irrestrita das condições nele descritas, comportando cancelamento, modificação, ou alteração do pedido, apenas caso seja feita em até 5 (cinco) dias após a assinatura do presente Pedido. Ressaltando que só serão aceitas devoluções de produtos em caso de produtos danificados e/ou contenham irregularidades encontradas no momento da entrega.<br/>
 
-11– Se, entre a data da aceitação do pedido e sua entrega por parte da Vendedora, houver a criação ou alteração de legislação e/ou instruções normativas ou a criação de novo tributo, aumento na alíquota, modificação na base de cálculo, extinção de benefícios fiscais ou outra alteração que modifique as condições de tributos e/ou de formação do preço existentes no momento da venda, ou que nela interfira, referidos aumentos incorporarão automaticamente o valor do preço do produto, devendo ser pago pelo(a) Comprador(a).<br/>
+    11– Se, entre a data da aceitação do pedido e sua entrega por parte da Vendedora, houver a criação ou alteração de legislação e/ou instruções normativas ou a criação de novo tributo, aumento na alíquota, modificação na base de cálculo, extinção de benefícios fiscais ou outra alteração que modifique as condições de tributos e/ou de formação do preço existentes no momento da venda, ou que nela interfira, referidos aumentos incorporarão automaticamente o valor do preço do produto, devendo ser pago pelo(a) Comprador(a).<br/>
 
-12– A oscilação de preço dos insumos agrícolas é de conhecimento geral e notório no mercado e, portanto, não poderá ser considerado motivo justificável para cancelamento do pedido, uma vez transcorrido o prazo mencionado no item 10, sob pena do(a) Comprador(a) responder pelos prejuízos sofridos pela Vendedora daí decorrentes.<br/>
+    12– A oscilação de preço dos insumos agrícolas é de conhecimento geral e notório no mercado e, portanto, não poderá ser considerado motivo justificável para cancelamento do pedido, uma vez transcorrido o prazo mencionado no item 10, sob pena do(a) Comprador(a) responder pelos prejuízos sofridos pela Vendedora daí decorrentes.<br/>
 
-13– Nas compras de sementes serão obedecidos estritamente os critérios de germinação existentes nas determinações legais.<br/>
+    13– Nas compras de sementes serão obedecidos estritamente os critérios de germinação existentes nas determinações legais.<br/>
 
-14– A Vendedora, em hipótese alguma será responsável por indenizar prejuízos causados ao comprador, ou a terceiros, em razão da utilização inadequada dos produtos adquiridos.<br/>
+    14– A Vendedora, em hipótese alguma será responsável por indenizar prejuízos causados ao comprador, ou a terceiros, em razão da utilização inadequada dos produtos adquiridos.<br/>
 
-15– O pagamento pela aquisição dos produtos deverá ser realizado através de Cobrança Bancária, Ordem de Pagamento Bancário, Documento de Crédito (Doc) ou cheque nominativo à VENDEDORA ou cessionários, que não se responsabilizarão por pagamentos feitos de forma diversa da acima especificada.<br/>
+    15– O pagamento pela aquisição dos produtos deverá ser realizado através de Cobrança Bancária, Ordem de Pagamento Bancário, Documento de Crédito (Doc) ou cheque nominativo à VENDEDORA ou cessionários, que não se responsabilizarão por pagamentos feitos de forma diversa da acima especificada.<br/>
 
-16– Em caso de pedido vinculado a "Dólar", fica convencionado que o mesmo deverá ser pago em moeda corrente nacional (Real) mediante a sua conversão de acordo com a PTAX equivalente à taxa de câmbio de reais por dólar cotação de fechamento do dia útil imediatamente anterior à data do pagamento, conforme divulgada pelo Banco Central do Brasil, por meio do seu sitio na rede mundial de computadores (www.bcb.gov.br; ver “Cotações e boletins”), como cotação “Fechamento PTAX”. <br/>
+    16– Em caso de pedido vinculado a "Dólar", fica convencionado que o mesmo deverá ser pago em moeda corrente nacional (Real) mediante a sua conversão de acordo com a PTAX equivalente à taxa de câmbio de reais por dólar cotação de fechamento do dia útil imediatamente anterior à data do pagamento, conforme divulgada pelo Banco Central do Brasil, por meio do seu sitio na rede mundial de computadores (www.bcb.gov.br; ver “Cotações e boletins”), como cotação “Fechamento PTAX”. <br/>
 
-17– Caso o Comprador não realize a retirada dos produtos, após a confirmação do pedido, nem efetue o pagamento, este documento servirá como meio de prova para buscar a cobrança judicial dos prejuízos que porventura a não retirada/falta de pagamento venha a causar à Vendedora.<br/>
+    17– Caso o Comprador não realize a retirada dos produtos, após a confirmação do pedido, nem efetue o pagamento, este documento servirá como meio de prova para buscar a cobrança judicial dos prejuízos que porventura a não retirada/falta de pagamento venha a causar à Vendedora.<br/>
     </div>
     <div class="assign">
         <div class="sales">
@@ -235,11 +255,8 @@
             </div>
         </div>
     </div>
+
 </body>
 
     
-   
-
-
-
 </apex:page>
