@@ -52,14 +52,7 @@ public without sharing class CalloutOrder {
                 OrderHelper.disableTrigger();
                 Database.SaveResult[] upsResult = Database.update(orderList, false);
                 OrderHelper.enableTrigger();
-                if(calloutResponse.success){
-                    if(Schema.getGlobalDescribe().get('Order').getDescribe().getRecordTypeInfosById().get(allOrders[0].RecordTypeId).getName() == 'Venda Barter'){
-                        CalloutOrderUpdate.processIntegration(orderId, allOrders[0].ShippingAccount__r.ExternalId__c, allOrders[0].Account.ExternalId__c, allOrders[0].SalesCTV__r.CodigoSap__c);
-                    }
-                }
 			}
-
-            
 		}
 		
 		return calloutResponse;
@@ -87,10 +80,11 @@ public without sharing class CalloutOrder {
             IntegrationLog.createLog('Pedido OUT SAP', 'OUT', '', 'Integração INATIVA', true);
 			return new IntegrationUtils.CalloutResponse('Integração INATIVA');
         }
-		RequestParameters request = new RequestParameters(orders[0]);
-
-		String payload = JSON.serialize(request, true);
+		// RequestParameters request = new RequestParameters(orders[0]);
+        Object result = manageConstruction(orders[0]);
+		String payload = JSON.serialize(result);
         payload = payload.replace('TYPE_CURRENCY', 'CURRENCY');
+        System.debug(JSON.serializePretty(result));
 
 		//Metodo para busca de Access Token, depende de cada projeto, podendo estar presente dentro de uma custom settings ou relacionado com outra requisição.
 		String accessToken = !Test.isRunningTest() ? getAccessToken() : 'testeToken';
@@ -156,6 +150,23 @@ public without sharing class CalloutOrder {
         else return value;
     }
 
+    public static Object manageConstruction(Order order){
+        FactoryBuilder.Director director = new FactoryBuilder.Director();
+        FactoryBuilder.Builder builder;
+        if(order.SalesOrg__r.SalesOrganizationCode__c == '1300'){
+            builder = (FactoryBuilder.Builder) new FactoryBuilder.RequestSeedsBuilder();
+            director.contructRequestSeed(builder, order);
+        }else if(Schema.getGlobalDescribe().get('Order').getDescribe().getRecordTypeInfosById().get(order.RecordTypeId).getName() == 'Venda Barter'){
+            builder = (FactoryBuilder.Builder) new FactoryBuilder.RequestBarterBuilder();
+            director.contructRequestBarter(builder, order);
+        }else{
+            builder = (FactoryBuilder.Builder) new FactoryBuilder.RequestBuilder();
+            director.contructRequestBasic(builder, order);
+        }
+        return builder.getResult();
+       
+    }
+
     //! Preparing data to Callout
     public class RequestParameters{
         public String IV_TYPE;
@@ -181,6 +192,10 @@ public without sharing class CalloutOrder {
             IS_HEADER_IN = new CalloutOrder.Header();
             
             IV_TYPE = order.IsOrderMother__c != false ? 'G' : 'C';
+
+            if(Schema.getGlobalDescribe().get('Order').getDescribe().getRecordTypeInfosById().get(order.RecordTypeId).getName() == 'Venda Barter'){
+                IV_TYPE = 'B';
+            }
 
             String dateF;
 
@@ -234,6 +249,9 @@ public without sharing class CalloutOrder {
             if(order.Description != null) order.Description = order.Description.replace('1n73gr4ção N3sc4r4 5F x 4PP', '');
             IS_HEADER_IN.TEXT_ADICIONAL = order.Description != null ? order.Description : '';
             IS_HEADER_IN.TEXT_DANFE = order.DescriptionBillingSale__c != null ? order.DescriptionBillingSale__c : '';
+            IS_HEADER_IN.WABRS_PURCH = order.Currency__c;
+            IS_HEADER_IN.VKGRP = order.Company__r.salesOffice__r.Codigo__c;
+            IS_HEADER_IN.VKBUR = order.Company__r.salesTeam__r.ExternalId__c;
 
             Map<String, String> referenceItemMotherMap = new Map<String, String>();
             if(order.OrderReference__c != null){
@@ -295,8 +313,9 @@ public without sharing class CalloutOrder {
                 // IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZDAN', String.valueOf(CalloutOrder.isNotation(orderItem.FinancialDiscountPercent__c)), '%'));
                 IT_CONDITIONS_IN.add(new CalloutOrder.ConditionParameters(orderItem.NumeroSap__c.leftPad(6, '0'), 'ZMAR', String.valueOf(CalloutOrder.isNotation(orderItem.CommercialMargin__c)), ''));
             }
-            if(order.SalesOrg__r.SalesOrganizationCode__c == '1300')
+            if(order.SalesOrg__r.SalesOrganizationCode__c == '1300'){
                 IS_HEADER_IN = (CalloutOrder.Header)addPaymentForm(order, IS_HEADER_IN);
+            }
         }
     }
 

@@ -10,7 +10,7 @@ public without sharing class CalloutOrderUpdate {
 
     public static IntegrationUtils.CalloutUpdateResponse processIntegration(Id orderId, String rmCode, String agCode, String zcCode){
 
-		Order parentOrder = [SELECT Id, CodigoSap__c, ShippingAccount__r.ExternalId__c, Company__r.SupplierCenter__c, Account.ExternalId__c, Type, SalesOrg__r.SalesOrganizationCode__c, DistributionChannel__c, DistributionChannel__r.Codigo__c, SalesCondition__r.ExternalId__c, Company__r.salesOffice__r.Codigo__c,
+		Order parentOrder = [SELECT Id, CodigoSap__c,ShippingDate__c,  ShippingAccount__r.ExternalId__c, Company__r.SupplierCenter__c, Account.ExternalId__c, Type, SalesOrg__r.SalesOrganizationCode__c, DistributionChannel__c, DistributionChannel__r.Codigo__c, SalesCondition__r.ExternalId__c, Company__r.salesOffice__r.Codigo__c,
                             ActivitySector__c, ActivitySector__r.Codigo__c, PaymentCondition__r.CashPayment__c, Incoterms__c, Incoterms2__c, PaymentCondition__r.Code__c, OrderReason__c , SalesCTV__r.CodigoSap__c, PaymentDate__c,EffectiveDate, OrderReference__r.CodigoSap__c, Company__r.salesTeam__r.ExternalId__c,
                             OrderNumber, Crop__r.Code__c, Crop__r.StartDateOrderInsertion__c, Crop__r.EndDateInsertionOrders__c ,Culture__r.Codigo__c, EndDate, TotalAmount, PaymentForm__c, OrderReference__c, CustomerOrderNumber__c, SalesCTV__r.SellerType__c, EffectiveOrderDate__c, NumeroPedidoApp__c,
                             Currency__c, Crop__r.PaymentBaseDate__c,IsOrderMother__c, RecordTypeId,Description,DescriptionBillingSale__c, DistributionCenter__r.Code__c, RecordType.DeveloperName, (SELECT Id FROM OrderItems) 
@@ -87,7 +87,7 @@ public without sharing class CalloutOrderUpdate {
 		String accessToken = !Test.isRunningTest() ? getAccessToken() : 'testeToken';
 
 		//Path geralmente cadastrado dentro de ua customSettings
-		String endpoint = (!Test.isRunningTest() ? 'https://agrogalaxy-prd-01.it-cpi008-rt.cfapps.br10.hana.ondemand.com/http/SI_ALTERA_OV_OUT' : 'http://callout.My_Named_Credential.com/some/path');
+		String endpoint = (!Test.isRunningTest() ? 'https://agrogalaxy-qas-01.it-cpi008-rt.cfapps.br10.hana.ondemand.com/http/SI_ALTERA_OV_OUT' : 'http://callout.My_Named_Credential.com/some/path');
 		Map<String, String> headersMap = new Map<String, String>();
 		headersMap.put('Content-type', 'application/json');
 		headersMap.put('Authorization', 'Bearer '+ accessToken);
@@ -159,9 +159,6 @@ public without sharing class CalloutOrderUpdate {
 
             Set<Id> orderItemIds = new Set<Id>();
             String IV_TYPE = order.IsOrderMother__c != false ? 'G' : 'C';
-            if(Schema.getGlobalDescribe().get('Order').getDescribe().getRecordTypeInfosById().get(order.RecordTypeId).getName() == 'Venda Barter'){
-                IV_TYPE = 'B';
-            }
             String dateF;
 
             if(order.Crop__r.StartDateOrderInsertion__c < System.today() && IV_TYPE == 'G' ){
@@ -197,10 +194,6 @@ public without sharing class CalloutOrderUpdate {
             IS_HEADER_IN.TEXT_ADICIONAL = order.Description != null ? order.Description : '';
             IS_HEADER_IN.TEXT_DANFE = order.DescriptionBillingSale__c != null ? order.DescriptionBillingSale__c : '';
            
-            IS_HEADER_IN.WABRS_PURCH = order.Currency__c;
-            IS_HEADER_IN.VKGRP = order.Company__r.salesOffice__r.Codigo__c;
-            IS_HEADER_IN.VKBUR = order.Company__r.salesTeam__r.ExternalId__c;
-
             for(OrderItem orderItem : order.OrderItems){
                 orderItemIds.add(orderItem.Id);
             }
@@ -259,11 +252,6 @@ public without sharing class CalloutOrderUpdate {
         public String ZZDATA_VENCTO;
         public String TEXT_ADICIONAL;
         public String TEXT_DANFE;
-
-        public String WABRS_PURCH;
-        public String TKRATE_MM;
-        public String VKGRP;
-        public String VKBUR;
 
     }
 
