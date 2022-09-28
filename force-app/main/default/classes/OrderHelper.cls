@@ -61,8 +61,7 @@ public without sharing class OrderHelper {
 
         Orderhelper.disableTrigger();
         for(Order order : newRecords){ 
-            
-            
+
             if(order.StatusSF__c == 'Aprovado' && order.Status != 'X'){
                 calloutsQueue job = new calloutsQueue(order.Id);
                 System.enqueueJob(job);
@@ -70,15 +69,13 @@ public without sharing class OrderHelper {
             else{
                 if(!Test.isRunningTest()) CalloutOrderDatalake.callIntegration(order.Id);
             }
-            System.debug('System' + System.URL.getCurrentRequestUrl().GetPath());
-            // System.URL.getCurrentRequestUrl().GetPath().contains('/upsertOrderAppdigital/');
+
             if(order.CodigoSap__c != null && order.StatusSF__c == 'Integrado' && orderMap != null){
                 if(System.URL.getCurrentRequestUrl() != null && System.URL.getCurrentRequestUrl().GetPath() != null && System.URL.getCurrentRequestUrl().GetPath().contains('/upsertOrderAppdigital')){
                     String rmCode = orderMap.get(order.Id).ShippingAccount__r.ExternalId__c;
                     String agCode = orderMap.get(order.Id).Account.ExternalId__c;
                     String zcCode = orderMap.get(order.Id).SalesCTV__r.CodigoSap__c;
                     CalloutOrderUpdate.callIntegration(order.Id, rmCode , agCode , zcCode);
-                    // CalloutOrderDatalake.callIntegration(order.Id);
                 }
                 
             }  
@@ -113,6 +110,12 @@ public without sharing class OrderHelper {
             }  
         }
         Orderhelper.enableTrigger(); 
+    }
+
+    public static void calloutOrderToSAPBarter(Id orderId){
+        Orderhelper.disableTrigger();
+        System.enqueueJob(new calloutsQueue(orderId));
+        Orderhelper.enableTrigger();
     }
 
     public static void sendApprovalProccess(List<Order> newRecords){
@@ -200,6 +203,9 @@ public without sharing class OrderHelper {
                         
                     }
                 }
+                // if((oldMap.get(id).CodigoSap__c == null && newMap.get(id).CodigoSap__c != null) && orderMap.get(newMap.get(id).RecordTypeId).getName() == 'Venda Barter'){
+                //     calloutOrderToSAPBarter(id);
+                // }
             }
             if(orderToUpdate.size() > 0){
                 List<Order> orderList = [SELECT Id, StatusSF__c, CodigoSAP__c, Description FROM Order WHERE Id IN: orderToUpdate];
@@ -234,6 +240,8 @@ public without sharing class OrderHelper {
                 update orderToUpdateList;
                 OrderHelper.enableTrigger();
             }
+
+            
 
         
         }
