@@ -1,0 +1,5 @@
+Product__r.ProductCode__c,Status__c,SalesOrg__r.SalesOrganizationCode__c,Channel__c,Department__c,SupplierCenter__c,OrgVExternal__c
+001,Adicionada,001,1,1,1,1
+002,Adicionada,001,1,1,1,2
+003,Adicionada,001,1,1,1,3
+004,Adicionada,001,1,1,1,4

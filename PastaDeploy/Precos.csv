@@ -1,0 +1,2 @@
+ExternalId__c,RecordType.Name,Cost__c,Culture__r.Codigo__c,Currency__c,EndDate__c,IsActive__c,ProductGroup__r.ExternalId__c,ProductMultiplier__c,Product__r.ProductCode__c,SalesCondition__r.ExternalId__c,SalesOffice__r.Codigo__c,SalesOrg__r.SalesOrganizationCode__c,SalesTeam__r.ExternalId__c,StartDate__c,UnitMeasurement__c,UnitPrice__c,harvest__r.Code__c
+1234,Preço,0.99,0001,BRL,2023-10-16,true,001,1,001,0001,01,001,001,2022-09-11,,1,Safrinha

@@ -16,10 +16,12 @@ public without sharing class OrderItemTriggerHandler {
     }
 
     public void OnBeforeInsert(){
+        
     }
     
     public void OnAfterInsert(){
-        
+        OrderItemHelper.insertOrderItem(this.newRecords);
+        OrderItemHelper.cleanDescriptionOrderItem(this.newRecords);
     }
     
     public void OnBeforeUpdate(){
@@ -27,6 +29,8 @@ public without sharing class OrderItemTriggerHandler {
     
     public void OnAfterUpdate(){
         OrderItemHelper.updateOrderItem(this.newRecords, this.oldMap);
+        OrderItemHelper.updateQuotes(this.newRecords);
+        OrderItemHelper.cleanDescriptionOrderItem(this.newRecords);
     }
     
     public void OnBeforeDelete(){}

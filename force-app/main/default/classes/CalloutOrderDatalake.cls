@@ -68,7 +68,7 @@ public without sharing class CalloutOrderDatalake {
             
         List<RequestParameters> request = new List<RequestParameters>();
         
-        Integration__mdt integrationOUT = Integration__mdt.getInstance('PedidosOUT');
+        Integration__c integrationOUT = Integration__c.getInstance('Pedidos OUT');
         if(integrationOUT != null && integrationOUT.IsInactive__c){
             IntegrationLog.createLog('Pedido OUT Lake', 'OUT', '', 'Integração INATIVA', true);
 			return new IntegrationUtils.CalloutDatalakeResponse('Integração INATIVA');
@@ -87,7 +87,7 @@ public without sharing class CalloutOrderDatalake {
 
 
 		//Path geralmente cadastrado dentro de ua customSettings
-		String endpoint = (!Test.isRunningTest() ? 'https://apim.agrogalaxy.com.br/gtw/sales-order/v1/webhook/order' : 'http://callout.My_Named_Credential.com/some/path');
+		String endpoint = (!Test.isRunningTest() ? integrationOUT.Url__c : 'http://callout.My_Named_Credential.com/some/path');
 		Map<String, String> ordersMap = new Map<String, String>();
 		ordersMap.put('Content-type', 'application/json');
 		ordersMap.put('Authorization', 'Bearer '+ accessToken);
@@ -141,7 +141,7 @@ public without sharing class CalloutOrderDatalake {
                 CommercialMargin__c, DiscountValue__c, FinalTotalValue__c,
                 FinancialDiscountPercent__c, FinancialDiscountValue__c, FinancialAdditionPercent__c,
                 FinancialAdditionValue__c, CommercialAdditionPercent__c, CommercialAdditionValue__c,
-                Dosage__c, ListCost__c, NumeroSap__c, PracticedCost__c, PracticedPrice__c, UnitPrice
+                Dosage__c, ListCost__c, NumeroSap__c, PracticedCost__c, PracticedPrice__c, UnitPrice, ReasonRefuse__c
                 FROM OrderItem
                 WHERE Id IN: orderItemIds
             ]);
@@ -486,10 +486,18 @@ public without sharing class CalloutOrderDatalake {
         public Decimal practicedCost;
         public Decimal practicedPrice;
         public Decimal unitPrice;
+        public String motivoRecusa;
+        public String descMotivoRecusa;
 
 
 
         public OrderItemParameters(OrderItem orderItem, List<Integer> shippingDivison){
+            Map<String, String> motivoRecusa = new Map<String, String>();
+            Schema.DescribeFieldResult mtrecusaFieldDescribe = Schema.OrderItem.ReasonRefuse__c.getDescribe();
+            List<Schema.PicklistEntry> motivoRecusaPickListValues = mtrecusaFieldDescribe.getPickListValues();
+            for(Schema.PicklistEntry mtrPickList : motivoRecusaPickListValues){
+                motivoRecusa.put(mtrPickList.getValue(), mtrPickList.getLabel());
+            }
             this.orderId = orderItem.OrderId;
             this.material = orderItem.Product2.ExternalId__c;
             //this.orderExternalId = orderItem.ExternalId__c;
@@ -513,6 +521,8 @@ public without sharing class CalloutOrderDatalake {
             this.practicedCost = orderItem.PracticedCost__c;
             this.practicedPrice = orderItem.PracticedPrice__c;
             this.unitPrice = orderItem.UnitPrice;
+            this.motivoRecusa = orderItem.ReasonRefuse__c;
+            this.descMotivoRecusa = motivoRecusa.get(orderItem.ReasonRefuse__c);
         }
     }
 
@@ -544,11 +554,12 @@ public without sharing class CalloutOrderDatalake {
 
 //Método para atualizar access token
     public static String getAcessCode(){
+        Integration__c data = Integration__c.getInstance('Pedidos OUT');
         String payloadToken = 'grant_type=client_credentials';
-        String endpointToken = (!Test.isRunningTest() ? 'https://apim.agrogalaxy.com.br/identityserver/oauth2/token' : 'http://callout.My_Named_Credential.com/some/path');
+        String endpointToken = (!Test.isRunningTest() ? data.UrlToken__c : 'http://callout.My_Named_Credential.com/some/path');
         Map<String, String> headersMapToken = new Map<String, String>();
         headersMapToken.put('Content-type', 'application/x-www-form-urlencoded');
-        headersMapToken.put('Authorization', 'Basic dEQxV2M0bWtXdnRWNWVtRXZSOHlVRF9iUFZvYTpmZmVJQUs5SmdPNXNsbXI1UzVMUXNNcTBOME1h');
+        headersMapToken.put('Authorization', data.Token__c);
         IntegrationUtils.RequestResponseObject responseObject2 = IntegrationUtils.executeCallout(endpointToken, payloadToken, headersMapToken);
         System.debug('responseObject2: '+ responseObject2);
         if (responseObject2.success) {

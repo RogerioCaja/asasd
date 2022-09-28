@@ -6,15 +6,5 @@ public with sharing class BoletosPdfController {
        Boletos__c boleto = [SELECT Id, Base64__c, AccountCode__r.Name, Name FROM Boletos__c WHERE Id =: boletosIdPgReference LIMIT 1];
         //System.debug('boleto ' + boleto);  
         this.base64 = boleto.Base64__c;
-        string boletoName = boleto.Name;
-        this.fileName = '/'+boleto.Name;
-            System.debug(this.fileName);
-        //this.fileName = 'teste';
-        //String yourFileName = 'MeuArquivo.pdf' ;
-        //Apexpages.currentPage().getHeaders().put( 'content-disposition', 'inline; filename=;' + yourFileName );
-        //String FileName = 'Boleto.pdf';
-        //Apexpages.currentPage().getHeaders().put( 'content-disposition', 'attachment; filename= FileName.pdf');
-        //Apexpages.currentPage().getHeaders().put('content-disposition', 'attachment; filename=AccountReport.pdf');
-        //System.debug('this.base64 ' + this.base64);
     }
 }
