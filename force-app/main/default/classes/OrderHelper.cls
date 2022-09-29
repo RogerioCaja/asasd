@@ -203,9 +203,9 @@ public without sharing class OrderHelper {
                         
                     }
                 }
-                // if((oldMap.get(id).CodigoSap__c == null && newMap.get(id).CodigoSap__c != null) && orderMap.get(newMap.get(id).RecordTypeId).getName() == 'Venda Barter'){
-                //     calloutOrderToSAPBarter(id);
-                // }
+                if((oldMap.get(id).CodigoSap__c == null && newMap.get(id).CodigoSap__c != null) && orderMap.get(newMap.get(id).RecordTypeId).getName() == 'Venda Barter'){
+                    calloutOrderToSAPBarter(id);
+                }
             }
             if(orderToUpdate.size() > 0){
                 List<Order> orderList = [SELECT Id, StatusSF__c, CodigoSAP__c, Description FROM Order WHERE Id IN: orderToUpdate];
