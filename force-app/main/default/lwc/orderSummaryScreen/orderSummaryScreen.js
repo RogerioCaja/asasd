@@ -61,6 +61,7 @@ export default class OrderSummaryScreen extends LightningElement {
     @api divisionDataLocale;
     @api headerData;
     @api cloneData;
+    @api childOrder;
     @api excludedItems;
 
     connectedCallback(){
@@ -94,7 +95,8 @@ export default class OrderSummaryScreen extends LightningElement {
             approvalNumber: 1
         }
 
-        getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: false, verifyUserType: true, priceScreen: false})
+        console.log('this.childOrder: ' + this.childOrder);
+        getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: false, verifyUserType: true, priceScreen: false, childOrder: this.childOrder})
         .then((result) => {
             this.hideMargin = JSON.parse(result);
         });
