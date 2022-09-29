@@ -126,10 +126,14 @@ public without sharing class CalloutOrder {
     public static Object manageConstruction(Order order){
         FactoryBuilder.Director director = new FactoryBuilder.Director();
         FactoryBuilder.Builder builder;
-        if(order.SalesOrg__r.SalesOrganizationCode__c == '1700'){
+        String orderTypeName = Schema.getGlobalDescribe().get('Order').getDescribe().getRecordTypeInfosById().get(order.RecordTypeId).getName();
+        if(order.SalesOrg__r.SalesOrganizationCode__c == '1700' && !(orderTypeName == 'Venda Barter')){
             builder = (FactoryBuilder.Builder) new FactoryBuilder.RequestSeedsBuilder();
             director.constructRequestSeed(builder, order);
-        }else if(Schema.getGlobalDescribe().get('Order').getDescribe().getRecordTypeInfosById().get(order.RecordTypeId).getName() == 'Venda Barter'){
+        }else if(order.SalesOrg__r.SalesOrganizationCode__c == '1700' && (orderTypeName == 'Venda Barter')){
+            builder = (FactoryBuilder.Builder) new FactoryBuilder.RequestBarterSeedsBuilder();
+            director.constructRequestBarterSeeds(builder, order);
+        }else if(orderTypeName == 'Venda Barter'){
             builder = (FactoryBuilder.Builder) new FactoryBuilder.RequestBarterBuilder();
             director.constructRequestBarter(builder, order);
         }else{
