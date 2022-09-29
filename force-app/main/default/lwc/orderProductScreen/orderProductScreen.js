@@ -112,6 +112,7 @@ export default class OrderProductScreen extends LightningElement {
     @api accountData;
     @api headerData;
     @api cloneData;
+    @api childOrder;
     @api excludedItems;
 
     connectedCallback(event) {
@@ -195,7 +196,8 @@ export default class OrderProductScreen extends LightningElement {
             approvalNumber: 1
         }
 
-        getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: false, verifyUserType: false})
+        console.log('this.childOrder: ' + this.childOrder);
+        getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: false, verifyUserType: false, childOrder: this.childOrder})
         .then((result) => {
             this.companyResult = JSON.parse(result).listCompanyInfos;
             if (this.headerData.companyId != null) {

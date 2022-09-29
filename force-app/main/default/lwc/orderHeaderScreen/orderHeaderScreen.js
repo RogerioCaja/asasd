@@ -58,6 +58,7 @@ export default class OrderHeaderScreen extends LightningElement {
     @api accountData;
     @api accountChildData;
 
+    @api childOrder;
     @api headerData;
     @api headerDictLocale ={
         Id: " ",
@@ -564,7 +565,9 @@ export default class OrderHeaderScreen extends LightningElement {
                             orderType: this.headerData.tipo_venda,
                             approvalNumber: 1
                         }
-                        getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: true, verifyUserType: false})
+                        
+                        console.log('this.childOrder: ' + this.childOrder);
+                        getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: true, verifyUserType: false, childOrder: this.childOrder})
                         .then((result) => {
                            this.salesOrgId = result;
                         });
