@@ -25,7 +25,7 @@ public with sharing class CalloutOrderTest {
     @isTest
     static void calloutOrderSuccessSeeds(){
         CalloutOrder calloutTest = new CalloutOrder();
-        Order ord = [SELECT Id, OrderNumber, StatusSF__c FROM Order WHERE SalesOrg__r.SalesOrganizationCode__c = '1300' LIMIT 1][0];
+        Order ord = [SELECT Id, OrderNumber, StatusSF__c FROM Order WHERE SalesOrg__r.SalesOrganizationCode__c = '1700' LIMIT 1][0];
         Test.setMock(HttpCalloutMock.class, new CalloutOrderMock(true, String.valueOf(ord.OrderNumber), false));
         Test.startTest();
         IntegrationUtils.CalloutResponse response = CalloutOrder.processIntegration(ord.Id);
@@ -40,6 +40,20 @@ public with sharing class CalloutOrderTest {
     static void calloutOrderSuccessBarter(){
         CalloutOrder calloutTest = new CalloutOrder();
         Order ord = [SELECT Id, OrderNumber, StatusSF__c FROM Order WHERE Type = 'Venda Barter' LIMIT 1][0];
+        Test.setMock(HttpCalloutMock.class, new CalloutOrderMock(true, String.valueOf(ord.OrderNumber), false));
+        Test.startTest();
+        IntegrationUtils.CalloutResponse response = CalloutOrder.processIntegration(ord.Id);
+        Test.stopTest();
+        System.debug(response);
+        System.assertEquals(true, response.success, 'O status era para vir Verdadeiro');
+        System.assertEquals('', response.errorMessage, 'A mensagem de Erro deveria vir vazia');
+        
+    } 
+
+    @isTest
+    static void calloutOrderSuccessBarterSeeds(){
+        CalloutOrder calloutTest = new CalloutOrder();
+        Order ord = [SELECT Id, OrderNumber, StatusSF__c FROM Order WHERE Type = 'Venda Barter' AND SalesOrg__r.SalesOrganizationCode__c = '1700' LIMIT 1][0];
         Test.setMock(HttpCalloutMock.class, new CalloutOrderMock(true, String.valueOf(ord.OrderNumber), false));
         Test.startTest();
         IntegrationUtils.CalloutResponse response = CalloutOrder.processIntegration(ord.Id);
