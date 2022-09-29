@@ -126,7 +126,7 @@ public without sharing class CalloutOrder {
     public static Object manageConstruction(Order order){
         FactoryBuilder.Director director = new FactoryBuilder.Director();
         FactoryBuilder.Builder builder;
-        if(order.SalesOrg__r.SalesOrganizationCode__c == '1300'){
+        if(order.SalesOrg__r.SalesOrganizationCode__c == '1700'){
             builder = (FactoryBuilder.Builder) new FactoryBuilder.RequestSeedsBuilder();
             director.constructRequestSeed(builder, order);
         }else if(Schema.getGlobalDescribe().get('Order').getDescribe().getRecordTypeInfosById().get(order.RecordTypeId).getName() == 'Venda Barter'){
