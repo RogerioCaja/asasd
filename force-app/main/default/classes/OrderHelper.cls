@@ -21,6 +21,21 @@ public without sharing class OrderHelper {
         return isEnabled = true;
     }
 
+    public class calloutsQueueBarter implements Queueable, Database.AllowsCallouts{
+        private Id orderId;
+
+        public calloutsQueueBarter(Id orderIdParameter){
+            this.orderId = orderIdParameter;
+        }
+
+        public void execute(QueueableContext context) {
+            CalloutOrder.processIntegration(orderId);
+            if(!Test.isRunningTest()){
+                System.enqueueJob(new calloutsQueue(orderId));
+            }
+        }
+    }
+
     public class calloutsQueue implements Queueable, Database.AllowsCallouts{ 
         private Id orderId;
 
@@ -50,6 +65,7 @@ public without sharing class OrderHelper {
     
     public static void calloutOrderToSAP(List<Order> newRecords){
         Set<Id> orderIds = new Set<Id>();
+        String orderTypeName = '';
         for(Order order : newRecords){
             orderIds.add(order.Id);
         }
@@ -61,10 +77,14 @@ public without sharing class OrderHelper {
 
         Orderhelper.disableTrigger();
         for(Order order : newRecords){ 
-
+            orderTypeName = Schema.getGlobalDescribe().get('Order').getDescribe().getRecordTypeInfosById().get(order.RecordTypeId).getName();
             if(order.StatusSF__c == 'Aprovado' && order.Status != 'X'){
-                calloutsQueue job = new calloutsQueue(order.Id);
-                System.enqueueJob(job);
+                if(orderTypeName == 'Venda Barter'){
+                    System.enqueueJob(new calloutsQueueBarter(order.Id));
+                }else{
+                    System.enqueueJob(new calloutsQueue(order.Id));
+                }
+                
             }
             else{
                 if(!Test.isRunningTest()) CalloutOrderDatalake.callIntegration(order.Id);
@@ -112,11 +132,6 @@ public without sharing class OrderHelper {
         Orderhelper.enableTrigger(); 
     }
 
-    public static void calloutOrderToSAPBarter(Id orderId){
-        Orderhelper.disableTrigger();
-        System.enqueueJob(new calloutsQueue(orderId));
-        Orderhelper.enableTrigger();
-    }
 
     public static void sendApprovalProccess(List<Order> newRecords){
 
@@ -199,12 +214,7 @@ public without sharing class OrderHelper {
                     }
                     else{
                        orderToUpdate.add(id);
-                        
-                        
                     }
-                }
-                if((oldMap.get(id).CodigoSap__c == null && newMap.get(id).CodigoSap__c != null) && orderMap.get(newMap.get(id).RecordTypeId).getName() == 'Venda Barter'){
-                    calloutOrderToSAPBarter(id);
                 }
             }
             if(orderToUpdate.size() > 0){
