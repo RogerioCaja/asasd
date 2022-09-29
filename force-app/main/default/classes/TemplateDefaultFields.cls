@@ -243,7 +243,7 @@ public  class TemplateDefaultFields {
 
         SalesOrg__c so1 = new SalesOrg__c(
             Name = 'Sementes',
-            SalesOrganizationCode__c = '1300'
+            SalesOrganizationCode__c = '1700'
         );
 
         DistributionChannel__c distributionChannel = new DistributionChannel__c(
@@ -381,9 +381,36 @@ public  class TemplateDefaultFields {
             Incoterms__c = 'CIF'
         );
 
+        Order order3 = new Order(
+            AccountId =  account.Id,
+            CodigoSap__c = '004',
+            Status = 'Draft',
+            PriceBook2Id = Test.getStandardPricebookId(),
+            Type =  'Venda Barter',
+            RecordTypeId = recordTypeMap.get('Venda Barter').getRecordTypeId(),
+            ShippingAccount__c =   account.Id,
+            ShippingDate__c =  Date.today(),
+            PaymentDate__c =  Date.today(),
+            CustomerOrderNumber__c = '0001',
+            EffectiveDate = Date.today(),
+            Crop__c =  safra.Id,
+            Culture__c = cultura.Id,
+            PaymentForm__c =  'B',
+            SalesOrg__c =  so1.Id,
+            FinalTotalValue__c = 1000.00,
+            SalesCondition__c = sales.Id,
+            DistributionChannel__c =  distributionChannel.Id,
+            Currency__c =  'BRL',
+            SalesCTV__c =  u.Id,
+            StatusSF__c = 'Em digitação',
+            EndDate = Date.today(),
+            Incoterms__c = 'CIF'
+        );
+
         INSERT order;
         INSERT order1;
         INSERT order2;
+        INSERT order3;
 
         FormPayment__c pF = new FormPayment__c(
             Amount__c = 5.00,
