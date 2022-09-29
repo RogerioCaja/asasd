@@ -90,6 +90,10 @@
                 <behavior>Edit</behavior>
                 <field>IndividualQuotas__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>ComboPromotion__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>
