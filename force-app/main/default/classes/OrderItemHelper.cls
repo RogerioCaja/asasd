@@ -53,6 +53,11 @@ public without sharing class OrderItemHelper {
             orderItemAmountedUsedPerOrderReference.put((String)aggResult.get('Id') + (String)aggResult.get('OrderReference__c'), (Decimal)aggResult.get('expr0') );
         }
 
+        List<AggregateResult> sumQuantityPerOrderItem = [SELECT Order.OrderReference__c, Product2.Id, SUM(Quantity) FROM OrderItem WHERE Order.OrderReference__c IN: ordList AND ReasonRefuse__c = null GROUP BY Product2.Id,Order.OrderReference__c];
+        Map<String, Decimal> orderItemAmountedUsedPerOrderReference = new Map<String, Decimal>();
+        for(AggregateResult aggResult : sumQuantityPerOrderItem){
+            orderItemAmountedUsedPerOrderReference.put((String)aggResult.get('Id') + (String)aggResult.get('OrderReference__c'), (Decimal)aggResult.get('expr0') );
+        }
         List<OrderItem> ordItemList = ([SELECT Id, OrderId, Order.IsOrderMother__c, Product2Id, AmountUsed__c, Quantity  FROM OrderItem WHERE OrderId =: ordList]);
         Map<String, OrderItem> ordMap = new Map<String, OrderItem>();
         for(OrderItem ordItem : ordItemList){
