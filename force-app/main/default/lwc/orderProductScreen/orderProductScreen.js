@@ -197,7 +197,7 @@ export default class OrderProductScreen extends LightningElement {
         }
 
         console.log('this.childOrder: ' + this.childOrder);
-        getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: false, verifyUserType: false, childOrder: this.childOrder})
+        getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: false, verifyUserType: false, priceScreen: false, childOrder: this.childOrder})
         .then((result) => {
             this.companyResult = JSON.parse(result).listCompanyInfos;
             if (this.headerData.companyId != null) {
@@ -360,7 +360,8 @@ export default class OrderProductScreen extends LightningElement {
                         searchString: '',
                         data: JSON.stringify(this.productParams),
                         isCommodity: false,
-                        productsIds: prodsIds
+                        productsIds: prodsIds,
+                        priceScreen: false
                     })
                     .then(result => {
                         this.productsPriceMap = result.recordsDataMap;

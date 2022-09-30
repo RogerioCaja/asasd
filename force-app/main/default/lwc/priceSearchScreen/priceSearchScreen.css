@@ -1,0 +1,105 @@
+.container {
+    background-color: white;
+    padding: 5px;
+    width: 80%;
+    border-radius: 10px;
+    margin: auto;
+}
+
+.title {
+    font-size: 22px;
+    font-weight: bold;
+    padding: 10px;
+}
+
+.fields-div {
+    width: 100%;
+    display: flex;
+}
+
+.lookup-style {
+    width: 25%;
+    float: left;
+    padding: 25px;
+}
+
+.search-div {
+    width: 100%;
+    text-align: center;
+    padding-bottom: 20px;
+}
+
+.search-title {
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.input-style {
+    width: 50%;
+    padding: 8px 6px;
+    margin: 3px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px
+}
+
+.button-style {
+    background-color: #2a9676;
+    border: 1px solid #2a9676;
+    font-size: 15px;
+    width: 20%;
+    padding: 6px 6px;
+    display: inline-block;
+    box-sizing: border-box;
+    color: #fff;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+.products-result {
+    width: 100%;
+    top: 50%;
+    left: 50%;
+    margin-top: 10px;
+}
+
+.products-result h2 {
+    color: #2A9676;
+    font-size: 18px;
+    margin:15px 0;
+}
+
+lightning-datatable {
+    margin: 50px 0px;
+    width: 100%;
+}
+
+lightning-datatable.dt-outer-container {
+    border: 1px solid #DDDDDD;
+    border-radius: 4px;
+}
+
+.products-result {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.products-result::-webkit-scrollbar {
+     display: none;
+}
+
+.slds-table_header-fixed_container {
+  border: 1px #DDD SOLID;
+    border-radius: 4px;
+}
+
+.products-result {
+    padding: 0px 10px 30px 10px;
+}
+
+.products-result h2 {
+    display: none;
+}
