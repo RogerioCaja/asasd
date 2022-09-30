@@ -43,7 +43,7 @@ export default class OrderSummaryScreen extends LightningElement {
         }
 
         console.log('this.childOrder: ' + this.childOrder);
-        getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: false, verifyUserType: true, childOrder: this.childOrder})
+        getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: false, verifyUserType: true, priceScreen: false, childOrder: this.childOrder})
         .then((result) => {
             this.hideMargin = JSON.parse(result);
         });

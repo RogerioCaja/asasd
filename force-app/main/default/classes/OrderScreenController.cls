@@ -909,7 +909,7 @@ public without sharing class OrderScreenController {
     }
 
     @AuraEnabled
-    public static String getAccountCompanies(String data, Boolean isHeader, Boolean verifyUserType, Boolean childOrder) {
+    public static String getAccountCompanies(String data, Boolean isHeader, Boolean verifyUserType, Boolean priceScreen, Boolean childOrder) {
         GetCompanyInfos companyInfos = (GetCompanyInfos) JSON.deserialize(data, GetCompanyInfos.class);
         Id userTerritoryId;
         Boolean sellerPosition = false;
@@ -985,8 +985,8 @@ public without sharing class OrderScreenController {
         };
         Q proQuery = new Q(Company__c.SObjectType);
         proQuery.selectFields(fieldSet);
-        proQuery.add(Q.condition('Conta__c').equalsTo(companyInfos.accountId));
         if (childOrder == null || !childOrder) proQuery.add(Q.condition('Status__c').equalsTo('Adicionada'));
+        if (companyInfos.accountId != '') proQuery.add(Q.condition('Conta__c').equalsTo(companyInfos.accountId));
         
         List<CompanyInfos> companyList = new List<CompanyInfos>();
         if (salesTeamTerritory != null && salesTeamTerritory.DeveloperName != null) {
@@ -998,6 +998,8 @@ public without sharing class OrderScreenController {
             else {
                 proQuery.add(Q.condition('ActivitySector__r.Codigo__c').equalsTo('10'));
             }
+
+            if (companyInfos.accountId == '') proQuery.addLimit(1);
             for (Company__c salesTeamCompany : Database.query(proQuery.build())) {
                 CompanyInfos company = new CompanyInfos();
                 company.companyId = salesTeamCompany.Id;
