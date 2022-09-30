@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Combo e Promoção</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Combos e Promoções</value>
+    </caseValues>
+    <layouts>
+        <layout>Condição de Pagamento</layout>
+        <sections>
+            <label></label>
+            <section>Custom Links</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>Mix de Produtos</layout>
+        <sections>
+            <label></label>
+            <section>Combos sem produto formador</section>
+        </sections>
+        <sections>
+            <label></label>
+            <section>Custom Links</section>
+        </sections>
+        <sections>
+            <label></label>
+            <section>Parâmetros de Pedido</section>
+        </sections>
+    </layouts>
+    <layouts>
+        <layout>Utilização de Itens Especificos</layout>
+        <sections>
+            <label></label>
+            <section>Custom Links</section>
+        </sections>
+        <sections>
+            <label></label>
+            <section>Parâmetros de Pedido</section>
+        </sections>
+    </layouts>
+    <recordTypes>
+        <label></label>
+        <name>PaymentCondition</name>
+    </recordTypes>
+    <recordTypes>
+        <label></label>
+        <name>ProductMix</name>
+    </recordTypes>
+    <recordTypes>
+        <label></label>
+        <name>Specific_Items</name>
+    </recordTypes>
+    <startsWith>Consonant</startsWith>
+</CustomObjectTranslation>
