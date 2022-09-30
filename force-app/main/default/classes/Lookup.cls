@@ -38,7 +38,7 @@ public without sharing class Lookup {
             }
             query += ' AND Id IN: availableSalesCondition';
         }
-
+        
         if (requestData.targetObject == 'User' && !clientTerritoriesScreen) {
             if (quoteScreen == null || !quoteScreen) {
                 Boolean userRelatedToTerritory = false;
