@@ -24,7 +24,6 @@ public without sharing class Lookup {
            
             Id recTypeZPR0 = Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get('ZPR0').getRecordTypeId();
             
-            System.debug('requestSalesCondition: ' + requestSalesCondition);
             for(JurosDescontoAntecipao__c listPrice : [SELECT Id, SalesCondition__c
                                                         FROM JurosDescontoAntecipao__c
                                                         WHERE RecordTypeId =: String.escapeSingleQuotes(recTypeZPR0)
@@ -37,7 +36,6 @@ public without sharing class Lookup {
 
                 availableSalesCondition.add(listPrice.SalesCondition__c);
             }
-            System.debug('availableSalesCondition: ' + availableSalesCondition);
             query += ' AND Id IN: availableSalesCondition';
         }
         

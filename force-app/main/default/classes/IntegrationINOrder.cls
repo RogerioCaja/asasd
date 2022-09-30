@@ -14,7 +14,7 @@ global without sharing class IntegrationINOrder {
 
     @HttpPost
     global static ResponseModel upsertOrderValidation(List<TemplateDataIntegrationFields.OrderINData> request){
-        sleep(5);
+        sleep(6);
 		List<String> idOrders = new List<String>();
 
         List<TemplateDataIntegrationFields.ConditionInsert> conditionList = new List<TemplateDataIntegrationFields.ConditionInsert>();
