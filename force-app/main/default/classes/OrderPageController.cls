@@ -194,7 +194,7 @@ public with sharing class OrderPageController {
             this.salesTeamPhone = order.Company__r.salesTeam__r.Phone__c;
             this.salesTeamCNPJ = order.Company__r.salesTeam__r.CNPJ__c;
             this.salesTeamIE = order.Company__r.salesTeam__r.Registration__c;
-            this.isNormalSales = order.SalesOrg__r.SalesOrganizationCode__c == '1300' ? false : true;
+            this.isNormalSales = order.SalesOrg__r.SalesOrganizationCode__c == '1700' ? false : true;
             this.orderItemList = new List<OrderItemDAO>();
         }
 
