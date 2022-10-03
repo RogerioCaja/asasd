@@ -19,9 +19,6 @@ global without sharing class IntegrationINPaymentFormInsert {
             orderLookups.add(PaymentFormINData.orderExternalId);
             idsOrderItem.add(PaymentFormINData.orderExternalId + '|' + PaymentFormINData.paymentItemCode);
 
-            if(PaymentFormINData.paymentDate == Date.valueOf('0000-00-00')){
-                PaymentFormINData.paymentDate = null;
-            }
             System.debug('idsOrderItem ' + idsOrderItem);
         }
 
