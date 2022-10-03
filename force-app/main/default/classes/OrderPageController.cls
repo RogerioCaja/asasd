@@ -30,9 +30,10 @@ public with sharing class OrderPageController {
         }
         Decimal totalValue = 0;
         for(OrderItemDAO orderItem : this.orderToPage.orderItemList){
-            totalValue += Decimal.valueOf(orderItem.totalAmount.replace(' sacas', '').replace('R$', '').replace(',', '.').trim());
+            totalValue += Decimal.valueOf(orderItem.totalAmount.replace(' sacas', '').replace('R$', '').replace(',', '.').replace('.', '').trim());
         }
-        this.orderToPage.totalAmount = this.orderToPage.currencyOrder == 'Barter' ? String.valueOf(totalValue) + ' sacas' : 'R$ ' + String.valueOf(totalValue).replace('.', ',');
+        List<String> args = new String[]{'0','number','###,###,##0.00'};
+        this.orderToPage.totalAmount = this.orderToPage.currencyOrder == 'Barter' ? String.valueOf(totalValue) + ' sacas' : ('R$ ' + String.format(totalValue.format(), args)).contains(',') == true ?  'R$ ' + String.format(totalValue.format(), args): 'R$ ' + String.format(totalValue.format(), args) + ',00';
        
         String downloadingFileName = 'Pedido de Venda-' + this.orderToPage.codeSap + '.pdf';
         Apexpages.currentPage().getHeaders().put( 'content-disposition', 'inline; filename=' + downloadingFileName );
@@ -194,7 +195,7 @@ public with sharing class OrderPageController {
             this.salesTeamPhone = order.Company__r.salesTeam__r.Phone__c;
             this.salesTeamCNPJ = order.Company__r.salesTeam__r.CNPJ__c;
             this.salesTeamIE = order.Company__r.salesTeam__r.Registration__c;
-            this.isNormalSales = order.SalesOrg__r.SalesOrganizationCode__c == '1300' ? false : true;
+            this.isNormalSales = order.SalesOrg__r.SalesOrganizationCode__c == '1700' ? false : true;
             this.orderItemList = new List<OrderItemDAO>();
         }
 
@@ -205,10 +206,10 @@ public with sharing class OrderPageController {
         }
 
         public String formatCurrency(Decimal value, String currencyCode){
-            String valueToFormat = String.valueOf(value.setScale(2));
+            List<String> args = new String[]{'0','number','###,###,##0.00'};
+            String valueToFormat = '';
             if(currencyCode == 'BRL'){
-                valueToFormat = valueToFormat.replace('.', ',');
-                valueToFormat = 'R$ ' + valueToFormat;
+                valueToFormat = 'R$ ' + String.format(value.format(), args);
             }
             else if(currencyCode == 'USD'){
                 valueToFormat = '$ ' + valueToFormat;
@@ -252,10 +253,11 @@ public with sharing class OrderPageController {
         }
 
         public String formatCurrency(Decimal value, String currencyCode){
+            List<String> args = new String[]{'0','number','###,###,##0.00'};
             String valueToFormat = String.valueOf((value).setScale(2));
             if(currencyCode == 'BRL'){
                 valueToFormat = valueToFormat.replace('.', ',');
-                valueToFormat = 'R$ ' + valueToFormat;
+                valueToFormat = ('R$ ' + String.format(value.format(), args)).contains(',') == true ? 'R$ ' + String.format(value.format(), args): 'R$ ' + String.format(value.format(), args) + ',00';
             }
             else if(currencyCode == 'USD'){
                 valueToFormat = '$ ' + valueToFormat;
