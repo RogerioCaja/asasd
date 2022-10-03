@@ -33,7 +33,7 @@ public with sharing class OrderPageController {
             totalValue += Decimal.valueOf(orderItem.totalAmount.replace(' sacas', '').replace('R$', '').replace(',', '.').trim());
         }
         List<String> args = new String[]{'0','number','###,###,##0.00'};
-        this.orderToPage.totalAmount = this.orderToPage.currencyOrder == 'Barter' ? String.valueOf(totalValue) + ' sacas' : ('R$ ' + String.format(totalValue.format(), args)).contains(',') == true ? String.format(totalValue.format(), args): String.format(totalValue.format(), args) + ',00';
+        this.orderToPage.totalAmount = this.orderToPage.currencyOrder == 'Barter' ? String.valueOf(totalValue) + ' sacas' : ('R$ ' + String.format(totalValue.format(), args)).contains(',') == true ?  'R$ ' + String.format(totalValue.format(), args): 'R$ ' + String.format(totalValue.format(), args) + ',00';
        
         String downloadingFileName = 'Pedido de Venda-' + this.orderToPage.codeSap + '.pdf';
         Apexpages.currentPage().getHeaders().put( 'content-disposition', 'inline; filename=' + downloadingFileName );
@@ -257,7 +257,7 @@ public with sharing class OrderPageController {
             String valueToFormat = String.valueOf((value).setScale(2));
             if(currencyCode == 'BRL'){
                 valueToFormat = valueToFormat.replace('.', ',');
-                valueToFormat = 'R$ ' + String.format(value.setScale(2).format(), args);
+                valueToFormat = ('R$ ' + String.format(value.format(), args)).contains(',') == true ? 'R$ ' + String.format(value.format(), args): 'R$ ' + String.format(value.format(), args) + ',00';
             }
             else if(currencyCode == 'USD'){
                 valueToFormat = '$ ' + valueToFormat;
