@@ -30,7 +30,7 @@ public with sharing class OrderPageController {
         }
         Decimal totalValue = 0;
         for(OrderItemDAO orderItem : this.orderToPage.orderItemList){
-            totalValue += Decimal.valueOf(orderItem.totalAmount.replace(' sacas', '').replace('R$', '').replace(',', '.').trim());
+            totalValue += Decimal.valueOf(orderItem.totalAmount.replace(' sacas', '').replace('R$', '').replace(',', '.').replace('.', '').trim());
         }
         List<String> args = new String[]{'0','number','###,###,##0.00'};
         this.orderToPage.totalAmount = this.orderToPage.currencyOrder == 'Barter' ? String.valueOf(totalValue) + ' sacas' : ('R$ ' + String.format(totalValue.format(), args)).contains(',') == true ?  'R$ ' + String.format(totalValue.format(), args): 'R$ ' + String.format(totalValue.format(), args) + ',00';
