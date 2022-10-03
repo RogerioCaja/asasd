@@ -393,4 +393,41 @@ public without sharing class OrderHelper {
             OrderHelper.enableTrigger();
         }
     }
+
+    public static void verifyStatusAndCombos(Map<Id, Order> oldMap, Map<Id, Order> newMap){
+        Set<Id> orderIdSet = oldMap.keySet();
+        Set<Id> orderCanceledIdSet = new Set<Id>();
+        Map<Id, Decimal> comboQuantityShouldRefundMap = new Map<Id, Decimal>();
+        Map<Id, Decimal> comboQuantityRemainingMap = new Map<Id, Decimal>();
+        List<ComboPromotion__c> comboPromotionToUpdateList = new List<ComboPromotion__c>();
+
+        for(Id  id : orderIdSet){
+            if(oldMap.get(id).Status != 'X' && newMap.get(id).Status == 'X'){
+                orderCanceledIdSet.add(id);
+            }
+        }
+
+        List<AggregateResult> countComboPerOrderCanceledList = [SELECT ComboPromotion__r.Id, COUNT(ComboPromotion__c) FROM OrderItem WHERE OrderId IN: orderCanceledIdSet GROUP BY ComboPromotion__r.Id];
+
+        for(AggregateResult aggResult : countComboPerOrderCanceledList){
+            comboQuantityShouldRefundMap.put((Id)aggResult.get('Id'), (Decimal)aggResult.get('expr0'));
+        }
+
+        for(ComboPromotion__c comboPromotion : [SELECT Id, CombosQuantity__c FROM ComboPromotion__c WHERE Id IN: comboQuantityShouldRefundMap.keySet()]){
+            comboQuantityRemainingMap.put(comboPromotion.Id, comboPromotion.CombosQuantity__c);
+        }
+
+        for(Id id : comboQuantityShouldRefundMap.keySet()){
+            comboPromotionToUpdateList.add(
+                new ComboPromotion__c(
+                    Id = id,
+                    CombosQuantity__c = (comboQuantityRemainingMap.get(id) + comboQuantityShouldRefundMap.get(id))
+                )
+            );
+        }
+
+        if(comboPromotionToUpdateList.size() != 0){
+            Database.update(comboPromotionToUpdateList);
+        }
+    }
 }
