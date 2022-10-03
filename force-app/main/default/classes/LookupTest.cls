@@ -187,6 +187,6 @@ public class LookupTest {
         conditionData.currencyGet = 'BRL';
         conditionData.typeOrder = 'Venda Barter';
         
-        Lookup.getRecords('{"targetObject":"User","searchFields":["Name"],"searchValue":"User","moreFields":[], "relations": [], "differentRelations": [], "accountId":"' + parentAccountId + '"}', false, JSON.serialize(conditionData), true);
+        Lookup.getRecords('{"targetObject":"User","searchFields":["Name"],"searchValue":"User","moreFields":[], "relations": [], "differentRelations": [], "accountId":"' + parentAccountId + '"}', false, JSON.serialize(conditionData), true, false, false);
     }
 }
