@@ -316,7 +316,10 @@ public without sharing class CustomLookupController {
                     Set<String> fieldsSet = new Set<String>{'Id', 'Name', 'ExternalId__c'};
                     Q accountQuery = new Q(Account.SObjectType)
                                 .selectFields(fieldsSet)
-                                .add(Q.condition('Name').isLike('%' + String.escapeSingleQuotes(searchString.trim()) + '%'));
+                                .add(new QConditionGroup(new List<Qcondition>{
+                                    new Qcondition('Name').isLike('%' + String.escapeSingleQuotes(searchString.trim()) + '%'),
+                                    new Qcondition('ExternalId__c').isLike('%' + String.escapeSingleQuotes(searchString.trim()) + '%')
+                                }).setLogicalOperatorAsOr());
 
                     List<Account> accountList = Database.query(accountQuery.build());
                     Map<Id, Account> accountMap = new Map<Id, Account>();
@@ -352,8 +355,10 @@ public without sharing class CustomLookupController {
                     Set<String> fieldsSet = new Set<String>{'Id', 'Name', 'ExternalId__c'};
                     Q accountQuery = new Q(Account.SObjectType)
                     .selectFields(fieldsSet)
-                    .add(Q.condition('Name').isLike('%' + String.escapeSingleQuotes(searchString.trim()) + '%'));
-                    
+                    .add(new QConditionGroup(new List<Qcondition>{
+                        new Qcondition('Name').isLike('%' + String.escapeSingleQuotes(searchString.trim()) + '%'),
+                        new Qcondition('ExternalId__c').isLike('%' + String.escapeSingleQuotes(searchString.trim()) + '%')
+                    }).setLogicalOperatorAsOr());
                     List<Account> accountList = Database.query(accountQuery.build());
                     Map<Id, Account> accountMap = new Map<Id, Account>();
                     for(Account acc : accountList){
@@ -380,7 +385,7 @@ public without sharing class CustomLookupController {
                     }
                 }
                 return result;
-            }else{
+            }else if(territoryParams.ctv != '' && territoryParams.territory != ''){
                 Map<Id, String> ctvToTerritory = new Map<Id, String>();
                 List<UserTerritory2Association> territoryList = [SELECT User.Name, Territory2Id FROM UserTerritory2Association WHERE UserId =: territoryParams.ctv OR Territory2Id =: territoryParams.territory];
                 if(territoryList != null && territoryList.size() > 0){
@@ -394,7 +399,10 @@ public without sharing class CustomLookupController {
                     Set<String> fieldsSet = new Set<String>{'Id', 'Name', 'ExternalId__c'};
                     Q accountQuery = new Q(Account.SObjectType)
                     .selectFields(fieldsSet)
-                    .add(Q.condition('Name').isLike('%' + String.escapeSingleQuotes(searchString.trim()) + '%'));
+                    .add(new QConditionGroup(new List<Qcondition>{
+                        new Qcondition('Name').isLike('%' + String.escapeSingleQuotes(searchString.trim()) + '%'),
+                        new Qcondition('ExternalId__c').isLike('%' + String.escapeSingleQuotes(searchString.trim()) + '%')
+                    }).setLogicalOperatorAsOr());
 
                     List<Account> accountList = Database.query(accountQuery.build());
                     Map<Id, Account> accountMap = new Map<Id, Account>();
@@ -424,6 +432,47 @@ public without sharing class CustomLookupController {
                         }
                     }
                 }
+                return result;
+            }else{
+                String validation = '%' + String.escapeSingleQuotes(searchString.trim()) + '%';
+                List<ObjectTerritory2Association> accountObjList = [SELECT ObjectId FROM ObjectTerritory2Association WHERE Object.Name LIKE: validation ];
+                Map<Id, ObjectTerritory2Association> accountObjMap = new Map<Id, ObjectTerritory2Association>();
+                List<String> accountIdList = new List<String>();
+                for(ObjectTerritory2Association obj : accountObjList){
+                    accountObjMap.put(obj.ObjectId, obj);
+                    accountIdList.add(String.valueOf(obj.ObjectId));
+                }
+
+                Set<String> fieldsSet = new Set<String>{'Id', 'Name', 'ExternalId__c'};
+                Integer counter = [SELECT COUNT() FROM Account WHERE (Name LIKE: validation OR ExternalId__c LIKE: validation)  AND Id NOT IN: accountIdList];
+
+                result.counter = counter;
+
+                Q accountQuery = new Q(Account.SObjectType)
+                .selectFields(fieldsSet)
+                .add(Q.condition('Name').isLike('%' + String.escapeSingleQuotes(searchString.trim()) + '%'))
+                .add(Q.condition('Id').isNotIn(accountIdList))
+                .addLimit(30)
+                .addOffset(territoryParams.offSet);
+
+                List<Account> accountList = Database.query(accountQuery.build());
+                Map<Id, Account> accountMap = new Map<Id, Account>();
+                for(Account acc : accountList){
+                    accountMap.put(acc.Id, acc);
+                }
+                
+                for(Account account : accountList){
+                    InformationData resultData = new InformationData();
+                    if(accountMap.containsKey(account.Id)){
+                        resultData.accountCode = accountMap.get(account.Id).ExternalId__c;
+                        resultData.accountName = accountMap.get(account.Id).Name;
+                        resultData.actualCTV = '';
+                        resultData.territoryName = '';
+                        resultData.territoryFatherName = '';
+                        result.dataList.add(resultData);
+                    }
+                }
+                
                 return result;
             }
         } catch (Exception e) {
