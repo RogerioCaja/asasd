@@ -63,13 +63,13 @@
                     </div>
                     <div class="dashed-style">
                         <section>
-                            <span>Cliente de Entrega:</span>
-                            <span if:true={hasData}>{headerData.cliente_entrega.Name}</span>
+                            <span>Cliente Produtor:</span>
+                            <span if:true={hasData}>{clientProperty}</span>
                         </section>
 
                         <section>
-                            <span>Endereço: </span>
-                            <span if:true={hasData}>{headerData.cliente_entrega.City} - {headerData.cliente_entrega.UF}</span>
+                            <span>Cliente de Entrega:</span>
+                            <span if:true={hasData}>{headerData.cliente_entrega.Name}</span>
                         </section>
                         
                         <section>
