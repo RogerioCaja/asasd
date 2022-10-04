@@ -26,6 +26,7 @@ const columns = [
 ];
 export default class ClientTerritories extends LightningElement {
 
+    fieldKey = false;
     isLoading = false;
     columns = columns;
     flag= true;
@@ -41,7 +42,8 @@ export default class ClientTerritories extends LightningElement {
         territory: '',
         ctv: '',
         offSet: 0,
-        option: 'add'
+        option: 'add',
+        withoutTerritory: false
     }
     datas = []
     datasReceived = 0;
@@ -165,29 +167,57 @@ export default class ClientTerritories extends LightningElement {
         this.territoryParams.option = event.target.value;
     }
 
+    onCheckedWithoutTerritory(event){
+        this.territoryParams.withoutTerritory = !this.territoryParams.withoutTerritory
+        if(this.territoryParams.withoutTerritory == true){
+            this.territoryParams.option = 'add'
+            this.territoryParams.ctv = ''
+            this.territoryParams.territory = ''
+            this.fieldKey = true;
+        }else{
+            this.fieldKey = false;
+            this.datas = []
+            this.territoryParams.offSet = 0
+            this.showMore();
+        }
+        let field = 'option'
+        let territory = 'territory'
+        let ctv = 'ctv'
+        setTimeout(() => {
+            this.template.querySelector(`[data-target-id="${field}"]`).value = this.territoryParams.option
+        })
+        
+        this.template.querySelector(`[data-target-id="${territory}"]`).clearAll()
+        this.template.querySelector(`[data-target-id="${ctv}"]`).clearAll()
+        
+    }
+
     onSave(){
         try{
             let shouldContinue = true;
             this.isLoading = true;
-            if(!this.territorySelected && this.territoryParams.option != 'remove'){
-                this.showToast('warning', 'Atenção', 'Selecione o território de destino')
-                this.isLoading = false;
-                return;
-            }
 
-            if(this.territoryParams.option != 'remove'){
-                this.territories.forEach((terr) => {
-                    if(this.territorySelected.Name == terr){
-                        this.showToast('warning', 'Atenção', 'Não é possível adicionar/remover no território atual da conta')
-                        shouldContinue = false;
-                        this.isLoading = false;
-                    }
-                })
+            if(!this.territoryParams.withoutTerritory){
+                if(!this.territorySelected && this.territoryParams.option != 'remove'){
+                    this.showToast('warning', 'Atenção', 'Selecione o território de destino')
+                    this.isLoading = false;
+                    return;
+                }
+
+                if(this.territoryParams.option != 'remove'){
+                    this.territories.forEach((terr) => {
+                        if(this.territorySelected.Name == terr){
+                            this.showToast('warning', 'Atenção', 'Não é possível adicionar/remover no território atual da conta')
+                            shouldContinue = false;
+                            this.isLoading = false;
+                        }
+                    })
+                }
             }
             
             if(!shouldContinue) return;
             realizeTransaction({
-                data: JSON.stringify({accountCodes: this.accountsCodes, territoryName: this.territories, territoryToGo: this.territorySelected.Id, action: this.territoryParams.option})
+                data: JSON.stringify({accountCodes: this.accountsCodes, territoryName: this.territories, territoryToGo: this.territorySelected ? this.territorySelected.Id : '' , action: this.territoryParams.option})
             }).then((result) => {
                 console.log(JSON.stringify(result))
                 if(result.status == true){
