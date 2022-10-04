@@ -37,10 +37,15 @@ public with sharing class pdfBoletoControllerTest {
         }
 
         @isTest
-        public static void verifyBoletos(){
-            Id boletosIdPgReference = [SELECT Id FROM Order WHERE Base64__c != null LIMIT 1].Id; 
-            Boolean returnValue = BoletosPdfController.boletosPdfController(boletosIdPgReference);
-            System.assert(!returnValue);
+        static void vefifyConstructor(){
+        PageReference pageRef = Page.BoletoPagePDF;
+        Test.setCurrentPage(pageRef);
+        pageRef.getParameters().put('Id', String.valueOf([SELECT Id FROM Boletos__c LIMIT 1].Id));
+        ApexPages.StandardController sc = new ApexPages.StandardController([SELECT Id FROM Boletos__c LIMIT 1][0]);
+         // ApexPages.StandardController sc = new ApexPages.StandardController(testAccountPlanInsert);
+         BoletosPdfController boletosController = new BoletosPdfController(sc);
         }
+
+        
     
 }
