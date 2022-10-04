@@ -144,7 +144,7 @@ export default class CustomOrderSearch extends LightningElement {
                 });
         }else if(this.objectName == 'ObjectTerritory2Association'){
             console.log('this.territoryParams: ' + JSON.stringify(this.territoryParams));
-            if(this.territoryParams.territory == '' && this.territoryParams.ctv == '') {
+            if(this.territoryParams.territory == '' && this.territoryParams.ctv == '' && !this.territoryParams.withoutTerritory) {
                 this.showSpinner = false;
                 this.showNotification('Pelo menos um dos campos deve estar preenchido(CTV ou Território)')
                 return;
