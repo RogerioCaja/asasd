@@ -154,6 +154,16 @@ public class IntegrationUtils {
                 }
             }
 
+            if(objResult.getSObjectType() == globalDescribe.get('FormPayment__c')){
+                FormPayment__c aux = (FormPayment__c)objResult;
+                if(responseMap.KeySet().contains(aux.Order__c)){
+                    responseMap.get(aux.Order__c).add(responseData);
+                }
+                else {
+                    responseMap.put(aux.Order__c, new List<TemplateDataINtegrationFields.Response>{responseData});
+                }
+            }
+
         }
     }
     
