@@ -173,6 +173,7 @@ global without sharing class IntegrationINOrder {
                 }
                 shippingDivisonListToUpsert.addAll(order.shippingDivison);
             }
+            
             if(order.formPayment.size() > 0){
                 for(TemplateDataIntegrationFields.FormPaymentINData paymentFormItem : order.formPayment){
                     paymentFormItem.orderExternalId = order.CodigoSap;
