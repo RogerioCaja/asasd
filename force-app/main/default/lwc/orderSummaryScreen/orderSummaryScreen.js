@@ -7,7 +7,7 @@ import verifyProductDisponibility from '@salesforce/apex/OrderScreenController.v
 import isSeedSale from '@salesforce/apex/OrderScreenController.isSeedSale';
 import getPaymentTypes from '@salesforce/apex/OrderScreenController.getPaymentTypes';
 import checkSalesOrgFreight from '@salesforce/apex/OrderScreenController.checkSalesOrgFreight';
-
+import getParentIdFromAccountProperty from '@salesforce/apex/OrderScreenController.getParentIdFromAccountProperty';
 export default class OrderSummaryScreen extends LightningElement {
     showLoading = false;
     staticValue = 'hidden';
@@ -21,6 +21,7 @@ export default class OrderSummaryScreen extends LightningElement {
     totalDelivery;
     hideMargin = false;
     @api seedSale = false;
+    clientProperty = '';
     
     orderTotalPrice = 0;
     orderTotalPriceFront = 0;
@@ -79,6 +80,13 @@ export default class OrderSummaryScreen extends LightningElement {
         let yyyy = today.getFullYear();
 
         this.currentDate = yyyy + '-' + mm + '-' + dd;
+
+        getParentIdFromAccountProperty({
+            accountId: this.headerData.cliente_entrega.Id
+        }).then((result) =>{
+            this.clientProperty = result
+        });
+        
         getPaymentTypes()
         .then((result) => {
             let teste = JSON.parse(result);
@@ -140,6 +148,8 @@ export default class OrderSummaryScreen extends LightningElement {
         }).catch((err)=>{
             console.log(JSON.stringify(err));
         });
+
+
     }
 
     getDistributionCenters() {
