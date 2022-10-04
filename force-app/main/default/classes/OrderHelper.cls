@@ -80,7 +80,7 @@ public without sharing class OrderHelper {
             orderTypeName = (!Test.isRunningTest() ? Schema.getGlobalDescribe().get('Order').getDescribe().getRecordTypeInfosById().get(order.RecordTypeId).getName() : '');
             if(order.StatusSF__c == 'Aprovado' && order.Status != 'X'){
                 if(orderTypeName == 'Venda Barter'){
-                    System.enqueueJob(new calloutsQueueBarter(order.Id))
+                    System.enqueueJob(new calloutsQueueBarter(order.Id));
                 }else{
                     System.enqueueJob(new calloutsQueue(order.Id));
                 }
