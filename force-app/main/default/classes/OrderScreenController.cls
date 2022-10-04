@@ -1571,6 +1571,19 @@ public without sharing class OrderScreenController {
         return showFreight;
     }
 
+    @AuraEnabled
+    public static string getParentIdFromAccountProperty(String accountId){
+        try {
+            Account parentName = [SELECT Parent.Name FROM Account Where Id =: String.escapeSingleQuotes(accountId) LIMIT 1];
+            if(parentName != null)
+                return parentName.Parent.Name;
+            else
+                return '';
+        } catch (Exception e) {
+            throw new AuraHandledException(e.getMessage());
+        }
+    }
+
     public static Decimal stringToDecimal(String value) {
         if (value.contains(',')) value = value.replaceAll(',', '.');
         if (value.contains('%')) value = value.replaceAll('%', '');
