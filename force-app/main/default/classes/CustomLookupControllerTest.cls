@@ -288,9 +288,10 @@ public class CustomLookupControllerTest {
             userAss = createUserAss(terr);
 
             
-        CustomLookupController.fetchAccountsWithTerritories('P','{"territory":"","ctv":"'+ UserInfo.getUserId()+ '","offSet":0,"option":"addRemove"}');
-        CustomLookupController.fetchAccountsWithTerritories('p','{"territory":"'+ terr + '","ctv":"","offSet":0,"option":"addRemove"}');
-        CustomLookupController.fetchAccountsWithTerritories('p','{"territory":"'+ terr + '","ctv":"'+ UserInfo.getUserId()+ '","offSet":0,"option":"addRemove"}');
+        CustomLookupController.fetchAccountsWithTerritories('A','{"territory":"","ctv":"'+ UserInfo.getUserId()+ '","offSet":0,"option":"addRemove"}');
+        CustomLookupController.fetchAccountsWithTerritories('A','{"territory":"'+ terr + '","ctv":"","offSet":0,"option":"addRemove"}');
+        CustomLookupController.fetchAccountsWithTerritories('A','{"territory":"'+ terr + '","ctv":"'+ UserInfo.getUserId()+ '","offSet":0,"option":"addRemove"}');
+        CustomLookupController.fetchAccountsWithTerritories('A','{"territory":"","ctv":"","offSet":0,"option":"add"}');
         }
 
     }
