@@ -261,7 +261,7 @@ export default class Lookup extends LightningElement {
 					currencyGet: this.currencyOption != null ? this.currencyOption : '',
 					typeOrder: this.salesType != null ? this.salesType : ''
 				}
-				data = await getRecords({ data: JSON.stringify(requestData), barterSale: this.barterSale, salesConditionData: JSON.stringify(salesConditionData), priceScreen:false, clientTerritoriesScreen: this.clientTerritoriesScreen, quoteScreen: this.quote});
+				data = await getRecords({ data: JSON.stringify(requestData), barterSale: this.barterSale, salesConditionData: JSON.stringify(salesConditionData), priceScreen: this.priceScreen, clientTerritoriesScreen: this.clientTerritoriesScreen, quoteScreen: this.quote});
 			}
 
 			var dataResult = [];
