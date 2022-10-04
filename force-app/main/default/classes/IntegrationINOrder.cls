@@ -181,9 +181,9 @@ global without sharing class IntegrationINOrder {
                     paymentFormItem.paymentItemCode = paymentFormItem.paymentItemCode.replaceFirst('^0+', '');
                 }
                     formPaymentListToUpsert.addAll(order.formPayment);
+                    System.debug('formPaymentListToUpsert ' + formPaymentListToUpsert);
             }
             
-                System.debug('formPaymentListToUpsert ' + formPaymentListToUpsert);
             
             for (TemplateDataIntegrationFields.PartnerInsert partnerList : order.partners){
                 
