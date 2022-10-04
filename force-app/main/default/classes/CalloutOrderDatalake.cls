@@ -559,7 +559,7 @@ public without sharing class CalloutOrderDatalake {
         String endpointToken = (!Test.isRunningTest() ? data.UrlToken__c : 'http://callout.My_Named_Credential.com/some/path');
         Map<String, String> headersMapToken = new Map<String, String>();
         headersMapToken.put('Content-type', 'application/x-www-form-urlencoded');
-        headersMapToken.put('Authorization', data.Token__c);
+        headersMapToken.put('Authorization', (!Test.isRunningTest() ? data.Token__c : 'basic 3123312312'));
         IntegrationUtils.RequestResponseObject responseObject2 = IntegrationUtils.executeCallout(endpointToken, payloadToken, headersMapToken);
         System.debug('responseObject2: '+ responseObject2);
         if (responseObject2.success) {
