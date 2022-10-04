@@ -197,22 +197,20 @@ export default class ClientTerritories extends LightningElement {
             let shouldContinue = true;
             this.isLoading = true;
 
-            if(!this.territoryParams.withoutTerritory){
-                if(!this.territorySelected && this.territoryParams.option != 'remove'){
-                    this.showToast('warning', 'Atenção', 'Selecione o território de destino')
-                    this.isLoading = false;
-                    return;
-                }
+            if(!this.territorySelected && this.territoryParams.option != 'remove'){
+                this.showToast('warning', 'Atenção', 'Selecione o território de destino')
+                this.isLoading = false;
+                return;
+            }
 
-                if(this.territoryParams.option != 'remove'){
-                    this.territories.forEach((terr) => {
-                        if(this.territorySelected.Name == terr){
-                            this.showToast('warning', 'Atenção', 'Não é possível adicionar/remover no território atual da conta')
-                            shouldContinue = false;
-                            this.isLoading = false;
-                        }
-                    })
-                }
+            if(this.territoryParams.option != 'remove'){
+                this.territories.forEach((terr) => {
+                    if(this.territorySelected.Name == terr){
+                        this.showToast('warning', 'Atenção', 'Não é possível adicionar/remover no território atual da conta')
+                        shouldContinue = false;
+                        this.isLoading = false;
+                    }
+                })
             }
             
             if(!shouldContinue) return;
