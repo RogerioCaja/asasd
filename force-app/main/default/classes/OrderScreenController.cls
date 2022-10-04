@@ -603,16 +603,17 @@ public without sharing class OrderScreenController {
                            ProductHierarchy__c,
                            SellerType__c,
                            CommissionPercentage__c 
-                    FROM Comissao__c
-                   WHERE ProductHierarchy__c IN: setProductHierarchyIds
-                     AND SellerType__c =: sellerType
+                      FROM Comissao__c
+                     WHERE ProductHierarchy__c IN: setProductHierarchyIds
+                       AND SellerType__c =: sellerType
+                       AND SalesOrg__c =: company.SalesOrg__c
                 ]) {
                     if (!commissionByHierarchy.containsKey(commission.ProductHierarchy__c)) {
                         commissionByHierarchy.put(commission.ProductHierarchy__c, commission);
                     }
                 }
             }
-            System.debug('commissionByHierarchy => ' + commissionByHierarchy);
+
             if (company != null && orderData.headerData.pedido_mae.Id == null) {
                 Id userTerritoryId;
                 for (UserTerritory2Association userAssociation : [
@@ -1217,8 +1218,8 @@ public without sharing class OrderScreenController {
         };
         Q proQuery = new Q(Company__c.SObjectType);
         proQuery.selectFields(fieldSet);
-        if (childOrder == null || !childOrder) proQuery.add(Q.condition('Status__c').equalsTo('Adicionada'));
         if (companyInfos.accountId != '') proQuery.add(Q.condition('Conta__c').equalsTo(companyInfos.accountId));
+        if (childOrder == null || !childOrder) proQuery.add(Q.condition('Status__c').equalsTo('Adicionada'));
         
         List<CompanyInfos> companyList = new List<CompanyInfos>();
         if (salesTeamTerritory != null && salesTeamTerritory.DeveloperName != null) {
@@ -1568,6 +1569,19 @@ public without sharing class OrderScreenController {
     public static Boolean checkSalesOrgFreight(String salesOrgId) {
         Boolean showFreight = [SELECT Id, Freight__c FROM SalesOrg__c WHERE Id =: salesOrgId].Freight__c;
         return showFreight;
+    }
+
+    @AuraEnabled
+    public static string getParentIdFromAccountProperty(String accountId){
+        try {
+            Account parentName = [SELECT Parent.Name FROM Account Where Id =: String.escapeSingleQuotes(accountId) LIMIT 1];
+            if(parentName != null)
+                return parentName.Parent.Name;
+            else
+                return '';
+        } catch (Exception e) {
+            throw new AuraHandledException(e.getMessage());
+        }
     }
 
     public static Decimal stringToDecimal(String value) {

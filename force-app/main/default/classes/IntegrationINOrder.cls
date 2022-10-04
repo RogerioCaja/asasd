@@ -81,7 +81,9 @@ global without sharing class IntegrationINOrder {
         Set<String> paymentConditionLookups = new Set<String>();
         Set<String> salesConditionLookups = new Set<String>(); 
         Set<String> activitySectorLookups = new Set<String>();
-
+        
+        
+        
         // Guarda uma lista de respostas
         List<TemplateDataIntegrationFields.ResponseParent> responseList = new List<TemplateDataIntegrationFields.ResponseParent>();
         // Guarda uma lista de orderItem para fazer o upsert
@@ -111,10 +113,9 @@ global without sharing class IntegrationINOrder {
             pricebook2IdLookups.add(order.pricebook2Id);
             paymentConditionLookups.add(order.paymentCondition);
             activitySectorLookups.add(order.ActivitySector);
-            salesConditionLookups.add(order.condicaoVenda);
             orderLookups.add(order.orderReference);
+            salesConditionLookups.add(order.condicaoVenda);
             idOrders.add(order.CodigoSap);
-            
             for (TemplateDataIntegrationFields.OrderItemINData orderItem : order.orderItems) {
                 orderItem.orderExternalId = order.CodigoSap;
                 orderItem.orderItemCode = orderItem.orderItemCode.replaceFirst('^0+','');
@@ -173,12 +174,15 @@ global without sharing class IntegrationINOrder {
                 shippingDivisonListToUpsert.addAll(order.shippingDivison);
             }
             
-            for(TemplateDataIntegrationFields.FormPaymentINData paymentFormItem : order.formPayment){
-                paymentFormItem.orderExternalId = order.CodigoSap;
-                System.debug('orderExternalId ' + paymentFormItem.orderExternalId); 
-                paymentFormItem.paymentItemCode = paymentFormItem.paymentItemCode.replaceFirst('^0+', '');
+            if(order.formPayment.size() > 0){
+                for(TemplateDataIntegrationFields.FormPaymentINData paymentFormItem : order.formPayment){
+                    paymentFormItem.orderExternalId = order.CodigoSap;
+                    System.debug('orderExternalId ' + paymentFormItem.orderExternalId); 
+                    paymentFormItem.paymentItemCode = paymentFormItem.paymentItemCode.replaceFirst('^0+', '');
+                }
+                    formPaymentListToUpsert.addAll(order.formPayment);
             }
-                formPaymentListToUpsert.addAll(order.formPayment);
+            
                 System.debug('formPaymentListToUpsert ' + formPaymentListToUpsert);
             
             for (TemplateDataIntegrationFields.PartnerInsert partnerList : order.partners){
@@ -203,7 +207,7 @@ global without sharing class IntegrationINOrder {
                     }
             }
 
-                
+                //order.company = order.PaymentAccount + order.CentroFornecedor + order.salesOrg + order.activitySector + order.distributionChannel + order.EscritorioVendas + order.EquipeVendas;
                 conditionList.addAll(order.conditions);
                 
             

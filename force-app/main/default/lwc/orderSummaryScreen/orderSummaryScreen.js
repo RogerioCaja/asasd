@@ -7,7 +7,7 @@ import verifyProductDisponibility from '@salesforce/apex/OrderScreenController.v
 import isSeedSale from '@salesforce/apex/OrderScreenController.isSeedSale';
 import getPaymentTypes from '@salesforce/apex/OrderScreenController.getPaymentTypes';
 import checkSalesOrgFreight from '@salesforce/apex/OrderScreenController.checkSalesOrgFreight';
-
+import getParentIdFromAccountProperty from '@salesforce/apex/OrderScreenController.getParentIdFromAccountProperty';
 export default class OrderSummaryScreen extends LightningElement {
     showLoading = false;
     staticValue = 'hidden';
@@ -21,6 +21,7 @@ export default class OrderSummaryScreen extends LightningElement {
     totalDelivery;
     hideMargin = false;
     @api seedSale = false;
+    clientProperty = '';
     
     orderTotalPrice = 0;
     orderTotalPriceFront = 0;
@@ -79,6 +80,13 @@ export default class OrderSummaryScreen extends LightningElement {
         let yyyy = today.getFullYear();
 
         this.currentDate = yyyy + '-' + mm + '-' + dd;
+
+        getParentIdFromAccountProperty({
+            accountId: this.headerData.cliente_entrega.Id
+        }).then((result) =>{
+            this.clientProperty = result
+        });
+        
         getPaymentTypes()
         .then((result) => {
             let teste = JSON.parse(result);
@@ -140,6 +148,8 @@ export default class OrderSummaryScreen extends LightningElement {
         }).catch((err)=>{
             console.log(JSON.stringify(err));
         });
+
+
     }
 
     getDistributionCenters() {
@@ -354,13 +364,31 @@ export default class OrderSummaryScreen extends LightningElement {
             }
         }
 
+        let availableDivisions = [];
+        let divisions = JSON.parse(JSON.stringify(this.divisionData));
+        console.log('divisions: ' + JSON.stringify(divisions));
+        for (let index = 0; index < divisions.length; index++) {
+            console.log('divisions[index].productId: ' + divisions[index].productId);
+            let deletedProduct = this.unavailableProducts.find(e => e.productId == divisions[index].productId);
+            if (!this.isFilled(deletedProduct)) {
+                console.log('add - divisions[index].productId: ' + divisions[index].productId);
+                availableDivisions.push(divisions[index]);
+            }
+        }
+
+        console.log('availableDivisions: ' + JSON.stringify(availableDivisions));
+
         this.showUnavailableProducts = false;
         this.productData = JSON.parse(JSON.stringify(availableProducts));
         this._setProductData();
+
+        this.divisionData = JSON.parse(JSON.stringify(availableDivisions));
+        this._setDivisionData();
         if (availableProducts.length > 0) {
             this.loadData();
         }
     }
+    
     changeFreightValue(event) {
         let fieldValue = event.target.value;
         fieldValue = fieldValue.toString().includes('.') ? fieldValue.toString().replace('.', '') : fieldValue;
@@ -603,6 +631,7 @@ export default class OrderSummaryScreen extends LightningElement {
         setformsofpayment.data = this.formsOfPayment;
         this.dispatchEvent(setformsofpayment);
     }
+    
     changeFreight(){
         const setSummaryData = new CustomEvent('setsummarydata');
         setSummaryData.data = this.summaryDataLocale;
@@ -643,6 +672,12 @@ export default class OrderSummaryScreen extends LightningElement {
         const setProductData = new CustomEvent('setproductdata');
         setProductData.data = this.productData;
         this.dispatchEvent(setProductData);
+    }
+
+    _setDivisionData() {
+        const setdivisiondata = new CustomEvent('setdivisiondata');
+        setdivisiondata.data = this.divisionData;
+        this.dispatchEvent(setdivisiondata);
     }
    
     isFilled(field) {
