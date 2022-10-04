@@ -23,6 +23,48 @@ public with sharing class CalloutOrderTest {
     } 
 
     @isTest
+    static void calloutOrderSuccessSeeds(){
+        CalloutOrder calloutTest = new CalloutOrder();
+        Order ord = [SELECT Id, OrderNumber, StatusSF__c FROM Order WHERE SalesOrg__r.SalesOrganizationCode__c = '1700' LIMIT 1][0];
+        Test.setMock(HttpCalloutMock.class, new CalloutOrderMock(true, String.valueOf(ord.OrderNumber), false));
+        Test.startTest();
+        IntegrationUtils.CalloutResponse response = CalloutOrder.processIntegration(ord.Id);
+        Test.stopTest();
+        System.debug(response);
+        System.assertEquals(true, response.success, 'O status era para vir Verdadeiro');
+        System.assertEquals('', response.errorMessage, 'A mensagem de Erro deveria vir vazia');
+        
+    } 
+
+    @isTest
+    static void calloutOrderSuccessBarter(){
+        CalloutOrder calloutTest = new CalloutOrder();
+        Order ord = [SELECT Id, OrderNumber, StatusSF__c FROM Order WHERE Type = 'Venda Barter' LIMIT 1][0];
+        Test.setMock(HttpCalloutMock.class, new CalloutOrderMock(true, String.valueOf(ord.OrderNumber), false));
+        Test.startTest();
+        IntegrationUtils.CalloutResponse response = CalloutOrder.processIntegration(ord.Id);
+        Test.stopTest();
+        System.debug(response);
+        System.assertEquals(true, response.success, 'O status era para vir Verdadeiro');
+        System.assertEquals('', response.errorMessage, 'A mensagem de Erro deveria vir vazia');
+        
+    } 
+
+    @isTest
+    static void calloutOrderSuccessBarterSeeds(){
+        CalloutOrder calloutTest = new CalloutOrder();
+        Order ord = [SELECT Id, OrderNumber, StatusSF__c FROM Order WHERE Type = 'Venda Barter' AND SalesOrg__r.SalesOrganizationCode__c = '1700' LIMIT 1][0];
+        Test.setMock(HttpCalloutMock.class, new CalloutOrderMock(true, String.valueOf(ord.OrderNumber), false));
+        Test.startTest();
+        IntegrationUtils.CalloutResponse response = CalloutOrder.processIntegration(ord.Id);
+        Test.stopTest();
+        System.debug(response);
+        System.assertEquals(true, response.success, 'O status era para vir Verdadeiro');
+        System.assertEquals('', response.errorMessage, 'A mensagem de Erro deveria vir vazia');
+        
+    } 
+
+    @isTest
     static void calloutOrderToken(){
      
         Test.setMock(HttpCalloutMock.class, new CalloutOrderMock(true, '0000023', true));
@@ -92,15 +134,6 @@ public with sharing class CalloutOrderTest {
         
         Order ord1 = [SELECT Id, OrderNumber, StatusSF__c FROM Order LIMIT 1][0];
         //System.assertEquals('Integrado', ord1.StatusSF__c);
-    }
-
-    
-    @isTest 
-    static void calloutTestCodeSAP(){
-        String valueActual = CalloutOrder.getCodeTypeOrder('VendaContaOrdem', false );
-        System.assertEquals('ZRCO', valueActual, 'O valor devia ter sido ZRCO');
-        valueActual = CalloutOrder.getCodeTypeOrder('VendaContaOrdem', true);
-        System.assertEquals('ZCCO', valueActual, 'O valor devia ter sido ZCCO');
     }
 
     @isTest 
