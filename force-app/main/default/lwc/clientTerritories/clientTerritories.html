@@ -16,7 +16,8 @@
                 list-item-options={redispatchTerritoryListItemOptions} 
                 onclearselectedrecord={removeItemRegister}
                 onselectrecord={selectItemRegister}
-                standard-form-layout="true" 
+                standard-form-layout="true"
+                disabled={fieldKey} 
                 placeholder="Pesquisar por territórios">
             </c-lookup>
 
@@ -32,18 +33,22 @@
                 onselectrecord={selectItemRegister}
                 standard-form-layout="true"
                 client-territories-screen="true" 
+                disabled={fieldKey}
                 placeholder="Pesquisar CTV da Venda">
             </c-lookup>
 
             <lightning-combobox
             name="action"
+            data-target-id="option"
             label="Ação"
             value={territoryParams.option}
             placeholder="Selecione a ação"
             options={options}
             onchange={onChangeOption}
+            disabled={fieldKey}
             style="width: 200px;" ></lightning-combobox>
             
+            <lightning-input type="checkbox" onchange={onCheckedWithoutTerritory} label="Clientes sem Território"> </lightning-input>
         </div>
         <template if:true={isLoading}>
             <div class="exampleHolder">

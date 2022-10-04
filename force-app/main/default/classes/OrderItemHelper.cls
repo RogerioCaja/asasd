@@ -39,13 +39,18 @@ public without sharing class OrderItemHelper {
             oldOrdIt = oldRequest.get(ordIt.id);
             System.debug('OrderReference__c ' + ord);
             System.debug('teste'+ ordIt.Order.IsOrderMother__c);
-            if(ordIt.Order.IsOrderMother__c != true && ord.OrderReference__c != null && oldOrdIt.ReasonRefuse__c == null && ordIt.ReasonRefuse__c != null){
+            if(ordIt.Order.IsOrderMother__c != true && ord.OrderReference__c != null){
                 System.debug('Entrou no IF');
                 System.debug('OrderReference__c ' + ordIt.Order.OrderReference__c);
                 ordList.add(ord.OrderReference__c);
                 System.debug('ordList ' + ordList);
                 //ordIt.Quantity =  ordIt.Quantity - ordIt.AmountUsed__c; 
             }
+        }
+        List<AggregateResult> sumQuantityPerOrderItem = [SELECT Order.OrderReference__c, Product2.Id, SUM(Quantity) FROM OrderItem WHERE Order.OrderReference__c IN: ordList AND Order.Status != 'X' AND ReasonRefuse__c = null GROUP BY Product2.Id,Order.OrderReference__c];
+        Map<String, Decimal> orderItemAmountedUsedPerOrderReference = new Map<String, Decimal>();
+        for(AggregateResult aggResult : sumQuantityPerOrderItem){
+            orderItemAmountedUsedPerOrderReference.put((String)aggResult.get('Id') + (String)aggResult.get('OrderReference__c'), (Decimal)aggResult.get('expr0') );
         }
 
         List<OrderItem> ordItemList = ([SELECT Id, OrderId, Order.IsOrderMother__c, Product2Id, AmountUsed__c, Quantity  FROM OrderItem WHERE OrderId =: ordList]);
@@ -72,10 +77,11 @@ public without sharing class OrderItemHelper {
                     System.debug('orderItemListM ' + orderItemListM);
                     OrderItem orddItem = New OrderItem();
                     orddItem.Id = ordrItem.Id;
-                    orddItem.AmountUsed__c =  ordemItem.Quantity - ordrItem.AmountUsed__c;
-                    if(orddItem.AmountUsed__c < 0){
-                        orddItem.AmountUsed__c = orddItem.AmountUsed__c * (-1);                            
-                    } 
+                    orddItem.AmountUsed__c = orderItemAmountedUsedPerOrderReference.get(concProductOrderRef);
+                    // orddItem.AmountUsed__c =  ordemItem.Quantity - ordrItem.AmountUsed__c;
+                    // if(orddItem.AmountUsed__c < 0){
+                    //     orddItem.AmountUsed__c = orddItem.AmountUsed__c * (-1);                            
+                    // } 
                     orderItemListM.add(orddItem);
                     
                 }

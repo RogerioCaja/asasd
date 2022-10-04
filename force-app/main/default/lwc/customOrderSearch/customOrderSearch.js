@@ -116,7 +116,8 @@ export default class CustomOrderSearch extends LightningElement {
                     searchString: this.searchString,
                     data: JSON.stringify(this.productParams),
                     isCommodity: this.objectName == 'Commodity' ? true : false,
-                    productsIds: []
+                    productsIds: [],
+                    priceScreen: false
                 })
                 .then(result => {
                     const tabEvent = new CustomEvent("showresults");
@@ -143,7 +144,7 @@ export default class CustomOrderSearch extends LightningElement {
                 });
         }else if(this.objectName == 'ObjectTerritory2Association'){
             console.log('this.territoryParams: ' + JSON.stringify(this.territoryParams));
-            if(this.territoryParams.territory == '' && this.territoryParams.ctv == '') {
+            if(this.territoryParams.territory == '' && this.territoryParams.ctv == '' && !this.territoryParams.withoutTerritory) {
                 this.showSpinner = false;
                 this.showNotification('Pelo menos um dos campos deve estar preenchido(CTV ou Território)')
                 return;

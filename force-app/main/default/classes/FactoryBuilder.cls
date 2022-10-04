@@ -50,6 +50,18 @@ public without sharing class FactoryBuilder {
             builder.setConditions();
             builder.setShippingDivision();
         }
+
+        public void constructRequestBarterSeeds(Builder builder, Order order){
+            builder.setOrder(order);
+            builder.setRefMap();
+            builder.setOrderItemMap();
+            builder.setType();
+            builder.setHeader();
+            builder.setPartners();
+            builder.setOrderItems();
+            builder.setConditions();
+            builder.setShippingDivision();
+        }
     }
 
     //builders
@@ -223,6 +235,66 @@ public without sharing class FactoryBuilder {
         }
     }
 
+    public class RequestBarterSeedsBuilder implements Builder{
+        //parameters to builder
+        private String IV_TYPE;
+        private HeaderBarterSeeds IS_HEADER_IN;
+        private List<PartnerParameters> IT_PARTNERS;
+        private List<ScheduleParameters> IT_ORDER_SCHEDULES_IN;
+        private List<ConditionParameters> IT_CONDITIONS_IN;
+        private List<OrderItemParametersSeeds> IT_ITEMS_IN;
+
+        //parameters to aux builder
+        private Order order;
+        private Map<String, String> referenceItemMotherMap;
+        private Map<Id, OrderItem> orderItemMap;
+
+        public void setOrder(Order order){
+            this.order = order;
+        }
+
+        public void setRefMap(){
+            this.referenceItemMotherMap = generateRefMapOrderItem(this.order);
+        }
+
+        public void setOrderItemMap(){
+            this.orderItemMap = generateOrderItemMap(this.order);
+        }
+
+        public void setType(){
+            this.IV_TYPE = getTypeContract(this.order);
+        }
+
+        public void setHeader(){
+            this.IS_HEADER_IN = new HeaderBarterSeeds(this.order);
+        }
+
+        public void setPartners(){
+            this.IT_PARTNERS = generatePartnerParametersList(this.order);
+        }
+
+        public void setOrderItems(){
+            this.IT_ITEMS_IN = generateOrderItemParameterSeedList(this.orderItemMap, this.referenceItemMotherMap, this.order);
+        }
+
+        public void setConditions(){
+            this.IT_CONDITIONS_IN = generateConditionParametersList(this.orderItemMap, this.order);
+        }
+
+        public void setShippingDivision(){
+            this.IT_ORDER_SCHEDULES_IN = generateScheduleParametersList(this.orderItemMap);
+        }
+
+        public void setFormPayment(){
+            this.IS_HEADER_IN = addPaymentForm(this.order, this.IS_HEADER_IN);
+        }
+
+        public RequestBarterSeeds getResult(){
+            setFormPayment();
+            return new RequestBarterSeeds(this.IS_HEADER_IN, this.IT_PARTNERS, this.IT_ORDER_SCHEDULES_IN, this.IT_CONDITIONS_IN, this.IT_ITEMS_IN, this.IV_TYPE);
+        }
+    }
+
     //product
     private class Request{
         private final String IV_TYPE;
@@ -281,6 +353,24 @@ public without sharing class FactoryBuilder {
         }
     }
     
+    private class RequestBarterSeeds{
+        private final String IV_TYPE;
+        private final HeaderBarterSeeds IS_HEADER_IN;
+        private final List<PartnerParameters> IT_PARTNERS;
+        private final List<ScheduleParameters> IT_ORDER_SCHEDULES_IN;
+        private final List<ConditionParameters> IT_CONDITIONS_IN;
+        private final List<OrderItemParametersSeeds> IT_ITEMS_IN;
+
+        public RequestBarterSeeds(HeaderBarterSeeds IS_HEADER_IN, List<PartnerParameters> IT_PARTNERS, List<ScheduleParameters> IT_ORDER_SCHEDULES_IN,
+                        List<ConditionParameters> IT_CONDITIONS_IN, List<OrderItemParametersSeeds> IT_ITEMS_IN, String IV_TYPE){
+            this.IV_TYPE = IV_TYPE;
+            this.IS_HEADER_IN = IS_HEADER_IN;
+            this.IT_PARTNERS = IT_PARTNERS;
+            this.IT_ORDER_SCHEDULES_IN = IT_ORDER_SCHEDULES_IN;
+            this.IT_CONDITIONS_IN = IT_CONDITIONS_IN;
+            this.IT_ITEMS_IN = IT_ITEMS_IN;
+        } 
+    }
    
     
     //product features
@@ -474,9 +564,7 @@ public without sharing class FactoryBuilder {
             if(order.Description != null) order.Description = order.Description.replace('1n73gr4ção N3sc4r4 5F x 4PP', '');
             this.TEXT_ADICIONAL = order.Description != null ? order.Description : '';
             this.TEXT_DANFE = order.DescriptionBillingSale__c != null ? order.DescriptionBillingSale__c : '';
-        }
-
-        
+        }   
     }
 
     private class HeaderBarter{
@@ -498,16 +586,19 @@ public without sharing class FactoryBuilder {
         public String ZZDATA_CARENCIA;
         public String ZZDATA_VENCTO;
         public String REF_DOC;
+        public String ZZREFBARTER;
         public String PRICE_LIST;
         public String PRICE_DATE;
         public String CSTCNDGRP1;
         public String PO_METHOD;
         public String TEXT_ADICIONAL;
         public String TEXT_DANFE;
-        public String WABRS_PURCH;
-        public String TKRATE_MM;
+        public String KURSK;
+        public String STWAE;
         public String VKGRP;
         public String VKBUR;
+        public String EKORG;
+        public String EKGRP;
 
         public HeaderBarter(Order order){
             Map<String, String> statusSeller = new Map<String, String>();
@@ -553,6 +644,7 @@ public without sharing class FactoryBuilder {
                 this.PRICE_DATE = order.EffectiveOrderDate__c == null ? String.valueOf(order.EffectiveDate).replace('-', '') : String.valueOf(order.EffectiveOrderDate__c).replace('-', '');
             }
             this.REF_DOC = order.OrderReference__c != null ? order.OrderReference__r.CodigoSap__c : '';
+            this.ZZREFBARTER = order.CodigoSap__c;
             this.CSTCNDGRP1 = statusSeller.get(order.SalesCTV__r.SellerType__c);
 
             this.PO_METHOD = order.NumeroPedidoApp__c != null ? 'APP' : 'SFOR';
@@ -562,7 +654,131 @@ public without sharing class FactoryBuilder {
             this.TEXT_ADICIONAL = order.Description != null ? order.Description : '';
             this.TEXT_DANFE = order.DescriptionBillingSale__c != null ? order.DescriptionBillingSale__c : '';
 
-            this.WABRS_PURCH = order.Currency__c;
+            this.STWAE = order.Currency__c;
+            this.VKGRP = order.Company__r.salesOffice__r.Codigo__c;
+            this.VKBUR = order.Company__r.salesTeam__r.ExternalId__c;
+        }
+    }
+
+    private class HeaderBarterSeeds{
+        public String DOC_TYPE; // orderSalesType;
+        public String SALES_ORG; //salesOrg;
+        public String DISTR_CHAN;// distributionChannel;
+        public String DIVISION; // activitySector;
+        public String INCOTERMS1;
+        public String INCOTERMS2;
+        public String PMNTTRMS; // paymentCondition;
+        public String PYMT_METH; //forma de pagamento
+        public String CT_VALID_F; // Data inicio(Pedido Mãe)
+        public String CT_VALID_T; // Data inicio(Pedido Mãe)
+        public String ORD_REASON; //orderReason;
+        public String PURCH_NO_C; // Customer;
+        public String ZZSAFRA; //crop;
+        public String ZZCOD_CULTURA; //culture;
+        public String ZZPED_CRM; //orderType;
+        public String ZZDATA_CARENCIA;
+        public String ZZDATA_VENCTO;
+        public String REF_DOC;
+        public String ZZREFBARTER;
+        public String PRICE_LIST;
+        public String PRICE_DATE;
+        public String CSTCNDGRP1;
+        public String PO_METHOD;
+        public String TEXT_ADICIONAL;
+        public String TEXT_DANFE;
+        public String KURSK;
+        public String STWAE;
+        public String VKGRP;
+        public String VKBUR;
+        public String EKORG;
+        public String EKGRP;
+
+        public String ZZDTAPAG0;
+        public String ZZVLRPAG0;
+        public String ZZITMPAG0;
+        public String ZZDTAPAG1;
+        public String ZZVLRPAG1;
+        public String ZZITMPAG1;
+        public String ZZDTAPAG2;
+        public String ZZVLRPAG2;
+        public String ZZITMPAG2;
+        public String ZZDTAPAG3;
+        public String ZZVLRPAG3;
+        public String ZZITMPAG3;
+        public String ZZDTAPAG4;
+        public String ZZVLRPAG4;
+        public String ZZITMPAG4;
+        public String ZZDTAPAG5;
+        public String ZZVLRPAG5;
+        public String ZZITMPAG5;
+        public String ZZDTAPAG6;
+        public String ZZVLRPAG6;
+        public String ZZITMPAG6;
+        public String ZZDTAPAG7;
+        public String ZZVLRPAG7;
+        public String ZZITMPAG7;
+        public String ZZDTAPAG8;
+        public String ZZVLRPAG8;
+        public String ZZITMPAG8;
+        public String ZZDTAPAG9;
+        public String ZZVLRPAG9;
+        public String ZZITMPAG9;
+
+        public HeaderBarterSeeds(Order order){
+            Map<String, String> statusSeller = new Map<String, String>();
+            statusSeller.put('CTV', 'CT');
+            statusSeller.put('Franqueado', 'FR');
+
+            String dateF;
+            if(order.Crop__r.StartDateOrderInsertion__c < System.today() && order.IsOrderMother__c){
+                dateF = String.valueOf(order.EffectiveDate).replace('-', '');
+            }
+            else{
+                dateF = String.valueOf(order.Crop__r.StartDateOrderInsertion__c).replace('-', '');
+            }
+            
+            this.DOC_TYPE = getCodeTypeOrder(String.valueOf(order.RecordType.DeveloperName), order.IsOrderMother__c); 
+            if(this.DOC_TYPE == 'ZVNO' && order.PaymentCondition__r.CashPayment__c) this.DOC_TYPE = 'ZVAB';
+            this.SALES_ORG = order.SalesOrg__r.SalesOrganizationCode__c;
+            this.DISTR_CHAN =order.DistributionChannel__r.Codigo__c;
+            this.DIVISION = order.ActivitySector__r.Codigo__c;
+            this.INCOTERMS1 = order.Incoterms__c;
+            this.INCOTERMS2 = order.Incoterms2__c;
+            this.PMNTTRMS = order.PaymentCondition__r.Code__c;
+            this.PYMT_METH = order.PaymentForm__c;
+            
+            this.CT_VALID_F = order.IsOrderMother__c ? dateF :  '';
+            this.CT_VALID_T = order.IsOrderMother__c ? String.valueOf(order.Crop__r.EndDateInsertionOrders__c).replace('-', '') : '';
+
+            this.PURCH_NO_C = order.CustomerOrderNumber__c;
+            this.ORD_REASON = order.OrderReason__c;
+            this.ZZSAFRA = order.Crop__r.Code__c;
+            this.ZZCOD_CULTURA = order.Culture__r.Codigo__c;
+            this.ZZPED_CRM = order.OrderNumber;
+            this.ZZDATA_CARENCIA = String.valueOf(order.Crop__r.PaymentBaseDate__c).replace('-', '');
+            this.ZZDATA_VENCTO = String.valueOf(order.PaymentDate__c).replace('-', '');
+            this.PRICE_LIST = String.valueOf(order.SalesCondition__r.ExternalId__c).leftPad(2, '0');
+            if(order.OrderReference__c != null){
+                Order orderReference = [SELECT EffectiveOrderDate__c, EffectiveDate FROM Order WHERE Id =: order.OrderReference__c LIMIT 1];
+                if(orderReference != null){
+                    this.PRICE_DATE = orderReference.EffectiveOrderDate__c == null ? String.valueOf(orderReference.EffectiveDate).replace('-', '') : String.valueOf(orderReference.EffectiveOrderDate__c).replace('-', '');
+                }
+            }
+            else{
+                this.PRICE_DATE = order.EffectiveOrderDate__c == null ? String.valueOf(order.EffectiveDate).replace('-', '') : String.valueOf(order.EffectiveOrderDate__c).replace('-', '');
+            }
+            this.REF_DOC = order.OrderReference__c != null ? order.OrderReference__r.CodigoSap__c : '';
+            this.ZZREFBARTER = order.CodigoSap__c;
+            this.CSTCNDGRP1 = statusSeller.get(order.SalesCTV__r.SellerType__c);
+
+            this.PO_METHOD = order.NumeroPedidoApp__c != null ? 'APP' : 'SFOR';
+            
+            //Add fields to descriptions
+            if(order.Description != null) order.Description = order.Description.replace('1n73gr4ção N3sc4r4 5F x 4PP', '');
+            this.TEXT_ADICIONAL = order.Description != null ? order.Description : '';
+            this.TEXT_DANFE = order.DescriptionBillingSale__c != null ? order.DescriptionBillingSale__c : '';
+
+            this.STWAE = order.Currency__c;
             this.VKGRP = order.Company__r.salesOffice__r.Codigo__c;
             this.VKBUR = order.Company__r.salesTeam__r.ExternalId__c;
         }
@@ -662,6 +878,19 @@ public without sharing class FactoryBuilder {
         }
         String header = JSON.serialize(mapStringHeader);
         payload = (HeaderSeeds)JSON.deserialize(header, HeaderSeeds.class);
+        return payload;
+    }
+
+    private static HeaderBarterSeeds addPaymentForm(Order order, HeaderBarterSeeds payload){
+        List<FormPayment__c> formPaymentList = [SELECT Amount__c, PaymentDate__c, PaymentType__c FROM FormPayment__c WHERE Order__c =: order.Id LIMIT 10];
+        Map<String, Object> mapStringHeader = (Map<String, Object>) JSON.deserializeUntyped(JSON.serialize(payload));
+        for(Integer i = 0; i<formPaymentList.size(); i++){
+            mapStringHeader.put(('ZZDTAPAG' + i), String.valueOf(formPaymentList[i].PaymentDate__c).replace('-', '')  == null ? '' : String.valueOf(formPaymentList[i].PaymentDate__c).replace('-', ''));
+            mapStringHeader.put(('ZZVLRPAG' + i), String.valueOf(formPaymentList[i].Amount__c) == null ? '' : String.valueOf(formPaymentList[i].Amount__c));
+            mapStringHeader.put(('ZZITMPAG' + i), String.valueOf(formPaymentList[i].PaymentType__c)  == null ? '' : String.valueOf(formPaymentList[i].PaymentType__c));
+        }
+        String header = JSON.serialize(mapStringHeader);
+        payload = (HeaderBarterSeeds)JSON.deserialize(header, HeaderBarterSeeds.class);
         return payload;
     }
 

@@ -7,7 +7,7 @@ import verifyProductDisponibility from '@salesforce/apex/OrderScreenController.v
 import isSeedSale from '@salesforce/apex/OrderScreenController.isSeedSale';
 import getPaymentTypes from '@salesforce/apex/OrderScreenController.getPaymentTypes';
 import checkSalesOrgFreight from '@salesforce/apex/OrderScreenController.checkSalesOrgFreight';
-
+import getParentIdFromAccountProperty from '@salesforce/apex/OrderScreenController.getParentIdFromAccountProperty';
 export default class OrderSummaryScreen extends LightningElement {
     showLoading = false;
     staticValue = 'hidden';
@@ -21,6 +21,7 @@ export default class OrderSummaryScreen extends LightningElement {
     totalDelivery;
     hideMargin = false;
     @api seedSale = false;
+    clientProperty = '';
     
     orderTotalPrice = 0;
     orderTotalPriceFront = 0;
@@ -61,6 +62,7 @@ export default class OrderSummaryScreen extends LightningElement {
     @api divisionDataLocale;
     @api headerData;
     @api cloneData;
+    @api childOrder;
     @api excludedItems;
 
     connectedCallback(){
@@ -78,6 +80,13 @@ export default class OrderSummaryScreen extends LightningElement {
         let yyyy = today.getFullYear();
 
         this.currentDate = yyyy + '-' + mm + '-' + dd;
+
+        getParentIdFromAccountProperty({
+            accountId: this.headerData.cliente_entrega.Id
+        }).then((result) =>{
+            this.clientProperty = result
+        });
+        
         getPaymentTypes()
         .then((result) => {
             let teste = JSON.parse(result);
@@ -94,7 +103,8 @@ export default class OrderSummaryScreen extends LightningElement {
             approvalNumber: 1
         }
 
-        getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: false, verifyUserType: true})
+        console.log('this.childOrder: ' + this.childOrder);
+        getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: false, verifyUserType: true, priceScreen: false, childOrder: this.childOrder})
         .then((result) => {
             this.hideMargin = JSON.parse(result);
         });
@@ -138,6 +148,8 @@ export default class OrderSummaryScreen extends LightningElement {
         }).catch((err)=>{
             console.log(JSON.stringify(err));
         });
+
+
     }
 
     getDistributionCenters() {
@@ -172,7 +184,12 @@ export default class OrderSummaryScreen extends LightningElement {
         });
     }
 
-    loadData(){
+    @api
+    loadData(orderScreen, newProductData){
+        if (orderScreen) {
+            this.productData = JSON.parse(JSON.stringify(newProductData));
+        }
+
         if(this.productData){
             this.productDataLocale = JSON.parse(JSON.stringify(this.productData));
            
