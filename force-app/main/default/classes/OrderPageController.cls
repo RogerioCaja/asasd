@@ -30,7 +30,7 @@ public with sharing class OrderPageController {
         }
         Decimal totalValue = 0;
         for(OrderItemDAO orderItem : this.orderToPage.orderItemList){
-            totalValue += Decimal.valueOf(orderItem.totalAmount.replace(' sacas', '').replace('R$', '').replace(',', '.').replace('.', '').trim());
+            totalValue += Decimal.valueOf(orderItem.totalAmount.replace(' sacas', '').replace('R$', '').replace(',00', '').replace(',', '.').replace('.', '').trim());
         }
         List<String> args = new String[]{'0','number','###,###,##0.00'};
         this.orderToPage.totalAmount = this.orderToPage.currencyOrder == 'Barter' ? String.valueOf(totalValue) + ' sacas' : ('R$ ' + String.format(totalValue.format(), args)).contains(',') == true ?  'R$ ' + String.format(totalValue.format(), args): 'R$ ' + String.format(totalValue.format(), args) + ',00';
@@ -50,7 +50,7 @@ public with sharing class OrderPageController {
             'Company__r.salesTeam__r.Address__c','Company__r.salesTeam__r.CNPJ__c', 'Company__r.salesTeam__r.Country__c', 'Company__r.salesTeam__r.Locale__c','Company__r.salesTeam__r.Phone__c',
             'Company__r.salesTeam__r.Registration__c','Company__r.salesTeam__r.State__c', 'Company__r.salesTeam__r.Subsidiary__c', 'Company__r.salesTeam__r.ZipCode__c',
             'Account.CPF__c', 'Account.CNPJ__c', 'TotalAmount', 'Description', 'FinalTotalValue__c', 'Status',
-            'Account.BillingPostalCode', 'Crop__r.Name', 'PaymentForm__c', 'PaymentDate__c', 'RecordTypeId',
+            'Account.BillingPostalCode', 'Crop__r.Name', 'toLabel(PaymentForm__c)', 'PaymentDate__c', 'RecordTypeId',' Incoterms__c',
             'Currency__c', 'Culture__r.Name', 'CodigoSap__c', 'SalesCTV__r.CodigoSap__c', 'SalesCTV__r.Name', 'IsOrderMother__c'
         };
 
@@ -155,6 +155,7 @@ public with sharing class OrderPageController {
         public String status                    {get; set;}
         public Boolean isMother                 {get; set;}
         public String messageDivisionOrNo       {get; set;}
+        public String freight                   {get; set;}
 
         public String salesTeamName             {get; set;}
         public String salesTeamLocale           {get; set;}
@@ -169,7 +170,7 @@ public with sharing class OrderPageController {
         public OrderDAO(Order order){
             this.codeSap = order.Account.ExternalId__c;
             this.orderNumber = order.OrderNumber;
-            this.codeSapOrder = order.CodigoSap__c != null ? 'Codigo SAP: ' + order.CodigoSap__c : '';
+            this.codeSapOrder = order.CodigoSap__c != null ? order.CodigoSap__c : '';
             this.account = order.Account.Name;
             this.accountAddress = order.Account.BillingStreet;
             this.ranch = order.ShippingAccount__r.Name;
@@ -189,6 +190,7 @@ public with sharing class OrderPageController {
             this.messageDivisionOrNo = order.IsOrderMother__c ? 'Quantidade' : 'Data de Entrega(s) - Quant.';
             this.codCTV = order.SalesCTV__r.CodigoSap__c;
             this.nameCTV = order.SalesCTV__r.Name;
+            this.freight = order.Incoterms__c;
             this.salesTeamName = order.Company__r.salesTeam__r.Subsidiary__c;
             this.salesTeamLocale = order.Company__r.salesTeam__r.Address__c;
             this.salesTeamLocation = order.Company__r.salesTeam__r.ZipCode__c +' - '+ order.Company__r.salesTeam__r.Locale__c +', '+ order.Company__r.salesTeam__r.State__c +' - '+ order.Company__r.salesTeam__r.Country__c;
