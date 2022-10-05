@@ -599,6 +599,13 @@ export default class OrderProductScreen extends LightningElement {
         .then((result) => {
             this.seedSale = result;
         });
+        // if(this.seedSale == true){
+        //     setTimeout(()=>this.template.querySelector('[data-target-id="label-dosage"]').style.display = 'none');
+        //     setTimeout(()=>this.template.querySelector('input[data-target-id="dosage"]').style.display = 'none');
+        // }else{
+        //     setTimeout(()=>this.template.querySelector('[data-target-id="label-dosage"]').style.display = '');
+        //     setTimeout(()=>this.template.querySelector('input[data-target-id="dosage"]').style.display = '');
+        // }
         this.createNewProduct = !this.createNewProduct;
 
         if (this.createNewProduct) {
