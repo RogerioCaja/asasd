@@ -285,7 +285,7 @@ global with sharing class TemplateDataIntegrationFields {
         public Boolean eCalendarizacao;
         /*ATUALIZAÇÃO 05.07.22*/
         public String salesType;
-        public String recordIdToUpdate; 
+        public String recordIdToUpdate;
         public String contratoACM;
         //public String clienteCode; 
         public List<TemplateDataIntegrationFields.OrderItemINData> orderItems;
