@@ -37,6 +37,8 @@ import getDateLimit from '@salesforce/apex/OrderScreenController.getSafraInfos';
 
 import getAccountCompanies from '@salesforce/apex/OrderScreenController.getAccountCompanies';
 
+import isSeedSale from '@salesforce/apex/OrderScreenController.isSeedSale';
+
 //import FILIAL_OBJECT from '@salesforce/schema/';
 //import FILIAL_NAME from '@salesforce/schema/';
 
@@ -48,6 +50,7 @@ export default class OrderHeaderScreen extends LightningElement {
     paymentDisabled = false;
     blockPaymentForm = false;
     barterSale = false;
+    seedSale = false;
     safraName = null;
     currencyOption = null;
     currentDate;
@@ -568,12 +571,22 @@ export default class OrderHeaderScreen extends LightningElement {
                             orderType: this.headerData.tipo_venda,
                             approvalNumber: 1
                         }
-                        
                         console.log('this.childOrder: ' + this.childOrder);
                         getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: true, verifyUserType: false, priceScreen: false, childOrder: this.childOrder})
                         .then((result) => {
                            this.salesOrgId = result;
                            this.headerDictLocale.organizacao_vendas = {Id: result};
+                           isSeedSale({salesOrgId: result, productGroupName: null})
+                           .then((result1) => {
+                                this.seedSale = result1;
+                                if(this.seedSale == true){
+                                    setTimeout(()=>this.template.querySelector('lightning-input[data-name="hectares"]').style.display = 'none');
+                                    this.headerDictLocale.hectares = 1
+                                }else{
+                                    setTimeout(()=>this.template.querySelector('lightning-input[data-name="hectares"]').style.display = '');
+                                }
+                                
+                           });
                         });
                     }
                 }
