@@ -80,7 +80,7 @@
 					</div>
 
 					<div class="row">
-						<div class="column">
+						<div class="column" if:false={seedSale}>
 							<label>Dosagem</label><br>
 							<template if:true={headerData.IsOrderChild}>
 								<input class="input-design" type="text" value={addProduct.dosageFront} onchange={changeValue} data-target-id="dosage" disabled/>
