@@ -82,7 +82,7 @@
                     <span>{!orderToPage.accountAddress}</span>
                 </div>
                 <div class="field-item">
-                    <span class="bolder">Fazenda: </span>
+                    <span class="bolder">Nome do Cliente: </span>
                     <span>{!orderToPage.ranch}</span>
                 </div>
                 <div class="field-item">
@@ -119,6 +119,10 @@
                 <div class="field-item">
                     <span class="bolder">Vencimento: </span>
                     <span>{!orderToPage.dueDate}</span>
+                </div>
+                <div class="field-item">
+                    <span class="bolder">Modalidade de Frete: </span>
+                    <span>{!orderToPage.freight}</span>
                 </div>
             </td>
         
