@@ -2679,6 +2679,10 @@
         <visible>true</visible>
     </recordTypeVisibilities>
     <recordTypeVisibilities>
+        <recordType>Order.VendaContaOrdem</recordType>
+        <visible>true</visible>
+    </recordTypeVisibilities>
+    <recordTypeVisibilities>
         <recordType>Order.VendaEntregaFutura</recordType>
         <visible>true</visible>
     </recordTypeVisibilities>
