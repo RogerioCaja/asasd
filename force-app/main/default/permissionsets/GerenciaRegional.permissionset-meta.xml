@@ -157,6 +157,10 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>PhotosToReportController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>Pricebook2DAO</apexClass>
         <enabled>true</enabled>
     </classAccesses>
