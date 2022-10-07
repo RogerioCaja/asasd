@@ -46,7 +46,7 @@ public with sharing class OrderPageController {
   
         Set<String> fieldSet = new Set<String>{
             'Id', 'Account.ExternalId__c', 'Account.Name', 'Account.BillingStreet', 'OrderNumber',
-            'ShippingAccount__r.Name','Account.BillingCity', 'Account.StateRegistration__c', 'SalesOrg__r.SalesOrganizationCode__c',
+            'ShippingAccount__r.Name', 'ShippingAccount__r.Phone', 'ShippingAccount__r.Email__c', 'Account.BillingCity', 'Account.StateRegistration__c', 'SalesOrg__r.SalesOrganizationCode__c',
             'Company__r.salesTeam__r.Address__c','Company__r.salesTeam__r.CNPJ__c', 'Company__r.salesTeam__r.Country__c', 'Company__r.salesTeam__r.Locale__c','Company__r.salesTeam__r.Phone__c',
             'Company__r.salesTeam__r.Registration__c','Company__r.salesTeam__r.State__c', 'Company__r.salesTeam__r.Subsidiary__c', 'Company__r.salesTeam__r.ZipCode__c',
             'Account.CPF__c', 'Account.CNPJ__c', 'TotalAmount', 'Description', 'FinalTotalValue__c', 'Status',
@@ -141,6 +141,8 @@ public with sharing class OrderPageController {
         public String account                   {get; set;}
         public String accountAddress            {get; set;}
         public String ranch                     {get; set;}
+        public String phone                     {get; set;}
+        public String email                     {get; set;}
         public String district                  {get; set;}
         public String CPF_CNPJ                  {get; set;}
         public String IE                        {get; set;}
@@ -174,6 +176,8 @@ public with sharing class OrderPageController {
             this.account = order.Account.Name;
             this.accountAddress = order.Account.BillingStreet;
             this.ranch = order.ShippingAccount__r.Name;
+            this.phone = order.ShippingAccount__r.Phone;
+            this.email = order.ShippingAccount__r.Email__c;
             this.district = order.Account.BillingCity;
             this.IE = order.Account.StateRegistration__c;
             this.CEP = order.Account.BillingPostalCode;
