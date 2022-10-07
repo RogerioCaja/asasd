@@ -9,7 +9,7 @@
         <div class="slds-m-around_medium">
             <span class="title-observation">Observações:
             </span>
-            <textarea data-id="observacao" rows="5" placeholder="Observações para fotos" onchange={handleTyping}></textarea>
+            <textarea data-id="observacao" rows="2" placeholder="Observações para fotos" onchange={handleTyping}></textarea>
         </div>
         <div class="slds-m-around_medium">
             <lightning-input type="file" 
@@ -28,16 +28,18 @@
             
         </template>
         <div class="footer slds-m-around_medium">
-            <lightning-button style="font-size:8pt!important;" variant="brand" label="Confirmar" title="Submit" onclick={handleClick}></lightning-button>
+            <lightning-button style="font-size:8pt!important;" variant="brand" label="Adicionar" title="Submit" onclick={handleClick}></lightning-button>
         </div>
     </lightning-card>
       
     <template if:true={preview}>
         <div class="modal">
+            <span class="close" onclick={cancel}>&times;</span>
             <div class="popup-preview" >
-                <span class="close" onclick={cancel}>&times;</span>
-                <div class="title">Visualização</div>
-                <img src={urlValue}/>
+                <div class="visualization">
+                    <img src={urlValue}/>
+                </div>
+                
             </div>
         </div>
     </template>
