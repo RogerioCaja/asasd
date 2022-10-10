@@ -100,6 +100,7 @@ public without sharing class OrderScreenController {
                    ListCost__c,
                    PracticedCost__c,
                    Dosage__c,
+                   Brokerage__c,
                    toLabel(Status__c),
                    UnitMeasure__c,
                    DiscountPercent__c,
@@ -465,6 +466,7 @@ public without sharing class OrderScreenController {
     
             Decimal orderTotalValue = 0;
             Decimal biggerDiscount = 0;
+            Boolean seedSale = isSeedSale(order.SalesOrg__c, null);
             Id productGroupId;
             Set<Id> setOrderItemsIds = new Set<Id>();
             List<Id> listProductsIds = new List<Id>();
@@ -472,7 +474,12 @@ public without sharing class OrderScreenController {
             Map<String, Decimal> quantitiesById = new Map<String, Decimal>();
             Map<String, Decimal> smallerMarginByProductGroup = new Map<String, Decimal>();
             for (ProductDeserialize orderProduct : orderData.productData) {
-                orderTotalValue += orderProduct.totalPrice;
+                if(seedSale){
+                    orderTotalValue += orderProduct.totalPriceWithBrokerage;
+                }else{
+                    orderTotalValue += orderProduct.totalPrice;
+                }
+                
                 if (orderProduct.orderItemId != null) {
                     setOrderItemsIds.add(orderProduct.orderItemId);
                 }
@@ -511,7 +518,6 @@ public without sharing class OrderScreenController {
                 quantitiesById.put(orderProduct.productId, orderProduct.quantity);
             }
 
-            Boolean seedSale = isSeedSale(company.SalesOrg__c, null);
             QuantitiesResult quantitiesResult;
             if (seedSale) {
                 QuotaData quotaData = new QuotaData();
@@ -819,7 +825,8 @@ public without sharing class OrderScreenController {
                     orderItem.Dosage__c = orderProduct.dosage != null ? orderProduct.dosage.setScale(6) : 0;
                     orderItem.Status__c = orderProduct.sapStatus != null ? statusValueByLabel.get(orderProduct.sapStatus) : null;
                     orderItem.UnitMeasure__c = orderProduct.unity;
-                    orderItem.FinalTotalValue__c = orderProduct.totalPrice;
+                    orderItem.FinalTotalValue__c = !isSeedSale(order.SalesOrg__c, null) ? orderProduct.totalPrice : orderProduct.totalPriceWithBrokerage;
+                    orderItem.Brokerage__c = orderProduct.brokerage;
                     orderItem.ListCost__c = orderProduct.listCost != null ? orderProduct.listCost : 0;
                     orderItem.PracticedCost__c = orderProduct.practicedCost != null ? orderProduct.practicedCost : 0;
                     orderItem.DiscountPercent__c = orderProduct.commercialDiscountPercentage != '' ? (stringToDecimal(orderProduct.commercialDiscountPercentage) != null ? stringToDecimal(orderProduct.commercialDiscountPercentage) : 0) : 0;
@@ -1675,7 +1682,9 @@ public without sharing class OrderScreenController {
         public Decimal practicedCost;
         public Decimal unitPrice;
         public Decimal totalPrice;
+        public Decimal totalPriceWithBrokerage;
         public Decimal dosage;
+        public Decimal brokerage;
         public Decimal commercialDiscountValue;
         public Decimal commercialAdditionValue;
         public Decimal financialAdditionValue;
@@ -1966,9 +1975,11 @@ public without sharing class OrderScreenController {
         public Decimal listPrice;
         public Decimal unitPrice;
         public Decimal totalPrice;
+        public Decimal totalPriceWithBrokerage;
         public Decimal listCost;
         public Decimal practicedCost;
         public Decimal dosage;
+        public Decimal brokerage;
         public Decimal commercialDiscountValue;
         public Decimal commercialAdditionValue;
         public Decimal financialAdditionValue;
@@ -2000,9 +2011,11 @@ public without sharing class OrderScreenController {
             this.listPrice = orderItem.ListPrice__c;
             this.unitPrice = orderItem.PracticedPrice__c;
             this.totalPrice = orderItem.FinalTotalValue__c;
+            this.totalPriceWithBrokerage = orderItem.Brokerage__c != null ? (orderItem.FinalTotalValue__c + orderItem.Brokerage__c) : orderItem.FinalTotalValue__c;
             this.listCost = orderItem.ListCost__c;
             this.practicedCost = orderItem.PracticedCost__c;
             this.dosage = orderItem.Dosage__c;
+            this.brokerage = orderItem.Brokerage__c;
             this.sapStatus = orderItem.Status__c;
             this.unity = orderItem.UnitMeasure__c;
             this.commercialDiscountPercentage = orderItem.DiscountPercent__c != null ? (orderItem.DiscountPercent__c == 0 ? '0%' : String.valueOf(orderItem.DiscountPercent__c) + '%') : '0%';

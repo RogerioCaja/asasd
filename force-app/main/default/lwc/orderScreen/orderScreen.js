@@ -485,7 +485,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         let totalPayment = 0;
         let prodsIds = [];
         for (let index = 0; index < this.productData.length; index++) {
-            totalPayment += Number(this.productData[index].unitPrice) * Number(this.productData[index].quantity);
+            totalPayment += Number(this.productData[index].unitPrice) * Number(this.productData[index].quantity) + Number(this.productData[index].brokerage);
             prodsIds.push(this.productData[index].productId);
         }
 
@@ -652,9 +652,15 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         this.valorTotal = 0;
         try
         {
-            this.productData.forEach(product =>{
-                this.valorTotal  = parseFloat(this.valorTotal) + parseFloat(product.totalPrice);
-            })
+            if(this.template.querySelector(this.tabs[2].component).seedSale){
+                this.productData.forEach(product =>{
+                    this.valorTotal  += parseFloat(product.totalPriceWithBrokerage);
+                })
+            }else{
+                this.productData.forEach(product =>{
+                    this.valorTotal  += parseFloat(product.totalPrice);
+                })
+            }
             this.valorTotal = parseFloat(this.valorTotal).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
         }
         catch(e)

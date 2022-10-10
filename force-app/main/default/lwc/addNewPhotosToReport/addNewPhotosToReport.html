@@ -1,10 +1,11 @@
 <template>
-    <template if:true={isLoading}>
+    <template if:true={showSpinner}>
         <div class="exampleHolder">
             <lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
         </div>
     </template>
    
+    
     <lightning-card title="Adicionar Fotos ao Relatório" icon-name="custom:custom14">
         <div class="slds-m-around_medium">
             <span class="title-observation">Observações:
@@ -31,7 +32,7 @@
             <lightning-button style="font-size:8pt!important;" variant="brand" label="Adicionar" title="Submit" onclick={handleClick}></lightning-button>
         </div>
     </lightning-card>
-      
+        
     <template if:true={preview}>
         <div class="modal">
             <span class="close" onclick={cancel}>&times;</span>
@@ -43,6 +44,7 @@
             </div>
         </div>
     </template>
+    
 
 </template>
 
