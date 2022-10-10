@@ -229,7 +229,7 @@ export default class ClientTerritories extends LightningElement {
                 this.cancel()
                 this.isLoading = false;
             })
-            this.isLoading = false;
+            
         }catch(err){
             console.log(err)
             this.isLoading = false;

@@ -86,6 +86,14 @@
                     <span>{!orderToPage.ranch}</span>
                 </div>
                 <div class="field-item">
+                    <span class="bolder">Telefone: </span>
+                    <span>{!orderToPage.phone}</span>
+                </div>
+                <div class="field-item">
+                    <span class="bolder">Email: </span>
+                    <span>{!orderToPage.email}</span>
+                </div>
+                <div class="field-item">
                     <span class="bolder">Municipio: </span>
                     <span>{!orderToPage.district}</span>
                 </div>
