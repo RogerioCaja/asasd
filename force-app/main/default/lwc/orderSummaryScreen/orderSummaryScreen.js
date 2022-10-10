@@ -94,7 +94,7 @@ export default class OrderSummaryScreen extends LightningElement {
         });
 
         this.summaryDataLocale = {... this.summaryData};
-        this.loadData();
+        
 
         let getCompanyData = {
             ctvId: this.headerData.ctv_venda.Id != null ? this.headerData.ctv_venda.Id : '',
@@ -108,10 +108,10 @@ export default class OrderSummaryScreen extends LightningElement {
         .then((result) => {
             this.hideMargin = JSON.parse(result);
         });
-
         isSeedSale({salesOrgId: this.headerData.organizacao_vendas.Id, productGroupName: null})
             .then((result) => {
                 this.seedSale = result
+                this.loadData();
         });
         
         if (this.headerData.IsOrderChild) {
@@ -258,7 +258,8 @@ export default class OrderSummaryScreen extends LightningElement {
             }
             else{
                 for(var i= 0; i< this.productDataLocale.length; i++){
-                    orderTotalPrice += Number(this.productDataLocale[i].unitPrice) * Number(this.productDataLocale[i].quantity) + (this.seedSale ? this.productDataLocale[i].brokerage : 0);
+                    console.log(this.seedSale)
+                    orderTotalPrice += Number(this.productDataLocale[i].unitPrice) * Number(this.productDataLocale[i].quantity) + (this.seedSale ? Number(this.productDataLocale[i].brokerage) : 0);
                     orderTotalCost += Number(this.productDataLocale[i].practicedCost) * Number(this.productDataLocale[i].quantity);
                     this.productDataLocale[i]['unitPrice'] = 'R$ ' + this.fixDecimalPlacesFront(this.productDataLocale[i].unitPrice);
                     this.productDataLocale[i]['totalPrice']  = 'R$ ' + this.fixDecimalPlacesFront(this.seedSale ? this.productDataLocale[i].totalPriceWithBrokerage : this.productDataLocale[i].totalPrice);
