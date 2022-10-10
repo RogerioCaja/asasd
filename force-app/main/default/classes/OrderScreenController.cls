@@ -466,7 +466,7 @@ public without sharing class OrderScreenController {
     
             Decimal orderTotalValue = 0;
             Decimal biggerDiscount = 0;
-            Boolean seedSale = isSeedSale(order.SalesOrg__c, null);
+            Boolean seedSale = isSeedSale(company.SalesOrg__c, null);
             Id productGroupId;
             Set<Id> setOrderItemsIds = new Set<Id>();
             List<Id> listProductsIds = new List<Id>();
@@ -825,7 +825,7 @@ public without sharing class OrderScreenController {
                     orderItem.Dosage__c = orderProduct.dosage != null ? orderProduct.dosage.setScale(6) : 0;
                     orderItem.Status__c = orderProduct.sapStatus != null ? statusValueByLabel.get(orderProduct.sapStatus) : null;
                     orderItem.UnitMeasure__c = orderProduct.unity;
-                    orderItem.FinalTotalValue__c = !isSeedSale(order.SalesOrg__c, null) ? orderProduct.totalPrice : orderProduct.totalPriceWithBrokerage;
+                    orderItem.FinalTotalValue__c = !(seedSale) ? orderProduct.totalPrice : orderProduct.totalPriceWithBrokerage;
                     orderItem.Brokerage__c = orderProduct.brokerage;
                     orderItem.ListCost__c = orderProduct.listCost != null ? orderProduct.listCost : 0;
                     orderItem.PracticedCost__c = orderProduct.practicedCost != null ? orderProduct.practicedCost : 0;
