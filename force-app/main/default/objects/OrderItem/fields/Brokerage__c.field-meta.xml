@@ -2,6 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Brokerage__c</fullName>
     <externalId>false</externalId>
+    <defaultValue>0</defaultValue>
     <label>Corretagem</label>
     <precision>18</precision>
     <required>false</required>
