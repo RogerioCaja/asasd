@@ -20,7 +20,7 @@ export default class OrderProductScreen extends LightningElement {
     listTotalPrice;
     productPosition;
     currentDate;
-    seedSale;
+    @api seedSale;
     verifyQuota;
     allProductQuotas = [];
 
@@ -274,12 +274,16 @@ export default class OrderProductScreen extends LightningElement {
             unitPriceFront: this.fixDecimalPlacesFront(currentProduct.unitPrice),
             totalPrice: this.headerData.IsOrderChild ? this.fixDecimalPlaces((currentProduct.unitPrice * currentProduct.quantity)) : currentProduct.totalPrice,
             totalPriceFront: this.headerData.IsOrderChild ? this.fixDecimalPlacesFront((currentProduct.unitPrice * currentProduct.quantity)) : this.fixDecimalPlacesFront(currentProduct.totalPrice),
+            totalPriceWithBrokerage: this.headerData.IsOrderChild ? this.fixDecimalPlaces((currentProduct.unitPrice * currentProduct.quantity)) : currentProduct.totalPriceWithBrokerage,
+            totalPriceWithBrokerageFront: this.headerData.IsOrderChild ? this.fixDecimalPlacesFront((currentProduct.unitPrice * currentProduct.quantity)) : this.fixDecimalPlacesFront(currentProduct.totalPriceWithBrokerage),
             costPrice: currentProduct.listCost,
             listCost: currentProduct.listCost,
             practicedCost: currentProduct.practicedCost,
             initialTotalValue: currentProduct.initialTotalValue,
             dosage: this.headerData.emptyHectar ? currentProduct.quantity : (this.isFilled(currentProduct.dosage) ? currentProduct.dosage : currentProduct.quantity / this.hectares),
             dosageFront: this.isFilled(currentProduct.dosage) ? this.fixDecimalPlacesFront(currentProduct.dosage) : '',
+            brokerage: this.isFilled(currentProduct.brokerage) ? currentProduct.brokerage : '',
+            brokerageFront: this.isFilled(currentProduct.brokerage) ? this.fixDecimalPlacesFront(currentProduct.brokerage) : '',
             quantity: currentProduct.quantity,
             motherAvailableQuantity: currentProduct.motherAvailableQuantity,
             invoicedQuantity: this.isFilled(currentProduct.invoicedQuantity) ? currentProduct.invoicedQuantity : 0,
@@ -599,13 +603,7 @@ export default class OrderProductScreen extends LightningElement {
         .then((result) => {
             this.seedSale = result;
         });
-        // if(this.seedSale == true){
-        //     setTimeout(()=>this.template.querySelector('[data-target-id="label-dosage"]').style.display = 'none');
-        //     setTimeout(()=>this.template.querySelector('input[data-target-id="dosage"]').style.display = 'none');
-        // }else{
-        //     setTimeout(()=>this.template.querySelector('[data-target-id="label-dosage"]').style.display = '');
-        //     setTimeout(()=>this.template.querySelector('input[data-target-id="dosage"]').style.display = '');
-        // }
+
         this.createNewProduct = !this.createNewProduct;
 
         if (this.createNewProduct) {
@@ -633,11 +631,15 @@ export default class OrderProductScreen extends LightningElement {
                     practicedCost: this.isFilled(priorityInfos.costPrice) ? this.fixDecimalPlaces(priorityInfos.costPrice) : 0,
                     dosage: this.isFilled(currentProduct.dosage) ? currentProduct.dosage : '',
                     dosageFront: this.isFilled(currentProduct.dosage) ? this.fixDecimalPlacesFront(currentProduct.dosage) : '',
+                    brokerage: this.isFilled(currentProduct.brokerage) ? currentProduct.brokerage : '',
+                    brokerageFront: this.isFilled(currentProduct.brokerage) ? this.fixDecimalPlacesFront(currentProduct.brokerage) : '',
                     quantity: null,
                     unitPrice: this.isFilled(priorityInfos.listPrice) ? this.fixDecimalPlaces(priorityInfos.listPrice) : 0,
                     unitPriceFront: this.isFilled(priorityInfos.listPrice) ? this.fixDecimalPlacesFront(priorityInfos.listPrice) : 0,
                     totalPrice: null,
                     totalPriceFront: null,
+                    totalPriceWithBrokerage: null,
+                    totalPriceWithBrokerageFront: null,
                     initialTotalValue: null,
                     commercialDiscountPercentage: null,
                     commercialDiscountPercentageFront: null,
@@ -683,9 +685,10 @@ export default class OrderProductScreen extends LightningElement {
         if (this.isSelected(this.selectedColumns.columnUnity)) selectedColumns.push({label: 'Unidade de Medida', fieldName: 'unity'})
         if (this.isSelected(this.selectedColumns.columnListPrice)) selectedColumns.push({label: 'Preço Lista (un)', fieldName: 'listPriceFront'})
         if (this.isSelected(this.selectedColumns.columnDosage)) selectedColumns.push({label: 'Dosagem', fieldName: 'dosage'})
+        if (this.isSelected(this.selectedColumns.columnBrokerage)) selectedColumns.push({label: 'Corretagem', fieldName: 'brokerage'})
         if (this.isSelected(this.selectedColumns.columnQuantity)) selectedColumns.push({label: 'Qtd', fieldName: 'quantity'})
         if (this.isSelected(this.selectedColumns.columnUnitPrice)) selectedColumns.push({label: 'Preço Praticado (un)', fieldName: 'unitPriceFront'})
-        if (this.isSelected(this.selectedColumns.columnTotalPrice)) selectedColumns.push({label: 'Preço Total', fieldName: 'totalPriceFront'})
+        if (this.isSelected(this.selectedColumns.columnTotalPrice)) selectedColumns.push({label: 'Preço Total', fieldName: this.seedSale ? 'totalPriceWithBrokerageFront' : 'totalPriceFront'})
         if (this.isSelected(this.selectedColumns.columnCommercialDiscountPercentage)) selectedColumns.push({label: '% Desconto Comercial', fieldName: 'commercialDiscountPercentageFront'})
         if (this.isSelected(this.selectedColumns.columnCommercialDiscountValue)) selectedColumns.push({label: 'Valor de Desconto Comercial', fieldName: 'commercialDiscountValueFront'})
         if (this.isSelected(this.selectedColumns.columnCommercialAdditionPercentage)) selectedColumns.push({label: '% Acréscimo Comercial', fieldName: 'commercialAdditionPercentageFront'})
@@ -745,7 +748,7 @@ export default class OrderProductScreen extends LightningElement {
     changeValue(event) {
         let fieldId = event.target.dataset.targetId;
         let fieldValue = event.target.value;
-        
+
         if (this.isFilled(fieldValue)) {
             fieldValue = fieldValue.toString().includes('.') ? fieldValue.toString().replace('.', '') : fieldValue;
             fieldValue = fieldValue.toString().includes(',') ? fieldValue.replace(',', '.') : fieldValue;
@@ -804,6 +807,11 @@ export default class OrderProductScreen extends LightningElement {
                     this.calculateDiscountOrAddition();
                     this.calculateTotalPrice(true);
                 }
+            } else if (fieldId == 'brokerage'){
+
+                this.addProduct.brokerageFront = this.fixDecimalPlacesFront(this.addProduct.brokerage);
+                this.calculateTotalPrice(true);
+
             } else if (fieldId == 'quantity') {
                 this.addProduct.quantity = this.calculateMultiplicity(this.addProduct.quantity, false);
                 if (!this.headerData.IsOrderChild) {
@@ -843,6 +851,7 @@ export default class OrderProductScreen extends LightningElement {
 
     calculateTotalPrice(recalculateUnitPrice, isDiscount) {
         this.addProduct.totalPrice = null;
+        this.addProduct.totalPriceWithBrokerage = null;
 
         if (this.isFilled(isDiscount)) {
             if (isDiscount && this.addProduct.commercialDiscountValue > 0) {
@@ -878,7 +887,9 @@ export default class OrderProductScreen extends LightningElement {
             this.addProduct.totalPrice = this.isFilled(this.addProduct.commercialAdditionValue) ? (this.addProduct.totalPrice + Number(this.addProduct.commercialAdditionValue)) : this.addProduct.totalPrice;
             this.addProduct.totalPrice = this.isFilled(this.addProduct.commercialDiscountValue) ? this.fixDecimalPlaces((this.addProduct.totalPrice - Number(this.addProduct.commercialDiscountValue))) : this.fixDecimalPlaces(this.addProduct.totalPrice);
             this.addProduct.totalPriceFront = this.fixDecimalPlacesFront(this.addProduct.totalPrice);
-
+            this.addProduct.totalPriceWithBrokerage = Number(this.addProduct.totalPrice) + Number(this.addProduct.brokerage);
+            this.addProduct.totalPriceWithBrokerageFront = this.fixDecimalPlacesFront(this.addProduct.totalPriceWithBrokerage);
+            
             if (recalculateUnitPrice) {
                 this.addProduct.unitPrice = this.fixDecimalPlaces((this.addProduct.totalPrice / this.addProduct.quantity));
                 this.addProduct.unitPriceFront = this.fixDecimalPlacesFront((this.addProduct.totalPrice / this.addProduct.quantity));
