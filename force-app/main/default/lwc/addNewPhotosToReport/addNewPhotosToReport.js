@@ -8,7 +8,7 @@ export default class AddNewPhotosToReport extends LightningElement {
     @api recordId;
     url = 'data:image/png;base64,'
     urlValue;
-    isLoading = false;
+    showSpinner = false;
     observation= '';
     preview = false;
     fieldData = [];
@@ -50,11 +50,18 @@ export default class AddNewPhotosToReport extends LightningElement {
     }
     
     handleClick(){
+       
+        // setTimeout(() => {
+        //     this.onSave();
+        //     }, 500);
+        this.onSave();
+    }
 
-        if(this.observation && !(this.fieldData.length == 0)){
-            this.isLoading = true;
-            const{filename, base64} = this.fieldData[0]
+    onSave(){
+        this.showSpinner = true;
+        const{filename, base64} = this.fieldData[0]
             
+        if(this.observation && !(this.fieldData.length == 0)){
             createPhoto({
                 base64: base64,
                 filename: filename, 
@@ -62,21 +69,19 @@ export default class AddNewPhotosToReport extends LightningElement {
                 observation: this.observation 
             }).then((result) =>{
                 if(result == null){
-                    this.isLoading = false;
+                    this.showSpinner = false;
                     this.showToast('error', 'Erro', 'Algum erro aconteceu')
                 }else{
-                    this.isLoading = false;
+                    this.showSpinner = false;
                     this.showToast('success', 'Sucesso', 'O Arquivo de Foto foi criado')
                     window.location.reload()
                 }
             })
-            this.isLoading = false;
         }else{
             this.showToast('error', 'Erro', 'Necessário preencher todos os campos')
+            this.showSpinner = false;
         }
-
     }
-
     cancel(){
         this.preview = false;
     }
