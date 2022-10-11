@@ -30,9 +30,10 @@ public with sharing class OrderPageController {
         }
         Decimal totalValue = 0;
         for(OrderItemDAO orderItem : this.orderToPage.orderItemList){
-            totalValue += Decimal.valueOf(orderItem.totalAmount.replace(' sacas', '').replace('R$', '').replace(',00', '').replace(',', '.').replace('.', '').trim());
+            totalValue += Decimal.valueOf(orderItem.totalAmount.replace(' sacas', '').replace('R$', '').replace(',00', '').replace('.', '').replace(',', '.').trim());
         }
         List<String> args = new String[]{'0','number','###,###,##0.00'};
+        totalValue += Decimal.valueOf(this.orderToPage.freightValue.replace('R$', '').replace(',00', '').replace('.', '').replace(',', '.').trim());
         this.orderToPage.totalAmount = this.orderToPage.currencyOrder == 'Barter' ? String.valueOf(totalValue) + ' sacas' : ('R$ ' + String.format(totalValue.format(), args)).contains(',') == true ?  'R$ ' + String.format(totalValue.format(), args): 'R$ ' + String.format(totalValue.format(), args) + ',00';
        
         String downloadingFileName = 'Pedido de Venda-' + this.orderToPage.codeSap + '.pdf';
@@ -51,7 +52,7 @@ public with sharing class OrderPageController {
             'Company__r.salesTeam__r.Registration__c','Company__r.salesTeam__r.State__c', 'Company__r.salesTeam__r.Subsidiary__c', 'Company__r.salesTeam__r.ZipCode__c',
             'Account.CPF__c', 'Account.CNPJ__c', 'TotalAmount', 'Description', 'FinalTotalValue__c', 'Status',
             'Account.BillingPostalCode', 'Crop__r.Name', 'toLabel(PaymentForm__c)', 'PaymentDate__c', 'RecordTypeId',' Incoterms__c',
-            'Currency__c', 'Culture__r.Name', 'CodigoSap__c', 'SalesCTV__r.CodigoSap__c', 'SalesCTV__r.Name', 'IsOrderMother__c'
+            'Currency__c', 'Culture__r.Name', 'CodigoSap__c', 'SalesCTV__r.CodigoSap__c', 'SalesCTV__r.Name', 'IsOrderMother__c', 'FreightValue__c'
         };
 
         String query = new Q(Order.SObjectType)
@@ -66,7 +67,8 @@ public with sharing class OrderPageController {
 
         Set<String> fieldSet = new Set<String>{
             'Product2Id','Product2.ProductCode' ,'Description', 'UnitMeasure__c', 'FinalTotalValue__c',
-            'UnitPrice','Quantity','TotalPrice' , 'Product2.Name', 'Product2.GrossWeightUnitOfMeasure__c'
+            'UnitPrice', 'PracticedPrice__c','Quantity','TotalPrice' , 'Product2.Name', 'Product2.GrossWeightUnitOfMeasure__c',
+            'Brokerage__c'
         };
 
         String query = new Q(OrderItem.SObjectType)
@@ -158,6 +160,7 @@ public with sharing class OrderPageController {
         public Boolean isMother                 {get; set;}
         public String messageDivisionOrNo       {get; set;}
         public String freight                   {get; set;}
+        public String freightValue              {get; set;}
 
         public String salesTeamName             {get; set;}
         public String salesTeamLocale           {get; set;}
@@ -195,6 +198,7 @@ public with sharing class OrderPageController {
             this.codCTV = order.SalesCTV__r.CodigoSap__c;
             this.nameCTV = order.SalesCTV__r.Name;
             this.freight = order.Incoterms__c;
+            this.freightValue = formatCurrency(order.FreightValue__c, this.currencyOrder).contains(',') ? formatCurrency(order.FreightValue__c, this.currencyOrder) : formatCurrency(order.FreightValue__c, this.currencyOrder) + ',00';
             this.salesTeamName = order.Company__r.salesTeam__r.Subsidiary__c;
             this.salesTeamLocale = order.Company__r.salesTeam__r.Address__c;
             this.salesTeamLocation = order.Company__r.salesTeam__r.ZipCode__c +' - '+ order.Company__r.salesTeam__r.Locale__c +', '+ order.Company__r.salesTeam__r.State__c +' - '+ order.Company__r.salesTeam__r.Country__c;
@@ -244,16 +248,18 @@ public with sharing class OrderPageController {
         public String unitOfMeasure         {get; set;}
         public String unitPrice             {get; set;}
         public String quantity              {get; set;}
+        public Decimal brokerage            {get; set;}
         public String totalAmount           {get; set;}
         public List<DivisonDAO> divisonList {get; set;}
 
         public OrderItemDAO(OrderItem orderItem, String culture, String currencyCode, List<DivisonDAO> divisonList, OrderCommodity__c commodity){
             this.productCode = orderItem.Product2.ProductCode;
+            this.brokerage = orderItem.Brokerage__c != null ? (orderItem.Brokerage__c / orderItem.Quantity) : 0;
             this.description = orderItem.Product2.Name;
             this.unitOfMeasure = orderItem.Product2.GrossWeightUnitOfMeasure__c;
-            this.unitPrice = commodity != null ? formatCurrency(((orderItem.UnitPrice*100)/(commodity.CommodityPrice__c * 100)), currencyCode) + ' por saca': formatCurrency((orderItem.UnitPrice), currencyCode);
+            this.unitPrice = commodity != null ? formatCurrency(((orderItem.PracticedPrice__c*100)/(commodity.CommodityPrice__c * 100)), currencyCode) + ' por saca': formatCurrency((orderItem.PracticedPrice__c + this.brokerage), currencyCode);
             this.quantity =  String.valueOf(orderItem.Quantity);
-            this.totalAmount = commodity != null ? formatCurrency(((orderItem.UnitPrice*100)/(commodity.CommodityPrice__c * 100)).setScale(2) * orderItem.Quantity, currencyCode) + ' sacas' : formatCurrency(orderItem.FinalTotalValue__c, currencyCode) ;
+            this.totalAmount = commodity != null ? formatCurrency(((orderItem.PracticedPrice__c*100)/(commodity.CommodityPrice__c * 100)).setScale(2) * orderItem.Quantity, currencyCode) + ' sacas' : formatCurrency(orderItem.FinalTotalValue__c, currencyCode) ;
             this.culture = culture;
             this.divisonList = divisonList;
         }
