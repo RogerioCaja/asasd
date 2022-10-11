@@ -77,7 +77,7 @@ public without sharing class OrderItemHelper {
                     System.debug('orderItemListM ' + orderItemListM);
                     OrderItem orddItem = New OrderItem();
                     orddItem.Id = ordrItem.Id;
-                    orddItem.AmountUsed__c = orderItemAmountedUsedPerOrderReference.get(concProductOrderRef);
+                    orddItem.AmountUsed__c = orderItemAmountedUsedPerOrderReference.containsKey(concProductOrderRef) ? orderItemAmountedUsedPerOrderReference.get(concProductOrderRef) : 0;
                     // orddItem.AmountUsed__c =  ordemItem.Quantity - ordrItem.AmountUsed__c;
                     // if(orddItem.AmountUsed__c < 0){
                     //     orddItem.AmountUsed__c = orddItem.AmountUsed__c * (-1);                            
