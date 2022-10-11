@@ -291,6 +291,7 @@ global with sharing class TemplateDataIntegrationFields {
         public List<TemplateDataIntegrationFields.OrderItemINData> orderItems;
         public List<TemplateDataIntegrationFields.ShippingDivisonINData> shippingDivison;
         public List<TemplateDataIntegrationFields.FormPaymentINData> formPayment;
+        public List<TemplateDataIntegrationFields.OrderCommodityINData> commodity;
         public List<TemplateDataIntegrationFields.PartnerInsert> partners;
         public List<TemplateDataIntegrationFields.ConditionInsert> conditions;
         public Order serialize(Map<String, Id> lookups){
@@ -580,6 +581,53 @@ global with sharing class TemplateDataIntegrationFields {
                 //ExternalId__c = this.orderCode, //Elaborar
                 PaymentDate__c = this.paymentDate,
                 Amount__c = this.paymentAndValue
+            );
+        }
+
+        public List<String> getRequiredFields(){
+            return new List<String>{
+
+            };
+        }
+
+        public String getFieldKey(){
+            return 'Id';
+        }
+
+        public String getFieldExternal(){
+            return 'ExternalId__c';
+        }
+
+        public String getParentKey(){
+            return 'OrderId';
+        }
+    }
+
+    global class OrderCommodityINData implements FieldDataChild{
+        public String orderExternalId;
+        //public String OrderItemCode;
+        public String material;
+        public Decimal commodityPrice;
+        public Decimal bagQuantity;
+        public Decimal bagMargin;
+        public String orderExternal;
+        //public String order;
+        public Date startDate;
+        public Date endDate;
+        public String deliveryAddress;
+
+        public OrderCommodity__c serialize(Map<String, Id> lookups){
+            return new OrderCommodity__c(
+
+                ExternalId__c = orderExternalId + '|' + material, // Or order Id and Product Id
+                Product__c = lookups.containsKey('Product2'+this.material) ? lookups.get('Product2'+this.material) : null,
+                CommodityPrice__c = this.commodityPrice,
+                BagQuantity__c = this.bagQuantity,
+                BagMargin__c = this.bagMargin,
+                Order__c = this.orderExternalId,
+                StartDate__c  = this.startDate,
+                EndDate__c  = this.endDate,
+                DeliveryAddress__c  = this.deliveryAddress
             );
         }
 
