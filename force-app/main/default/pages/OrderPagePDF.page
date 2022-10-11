@@ -83,6 +83,10 @@
                 </div>
                 <div class="field-item">
                     <span class="bolder">Nome do Cliente: </span>
+                    <span>{!orderToPage.account}</span>
+                </div>
+                <div class="field-item">
+                    <span class="bolder">Fazenda: </span>
                     <span>{!orderToPage.ranch}</span>
                 </div>
                 <div class="field-item">
