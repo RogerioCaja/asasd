@@ -7,6 +7,8 @@ import CLIENTE_CPF from '@salesforce/schema/Account.CPF__c';
 import CLIENTE_UF from '@salesforce/schema/Account.BillingState';
 import CLIENTE_CITY from '@salesforce/schema/Account.BillingCity';
 import COD_SAP from '@salesforce/schema/Account.ExternalId__c';
+import IE from '@salesforce/schema/Account.StateRegistration__c';
+import PARENT_NAME from '@salesforce/schema/Account.Parent.Name';
 export default class LookupAccount extends LightningElement {
     @api recordId;
     @api selectedRecord = null;
@@ -15,7 +17,7 @@ export default class LookupAccount extends LightningElement {
     @track showData = false;
     
     // WIREs
-	@wire(getRecord, { recordId: '$recordId', fields: [CLIENTE_ENTREGA_NAME, CLIENTE_CNPJ, CLIENTE_CPF, CLIENTE_UF, CLIENTE_CITY, COD_SAP] })
+	@wire(getRecord, { recordId: '$recordId', fields: [CLIENTE_ENTREGA_NAME, CLIENTE_CNPJ, CLIENTE_CPF, CLIENTE_UF, CLIENTE_CITY, COD_SAP, IE, PARENT_NAME] })
 	wiredGetRecord({ error, data }) {
 		this.isLoading = false;
 
@@ -51,7 +53,9 @@ export default class LookupAccount extends LightningElement {
 					CPF: fields['CPF__c'].value,
 					City: fields['BillingCity'].value,
 					UF: fields['BillingState'].value,
-					ExternalId__c: fields['ExternalId__c'].value
+					ExternalId__c: fields['ExternalId__c'].value,
+					IE: fields['StateRegistration__c'].value,
+					ParentName: fields['Parent.Name'].value
 				};
 			}
 
