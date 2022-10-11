@@ -53,9 +53,7 @@ export default class LookupAccount extends LightningElement {
 					CPF: fields['CPF__c'].value,
 					City: fields['BillingCity'].value,
 					UF: fields['BillingState'].value,
-					ExternalId__c: fields['ExternalId__c'].value,
-					IE: fields['StateRegistration__c'].value,
-					ParentName: fields['Parent.Name'].value
+					ExternalId__c: fields['ExternalId__c'].value
 				};
 			}
 
