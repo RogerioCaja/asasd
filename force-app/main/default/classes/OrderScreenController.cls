@@ -2245,6 +2245,14 @@ public without sharing class OrderScreenController {
         public String cropId;
         public String sellerId;
         public List<String> productsIds;
+
+        public QuotaData(){}
+
+        public QuotaData(String cropId, String sellerId, List<String> productsIds){
+            this.cropId = cropId;
+            this.sellerId = sellerId;
+            this.productsIds = productsIds;
+        }
     }
 
     public class QuotaResult {

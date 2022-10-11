@@ -404,7 +404,8 @@ export default class OrderProductScreen extends LightningElement {
                             searchString: '',
                             data: JSON.stringify(this.productParams),
                             isCommodity: false,
-                            productsIds: prodsIds
+                            productsIds: prodsIds,
+                            priceScreen: false
                         })
                         .then(result => {
                             this.productsPriceMap = result.recordsDataMap;
