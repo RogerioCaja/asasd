@@ -178,8 +178,14 @@ public without sharing class CustomLookupController {
                 }
 
                 for(Id id : prodIdList){
-                    if(!quoteResultMap.containsKey(id) || quoteResultMap.containsKey(id) ? quoteResultMap.get(id).balance == 0 : false){
+                    if(!quoteResultMap.containsKey(id)){
                         prodIdsWithoutQuota.add(id);
+                    }
+                    
+                    if(quoteResultMap.containsKey(id)){
+                        if(quoteResultMap.get(id).balance == 0){
+                            prodIdsWithoutQuota.add(id);
+                        }
                     }
                 }
             }
