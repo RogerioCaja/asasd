@@ -156,6 +156,8 @@ public without sharing class CustomLookupController {
             List<String> prodIdList = new List<String>();
             Set<Id> prodIdsWithoutQuota = new Set<Id>();
 
+            Boolean seedSale = OrderScreenController.isSeedSale(salesResult.salesOrgId, null);
+
             for (SObject product : queryResult) {
                 prodGroupIds.add((String)product.get('ProductGroup__c'));
                 prodIdList.add((String)product.get('Id'));
@@ -163,13 +165,29 @@ public without sharing class CustomLookupController {
                 prodHierarchyIds.add((String)product.get('ProductHierarchy__c'));
             }
 
-            OrderScreenController.QuotaData quotaData = new OrderScreenController.QuotaData(productParams.safra, productParams.ctvId, prodIdList);
+            if(seedSale){
+
+                OrderScreenController.QuotaData quotaData = new OrderScreenController.QuotaData(productParams.safra, productParams.ctvId, prodIdList);
             
-            String dataCheck = OrderScreenController.checkQuotaQuantity(JSON.serialize(quotaData));
-            List<OrderScreenController.QuotaResult> quoteResult = (List<OrderScreenController.QuotaResult>)JSON.deserialize(dataCheck, List<OrderScreenController.QuotaResult>.class);
-            for(OrderScreenController.QuotaResult quota : quoteResult){
-                if(quota.balance == 0)
-                prodIdsWithoutQuota.add(quota.productId);
+                String dataCheck = OrderScreenController.checkQuotaQuantity(JSON.serialize(quotaData));
+                Map<Id, OrderScreenController.QuotaResult> quoteResultMap = new Map<Id, OrderScreenController.QuotaResult>();
+                List<OrderScreenController.QuotaResult> quoteResult = (List<OrderScreenController.QuotaResult>)JSON.deserialize(dataCheck, List<OrderScreenController.QuotaResult>.class);
+            
+                for(OrderScreenController.QuotaResult quota : quoteResult){
+                    quoteResultMap.put(quota.productId, quota);
+                }
+
+                for(Id id : prodIdList){
+                    if(!quoteResultMap.containsKey(id)){
+                        prodIdsWithoutQuota.add(id);
+                    }
+                    
+                    if(quoteResultMap.containsKey(id)){
+                        if(quoteResultMap.get(id).balance == 0){
+                            prodIdsWithoutQuota.add(id);
+                        }
+                    }
+                }
             }
 
             Map<Id, ProductGroup__c> productsGroupById = new Map<Id, ProductGroup__c>([
@@ -219,7 +237,6 @@ public without sharing class CustomLookupController {
                 ptaProducts.add((Id)pta.get('PTAProduct__c'));
             }
 
-            Boolean seedSale = OrderScreenController.isSeedSale(salesResult.salesOrgId, null);
             result.recordsDataList = new List<ProductData>();
             result.recordsDataMap = new Map<String, ProductData>();
             for(SObject s : queryResult) {
