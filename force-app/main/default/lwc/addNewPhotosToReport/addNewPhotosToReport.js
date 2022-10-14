@@ -59,9 +59,10 @@ export default class AddNewPhotosToReport extends LightningElement {
 
     onSave(){
         this.showSpinner = true;
-        const{filename, base64} = this.fieldData[0]
-            
+        
+        console.log(this.fieldData.length)
         if(this.observation && !(this.fieldData.length == 0)){
+            const{filename, base64} = this.fieldData[0]
             createPhoto({
                 base64: base64,
                 filename: filename, 
