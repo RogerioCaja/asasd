@@ -15,10 +15,10 @@ call sfdx force:data:bulk:upsert -s SalesTeam__c -f ./EquipeVenda.csv -i Externa
 call sfdx force:data:bulk:upsert -s ActivitySector__c -f ./SetorAtividade.csv -i Codigo__c -w 2
 @ECHO "Organizacao"
 call sfdx force:data:bulk:upsert -s SalesOrg__c -f ./OrgVenda.csv -i SalesOrganizationCode__c -w 2
-@ECHO "Empresa"
-call sfdx force:data:bulk:upsert -s Company__c -f ./Empresa.csv -i ExternalId__c -w 2
 @ECHO "CONTA"
 call sfdx force:data:bulk:upsert -s Account -f ./Conta.csv -i ExternalId__c -w 2
+@ECHO "Empresa"
+call sfdx force:data:bulk:upsert -s Company__c -f ./Empresa.csv -i ExternalId__c -w 2
 @ECHO "Grupo de Produto"
 call sfdx force:data:bulk:upsert -s ProductGroup__c -f ./GrupoProduto.csv -i ExternalId__c -w 2
 @ECHO "Safra"
