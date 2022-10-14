@@ -229,9 +229,9 @@ public without sharing class OrderScreenController {
 			
             if (profileName != 'Balcão') {
                 Set<Id> relatedAccounts = getTerritoryAccounts();
-                accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE Status__c = 'Ativo' AND ((ParentId =: accountId AND Id IN: relatedAccounts AND ExternalId__c LIKE '0002%') OR (Id =: accountId AND CNPJ__c != null AND CPF__c = null) OR (ParentId IN: familyAccountIds AND ExternalId__c LIKE '0002%' AND Id IN: relatedAccounts))];
+                accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState, Parent.Name, StateRegistration__c FROM Account WHERE Status__c = 'Ativo' AND ((ParentId =: accountId AND Id IN: relatedAccounts AND ExternalId__c LIKE '0002%') OR (Id =: accountId AND CNPJ__c != null AND CPF__c = null) OR (ParentId IN: familyAccountIds AND ExternalId__c LIKE '0002%' AND Id IN: relatedAccounts))];
             } else {
-                accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE Status__c = 'Ativo' AND ((ParentId =: accountId AND ExternalId__c LIKE '0002%') OR (Id =: accountId AND CNPJ__c != null AND CPF__c = null) OR ((ParentId IN: familyAccountIds AND ExternalId__c LIKE '0002%')))];
+                accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState, Parent.Name, StateRegistration__c FROM Account WHERE Status__c = 'Ativo' AND ((ParentId =: accountId AND ExternalId__c LIKE '0002%') OR (Id =: accountId AND CNPJ__c != null AND CPF__c = null) OR ((ParentId IN: familyAccountIds AND ExternalId__c LIKE '0002%')))];
             }
 
             for(Account account : accountList) accountListSerialize.add(new AccountSerialize(account));
@@ -1823,6 +1823,8 @@ public without sharing class OrderScreenController {
         public String UF;
         public String CodSap;
         public String Company;
+        public String IE;
+        public String ParentName;
         
         public List<AccountSerialize> accountList;
         AccountSerialize(){}
@@ -1836,6 +1838,8 @@ public without sharing class OrderScreenController {
             this.UF = account.BillingState;
             this.CodSap = account.ExternalId__c;
             this.Company = account.Company__c;
+            this.IE = account.StateRegistration__c;
+            this.ParentName = account.Parent.Name;
         }
 
         AccountSerialize(List<AccountSerialize> accountList){
@@ -2240,6 +2244,14 @@ public without sharing class OrderScreenController {
         public String cropId;
         public String sellerId;
         public List<String> productsIds;
+
+        public QuotaData(){}
+
+        public QuotaData(String cropId, String sellerId, List<String> productsIds){
+            this.cropId = cropId;
+            this.sellerId = sellerId;
+            this.productsIds = productsIds;
+        }
     }
 
     public class QuotaResult {
