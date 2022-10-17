@@ -77,7 +77,7 @@ public without sharing class OrderHelper {
 
         Orderhelper.disableTrigger();
         for(Order order : newRecords){ 
-            orderTypeName = (!Test.isRunningTest() ? Schema.getGlobalDescribe().get('Order').getDescribe().getRecordTypeInfosById().get(order.RecordTypeId).getName() : '');
+            orderTypeName = Schema.getGlobalDescribe().get('Order').getDescribe().getRecordTypeInfosById().get(order.RecordTypeId).getName();
             if(order.StatusSF__c == 'Aprovado' && order.Status != 'X'){
                 if(orderTypeName == 'Venda Barter'){
                     System.enqueueJob(new calloutsQueueBarter(order.Id));
