@@ -78,11 +78,11 @@
                     <span>{!orderToPage.codCTV}</span>
                 </div>
                 <div class="field-item">
-                    <span class="bolder">Local: </span>
-                    <span>{!orderToPage.accountAddress}</span>
+                    <span class="bolder">Nome do Cliente: </span>
+                    <span>{!orderToPage.account}</span>
                 </div>
                 <div class="field-item">
-                    <span class="bolder">Nome do Cliente: </span>
+                    <span class="bolder">Fazenda: </span>
                     <span>{!orderToPage.ranch}</span>
                 </div>
                 <div class="field-item">
@@ -94,16 +94,16 @@
                     <span>{!orderToPage.email}</span>
                 </div>
                 <div class="field-item">
+                    <span class="bolder">Local: </span>
+                    <span>{!orderToPage.accountAddress}</span>
+                </div>
+                <div class="field-item">
                     <span class="bolder">Municipio: </span>
                     <span>{!orderToPage.district}</span>
                 </div>
                 <div class="field-item">
-                    <span class="bolder">CPF/CNPJ: </span>
-                    <span>{!orderToPage.CPF_CNPJ}</span>
-                </div>
-                <div class="field-item">
-                    <span class="bolder">I.E.: </span>
-                    <span>{!orderToPage.IE}</span>
+                    <span class="bolder">CEP: </span>
+                    <span>{!orderToPage.CEP}</span>
                 </div>
             </td>
 
@@ -113,8 +113,8 @@
                     <span>{!orderToPage.nameCTV}</span>
                 </div>
                 <div class="field-item">
-                    <span class="bolder">CEP: </span>
-                    <span>{!orderToPage.CEP}</span>
+                    <span class="bolder">CPF/CNPJ: </span>
+                    <span>{!orderToPage.CPF_CNPJ}</span>
                 </div>
                 <div class="field-item">
                     <span class="bolder">Safra: </span>
@@ -131,6 +131,10 @@
                 <div class="field-item">
                     <span class="bolder">Modalidade de Frete: </span>
                     <span>{!orderToPage.freight}</span>
+                </div>
+                <div class="field-item">
+                    <span class="bolder">I.E.: </span>
+                    <span>{!orderToPage.IE}</span>
                 </div>
             </td>
         
@@ -183,7 +187,22 @@
             </td>
         </tr>
 
+        <apex:outputText rendered="{!orderToPage.isNormalSales == false}">
+            <tr>
+                <td class="title divider-top divider-bottom" >
+                    Frete
+                </td>
+                <td class="divider-top divider-bottom">
+                    <div class="container-total-value">
+                        <span class="highlight">{!orderToPage.freightValue}</span>
+                    </div>
+                </td>
+            </tr>
+        </apex:outputText>
+
         <tr>
+            
+
             <td class="title divider-top divider-bottom">
                 Valor total
             </td>
