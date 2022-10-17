@@ -14,7 +14,7 @@
         </div>
         <div class="slds-m-around_medium">
             <lightning-input type="file" 
-            accept=".xlsx, .xls, .csv, .png, .jpg, .jpeg, .doc, .docx, .pdf"
+            accept=".xlsx, .xls, .csv, .png, .jpg, .jpeg, .doc, .docx, .jfif, .pdf"
             label="Arquivos" onchange={openfileUpload}></lightning-input>
         </div>
         <template for:each={fieldData} for:item="field" for:index="index">
@@ -34,8 +34,8 @@
     </lightning-card>
         
     <template if:true={preview}>
+        <span class="close" onclick={cancel}>&times;</span>
         <div class="modal">
-            <span class="close" onclick={cancel}>&times;</span>
             <div class="popup-preview" >
                 <div class="visualization">
                     <img src={urlValue}/>
