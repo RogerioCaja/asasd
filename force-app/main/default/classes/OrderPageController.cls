@@ -47,7 +47,7 @@ public with sharing class OrderPageController {
   
         Set<String> fieldSet = new Set<String>{
             'Id', 'Account.ExternalId__c', 'Account.Name', 'Account.BillingStreet', 'OrderNumber',
-            'ShippingAccount__r.Name', 'ShippingAccount__r.Phone', 'ShippingAccount__r.Email__c', 'Account.BillingCity', 'Account.StateRegistration__c', 'SalesOrg__r.SalesOrganizationCode__c',
+            'ShippingAccount__r.Name', 'ShippingAccount__r.Phone', 'ShippingAccount__r.Email__c', 'Account.BillingCity', 'Account.StateRegistration__c', 'SalesOrg__r.SalesOrganizationCode__c', 'SalesOrg__r.PDFLegalClauses__c',
             'Company__r.salesTeam__r.Address__c','Company__r.salesTeam__r.CNPJ__c', 'Company__r.salesTeam__r.Country__c', 'Company__r.salesTeam__r.Locale__c','Company__r.salesTeam__r.Phone__c',
             'Company__r.salesTeam__r.Registration__c','Company__r.salesTeam__r.State__c', 'Company__r.salesTeam__r.Subsidiary__c', 'Company__r.salesTeam__r.ZipCode__c',
             'Account.CPF__c', 'Account.CNPJ__c', 'TotalAmount', 'Description', 'FinalTotalValue__c', 'Status',
@@ -168,6 +168,7 @@ public with sharing class OrderPageController {
         public String salesTeamPhone            {get; set;}
         public String salesTeamCNPJ             {get; set;}
         public String salesTeamIE               {get; set;}
+        public String legalClauses              {get; set;}
         public Boolean isNormalSales            {get; set;}
 
         public List<OrderItemDAO> orderItemList {get; set;}
@@ -206,6 +207,7 @@ public with sharing class OrderPageController {
             this.salesTeamCNPJ = order.Company__r.salesTeam__r.CNPJ__c;
             this.salesTeamIE = order.Company__r.salesTeam__r.Registration__c;
             this.isNormalSales = order.SalesOrg__r.SalesOrganizationCode__c == '1700' ? false : true;
+            this.legalClauses = order.SalesOrg__r.PDFLegalClauses__c != null ? order.SalesOrg__r.PDFLegalClauses__c : '';
             this.orderItemList = new List<OrderItemDAO>();
         }
 
