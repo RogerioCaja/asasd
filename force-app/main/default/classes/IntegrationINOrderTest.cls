@@ -353,6 +353,16 @@ static void verifyIntegrationOrder(){
     listOrder.shippingDivison = new List<TemplateDataIntegrationFields.ShippingDivisonINData>();
     listOrder.shippingDivison.add(listShippingDivision);
 
+
+    TemplateDataIntegrationFields.FormPaymentINData listFormPayment = new TemplateDataIntegrationFields.FormPaymentINData();
+    listFormPayment.orderExternalId =  '11111';
+    listFormPayment.paymentDate =  Date.valueOf('2022-09-21');
+    listFormPayment.paymentItemCode =  '10';
+    listFormPayment.paymentAndValue =  2;
+    listOrder.formPayment = new List<TemplateDataIntegrationFields.FormPaymentINData>();
+    listOrder.formPayment.add(listFormPayment);
+
+
     List<TemplateDataINtegrationFields.PartnerInsert> listPartnersList = new List<TemplateDataINtegrationFields.PartnerInsert>();
     TemplateDataIntegrationFields.PartnerInsert listPartners1 = new TemplateDataIntegrationFields.PartnerInsert();
     TemplateDataIntegrationFields.PartnerInsert listPartners2 = new TemplateDataIntegrationFields.PartnerInsert();
@@ -505,6 +515,14 @@ static void verifyIntegrationOrder(){
         listOrder.shippingDivison = new List<TemplateDataIntegrationFields.ShippingDivisonINData>();
         listOrder.shippingDivison.add(listShippingDivision);
     
+        TemplateDataIntegrationFields.FormPaymentINData listFormPayment = new TemplateDataIntegrationFields.FormPaymentINData();
+        listFormPayment.orderExternalId =  '11111';
+        listFormPayment.paymentDate =  Date.valueOf('2022-09-21');
+        listFormPayment.paymentItemCode =  '10';
+        listFormPayment.paymentAndValue =  2;
+        listOrder.formPayment = new List<TemplateDataIntegrationFields.FormPaymentINData>();
+        listOrder.formPayment.add(listFormPayment);
+
         List<TemplateDataINtegrationFields.PartnerInsert> listPartnersList = new List<TemplateDataINtegrationFields.PartnerInsert>();
         TemplateDataIntegrationFields.PartnerInsert listPartners1 = new TemplateDataIntegrationFields.PartnerInsert();
         TemplateDataIntegrationFields.PartnerInsert listPartners2 = new TemplateDataIntegrationFields.PartnerInsert();
@@ -666,6 +684,14 @@ static void verifyIntegrationOrder(){
         listShippingDivision.DataDivisao =  Date.valueOf('2022-09-21');
         listOrder.shippingDivison = new List<TemplateDataIntegrationFields.ShippingDivisonINData>();
         listOrder.shippingDivison.add(listShippingDivision);
+
+        TemplateDataIntegrationFields.FormPaymentINData listFormPayment = new TemplateDataIntegrationFields.FormPaymentINData();
+        listFormPayment.orderExternalId =  '11111';
+        listFormPayment.paymentDate =  Date.valueOf('2022-09-21');
+        listFormPayment.paymentItemCode =  '10';
+        listFormPayment.paymentAndValue =  2;
+        listOrder.formPayment = new List<TemplateDataIntegrationFields.FormPaymentINData>();
+        listOrder.formPayment.add(listFormPayment);
     
         List<TemplateDataINtegrationFields.PartnerInsert> listPartnersList = new List<TemplateDataINtegrationFields.PartnerInsert>();
         TemplateDataIntegrationFields.PartnerInsert listPartners1 = new TemplateDataIntegrationFields.PartnerInsert();
@@ -910,6 +936,16 @@ static void verifyIntegrationOrder(){
         listOrder.shippingDivison = new List<TemplateDataIntegrationFields.ShippingDivisonINData>();
         listOrder.shippingDivison.add(listShippingDivision);
    		
+
+        TemplateDataIntegrationFields.FormPaymentINData listFormPayment = new TemplateDataIntegrationFields.FormPaymentINData();
+        listFormPayment.orderExternalId =  '11111';
+        listFormPayment.paymentDate =  Date.valueOf('2022-09-21');
+        listFormPayment.paymentItemCode =  '10';
+        listFormPayment.paymentAndValue =  2;
+        listOrder.formPayment = new List<TemplateDataIntegrationFields.FormPaymentINData>();
+        listOrder.formPayment.add(listFormPayment);
+
+        
         listOrderList.add(listOrder);
         Test.startTest();
         IntegrationINOrderAppdigital.ResponseModel modelo = IntegrationINOrderAppdigital.upsertOrder(listOrderList);

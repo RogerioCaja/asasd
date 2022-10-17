@@ -407,8 +407,8 @@ global with sharing class TemplateDataIntegrationFields {
                 Type = this.salesType != null ? this.salesType : Schema.getGlobalDescribe().get('Order').getDescribe().getRecordTypeInfosById().get(this.recordIdToUpdate).getName(),
                 OrderType__c = this.orderReference != '' ? 'Pedido Filho' : (this.pedidoMae ? 'Pedido Mãe' : 'Pedido Normal'),
                 
-                OwnerId = lookups.containsKey('User'+this.salesCTV) ? lookups.get('User'+this.salesCTV) : null
-                //ACMContract__c = this.contratoACM
+                OwnerId = lookups.containsKey('User'+this.salesCTV) ? lookups.get('User'+this.salesCTV) : null,
+                ACMContract__c = this.contratoACM
                 
             );
         }
@@ -727,6 +727,7 @@ global with sharing class TemplateDataIntegrationFields {
             public String instrucoes;
             public String numeroBoleto;
             public String bancoEmpresa;
+            public String boletoBasePdf;
             public Boletos__c serialize(Map<String, Id> lookups){
 
                 //Returning Object with Fields
@@ -741,7 +742,8 @@ global with sharing class TemplateDataIntegrationFields {
                 BankName__c = this.bancoEmpresa,
                 OurNumber__c = this.numeroBoleto,
                 BusinessLocation__c = this.localNegocio, 
-                Instructions__c = this.instrucoes
+                Instructions__c = this.instrucoes,
+                Base64__c = this.boletoBasePdf
             );
         }
 
