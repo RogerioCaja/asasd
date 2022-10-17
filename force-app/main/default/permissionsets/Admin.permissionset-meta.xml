@@ -1806,17 +1806,17 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>OrderCommodity__c.ExternalID__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
         <field>OrderCommodity__c.BagQuantity__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
         <field>OrderCommodity__c.CommodityPrice__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>OrderCommodity__c.ExternalID__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -2462,6 +2462,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>SalesOrg__c.Freight__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>SalesOrg__c.PDFLegalClauses__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
