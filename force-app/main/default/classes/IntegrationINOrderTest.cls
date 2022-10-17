@@ -243,8 +243,10 @@ public with sharing class IntegrationINOrderTest {
         PricebookEntryId = [SELECT Id FROM PricebookEntry WHERE Product2Id =: prod.Id LIMIT 1][0].Id
     );
 
+    OrderHelper.disableTrigger();
     INSERT orderItem;
-      
+    OrderHelper.enableTrigger();
+
       OrderItem orderItem2 = new OrderItem(
         OrderId = order3.Id,
         Product2Id = prod.Id,
@@ -256,8 +258,10 @@ public with sharing class IntegrationINOrderTest {
         PricebookEntryId = [SELECT Id FROM PricebookEntry WHERE Product2Id =: prod.Id LIMIT 1][0].Id
     );
 
+    OrderHelper.disableTrigger();
     INSERT orderItem2;
-
+    OrderHelper.enableTrigger();
+    
     ShippingDivison__c shipping = new ShippingDivison__c(
         DeliveryDate__c = System.today().addDays(30),
         Quantity__c = 10,
