@@ -2404,6 +2404,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>true</editable>
+        <field>SalesOrg__c.PDFLegalClauses__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>false</editable>
         <field>SalesTeam__c.Address__c</field>
         <readable>true</readable>
