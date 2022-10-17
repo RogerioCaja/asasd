@@ -198,7 +198,7 @@ public with sharing class OrderPageController {
             this.codCTV = order.SalesCTV__r.CodigoSap__c;
             this.nameCTV = order.SalesCTV__r.Name;
             this.freight = order.Incoterms__c;
-            this.freightValue = formatCurrency(order.FreightValue__c, this.currencyOrder).contains(',') ? formatCurrency(order.FreightValue__c, this.currencyOrder) : formatCurrency(order.FreightValue__c, this.currencyOrder) + ',00';
+            this.freightValue = formatCurrency(order.FreightValue__c == null ? 0 : order.FreightValue__c, this.currencyOrder).contains(',') ? formatCurrency(order.FreightValue__c == null ? 0 : order.FreightValue__c, this.currencyOrder) : formatCurrency(order.FreightValue__c == null ? 0 : order.FreightValue__c, this.currencyOrder) + ',00';
             this.salesTeamName = order.Company__r.salesTeam__r.Subsidiary__c;
             this.salesTeamLocale = order.Company__r.salesTeam__r.Address__c;
             this.salesTeamLocation = order.Company__r.salesTeam__r.ZipCode__c +' - '+ order.Company__r.salesTeam__r.Locale__c +', '+ order.Company__r.salesTeam__r.State__c +' - '+ order.Company__r.salesTeam__r.Country__c;
