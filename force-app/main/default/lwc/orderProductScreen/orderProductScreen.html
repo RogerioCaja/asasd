@@ -81,7 +81,7 @@
 						</div>
 
 						<div class="row">
-							<div class="column">
+							<div class="column" if:false={seedSale}>
 								<label>Dosagem</label><br>
 								<template if:true={headerData.IsOrderChild}>
 									<input class="input-design" type="text" value={addProduct.dosageFront} onchange={changeValue} data-target-id="dosage" disabled/>
@@ -89,6 +89,11 @@
 								<template if:false={headerData.IsOrderChild}>
 									<input class="input-design" type="text" value={addProduct.dosageFront} onchange={changeValue} data-target-id="dosage" disabled={disabled}/>
 								</template>
+							</div>
+
+							<div class="column" if:true={seedSale}>
+								<label>Corretagem</label><br>
+								<input class="input-design" type="text" value={addProduct.brokerageFront} onchange={changeValue} data-target-id="brokerage"  disabled={disabled}/>
 							</div>
 
 							<div class="column">
@@ -109,7 +114,13 @@
 							</div>
 							<div class="column">
 								<label>Preço Total</label><br>
-								<input class="input-design" type="text" value={addProduct.totalPriceFront} disabled/>
+								<template if:false={seedSale}>
+									<input class="input-design" type="text" value={addProduct.totalPriceFront} disabled/>
+								</template>
+								
+								<template if:true={seedSale}>
+									<input class="input-design" type="text" value={addProduct.totalPriceWithBrokerageFront} disabled/>
+								</template>
 							</div>
 						</div>
 
@@ -340,6 +351,14 @@
 								<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnProductClass} data-target-id="columnProductClass">
 								<label class="column-title">Classe/Categoria</label><br>
 							</div>
+						</div>
+
+						<div if:true={seedSale} class="row">
+							<div class="column">
+								<input type="checkbox" class="column-input" onclick={changeTableColumns} checked={selectedColumns.columnBrokerage} data-target-id="columnBrokerage">
+								<label class="column-title">Corretagem</label><br>
+							</div>
+	
 						</div>
 
 						<div class="row">
