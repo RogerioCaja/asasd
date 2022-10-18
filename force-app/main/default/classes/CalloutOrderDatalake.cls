@@ -25,7 +25,7 @@ public without sharing class CalloutOrderDatalake {
         IsOrderMother__c, Company__c, RecordTypeId, TotalAmount, StatusSAP__c,Culture__r.Name,SalesOrg__r.Name,Crop__r.Name,
         SalesCTV__r.CodigoSap__c,PaymentCondition__r.Code__c, Company__r.SupplierCenter__c, Company__r.SalesOffice__r.Codigo__c, Company__r.SalesTeam__r.ExternalId__c,
         DistributionChannel__r.Codigo__c,ActivitySector__r.Codigo__c, PaymentCondition__r.Name,EndDate,
-        SalesCondition__r.ExternalId__c,SalesCondition__r.Name, Company__r.ExternalID__c, (SELECT Id FROM OrderItems) 
+        SalesCondition__r.ExternalId__c,SalesCondition__r.Name, Company__r.ExternalID__c,ACMContract__c, (SELECT Id FROM OrderItems) 
                             FROM Order WHERE Id = :orderId];
         System.debug('parentOrder' + parentOrder);
         List<Order> allOrders = new List<Order>{parentOrder};
@@ -211,6 +211,7 @@ public without sharing class CalloutOrderDatalake {
                 
                 //Campos Lookups 
                 header.shippingAccount = order.ShippingAccount__r.ExternalId__c; // Já está adicionado na query
+                header.acmContract = order.ACMContract__c;
                 header.paymentAccount = order.Account.ExternalId__c;  // Já está adicionado na query
                 header.crop = order.Crop__r.Code__c;  // Já está adicionado na query
                 header.cropName = order.Crop__r.Name; // Já está adicionado na query
@@ -274,6 +275,7 @@ public without sharing class CalloutOrderDatalake {
             else {
                 CalloutOrderDatalake.HeaderUpdate header = new CalloutOrderDatalake.HeaderUpdate();
                 header.shippingAccount = order.ShippingAccount__r.ExternalId__c; // Já está adicionado na query
+                header.acmContract = order.ACMContract__c;
                 header.paymentAccount = order.Account.ExternalId__c;  // Já está adicionado na query
                 header.crop = order.Crop__r.Code__c;  // Já está adicionado na query
                 header.cropName = order.Crop__r.Name; // Já está adicionado na query
@@ -341,6 +343,7 @@ public without sharing class CalloutOrderDatalake {
 
     public class HeaderInsert{
         public String orderCodeSf;
+        public String acmContract;
         public String paymentConditionName;
         public String centroFornecedor;
         public String escritorioVendas;
@@ -395,6 +398,7 @@ public without sharing class CalloutOrderDatalake {
 
     public class HeaderUpdate{
         public String orderCodeSf;
+        public String acmContract;
         public String paymentConditionName;
         public String centroFornecedor;
         public String escritorioVendas;
