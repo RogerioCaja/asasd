@@ -211,6 +211,7 @@ public without sharing class CalloutOrderDatalake {
                 
                 //Campos Lookups 
                 header.shippingAccount = order.ShippingAccount__r.ExternalId__c; // Já está adicionado na query
+                header.acmContract = order.ACMContract__c;
                 header.paymentAccount = order.Account.ExternalId__c;  // Já está adicionado na query
                 header.crop = order.Crop__r.Code__c;  // Já está adicionado na query
                 header.cropName = order.Crop__r.Name; // Já está adicionado na query
@@ -274,6 +275,7 @@ public without sharing class CalloutOrderDatalake {
             else {
                 CalloutOrderDatalake.HeaderUpdate header = new CalloutOrderDatalake.HeaderUpdate();
                 header.shippingAccount = order.ShippingAccount__r.ExternalId__c; // Já está adicionado na query
+                header.acmContract = order.ACMContract__c;
                 header.paymentAccount = order.Account.ExternalId__c;  // Já está adicionado na query
                 header.crop = order.Crop__r.Code__c;  // Já está adicionado na query
                 header.cropName = order.Crop__r.Name; // Já está adicionado na query
@@ -341,6 +343,7 @@ public without sharing class CalloutOrderDatalake {
 
     public class HeaderInsert{
         public String orderCodeSf;
+        public String acmContract;
         public String paymentConditionName;
         public String centroFornecedor;
         public String escritorioVendas;
@@ -395,6 +398,7 @@ public without sharing class CalloutOrderDatalake {
 
     public class HeaderUpdate{
         public String orderCodeSf;
+        public String acmContract;
         public String paymentConditionName;
         public String centroFornecedor;
         public String escritorioVendas;
