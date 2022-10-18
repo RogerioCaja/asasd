@@ -14,6 +14,7 @@ public without sharing class GeneralQuotasTriggerHandler {
     }
 
     public void onBeforeInsert() {
+        GeneralQuotasTriggerHelper.verifyDuplicateGeneralQuota(newRecords);
         GeneralQuotasTriggerHelper.fillBalanceField(newRecords);
     }
 
