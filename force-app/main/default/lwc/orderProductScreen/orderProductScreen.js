@@ -7,8 +7,10 @@ import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import isSeedSale from '@salesforce/apex/OrderScreenController.isSeedSale';
 import getSafraInfos from '@salesforce/apex/OrderScreenController.getSafraInfos';
 import getFinancialInfos from '@salesforce/apex/OrderScreenController.getFinancialInfos';
+import getSpecificCombos from '@salesforce/apex/OrderScreenController.getSpecificCombos';
 import checkQuotaQuantity from '@salesforce/apex/OrderScreenController.checkQuotaQuantity';
 import getAccountCompanies from '@salesforce/apex/OrderScreenController.getAccountCompanies';
+import getMixAndConditionCombos from '@salesforce/apex/OrderScreenController.getMixAndConditionCombos';
 import fetchOrderRecords from '@salesforce/apex/CustomLookupController.fetchProductsRecords';
 
 let actions = [];
@@ -92,8 +94,18 @@ export default class OrderProductScreen extends LightningElement {
 
     disabled=false;
     disableSearch=false;
+    unitPriceDisabled=false;
     numberOfRowsToSkip=0;
     showLoading=true;
+
+    combosData;
+    showCombos=false;
+    checkCombo=false;
+    comboRowsToSkip=0;
+    comboProducts = {
+        formerIds: [],
+        benefitsIds: []
+    }
 
     // haScreen = false;
     /* haData = [{
@@ -121,9 +133,12 @@ export default class OrderProductScreen extends LightningElement {
     @api cloneData;
     @api childOrder;
     @api excludedItems;
-    @api formsOfPayment
+    @api formsOfPayment;
+    @api combosSelecteds;
 
     connectedCallback(event) {
+        if (!this.isFilled(this.combosSelecteds)) this.combosSelecteds=[];
+        
         let today = new Date();
         let dd = String(today.getDate()).padStart(2, '0');
         let mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -160,6 +175,7 @@ export default class OrderProductScreen extends LightningElement {
             this.headerData.status_pedido == 'Em aprovação - Diretor' || this.headerData.status_pedido == 'Em aprovação - Comitê Margem' || this.headerData.status_pedido == 'Em aprovação - Mesa de Grãos') {
             this.disabled = true;
             this.disableSearch = true;
+            this.unitPriceDisabled = true;
         }
 
         if (this.isFilled(this.commoditiesData) && this.commoditiesData.length > 0) this.showCommodityData = true;
@@ -208,7 +224,15 @@ export default class OrderProductScreen extends LightningElement {
             approvalNumber: 1
         }
 
-        console.log('this.childOrder: ' + this.childOrder);
+        if (!this.headerData.IsOrderChild && !this.isFilled(this.headerData.codigo_sap)) {
+            this.getCombos(getCompanyData);
+        } else {
+            this.getCompanies(getCompanyData);
+        }
+    }
+
+    getCompanies(getCompanyData) {
+        this.showLoading = true;
         getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: false, verifyUserType: false, priceScreen: false, childOrder: this.childOrder})
         .then((result) => {
             this.companyResult = JSON.parse(result).listCompanyInfos;
@@ -234,8 +258,6 @@ export default class OrderProductScreen extends LightningElement {
                 }
             }
         });
-
-        
     }
 
     newProduct(currentProduct) {
@@ -298,7 +320,12 @@ export default class OrderProductScreen extends LightningElement {
             ptaProduct: currentProduct.ptaProduct,
             priceListCode: currentProduct.priceListCode,
             sieve: this.isFilled(currentProduct.sieve) ? currentProduct.sieve : '',
-            productClass: this.isFilled(currentProduct.productClass) ? currentProduct.productClass : ''
+            productClass: this.isFilled(currentProduct.productClass) ? currentProduct.productClass : '',
+            comboDiscountPercent: this.isFilled(currentProduct.comboDiscountPercent) ? currentProduct.comboDiscountPercent : '0%',
+            comboDiscountValue: this.isFilled(currentProduct.comboDiscountValue) ? currentProduct.comboDiscountValue : 0,
+            comboId: this.isFilled(currentProduct.comboId) ? currentProduct.comboId : null,
+            industryCombo: false,
+            agrogalaxyCombo: false
         };
         return newProduct;
     }
@@ -341,6 +368,39 @@ export default class OrderProductScreen extends LightningElement {
             let prodsIds = [];
             for (let index = 0; index < this.products.length; index++) {
                 prodsIds.push(this.products[index].productId);
+            }
+
+            let formerItens = [];
+            let benefitItens = [];
+            for (let index = 0; index < this.combosSelecteds.length; index++) {
+                let currentCombo = this.combosSelecteds[index];
+                for (let i = 0; i < currentCombo.formerItems.length; i++) {
+                    formerItens.push({
+                        productName: currentCombo.formerItems[i].productName,
+                        productId: currentCombo.formerItems[i].productId,
+                        productCode: currentCombo.formerItems[i].productCode,
+                        minQUantity: currentCombo.formerItems[i].minQUantity,
+                        discountPercentage: currentCombo.formerItems[i].discountPercentage,
+                        comboId: currentCombo.formerItems[i].comboId,
+                        comboQuantity: currentCombo.comboQuantity,
+                        industryCombo: currentCombo.comboType == 'Indústria'
+                    });
+                    prodsIds.push(currentCombo.formerItems[i].productId);
+                }
+
+                for (let i = 0; i < currentCombo.benefitItems.length; i++) {
+                    benefitItens.push({
+                        productName: currentCombo.benefitItems[i].productName,
+                        productId: currentCombo.benefitItems[i].productId,
+                        productCode: currentCombo.benefitItems[i].productCode,
+                        minQUantity: currentCombo.benefitItems[i].minQUantity,
+                        discountPercentage: currentCombo.benefitItems[i].discountPercentage,
+                        comboId: currentCombo.benefitItems[i].comboId,
+                        comboQuantity: currentCombo.comboQuantity,
+                        industryCombo: currentCombo.comboType == 'Indústria'
+                    });
+                    prodsIds.push(currentCombo.benefitItems[i].productId);
+                }
             }
 
             if (this.seedSale && this.headerData.tipo_pedido != 'Pedido Filho' && !this.headerData.IsOrderChild) {
@@ -398,8 +458,8 @@ export default class OrderProductScreen extends LightningElement {
 
                     let allowChange = (this.headerData.tipo_pedido != 'Pedido Filho' && !this.headerData.IsOrderChild && this.isFilled(this.headerData.codigo_sap)) ||
                                     (this.headerData.tipo_pedido == 'Pedido Filho' && this.isFilled(this.headerData.codigo_sap)) ? false : true;
-                                    
-                    if (this.headerData.pre_pedido && allowChange) {
+                            
+                    if (this.headerData.pre_pedido && (allowChange || this.checkCombo)) {
                         fetchOrderRecords({
                             searchString: '',
                             data: JSON.stringify(this.productParams),
@@ -414,13 +474,57 @@ export default class OrderProductScreen extends LightningElement {
                             let listPriceChange = false;
                             let productsWithoutPrice = '';
                             let itemToExclude = [];
+                            let counter = 0;
+                            
+                            for (let index = 0; index < formerItens.length; index++) {
+                                let productInfos = this.getProductByPriority({Id: formerItens[index].productId});
+                                let priorityPrice = {
+                                    listPrice: productInfos.listPrice,
+                                    costPrice: productInfos.costPrice,
+                                    priceListCode: productInfos.priceListCode
+                                };
+
+                                let formerProductQuantity = formerItens[index].minQUantity * formerItens[index].comboQuantity;
+                                let comboValues = {
+                                    dosage: formerProductQuantity / this.hectares,
+                                    quantity: formerProductQuantity,
+                                    comboDiscount: 0,
+                                    comboId: formerItens[index].comboId,
+                                    industryCombo: formerItens[index].industryCombo
+                                }
+
+                                this.products.push(this.createProduct(productInfos, priorityPrice, comboValues, counter));
+                                counter++;
+                            }
+                
+                            for (let index = 0; index < benefitItens.length; index++) {
+                                let productInfos = this.getProductByPriority({Id: benefitItens[index].productId});
+                                let priorityPrice = {
+                                    listPrice: productInfos.listPrice,
+                                    costPrice: productInfos.costPrice,
+                                    priceListCode: productInfos.priceListCode
+                                };
+
+                                let benefitProductQuantity = benefitItens[index].minQUantity * benefitItens[index].comboQuantity;
+                                let comboValues = {
+                                    dosage: benefitProductQuantity / this.hectares,
+                                    quantity: benefitProductQuantity,
+                                    comboDiscount: benefitItens[index].discountPercentage,
+                                    comboId: benefitItens[index].comboId,
+                                    industryCombo: formerItens[index].industryCombo
+                                }
+
+                                this.products.push(this.createProduct(productInfos, priorityPrice, comboValues, counter));
+                                counter++;
+                            }
+                            this.products = JSON.parse(JSON.stringify(this.products));
 
                             for (let index = 0; index < this.products.length; index++) {
                                 this.addProduct = this.products[index];
                                 let priorityInfos = this.getProductByPriority(this.addProduct);
                                 
                                 if (this.isFilled(priorityInfos)) {
-                                    if (priorityInfos.listPrice != this.addProduct.listPrice || priorityInfos.costPrice != this.addProduct.listCost) {
+                                    if (priorityInfos.listPrice != this.addProduct.listPrice || priorityInfos.costPrice != this.addProduct.listCost || this.checkCombo) {
                                         this.addProduct.listPrice = this.isFilled(priorityInfos.listPrice) ? this.fixDecimalPlaces(priorityInfos.listPrice) : 0;
                                         this.addProduct.listPriceFront = this.isFilled(priorityInfos.listPrice) ? this.fixDecimalPlacesFront(priorityInfos.listPrice) : 0;
                                         this.addProduct.listCost = this.isFilled(priorityInfos.costPrice) ? this.fixDecimalPlaces(priorityInfos.costPrice) : 0;
@@ -450,6 +554,7 @@ export default class OrderProductScreen extends LightningElement {
                             }
 
                             this.products = JSON.parse(JSON.stringify(orderProducts));
+                            this.showIncludedProducts = this.products.length > 0;
                             this.excludedItems = this.isFilled(this.excludedItems) ? this.excludedItems : JSON.parse(JSON.stringify(itemToExclude));
                             this._setExcludedesItems();
                             this._setData();
@@ -519,6 +624,24 @@ export default class OrderProductScreen extends LightningElement {
                         })
                     } else {
                         this.showLoading = false;
+                    }
+                    
+                    if (!this.headerData.IsOrderChild && !this.isFilled(this.headerData.codigo_sap)) {
+                        let headerValues = {
+                            cropId: this.headerData.safra.Id,
+                            salesOrgId: this.selectedCompany.salesOrgId,
+                            salesTeamId: this.selectedCompany.salesTeamId,
+                            salesOfficeId: this.selectedCompany.salesOfficeId,
+                            salesConditionId: this.headerData.condicao_venda.Id
+                        }
+
+                        getMixAndConditionCombos({data: JSON.stringify(headerValues)})
+                        .then((result) => {
+                            let combosAndPromotions = JSON.parse(result);
+                            if (combosAndPromotions.length > 0) {
+                                this.combosData = combosAndPromotions;
+                            }
+                        });
                     }
                 })
             } else {
@@ -614,66 +737,70 @@ export default class OrderProductScreen extends LightningElement {
                 this.createNewProduct = false;
                 this.editProduct(existProduct.position, false);
             } else {
-                console.log('this.baseProducts: ' + JSON.stringify(this.baseProducts));
-                console.log('productId: ' + productId);
                 let currentProduct = this.baseProducts.find(e => e.Id == productId);
                 let priorityInfos = this.getProductByPriority(currentProduct);
     
                 this.multiplicity = this.isFilled(currentProduct.multiplicity) ? currentProduct.multiplicity : 1;
                 this.costPrice = priorityInfos.costPrice;
-                this.addProduct = {
-                    entryId: currentProduct.entryId,
-                    productId: currentProduct.Id,
-                    name: currentProduct.Name,
-                    unity: currentProduct.unity,
-                    listPrice: this.isFilled(priorityInfos.listPrice) ? this.fixDecimalPlaces(priorityInfos.listPrice) : 0,
-                    listPriceFront: this.isFilled(priorityInfos.listPrice) ? this.fixDecimalPlacesFront(priorityInfos.listPrice) : 0,
-                    listCost: this.isFilled(priorityInfos.costPrice) ? this.fixDecimalPlaces(priorityInfos.costPrice) : 0,
-                    practicedCost: this.isFilled(priorityInfos.costPrice) ? this.fixDecimalPlaces(priorityInfos.costPrice) : 0,
-                    dosage: this.isFilled(currentProduct.dosage) ? currentProduct.dosage : '',
-                    dosageFront: this.isFilled(currentProduct.dosage) ? this.fixDecimalPlacesFront(currentProduct.dosage) : '',
-                    brokerage: this.isFilled(currentProduct.brokerage) ? currentProduct.brokerage : 0,
-                    brokerageFront: this.isFilled(currentProduct.brokerage) ? this.fixDecimalPlacesFront(currentProduct.brokerage) : 0,
-                    quantity: null,
-                    unitPrice: this.isFilled(priorityInfos.listPrice) ? this.fixDecimalPlaces(priorityInfos.listPrice) : 0,
-                    unitPriceFront: this.isFilled(priorityInfos.listPrice) ? this.fixDecimalPlacesFront(priorityInfos.listPrice) : 0,
-                    totalPrice: null,
-                    totalPriceFront: null,
-                    totalPriceWithBrokerage: 0,
-                    totalPriceWithBrokerageFront: 0,
-                    initialTotalValue: null,
-                    commercialDiscountPercentage: null,
-                    commercialDiscountPercentageFront: null,
-                    commercialDiscountValue: null,
-                    commercialDiscountValueFront: null,
-                    commercialAdditionPercentage: null,
-                    commercialAdditionPercentageFront: null,
-                    commercialAdditionValue: null,
-                    commercialAdditionValueFront: null,
-                    financialAdditionPercentage: null,
-                    financialAdditionPercentageFront: null,
-                    financialAdditionValue: null,
-                    financialAdditionValueFront: null,
-                    financialDecreasePercentage: null,
-                    financialDecreasePercentageFront: null,
-                    financialDecreaseValue: null,
-                    financialDecreaseValueFront: null,
-                    invoicedQuantity: this.isFilled(currentProduct.invoicedQuantity) ? currentProduct.invoicedQuantity : 0,
-                    motherAvailableQuantity: currentProduct.motherAvailableQuantity,
-                    activePrinciple: currentProduct.activePrinciple != null ? currentProduct.activePrinciple : '',
-                    productGroupId: currentProduct.productGroupId != null ? currentProduct.productGroupId : '',
-                    productGroupName: currentProduct.productGroupName != null ? currentProduct.productGroupName : '',
-                    productSubgroupName: currentProduct.productSubgroupName != null ? currentProduct.productSubgroupName : '',
-                    productHierarchyId: currentProduct.productHierarchyId != null ? currentProduct.productHierarchyId : '',
-                    sapStatus: currentProduct.sapStatus != null ? currentProduct.sapStatus : '',
-                    sapProductCode: currentProduct.sapProductCode != null ? currentProduct.sapProductCode : '',
-                    ptaProduct: currentProduct.ptaProduct,
-                    priceListCode: priorityInfos.priceListCode,
-                    sieve: this.isFilled(currentProduct.sieve) ? currentProduct.sieve : '',
-                    productClass: this.isFilled(currentProduct.productClass) ? currentProduct.productClass : ''
-                };
+                this.addProduct = this.createProduct(currentProduct, priorityInfos);
             }
         }
+    }
+
+    createProduct(currentProduct, priorityInfos, comboValues, counter) {
+        let newProductData = {
+            entryId: currentProduct.entryId,
+            productId: currentProduct.Id,
+            name: currentProduct.Name,
+            unity: currentProduct.unity,
+            listPrice: this.isFilled(priorityInfos.listPrice) ? this.fixDecimalPlaces(priorityInfos.listPrice) : 0,
+            listPriceFront: this.isFilled(priorityInfos.listPrice) ? this.fixDecimalPlacesFront(priorityInfos.listPrice) : 0,
+            listCost: this.isFilled(priorityInfos.costPrice) ? this.fixDecimalPlaces(priorityInfos.costPrice) : 0,
+            practicedCost: this.isFilled(priorityInfos.costPrice) ? this.fixDecimalPlaces(priorityInfos.costPrice) : 0,
+            dosage: this.isFilled(comboValues) ? comboValues.dosage : (this.isFilled(currentProduct.dosage) ? currentProduct.dosage : ''),
+            dosageFront: this.isFilled(comboValues) ? comboValues.dosage : (this.isFilled(currentProduct.dosage) ? this.fixDecimalPlacesFront(currentProduct.dosage) : ''),
+            quantity: this.isFilled(comboValues) ? comboValues.quantity : null,
+            unitPrice: this.isFilled(priorityInfos.listPrice) ? this.fixDecimalPlaces(priorityInfos.listPrice) : 0,
+            unitPriceFront: this.isFilled(priorityInfos.listPrice) ? this.fixDecimalPlacesFront(priorityInfos.listPrice) : 0,
+            totalPrice: null,
+            totalPriceFront: null,
+            initialTotalValue: null,
+            commercialDiscountPercentage: this.isFilled(comboValues) ? '0%' : null,
+            commercialDiscountPercentageFront: this.isFilled(comboValues) ? '0%' : null,
+            commercialDiscountValue: this.isFilled(comboValues) ? 0 : null,
+            commercialDiscountValueFront: this.isFilled(comboValues) ? 0 : null,
+            commercialAdditionPercentage: this.isFilled(comboValues) ? '0%' : null,
+            commercialAdditionPercentageFront: this.isFilled(comboValues) ? '0%' : null,
+            commercialAdditionValue: this.isFilled(comboValues) ? 0 : null,
+            commercialAdditionValueFront: this.isFilled(comboValues) ? 0 : null,
+            financialAdditionPercentage: this.isFilled(comboValues) ? '0%' : null,
+            financialAdditionPercentageFront: this.isFilled(comboValues) ? '0%' : null,
+            financialAdditionValue: this.isFilled(comboValues) ? 0 : null,
+            financialAdditionValueFront: this.isFilled(comboValues) ? 0 : null,
+            financialDecreasePercentage: this.isFilled(comboValues) ? '0%' : null,
+            financialDecreasePercentageFront: this.isFilled(comboValues) ? '0%' : null,
+            financialDecreaseValue: this.isFilled(comboValues) ? 0 : null,
+            financialDecreaseValueFront: this.isFilled(comboValues) ? 0 : null,
+            invoicedQuantity: this.isFilled(currentProduct.invoicedQuantity) ? currentProduct.invoicedQuantity : 0,
+            motherAvailableQuantity: currentProduct.motherAvailableQuantity,
+            activePrinciple: currentProduct.activePrinciple != null ? currentProduct.activePrinciple : '',
+            productGroupId: currentProduct.productGroupId != null ? currentProduct.productGroupId : '',
+            productGroupName: currentProduct.productGroupName != null ? currentProduct.productGroupName : '',
+            productSubgroupName: currentProduct.productSubgroupName != null ? currentProduct.productSubgroupName : '',
+            productHierarchyId: currentProduct.productHierarchyId != null ? currentProduct.productHierarchyId : '',
+            sapStatus: currentProduct.sapStatus != null ? currentProduct.sapStatus : '',
+            sapProductCode: currentProduct.sapProductCode != null ? currentProduct.sapProductCode : '',
+            ptaProduct: currentProduct.ptaProduct,
+            priceListCode: priorityInfos.priceListCode,
+            sieve: this.isFilled(currentProduct.sieve) ? currentProduct.sieve : '',
+            productClass: this.isFilled(currentProduct.productClass) ? currentProduct.productClass : '',
+            comboDiscountPercent: this.isFilled(comboValues) ? comboValues.comboDiscount + '%' : '0%',
+            comboDiscountValue: 0,
+            comboId: this.isFilled(comboValues) ? comboValues.comboId : null,
+            industryCombo: this.isFilled(comboValues) ? comboValues.industryCombo : false,
+            position: this.isFilled(counter) ? counter : null
+        };
+        return newProductData;
     }
 
     changeTableColumns(event) {
@@ -887,8 +1014,15 @@ export default class OrderProductScreen extends LightningElement {
             
             this.addProduct.totalPrice = this.isFilled(this.addProduct.financialAdditionValue) ? (this.addProduct.totalPrice + Number(this.addProduct.financialAdditionValue)) : this.addProduct.totalPrice;
             this.addProduct.totalPrice = this.isFilled(this.addProduct.financialDecreaseValue) ? (this.addProduct.totalPrice - Number(this.addProduct.financialDecreaseValue)) : this.addProduct.totalPrice;
-            this.addProduct.totalPrice = this.isFilled(this.addProduct.commercialAdditionValue) ? (this.addProduct.totalPrice + Number(this.addProduct.commercialAdditionValue)) : this.addProduct.totalPrice;
-            this.addProduct.totalPrice = this.isFilled(this.addProduct.commercialDiscountValue) ? this.fixDecimalPlaces((this.addProduct.totalPrice - Number(this.addProduct.commercialDiscountValue))) : this.fixDecimalPlaces(this.addProduct.totalPrice);
+            
+            if (this.addProduct.comboDiscountPercent != '0%') {
+                this.addProduct.comboDiscountValue = this.calculateValue(this.addProduct.comboDiscountPercent, this.addProduct.totalPrice);
+                this.addProduct.totalPrice = this.isFilled(this.addProduct.comboDiscountValue) ? (this.addProduct.totalPrice - Number(this.addProduct.comboDiscountValue)) : this.addProduct.totalPrice;
+            } else {
+                this.addProduct.totalPrice = this.isFilled(this.addProduct.commercialAdditionValue) ? (this.addProduct.totalPrice + Number(this.addProduct.commercialAdditionValue)) : this.addProduct.totalPrice;
+                this.addProduct.totalPrice = this.isFilled(this.addProduct.commercialDiscountValue) ? this.fixDecimalPlaces((this.addProduct.totalPrice - Number(this.addProduct.commercialDiscountValue))) : this.fixDecimalPlaces(this.addProduct.totalPrice);
+            }
+            
             this.addProduct.totalPriceFront = this.fixDecimalPlacesFront(this.addProduct.totalPrice);
             this.addProduct.totalPriceWithBrokerage = Number(this.addProduct.totalPrice) + Number(this.addProduct.brokerage);
             this.addProduct.totalPriceWithBrokerageFront = this.fixDecimalPlacesFront(this.addProduct.totalPriceWithBrokerage);
@@ -1057,7 +1191,32 @@ export default class OrderProductScreen extends LightningElement {
         if (this.checkRequiredFields(prod)) {
             let allProducts = JSON.parse(JSON.stringify(this.products));
             let margin = this.isFilled(this.addProduct.practicedCost) ? this.fixDecimalPlaces((1 - (Number(this.addProduct.practicedCost) / (prod.totalPrice / prod.quantity))) * 100) : 0;
+            let comboDiscountPercent = this.verifyComboAndPromotion();
             
+            if (prod.comboDiscountPercent == '0%' && comboDiscountPercent != null) {
+                prod.comboId = comboDiscountPercent.comboId;
+                prod.comboDiscountPercent = comboDiscountPercent.discount
+                prod.comboDiscountValue = this.calculateValue(comboDiscountPercent.discount + '%', prod.totalPrice);
+                prod.totalPrice = prod.totalPrice - prod.comboDiscountValue;
+                prod.totalPriceFront = this.fixDecimalPlacesFront(prod.totalPrice);
+                prod.industryCombo = comboDiscountPercent.industryCombo;
+                
+                let allCombos = JSON.parse(JSON.stringify(this.combosSelecteds));
+                let currentCombo = allCombos.find(e => e.comboId == comboDiscountPercent.comboId);
+                if (this.isFilled(currentCombo)) {
+                    currentCombo.productQuantity = prod.quantity;
+                } else {
+                    allCombos.push({
+                        comboId: comboDiscountPercent.comboId,
+                        comboQuantity: 1,
+                        productQuantity: prod.quantity,
+                        productId: prod.productId
+                    })
+                }
+                this.combosSelecteds = JSON.parse(JSON.stringify(allCombos));
+                this._setcombosSelecteds();
+            }
+
             prod.commercialMarginPercentage = margin;
             prod.costPrice = this.costPrice;
             prod.multiplicity = this.multiplicity;
@@ -1079,6 +1238,96 @@ export default class OrderProductScreen extends LightningElement {
         }
         
         this.recalculateCommodities();
+    }
+
+    verifyComboAndPromotion() {
+        let combos = JSON.parse(JSON.stringify(this.combosData));
+        for (let index = 0; index < combos.length; index++) {
+            let groupsData = combos[index].groupQuantities;
+            
+            if (this.isFilled(groupsData)) {
+                let productGroupCombo = groupsData.find(e => e.productGroupId == this.addProduct.productGroupId);
+                if (this.isFilled(productGroupCombo)) {
+                    return {
+                        discount: combos[index].comboDiscountPercentage,
+                        comboId: combos[index].comboId,
+                        industryCombo: combos[index].comboType.comboType == 'Indústria'
+                    };
+                }
+            }
+        }
+
+        let paymentConditionCombo = combos.find(e => e.paymentConditionId == this.headerData.condicao_pagamento.Id);
+        if (this.isFilled(paymentConditionCombo)) {
+            return {
+                discount: paymentConditionCombo.comboDiscountPercentage,
+                comboId: paymentConditionCombo.comboId,
+                industryCombo: paymentConditionCombo.comboType.comboType == 'Indústria'
+            };
+        }
+
+        return null;
+    }
+
+    changeComboQuantity(event) {
+        let combos = JSON.parse(JSON.stringify(this.combosData));
+        let value = Number(event.target.value);
+
+        for (let index = 0; index < combos.length; index++) {
+            if (combos[index].comboId == event.target.dataset.targetId) {
+                if (value < 0) {
+                    combos[index].comboQuantity = 0;
+                    this.showToast('warning', 'Atenção!', 'Não é possível selecionar uma quantidade abaixo de 0.');
+                } else if (value > combos[index].comboAvailableQuantity) {
+                    combos[index].comboQuantity = combos[index].comboAvailableQuantity;
+                    this.showToast('warning', 'Atenção!', 'A quantidade de combos disponível é de ' + combos[index].comboAvailableQuantity + '.');
+                } else {
+                    combos[index].comboQuantity = value;
+                }
+                this.changeSelectedComboData(combos[index]);
+            }
+        }
+        this.combosData = JSON.parse(JSON.stringify(combos));
+    }
+
+    addOne(event) {
+        this.incrementCombo(event.target.dataset.targetId, true);
+    }
+
+    lessOne(event) {
+        this.incrementCombo(event.target.dataset.targetId, false);
+    }
+
+    incrementCombo(comboId, addOne) {
+        let combos = JSON.parse(JSON.stringify(this.combosData));
+        for (let index = 0; index < combos.length; index++) {
+            if (combos[index].comboId == comboId) {
+                if (!addOne && combos[index].comboQuantity == 0) this.showToast('warning', 'Atenção!', 'Não é possível selecionar uma quantidade abaixo de 0.');
+                else if (addOne && combos[index].comboQuantity == combos[index].comboAvailableQuantity) this.showToast('warning', 'Atenção!', 'A quantidade de combos disponível é de ' + combos[index].comboAvailableQuantity + '.');
+                else combos[index].comboQuantity = addOne ? combos[index].comboQuantity + 1 : combos[index].comboQuantity - 1;
+
+                this.changeSelectedComboData(combos[index]);
+                break;
+            }
+        }
+        this.combosData = JSON.parse(JSON.stringify(combos));
+    }
+
+    changeSelectedComboData(combo) {
+        let allCombosSelecteds = JSON.parse(JSON.stringify(this.combosSelecteds));
+        let constainsCombo = allCombosSelecteds.find(e => e.comboId == combo.comboId);
+        if (this.isFilled(constainsCombo)) {
+            for (let i = 0; i < allCombosSelecteds.length; i++) {
+                if (allCombosSelecteds[i].comboId == combo.comboId) {
+                    allCombosSelecteds[i].comboQuantity = combo.comboQuantity;
+                }
+            }                
+        } else {
+            allCombosSelecteds.push(combo);
+        }
+
+        this.combosSelecteds = JSON.parse(JSON.stringify(allCombosSelecteds));
+        this._setcombosSelecteds();
     }
 
     verifyProductQuota(actualProduct) {
@@ -1278,7 +1527,6 @@ export default class OrderProductScreen extends LightningElement {
             dontAllowChange : allowChange
         };
 
-        console.log('this.currentDivisionProduct: ' + JSON.stringify(this.currentDivisionProduct));
         this.showProductDivision = !this.showProductDivision;
 
         if (!this.currentDivisionProduct.dontAllowChange) {
@@ -1388,7 +1636,6 @@ export default class OrderProductScreen extends LightningElement {
             }
 
             this.divisionProducts = JSON.parse(JSON.stringify(allDivisions));
-            console.log('this.divisionProducts: ' + JSON.stringify(this.divisionProducts));
         }
     }
 
@@ -1435,7 +1682,6 @@ export default class OrderProductScreen extends LightningElement {
     }
 
     _setHeaderValues() {
-        console.log(JSON.stringify(this.headerData));
         const setHeaderValues = new CustomEvent('setheadervalues');
         setHeaderValues.data = this.headerData;
         this.dispatchEvent(setHeaderValues);
@@ -1447,10 +1693,60 @@ export default class OrderProductScreen extends LightningElement {
         this.dispatchEvent(setItems);
     }
 
+    _setcombosSelecteds() {
+        const setItems = new CustomEvent('setcombosselecteds');
+        setItems.data = this.combosSelecteds;
+        this.dispatchEvent(setItems);
+    }
+
+    _setHideFooterButtons(hideButton) {
+        const setItems = new CustomEvent('sethidefooterbuttons');
+        setItems.data = hideButton;
+        this.dispatchEvent(setItems);
+    }
+
+    handlePrevious(event) {
+        const setItems = new CustomEvent('sethandleprevious');
+        setItems.data = false;
+        this.dispatchEvent(setItems);
+    }
+
+    handleNext(event) {
+        this.showCombos = false;
+        const setItems = new CustomEvent('sethandlenext');
+        setItems.data = false;
+        this.dispatchEvent(setItems);
+
+        let allCombos = JSON.parse(JSON.stringify(this.combosSelecteds));
+        this.comboProducts.formerIds = [];
+        this.comboProducts.benefitsIds = [];
+        
+        for (let index = 0; index < allCombos.length; index++) {
+            let currentCombo = allCombos[index];
+            for (let i = 0; i < currentCombo.formerItems.length; i++) {
+                this.comboProducts.formerIds.push(currentCombo.formerItems[i].productId);
+            }
+
+            for (let i = 0; i < currentCombo.benefitItems.length; i++) {
+                this.comboProducts.benefitsIds.push(currentCombo.benefitItems[i].productId);
+            }
+        }
+
+        let getCompanyData = {
+            ctvId: this.headerData.ctv_venda.Id != null ? this.headerData.ctv_venda.Id : '',
+            accountId: this.accountData.Id != null ? this.accountData.Id : '',
+            orderType: this.headerData.tipo_venda,
+            approvalNumber: 1
+        }
+
+        this.checkCombo = true;
+        this.unitPriceDisabled = true;
+        this.getCompanies(getCompanyData);
+    }
+
     showResults(event){
         this.showBaseProducts = event.showResults;
         this.baseProducts = event.results.recordsDataList;
-        console.log('this.baseProducts: ' + JSON.stringify(this.baseProducts));
         this.productsPriceMap = event.results.recordsDataMap;
         this.salesInfos = event.results.salesResult;
         this.message = this.baseProducts.length > 0 ? false : event.message;
@@ -1572,8 +1868,6 @@ export default class OrderProductScreen extends LightningElement {
         if((this.isFilled(startDate)  && startDate != "") && (this.isFilled(endDate) && endDate != "")){
             var start = new Date(startDate);
             var end = new Date(endDate);
-            console.log(start.getTime());
-            console.log(end.getTime());
             if(end.getTime() < start.getTime()) {
                 this.showToast('warning', 'Atenção', 'Intervalo de datas não permitido.');
                 return false;
@@ -1707,6 +2001,46 @@ export default class OrderProductScreen extends LightningElement {
             this.message = this.baseProducts.length > 0 ? false : result.message;
             if (this.baseProducts.length >= 9) {
                 this.showArrows = true;
+            }
+        });
+    }
+
+    backComboScreen(event) {
+        this.comboRowsToSkip = this.comboRowsToSkip > 0 ? this.comboRowsToSkip - 4 : 0;
+        this.getCombos();
+    }
+
+    nextComboScreen(event) {
+        if (this.combosData.length == 4) {
+            this.comboRowsToSkip += 4;
+            this.getCombos();
+        }
+    }
+
+    getCombos(getCompanyData) {
+        this.showLoading = true;
+        let headerValues = {
+            cropId: this.headerData.safra.Id,
+            rowsToSkip: this.comboRowsToSkip,
+            salesConditionId: this.headerData.condicao_venda.Id
+        }
+
+        getSpecificCombos({data: JSON.stringify(headerValues), companyData: JSON.stringify(getCompanyData), childOrder: this.childOrder})
+        .then((result) => {
+            this.showLoading = false;
+            let combosAndPromotions = JSON.parse(result);
+            if (combosAndPromotions.length > 0) {
+                this._setHideFooterButtons(true);
+                this.showCombos = true;
+
+                let existingCombos = JSON.parse(JSON.stringify(this.combosSelecteds));
+                for (let index = 0; index < combosAndPromotions.length; index++) {
+                    let currentCombo = existingCombos.find(e => e.comboId == combosAndPromotions[index].comboId);
+                    if (this.isFilled(currentCombo)) {
+                        combosAndPromotions[index].comboQuantity = currentCombo.comboQuantity;
+                    }
+                }
+                this.combosData = combosAndPromotions;
             }
         });
     }
