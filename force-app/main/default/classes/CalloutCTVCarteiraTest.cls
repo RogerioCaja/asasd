@@ -54,4 +54,20 @@ public with sharing class CalloutCTVCarteiraTest {
         CalloutCTVCarteira.sendOrder(territoryList);
         Test.stopTest();
     } 
+    @isTest
+    static void calloutCTVRequestMethod(){
+        List<Company__c> companyList = new List<Company__c>([SELECT Name,Blocked__c,ClientGroup__c,Conta__c,SalesOrg__c,DistributionChannel__r.Codigo__c, ActivitySector__r.Codigo__c,SalesOrg__r.SalesOrganizationCode__c,SalesOffice__r.Codigo__c,SalesTeam__r.ExternalId__c,SalesOffice__c,SalesTeam__c,ActivitySector__c,DistributionChannel__c,ExternalID__c,SupplierCenter__c FROM Company__c WHERE ExternalID__c = '001']);
+        System.debug('companyList: '+ companyList);
+        Map<String,List<Company__c>> compMap = new Map<String,List<Company__c>>();
+        Map<String,List<Company__c>> compMap2 = new Map<String,List<Company__c>>();
+        compMap.put('001',companyList);
+        compMap2.put('000',companyList);
+        List<CalloutCTVCarteira.ClienteParameters> clientList= new List<CalloutCTVCarteira.ClienteParameters>();
+        BatchImplementationCTV.run();
+        Test.startTest();
+        clientList.add(new CalloutCTVCarteira.ClienteParameters('001', compMap));
+        clientList.add(new CalloutCTVCarteira.ClienteParameters('001', compMap2));
+        Test.stopTest();
+        System.debug('clientList: '+ clientList);
+    } 
 }
