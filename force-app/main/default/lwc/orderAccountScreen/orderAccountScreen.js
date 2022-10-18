@@ -55,6 +55,7 @@ export default class OrderAccountScreen extends LightningElement {
         this.template.querySelectorAll(`div[data-target-id="${key}"]`)[1].classList.add('selectedIndex');
         
         this.selected = Number(key)
+        this.verifyNextAndPrevious()
         let value = (Number(key) - 1) * 30;
         
         setTimeout(() =>{ this.template.querySelector('c-custom-order-search').offSet = value; })
@@ -63,31 +64,28 @@ export default class OrderAccountScreen extends LightningElement {
     }
 
     previousPage(){
-        if((this.selected - 1) == 1){
-            this.showPrevious = false;
-        }else{
-            this.showPrevious = true;
-        }
         this.showMoreResults(Number(this.selected) - 1);
     }
 
     nextPage(){
-    
-        if((this.selected +1) > 1){
-            this.showPrevious = true;
-        }else{
-            this.showPrevious = false;
-        }
-        if((this.selected + 1) == this.numberOfAccounts){
-            this.showNext = false;
-        }else{
-            this.showNext = true;
-        }
         this.showMoreResults(Number(this.selected) + 1);
     }
 
     clickInNumber(event){
         this.showMoreResults(event.target.dataset.targetId);
+    }
+
+    verifyNextAndPrevious(){
+        if((this.selected) > 1){
+            this.showPrevious = true;
+        }else{
+            this.showPrevious = false;
+        }
+        if((this.selected) == this.numberOfAccounts){
+            this.showNext = false;
+        }else{
+            this.showNext = true;
+        }
     }
 
     renderedCallback(){
