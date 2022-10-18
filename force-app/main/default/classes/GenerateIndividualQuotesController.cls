@@ -45,8 +45,18 @@ public without sharing class GenerateIndividualQuotesController {
             individualQuote.Consumed__c = quoteData.consumed;
             individualQuote.Balance__c = quoteData.balance;
             
-            insert individualQuote;
+            
+            IndividualQuotas__c[] individualQuoteVerification = [SELECT Id, Quantity__c, Consumed__c  FROM IndividualQuotas__c WHERE Name =: (quoteData.cultivateName + '/' + quoteData.cropName + '/' + sellerName)];
+          
+            if(individualQuoteVerification.size() > 0){
+                individualQuote.Quantity__c += individualQuoteVerification[0].Quantity__c;
+                individualQuote.Consumed__c = individualQuoteVerification[0].Consumed__c;
+                individualQuote.Balance__c = individualQuote.Quantity__c - individualQuoteVerification[0].Consumed__c;
+                
+            }
+            Database.upsert(individualQuote, IndividualQuotas__c.Name);
             return individualQuote.Id;
+            
         } catch (Exception ex) {
             System.debug('Erro: ' + ex.getMessage() + '   -   ' + ex.getStackTraceString());
             return 'Erro: ' + ex.getMessage() + '   -   ' + ex.getStackTraceString();
