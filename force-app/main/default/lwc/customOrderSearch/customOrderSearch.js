@@ -7,6 +7,7 @@ import fetchRecords from '@salesforce/apex/CustomLookupController.fetchRecords';
 import fetchOrderRecords from '@salesforce/apex/CustomLookupController.fetchProductsRecords';
 import fetchAccountRecords from '@salesforce/apex/CustomAccountLookupController.fetchAccountRecords';
 import fetchAccountsWithTerritories from '@salesforce/apex/CustomLookupController.fetchAccountsWithTerritories';
+import getNumberOfAccounts from '@salesforce/apex/CustomAccountLookupController.getNumberOfAccounts';
 import {
     ShowToastEvent
 } from 'lightning/platformShowToastEvent';
@@ -25,6 +26,7 @@ export default class CustomOrderSearch extends LightningElement {
     @api territoryParams;
     @api required = false;
     @track searchString;
+    @api offSet = 0;
     @track selectedRecord;
     @api recordsList;
     @api message;
@@ -69,7 +71,10 @@ export default class CustomOrderSearch extends LightningElement {
         const tabEvent = new CustomEvent("modesearch");
         this.dispatchEvent(tabEvent)
         console.log(this.searchString);
+        this.offSet = 0;
         if (this.searchString) {
+            this.fetchData();
+        }else if(!this.searchString && this.objectName == 'Account'){
             this.fetchData();
         } else {
             this.showResultList = false;
@@ -84,7 +89,8 @@ export default class CustomOrderSearch extends LightningElement {
         console.log('this.objectName: ' + this.objectName);
         if (this.objectName == 'Account') {
             fetchAccountRecords({
-                    searchString: this.searchString
+                    searchString: this.searchString,
+                    offSet: this.offSet
                 })
                 .then(result => {
                     const tabEvent = new CustomEvent("showresults");
@@ -98,6 +104,17 @@ export default class CustomOrderSearch extends LightningElement {
                         tabEvent.results = this.recordsList;
                         tabEvent.showResults = true;
                         tabEvent.message = false;
+
+                        if(this.offSet == 0){
+                            getNumberOfAccounts({
+                                searchString: this.searchString
+                            }).then(resultCount => {
+                                const tabEvent = new CustomEvent("showcount");
+                                tabEvent.numberOfAccounts = resultCount;
+                                this.dispatchEvent(tabEvent);
+                            })
+                        }
+                        
                     } else {
                         tabEvent.results = result;
                         tabEvent.showResults = true;
