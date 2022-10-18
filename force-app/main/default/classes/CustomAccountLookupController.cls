@@ -1,15 +1,27 @@
 public with sharing class CustomAccountLookupController {
     @AuraEnabled
-    public static List<SObject> fetchAccountRecords(String searchString) {
+    public static List<SObject> fetchAccountRecords(String searchString, Integer offSet) {
         try {
+			if(offSet == null){
+				offSet = 0;
+			}
+
 			String query = '';
+
             List<SObject> recordsData = new List<SObject>();
 			String profileName = [SELECT Name FROM Profile WHERE Id =: UserInfo.getProfileId()].Name;
 			if (profileName != 'Balcão') {
 				Set<Id> relatedAccounts = OrderScreenController.getTerritoryAccounts();
-				query = 'SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE Status__c = \'' + 'Ativo' + '\' AND Id IN: relatedAccounts AND ExternalId__c LIKE \'' + '0001' + '%\' AND (Name LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' OR Name LIKE \'' + String.escapeSingleQuotes(removeAccents(searchString.trim())) + '%\' OR CPF__c LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' OR Company__c LIKE \'' + String.escapeSingleQuotes(removeAccents(searchString.trim())) + '%\' OR Company__c LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\') LIMIT 49999';
+				query = 'SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState, Parent.Name, StateRegistration__c FROM Account WHERE Status__c = \'' + 'Ativo' + '\' AND Id IN: relatedAccounts AND ExternalId__c LIKE \'' + '0001' + '%\' AND (Name LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' OR Name LIKE \'' + String.escapeSingleQuotes(removeAccents(searchString.trim())) + '%\' OR CPF__c LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' OR Company__c LIKE \'' + String.escapeSingleQuotes(removeAccents(searchString.trim())) + '%\' OR Company__c LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\')' +
+				' ORDER BY Name' +
+				' LIMIT 30' + 
+				' OFFSET :offSet';
+				
 			} else {
-				query = 'SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE Status__c = \'' + 'Ativo' + '\' AND ExternalId__c LIKE \'' + '0001' + '%\' AND (Name LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' OR Name LIKE \'' + String.escapeSingleQuotes(removeAccents(searchString.trim())) + '%\' OR CPF__c LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' OR Company__c LIKE \'' + String.escapeSingleQuotes(removeAccents(searchString.trim())) + '%\' OR Company__c LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\') LIMIT 49999';
+				query = 'SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState, Parent.Name, StateRegistration__c FROM Account WHERE Status__c = \'' + 'Ativo' + '\' AND ExternalId__c LIKE \'' + '0001' + '%\' AND (Name LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' OR Name LIKE \'' + String.escapeSingleQuotes(removeAccents(searchString.trim())) + '%\' OR CPF__c LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' OR Company__c LIKE \'' + String.escapeSingleQuotes(removeAccents(searchString.trim())) + '%\' OR Company__c LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\')' +
+				' ORDER BY Name' +
+				' LIMIT 30' + 
+				' OFFSET :offSet';
 			}
             
 	        for(SObject s : Database.query(query)) {
@@ -27,6 +39,15 @@ public with sharing class CustomAccountLookupController {
             }
 	    }
     }
+
+	@AuraEnabled
+	public static Integer getNumberOfAccounts(String searchString){
+		String query = 'SELECT COUNT() FROM Account WHERE (Name LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' OR Name LIKE \'' + String.escapeSingleQuotes(removeAccents(searchString.trim())) + '%\' OR CPF__c LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' OR Company__c LIKE \'' + String.escapeSingleQuotes(removeAccents(searchString.trim())) + '%\' OR Company__c LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\')';            
+		Integer result = Database.countQuery(query);
+		Decimal value =  Math.mod(result, 30);
+		Integer valueResult = (result/30) + (value > 0 ? 1 : 0);
+		return valueResult;
+	}
 
     public static String removeAccents(String text) {
 		String minmaj = 'ÀÁÂÃÄÅàáâãäåÒÓÔÕÕÖØòóôõöøÈÉÊËèéêëðÇçÐÌÍÎÏìíîïÙÚÛÜùúûüÑñŠšŸÿýŽž& ';
