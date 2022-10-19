@@ -196,10 +196,6 @@
         <apexClass>TemplateDefaultFields</apexClass>
         <enabled>true</enabled>
     </classAccesses>
-    <classAccesses>
-        <apexClass>VisitController</apexClass>
-        <enabled>true</enabled>
-    </classAccesses>
     <fieldPermissions>
         <editable>false</editable>
         <field>Account.AccountNumber</field>
@@ -2587,10 +2583,6 @@
         <enabled>true</enabled>
     </pageAccesses>
     <pageAccesses>
-        <apexPage>CallExcludePage</apexPage>
-        <enabled>true</enabled>
-    </pageAccesses>
-    <pageAccesses>
         <apexPage>OrderPagePDF</apexPage>
         <enabled>true</enabled>
     </pageAccesses>
@@ -2698,10 +2690,6 @@
         <tab>PotencialCompra__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
-    <!-- <tabSettings>
-        <tab>PriceSearch</tab>
-        <visibility>Visible</visibility>
-    </tabSettings> -->
     <tabSettings>
         <tab>PriceSearch</tab>
         <visibility>Visible</visibility>

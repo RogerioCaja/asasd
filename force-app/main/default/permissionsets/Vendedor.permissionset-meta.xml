@@ -196,10 +196,6 @@
         <apexClass>TemplateDefaultFields</apexClass>
         <enabled>true</enabled>
     </classAccesses>
-    <classAccesses>
-        <apexClass>VisitController</apexClass>
-        <enabled>true</enabled>
-    </classAccesses>
     <fieldPermissions>
         <editable>false</editable>
         <field>Account.AccountNumber</field>
@@ -2749,10 +2745,6 @@
         <tab>PotencialCompra__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
-    <!-- <tabSettings>
-        <tab>PriceSearch</tab>
-        <visibility>Visible</visibility>
-    </tabSettings> -->
     <tabSettings>
         <tab>PriceSearch</tab>
         <visibility>Visible</visibility>
