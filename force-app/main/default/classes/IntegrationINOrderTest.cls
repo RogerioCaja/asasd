@@ -957,7 +957,7 @@ static void verifyIntegrationOrder(){
     }
 
     @isTest
-    static void verifyIntegrationINOrderAppDigitalWthCommodityUpdate(){
+    static void verifyIntegrationINOrderAppDigitalWthCommodity(){
 		List<TemplateDataINtegrationFields.OrderINData> listOrderList = new List<TemplateDataINtegrationFields.OrderINData>();
         TemplateDataIntegrationFields.OrderINData listOrder = new TemplateDataIntegrationFields.OrderINData();
         listOrder.CodigoSap = null;
