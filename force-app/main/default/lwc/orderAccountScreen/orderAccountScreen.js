@@ -10,6 +10,7 @@ export default class OrderAccountScreen extends LightningElement {
     selected = 1;
     showPrevious = false;
     showNext = false;
+    showIcon = false;
     @api selectedAccount = false;
     @api childOrder;
     @api cloneData;
@@ -90,6 +91,22 @@ export default class OrderAccountScreen extends LightningElement {
 
     renderedCallback(){
         console.log(this.selectedAccount);
+        window.onscroll = () => {
+            if(window.scrollY > 700 && this.showList){
+                this.showIcon = true;
+            }else{
+                this.showIcon = false;
+            }
+        }
+    }
+
+    scrollTopPage(){
+        const scrollOptions = {
+            left: 0,
+            top: 0,
+            behavior: 'smooth'
+        }
+        window.scrollTo(scrollOptions);
     }
 
     selectAccountFromResults(event){

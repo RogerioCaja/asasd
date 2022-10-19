@@ -31,6 +31,15 @@
     border-radius: 5px;
   }
 
+  .buttonToUp{
+    cursor:pointer; 
+    border: solid 1px #2a9676; 
+    border-radius: 50%; 
+    position: fixed; 
+    right: 2%; 
+    top:61%;
+  }
+
   .selectedIndex{
     color: white !important;
     background-color: #2a9676 !important;
