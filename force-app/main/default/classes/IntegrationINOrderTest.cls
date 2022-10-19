@@ -955,4 +955,194 @@ static void verifyIntegrationOrder(){
         IntegrationINOrderAppdigital.ResponseModel modelo = IntegrationINOrderAppdigital.upsertOrder(listOrderList);
         Test.stopTest();
     }
+
+    @isTest
+    static void verifyIntegrationINOrderAppDigitalWthCommodityUpdate(){
+		List<TemplateDataINtegrationFields.OrderINData> listOrderList = new List<TemplateDataINtegrationFields.OrderINData>();
+        TemplateDataIntegrationFields.OrderINData listOrder = new TemplateDataIntegrationFields.OrderINData();
+        listOrder.CodigoSap = null;
+        listOrder.numeroPedidoApp = '007';
+        listOrder.eCalendarizacao = false;
+        listOrder.Status = '2';
+        listOrder.PriceBook2Id = null;
+        listOrder.ShippingAccount = '11111';
+        listOrder.paymentDate = Date.today();
+        listOrder.effectiveDate = Date.today();
+        listOrder.Crop = '1223' ;
+        listOrder.Culture = '1234' ;
+        listOrder.PaymentForm = 'B';
+        listOrder.CurrencyOrder = 'BRL';
+        //listOrder.SalesCTV = '0001004579';
+        listOrder.Incoterms = 'CIF';
+        listOrder.Incoterms2 = 'null';
+        listOrder.Description = '';
+        listOrder.PaymentCondition = 'Z09' ;
+        listOrder.ShippingDate = Date.today();
+        listOrder.DescriptionBillingSale = 'null';
+        listOrder.OrderReference = null;
+        listOrder.hectare = 10;
+        listOrder.condicaoVenda = '01';
+        listOrder.pedidoMae = false;
+        listOrder.SalesOrg = null;
+        //listOrder.CentroFornecedor = '1001';
+        listOrder.DistributionChannel = '0001';
+        //listOrder.EquipeVendas = '001';
+        //listOrder.EscritorioVendas = '3511';
+        listOrder.activitySector = '003' ;
+        listOrder.salesType = 'ZVNO';
+        listOrder.valorFinalTotal = 1004.347505;
+        listOrder.margemPedido = 5.885115;
+        listOrder.orderType = 'Pedido Normal';
+        
+        TemplateDataIntegrationFields.OrderItemINData listOrderItem = new TemplateDataIntegrationFields.OrderItemINData();
+        listOrderItem.valorTotal =  1004.347505;
+        listOrderItem.valorDescontoFin =  96.2647;
+        listOrderItem.valorAcrescFin =  1;
+        listOrderItem.valorAcrescComercial =  4;
+        listOrderItem.unidadeMedida =  'l';
+        listOrderItem.quantidade =  5;
+        listOrderItem.precoUnitario =  255.57; 
+        listOrderItem.precoPraticado =  200.869501;
+        listOrderItem.porcentagemDescontoFin =  1;
+        listOrderItem.porcentagemDesconto =  2;
+        listOrderItem.porcentagemComissao =  3;
+        listOrderItem.porcentagemAcrescFin =  0;
+        listOrderItem.porcentagemAcrescComercial =  4;
+        listOrderItem.orderItemECalendariazacao =  false;
+        listOrderItem.orderItemCode =  '10';
+        listOrderItem.motivoRecusa =  null;
+        listOrderItem.material =  '0001';
+        listOrderItem.margemComercial =  1;
+        listOrderItem.dosagem =  12;
+        listOrderItem.descontoValor =  177.237795;
+        listOrderItem.custoPreco =  189.05;
+        listOrderItem.custoLista =  204.45;
+        listOrderItem.comissaoValor =  2;
+        listOrder.orderItems = new List<TemplateDataIntegrationFields.OrderItemINData>();
+        listOrder.orderItems.add(listOrderItem);
+    
+        TemplateDataIntegrationFields.ShippingDivisonINData listShippingDivision = new TemplateDataIntegrationFields.ShippingDivisonINData();
+        listShippingDivision.Quantidade =  5;
+        listShippingDivision.OrderItemCode =  '10';
+        listShippingDivision.NumeroDivisaoRemessa =  '007';
+        listShippingDivision.material =  '0001';
+        listShippingDivision.DivisaoRemessa =  '001';
+        listShippingDivision.DataDivisao =  Date.valueOf('2022-09-21');
+        listOrder.shippingDivison = new List<TemplateDataIntegrationFields.ShippingDivisonINData>();
+        listOrder.shippingDivison.add(listShippingDivision);
+  
+        
+        
+        TemplateDataIntegrationFields.OrderCommodityINData listOrderCommodities = new TemplateDataIntegrationFields.OrderCommodityINData();
+        listOrderCommodities.material = '0001';
+        listOrderCommodities.commodityPrice = 10;
+        listOrderCommodities.bagQuantity = 1;
+        listOrderCommodities.bagMargin = 0;
+        listOrderCommodities.startDate = Date.valueOf('2022-09-21'); 
+        listOrderCommodities.endDate = Date.valueOf('2022-10-30');
+        listOrderCommodities.deliveryAddress = 'Commodity para Teste';
+        listOrder.commodity = new List<TemplateDataIntegrationFields.OrderCommodityINData>();
+        
+        listOrder.commodity.add(listOrderCommodities);
+        
+        listOrderList.add(listOrder);
+        Test.startTest();
+        IntegrationINOrderAppdigital.ResponseModel modelo = IntegrationINOrderAppdigital.upsertOrder(listOrderList);
+        Test.stopTest();	        
+    }
+
+    @isTest
+    static void verifyIntegrationINOrderAppDigitalWthCommodityUpdate(){
+		List<TemplateDataINtegrationFields.OrderINData> listOrderList = new List<TemplateDataINtegrationFields.OrderINData>();
+        TemplateDataIntegrationFields.OrderINData listOrder = new TemplateDataIntegrationFields.OrderINData();
+        listOrder.CodigoSap = '1009';
+        listOrder.numeroPedidoApp = null;
+        listOrder.eCalendarizacao = false;
+        listOrder.Status = '2';
+        listOrder.PriceBook2Id = null;
+        listOrder.ShippingAccount = '11111';
+        listOrder.paymentDate = Date.today();
+        listOrder.effectiveDate = Date.today();
+        listOrder.Crop = '1223' ;
+        listOrder.Culture = '1234' ;
+        listOrder.PaymentForm = 'B';
+        listOrder.CurrencyOrder = 'BRL';
+        //listOrder.SalesCTV = '0001004579';
+        listOrder.Incoterms = 'CIF';
+        listOrder.Incoterms2 = 'null';
+        listOrder.Description = '';
+        listOrder.PaymentCondition = 'Z09' ;
+        listOrder.ShippingDate = Date.today();
+        listOrder.DescriptionBillingSale = 'null';
+        listOrder.OrderReference = null;
+        listOrder.hectare = 10;
+        listOrder.condicaoVenda = '01';
+        listOrder.pedidoMae = false;
+        listOrder.SalesOrg = null;
+        //listOrder.CentroFornecedor = '1001';
+        listOrder.DistributionChannel = '0001';
+        //listOrder.EquipeVendas = '001';
+        //listOrder.EscritorioVendas = '3511';
+        listOrder.activitySector = '003' ;
+        listOrder.salesType = 'ZVNO';
+        listOrder.valorFinalTotal = 1004.347505;
+        listOrder.margemPedido = 5.885115;
+        listOrder.orderType = 'Pedido Normal';
+        
+        TemplateDataIntegrationFields.OrderItemINData listOrderItem = new TemplateDataIntegrationFields.OrderItemINData();
+        listOrderItem.valorTotal =  1004.347505;
+        listOrderItem.valorDescontoFin =  96.2647;
+        listOrderItem.valorAcrescFin =  1;
+        listOrderItem.valorAcrescComercial =  4;
+        listOrderItem.unidadeMedida =  'l';
+        listOrderItem.quantidade =  5;
+        listOrderItem.precoUnitario =  255.57; 
+        listOrderItem.precoPraticado =  200.869501;
+        listOrderItem.porcentagemDescontoFin =  1;
+        listOrderItem.porcentagemDesconto =  2;
+        listOrderItem.porcentagemComissao =  3;
+        listOrderItem.porcentagemAcrescFin =  0;
+        listOrderItem.porcentagemAcrescComercial =  4;
+        listOrderItem.orderItemECalendariazacao =  false;
+        listOrderItem.orderItemCode =  '10';
+        listOrderItem.motivoRecusa =  null;
+        listOrderItem.material =  '0001';
+        listOrderItem.margemComercial =  1;
+        listOrderItem.dosagem =  12;
+        listOrderItem.descontoValor =  177.237795;
+        listOrderItem.custoPreco =  189.05;
+        listOrderItem.custoLista =  204.45;
+        listOrderItem.comissaoValor =  2;
+        listOrder.orderItems = new List<TemplateDataIntegrationFields.OrderItemINData>();
+        listOrder.orderItems.add(listOrderItem);
+    
+        TemplateDataIntegrationFields.ShippingDivisonINData listShippingDivision = new TemplateDataIntegrationFields.ShippingDivisonINData();
+        listShippingDivision.Quantidade =  5;
+        listShippingDivision.OrderItemCode =  '10';
+        listShippingDivision.NumeroDivisaoRemessa =  '1009';
+        listShippingDivision.material =  '0001';
+        listShippingDivision.DivisaoRemessa =  '001';
+        listShippingDivision.DataDivisao =  Date.valueOf('2022-09-21');
+        listOrder.shippingDivison = new List<TemplateDataIntegrationFields.ShippingDivisonINData>();
+        listOrder.shippingDivison.add(listShippingDivision);
+  
+        
+        
+        TemplateDataIntegrationFields.OrderCommodityINData listOrderCommodities = new TemplateDataIntegrationFields.OrderCommodityINData();
+        listOrderCommodities.material = '0001';
+        listOrderCommodities.commodityPrice = 10;
+        listOrderCommodities.bagQuantity = 1;
+        listOrderCommodities.bagMargin = 0;
+        listOrderCommodities.startDate = Date.valueOf('2022-09-21'); 
+        listOrderCommodities.endDate = Date.valueOf('2022-10-30');
+        listOrderCommodities.deliveryAddress = 'Commodity para Teste';
+        listOrder.commodity = new List<TemplateDataIntegrationFields.OrderCommodityINData>();
+        
+        listOrder.commodity.add(listOrderCommodities);
+        
+        listOrderList.add(listOrder);
+        Test.startTest();
+        IntegrationINOrderAppdigital.ResponseModel modelo = IntegrationINOrderAppdigital.upsertOrder(listOrderList);
+        Test.stopTest();	        
+    }
 }
