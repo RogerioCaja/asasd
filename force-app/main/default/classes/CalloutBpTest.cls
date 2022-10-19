@@ -125,8 +125,10 @@
             Test.setMock(HttpCalloutMock.class, new CalloutBPMock(true));
             Account accountBefore = [SELECT Id, Email__c, CPF__c FROM Account WHERE ExternalId__c = '11111'];
             System.debug('accountBefore'+ accountBefore);
+            Datetime UTC = System.now().addMinutes(-3); 
             Test.startTest();
             CalloutBP.processIntegration();
+            CalloutBP.processIntegration(UTC);
             Test.stopTest();
             checkResult();
         } 
