@@ -197,7 +197,7 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
-        <apexClass>VisitController</apexClass>
+        <apexClass>ReportController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <fieldPermissions>
@@ -2718,10 +2718,6 @@
         <tab>PotencialCompra__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
-    <!-- <tabSettings>
-        <tab>PriceSearch</tab>
-        <visibility>Visible</visibility>
-    </tabSettings> -->
     <tabSettings>
         <tab>PriceSearch</tab>
         <visibility>Visible</visibility>
