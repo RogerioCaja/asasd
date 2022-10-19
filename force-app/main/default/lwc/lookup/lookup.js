@@ -253,7 +253,7 @@ export default class Lookup extends LightningElement {
 		try {
 			let data;
 			if (requestData.targetObject == 'Account') {
-				data = await fetchAccountRecords({searchString: requestData.searchValue});
+				data = await fetchAccountRecords({searchString: requestData.searchValue, offSet: null});
 			} else {
 				let salesConditionData = {
 					salesOrgId: this.salesOrg  != null ? this.salesOrg  : '',
@@ -261,8 +261,10 @@ export default class Lookup extends LightningElement {
 					currencyGet: this.currencyOption != null ? this.currencyOption : '',
 					typeOrder: this.salesType != null ? this.salesType : ''
 				}
+				console.log('this.quote: '+ this.quote);
 				data = await getRecords({ data: JSON.stringify(requestData), barterSale: this.barterSale, salesConditionData: JSON.stringify(salesConditionData), priceScreen: this.priceScreen, clientTerritoriesScreen: this.clientTerritoriesScreen, quoteScreen: this.quote});
 			}
+			//console.log('data lookup fon =>', JSON.parse(JSON.stringify(data)));
 
 			var dataResult = [];
 			if (data) {

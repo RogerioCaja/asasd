@@ -243,8 +243,10 @@ public with sharing class IntegrationINOrderTest {
         PricebookEntryId = [SELECT Id FROM PricebookEntry WHERE Product2Id =: prod.Id LIMIT 1][0].Id
     );
 
+    OrderHelper.disableTrigger();
     INSERT orderItem;
-      
+    OrderHelper.enableTrigger();
+
       OrderItem orderItem2 = new OrderItem(
         OrderId = order3.Id,
         Product2Id = prod.Id,
@@ -256,8 +258,10 @@ public with sharing class IntegrationINOrderTest {
         PricebookEntryId = [SELECT Id FROM PricebookEntry WHERE Product2Id =: prod.Id LIMIT 1][0].Id
     );
 
+    OrderHelper.disableTrigger();
     INSERT orderItem2;
-
+    OrderHelper.enableTrigger();
+    
     ShippingDivison__c shipping = new ShippingDivison__c(
         DeliveryDate__c = System.today().addDays(30),
         Quantity__c = 10,
@@ -352,6 +356,16 @@ static void verifyIntegrationOrder(){
     listShippingDivision.DataDivisao =  Date.valueOf('2022-09-21');
     listOrder.shippingDivison = new List<TemplateDataIntegrationFields.ShippingDivisonINData>();
     listOrder.shippingDivison.add(listShippingDivision);
+
+
+    TemplateDataIntegrationFields.FormPaymentINData listFormPayment = new TemplateDataIntegrationFields.FormPaymentINData();
+    listFormPayment.orderExternalId =  '11111';
+    listFormPayment.paymentDate =  Date.valueOf('2022-09-21');
+    listFormPayment.paymentItemCode =  '10';
+    listFormPayment.paymentAndValue =  2;
+    listOrder.formPayment = new List<TemplateDataIntegrationFields.FormPaymentINData>();
+    listOrder.formPayment.add(listFormPayment);
+
 
     List<TemplateDataINtegrationFields.PartnerInsert> listPartnersList = new List<TemplateDataINtegrationFields.PartnerInsert>();
     TemplateDataIntegrationFields.PartnerInsert listPartners1 = new TemplateDataIntegrationFields.PartnerInsert();
@@ -505,6 +519,14 @@ static void verifyIntegrationOrder(){
         listOrder.shippingDivison = new List<TemplateDataIntegrationFields.ShippingDivisonINData>();
         listOrder.shippingDivison.add(listShippingDivision);
     
+        TemplateDataIntegrationFields.FormPaymentINData listFormPayment = new TemplateDataIntegrationFields.FormPaymentINData();
+        listFormPayment.orderExternalId =  '11111';
+        listFormPayment.paymentDate =  Date.valueOf('2022-09-21');
+        listFormPayment.paymentItemCode =  '10';
+        listFormPayment.paymentAndValue =  2;
+        listOrder.formPayment = new List<TemplateDataIntegrationFields.FormPaymentINData>();
+        listOrder.formPayment.add(listFormPayment);
+
         List<TemplateDataINtegrationFields.PartnerInsert> listPartnersList = new List<TemplateDataINtegrationFields.PartnerInsert>();
         TemplateDataIntegrationFields.PartnerInsert listPartners1 = new TemplateDataIntegrationFields.PartnerInsert();
         TemplateDataIntegrationFields.PartnerInsert listPartners2 = new TemplateDataIntegrationFields.PartnerInsert();
@@ -666,6 +688,14 @@ static void verifyIntegrationOrder(){
         listShippingDivision.DataDivisao =  Date.valueOf('2022-09-21');
         listOrder.shippingDivison = new List<TemplateDataIntegrationFields.ShippingDivisonINData>();
         listOrder.shippingDivison.add(listShippingDivision);
+
+        TemplateDataIntegrationFields.FormPaymentINData listFormPayment = new TemplateDataIntegrationFields.FormPaymentINData();
+        listFormPayment.orderExternalId =  '11111';
+        listFormPayment.paymentDate =  Date.valueOf('2022-09-21');
+        listFormPayment.paymentItemCode =  '10';
+        listFormPayment.paymentAndValue =  2;
+        listOrder.formPayment = new List<TemplateDataIntegrationFields.FormPaymentINData>();
+        listOrder.formPayment.add(listFormPayment);
     
         List<TemplateDataINtegrationFields.PartnerInsert> listPartnersList = new List<TemplateDataINtegrationFields.PartnerInsert>();
         TemplateDataIntegrationFields.PartnerInsert listPartners1 = new TemplateDataIntegrationFields.PartnerInsert();
@@ -910,6 +940,16 @@ static void verifyIntegrationOrder(){
         listOrder.shippingDivison = new List<TemplateDataIntegrationFields.ShippingDivisonINData>();
         listOrder.shippingDivison.add(listShippingDivision);
    		
+
+        TemplateDataIntegrationFields.FormPaymentINData listFormPayment = new TemplateDataIntegrationFields.FormPaymentINData();
+        listFormPayment.orderExternalId =  '11111';
+        listFormPayment.paymentDate =  Date.valueOf('2022-09-21');
+        listFormPayment.paymentItemCode =  '10';
+        listFormPayment.paymentAndValue =  2;
+        listOrder.formPayment = new List<TemplateDataIntegrationFields.FormPaymentINData>();
+        listOrder.formPayment.add(listFormPayment);
+
+        
         listOrderList.add(listOrder);
         Test.startTest();
         IntegrationINOrderAppdigital.ResponseModel modelo = IntegrationINOrderAppdigital.upsertOrder(listOrderList);
