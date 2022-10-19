@@ -1,4 +1,4 @@
-<apex:page standardController="Cadastro_ClientedaVisita__c" applyBodyTag="false" docType="html-5.0" readOnly="true" renderAs="advanced_pdf" extensions="VisitController" >
+<apex:page standardController="TechnicalReport__c" applyBodyTag="false" docType="html-5.0" readOnly="true" renderAs="advanced_pdf" extensions="ReportController" >
 
 
 <!-- Estilização Básica do PDF => Cores e dimensionamento -->
@@ -31,7 +31,7 @@
 
     .sub-title{
         background-color: #b1afaf;
-        width: 100%;
+        /* width: 100%; */
     }
 
     .informacao-header{
@@ -50,26 +50,18 @@
         font-size: 10pt;
     }
     .line{
-        height: 360px;
-        /* margin-top: 15px; */
+        width: 50%;
     }
 
+
+   
     .coordinate{
-        padding-top: 60px;
-        margin-top: 40px;
-        width:100%;
+        margin-top: 15px;
         background-color: #dcdcdc;
     }
 
     .coordinate > tr > td{
-        width:50%;
-        height: 100%;
         vertical-align: top;
-    }
-
-    .description{
-        height: 300px;
-       
     }
 
     </style>
@@ -204,43 +196,37 @@
         <span>Latitude: {! visit.accountLatitude}</span><br/>
         <span>Longitude: {! visit.accountLongitude}</span>
 
-        <!-- <div style="page-break-after:always;"/> -->
-        <table class="coordinate">
-
+        
             <apex:repeat value="{! Photos}" var='photo'>
-                <tr class="line">
-                    <td>
-                        <apex:image url="/sfc/servlet.shepherd/version/download/{!photo.image}" width="300" height="300" alt="Description of image here"/>
-                    </td>
-                    <td>
-                        <table class="description">
-                            <tr>
-                                <td>
+                <div style="page-break-inside: avoid;">
+                    <table class="coordinate" style="width:100%; height:100%">
+                        <tr style="width:100%">
+                            <td style="width:50%;" valign="top">
+                                <div>
+                                    <apex:image url="/sfc/servlet.shepherd/version/download/{!photo.image}" width="100%" height="100%" alt="Description of image here"/>
+                                </div>
+
+                            </td> 
+                            <td style="width:50%;" valign="top">
+                                <div>
                                     <div class="sub-title">Descrição / Sugestão</div> 
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    {! photo.observation}
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
+                                    <div> {! photo.observation}</div>
+                                </div>
+                                
+                            </td> 
+                        </tr>
+                    </table>
+                </div>
             </apex:repeat>
         
-        </table>
+        
+        
     <!-- Possíveis Observações Finais do Cliente -->
     <h4>Considerações Finais</h4>
         <table>
             <tr>
                 <td>
-                    Acompanhamento de colheita de Milho
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    Lado a lado
+                    {!Visit.notes}
                 </td>
             </tr>
         </table>
@@ -251,7 +237,13 @@
 
     <!-- Informações sobre a próxima visita => datas, endereços, coisas assim -->
     <h4>Próxima Visita:</h4>
-     
+    <table>
+        <tr>
+            <td>
+                {!Visit.nextVisit}
+            </td>
+        </tr>
+    </table>
 </div>
 
 
