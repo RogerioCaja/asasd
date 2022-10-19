@@ -22,6 +22,7 @@ public without sharing class OrderTriggerHandler {
     
     public void OnBeforeUpdate(){
         OrderHelper.checkOrderStatus(this.newRecords, this.oldMap);
+        OrderHelper.verifyStatusAndCombos(this.oldMap, this.newMap);
     }
     
     public void OnAfterUpdate(){
