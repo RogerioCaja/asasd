@@ -23,6 +23,27 @@ public without sharing class GeneralQuotasTriggerHelper {
         }
     }
 
+    public static void verifyDuplicateGeneralQuota(List<GeneralQuotas__c> newRecords){
+        Set<String> keysQuotas = new Set<String>();
+        Map<String, GeneralQuotas__c> existsRecordsMap = new Map<String, GeneralQuotas__c>();
+
+        for(GeneralQuotas__c generalQuotas : newRecords){
+            keysQuotas.add(generalQuotas.Name);
+        }
+
+        List<GeneralQuotas__c> generalList = [SELECT Id, Name, Quantity__c, Balance__c, Consumed__c FROM GeneralQuotas__c WHERE Name IN: keysQuotas];
+        
+        for(GeneralQuotas__c generalQuotas : generalList){
+            existsRecordsMap.put(generalQuotas.Name, generalQuotas);
+        }
+
+        for(GeneralQuotas__c key : newRecords){
+            if(existsRecordsMap.containsKey(key.Name)){
+                key.addError('Existe uma Cota Geral já cadastrada para esta Cultivar e Safra. Por favor, altere a Cota Geral existente ' + key.Name + '.');
+            }
+        }
+    }
+
     public static void verifyUsedQuantities(List<GeneralQuotas__c> newRecords, Map<Id, GeneralQuotas__c> newMap) {
         Map<Id, Decimal> distributedQuantitiesByGeneralQuota = new Map<Id, Decimal>();
         for (IndividualQuotas__c individualQuota : [
