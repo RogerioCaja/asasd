@@ -103,7 +103,6 @@ public with sharing class CalloutCTVCarteiraTest {
         compMap.put('001',companyList);
         compMap2.put('000',companyList);
         List<CalloutCTVCarteira.ClienteParameters> clientList= new List<CalloutCTVCarteira.ClienteParameters>();
-        BatchImplementationCTV.run();
         Test.startTest();
         clientList.add(new CalloutCTVCarteira.ClienteParameters('001', compMap));
         clientList.add(new CalloutCTVCarteira.ClienteParameters('001', compMap2));
