@@ -25,7 +25,50 @@ public with sharing class CalloutCTVCarteiraTest {
         TimeZoneSidKey='America/Los_Angeles', UserName='testes_CTV_TEST@testes.com');
 
         insert u;
-        
+
+        SalesOrg__c salesOrg = new SalesOrg__c(
+            Name = 'AgroGalaxy',
+            SalesOrganizationCode__c = '1111'
+        );
+        insert salesOrg;
+        DistributionChannel__c distributionChannel = new DistributionChannel__c(
+            Name = 'Teste',
+            Codigo__c = '0001'
+        );
+        insert distributionChannel;
+
+        SalesOffice__c salesOffice = new SalesOffice__c(
+            Name = 'Sales Office',
+            Codigo__c = '001'
+        );
+        insert salesOffice;
+
+        SalesTeam__c salesTeam = new SalesTeam__c(
+            Name = 'Sales team',
+            ExternalId__c = '001'
+        );
+        insert salesTeam;
+
+        ActivitySector__c activitySector = new ActivitySector__c(
+            Name = 'Teste Activity',
+            Codigo__c = '003'
+        );
+        insert activitySector;
+
+        Company__c company = new Company__c(
+            Name = 'Company',
+            Blocked__c = false,
+            ClientGroup__c = '11',
+            Conta__c = account.Id,
+            SalesOrg__c = salesOrg.Id,
+            SalesOffice__c = salesOffice.Id,
+            SalesTeam__c = salesTeam.Id,
+            ActivitySector__c = activitySector.Id,
+            DistributionChannel__c = distributionChannel.Id,
+            ExternalID__c = '001',
+            SupplierCenter__c = '1010'
+        );
+        insert company;
     }
     @isTest
     static void calloutCTVSuccess(){
@@ -43,9 +86,6 @@ public with sharing class CalloutCTVCarteiraTest {
 
         UserTerritory2Association userTerrAssociation = new UserTerritory2Association(Territory2Id= objTerr.Id, UserId= u.Id, RoleInTerritory2='Sales / Marketing Manager');
         insert userTerrAssociation;
-        //ObjectTerritory2Association objObjectTerritory2Association = new ObjectTerritory2Association(ObjectId = account.Id, Territory2Id =objTerr.Id, AssociationCause='Territory2Manual' );
-        //insert objObjectTerritory2Association;
-
         List<Territory2> territoryList = new List<Territory2>();
         territoryList.add(objTerr);
         CalloutOrder calloutTest = new CalloutOrder();
