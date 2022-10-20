@@ -5,6 +5,7 @@ global with sharing class IntegrationINCropDelimitation {
     global static ResponseModel upsertCropDelimitation(List<TemplateDataIntegrationFields.DelimitadoresINData> request) {
 
         Map<String, Id> lookups = new Map<String, Id>();
+        Map<String, String> lookupsName = new Map<String, String>();
         Set<String> safraLookups = new Set<String>();
         Set<String> salesOrgLookups = new Set<String>();
         Set<String> salesConditionLookups = new Set<String>();
@@ -22,19 +23,24 @@ global with sharing class IntegrationINCropDelimitation {
         }
         
 
-        for (Safra__c safra : [SELECT Id, Code__c FROM Safra__c WHERE Code__c IN : safraLookups]) {
+        for (Safra__c safra : [SELECT Id, Name, Code__c FROM Safra__c WHERE Code__c IN : safraLookups]) {
             lookups.put('Safra__c' + safra.Code__c, safra.Id);
-            //lookups.put('SafraName' + safra.Code__c, safra.Name);
+            lookupsName.put('SafraName' + safra.Code__c, safra.Name);
         }
-        for (SalesOrg__c salesOrg : [SELECT Id, SalesOrganizationCode__c FROM SalesOrg__c WHERE SalesOrganizationCode__c IN : salesOrgLookups]) {
+        for (SalesOrg__c salesOrg : [SELECT Id, Name, SalesOrganizationCode__c FROM SalesOrg__c WHERE SalesOrganizationCode__c IN : salesOrgLookups]) {
             lookups.put('SalesOrg__c' + salesOrg.SalesOrganizationCode__c, salesOrg.Id);
+            lookupsName.put('SalesOrgName' + salesOrg.SalesOrganizationCode__c, salesOrg.Name);
         }
-        for (SalesCondition__c salesCondition : [SELECT Id, ExternalId__c FROM SalesCondition__c WHERE  ExternalId__c IN : salesConditionLookups]){
+        for (SalesCondition__c salesCondition : [SELECT Id, Name, ExternalId__c FROM SalesCondition__c WHERE  ExternalId__c IN : salesConditionLookups]){
             lookups.put('SalesCondition__c' + salesCondition.ExternalId__c, salesCondition.Id);
+            lookupsName.put('SalesConditionName' + salesCondition.ExternalId__c, salesCondition.Name);
         }
        
         for (TemplateDataIntegrationFields.DelimitadoresINData delimitator : request){
-            delimitator.Name = 'teste';
+            String safraName = lookupsName.containsKey('SafraName'+delimitator.Safra) ? lookupsName.get('SafraName'+delimitator.Safra) : '';
+            String SalesOrgName = lookupsName.containsKey('SalesOrgName'+delimitator.SalesOrganization) ? lookupsName.get('SalesOrgName'+delimitator.SalesOrganization) : '';
+            String SalesConditionName = lookupsName.containsKey('SalesConditionName'+delimitator.PriceList) ? lookupsName.get('SalesConditionName'+delimitator.PriceList) : '';
+            delimitator.Name = safraName + ' ' + SalesConditionName + ' ' +  SalesOrgName;
             delimitator.DelimitadoresExternalId = delimitator.Safra + delimitator.PriceList + delimitator.SalesOrganization;
         }
         
@@ -45,7 +51,7 @@ global with sharing class IntegrationINCropDelimitation {
             Database.upsert(delimitadoresListToUpsert, Delimitadores__c.ExternalId__c, false), 
             responseList, 
             delimitadoresListToUpsert, 
-            NotaFiscal__c.ExternalId__c
+            Delimitadores__c.ExternalId__c
         );
         System.debug('delimitadoresListToUpsert' + delimitadoresListToUpsert);
 
