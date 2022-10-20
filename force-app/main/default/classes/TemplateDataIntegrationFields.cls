@@ -615,8 +615,8 @@ global with sharing class TemplateDataIntegrationFields {
         public Date EndDateFaturalmente;
         public Date BaseDateFinancing;
 
-        public FormPayment__c serialize(Map<String, Id> lookups){
-            return new FormPayment__c(
+        public Delimitadores__c serialize(Map<String, Id> lookups){
+            return new Delimitadores__c(
                 ExternalId__c = this.DelimitadoresExternalId,
                 Name = this.Name, 
                 SalesOrg__c = lookups.containsKey('SalesOrg__c'+this.SalesOrganization) ? lookups.get('SalesOrg__c'+this.SalesOrganization) : null,
