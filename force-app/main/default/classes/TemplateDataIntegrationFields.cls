@@ -614,6 +614,7 @@ global with sharing class TemplateDataIntegrationFields {
         public Date StartDateFaturalmente;
         public Date EndDateFaturalmente;
         public Date BaseDateFinancing;
+        public Date AfterPaymentDate;
 
         public Delimitadores__c serialize(Map<String, Id> lookups){
             return new Delimitadores__c(
@@ -626,7 +627,8 @@ global with sharing class TemplateDataIntegrationFields {
                 EndDateOV__c = this.EndDateOV,
                 StartDateBilling__c = this.StartDateFaturalmente,
                 EndDateBilling__c = this.EndDateFaturalmente,
-                FinancialBaseDate__c = this.BaseDateFinancing
+                FinancialBaseDate__c = this.BaseDateFinancing,
+                LimitDateAfterPayment__c = this.AfterPaymentDate
             );
         }
 
