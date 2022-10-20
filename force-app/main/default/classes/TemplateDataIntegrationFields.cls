@@ -606,9 +606,9 @@ global with sharing class TemplateDataIntegrationFields {
     global class DelimitadoresINData implements FieldData{
         public String DelimitadoresExternalId;
         public String Name;
-        public Decimal SalesOrganization;
-        public Decimal Safra;
-        public Decimal PriceList;
+        public String SalesOrganization;
+        public String Safra;
+        public String PriceList;
         public Date StartDateOV;
         public Date EndDateOV;
         public Date StartDateFaturalmente;

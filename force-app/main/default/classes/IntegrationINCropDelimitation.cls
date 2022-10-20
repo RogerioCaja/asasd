@@ -1,8 +1,6 @@
 @RestResource(urlMapping='/upsertCropDelimitation/*')
 global with sharing class IntegrationINCropDelimitation {
-    public IntegrationINInvoice() {
 
-    }
     @HttpPost
     global static ResponseModel upsertCropDelimitation(List<TemplateDataIntegrationFields.DelimitadoresINData> request) {
 
