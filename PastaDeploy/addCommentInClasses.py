@@ -1,5 +1,6 @@
 import subprocess
 import os
+import pyautogui as gui
 
 class RefactoringProcess:
     option=""
@@ -11,8 +12,9 @@ class RefactoringProcess:
         self.__comment_custom_account()
         self.__comment_lookup()
         self.__comment_order_screen()
-        self.__deploy_data()
         self.__comment_application_agrogalaxy()
+        self.__push_data()
+        self.__deploy_data()
       elif self.option == "2":
         self.__comment_custom_account()
         self.__comment_lookup()
@@ -36,7 +38,7 @@ class RefactoringProcess:
 
 
       lines[indexInitial] = '/*' + lines[indexInitial]
-      lines[indexFinal] =  lines[indexFinal] + '*/' + '          ' + "query = 'SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState, Parent.Name, StateRegistration__c FROM Account WHERE (Name LIKE \\'' + String.escapeSingleQuotes(searchString.trim()) + '%\\' OR Name LIKE \\'' + String.escapeSingleQuotes(removeAccents(searchString.trim())) + '%\\' OR CPF__c LIKE \\'' + String.escapeSingleQuotes(searchString.trim()) + '%\\' OR Company__c LIKE \\'' + String.escapeSingleQuotes(removeAccents(searchString.trim())) + '%\\' OR Company__c LIKE \\'' + String.escapeSingleQuotes(searchString.trim()) + '%\\') LIMIT 49999';"
+      lines[indexFinal] =  lines[indexFinal] + '*/' + '          ' + "query = 'SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState, Parent.Name, StateRegistration__c FROM Account WHERE (Name LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' OR Name LIKE \'' + String.escapeSingleQuotes(removeAccents(searchString.trim())) + '%\' OR CPF__c LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' OR Company__c LIKE \'' + String.escapeSingleQuotes(removeAccents(searchString.trim())) + '%\' OR Company__c LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\')" + " ORDER BY Name" + " LIMIT 30" + "OFFSET :offSet';"
 
       file1.seek(0)
       file1.truncate(0)
@@ -120,6 +122,11 @@ class RefactoringProcess:
       file1.writelines(lines)
 
       file1.close()
+
+    def __push_data(self) -> None:
+      gui.hotkey('ctrl', 'shift', 'p')
+      gui.write('SFDX: Push Source to Default Scratch Org')
+      gui.press('enter')
 
     def __deploy_data(self) -> None:
       subprocess.call(os.path.join(os.path.dirname(__file__), 'ExecuteToDeploy.bat'))
