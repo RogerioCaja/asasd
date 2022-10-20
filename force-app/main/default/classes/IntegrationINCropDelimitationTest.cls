@@ -18,12 +18,12 @@ public class IntegrationINCropDelimitationTest {
         );
         insert safra;
         SalesOrg__c so = new SalesOrg__c(
-            Name = 'AgroGalaxy',
+            Name = 'SalesOrganization Teste',
             SalesOrganizationCode__c = '333'
         );
         insert so;
         salesCondition__c sales = new salesCondition__c(
-            Name = 'Condição',
+            Name = 'SalesCondition Teste',
             ExternalId__c = '222'
         );
         insert sales;
@@ -31,7 +31,7 @@ public class IntegrationINCropDelimitationTest {
     }
     
     @isTest
-    static void verifyException(){
+    static void verifyIntegrationINCropDelimitation(){
         List<TemplateDataIntegrationFields.DelimitadoresINData> delimitatorsList = new List<TemplateDataIntegrationFields.DelimitadoresINData>();
         TemplateDataIntegrationFields.DelimitadoresINData delimitators = new TemplateDataIntegrationFields.DelimitadoresINData();
         delimitators.SalesOrganization = '333';
