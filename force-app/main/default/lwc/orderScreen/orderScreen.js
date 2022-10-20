@@ -51,6 +51,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     @track summary = false;
 
     customErrorMessage = '';
+    hideFooterButtons=false;
 
     @api accountData;
     @api headerDataTitle = {};
@@ -93,6 +94,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     @track divisionData;
     @track commodityData;
     @track excludedItems;
+    @track combosSelecteds;
     @track formsOfPayment;
     @track summaryData = {
         'observation' : "",
@@ -509,7 +511,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         if (quotaResponse) {
             const mode = event.detail;
             await this.recordId;
-            const data = {accountData: this.accountData, headerData: this.headerData, productData: this.productData, divisionData: this.divisionData, commodityData: this.commodityData, summaryData: this.summaryData, formsOfPayment: this.formsOfPayment};
+            const data = {accountData: this.accountData, headerData: this.headerData, productData: this.productData, divisionData: this.divisionData, commodityData: this.commodityData, summaryData: this.summaryData, formsOfPayment: this.formsOfPayment, comboData: this.combosSelecteds};
             console.log(JSON.stringify(data));
             this.isLoading = true;
             //console.log(data);
@@ -748,6 +750,26 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         this.excludedItems = event.data;
     }
 
+    _setcombosSelecteds(event) {
+        this.combosSelecteds = event.data;
+    }
+    
+    _setHideFooterButtons(event) {
+        this.hideFooterButtons = event.data;
+    }
+
+    _setHandlePrevious(event) {
+        this.hideFooterButtons = event.data;
+        console.log('this.hideFooterButtons: ' + this.hideFooterButtons);
+        this.handlePrevious();
+    }
+
+    _setHandleNext(event) {
+        this.hideFooterButtons = event.data;
+        console.log('this.hideFooterButtons: ' + this.hideFooterButtons);
+        // this.handleNext();
+    }
+
     //c/orderScreenNavbar
     changeStyle() {
         for (var index = 0; index < this.tabs.length; index++) {
@@ -802,6 +824,11 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
                 this.showNotification(this.tabs[this.currentTab].message, 'Não é possível voltar uma etapa');
             }
         }
+    }
+
+    handleNextCombo() {
+        const objChild = this.template.querySelector('c-order-product-screen');
+        objChild.handleNext();
     }
 
     handleNext() {
