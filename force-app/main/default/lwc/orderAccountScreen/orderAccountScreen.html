@@ -2,7 +2,7 @@
     <div class="tituloPesquisa">
       <span>Pesquisar <b>CONTA</b>: Nome, CNPJ ou CPF, Razão Social:</span>
     </div>
-    <c-custom-order-search object-name="Account" field-name="Name" onshowresults={showResults} label="Pesquisar CONTA: Nome, CNPJ ou CPF, Razão Social:" placeholder="Digite o nome da conta" required="true" onchild={getFieldsValueAccount}></c-custom-order-search>
+    <c-custom-order-search object-name="Account" field-name="Name" onshowcount={showCount} onshowresults={showResults} label="Pesquisar CONTA: Nome, CNPJ ou CPF, Razão Social:" placeholder="Digite o nome da conta" required="true" onchild={getFieldsValueAccount}></c-custom-order-search>
     <div if:true={selectedAccount} class="resultados_conta">
         <div class="item accountSelected">
                 <div class="tituloItem">
@@ -84,6 +84,23 @@
     <div class="resultados_conta" if:true={showList}>
       <template if:false={message}>
           <h2 class="descricao">Resultados de <b>Conta</b>:</h2>
+          <div if:true={showIcon} onclick={scrollTopPage} data-target-id="button-top" class="buttonToUp"><lightning-icon icon-name="utility:arrowup"></lightning-icon></div>
+          <div class="footer-pagination">
+            <div onclick={previousPage} if:true={showPrevious}>
+                <svg width="11" height="19" viewBox="0 0 11 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill="#2A9676" d="M9.16031 0.5L0.650024 9.33854L9.16031 18.1771L10.5795 16.7042L3.48645 9.33854L10.5795 1.97292L9.16031 0.5Z"></path>
+                </svg>
+             </div>
+            <template for:each={numberPages} for:item="number">
+                <div key={number.number} data-target-id={number.number} onclick={clickInNumber}>{number.number}</div>
+            </template>
+    
+            <div onclick={nextPage} if:true={showNext}>
+                <svg width="11" height="19" viewBox="0 0 11 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill="#2A9676" d="M2.1868 18.1771L10.6971 9.33859L2.18681 0.500045L0.76758 1.97296L7.8607 9.33859L0.767579 16.7042L2.1868 18.1771Z"></path>
+                </svg>
+            </div>
+          </div>
           <template for:each={records} for:item="rec">
               <div class="item" key={rec.Id} data-key={rec.Id}>
                   <div class="tituloItem">
@@ -166,5 +183,21 @@
       <template if:true={message}>
           <h2 class="descricao">{message}</h2>
       </template>
+      <div class="footer-pagination">
+        <div onclick={previousPage} if:true={showPrevious}>
+            <svg width="11" height="19" viewBox="0 0 11 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill="#2A9676" d="M9.16031 0.5L0.650024 9.33854L9.16031 18.1771L10.5795 16.7042L3.48645 9.33854L10.5795 1.97292L9.16031 0.5Z"></path>
+            </svg>
+         </div>
+        <template for:each={numberPages} for:item="number">
+            <div key={number.number} data-target-id={number.number} onclick={clickInNumber}>{number.number}</div>
+        </template>
+
+        <div onclick={nextPage} if:true={showNext}>
+            <svg width="11" height="19" viewBox="0 0 11 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill="#2A9676" d="M2.1868 18.1771L10.6971 9.33859L2.18681 0.500045L0.76758 1.97296L7.8607 9.33859L0.767579 16.7042L2.1868 18.1771Z"></path>
+            </svg>
+        </div>
+      </div>
   </div>
 </template>

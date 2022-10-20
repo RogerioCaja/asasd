@@ -1,8 +1,5 @@
-@ECHO "Dando Push"
-call sfdx force:source:push --json --loglevel fatal
-
-PAUSE
-ECHO "Quando setar seu permission set, clique qualquer botão"
+@ECHO "setando permission set"
+call sfdx force:user:permset:assign --permsetname admin
 
 @ECHO "Iniciando Carga..."
 timeout /t 5
@@ -35,7 +32,6 @@ call sfdx force:data:bulk:upsert -s Product2 -f ./Produto.csv -i ProductCode__c 
 call sfdx force:data:bulk:upsert -s OrgVProduct__c -f ./OrgV.csv -i OrgVExternal__c -w 2
 @ECHO "Lista de Preco"
 call sfdx force:data:bulk:upsert -s JurosDescontoAntecipao__c -f ./Precos.csv -i ExternalId__c -w 2
-
 
 PAUSE
 ECHO "Carga Finalizada... aperte qualquer botão"

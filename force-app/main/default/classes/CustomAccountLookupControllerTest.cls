@@ -23,6 +23,6 @@ public class CustomAccountLookupControllerTest {
 
     @isTest
     public static void fetchAccountRecordsTest(){
-        CustomAccountLookupController.fetchAccountRecords('Child Account');
+        CustomAccountLookupController.fetchAccountRecords('Child Account', null);
     }
 }
