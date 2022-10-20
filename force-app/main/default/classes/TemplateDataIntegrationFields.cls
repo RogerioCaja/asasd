@@ -606,17 +606,17 @@ global with sharing class TemplateDataIntegrationFields {
     global class DelimitadoresINData implements FieldData{
         public String DelimitadoresExternalId;
         public String Name;
-        public Decimal SalesOrganization;
-        public Decimal Safra;
-        public Decimal PriceList;
+        public String SalesOrganization;
+        public String Safra;
+        public String PriceList;
         public Date StartDateOV;
         public Date EndDateOV;
         public Date StartDateFaturalmente;
         public Date EndDateFaturalmente;
         public Date BaseDateFinancing;
 
-        public FormPayment__c serialize(Map<String, Id> lookups){
-            return new FormPayment__c(
+        public Delimitadores__c serialize(Map<String, Id> lookups){
+            return new Delimitadores__c(
                 ExternalId__c = this.DelimitadoresExternalId,
                 Name = this.Name, 
                 SalesOrg__c = lookups.containsKey('SalesOrg__c'+this.SalesOrganization) ? lookups.get('SalesOrg__c'+this.SalesOrganization) : null,
