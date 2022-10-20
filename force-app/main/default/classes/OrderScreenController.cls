@@ -781,6 +781,9 @@ public without sharing class OrderScreenController {
                     }
                 }
 
+                Map<Id, Decimal> quantitiesByProductGroup = new Map<Id, Decimal>();
+                Set<Id> combosIds = new Set<Id>();
+
                 Integer itemCounter = setOrderItemsIds.size() + 1;
                 Boolean childOrder = order.OrderType__c == 'Pedido Filho';
                 for (ProductDeserialize orderProduct : orderData.productData) {
@@ -817,6 +820,15 @@ public without sharing class OrderScreenController {
                         orderItem.IndividualQuotas__c = quantitiesResult.individualQuotasByProdId.get(orderProduct.productId);
                     }
 
+                    if (quantitiesByProductGroup.containsKey(orderProduct.productGroupId)) {
+                        Decimal currentQuantity = quantitiesByProductGroup.get(orderProduct.productGroupId);
+                        currentQuantity += orderProduct.quantity;
+                        quantitiesByProductGroup.put(orderProduct.productGroupId, currentQuantity);
+                    } else {
+                        quantitiesByProductGroup.put(orderProduct.productGroupId, orderProduct.quantity);
+                    }
+
+                    combosIds.add(orderProduct.comboId);
                     orderItem.IndustryComboDiscount__c = orderProduct.industryCombo ? orderProduct.comboDiscountValue : 0;
                     orderItem.AgrogalaxyComboDiscount__c = !orderProduct.industryCombo ? orderProduct.comboDiscountValue : 0;
                     orderItem.ComboPromotion__c = orderProduct.comboId;
@@ -898,12 +910,7 @@ public without sharing class OrderScreenController {
                     IndividualQuotasHelper.enableTrigger();
                 }
 
-                if (orderData.comboData != null) {
-                    Set<Id> combosIds = new Set<Id>();
-                    for (ComboDeserialize combo : orderData.comboData) {
-                        combosIds.add(combo.comboId);
-                    }
-    
+                if (orderData.comboData != null && typeOrder != 'prepedido') {
                     Map<Id, ComboPromotion__c> combosById = new Map<Id, ComboPromotion__c>([
                         SELECT Id, CombosQuantity__c
                           FROM ComboPromotion__c
@@ -912,10 +919,25 @@ public without sharing class OrderScreenController {
     
                     for (ComboDeserialize combo : orderData.comboData) {
                         ComboPromotion__c currentCombo = combosById.get(combo.comboId);
-                        currentCombo.CombosQuantity__c = currentCombo.CombosQuantity__c - combo.comboQuantity;
-                        combosById.put(combo.comboId, currentCombo);
+                        if (currentCombo != null) {
+                            currentCombo.CombosQuantity__c = currentCombo.CombosQuantity__c - combo.comboQuantity;
+                            combosById.put(combo.comboId, currentCombo);
+                        }
                     }
                     update combosById.values();
+
+                    List<ProductMix__c> productMixToUpdate = new List<ProductMix__c>();
+                    for (ProductMix__c productMix : [
+                        SELECT Id,
+                               Quantity__c,
+                               ProductGroup__c
+                          FROM ProductMix__c
+                         WHERE ComboPromotion__c IN: combosById.keySet()
+                    ]) {
+                        productMix.Quantity__c = productMix.Quantity__c - quantitiesByProductGroup.get(productMix.ProductGroup__c);
+                        productMixToUpdate.add(productMix);
+                    }
+                    update productMixToUpdate;
                 }
 
                 Integer divisionCounter = 1;
