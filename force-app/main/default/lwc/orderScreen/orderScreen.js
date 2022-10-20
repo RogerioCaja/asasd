@@ -820,6 +820,11 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         }
     }
 
+    handleNextCombo() {
+        const objChild = this.template.querySelector('c-order-product-screen');
+        objChild.handleNext();
+    }
+
     handleNext() {
         if (this.currentTab !== 3) {
             let errorMessage = this.customErrorMessage != '' ? this.customErrorMessage : this.tabs[this.currentTab].message;
