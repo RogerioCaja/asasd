@@ -1252,7 +1252,7 @@ export default class OrderProductScreen extends LightningElement {
     }
 
     verifyComboAndPromotion(quantity) {
-        if (this.isFilled) {
+        if (this.isFilled(this.combosData)) {
             let combos = JSON.parse(JSON.stringify(this.combosData));
             for (let index = 0; index < combos.length; index++) {
                 let groupsData = combos[index].groupQuantities;
