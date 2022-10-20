@@ -1252,31 +1252,33 @@ export default class OrderProductScreen extends LightningElement {
     }
 
     verifyComboAndPromotion(quantity) {
-        let combos = JSON.parse(JSON.stringify(this.combosData));
-        for (let index = 0; index < combos.length; index++) {
-            let groupsData = combos[index].groupQuantities;
-            
-            if (this.isFilled(groupsData)) {
-                let productGroupCombo = groupsData.find(e => e.productGroupId == this.addProduct.productGroupId);
-                console.log('combos[index].quantity: ' + productGroupCombo.quantity);
-                console.log('quantity: ' + quantity);
-                if (this.isFilled(productGroupCombo) && productGroupCombo.quantity > quantity) {
-                    return {
-                        discount: combos[index].comboDiscountPercentage,
-                        comboId: combos[index].comboId,
-                        industryCombo: combos[index].comboType.comboType == 'Indústria'
-                    };
+        if (this.isFilled) {
+            let combos = JSON.parse(JSON.stringify(this.combosData));
+            for (let index = 0; index < combos.length; index++) {
+                let groupsData = combos[index].groupQuantities;
+                
+                if (this.isFilled(groupsData)) {
+                    let productGroupCombo = groupsData.find(e => e.productGroupId == this.addProduct.productGroupId);
+                    console.log('combos[index].quantity: ' + productGroupCombo.quantity);
+                    console.log('quantity: ' + quantity);
+                    if (this.isFilled(productGroupCombo) && productGroupCombo.quantity > quantity) {
+                        return {
+                            discount: combos[index].comboDiscountPercentage,
+                            comboId: combos[index].comboId,
+                            industryCombo: combos[index].comboType.comboType == 'Indústria'
+                        };
+                    }
                 }
             }
-        }
 
-        let paymentConditionCombo = combos.find(e => e.paymentConditionId == this.headerData.condicao_pagamento.Id);
-        if (this.isFilled(paymentConditionCombo)) {
-            return {
-                discount: paymentConditionCombo.comboDiscountPercentage,
-                comboId: paymentConditionCombo.comboId,
-                industryCombo: paymentConditionCombo.comboType.comboType == 'Indústria'
-            };
+            let paymentConditionCombo = combos.find(e => e.paymentConditionId == this.headerData.condicao_pagamento.Id);
+            if (this.isFilled(paymentConditionCombo)) {
+                return {
+                    discount: paymentConditionCombo.comboDiscountPercentage,
+                    comboId: paymentConditionCombo.comboId,
+                    industryCombo: paymentConditionCombo.comboType.comboType == 'Indústria'
+                };
+            }
         }
 
         return null;
