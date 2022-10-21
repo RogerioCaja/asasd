@@ -558,9 +558,9 @@ export default class OrderHeaderScreen extends LightningElement {
                         this.headerDictLocale[field] = (this.registerDetails.includes(field) ? this.resolveRegister(record)  : {Id: record.Id, Name: record.Name});
                     }
 
-                    if(field == 'safra'){
-                        this.setDateLimit(record.Id);
-                        this.safraName = record.Name;
+                    this.safraName = record.Name;
+                    if(field == 'condicao_venda'){
+                        this.setDateLimit();
                     }
 
                    
@@ -650,8 +650,13 @@ export default class OrderHeaderScreen extends LightningElement {
     }
 
     setDateLimit(){
-        if(this.isFilled(this.headerDictLocale['safra'])){
-            getDateLimit({safraId: this.headerDictLocale['safra'].Id})
+       
+        if(this.isFilled(this.headerDictLocale['safra']) && this.isFilled(this.salesOrgId) && this.isFilled(this.headerDictLocale['condicao_venda'])){
+            getDateLimit({
+                safraId: this.headerDictLocale['safra'].Id,
+                salesConditionId: this.headerDictLocale['condicao_venda'].Id,
+                salesOrgId: this.salesOrgId
+            })
             .then((result) =>{
                 const data = JSON.parse(result);
                 this.dateLimit = data.paymentDate;
