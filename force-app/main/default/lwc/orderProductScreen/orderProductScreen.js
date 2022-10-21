@@ -304,8 +304,8 @@ export default class OrderProductScreen extends LightningElement {
             initialTotalValue: currentProduct.initialTotalValue,
             dosage: this.headerData.emptyHectar ? currentProduct.quantity : (this.isFilled(currentProduct.dosage) ? currentProduct.dosage : currentProduct.quantity / this.hectares),
             dosageFront: this.isFilled(currentProduct.dosage) ? this.fixDecimalPlacesFront(currentProduct.dosage) : '',
-            brokerage: this.isFilled(currentProduct.brokerage) ? currentProduct.brokerage : '',
-            brokerageFront: this.isFilled(currentProduct.brokerage) ? this.fixDecimalPlacesFront(currentProduct.brokerage) : '',
+            brokerage: this.isFilled(currentProduct.brokerage) ? currentProduct.brokerage : 0,
+            brokerageFront: this.isFilled(currentProduct.brokerage) ? this.fixDecimalPlacesFront(currentProduct.brokerage) : 0,
             quantity: currentProduct.quantity,
             motherAvailableQuantity: currentProduct.motherAvailableQuantity,
             invoicedQuantity: this.isFilled(currentProduct.invoicedQuantity) ? currentProduct.invoicedQuantity : 0,
@@ -427,7 +427,11 @@ export default class OrderProductScreen extends LightningElement {
             }
 
             if (this.isFilled(this.headerData.safra.Id)) {
-                getSafraInfos({safraId: this.headerData.safra.Id})
+                getSafraInfos({
+                    safraId: this.headerData.safra.Id,
+                    salesConditionId: this.salesConditionId,
+                    salesOrgId: this.headerData.organizacao_vendas.Id
+                })
                 .then((result) => {
                     let safraResult = JSON.parse(result);
                     this.safraData = {
@@ -455,7 +459,8 @@ export default class OrderProductScreen extends LightningElement {
                         salesOrg: this.selectedCompany.salesOrgId != null ? this.selectedCompany.salesOrgId : '',
                         salesOffice: this.selectedCompany.salesOfficeId != null ? this.selectedCompany.salesOfficeId : '',
                         salesTeam: this.selectedCompany.salesTeamId != null ? this.selectedCompany.salesTeamId : '',
-                        safra: this.headerData.safra.Id != null ? this.headerData.safra.Id : '',
+                        salesCondition: this.salesConditionId != null ? this.salesConditionId : '',
+                        safra: this.headerData.safra.Id != null ? this.headerData.safra.Id  : '',
                         culture: this.headerData.cultura.Id != null ? this.headerData.cultura.Id : ''
                     };
 
@@ -594,6 +599,7 @@ export default class OrderProductScreen extends LightningElement {
                     if (!this.headerData.IsOrderChild && allowChange) {
                         getFinancialInfos({data: JSON.stringify(orderData)})
                         .then((result) => {
+                            console.log(result);
                             this.financialInfos = JSON.parse(result);
                             
                             if (this.products.length > 0) {
