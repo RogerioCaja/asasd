@@ -383,7 +383,9 @@ public class OrderScreenControllerTest {
     @isTest
     public static void getSafraInfosTest() {
         Id safraId = [SELECT Id FROM Safra__c LIMIT 1].Id;
-        OrderScreenController.getSafraInfos(safraId);
+        Id salesOrgId = [SELECT Id FROM SalesOrg__c  LIMIT 1].Id;
+        Id salesConditionId = [SELECT Id FROM SalesCondition__c LIMIT 1].Id;
+        OrderScreenController.getSafraInfos(safraId, salesConditionId, salesOrgId);
     }
 
     @isTest
