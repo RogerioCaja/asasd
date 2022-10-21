@@ -53,6 +53,7 @@ export default class OrderHeaderScreen extends LightningElement {
     seedSale = false;
     safraName = null;
     currencyOption = null;
+    hasDelimiter = false;
     currentDate;
     dateLimit;
     dateStartBilling;
@@ -658,15 +659,22 @@ export default class OrderHeaderScreen extends LightningElement {
                 salesOrgId: this.salesOrgId
             })
             .then((result) =>{
-                const data = JSON.parse(result);
-                this.dateLimit = data.paymentDate;
-                this.dateLimitBilling = data.endDateBilling;
-                this.dateStartBilling = data.startDateBilling;
+                if(result != 'Não foi possível encontrar as datas da Safra selecionada, contate o time de Pricing AgroGalaxy.'){
+                    const data = JSON.parse(result);
+                    this.dateLimit = data.paymentDate;
+                    this.dateLimitBilling = data.endDateBilling;
+                    this.dateStartBilling = data.startDateBilling;
+                    this.hasDelimiter = true;
 
-                if (this.barterSale) {
-                    this.headerDictLocale.data_pagamento = data.paymentBaseDate;
-                    this.headerData = JSON.parse(JSON.stringify(this.headerDictLocale));
-                    this.paymentDisabled = true;
+                    if (this.barterSale) {
+                        this.headerDictLocale.data_pagamento = data.paymentBaseDate;
+                        this.headerData = JSON.parse(JSON.stringify(this.headerDictLocale));
+                        this.paymentDisabled = true;
+                    }
+                    this._verifyFieldsToSave();
+                }else{
+                    this.hasDelimiter = false;
+                    this.showToast('warning', 'Atenção', result);
                     this._verifyFieldsToSave();
                 }
             })
@@ -707,7 +715,8 @@ export default class OrderHeaderScreen extends LightningElement {
                 this.headerDictLocale.cliente_entrega.Id !== undefined) &&
                 this.headerDictLocale.hectares !== 0 &&
                 this.headerDictLocale.hectares !== undefined &&
-                this.headerDictLocale.hectares !== '' || this.pass
+                this.headerDictLocale.hectares !== '' && 
+                this.hasDelimiter || this.pass 
             ) {
                 return true;
             }
