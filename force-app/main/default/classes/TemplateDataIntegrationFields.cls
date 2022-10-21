@@ -654,6 +654,7 @@ global with sharing class TemplateDataIntegrationFields {
     
     global class OrderCommodityINData implements FieldDataChild{
         public String orderExternalId;
+        public String Name;
         //public String OrderItemCode;
         public String material;
         public Decimal commodityPrice;
@@ -667,7 +668,7 @@ global with sharing class TemplateDataIntegrationFields {
 
         public OrderCommodity__c serialize(Map<String, Id> lookups){
             return new OrderCommodity__c(
-
+                Name = this.Name,
                 ExternalId__c = orderExternalId + '|' + material, // Or order Id and Product Id
                 Product__c = lookups.containsKey('Product2'+this.material) ? lookups.get('Product2'+this.material) : null,
                 CommodityPrice__c = this.commodityPrice,

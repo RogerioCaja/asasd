@@ -6,10 +6,13 @@ global with sharing class IntegrationINCommodityAppdigital {
     global static Map<String, List<TemplateDataINtegrationFields.Response>> upsertCommodity (List<TemplateDataINtegrationFields.OrderCommodityINData> request){
 
         Map<String, Id> lookups = new Map<String, Id>();
+        Map<String, String> looupsName = new Map<String, String>();
 
         Set<String> orderLookups = new Set<String>();
 
+        Set<String> productLookupsForName = new Set<String>();
         Set<String> productLookups = new Set<String>();
+        
 
         Map<String, List<TemplateDataINtegrationFields.Response>> responseMap = new Map<String, List<TemplateDataIntegrationFields.Response>>();
 
@@ -18,16 +21,27 @@ global with sharing class IntegrationINCommodityAppdigital {
         for(TemplateDataIntegrationFields.OrderCommodityINData OrderCommodityINData : request){
 
             productLookups.add(OrderCommodityINData.material);
+            productLookupsForName.add(OrderCommodityINData.material);
         }
 
-        for (Product2 product : [SELECT Id,ProductCode FROM Product2 WHERE ProductCode IN: productLookups ]) {
+        for (Product2 product : [SELECT Id, ProductCode FROM Product2 WHERE ProductCode IN: productLookups ]) {
             //Map structure for the model -> object name + parameter to record id
             lookups.put('Product2' + product.ProductCode, product.Id);
         }
 
+        for (Product2 productName : [SELECT Id,ProductCode,Name FROM Product2 WHERE ProductCode IN: productLookupsForName ]) {
+            //Map structure for the model -> object name + parameter to record id
+            looupsName.put('Product2Name' + productName.ProductCode, productName.Name);
+        }
+        
         for(Order order : [SELECT Id FROM Order WHERE Id IN : orderLookups]){
             //looups.put('Order' + order.orderExternalId, order.Id);
         }
+
+        for(TemplateDataIntegrationFields.OrderCommodityINData OrderCommodityINData : request){
+            OrderCommodityINData.Name = looupsName.containsKey('Product2Name'+OrderCommodityINData.material) ? looupsName.get('Product2Name'+OrderCommodityINData.material) : null;
+        }
+
 
         Map<String, String> parentMapKeys = new Map<String, String>();
         for(TemplateDataIntegrationFields.OrderCommodityINData orderCommodity : request){
