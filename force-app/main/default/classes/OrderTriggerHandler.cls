@@ -24,6 +24,7 @@ public without sharing class OrderTriggerHandler {
     }
     
     public void OnAfterUpdate(){
+        OrderHelper.verifyOrderCanceling(this.oldMap, this.newMap);
         OrderHelper.sendApprovalProccess(this.oldMap, this.newMap);
         OrderHelper.calloutOrderToSAP(this.newRecords);
         OrderHelper.creatyShareRecord(this.newRecords);
