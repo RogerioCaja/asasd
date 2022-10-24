@@ -105,6 +105,7 @@
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>IndustryComboDiscount__c</field>
+            </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>RoyaltyAmount__c</field>
