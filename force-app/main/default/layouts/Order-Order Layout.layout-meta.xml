@@ -82,6 +82,10 @@
                 <behavior>Edit</behavior>
                 <field>ErrorIntegrationSAP__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>ACMContract__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>

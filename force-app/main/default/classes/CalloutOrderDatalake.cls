@@ -25,7 +25,7 @@ public without sharing class CalloutOrderDatalake {
         IsOrderMother__c, Company__c, RecordTypeId, TotalAmount, StatusSAP__c,Culture__r.Name,SalesOrg__r.Name,Crop__r.Name,
         SalesCTV__r.CodigoSap__c,PaymentCondition__r.Code__c, Company__r.SupplierCenter__c, Company__r.SalesOffice__r.Codigo__c, Company__r.SalesTeam__r.ExternalId__c,
         DistributionChannel__r.Codigo__c,ActivitySector__r.Codigo__c, PaymentCondition__r.Name,EndDate,
-        SalesCondition__r.ExternalId__c,SalesCondition__r.Name, Company__r.ExternalID__c, (SELECT Id FROM OrderItems) 
+        SalesCondition__r.ExternalId__c,SalesCondition__r.Name, Company__r.ExternalID__c,ACMContract__c, (SELECT Id FROM OrderItems) 
                             FROM Order WHERE Id = :orderId];
         System.debug('parentOrder' + parentOrder);
         List<Order> allOrders = new List<Order>{parentOrder};
@@ -211,6 +211,7 @@ public without sharing class CalloutOrderDatalake {
                 
                 //Campos Lookups 
                 header.shippingAccount = order.ShippingAccount__r.ExternalId__c; // Já está adicionado na query
+                header.acmContract = order.ACMContract__c;
                 header.paymentAccount = order.Account.ExternalId__c;  // Já está adicionado na query
                 header.crop = order.Crop__r.Code__c;  // Já está adicionado na query
                 header.cropName = order.Crop__r.Name; // Já está adicionado na query
@@ -274,6 +275,7 @@ public without sharing class CalloutOrderDatalake {
             else {
                 CalloutOrderDatalake.HeaderUpdate header = new CalloutOrderDatalake.HeaderUpdate();
                 header.shippingAccount = order.ShippingAccount__r.ExternalId__c; // Já está adicionado na query
+                header.acmContract = order.ACMContract__c;
                 header.paymentAccount = order.Account.ExternalId__c;  // Já está adicionado na query
                 header.crop = order.Crop__r.Code__c;  // Já está adicionado na query
                 header.cropName = order.Crop__r.Name; // Já está adicionado na query
@@ -341,6 +343,7 @@ public without sharing class CalloutOrderDatalake {
 
     public class HeaderInsert{
         public String orderCodeSf;
+        public String acmContract;
         public String paymentConditionName;
         public String centroFornecedor;
         public String escritorioVendas;
@@ -395,6 +398,7 @@ public without sharing class CalloutOrderDatalake {
 
     public class HeaderUpdate{
         public String orderCodeSf;
+        public String acmContract;
         public String paymentConditionName;
         public String centroFornecedor;
         public String escritorioVendas;
@@ -528,10 +532,16 @@ public without sharing class CalloutOrderDatalake {
         public Decimal practicedPrice;
         public Decimal unitPrice;
         public String motivoRecusa;
-
+        public String descMotivoRecusa;
 
 
         public OrderItemParameters(OrderItem orderItem, List<Integer> shippingDivison){
+            Map<String, String> motivoRecusa = new Map<String, String>();
+            Schema.DescribeFieldResult mtrecusaFieldDescribe = Schema.OrderItem.ReasonRefuse__c.getDescribe();
+            List<Schema.PicklistEntry> motivoRecusaPickListValues = mtrecusaFieldDescribe.getPickListValues();
+            for(Schema.PicklistEntry mtrPickList : motivoRecusaPickListValues){
+                motivoRecusa.put(mtrPickList.getValue(), mtrPickList.getLabel());
+            }
             this.orderId = orderItem.OrderId;
             this.material = orderItem.Product2.ExternalId__c;
             //this.orderExternalId = orderItem.ExternalId__c;
@@ -556,6 +566,7 @@ public without sharing class CalloutOrderDatalake {
             this.practicedPrice = orderItem.PracticedPrice__c;
             this.unitPrice = orderItem.UnitPrice;
             this.motivoRecusa = orderItem.ReasonRefuse__c;
+            this.descMotivoRecusa = motivoRecusa.get(orderItem.ReasonRefuse__c);
         }
     }
 
@@ -592,7 +603,7 @@ public without sharing class CalloutOrderDatalake {
         String endpointToken = (!Test.isRunningTest() ? data.UrlToken__c : 'http://callout.My_Named_Credential.com/some/path');
         Map<String, String> headersMapToken = new Map<String, String>();
         headersMapToken.put('Content-type', 'application/x-www-form-urlencoded');
-        headersMapToken.put('Authorization', data.Token__c);
+        headersMapToken.put('Authorization', (!Test.isRunningTest() ? data.Token__c : 'basic 3123312312'));
         IntegrationUtils.RequestResponseObject responseObject2 = IntegrationUtils.executeCallout(endpointToken, payloadToken, headersMapToken);
         System.debug('responseObject2: '+ responseObject2);
         if (responseObject2.success) {
