@@ -157,6 +157,10 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>PhotosToReportController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>Pricebook2DAO</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -193,7 +197,7 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
-        <apexClass>VisitController</apexClass>
+        <apexClass>ReportController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <fieldPermissions>
@@ -2583,10 +2587,6 @@
         <enabled>true</enabled>
     </pageAccesses>
     <pageAccesses>
-        <apexPage>CallExcludePage</apexPage>
-        <enabled>true</enabled>
-    </pageAccesses>
-    <pageAccesses>
         <apexPage>OrderPagePDF</apexPage>
         <enabled>true</enabled>
     </pageAccesses>
@@ -2694,10 +2694,6 @@
         <tab>PotencialCompra__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
-    <!-- <tabSettings>
-        <tab>PriceSearch</tab>
-        <visibility>Visible</visibility>
-    </tabSettings> -->
     <tabSettings>
         <tab>PriceSearch</tab>
         <visibility>Visible</visibility>

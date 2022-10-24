@@ -173,13 +173,16 @@ global without sharing class IntegrationINOrder {
                 shippingDivisonListToUpsert.addAll(order.shippingDivison);
             }
             
-            for(TemplateDataIntegrationFields.FormPaymentINData paymentFormItem : order.formPayment){
-                paymentFormItem.orderExternalId = order.CodigoSap;
-                System.debug('orderExternalId ' + paymentFormItem.orderExternalId); 
-                paymentFormItem.paymentItemCode = paymentFormItem.paymentItemCode.replaceFirst('^0+', '');
+            if(order.formPayment.size() > 0){
+                for(TemplateDataIntegrationFields.FormPaymentINData paymentFormItem : order.formPayment){
+                    paymentFormItem.orderExternalId = order.CodigoSap;
+                    System.debug('orderExternalId ' + paymentFormItem.orderExternalId); 
+                    paymentFormItem.paymentItemCode = paymentFormItem.paymentItemCode.replaceFirst('^0+', '');
+                }
+                    formPaymentListToUpsert.addAll(order.formPayment);
+                    System.debug('formPaymentListToUpsert ' + formPaymentListToUpsert);
             }
-                formPaymentListToUpsert.addAll(order.formPayment);
-                System.debug('formPaymentListToUpsert ' + formPaymentListToUpsert);
+            
             
             for (TemplateDataIntegrationFields.PartnerInsert partnerList : order.partners){
                 

@@ -1,5 +1,6 @@
 import subprocess
 import os
+import pyautogui as gui
 
 class RefactoringProcess:
     option=""
@@ -11,11 +12,14 @@ class RefactoringProcess:
         self.__comment_custom_account()
         self.__comment_lookup()
         self.__comment_order_screen()
+        self.__comment_application_agrogalaxy()
+        self.__push_data()
         self.__deploy_data()
       elif self.option == "2":
         self.__comment_custom_account()
         self.__comment_lookup()
         self.__comment_order_screen()
+        self.__comment_application_agrogalaxy()
       elif self.option == "3":
         self.__deploy_data()
         
@@ -34,7 +38,7 @@ class RefactoringProcess:
 
 
       lines[indexInitial] = '/*' + lines[indexInitial]
-      lines[indexFinal] =  lines[indexFinal] + '*/' + '          ' + "query = 'SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE (Name LIKE \\'' + String.escapeSingleQuotes(searchString.trim()) + '%\\' OR Name LIKE \\'' + String.escapeSingleQuotes(removeAccents(searchString.trim())) + '%\\' OR CPF__c LIKE \\'' + String.escapeSingleQuotes(searchString.trim()) + '%\\' OR Company__c LIKE \\'' + String.escapeSingleQuotes(removeAccents(searchString.trim())) + '%\\' OR Company__c LIKE \\'' + String.escapeSingleQuotes(searchString.trim()) + '%\\') LIMIT 49999';"
+      lines[indexFinal] =  lines[indexFinal] + '*/' + '          ' + "query = 'SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState, Parent.Name, StateRegistration__c FROM Account WHERE (Name LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' OR Name LIKE \'' + String.escapeSingleQuotes(removeAccents(searchString.trim())) + '%\' OR CPF__c LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' OR Company__c LIKE \'' + String.escapeSingleQuotes(removeAccents(searchString.trim())) + '%\' OR Company__c LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\')" + " ORDER BY Name" + " LIMIT 30" + "OFFSET :offSet';"
 
       file1.seek(0)
       file1.truncate(0)
@@ -78,7 +82,7 @@ class RefactoringProcess:
 
 
       lines[indexInitial] = '/*' + lines[indexInitial]
-      lines[indexFinal] =  lines[indexFinal] + '*/' + '          ' + "accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account];"
+      lines[indexFinal] =  lines[indexFinal] + '*/' + '          ' + "accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState, Parent.Name, StateRegistration__c FROM Account];"
 
       indexSpecial = 0
       for a in lines:
@@ -97,6 +101,32 @@ class RefactoringProcess:
       file1.writelines(lines)
 
       file1.close()
+
+    def __comment_application_agrogalaxy(self) -> None:
+      file_name_Lookup = ".\\force-app\\main\\default\\applications\\AgroGalaxy.app-meta.xml"
+      file1 = open(file_name_Lookup, 'r+', encoding="utf8")
+      lines = file1.readlines()
+      indexInitial = 0
+      indexFinal = 0
+      for a in lines:
+        if "<navType>Standard</navType>" in a:
+          indexInitial = lines.index(a) + 1
+          indexFinal = lines.index(a) + 8
+
+
+      lines[indexInitial] = '<!--' + lines[indexInitial]
+      lines[indexFinal] =  lines[indexFinal] + '-->' 
+
+      file1.seek(0)
+      file1.truncate(0)
+      file1.writelines(lines)
+
+      file1.close()
+
+    def __push_data(self) -> None:
+      gui.hotkey('ctrl', 'shift', 'p')
+      gui.write('SFDX: Push Source to Default Scratch Org')
+      gui.press('enter')
 
     def __deploy_data(self) -> None:
       subprocess.call(os.path.join(os.path.dirname(__file__), 'ExecuteToDeploy.bat'))

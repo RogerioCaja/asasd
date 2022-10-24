@@ -100,6 +100,7 @@ public without sharing class OrderScreenController {
                    ListCost__c,
                    PracticedCost__c,
                    Dosage__c,
+                   Brokerage__c,
                    toLabel(Status__c),
                    UnitMeasure__c,
                    DiscountPercent__c,
@@ -202,7 +203,7 @@ public without sharing class OrderScreenController {
     }
 
     public static AccountSerialize getOrderAccountData(Id accountId) {
-        Account account = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE Id =: accountId LIMIT 1];
+        Account account = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState, StateRegistration__c, Parent.Name FROM Account WHERE Id =: accountId LIMIT 1];
         return new AccountSerialize(account);
     }
 
@@ -228,9 +229,9 @@ public without sharing class OrderScreenController {
 			
             if (profileName != 'Balcão') {
                 Set<Id> relatedAccounts = getTerritoryAccounts();
-                accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE Status__c = 'Ativo' AND ((ParentId =: accountId AND Id IN: relatedAccounts AND ExternalId__c LIKE '0002%') OR (Id =: accountId AND CNPJ__c != null AND CPF__c = null) OR (ParentId IN: familyAccountIds AND ExternalId__c LIKE '0002%' AND Id IN: relatedAccounts))];
+                accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState, Parent.Name, StateRegistration__c FROM Account WHERE Status__c = 'Ativo' AND ((ParentId =: accountId AND Id IN: relatedAccounts AND ExternalId__c LIKE '0002%') OR (Id =: accountId AND CNPJ__c != null AND CPF__c = null) OR (ParentId IN: familyAccountIds AND ExternalId__c LIKE '0002%' AND Id IN: relatedAccounts))];
             } else {
-                accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState FROM Account WHERE Status__c = 'Ativo' AND ((ParentId =: accountId AND ExternalId__c LIKE '0002%') OR (Id =: accountId AND CNPJ__c != null AND CPF__c = null) OR ((ParentId IN: familyAccountIds AND ExternalId__c LIKE '0002%')))];
+                accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState, Parent.Name, StateRegistration__c FROM Account WHERE Status__c = 'Ativo' AND ((ParentId =: accountId AND ExternalId__c LIKE '0002%') OR (Id =: accountId AND CNPJ__c != null AND CPF__c = null) OR ((ParentId IN: familyAccountIds AND ExternalId__c LIKE '0002%')))];
             }
 
             for(Account account : accountList) accountListSerialize.add(new AccountSerialize(account));
@@ -465,6 +466,7 @@ public without sharing class OrderScreenController {
     
             Decimal orderTotalValue = 0;
             Decimal biggerDiscount = 0;
+            Boolean seedSale = isSeedSale(company.SalesOrg__c, null);
             Id productGroupId;
             Set<Id> setOrderItemsIds = new Set<Id>();
             List<Id> listProductsIds = new List<Id>();
@@ -472,7 +474,12 @@ public without sharing class OrderScreenController {
             Map<String, Decimal> quantitiesById = new Map<String, Decimal>();
             Map<String, Decimal> smallerMarginByProductGroup = new Map<String, Decimal>();
             for (ProductDeserialize orderProduct : orderData.productData) {
-                orderTotalValue += orderProduct.totalPrice;
+                if(seedSale){
+                    orderTotalValue += orderProduct.totalPriceWithBrokerage;
+                }else{
+                    orderTotalValue += orderProduct.totalPrice;
+                }
+                
                 if (orderProduct.orderItemId != null) {
                     setOrderItemsIds.add(orderProduct.orderItemId);
                 }
@@ -511,7 +518,6 @@ public without sharing class OrderScreenController {
                 quantitiesById.put(orderProduct.productId, orderProduct.quantity);
             }
 
-            Boolean seedSale = isSeedSale(company.SalesOrg__c, null);
             QuantitiesResult quantitiesResult;
             if (seedSale) {
                 QuotaData quotaData = new QuotaData();
@@ -818,7 +824,8 @@ public without sharing class OrderScreenController {
                     orderItem.Dosage__c = orderProduct.dosage != null ? orderProduct.dosage.setScale(6) : 0;
                     orderItem.Status__c = orderProduct.sapStatus != null ? statusValueByLabel.get(orderProduct.sapStatus) : null;
                     orderItem.UnitMeasure__c = orderProduct.unity;
-                    orderItem.FinalTotalValue__c = orderProduct.totalPrice;
+                    orderItem.FinalTotalValue__c = !(seedSale) ? orderProduct.totalPrice : orderProduct.totalPriceWithBrokerage;
+                    orderItem.Brokerage__c = orderProduct.brokerage;
                     orderItem.ListCost__c = orderProduct.listCost != null ? orderProduct.listCost : 0;
                     orderItem.PracticedCost__c = orderProduct.practicedCost != null ? orderProduct.practicedCost : 0;
                     orderItem.DiscountPercent__c = orderProduct.commercialDiscountPercentage != '' ? (stringToDecimal(orderProduct.commercialDiscountPercentage) != null ? stringToDecimal(orderProduct.commercialDiscountPercentage) : 0) : 0;
@@ -1570,6 +1577,19 @@ public without sharing class OrderScreenController {
         return showFreight;
     }
 
+    @AuraEnabled
+    public static string getParentIdFromAccountProperty(String accountId){
+        try {
+            Account parentName = [SELECT Parent.Name FROM Account Where Id =: String.escapeSingleQuotes(accountId) LIMIT 1];
+            if(parentName != null)
+                return parentName.Parent.Name;
+            else
+                return '';
+        } catch (Exception e) {
+            throw new AuraHandledException(e.getMessage());
+        }
+    }
+
     public static Decimal stringToDecimal(String value) {
         if (value.contains(',')) value = value.replaceAll(',', '.');
         if (value.contains('%')) value = value.replaceAll('%', '');
@@ -1661,7 +1681,9 @@ public without sharing class OrderScreenController {
         public Decimal practicedCost;
         public Decimal unitPrice;
         public Decimal totalPrice;
+        public Decimal totalPriceWithBrokerage;
         public Decimal dosage;
+        public Decimal brokerage;
         public Decimal commercialDiscountValue;
         public Decimal commercialAdditionValue;
         public Decimal financialAdditionValue;
@@ -1801,6 +1823,8 @@ public without sharing class OrderScreenController {
         public String UF;
         public String CodSap;
         public String Company;
+        public String IE;
+        public String ParentName;
         
         public List<AccountSerialize> accountList;
         AccountSerialize(){}
@@ -1814,6 +1838,8 @@ public without sharing class OrderScreenController {
             this.UF = account.BillingState;
             this.CodSap = account.ExternalId__c;
             this.Company = account.Company__c;
+            this.IE = account.StateRegistration__c;
+            this.ParentName = account.Parent.Name;
         }
 
         AccountSerialize(List<AccountSerialize> accountList){
@@ -1952,9 +1978,11 @@ public without sharing class OrderScreenController {
         public Decimal listPrice;
         public Decimal unitPrice;
         public Decimal totalPrice;
+        public Decimal totalPriceWithBrokerage;
         public Decimal listCost;
         public Decimal practicedCost;
         public Decimal dosage;
+        public Decimal brokerage;
         public Decimal commercialDiscountValue;
         public Decimal commercialAdditionValue;
         public Decimal financialAdditionValue;
@@ -1986,9 +2014,11 @@ public without sharing class OrderScreenController {
             this.listPrice = orderItem.ListPrice__c;
             this.unitPrice = orderItem.PracticedPrice__c;
             this.totalPrice = orderItem.FinalTotalValue__c;
+            this.totalPriceWithBrokerage = orderItem.Brokerage__c != null ? (orderItem.FinalTotalValue__c + orderItem.Brokerage__c) : orderItem.FinalTotalValue__c;
             this.listCost = orderItem.ListCost__c;
             this.practicedCost = orderItem.PracticedCost__c;
             this.dosage = orderItem.Dosage__c;
+            this.brokerage = orderItem.Brokerage__c;
             this.sapStatus = orderItem.Status__c;
             this.unity = orderItem.UnitMeasure__c;
             this.commercialDiscountPercentage = orderItem.DiscountPercent__c != null ? (orderItem.DiscountPercent__c == 0 ? '0%' : String.valueOf(orderItem.DiscountPercent__c) + '%') : '0%';
@@ -2214,6 +2244,14 @@ public without sharing class OrderScreenController {
         public String cropId;
         public String sellerId;
         public List<String> productsIds;
+
+        public QuotaData(){}
+
+        public QuotaData(String cropId, String sellerId, List<String> productsIds){
+            this.cropId = cropId;
+            this.sellerId = sellerId;
+            this.productsIds = productsIds;
+        }
     }
 
     public class QuotaResult {

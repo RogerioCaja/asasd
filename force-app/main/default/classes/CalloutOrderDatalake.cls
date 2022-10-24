@@ -7,6 +7,8 @@ public without sharing class CalloutOrderDatalake {
         processIntegration(orderId);
     }
 
+
+    ////
     public static IntegrationUtils.CalloutDatalakeResponse processIntegration(Id orderId){
 
         Order parentOrder = [SELECT CodigoSap__c, Id, NumeroPedidoApp__c,  
@@ -128,8 +130,10 @@ public without sharing class CalloutOrderDatalake {
             
 
             Set<Id> orderItemIds = new Set<Id>();
+            Set<Id> orderIds = new Set<Id>();
             List<CalloutOrderDatalake.ScheduleParameters> scheduleList = new List<CalloutOrderDatalake.ScheduleParameters>();
             List<CalloutOrderDatalake.OrderItemParameters> orderItemList = new List<CalloutOrderDatalake.OrderItemParameters>();
+            List<CalloutOrderDatalake.OrderCommoditiesParameters> commodityList = new List<CalloutOrderDatalake.OrderCommoditiesParameters>();
             for(OrderItem orderItem : order.OrderItems){
                 orderItemIds.add(orderItem.Id);
             }
@@ -145,6 +149,12 @@ public without sharing class CalloutOrderDatalake {
                 FROM OrderItem
                 WHERE Id IN: orderItemIds
             ]);
+
+            for(OrderItem ordItemForCommodity: orderItemMap.values()){
+                orderIds.add(ordItemForCommodity.OrderId);
+            }
+
+           
 
             Map<String, String> orderPayment = new Map<String, String>();
                 Schema.DescribeFieldResult objFieldDescribe = Schema.Order.PaymentForm__c.getDescribe();
@@ -162,6 +172,9 @@ public without sharing class CalloutOrderDatalake {
                 }
                 System.debug(statusDesc.get('1'));
             
+
+
+            List<OrderCommodity__c> commoditiesList = [SELECT Id, Product__c, CommodityPrice__c, BagQuantity__c, BagMargin__c, Order__c, StartDate__c, EndDate__c, DeliveryAddress__c, Product__r.ProductCode FROM OrderCommodity__c WHERE Order__c IN: orderIds];  
             List<ShippingDivison__c> divisonList = [SELECT Id,Name, DeliveryDate__c, Quantity__c, OrderItem__c, ExternalId__c, SapNumber__c FROM ShippingDivison__c WHERE OrderItem__c IN: orderItemIds];
             Map<Id, List<ShippingDivison__c>> divisionMap = new  Map<Id, List<ShippingDivison__c>>();
 
@@ -185,6 +198,10 @@ public without sharing class CalloutOrderDatalake {
                 }
                 orderItemList.add(new CalloutOrderDatalake.OrderItemParameters(orderItem, shippingCodesList));
                 //System.debug('order' + orders);
+            }
+
+            for(OrderCommodity__c orderCommodity : commoditiesList){
+                commodityList.add(new CalloutOrderDatalake.OrderCommoditiesParameters(orderCommodity));
             }
             System.debug('order ' + order.CodigoSap__c);
             if(order.CodigoSap__c == null){
@@ -245,6 +262,7 @@ public without sharing class CalloutOrderDatalake {
 
                 header.orderItemList = orderItemList;
                 header.scheduleList = scheduleList;
+                header.commodityList = commodityList;
                 this.header = header;
 
                 
@@ -307,6 +325,7 @@ public without sharing class CalloutOrderDatalake {
 
                 header.orderItemList = orderItemList;
                 header.scheduleList = scheduleList;
+                header.commodityList = commodityList;
                 this.header = header;
             }
 
@@ -370,6 +389,7 @@ public without sharing class CalloutOrderDatalake {
 
         public List<CalloutOrderDatalake.ScheduleParameters> scheduleList;
         public List<CalloutOrderDatalake.OrderItemParameters> orderItemList;
+        public List<CalloutOrderDatalake.OrderCommoditiesParameters> commodityList;
         public HeaderInsert(){}
     }
 
@@ -423,6 +443,7 @@ public without sharing class CalloutOrderDatalake {
 
         public List<CalloutOrderDatalake.ScheduleParameters> scheduleList;
         public List<CalloutOrderDatalake.OrderItemParameters> orderItemList;
+        public List<CalloutOrderDatalake.OrderCommoditiesParameters> commodityList;
 
         //public OrderUpdate(){}
     }
@@ -458,6 +479,26 @@ public without sharing class CalloutOrderDatalake {
             this.conditionType = conditionType;
             this.conditionValue = conditionValue;
             this.conditionCurrency = conditionCurrency;
+        }
+    }
+
+    public class OrderCommoditiesParameters{
+        public String material;
+        public Decimal commodityPrice;
+        public Decimal bagQuantity;
+        public Decimal bagMargin;
+        public Date startDate;
+        public Date endDate;
+        public String deliveryAddress;
+
+        public OrderCommoditiesParameters(OrderCommodity__c orderCommodity){
+            this.material = orderCommodity.Product__r.ProductCode;
+            this.commodityPrice = orderCommodity.CommodityPrice__c;
+            this.bagQuantity = orderCommodity.BagQuantity__c;
+            this.bagMargin = orderCommodity.BagMargin__c;
+            this.startDate = orderCommodity.StartDate__c;
+            this.endDate = orderCommodity.EndDate__c;
+            this.deliveryAddress = orderCommodity.DeliveryAddress__c;
         }
     }
 
