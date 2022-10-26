@@ -38,25 +38,31 @@ global without sharing class IntegrationINCommodityAppdigital {
         for (TemplateDataIntegrationFields.OrderCommodityINData orderCommodity : request){
             System.debug('orderCommodityECalendariazacao ' + orderCommodity.orderCommodityECalendariazacao);
             if(orderCommodity.orderCommodityECalendariazacao == true){
-            OrderCommodity__c ordCommodity = commodityIdsMap.get(orderCommodity.orderExternalId + '|' + orderCommodity.material);
-            System.debug('ordCommodity ' + commodityIdsMap.get(orderCommodity.orderExternalId + '|' + orderCommodity.material));
-           if(orderCommodity.orderExternalId == null){
-                
-               if(ordCommodity.Order__c != null){
-                    orderCommodity.orderExternalId = ordCommodity.Order__c; 
-                    lookups.put('Order' + ordCommodity.Order__r.CodigoSap__c, ordCommodity.Order__c);
-               }
-            }
+                OrderCommodity__c ordCommodity = commodityIdsMap.get(orderCommodity.orderExternalId + '|' + orderCommodity.material);
+                System.debug('ordCommodity ' + commodityIdsMap.get(orderCommodity.orderExternalId + '|' + orderCommodity.material));
+                if(orderCommodity.orderExternalId == null){
+                        
+                    if(ordCommodity.Order__c != null){
+                            orderCommodity.orderExternalId = ordCommodity.Order__c; 
+                            lookups.put('Order' + ordCommodity.Order__r.CodigoSap__c, ordCommodity.Order__c);
+                    }
+                    }
             
             
             if(orderCommodity.material == null || orderCommodity.orderCommodityECalendariazacao == true){
                 if(ordCommodity.Product__c != null){
                     orderCommodity.material = ordCommodity.Product__r.ProductCode__c;
                     lookups.put('Product2' + ordCommodity.Product__r.ProductCode__c, ordCommodity.Product__c);
+                } 
+            }
+                System.debug('orderCommodity.material ' + orderCommodity.material);
+            if(orderCommodity.material == null || orderCommodity.orderCommodityECalendariazacao == true){
+                if(ordCommodity.Product__c != null){
+                    orderCommodity.material = ordCommodity.Product__r.ProductCode__c;
                     looupsName.put('Product2Name' + ordCommodity.Product__r.ProductCode__c, ordCommodity.Name);
                 } 
             }
-                                    
+            
             if(orderCommodity.bagQuantity == null || orderCommodity.orderCommodityECalendariazacao == true){
                 orderCommodity.bagQuantity = ordCommodity.BagQuantity__c;
             }
