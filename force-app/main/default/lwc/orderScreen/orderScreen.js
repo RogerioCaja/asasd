@@ -672,6 +672,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.handlePrevious();
             this.disableNextScreen();
             this.showNotification('Necessário incluir ao menos um produto', 'Atenção!', 'warning');
+            return;
         }
         
         if (!this.checkProductDivisionAndCommodities()) {
@@ -684,7 +685,11 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
     checkProductDivisionAndCommodities() {
         let enableScreen = true;
-        if (this.headerData.IsOrderChild) {
+
+        if(this.headerData.pedido_mae_check){
+            return true
+        }
+        if (this.isFilled(this.productData) && this.isFilled(this.divisionData)) {
             for (let index = 0; index < this.productData.length; index++) {
                 let productDivisionQuantity = 0;
                 for (let i = 0; i < this.divisionData.length; i++) {
@@ -699,6 +704,9 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
                     break;
                 }
             }
+        }else{
+            enableScreen = false;
+            this.customErrorMessage = 'É preciso criar remessa para todos os produtos selecionados';
         }
         
         if (this.headerData.tipo_venda == 'Venda Barter' && (this.commodityData == undefined || this.commodityData == null || this.commodityData.length == 0)) {

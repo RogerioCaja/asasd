@@ -414,6 +414,71 @@ export default class OrderProductScreen extends LightningElement {
                             let listPriceChange = false;
                             let productsWithoutPrice = '';
                             let itemToExclude = [];
+                            let counter = 0;
+                            let comboItens = [];
+                            
+                            for (let index = 0; index < formerItens.length; index++) {
+                                let formerProductQuantity = formerItens[index].minQUantity * formerItens[index].comboQuantity;
+                                let currentItem = this.products.find(e => e.productId == formerItens[index].productId)
+                                
+                                if (this.isFilled(currentItem)) {
+                                    currentItem.quantity = formerProductQuantity;
+                                    currentItem.dosage = formerProductQuantity / this.hectares;
+                                    currentItem.dosageFront = this.fixDecimalPlacesFront(currentItem.dosage);
+                                    comboItens.push(currentItem);
+                                } else {
+                                    let comboValues = {
+                                        dosage: formerProductQuantity / this.hectares,
+                                        quantity: formerProductQuantity,
+                                        comboDiscount: 0,
+                                        comboId: formerItens[index].comboId,
+                                        industryCombo: formerItens[index].industryCombo
+                                    }
+    
+                                    let productInfos = this.getProductByPriority({Id: formerItens[index].productId});
+                                    let priorityPrice = {
+                                        listPrice: productInfos.listPrice,
+                                        costPrice: productInfos.costPrice,
+                                        priceListCode: productInfos.priceListCode
+                                    };
+                                    
+                                    comboItens.push(this.createProduct(productInfos, priorityPrice, comboValues, counter));
+                                    counter++;
+                                }
+                            }
+                
+                            for (let index = 0; index < benefitItens.length; index++) {
+                                let benefitProductQuantity = benefitItens[index].minQUantity * benefitItens[index].comboQuantity;
+                                let currentItem = this.products.find(e => e.productId == benefitItens[index].productId)
+                                
+                                if (this.isFilled(currentItem)) {
+                                    currentItem.quantity = benefitProductQuantity;
+                                    currentItem.dosage = benefitProductQuantity / this.hectares;
+                                    currentItem.dosageFront = this.fixDecimalPlacesFront(currentItem.dosage);
+                                    currentItem.comboDiscountPercent = benefitItens[index].discountPercentage + '%';
+                                    comboItens.push(currentItem);
+                                } else {
+                                    let comboValues = {
+                                        dosage: benefitProductQuantity / this.hectares,
+                                        quantity: benefitProductQuantity,
+                                        comboDiscount: benefitItens[index].discountPercentage,
+                                        comboId: benefitItens[index].comboId,
+                                        industryCombo: benefitItens[index].industryCombo
+                                    }
+
+                                    let productInfos = this.getProductByPriority({Id: benefitItens[index].productId});
+                                    let priorityPrice = {
+                                        listPrice: productInfos.listPrice,
+                                        costPrice: productInfos.costPrice,
+                                        priceListCode: productInfos.priceListCode
+                                    };
+
+                                    comboItens.push(this.createProduct(productInfos, priorityPrice, comboValues, counter));
+                                    counter++;
+                                }
+                            }
+                            comboItens.push.apply(comboItens, this.products);
+                            this.products = JSON.parse(JSON.stringify(comboItens));
 
                             for (let index = 0; index < this.products.length; index++) {
                                 this.addProduct = this.products[index];
