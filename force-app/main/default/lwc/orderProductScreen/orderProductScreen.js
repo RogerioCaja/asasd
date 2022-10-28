@@ -545,6 +545,7 @@ export default class OrderProductScreen extends LightningElement {
                                     counter++;
                                 }
                             }
+                            comboItens.push.apply(comboItens, this.products);
                             this.products = JSON.parse(JSON.stringify(comboItens));
 
                             for (let index = 0; index < this.products.length; index++) {
