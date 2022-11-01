@@ -558,7 +558,10 @@ export default class OrderHeaderScreen extends LightningElement {
                         this.headerDictLocale[field] = (this.registerDetails.includes(field) ? this.resolveRegister(record)  : {Id: record.Id, Name: record.Name});
                     }
 
-                    this.safraName = record.Name;
+                    if(field == 'safra'){
+                        this.safraName = record.Name;
+                    }
+
                     if(field == 'condicao_venda'){
                         this.setDateLimit();
                     }
@@ -629,6 +632,7 @@ export default class OrderHeaderScreen extends LightningElement {
                 this._verifyFieldsToSave();
             }else if (field == 'safra'){
                 this.safraName = null;
+            }else if (field == 'condicao_venda'){
                 this.clearDates()
             }
             if(this.fieldKeyList.includes(field) && !this.headerData.IsOrderChild){
