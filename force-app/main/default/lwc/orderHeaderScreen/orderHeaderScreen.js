@@ -611,6 +611,7 @@ export default class OrderHeaderScreen extends LightningElement {
                 this._verifyFieldsToSave();
             }else if (field == 'safra'){
                 this.safraName = null;
+                this.clearDates()
             }
             if(this.fieldKeyList.includes(field) && !this.headerData.IsOrderChild){
                 let index = this.sequentialDict[field];
@@ -624,6 +625,16 @@ export default class OrderHeaderScreen extends LightningElement {
         }
     }
 
+    clearDates(){
+        this.headerDictLocale['data_entrega'] = null;
+        this.headerDictLocale['data_pagamento'] = null;
+        setTimeout(()=>{
+            this.template.querySelector('[data-target-id="data_entrega"]').value = " "
+        });
+        setTimeout(()=>this.template.querySelector('[data-target-id="data_pagamento"]').value =  " ");
+        this.headerData = JSON.parse(JSON.stringify(this.headerDictLocale));
+    }
+    
     removeItemRegisterByField(field){
         this.headerDictLocale[field] = {};
         this.headerDictLocale.isCompleted = false;
