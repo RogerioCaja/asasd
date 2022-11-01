@@ -929,7 +929,7 @@ public without sharing class FactoryBuilder {
 
         Map<Id, OrderItem> orderItemMap = new Map<Id, OrderItem>([
             SELECT Id, NumeroSap__c, Product2.ExternalId__c, Product2.DistributionCenter__r.Code__c, Quantity, UnitPrice, ListCost__c, DiscountValue__c, FinancialAdditionValue__c, FinancialDiscountValue__c, CommercialAdditionValue__c,
-            FinancialAdditionPercent__c, FinancialDiscountPercent__c, CommercialMargin__c, DiscountPercent__c, CommercialAdditionPercent__c, ListPrice__c, Class__c, Sieve__c, Product2.ProductGroup__c
+            FinancialAdditionPercent__c, FinancialDiscountPercent__c, CommercialMargin__c, DiscountPercent__c, CommercialAdditionPercent__c, ListPrice__c, Class__c, Sieve__c, Product2.ProductGroup__r.ExternalId__c
             FROM OrderItem
             WHERE Id IN: orderItemSetIds
         ]);
@@ -941,7 +941,7 @@ public without sharing class FactoryBuilder {
         Boolean hasSeed = false;
 
         for(OrderItem orderItem : orderItemMap.values()){
-            if('SEM001' == orderItem.Product2.ProductGroup__c){
+            if('SEM001' == orderItem.Product2.ProductGroup__r.ExternalId__c){
                 hasSeed = true;
             }
         }
