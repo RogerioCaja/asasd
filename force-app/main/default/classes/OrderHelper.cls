@@ -418,16 +418,68 @@ public without sharing class OrderHelper {
         }
 
         for(Id id : comboQuantityShouldRefundMap.keySet()){
-            comboPromotionToUpdateList.add(
-                new ComboPromotion__c(
-                    Id = id,
-                    CombosQuantity__c = (comboQuantityRemainingMap.get(id) + comboQuantityShouldRefundMap.get(id))
-                )
-            );
+            if(comboQuantityRemainingMap.containsKey(id) && comboQuantityShouldRefundMap.containsKey(id)){
+                comboPromotionToUpdateList.add(
+                    new ComboPromotion__c(
+                        Id = id,
+                        CombosQuantity__c = (comboQuantityRemainingMap.get(id) + comboQuantityShouldRefundMap.get(id))
+                    )
+                );
+            }
         }
 
         if(comboPromotionToUpdateList.size() != 0){
             Database.update(comboPromotionToUpdateList);
         }
+    }
+    
+    public static void verifyOrderCanceling(Map<Id, Order> oldMap, Map<Id, Order> newMap){
+        Set<Id> orderIds = oldMap.keySet();
+        Set<Id> orderReferenceWhereItemsHavingRefundIds = new Set<Id>();
+        List<OrderItem> orderItemToUpdateList = new List<OrderItem>();
+
+        if(!System.URL.getCurrentRequestUrl().GetPath().contains('/upsertINOrder')){
+            for(Id id : orderIds){
+                if((oldMap.get(id).Status != 'X' && newMap.get(id).Status == 'X') && 
+                (!newMap.get(id).IsOrderMother__c && newMap.get(id).OrderReference__c != null)
+                ){
+                    orderReferenceWhereItemsHavingRefundIds.add(oldMap.get(id).OrderReference__c);
+                }
+            }
+
+            List<OrderItem> orderItemOfOrderMotherList = [SELECT Id, Product2.Id, OrderId FROM OrderItem WHERE OrderId IN: orderReferenceWhereItemsHavingRefundIds];
+            Map<String, OrderItem> orderItemOfOrderMotherMap = new Map<String, OrderItem>();
+            Map<String, Decimal> orderItemAmountedUsedPerOrderReference = new Map<String, Decimal>();
+            Set<String> keysToProductOrder = new Set<String>();
+            
+            for(OrderItem orderItem : orderItemOfOrderMotherList){
+                keysToProductOrder.add(String.valueOf(orderItem.Product2.Id) + String.valueOf(orderItem.OrderId));
+                orderItemOfOrderMotherMap.put(String.valueOf(orderItem.Product2.Id) +String.valueOf( orderItem.OrderId), orderItem);
+            }
+
+            List<AggregateResult> sumQuantityPerOrderItem = [SELECT Order.OrderReference__c, Product2.Id, SUM(Quantity) 
+            FROM OrderItem 
+            WHERE Order.OrderReference__c IN: orderReferenceWhereItemsHavingRefundIds 
+            AND Order.Status != 'X' 
+            AND Order.Status != '0' 
+            AND ReasonRefuse__c = null 
+            GROUP BY Product2.Id,Order.OrderReference__c];
+            
+            for(AggregateResult aggResult : sumQuantityPerOrderItem){
+                orderItemAmountedUsedPerOrderReference.put((String)aggResult.get('Id') + (String)aggResult.get('OrderReference__c'), (Decimal)aggResult.get('expr0') );
+            }
+
+            for(String key : keysToProductOrder){
+                OrderItem orderItem = new OrderItem();
+                orderItem.Id = orderItemOfOrderMotherMap.get(key).Id;
+                orderItem.AmountUsed__c = orderItemAmountedUsedPerOrderReference.containsKey(key) ? orderItemAmountedUsedPerOrderReference.get(key) : 0;
+                orderItemToUpdateList.add(orderItem);
+            }
+
+            OrderItemHelper.disableTrigger();
+            update orderItemToUpdateList;
+            OrderItemHelper.enableTrigger();
+        }
+
     }
 }
