@@ -133,6 +133,7 @@ public without sharing class FactoryBuilder {
         private Order order;
         private Map<String, String> referenceItemMotherMap;
         private Map<Id, OrderItem> orderItemMap;
+        private Boolean hasSeed;
 
         public void setOrder(Order order){
             this.order = order;
@@ -144,6 +145,7 @@ public without sharing class FactoryBuilder {
 
         public void setOrderItemMap(){
             this.orderItemMap = generateOrderItemMap(this.order);
+            this.hasSeed = hasSeedGroup(this.orderItemMap);
         }
 
         public void setType(){
@@ -151,7 +153,7 @@ public without sharing class FactoryBuilder {
         }
 
         public void setHeader(){
-            this.IS_HEADER_IN = new HeaderSeeds(this.order);
+            this.IS_HEADER_IN = new HeaderSeeds(this.order, this.hasSeed);
         }
 
         public void setPartners(){
@@ -248,6 +250,7 @@ public without sharing class FactoryBuilder {
         private Order order;
         private Map<String, String> referenceItemMotherMap;
         private Map<Id, OrderItem> orderItemMap;
+        private Boolean hasSeed;
 
         public void setOrder(Order order){
             this.order = order;
@@ -259,6 +262,7 @@ public without sharing class FactoryBuilder {
 
         public void setOrderItemMap(){
             this.orderItemMap = generateOrderItemMap(this.order);
+            this.hasSeed = hasSeedGroup(this.orderItemMap);
         }
 
         public void setType(){
@@ -266,7 +270,7 @@ public without sharing class FactoryBuilder {
         }
 
         public void setHeader(){
-            this.IS_HEADER_IN = new HeaderBarterSeeds(this.order);
+            this.IS_HEADER_IN = new HeaderBarterSeeds(this.order, this.hasSeed);
         }
 
         public void setPartners(){
@@ -512,7 +516,7 @@ public without sharing class FactoryBuilder {
         public String ZZVLRPAG9;
         public String ZZITMPAG9;
 
-        public HeaderSeeds(Order order){
+        public HeaderSeeds(Order order, Boolean hasSeed){
             Map<String, String> statusSeller = new Map<String, String>();
             statusSeller.put('CTV', 'CT');
             statusSeller.put('Franqueado', 'FR');
@@ -554,6 +558,9 @@ public without sharing class FactoryBuilder {
             }
             else{
                 this.PRICE_DATE = order.EffectiveOrderDate__c == null ? String.valueOf(order.EffectiveDate).replace('-', '') : String.valueOf(order.EffectiveOrderDate__c).replace('-', '');
+                if(hasSeed){
+                    this.PRICE_DATE = String.valueOf(order.PaymentDate__c).replace('-', '');
+                }
             }
             this.REF_DOC = order.OrderReference__c != null ? order.OrderReference__r.CodigoSap__c : '';
             this.CSTCNDGRP1 = statusSeller.get(order.SalesCTV__r.SellerType__c);
@@ -724,7 +731,7 @@ public without sharing class FactoryBuilder {
         public String ZZVLRPAG9;
         public String ZZITMPAG9;
 
-        public HeaderBarterSeeds(Order order){
+        public HeaderBarterSeeds(Order order, Boolean hasSeed){
             Map<String, String> statusSeller = new Map<String, String>();
             statusSeller.put('CTV', 'CT');
             statusSeller.put('Franqueado', 'FR');
@@ -766,6 +773,9 @@ public without sharing class FactoryBuilder {
             }
             else{
                 this.PRICE_DATE = order.EffectiveOrderDate__c == null ? String.valueOf(order.EffectiveDate).replace('-', '') : String.valueOf(order.EffectiveOrderDate__c).replace('-', '');
+                if(hasSeed){
+                    this.PRICE_DATE = String.valueOf(order.PaymentDate__c).replace('-', '');
+                }
             }
             this.REF_DOC = order.OrderReference__c != null ? order.OrderReference__r.CodigoSap__c : '';
             this.ZZREFBARTER = order.CodigoSap__c;
@@ -919,12 +929,24 @@ public without sharing class FactoryBuilder {
 
         Map<Id, OrderItem> orderItemMap = new Map<Id, OrderItem>([
             SELECT Id, NumeroSap__c, Product2.ExternalId__c, Product2.DistributionCenter__r.Code__c, Quantity, UnitPrice, ListCost__c, DiscountValue__c, FinancialAdditionValue__c, FinancialDiscountValue__c, CommercialAdditionValue__c,
-            FinancialAdditionPercent__c, FinancialDiscountPercent__c, CommercialMargin__c, DiscountPercent__c, CommercialAdditionPercent__c, ListPrice__c, Class__c, Sieve__c
+            FinancialAdditionPercent__c, FinancialDiscountPercent__c, CommercialMargin__c, DiscountPercent__c, CommercialAdditionPercent__c, ListPrice__c, Class__c, Sieve__c, Product2.ProductGroup__c
             FROM OrderItem
             WHERE Id IN: orderItemSetIds
         ]);
 
         return orderItemMap;
+    }
+
+    private static Boolean hasSeedGroup(Map<Id, OrderItem> orderItemMap){
+        Boolean hasSeed = false;
+
+        for(OrderItem orderItem : orderItemMap.values()){
+            if('SEM001' == orderItem.Product2.ProductGroup__c){
+                hasSeed = true;
+            }
+        }
+
+        return hasSeed;
     }
 
     private static List<OrderItemParameters> generateOrderItemParameterList(Map<Id, OrderItem> orderItemMap, Map<String, String> referenceItemMotherMap,Order order){
