@@ -620,7 +620,7 @@
 					<div if:true={showComboArrows} class="product-column product-left"><span class="arrow-style" onclick={backComboScreen}>&#8249;</span></div>
 					<div style="width: 90%; float: left;">
 						<template for:each={combosData} for:item="combo">
-							<div key={combo.comboId} class="combo-card">
+							<div if:true={combo.specificItemCombo} key={combo.comboId} class="combo-card">
 								<div class="combo-card-01">
 									<p class="combo-titlte">Produtos Formadores</p>
 									<template for:each={combo.formerItems} for:item="formerProd">
