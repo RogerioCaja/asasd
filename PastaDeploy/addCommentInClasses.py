@@ -31,14 +31,14 @@ class RefactoringProcess:
       indexInitial = 0
       indexFinal = 0
       for a in lines:
-        if "if (profileName != 'Balcão') {" in a:
-          indexInitial = lines.index(a)
+        if "List<SObject> recordsData" in a:
+          indexInitial = lines.index(a) + 2
         if "for(SObject s" in a:
           indexFinal = lines.index(a) - 2
 
 
       lines[indexInitial] = '/*' + lines[indexInitial]
-      lines[indexFinal] =  lines[indexFinal] + '*/' + '          ' + "query = 'SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState, Parent.Name, StateRegistration__c FROM Account WHERE (Name LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' OR Name LIKE \'' + String.escapeSingleQuotes(removeAccents(searchString.trim())) + '%\' OR CPF__c LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' OR Company__c LIKE \'' + String.escapeSingleQuotes(removeAccents(searchString.trim())) + '%\' OR Company__c LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\')" + " ORDER BY Name" + " LIMIT 30" + "OFFSET :offSet';"
+      lines[indexFinal] =  lines[indexFinal] + '*/' + '          ' + "query = 'SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState, Parent.Name, StateRegistration__c FROM Account WHERE (Name LIKE \\'' + String.escapeSingleQuotes(searchString.trim()) + '%\\' OR Name LIKE \\'' + String.escapeSingleQuotes(removeAccents(searchString.trim())) + '%\\' OR CPF__c LIKE \\'' + String.escapeSingleQuotes(searchString.trim()) + '%\\' OR Company__c LIKE \\'' + String.escapeSingleQuotes(removeAccents(searchString.trim())) + '%\\' OR Company__c LIKE \\'' + String.escapeSingleQuotes(searchString.trim()) + '%\\') ORDER BY Name LIMIT 30 OFFSET :offSet';"
 
       file1.seek(0)
       file1.truncate(0)
