@@ -2,11 +2,13 @@
 <ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Valida_CodigoSap</fullName>
     <active>true</active>
-    <errorConditionFormula>AND (
-OR (
-Profile.Name = &apos;Vendedor&apos;,
-Profile.Name = &apos;Vendedor - Sementes&apos;),
-ISBLANK( CodigoSap__c )
-)</errorConditionFormula>
+    <errorConditionFormula>
+        AND (
+            ISBLANK( CodigoSap__c ),
+            OR (
+            Profile.Name = &apos;Vendedor&apos;,
+            Profile.Name = &apos;Vendedor - Sementes&apos;)
+            )         
+    </errorConditionFormula>
     <errorMessage>Por favor, informe o código sap do usuário.</errorMessage>
 </ValidationRule>
