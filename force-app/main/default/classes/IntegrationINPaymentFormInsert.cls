@@ -18,6 +18,7 @@ global without sharing class IntegrationINPaymentFormInsert {
 
             orderLookups.add(PaymentFormINData.orderExternalId);
             idsOrderItem.add(PaymentFormINData.orderExternalId + '|' + PaymentFormINData.paymentItemCode);
+
             System.debug('idsOrderItem ' + idsOrderItem);
         }
 

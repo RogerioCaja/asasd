@@ -12,7 +12,9 @@ global class BatchImplementationCTV  implements Database.Batchable<sObject>, Dat
     } 
     global void execute(Database.BatchableContext BC, List<Territory2> territoryList){
         System.debug('territoryList: '+territoryList);
-        CalloutCTVCarteira.sendOrder(territoryList);
+        if(!Test.isRunningTest()){
+            CalloutCTVCarteira.sendOrder(territoryList);
+        }
 
     }
     global void finish(Database.BatchableContext BC) {} 
