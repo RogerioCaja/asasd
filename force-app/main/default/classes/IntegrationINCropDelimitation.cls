@@ -17,8 +17,8 @@ global without sharing class IntegrationINCropDelimitation {
         
   
         for (TemplateDataIntegrationFields.DelimitadoresINData delimitator : request){
-            Date baseDate = delimitador.BaseDateFinancing;
-            delimitator.AfterPayment = baseDate.addDays(Decimal.valueOf(delimitador.AfterPaymentDate));
+            Date baseDate = delimitator.BaseDateFinancing;
+            delimitator.AfterPayment = baseDate.addDays(Decimal.valueOf(delimitator.AfterPaymentDate));
             safraLookups.add(delimitator.Safra);
             salesOrgLookups.add(delimitator.SalesOrganization);
             salesConditionLookups.add(delimitator.PriceList);
