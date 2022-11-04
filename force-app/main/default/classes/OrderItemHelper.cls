@@ -179,10 +179,9 @@ public without sharing class OrderItemHelper {
         
         
         
-        OrderItemHelper.disableTrigger();
-        upsert generalQuotasListUpdate;
-        
-        OrderItemHelper.enableTrigger();
+        // OrderItemHelper.disableTrigger();
+        // upsert generalQuotasListUpdate;
+        // OrderItemHelper.enableTrigger();
     }
 
 
