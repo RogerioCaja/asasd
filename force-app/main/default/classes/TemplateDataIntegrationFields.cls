@@ -603,6 +603,55 @@ global with sharing class TemplateDataIntegrationFields {
         }
     }
 
+    global class DelimitadoresINData implements FieldData{
+        public String DelimitadoresExternalId;
+        public String Name;
+        public String SalesOrganization;
+        public String Safra;
+        public String PriceList;
+        public Date StartDateOV;
+        public Date EndDateOV;
+        public Date StartDateFaturalmente;
+        public Date EndDateFaturalmente;
+        public Date BaseDateFinancing;
+        public Date AfterPaymentDate;
+
+        public Delimitadores__c serialize(Map<String, Id> lookups){
+            return new Delimitadores__c(
+                ExternalId__c = this.DelimitadoresExternalId,
+                Name = this.Name, 
+                SalesOrg__c = lookups.containsKey('SalesOrg__c'+this.SalesOrganization) ? lookups.get('SalesOrg__c'+this.SalesOrganization) : null,
+                Safra__c = lookups.containsKey('Safra__c'+this.Safra) ? lookups.get('Safra__c'+this.Safra) : null,
+                SalesCondition__c = lookups.containsKey('SalesCondition__c'+this.PriceList) ? lookups.get('SalesCondition__c'+this.PriceList) : null,
+                StartDateOV__c = this.StartDateOV,
+                EndDateOV__c = this.EndDateOV,
+                StartDateBilling__c = this.StartDateFaturalmente,
+                EndDateBilling__c = this.EndDateFaturalmente,
+                FinancialBaseDate__c = this.BaseDateFinancing,
+                LimitDateAfterPayment__c = this.AfterPaymentDate
+            );
+        }
+
+        //Required fields for integration
+        public List<String> getRequiredFields(){
+            return new List<String>{
+                //'Name'
+                //'numeroNotaFiscal'
+       
+            };
+        }
+
+        //ExternalId field
+        public String getFieldKey(){
+            return 'ExternalId__c';
+        }
+        
+        //Id field
+        public String getFieldId() {
+            return 'Id';
+        }
+    }
+    
     global class OrderCommodityINData implements FieldDataChild{
         public String orderExternalId;
         //public String OrderItemCode;
