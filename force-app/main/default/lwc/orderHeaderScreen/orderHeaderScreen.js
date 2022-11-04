@@ -558,7 +558,9 @@ export default class OrderHeaderScreen extends LightningElement {
                         this.headerDictLocale[field] = (this.registerDetails.includes(field) ? this.resolveRegister(record)  : {Id: record.Id, Name: record.Name});
                     }
 
-                    this.safraName = record.Name;
+                    if(field == 'safra'){
+                        this.safraName = record.Name;
+                    }
                     if(field == 'condicao_venda'){
                         this.setDateLimit();
                     }
