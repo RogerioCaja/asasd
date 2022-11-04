@@ -456,6 +456,9 @@ export default class OrderHeaderScreen extends LightningElement {
             if(this.headerData){
                 this.fieldKey = true;
                 this.headerDictLocale = JSON.parse(JSON.stringify(this.headerData));
+                if(this.childOrder || this.headerData.IsOrderChild){
+                    this.salesOrgId = this.headerData.organizacao_vendas.Id;
+                }
                 if (this.headerDictLocale.tipo_venda == 'Venda Conta e Ordem' || this.headerDictLocale.tipo_venda == 'Venda Entrega Futura' || this.headerDictLocale.tipo_venda == 'Venda Normal') {
                     this.allowMotherOrder = true;
                 } else {
