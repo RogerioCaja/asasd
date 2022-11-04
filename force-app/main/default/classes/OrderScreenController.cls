@@ -1339,7 +1339,7 @@ public without sharing class OrderScreenController {
         
         String salesOrgName = [SELECT Name FROM SalesOrg__c WHERE Id =: orderValues.salesOrg LIMIT 1].Name;
         String salesConditionName = [SELECT ExternalId__c FROM SalesCondition__c WHERE Id =: orderValues.salesCondition LIMIT 1].ExternalId__c;
-        String safraName = [SELECT Name, Name__c FROM Safra__c WHERE Id =: orderValues.safra LIMIT 1].Name;
+        String safraName = [SELECT Name FROM Safra__c WHERE Id =: orderValues.safra LIMIT 1].Name;
         
         String keyDelimiter = safraName + ' ' + salesConditionName + ' ' + salesOrgName;
         Date safraPaymentDate;
@@ -1425,7 +1425,7 @@ public without sharing class OrderScreenController {
         
         String salesOrgName = [SELECT Name FROM SalesOrg__c WHERE Id =: salesOrgId LIMIT 1].Name;
         String salesConditionName = [SELECT ExternalId__c FROM SalesCondition__c WHERE Id =: salesConditionId LIMIT 1].ExternalId__c;
-        String safraName = [SELECT Name__c FROM Safra__c WHERE Id =: safraId LIMIT 1].Name__c;
+        String safraName = [SELECT Name FROM Safra__c WHERE Id =: safraId LIMIT 1].Name;
         
         String keyDelimiter = safraName + ' ' +  salesConditionName + ' ' + salesOrgName;
 
