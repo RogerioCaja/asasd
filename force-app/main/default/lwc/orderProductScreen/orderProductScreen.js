@@ -1800,8 +1800,12 @@ export default class OrderProductScreen extends LightningElement {
             approvalNumber: 1
         }
 
-        this.checkCombo = true;
-        this.unitPriceDisabled = true;
+        if ((this.isFilled(this.comboProducts.formerIds) && this.comboProducts.formerIds.length > 0) ||
+            (this.isFilled(this.comboProducts.benefitsIds) && this.comboProducts.benefitsIds.length > 0)) {
+            this.checkCombo = true;
+            this.unitPriceDisabled = true;
+        }
+
         this.getCompanies(getCompanyData);
     }
 
