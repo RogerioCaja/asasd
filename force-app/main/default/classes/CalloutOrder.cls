@@ -1,5 +1,9 @@
 public without sharing class CalloutOrder {
-    public CalloutOrder() { }
+    public CalloutOrder() {
+        
+    }
+
+
 
     @future(callout = true)
     public static void callIntegration(Id orderId){
@@ -28,6 +32,7 @@ public without sharing class CalloutOrder {
 			}
 
 			List<Order> orderList = new List<Order>();
+            //test
 			
             for(Messages message : resp.responses.ET_RETURN.item){
                 if(message.TYPE != 'S' && message.TYPE != 'W'){
@@ -35,7 +40,7 @@ public without sharing class CalloutOrder {
                     calloutResponse.errorMessage = (calloutResponse.errorMessage != null ? calloutResponse.errorMessage : '') + message.MESSAGE + '\n';
                 }
             }
-            if(!calloutResponse.success || resp.responses.ET_RETURN.item == null){
+            if(!calloutResponse.success){
                 allOrders[0].ErrorIntegrationSAP__c = calloutResponse.errorMessage;
                 orderList.add(allOrders[0]);
             }
@@ -66,6 +71,7 @@ public without sharing class CalloutOrder {
 
         IntegrationUtils.RequestResponseObject responseObject = IntegrationUtils.executeCallout(endpoint, payload, headersMap);
         AuthToken auth = (AuthToken)JSON.deserialize(responseObject.response.getBody(), AuthToken.class);
+        System.debug(responseObject);
         return auth.access_token;
     }
 
@@ -101,11 +107,12 @@ public without sharing class CalloutOrder {
 
 			HttpResponse response = responseObject.response;
 
-            if(response.getBody().contains('"TYPE":"E"') || response.getBody().contains('"An internal server error occured')){
+            if(response.getBody().contains('"TYPE":"E"')){
                 IntegrationLog.createLog('Pedido OUT - SAP', 'OUT', response.getBody(), payload, true);
             }else{
                 IntegrationLog.createLog('Pedido OUT - SAP', 'OUT', response.getBody(), payload, false);
             }
+			// .WSLog('Pedido', 'OUTBOUND', response.getBody(), payload, false);
 			try {
 
 				ResponseParametersWrapper responses = (ResponseParametersWrapper) JSON.deserialize(response.getBody(), ResponseParametersWrapper.class);
