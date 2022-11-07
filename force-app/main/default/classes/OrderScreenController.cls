@@ -1540,8 +1540,6 @@ public without sharing class OrderScreenController {
               FROM ComboPromotion__c
              WHERE Safra__c =: comboData.cropId
                AND SalesOrg__c =: company.salesOrgId
-               AND SalesTeam__c =: company.salesTeamId
-               AND SalesOffice__c =: company.salesOfficeId
                AND SalesCondition__c =: comboData.salesConditionId
                AND RecordTypeId =: specificItemsRecordType
                AND CombosQuantity__c > 0
@@ -1675,8 +1673,6 @@ public without sharing class OrderScreenController {
                   FROM ComboPromotion__c
                  WHERE Safra__c =: comboData.cropId
                    AND SalesOrg__c =: comboData.salesOrgId
-                   AND SalesTeam__c =: comboData.salesTeamId
-                   AND SalesOffice__c =: comboData.salesOfficeId
                    AND SalesCondition__c =: comboData.salesConditionId
                    AND CombosQuantity__c > 0
                    AND RecordTypeId IN: recTypes
