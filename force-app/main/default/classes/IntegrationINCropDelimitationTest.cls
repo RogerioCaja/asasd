@@ -42,7 +42,7 @@ public class IntegrationINCropDelimitationTest {
         delimitators.StartDateFaturalmente = Date.valueOf('2022-09-21');
         delimitators.EndDateFaturalmente = Date.valueOf('2022-09-21');
         delimitators.BaseDateFinancing = Date.valueOf('2022-09-21');
-        delimitators.AfterPaymentDate = Date.valueOf('2022-09-22');
+        delimitators.AfterPaymentDate = '61';
         delimitatorsList.add(delimitators);
         
         Test.startTest();
