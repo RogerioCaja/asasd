@@ -17,7 +17,7 @@
     <formulas>
         <name>Name</name>
         <dataType>String</dataType>
-        <expression>{!$Record.Safra__r.Name__c}&amp; &quot; &quot; &amp;{!$Record.SalesCondition__r.ExternalId__c}&amp; &quot; &quot; &amp;{!$Record.SalesOrg__r.Name}</expression>
+        <expression>{!$Record.Safra__r.Name}&amp; &quot; &quot; &amp;{!$Record.SalesCondition__r.ExternalId__c}&amp; &quot; &quot; &amp;{!$Record.SalesOrg__r.Name}</expression>
     </formulas>
     <interviewLabel>DelimitadoresName {!$Flow.CurrentDateTime}</interviewLabel>
     <label>DelimitadoresName</label>

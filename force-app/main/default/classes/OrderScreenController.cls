@@ -1385,14 +1385,20 @@ public without sharing class OrderScreenController {
         FinancialResult result = new FinancialResult();
         OrderDataDeserialize orderValues = (OrderDataDeserialize) JSON.deserialize(data, OrderDataDeserialize.class);
         
+        String salesOrgName = [SELECT Name FROM SalesOrg__c WHERE Id =: orderValues.salesOrg LIMIT 1].Name;
+        String salesConditionName = [SELECT ExternalId__c FROM SalesCondition__c WHERE Id =: orderValues.salesCondition LIMIT 1].ExternalId__c;
+        String safraName = [SELECT Name, Name__c FROM Safra__c WHERE Id =: orderValues.safra LIMIT 1].Name;
+        
+        String keyDelimiter = safraName + ' ' + salesConditionName + ' ' + salesOrgName;
         Date safraPaymentDate;
-        for (Safra__c safra : [
+        for (Delimitadores__c delimiter : [
             SELECT Id,
-                   PaymentBaseDate__c
-              FROM Safra__c
-             WHERE Id =: orderValues.safra
+                   Name, 
+                   FinancialBaseDate__c
+              FROM Delimitadores__c
+             WHERE Name =: keyDelimiter
         ]) {
-            safraPaymentDate = safra.PaymentBaseDate__c;
+            safraPaymentDate = delimiter.FinancialBaseDate__c;
         }
 
         result.dayDifference = safraPaymentDate.daysBetween(Date.valueOf(orderValues.paymentDate));
@@ -1463,18 +1469,29 @@ public without sharing class OrderScreenController {
     }
 
     @AuraEnabled
-    public static String getSafraInfos(String safraId){
-        Safra__c safra = [
-            SELECT Id,
-                   BillingStartDate__c,
-                   EndDateBilling__c,
-                   NumberOfDaysAfterPayment__c,
-                   PaymentBaseDate__c
-              FROM Safra__c
-             WHERE Id =: safraId
-        ];
+    public static String getSafraInfos(String safraId, String salesConditionId, String salesOrgId){
+        
+        String salesOrgName = [SELECT Name FROM SalesOrg__c WHERE Id =: salesOrgId LIMIT 1].Name;
+        String salesConditionName = [SELECT ExternalId__c FROM SalesCondition__c WHERE Id =: salesConditionId LIMIT 1].ExternalId__c;
+        String safraName = [SELECT Name__c FROM Safra__c WHERE Id =: safraId LIMIT 1].Name__c;
+        
+        String keyDelimiter = safraName + ' ' +  salesConditionName + ' ' + salesOrgName;
 
-        return JSON.serialize(new SafraDataSerialize(safra));
+        try{
+            Delimitadores__c delimiter = [
+                SELECT Id,
+                    StartDateBilling__c,
+                    LimitDateAfterPayment__c,
+                    EndDateBilling__c,
+                    FinancialBaseDate__c
+                FROM Delimitadores__c
+                WHERE Name =: keyDelimiter
+            ];
+
+            return JSON.serialize(new SafraDataSerialize(delimiter));
+        }catch(Exception err){
+            return 'Não foi possível encontrar as datas da Safra selecionada, contate o time de Pricing AgroGalaxy.';
+        }
     }
 
     @AuraEnabled
@@ -2416,12 +2433,12 @@ public without sharing class OrderScreenController {
 
         SafraDataSerialize() {}
 
-        SafraDataSerialize(Safra__c safra) {
-            this.initialDate = String.valueOf(safra.BillingStartDate__c);
-            this.paymentDate = String.valueOf(safra.NumberOfDaysAfterPayment__c);
-            this.endDateBilling = String.valueOf(safra.EndDateBilling__c);
-            this.startDateBilling = String.valueOf(safra.BillingStartDate__c);
-            this.paymentBaseDate = String.valueOf(safra.PaymentBaseDate__c);
+        SafraDataSerialize(Delimitadores__c delimiter) {
+            this.initialDate = String.valueOf(delimiter.StartDateBilling__c);
+            this.paymentDate = String.valueOf(delimiter.LimitDateAfterPayment__c);
+            this.endDateBilling = String.valueOf(delimiter.EndDateBilling__c);
+            this.startDateBilling = String.valueOf(delimiter.StartDateBilling__c);
+            this.paymentBaseDate = String.valueOf(delimiter.FinancialBaseDate__c);
         }
     }
 
@@ -2432,6 +2449,7 @@ public without sharing class OrderScreenController {
         public String salesTeam;
         public String safra;
         public String culture;
+        public String salesCondition;
     }
 
     public class FinancialResult {

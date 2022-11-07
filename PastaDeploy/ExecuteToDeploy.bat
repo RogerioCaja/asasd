@@ -1,6 +1,7 @@
 @ECHO "setando permission set"
 call sfdx force:user:permset:assign --permsetname admin
 
+cd PastaDeploy
 @ECHO "Iniciando Carga..."
 timeout /t 5
 
