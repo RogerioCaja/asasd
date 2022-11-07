@@ -1110,7 +1110,7 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>JurosDescontoAntecipao__c.DescriptionExternalId__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -3190,6 +3190,14 @@
     </recordTypeVisibilities>
     <recordTypeVisibilities>
         <recordType>JurosDescontoAntecipao__c.ZPR0</recordType>
+        <visible>true</visible>
+    </recordTypeVisibilities>
+    <recordTypeVisibilities>
+        <recordType>JurosDescontoAntecipao__c.ZROY</recordType>
+        <visible>true</visible>
+    </recordTypeVisibilities>
+    <recordTypeVisibilities>
+        <recordType>JurosDescontoAntecipao__c.ZTRA</recordType>
         <visible>true</visible>
     </recordTypeVisibilities>
     <recordTypeVisibilities>
