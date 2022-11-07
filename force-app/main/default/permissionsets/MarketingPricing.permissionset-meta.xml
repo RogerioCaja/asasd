@@ -3196,6 +3196,14 @@
         <visible>true</visible>
     </recordTypeVisibilities>
     <recordTypeVisibilities>
+        <recordType>JurosDescontoAntecipao__c.ZROY</recordType>
+        <visible>true</visible>
+    </recordTypeVisibilities>
+    <recordTypeVisibilities>
+        <recordType>JurosDescontoAntecipao__c.ZTRA</recordType>
+        <visible>true</visible>
+    </recordTypeVisibilities>
+    <recordTypeVisibilities>
         <recordType>Order.VendaBarter</recordType>
         <visible>true</visible>
     </recordTypeVisibilities>
