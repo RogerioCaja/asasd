@@ -99,13 +99,8 @@
             User u = [SELECT Id FROM User WHERE UserName='testes_BP_TEST@testes.com' LIMIT 1];
             Territory2Type terrModel = [SELECT Id FROM Territory2Type LIMIT 1];
             Territory2Model model = [SELECT Id FROM Territory2Model LIMIT 1];
-            Territory2 objTerr = new Territory2(); 
-                objTerr.Description = 'Description__c';
-                objTerr.Name = 'Name';
-                objTerr.DeveloperName = 'Name';
-                objTerr.Territory2TypeId = terrModel.Id;
-                objTerr.Territory2ModelId = model.Id;
-            insert objTerr;
+
+            
             Territory2 objTerr2 = new Territory2(); 
             objTerr2.Description = 'Description';
             objTerr2.Name = 'Nam2e';
@@ -113,6 +108,15 @@
             objTerr2.Territory2TypeId = terrModel.Id;
             objTerr2.Territory2ModelId = model.Id;
             insert objTerr2;
+            
+            Territory2 objTerr = new Territory2(); 
+                objTerr.Description = 'Description__c';
+                objTerr.Name = 'Name';
+                objTerr.ParentTerritory2Id = objTerr2.Id;
+                objTerr.DeveloperName = 'Name';
+                objTerr.Territory2TypeId = terrModel.Id;
+                objTerr.Territory2ModelId = model.Id;
+            insert objTerr;
             UserTerritory2Association userTerrAssociation = new UserTerritory2Association(Territory2Id= objTerr.Id, UserId= u.Id, RoleInTerritory2='Sales / Marketing Manager');
             insert userTerrAssociation;
             UserTerritory2Association userTerrAssociation2 = new UserTerritory2Association(Territory2Id= objTerr2.Id, UserId= u.Id, RoleInTerritory2='Sales / Marketing Manage');
