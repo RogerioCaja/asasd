@@ -165,7 +165,7 @@ public without sharing class FactoryBuilder {
         }
 
         public void setConditions(){
-            this.IT_CONDITIONS_IN = generateConditionParametersList(this.orderItemMap, this.order);
+            this.IT_CONDITIONS_IN = generateConditionParametersSeedList(this.orderItemMap, this.order);
         }
 
         public void setShippingDivision(){
@@ -282,7 +282,7 @@ public without sharing class FactoryBuilder {
         }
 
         public void setConditions(){
-            this.IT_CONDITIONS_IN = generateConditionParametersList(this.orderItemMap, this.order);
+            this.IT_CONDITIONS_IN = generateConditionParametersSeedList(this.orderItemMap, this.order);
         }
 
         public void setShippingDivision(){
@@ -929,7 +929,7 @@ public without sharing class FactoryBuilder {
 
         Map<Id, OrderItem> orderItemMap = new Map<Id, OrderItem>([
             SELECT Id, NumeroSap__c, Product2.ExternalId__c, Product2.DistributionCenter__r.Code__c, Quantity, UnitPrice, ListCost__c, DiscountValue__c, FinancialAdditionValue__c, FinancialDiscountValue__c, CommercialAdditionValue__c,
-            FinancialAdditionPercent__c, FinancialDiscountPercent__c, CommercialMargin__c, DiscountPercent__c, CommercialAdditionPercent__c, ListPrice__c, Class__c, Sieve__c, Product2.ProductGroup__r.ExternalId__c
+            FinancialAdditionPercent__c, FinancialDiscountPercent__c, CommercialMargin__c, DiscountPercent__c, CommercialAdditionPercent__c, ListPrice__c, Class__c, Sieve__c, Product2.ProductGroup__r.ExternalId__c, Brokerage__c
             FROM OrderItem
             WHERE Id IN: orderItemSetIds
         ]);
@@ -982,6 +982,26 @@ public without sharing class FactoryBuilder {
             }
             conditionParametersList.add(new ConditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZMAR', String.valueOf(isNotation(ordIt.CommercialMargin__c)), ''));
 
+            if(salesCondition == '99'){
+                conditionParametersList.add(new ConditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZPR0', String.valueOf(isNotation(ordIt.ListPrice__c)), ''));
+            }
+        }
+ 
+        return conditionParametersList;
+    }
+
+    private static List<ConditionParameters> generateConditionParametersSeedList(Map<Id, OrderItem> orderItemMap, Order order){
+        List<ConditionParameters> conditionParametersList = new List<ConditionParameters>();
+        String salesCondition = String.valueOf(order.SalesCondition__r.ExternalId__c).leftPad(2, '0');
+        for(OrderItem ordIt : orderItemMap.values()){
+            if(ordIt.CommercialAdditionPercent__c > 0){
+                conditionParametersList.add(new ConditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZDEC', (isNotation(ordIt.CommercialAdditionPercent__c)).toPlainString(), ''));
+            }else {
+                conditionParametersList.add(new ConditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZDEC', (isNotation(ordIt.DiscountPercent__c)).toPlainString(), ''));
+            }
+            conditionParametersList.add(new ConditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZMAR', String.valueOf(isNotation(ordIt.CommercialMargin__c)), ''));
+            // conditionParametersList.add(new conditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZFRE', String.valueOf(isNotation(order.Freight__c)), ''));// coming soon
+            conditionParametersList.add(new conditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZCOR', String.valueOf(isNotation(ordIt.Brokerage__c)), ''));
             if(salesCondition == '99'){
                 conditionParametersList.add(new ConditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZPR0', String.valueOf(isNotation(ordIt.ListPrice__c)), ''));
             }
