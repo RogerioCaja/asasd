@@ -1168,6 +1168,7 @@ public without sharing class OrderScreenController {
             return JSON.serialize(sellerPosition);
         }
         
+        List<Id> territoriesRelatedToCtv = new List<Id>();
         for (UserTerritory2Association userAssociation : [
             SELECT Id,
                    UserId,
@@ -1175,9 +1176,19 @@ public without sharing class OrderScreenController {
                    Territory2.Territory2Type.DeveloperName
               FROM UserTerritory2Association
              WHERE UserId =: companyInfos.ctvId
-             LIMIT 1
         ]) {
-            userTerritoryId = userAssociation.Territory2Id;
+            territoriesRelatedToCtv.add(userAssociation.Territory2Id);
+        }
+
+        for (ObjectTerritory2Association objAssociation : [
+            SELECT Id,
+                   Territory2Id,
+                   Territory2.Territory2Type.DeveloperName
+              FROM ObjectTerritory2Association
+             WHERE ObjectId =: companyInfos.accountId
+               AND Territory2Id IN: territoriesRelatedToCtv
+        ]) {
+            userTerritoryId = objAssociation.Territory2Id;
         }
 
         Map<Id, Territory2> territoryAndParents = new Map<Id, Territory2>();
