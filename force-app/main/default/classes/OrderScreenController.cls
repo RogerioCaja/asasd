@@ -871,7 +871,7 @@ public without sharing class OrderScreenController {
                 List<OrderItem> itemsToDelete = new List<OrderItem>();
                 for (String itemToDeleteId : deleteItems) {
                     OrderItem itemToDelete = orderItemsById.get(itemToDeleteId);
-                    if (itemToDelete.OrderId == order.Id) {
+                    if (itemToDelete != null && itemToDelete.OrderId != null && itemToDelete.OrderId == order.Id) {
                         itemsToDelete.add(itemToDelete);
                     }
                 }
