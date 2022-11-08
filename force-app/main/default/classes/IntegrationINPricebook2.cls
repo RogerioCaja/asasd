@@ -283,7 +283,8 @@ global without sharing class IntegrationINPricebook2 {
                     (prices.ClientGroup__c == null ? '' : String.valueOf(prices.ClientGroup__c)+'_')+
                     (prices.Account__c == null ? '' : String.valueOf(prices.Account__c).subString(0, 15)+'_')+
                     (prices.SalesTeam__c == null ? '' : String.valueOf(prices.SalesTeam__c).subString(0, 15)+'_')+
-                    (prices.Product__c == null ? '' : String.valueOf(prices.Product__c).subString(0, 15))
+                    (prices.Product__c == null ? '' : String.valueOf(prices.Product__c).subString(0, 15)+'_')+
+                    (prices.RecordTypeId == null ? '' : String.valueOf(prices.RecordTypeId).subString(0, 15))
                 );
                 externalIdMap.put(externalId,prices.ExternalId__c);
                 repetitons.add(prices.ExternalId__c);
@@ -352,7 +353,8 @@ global without sharing class IntegrationINPricebook2 {
                 (prices.ClientGroup__c == null ? '' : String.valueOf(prices.ClientGroup__c)+'_')+
                 (prices.Account__c == null ? '' : String.valueOf(prices.Account__c).subString(0, 15)+'_')+
                 (prices.SalesTeam__c == null ? '' : String.valueOf(prices.SalesTeam__c).subString(0, 15)+'_')+
-                (prices.Product__c == null ? '' : String.valueOf(prices.Product__c).subString(0, 15))
+                (prices.Product__c == null ? '' : String.valueOf(prices.Product__c).subString(0, 15)+'_')+
+                String.valueOf(Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get('ZPR0').getRecordTypeId()).subString(0, 15)
             );
             externalIdMap.put(externalId,prices.ExternalId__c);
             repetitonsZPRS.add(prices.ExternalId__c);
