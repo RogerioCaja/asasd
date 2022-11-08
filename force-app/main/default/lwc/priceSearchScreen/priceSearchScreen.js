@@ -157,7 +157,7 @@ export default class PriceSearchScreen extends LightningElement {
     }
 
     searchProducts() {
-        if (this.searchData.ctv.Id === undefined || this.searchData.safra.Id === undefined || this.searchData.paymentDate == '') {
+        if (this.searchData.ctv.Id === undefined || this.searchData.safra.Id === undefined || this.searchData.paymentDate == '' || this.searchData.sales_condition.Id === undefined) {
             this.showToast('warning', 'Atenção', 'Campos obrigatórios não preenchidos.');
             return;
         }
@@ -172,7 +172,8 @@ export default class PriceSearchScreen extends LightningElement {
             salesTeamId: this.company[0].salesTeamId != null ? this.company[0].salesTeamId : '',
             accountId: this.isFilled(this.searchData.account.Id) ? this.searchData.account.Id : '',
             ctvId: this.isFilled(this.searchData.ctv.Id) ? this.searchData.ctv.Id : '',
-            numberOfRowsToSkip: 0
+            numberOfRowsToSkip: 0,
+            salesConditionId : this.searchData.sales_condition.Id != null ? this.searchData.sales_condition.Id : ''
         };
 
         let orderData = {
