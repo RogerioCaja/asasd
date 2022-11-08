@@ -285,6 +285,9 @@ global without sharing class IntegrationINPricebook2 {
                     (prices.SalesTeam__c == null ? '' : String.valueOf(prices.SalesTeam__c).subString(0, 15)+'_')+
                     (prices.Product__c == null ? '' : String.valueOf(prices.Product__c).subString(0, 15))
                 );
+                if(prices.ConditionType__c == 'Royalties' || prices.ConditionType__c == 'TSI'){
+                    externalId += '_'+ String.valueOf(prices.RecordTypeId);
+                }
                 externalIdMap.put(externalId,prices.ExternalId__c);
                 repetitons.add(prices.ExternalId__c);
                 prices.EndDate__c = prices.EndDate__c != null ? String.valueOf(prices.EndDate__c).contains('9999') ? Date.valueOf(String.valueOf(prices.EndDate__c).replace('9999', '2999')) : prices.EndDate__c : null;
