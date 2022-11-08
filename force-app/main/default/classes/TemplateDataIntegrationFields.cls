@@ -69,8 +69,10 @@ global with sharing class TemplateDataIntegrationFields {
             if(this.typeCondition == 'ZPRS'){
                 lists.Cost__c = Decimal.valueOf(this.unitPrice.trim());
             }
-            else if(this.typeCondition == 'ZPR0' || this.typeCondition == 'ZCPE'){
+            else if(this.typeCondition == 'ZPR0' || this.typeCondition == 'ZCPE' || this.typeCondition == 'ZROY' || this.typeCondition == 'ZTRA'){
                 lists.UnitPrice__c = Decimal.valueOf(this.unitPrice.trim());
+                if(this.typeCondition == 'ZROY') lists.ConditionType__c = 'Royalties';
+                if(this.typeCondition == 'ZTRA') lists.ConditionType__c = 'TSI';
             }
             else{
                 lists.Percentage__c = Decimal.valueOf(this.unitPrice.trim());
