@@ -73,11 +73,11 @@ public without sharing class CustomLookupController {
                                 .add(Q.condition('SalesOrg__c').equalsTo(salesResult.salesOrgId))
                                 .add(Q.condition('IsActive__c').equalsTo(true))
                                 .add(Q.condition('StartDate__c').isLessOrEquals(System.today()))
-                                .add(Q.condition('EndDate__c').isGreaterOrEquals(System.today()));
+                                .add(Q.condition('EndDate__c').isGreaterOrEquals(System.today()))
+                                .add(Q.condition('SalesCondition__c').equalsTo(productParams.salesConditionId));
 
             if (!priceScreen) {
-                priceQuery.add(Q.condition('SalesCondition__c').equalsTo(productParams.salesConditionId))
-                          .add(Q.condition('Currency__c').equalsTo(productParams.productCurrency));
+                priceQuery.add(Q.condition('Currency__c').equalsTo(productParams.productCurrency));
             }
             if (productsIds.size() > 0) {
                 priceQuery.add(Q.condition('Product__c').isIn(productsIds));
