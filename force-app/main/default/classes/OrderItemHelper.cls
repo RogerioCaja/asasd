@@ -47,7 +47,7 @@ public without sharing class OrderItemHelper {
                 //ordIt.Quantity =  ordIt.Quantity - ordIt.AmountUsed__c; 
             }
         }
-        List<AggregateResult> sumQuantityPerOrderItem = [SELECT Order.OrderReference__c, Product2.Id, SUM(Quantity) FROM OrderItem WHERE Order.OrderReference__c IN: ordList AND Order.Status != 'X' AND ReasonRefuse__c = null GROUP BY Product2.Id,Order.OrderReference__c];
+        List<AggregateResult> sumQuantityPerOrderItem = [SELECT Order.OrderReference__c, Product2.Id, SUM(Quantity) FROM OrderItem WHERE Order.OrderReference__c IN: ordList AND Order.Status != 'X' AND Order.Status != '0' AND ReasonRefuse__c = null GROUP BY Product2.Id,Order.OrderReference__c];
         Map<String, Decimal> orderItemAmountedUsedPerOrderReference = new Map<String, Decimal>();
         for(AggregateResult aggResult : sumQuantityPerOrderItem){
             orderItemAmountedUsedPerOrderReference.put((String)aggResult.get('Id') + (String)aggResult.get('OrderReference__c'), (Decimal)aggResult.get('expr0') );
