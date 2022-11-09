@@ -53,7 +53,6 @@ export default class OrderHeaderScreen extends LightningElement {
     seedSale = false;
     safraName = null;
     currencyOption = null;
-    hasDelimiter = false;
     currentDate;
     dateLimit;
     dateStartBilling;
@@ -97,7 +96,8 @@ export default class OrderHeaderScreen extends LightningElement {
         companyId: null,
         hectares: '',
         firstTime: true,
-        centerId: null
+        centerId: null,
+        hasDelimiter: false
     };
 
     @api salesOrgId;
@@ -683,7 +683,7 @@ export default class OrderHeaderScreen extends LightningElement {
                     this.dateLimit = data.paymentDate;
                     this.dateLimitBilling = data.endDateBilling;
                     this.dateStartBilling = data.startDateBilling;
-                    this.hasDelimiter = true;
+                    this.headerDictLocale.hasDelimiter = true;
 
                     if (this.barterSale) {
                         this.headerDictLocale.data_pagamento = data.paymentBaseDate;
@@ -692,7 +692,7 @@ export default class OrderHeaderScreen extends LightningElement {
                     }
                     this._verifyFieldsToSave();
                 }else{
-                    this.hasDelimiter = false;
+                    this.headerDictLocale.hasDelimiter = false;
                     this.showToast('warning', 'Atenção', result);
                     this._verifyFieldsToSave();
                 }
@@ -735,7 +735,7 @@ export default class OrderHeaderScreen extends LightningElement {
                 this.headerDictLocale.hectares !== 0 &&
                 this.headerDictLocale.hectares !== undefined &&
                 this.headerDictLocale.hectares !== '' && 
-                this.hasDelimiter || this.pass 
+                this.headerDictLocale.hasDelimiter || this.pass 
             ) {
                 return true;
             }
