@@ -1,4 +1,4 @@
-import { LightningElement, track } from 'lwc';
+import { LightningElement, track, api } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getProductRecords from '@salesforce/apex/CustomLookupController.fetchProductsRecords';
 import getAccountCompanies from '@salesforce/apex/OrderScreenController.getAccountCompanies';
@@ -77,7 +77,9 @@ export default class PriceSearchScreen extends LightningElement {
         {label: 'Safra', fieldName: 'safra'},
         {label: 'Tabela de Preços', fieldName: 'salesCondition'},
         {label: 'Valor Data Informada', fieldName: 'valueDiscounted'},
-        {label: 'Valor Data Safra', fieldName: 'realValue'}
+        {label: 'Valor Data Safra', fieldName: 'realValue'},
+        {label: 'Time de Vendas', fieldName: 'salesTeamName'},
+        {label: 'Escritório de Vendas', fieldName: 'salesOfficeName'}
     ];
 
     connectedCallback() {
@@ -101,6 +103,7 @@ export default class PriceSearchScreen extends LightningElement {
                     this.searchData[field] = event.target.value;
                 } else {
                     const { record } = event.detail;
+                    let currentValue = this.searchData[field];
                     this.searchData[field] = {Id: record.Id, Name: record.Name};
                     if (field == 'safra') {
                         if (JSON.stringify(this.searchData.ctv) === '{}') {
@@ -109,12 +112,13 @@ export default class PriceSearchScreen extends LightningElement {
                             this.fieldKey = false;
                         }
                     } else if (field == 'ctv') {
+
                         if (JSON.stringify(this.searchData.safra) === '{}') {
                             this.fieldKey = true;
                         } else {
                             this.fieldKey = false;
                         }
-                        //this.showLoading = true;
+
                         let getCompanyData = {
                             ctvId: this.isFilled(this.searchData.ctv.Id) ? this.searchData.ctv.Id : '',
                             accountId: this.isFilled(this.searchData.account.Id) ? this.searchData.account.Id : '',
@@ -122,12 +126,15 @@ export default class PriceSearchScreen extends LightningElement {
                             approvalNumber: 1
                         }
                         
-                        getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: false, verifyUserType: false, priceScreen: true, childOrder: false})
-                        .then((result) => {
-                            this.company = JSON.parse(result).listCompanyInfos;
-                            this.salesOrgId = this.company[0].salesOrgId;
-                            //this.showLoading = false;
-                        })
+                        if (currentValue.Id != this.searchData[field].Id) {
+                            this.showLoading = true;
+                            getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: false, verifyUserType: false, priceScreen: true, childOrder: false})
+                            .then((result) => {
+                                this.showLoading = false;
+                                this.company = JSON.parse(result).listCompanyInfos;
+                                this.salesOrgId = this.company[0].salesOrgId;
+                            });
+                        }
                         
                     }
                 }
@@ -206,18 +213,24 @@ export default class PriceSearchScreen extends LightningElement {
                 
                 for (let index = 0; index < result.recordsDataList.length; index++) {
                     let priorityInfos = this.getProductByPriority(result.recordsDataList[index]);
-                    let realValue = this.fixDecimalPlacesFront(priorityInfos.listPrice);
-                    let discountedValue = this.calculateDiscountValues(priorityInfos);
+
+                    for (let i = 0; i < priorityInfos.length; i++) {
+                        let realValue = this.fixDecimalPlacesFront(priorityInfos[i].listPrice);
+                        let discountedValue = this.calculateDiscountValues(priorityInfos[i]);
                     
-                    productRecords.push({
-                        sapProductCode: priorityInfos.sapProductCode,
-                        name: priorityInfos.Name,
-                        productGroupName: priorityInfos.productGroupName,
-                        safra: this.searchData.safra.Name,
-                        salesCondition: priorityInfos.salesCondition,
-                        valueDiscounted: discountedValue,
-                        realValue: realValue.split(',').length == 1 ? realValue + ',00' : realValue,
-                    })
+                        productRecords.push({
+                            sapProductCode: priorityInfos[i].sapProductCode,
+                            name: priorityInfos[i].Name,
+                            productGroupName: priorityInfos[i].productGroupName,
+                            safra: this.searchData.safra.Name,
+                            salesCondition: priorityInfos[i].salesCondition,
+                            valueDiscounted: discountedValue,
+                            realValue: realValue.split(',').length == 1 ? realValue + ',00' : realValue,
+                            salesTeamName: priorityInfos[i].salesTeamName,
+                            salesOfficeName: priorityInfos[i].salesOfficeName
+                        })
+                    }
+                    
                 }
 
                 this.baseProducts = JSON.parse(JSON.stringify(productRecords));
@@ -227,7 +240,7 @@ export default class PriceSearchScreen extends LightningElement {
     }
 
     getProductByPriority(selectedProduct) {
-        let priorityPrice;
+        let priorityPrice = [];
         let productsPrice = this.productsPriceMap;
         let productId = this.isFilled(selectedProduct.Id) ? selectedProduct.Id : selectedProduct.productId;
 
@@ -239,17 +252,22 @@ export default class PriceSearchScreen extends LightningElement {
         let key6 = productId;
 
         if (this.isFilled(productsPrice[key1])) {
-            priorityPrice = productsPrice[key1];
-        } else if (this.isFilled(productsPrice[key2])) {
-            priorityPrice = productsPrice[key2];
-        } else if (this.isFilled(productsPrice[key3])) {
-            priorityPrice = productsPrice[key3];
-        } else if (this.isFilled(productsPrice[key4])) {
-            priorityPrice = productsPrice[key4];
-        } else if (this.isFilled(productsPrice[key5])) {
-            priorityPrice = productsPrice[key5];
-        } else if (this.isFilled(productsPrice[key6])) {
-            priorityPrice = productsPrice[key6];
+            priorityPrice.push(productsPrice[key1]);
+        }
+        if (this.isFilled(productsPrice[key2])) {
+            priorityPrice.push(productsPrice[key2]);
+        }
+        if (this.isFilled(productsPrice[key3])) {
+            priorityPrice.push(productsPrice[key3]);
+        }
+        if (this.isFilled(productsPrice[key4])) {
+            priorityPrice.push(productsPrice[key4]);
+        }
+        if (this.isFilled(productsPrice[key5])) {
+            priorityPrice.push(productsPrice[key5]);
+        }
+        if (this.isFilled(productsPrice[key6])) {
+            priorityPrice.push(productsPrice[key6]);
         }
 
         return priorityPrice;
