@@ -879,12 +879,16 @@ public without sharing class FactoryBuilder {
     }
 
     private static HeaderSeeds addPaymentForm(Order order, HeaderSeeds payload){
+        Map<String, String> nameToCodePaymentFormMap = new Map<String, String>();
+        nameToCodePaymentFormMap.put('Germoplasma', '01');
+        nameToCodePaymentFormMap.put('TSI', '02');
+        nameToCodePaymentFormMap.put('Royalties', '03');
         List<FormPayment__c> formPaymentList = [SELECT Amount__c, PaymentDate__c, PaymentType__c FROM FormPayment__c WHERE Order__c =: order.Id LIMIT 10];
         Map<String, Object> mapStringHeader = (Map<String, Object>) JSON.deserializeUntyped(JSON.serialize(payload));
         for(Integer i = 0; i<formPaymentList.size(); i++){
             mapStringHeader.put(('ZZDTAPAG' + i), String.valueOf(formPaymentList[i].PaymentDate__c).replace('-', '')  == null ? '' : String.valueOf(formPaymentList[i].PaymentDate__c).replace('-', ''));
             mapStringHeader.put(('ZZVLRPAG' + i), String.valueOf(formPaymentList[i].Amount__c) == null ? '' : String.valueOf(formPaymentList[i].Amount__c));
-            mapStringHeader.put(('ZZITMPAG' + i), String.valueOf(formPaymentList[i].PaymentType__c)  == null ? '' : String.valueOf(formPaymentList[i].PaymentType__c));
+            mapStringHeader.put(('ZZITMPAG' + i), String.valueOf(formPaymentList[i].PaymentType__c)  == null ? '' : nameToCodePaymentFormMap.get(String.valueOf(formPaymentList[i].PaymentType__c)));
         }
         String header = JSON.serialize(mapStringHeader);
         payload = (HeaderSeeds)JSON.deserialize(header, HeaderSeeds.class);
@@ -892,12 +896,16 @@ public without sharing class FactoryBuilder {
     }
 
     private static HeaderBarterSeeds addPaymentForm(Order order, HeaderBarterSeeds payload){
+        Map<String, String> nameToCodePaymentFormMap = new Map<String, String>();
+        nameToCodePaymentFormMap.put('Germoplasma', '01');
+        nameToCodePaymentFormMap.put('TSI', '02');
+        nameToCodePaymentFormMap.put('Royalties', '03');
         List<FormPayment__c> formPaymentList = [SELECT Amount__c, PaymentDate__c, PaymentType__c FROM FormPayment__c WHERE Order__c =: order.Id LIMIT 10];
         Map<String, Object> mapStringHeader = (Map<String, Object>) JSON.deserializeUntyped(JSON.serialize(payload));
         for(Integer i = 0; i<formPaymentList.size(); i++){
             mapStringHeader.put(('ZZDTAPAG' + i), String.valueOf(formPaymentList[i].PaymentDate__c).replace('-', '')  == null ? '' : String.valueOf(formPaymentList[i].PaymentDate__c).replace('-', ''));
             mapStringHeader.put(('ZZVLRPAG' + i), String.valueOf(formPaymentList[i].Amount__c) == null ? '' : String.valueOf(formPaymentList[i].Amount__c));
-            mapStringHeader.put(('ZZITMPAG' + i), String.valueOf(formPaymentList[i].PaymentType__c)  == null ? '' : String.valueOf(formPaymentList[i].PaymentType__c));
+            mapStringHeader.put(('ZZITMPAG' + i), String.valueOf(formPaymentList[i].PaymentType__c)  == null ? '' : nameToCodePaymentFormMap.get(String.valueOf(formPaymentList[i].PaymentType__c)));
         }
         String header = JSON.serialize(mapStringHeader);
         payload = (HeaderBarterSeeds)JSON.deserialize(header, HeaderBarterSeeds.class);

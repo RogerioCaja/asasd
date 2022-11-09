@@ -418,18 +418,20 @@ public without sharing class OrderHelper {
         }
 
         for(Id id : comboQuantityShouldRefundMap.keySet()){
-            comboPromotionToUpdateList.add(
-                new ComboPromotion__c(
-                    Id = id,
-                    CombosQuantity__c = (comboQuantityRemainingMap.get(id) + comboQuantityShouldRefundMap.get(id))
-                )
-            );
+            if(comboQuantityRemainingMap.containsKey(id) && comboQuantityShouldRefundMap.containsKey(id)){
+                comboPromotionToUpdateList.add(
+                    new ComboPromotion__c(
+                        Id = id,
+                        CombosQuantity__c = (comboQuantityRemainingMap.get(id) + comboQuantityShouldRefundMap.get(id))
+                    )
+                );
+            }
         }
 
         if(comboPromotionToUpdateList.size() != 0){
             Database.update(comboPromotionToUpdateList);
         }
-    }^
+    }
     
     public static void verifyOrderCanceling(Map<Id, Order> oldMap, Map<Id, Order> newMap){
         Set<Id> orderIds = oldMap.keySet();
