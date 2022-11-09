@@ -2062,7 +2062,8 @@ export default class OrderProductScreen extends LightningElement {
             searchString: this.salesInfos.searchString,
             data: JSON.stringify(this.productParams),
             isCommodity: false,
-            productsIds: []
+            productsIds: [],
+            priceScreen: false
         })
         .then(result => {
             this.showBaseProducts = result.recordsDataList.length > 0;
