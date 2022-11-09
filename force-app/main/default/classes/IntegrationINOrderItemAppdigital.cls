@@ -150,6 +150,15 @@ global without sharing class IntegrationINOrderItemAppdigital {
             if(orderItem.precoUnitario == null || orderItem.orderItemECalendariazacao == true){
                 orderItem.precoUnitario = ordItem.UnitPrice;
             }
+
+            if(orderItem.classeCategoria == null || orderItem.classeCategoria == '' || orderItem.orderItemECalendariazacao == true){
+                orderItem.classeCategoria = ordItem.Class__c;
+            }
+
+            if(orderItem.peneira == null || orderItem.peneira == '' || orderItem.orderItemECalendariazacao == true){
+                orderItem.peneira = ordItem.Sieve__c;
+            }
+            
         }
 
         }
