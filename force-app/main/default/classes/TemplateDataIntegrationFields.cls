@@ -655,6 +655,7 @@ global with sharing class TemplateDataIntegrationFields {
     }
     
     global class OrderCommodityINData implements FieldDataChild{
+        public Boolean orderCommodityECalendariazacao;
         public String orderExternalId;
         public String Name;
         //public String OrderItemCode;
