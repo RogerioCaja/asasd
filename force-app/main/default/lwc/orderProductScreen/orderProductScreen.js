@@ -97,6 +97,8 @@ export default class OrderProductScreen extends LightningElement {
     unitPriceDisabled=false;
     numberOfRowsToSkip=0;
     showLoading=true;
+    combosIds = [];
+    comboProductsAndQuantities = [];
 
     combosData;
     showCombos=false;
@@ -161,10 +163,26 @@ export default class OrderProductScreen extends LightningElement {
         
         let allProducts = JSON.parse(JSON.stringify(this.products));
         let newProducts = [];
+        let combosIds = [];
+        let comboProductsAndQuantities = [];
         for (let index = 0; index < allProducts.length; index++) {
+            if (allProducts[index].comboId != null) {
+                combosIds.push(allProducts[index].comboId);
+                comboProductsAndQuantities.push(
+                    {
+                        combo: allProducts[index].comboId,
+                        quantity: allProducts[index].quantity,
+                        prodId: allProducts[index].productId,
+                    }
+                );
+            }
+
             newProducts.push(this.newProduct(allProducts[index]));
         }
+
         this.products = JSON.parse(JSON.stringify(newProducts));
+        this.combosIds = JSON.parse(JSON.stringify(combosIds));
+        this.comboProductsAndQuantities = JSON.parse(JSON.stringify(comboProductsAndQuantities));
 
         if(this.headerData.IsOrderChild) {
             this.disableSearch = true;
@@ -324,9 +342,10 @@ export default class OrderProductScreen extends LightningElement {
             comboDiscountPercent: this.isFilled(currentProduct.comboDiscountPercent) ? currentProduct.comboDiscountPercent : '0%',
             comboDiscountValue: this.isFilled(currentProduct.comboDiscountValue) ? currentProduct.comboDiscountValue : 0,
             comboId: this.isFilled(currentProduct.comboId) ? currentProduct.comboId : null,
-            industryCombo: false,
-            agrogalaxyCombo: false
+            industryCombo: this.isFilled(currentProduct.comboId) ? currentProduct.industryCombo : false
         };
+        if (this.isFilled(newProduct.comboId) && !this.disabled) this.disabled = true;
+        else this.disabled = false;
         return newProduct;
     }
  
@@ -833,6 +852,8 @@ export default class OrderProductScreen extends LightningElement {
             industryCombo: this.isFilled(comboValues) ? comboValues.industryCombo : false,
             position: this.isFilled(counter) ? counter : null
         };
+        if (this.isFilled(currentProduct.comboId) && !this.disabled) this.disabled = true;
+        else this.disabled = false;
         return newProductData;
     }
 
@@ -2115,7 +2136,7 @@ export default class OrderProductScreen extends LightningElement {
             numberOfRowsToSkip: 0
         };
 
-        getSpecificCombos({data: JSON.stringify(headerValues), companyData: JSON.stringify(getCompanyData), productData: JSON.stringify(productParams), childOrder: this.childOrder})
+        getSpecificCombos({data: JSON.stringify(headerValues), companyData: JSON.stringify(getCompanyData), productData: JSON.stringify(productParams), childOrder: this.childOrder, existingCombosIds: this.combosIds})
         .then((result) => {
             this.showLoading = false;
             let combosAndPromotions = JSON.parse(result);
@@ -2128,8 +2149,24 @@ export default class OrderProductScreen extends LightningElement {
                     let currentCombo = existingCombos.find(e => e.comboId == combosAndPromotions[index].comboId);
                     if (this.isFilled(currentCombo)) {
                         combosAndPromotions[index].comboQuantity = currentCombo.comboQuantity;
+                    } else {
+                        currentCombo = this.comboProductsAndQuantities.find(e => e.combo == combosAndPromotions[index].comboId);
+                        if (this.isFilled(currentCombo)) {
+                            let formerItem = combosAndPromotions[index].formerItems.find(e => e.productId == currentCombo.prodId);
+                            let benefitItem = combosAndPromotions[index].benefitItems.find(e => e.productId == currentCombo.prodId);
+                            
+                            if (this.isFilled(formerItem)) {
+                                combosAndPromotions[index].comboQuantity = currentCombo.quantity / formerItem.minQUantity;
+                                combosAndPromotions[index].comboAvailableQuantity = combosAndPromotions[index].comboAvailableQuantity == 0 ? combosAndPromotions[index].comboQuantity : combosAndPromotions[index].comboAvailableQuantity;
+                            }
+                            if (this.isFilled(benefitItem)) {
+                                combosAndPromotions[index].comboQuantity = currentCombo.quantity / benefitItem.minQUantity;
+                                combosAndPromotions[index].comboAvailableQuantity = combosAndPromotions[index].comboAvailableQuantity == 0 ? combosAndPromotions[index].comboQuantity : combosAndPromotions[index].comboAvailableQuantity;
+                            }
+                        }
                     }
                 }
+
                 this.combosData = combosAndPromotions;
             } else {
                 let getCompanyData = {
