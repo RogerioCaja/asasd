@@ -78,7 +78,11 @@ export default class CustomOrderSearch extends LightningElement {
             this.fetchData();
         } else {
             this.showResultList = false;
-            this.showNotification('Necessário digitar algum nome de conta');
+            if(this.objectName == 'Product2'){
+                this.showNotification('Necessário digitar algum nome de um produto');
+            }else{
+                this.showNotification('Necessário digitar algum nome de conta');
+            }
         }
     }
 
