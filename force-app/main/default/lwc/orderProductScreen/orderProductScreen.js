@@ -340,8 +340,12 @@ export default class OrderProductScreen extends LightningElement {
             comboId: this.isFilled(currentProduct.comboId) ? currentProduct.comboId : null,
             industryCombo: this.isFilled(currentProduct.comboId) ? currentProduct.industryCombo : false
         };
-        if (this.isFilled(newProduct.comboId) && !this.disabled) this.disabled = true;
-        else this.disabled = false;
+        if (this.isFilled(newProduct.comboId)) {
+            this.disabled = true;
+        } else {
+            this.disabled = false;
+        }
+
         return newProduct;
     }
  
@@ -609,6 +613,7 @@ export default class OrderProductScreen extends LightningElement {
                     if (!this.headerData.IsOrderChild && allowChange) {
                         getFinancialInfos({data: JSON.stringify(orderData)})
                         .then((result) => {
+                            console.log(JSON.stringify(result));
                             this.financialInfos = JSON.parse(result);
                             
                             if (this.products.length > 0) {
@@ -841,8 +846,11 @@ export default class OrderProductScreen extends LightningElement {
             industryCombo: this.isFilled(comboValues) ? comboValues.industryCombo : false,
             position: this.isFilled(counter) ? counter : null
         };
-        if (this.isFilled(currentProduct.comboId) && !this.disabled) this.disabled = true;
-        else this.disabled = false;
+        if (this.isFilled(currentProduct.comboId)) {
+            this.disabled = true;
+        } else {
+            this.disabled = false;
+        }
         return newProductData;
     }
 
@@ -918,7 +926,7 @@ export default class OrderProductScreen extends LightningElement {
     changeValue(event) {
         let fieldId = event.target.dataset.targetId;
         let fieldValue = event.target.value;
-        
+
         if (this.isFilled(fieldValue)) {
             fieldValue = fieldValue.toString().includes('.') ? fieldValue.toString().replace('.', '') : fieldValue;
             fieldValue = fieldValue.toString().includes(',') ? fieldValue.replace(',', '.') : fieldValue;
@@ -1148,7 +1156,7 @@ export default class OrderProductScreen extends LightningElement {
 
     calculateFinancialInfos() {
         this.addProduct.totalPrice = this.addProduct.quantity * this.addProduct.listPrice;
-        if (this.isFilled(this.addProduct.totalPrice)) {
+        if (this.isFilled(this.addProduct.totalPrice) && this.isFilled(this.financialInfos)) {
             if (this.headerData.IsOrderChild) {
                 this.addProduct.financialAdditionPercentage = '0%';
                 this.addProduct.financialDecreasePercentage = '0%';
