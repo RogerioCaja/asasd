@@ -106,11 +106,13 @@ public without sharing class CalloutOrder {
 		if (responseObject.success) {
 
 			HttpResponse response = responseObject.response;
+            String title = 'Pedido OUT - SAP';
+            if(payload.contains('"IV_TYPE":"B"')){ title += ' - Contrato Barter';}
 
-            if(response.getBody().contains('"TYPE":"E"')){
-                IntegrationLog.createLog('Pedido OUT - SAP', 'OUT', response.getBody(), payload, true);
+            if(response.getBody().contains('"TYPE":"E"') || response.getBody().contains('"An internal server error occured')){
+                IntegrationLog.createLog(title, 'OUT', response.getBody(), payload, true);
             }else{
-                IntegrationLog.createLog('Pedido OUT - SAP', 'OUT', response.getBody(), payload, false);
+                IntegrationLog.createLog(title, 'OUT', response.getBody(), payload, false);
             }
 			// .WSLog('Pedido', 'OUTBOUND', response.getBody(), payload, false);
 			try {
