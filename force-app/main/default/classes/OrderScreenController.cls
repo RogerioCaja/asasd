@@ -118,7 +118,10 @@ public without sharing class OrderScreenController {
                    PriceListCode__c,
                    ReasonRefuse__c,
                    Sieve__c,
-                   Class__c
+                   Class__c,
+                   ComboPromotion__c,
+                   AgrogalaxyComboDiscount__c,
+                   IndustryComboDiscount__c
               FROM OrderItem
              WHERE OrderId =: orderId
         ]){
@@ -1552,7 +1555,7 @@ public without sharing class OrderScreenController {
     }
 
     @AuraEnabled
-    public static String getSpecificCombos(String data, String companyData, String productData, Boolean childOrder) {
+    public static String getSpecificCombos(String data, String companyData, String productData, Boolean childOrder, List<Id> existingCombosIds) {
         String companiesData = getAccountCompanies(companyData, false, false, false, childOrder);
         CompanyInfosSerialize companyInfos = (CompanyInfosSerialize) JSON.deserialize(companiesData, CompanyInfosSerialize.class);
         CompanyInfos company = companyInfos.listCompanyInfos[0];
@@ -1577,11 +1580,18 @@ public without sharing class OrderScreenController {
                    DiscountPercentage__c,
                    RecordType.DeveloperName
               FROM ComboPromotion__c
-             WHERE Safra__c =: comboData.cropId
-               AND SalesOrg__c =: company.salesOrgId
-               AND SalesCondition__c =: comboData.salesConditionId
-               AND RecordTypeId =: specificItemsRecordType
-               AND CombosQuantity__c > 0
+             WHERE RecordTypeId =: specificItemsRecordType
+               AND 
+               (
+                    (Id IN: existingCombosIds)
+                    OR
+                    (
+                        Safra__c =: comboData.cropId
+                    AND SalesOrg__c =: company.salesOrgId
+                    AND SalesCondition__c =: comboData.salesConditionId
+                    AND CombosQuantity__c > 0
+                    )
+               )
              LIMIT 4
             OFFSET :comboData.rowsToSkip
         ]) {
@@ -2289,8 +2299,11 @@ public without sharing class OrderScreenController {
         public String  priceListCode;
         public String  sieve;
         public String  productClass;
+        public String  comboId;
+        public String  comboDiscountPercent;
         public Integer position;
         public Boolean ptaProduct;
+        public Boolean industryCombo;
         public Decimal multiplicity;
         public Decimal invoicedQuantity;
         public Decimal quantity;
@@ -2309,10 +2322,15 @@ public without sharing class OrderScreenController {
         public Decimal financialDecreaseValue;
         public Decimal commercialMarginPercentage;
         public Decimal comissionValue;
+        public Decimal comboDiscountValue;
 
         ProductSerialize(){}
 
         ProductSerialize(OrderItem orderItem, Integer position, Boolean cloneOrder){
+            this.comboId = orderItem.ComboPromotion__c;
+            this.industryCombo = orderItem.AgrogalaxyComboDiscount__c != 0 ? true : false;
+            this.comboDiscountPercent = '0%';
+            this.comboDiscountValue = this.comboId != null ? (this.industryCombo ? orderItem.IndustryComboDiscount__c : orderItem.AgrogalaxyComboDiscount__c) : 0;
             this.position = position;
             this.orderItemId = orderItem.Id;
             this.productId = orderItem.Product2Id;
@@ -2333,7 +2351,7 @@ public without sharing class OrderScreenController {
             this.motherAvailableQuantity = orderItem.AmountUsed__c != null ? orderItem.Quantity - orderItem.AmountUsed__c : null;
             this.listPrice = orderItem.ListPrice__c;
             this.unitPrice = orderItem.PracticedPrice__c;
-            this.totalPrice = orderItem.FinalTotalValue__c;
+            this.totalPrice = orderItem.FinalTotalValue__c - this.comboDiscountValue;
             this.totalPriceWithBrokerage = orderItem.Brokerage__c != null ? (orderItem.FinalTotalValue__c + orderItem.Brokerage__c) : orderItem.FinalTotalValue__c;
             this.listCost = orderItem.ListCost__c;
             this.practicedCost = orderItem.PracticedCost__c;
