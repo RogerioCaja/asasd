@@ -986,7 +986,7 @@ public without sharing class FactoryBuilder {
             if(ordIt.CommercialAdditionPercent__c > 0){
                 conditionParametersList.add(new ConditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZDEC', (isNotation(ordIt.CommercialAdditionPercent__c)).toPlainString(), ''));
             }else {
-                conditionParametersList.add(new ConditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZDEC', (isNotation(ordIt.DiscountPercent__c)).toPlainString(), ''));
+                conditionParametersList.add(new ConditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZDEC', (isNotation(ordIt.DiscountPercent__c)*-1).toPlainString(), ''));
             }
             conditionParametersList.add(new ConditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZMAR', String.valueOf(isNotation(ordIt.CommercialMargin__c)), ''));
 
@@ -1005,7 +1005,7 @@ public without sharing class FactoryBuilder {
             if(ordIt.CommercialAdditionPercent__c > 0){
                 conditionParametersList.add(new ConditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZDEC', (isNotation(ordIt.CommercialAdditionPercent__c)).toPlainString(), ''));
             }else {
-                conditionParametersList.add(new ConditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZDEC', (isNotation(ordIt.DiscountPercent__c)).toPlainString(), ''));
+                conditionParametersList.add(new ConditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZDEC', (isNotation(ordIt.DiscountPercent__c)*-1).toPlainString(), ''));
             }
             conditionParametersList.add(new ConditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZMAR', String.valueOf(isNotation(ordIt.CommercialMargin__c)), ''));
             // conditionParametersList.add(new conditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZFRE', String.valueOf(isNotation(order.Freight__c)), ''));// coming soon
