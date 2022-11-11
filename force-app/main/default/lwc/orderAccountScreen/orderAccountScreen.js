@@ -93,7 +93,8 @@ export default class OrderAccountScreen extends LightningElement {
     }
 
     previousPage(){
-        if(this.numberPages.indexOf(this.selected - 1) == -1 && this.showPreviousSection){
+        let value = this.numberPages.findIndex((element) => element.number == Number(this.selected) - 1);
+        if(value == -1 && this.showPreviousSection){
             this.previousSection();
         }else{
             this.showMoreResults(Number(this.selected) - 1);
@@ -101,7 +102,8 @@ export default class OrderAccountScreen extends LightningElement {
     }
 
     nextPage(){
-        if(this.numberPages.indexOf(this.selected + 1) == -1 && this.showNextSection){
+        let value = this.numberPages.findIndex((element) => element.number == Number(this.selected) + 1);
+        if(value == -1 && this.showNextSection){
             this.nextSection();
         }else{
             this.showMoreResults(Number(this.selected) + 1);
