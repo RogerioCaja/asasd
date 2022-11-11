@@ -455,14 +455,14 @@ public without sharing class CalloutBP {
         for(User user : userList){
             userIdsList.add(user.Id);
         }
-        List<UserTerritory2Association> userTerrytoryList = new List<UserTerritory2Association>([SELECT Id, UserId, User.CodigoSap__c, Territory2Id, Territory2.DeveloperName, Territory2.ParentTerritory2.DeveloperName FROM UserTerritory2Association WHERE UserId =: userIdsList]);
+        List<UserTerritory2Association> userTerrytoryList = new List<UserTerritory2Association>([SELECT Id, UserId, User.CodigoSap__c, Territory2Id, Territory2.DeveloperName, Territory2.ParentTerritory2.DeveloperName, Territory2.ParentTerritory2.ParentTerritory2.DeveloperName FROM UserTerritory2Association WHERE UserId =: userIdsList]);
         Map<String, UserTerritory2Association> userTerrytoryMap = new Map<String, UserTerritory2Association>();
         
         
         for(UserTerritory2Association userTerrytory : userTerrytoryList){
             String salesTeam = userTerrytory.Territory2.DeveloperName.replace('X', '');
-            salesTeam = userTerrytory.Territory2.DeveloperName.replace('Z', '');
-            String salesOffice = userTerrytory.Territory2.ParentTerritory2.DeveloperName.replace('X', '');
+            salesTeam = userTerrytory.Territory2.ParentTerritory2.DeveloperName.replace('Z', '');
+            String salesOffice = userTerrytory.Territory2.ParentTerritory2.ParentTerritory2.DeveloperName.replace('X', '');
             salesOffice = userTerrytory.Territory2.ParentTerritory2.DeveloperName.replace('Z', '');
             userTerrytoryMap.put(userTerrytory.User.CodigoSap__c + salesTeam + salesOffice, userTerrytory);
         }
