@@ -38,18 +38,19 @@ global without sharing class IntegrationINOrderItemAppdigital {
         CommercialMargin__c, DiscountValue__c, ExternalId__c, FinalTotalValue__c, FinancialDiscountPercent__c,
         FinancialDiscountValue__c, FinancialAdditionPercent__c, FinancialAdditionValue__c,
         CommercialAdditionPercent__c, CommercialAdditionValue__c, Dosage__c, ListCost__c, NumeroSap__c,
-        PracticedCost__c, PracticedPrice__c, UnitPrice FROM OrderItem WHERE ExternalId__c IN: idsOrderItem]);
+        PracticedCost__c, PracticedPrice__c, UnitPrice, Class__c, Sieve__c FROM OrderItem WHERE ExternalId__c IN: idsOrderItem]);
         
         for(OrderItem ordItem : orderItemSelectList){
             orderItemsIdsMap.put(ordItem.ExternalId__c, ordItem);
-            
+            System.debug('orderItemsIdsMap ' + orderItemsIdsMap);
         }
+        System.debug('orderItemsIdsMap ' + orderItemsIdsMap);
         for (TemplateDataIntegrationFields.OrderItemINData orderItem : request){
             if(orderItem.orderItemECalendariazacao == true){
             OrderItem ordItem = orderItemsIdsMap.get(orderItem.orderExternalId + '|' + orderItem.orderItemCode);
   
            if(orderItem.orderExternalId == null){
-                
+                System.debug('OrderId ' + ordItem.OrderId);
                if(ordItem.OrderId != null){
                     orderItem.orderExternalId = ordItem.OrderId; 
                     lookups.put('Order' + ordItem.Order.CodigoSap__c, ordItem.OrderId);
@@ -149,6 +150,13 @@ global without sharing class IntegrationINOrderItemAppdigital {
 
             if(orderItem.precoUnitario == null || orderItem.orderItemECalendariazacao == true){
                 orderItem.precoUnitario = ordItem.UnitPrice;
+            }
+
+            if(orderItem.classeCategoria == null || orderItem.classeCategoria == '' || orderItem.orderItemECalendariazacao == true){
+                orderItem.classeCategoria = ordItem.Class__c;
+            }
+            if(orderItem.peneira == null || orderItem.peneira == '' || orderItem.orderItemECalendariazacao == true){
+                orderItem.peneira = ordItem.Sieve__c;
             }
         }
 
