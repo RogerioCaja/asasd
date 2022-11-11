@@ -69,8 +69,10 @@ global with sharing class TemplateDataIntegrationFields {
             if(this.typeCondition == 'ZPRS'){
                 lists.Cost__c = Decimal.valueOf(this.unitPrice.trim());
             }
-            else if(this.typeCondition == 'ZPR0' || this.typeCondition == 'ZCPE'){
+            else if(this.typeCondition == 'ZPR0' || this.typeCondition == 'ZCPE' || this.typeCondition == 'ZROY' || this.typeCondition == 'ZTRA'){
                 lists.UnitPrice__c = Decimal.valueOf(this.unitPrice.trim());
+                if(this.typeCondition == 'ZROY') lists.ConditionType__c = 'Royalties';
+                if(this.typeCondition == 'ZTRA') lists.ConditionType__c = 'TSI';
             }
             else{
                 lists.Percentage__c = Decimal.valueOf(this.unitPrice.trim());
@@ -407,8 +409,8 @@ global with sharing class TemplateDataIntegrationFields {
                 Type = this.salesType != null ? this.salesType : Schema.getGlobalDescribe().get('Order').getDescribe().getRecordTypeInfosById().get(this.recordIdToUpdate).getName(),
                 OrderType__c = this.orderReference != '' ? 'Pedido Filho' : (this.pedidoMae ? 'Pedido Mãe' : 'Pedido Normal'),
                 
-                OwnerId = lookups.containsKey('User'+this.salesCTV) ? lookups.get('User'+this.salesCTV) : null
-                //ACMContract__c = this.contratoACM
+                OwnerId = lookups.containsKey('User'+this.salesCTV) ? lookups.get('User'+this.salesCTV) : null,
+                ACMContract__c = this.contratoACM
                 
             );
         }
@@ -603,8 +605,59 @@ global with sharing class TemplateDataIntegrationFields {
         }
     }
 
+    global class DelimitadoresINData implements FieldData{
+        public String DelimitadoresExternalId;
+        public String Name;
+        public String SalesOrganization;
+        public String Safra;
+        public String PriceList;
+        public String AfterPaymentDate;
+        public Date StartDateOV;
+        public Date EndDateOV;
+        public Date StartDateFaturalmente;
+        public Date EndDateFaturalmente;
+        public Date BaseDateFinancing;
+        public Date AfterPayment;
+        public Delimitadores__c serialize(Map<String, Id> lookups){
+            return new Delimitadores__c(
+                ExternalId__c = this.DelimitadoresExternalId,
+                Name = this.Name, 
+                SalesOrg__c = lookups.containsKey('SalesOrg__c'+this.SalesOrganization) ? lookups.get('SalesOrg__c'+this.SalesOrganization) : null,
+                Safra__c = lookups.containsKey('Safra__c'+this.Safra) ? lookups.get('Safra__c'+this.Safra) : null,
+                SalesCondition__c = lookups.containsKey('SalesCondition__c'+this.PriceList) ? lookups.get('SalesCondition__c'+this.PriceList) : null,
+                StartDateOV__c = this.StartDateOV,
+                EndDateOV__c = this.EndDateOV,
+                StartDateBilling__c = this.StartDateFaturalmente,
+                EndDateBilling__c = this.EndDateFaturalmente,
+                FinancialBaseDate__c = this.BaseDateFinancing,
+                LimitDateAfterPayment__c = this.AfterPayment
+            );
+        }
+
+        //Required fields for integration
+        public List<String> getRequiredFields(){
+            return new List<String>{
+                //'Name'
+                //'numeroNotaFiscal'
+       
+            };
+        }
+
+        //ExternalId field
+        public String getFieldKey(){
+            return 'ExternalId__c';
+        }
+        
+        //Id field
+        public String getFieldId() {
+            return 'Id';
+        }
+    }
+    
     global class OrderCommodityINData implements FieldDataChild{
+        public Boolean orderCommodityECalendariazacao;
         public String orderExternalId;
+        public String Name;
         //public String OrderItemCode;
         public String material;
         public Decimal commodityPrice;
@@ -618,7 +671,7 @@ global with sharing class TemplateDataIntegrationFields {
 
         public OrderCommodity__c serialize(Map<String, Id> lookups){
             return new OrderCommodity__c(
-
+                Name = this.Name,
                 ExternalId__c = orderExternalId + '|' + material, // Or order Id and Product Id
                 Product__c = lookups.containsKey('Product2'+this.material) ? lookups.get('Product2'+this.material) : null,
                 CommodityPrice__c = this.commodityPrice,
@@ -727,6 +780,7 @@ global with sharing class TemplateDataIntegrationFields {
             public String instrucoes;
             public String numeroBoleto;
             public String bancoEmpresa;
+            public String boletoBasePdf;
             public Boletos__c serialize(Map<String, Id> lookups){
 
                 //Returning Object with Fields
@@ -741,7 +795,8 @@ global with sharing class TemplateDataIntegrationFields {
                 BankName__c = this.bancoEmpresa,
                 OurNumber__c = this.numeroBoleto,
                 BusinessLocation__c = this.localNegocio, 
-                Instructions__c = this.instrucoes
+                Instructions__c = this.instrucoes,
+                Base64__c = this.boletoBasePdf
             );
         }
 

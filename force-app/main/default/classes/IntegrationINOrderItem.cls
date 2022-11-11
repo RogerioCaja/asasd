@@ -150,7 +150,7 @@ global with sharing class IntegrationINOrderItem {
         CommercialMargin__c, DiscountValue__c, ExternalId__c, FinalTotalValue__c, FinancialDiscountPercent__c,
         FinancialDiscountValue__c, FinancialAdditionPercent__c, FinancialAdditionValue__c,
         CommercialAdditionPercent__c, CommercialAdditionValue__c, Dosage__c, ListCost__c, NumeroSap__c,
-        PracticedCost__c, PracticedPrice__c, UnitPrice FROM OrderItem WHERE ExternalId__c IN: idsOrderItem]);
+        PracticedCost__c, PracticedPrice__c, UnitPrice, Class__c, Sieve__c FROM OrderItem WHERE ExternalId__c IN: idsOrderItem]);
     
         for(OrderItem ordItem : orderItemSelectList){
             orderItemsIdsMap.put(ordItem.ExternalId__c, ordItem);
@@ -267,7 +267,15 @@ global with sharing class IntegrationINOrderItem {
     
                 if(orderItem.precoUnitario == null){
                     orderItem.precoUnitario = ordItem.UnitPrice;
-                }  
+                }
+                
+                if(orderItem.classeCategoria == null || orderItem.classeCategoria == ''){
+                    orderItem.classeCategoria = ordItem.Class__c;
+                }
+
+                if(orderItem.peneira == null || orderItem.peneira == ''){
+                    orderItem.peneira = ordItem.Sieve__c;
+                }
             }
         }
         // Pega o produto com base no ExternalID recebido
