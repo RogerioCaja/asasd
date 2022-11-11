@@ -69,8 +69,10 @@ global with sharing class TemplateDataIntegrationFields {
             if(this.typeCondition == 'ZPRS'){
                 lists.Cost__c = Decimal.valueOf(this.unitPrice.trim());
             }
-            else if(this.typeCondition == 'ZPR0' || this.typeCondition == 'ZCPE'){
+            else if(this.typeCondition == 'ZPR0' || this.typeCondition == 'ZCPE' || this.typeCondition == 'ZROY' || this.typeCondition == 'ZTRA'){
                 lists.UnitPrice__c = Decimal.valueOf(this.unitPrice.trim());
+                if(this.typeCondition == 'ZROY') lists.ConditionType__c = 'Royalties';
+                if(this.typeCondition == 'ZTRA') lists.ConditionType__c = 'TSI';
             }
             else{
                 lists.Percentage__c = Decimal.valueOf(this.unitPrice.trim());
@@ -609,13 +611,13 @@ global with sharing class TemplateDataIntegrationFields {
         public String SalesOrganization;
         public String Safra;
         public String PriceList;
+        public String AfterPaymentDate;
         public Date StartDateOV;
         public Date EndDateOV;
         public Date StartDateFaturalmente;
         public Date EndDateFaturalmente;
         public Date BaseDateFinancing;
-        public Date AfterPaymentDate;
-
+        public Date AfterPayment;
         public Delimitadores__c serialize(Map<String, Id> lookups){
             return new Delimitadores__c(
                 ExternalId__c = this.DelimitadoresExternalId,
@@ -628,7 +630,7 @@ global with sharing class TemplateDataIntegrationFields {
                 StartDateBilling__c = this.StartDateFaturalmente,
                 EndDateBilling__c = this.EndDateFaturalmente,
                 FinancialBaseDate__c = this.BaseDateFinancing,
-                LimitDateAfterPayment__c = this.AfterPaymentDate
+                LimitDateAfterPayment__c = this.AfterPayment
             );
         }
 

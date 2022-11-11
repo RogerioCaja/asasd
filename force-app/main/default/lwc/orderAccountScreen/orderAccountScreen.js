@@ -7,10 +7,13 @@ export default class OrderAccountScreen extends LightningElement {
     message = false;
     numberOfAccounts = 0;
     numberPages = [];
+    numberOfPagesSection = [];
     selected = 1;
     showPrevious = false;
     showNext = false;
     showIcon = false;
+    showPreviousSection = false;
+    showNextSection = false;
     @api selectedAccount = false;
     @api childOrder;
     @api cloneData;
@@ -26,20 +29,46 @@ export default class OrderAccountScreen extends LightningElement {
 
     showCount(event){
         this.numberPages = [];
+        this.numberOfPagesSection = [];
+        let indexPages = 0;
         this.numberOfAccounts = event.numberOfAccounts;
 
         if(this.numberOfAccounts){
             for(let i = 0; i < this.numberOfAccounts; i++){
+                
                 this.numberPages.push({number: i+1, selected: false})
+                if(((i+1) - indexPages) == 10){
+                    indexPages = (i+1)
+                    this.numberOfPagesSection.push(this.numberPages)
+                    this.numberPages = []
+                }
+            }
+            if(this.numberOfAccounts < 10){
+                this.numberOfPagesSection.push(this.numberPages)
+            }
+            if(this.numberOfAccounts > 10 && (this.numberOfAccounts - indexPages) != 10){
+                this.numberOfPagesSection.push(this.numberPages)
             }
         }
 
-        console.log(this.numberOfAccounts);
+        this.numberPages = this.numberOfPagesSection[0];
         if(this.numberOfAccounts > 1){
             this.showNext=true;
         }
+
+        if(this.numberOfAccounts > 10){
+            this.showNextSection=true;
+        }else{
+            this.showNextSection=false;
+            this.showPreviousSection=false;
+        }
+
         let key = 1;
         this.selected = key;
+
+        if(this.selected == 1){
+            this.showPrevious=false;
+        }
         setTimeout(() => { this.template.querySelectorAll(`div[data-target-id="${key}"]`)[0].classList.add('selectedIndex')}); 
         setTimeout(() => { this.template.querySelectorAll(`div[data-target-id="${key}"]`)[1].classList.add('selectedIndex')});
        
@@ -52,24 +81,43 @@ export default class OrderAccountScreen extends LightningElement {
             elems[index].classList.remove('selectedIndex');
         }
 
-        this.template.querySelectorAll(`div[data-target-id="${key}"]`)[0].classList.add('selectedIndex');
-        this.template.querySelectorAll(`div[data-target-id="${key}"]`)[1].classList.add('selectedIndex');
-        
         this.selected = Number(key)
         this.verifyNextAndPrevious()
-        let value = (Number(key) - 1) * 30;
-        
-        setTimeout(() =>{ this.template.querySelector('c-custom-order-search').offSet = value; })
+        let value = (Number(key) - 1) * 100;
 
+        setTimeout(() =>{ this.template.querySelector('c-custom-order-search').offSet = value; })
         setTimeout(() =>{ this.template.querySelector('c-custom-order-search').fetchData(); })
+
+        setTimeout(() =>{ this.template.querySelectorAll(`div[data-target-id="${key}"]`)[0].classList.add('selectedIndex')});
+        setTimeout(() =>{ this.template.querySelectorAll(`div[data-target-id="${key}"]`)[1].classList.add('selectedIndex')});
     }
 
     previousPage(){
-        this.showMoreResults(Number(this.selected) - 1);
+        let value = this.numberPages.findIndex((element) => element.number == Number(this.selected) - 1);
+        if(value == -1 && this.showPreviousSection){
+            this.previousSection();
+        }else{
+            this.showMoreResults(Number(this.selected) - 1);
+        }
     }
 
     nextPage(){
-        this.showMoreResults(Number(this.selected) + 1);
+        let value = this.numberPages.findIndex((element) => element.number == Number(this.selected) + 1);
+        if(value == -1 && this.showNextSection){
+            this.nextSection();
+        }else{
+            this.showMoreResults(Number(this.selected) + 1);
+        }
+    }
+
+    nextSection(){
+        this.numberPages = this.numberOfPagesSection[Number(this.numberOfPagesSection.indexOf(this.numberPages)) + 1]
+        this.showMoreResults(Number(this.numberPages[0].number));  
+    }
+
+    previousSection(){
+        this.numberPages = this.numberOfPagesSection[Number(this.numberOfPagesSection.indexOf(this.numberPages)) - 1]
+        this.showMoreResults(Number(this.numberPages[0].number));
     }
 
     clickInNumber(event){
@@ -86,6 +134,18 @@ export default class OrderAccountScreen extends LightningElement {
             this.showNext = false;
         }else{
             this.showNext = true;
+        }
+
+        if((this.selected) > 10){
+            this.showPreviousSection = true;
+        }else{
+            this.showPreviousSection = false;
+        }
+
+        if(Number(this.numberOfPagesSection.indexOf(this.numberPages)) == Number(this.numberOfPagesSection.length-1)){
+            this.showNextSection = false;
+        }else{
+            this.showNextSection = true;
         }
     }
 

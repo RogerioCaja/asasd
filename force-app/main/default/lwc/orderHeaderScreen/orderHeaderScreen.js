@@ -53,7 +53,7 @@ export default class OrderHeaderScreen extends LightningElement {
     seedSale = false;
     safraName = null;
     currencyOption = null;
-    hasDelimiter = false;
+    hasDelimiter = true;
     currentDate;
     dateLimit;
     dateStartBilling;
