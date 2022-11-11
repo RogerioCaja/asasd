@@ -46,6 +46,9 @@ export default class OrderAccountScreen extends LightningElement {
             if(this.numberOfAccounts < 10){
                 this.numberOfPagesSection.push(this.numberPages)
             }
+            if(this.numberOfAccounts > 10 && (this.numberOfAccounts - indexPages) != 10){
+                this.numberOfPagesSection.push(this.numberPages)
+            }
         }
 
         this.numberPages = this.numberOfPagesSection[0];
