@@ -460,10 +460,11 @@ public without sharing class CalloutBP {
         
         
         for(UserTerritory2Association userTerrytory : userTerrytoryList){
-            String salesTeam = userTerrytory.Territory2.DeveloperName.replace('X', '');
-            salesTeam = userTerrytory.Territory2.ParentTerritory2.DeveloperName.replace('Z', '');
+            String salesTeam = userTerrytory.Territory2.ParentTerritory2.DeveloperName.replace('X', '');
+            salesTeam = salesTeam.replace('Z', '');
             String salesOffice = userTerrytory.Territory2.ParentTerritory2.ParentTerritory2.DeveloperName.replace('X', '');
-            salesOffice = userTerrytory.Territory2.ParentTerritory2.DeveloperName.replace('Z', '');
+            salesOffice = salesOffice.replace('Z', '');
+            System.debug('check: '+userTerrytory.User.CodigoSap__c + salesTeam + salesOffice);
             userTerrytoryMap.put(userTerrytory.User.CodigoSap__c + salesTeam + salesOffice, userTerrytory);
         }
         System.debug('userTerrytoryMap: '+userTerrytoryMap);
