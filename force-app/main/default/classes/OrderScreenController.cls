@@ -921,18 +921,6 @@ public without sharing class OrderScreenController {
                     }
                     update combosById.values();
 
-                    List<ProductMix__c> productMixToUpdate = new List<ProductMix__c>();
-                    for (ProductMix__c productMix : [
-                        SELECT Id,
-                               Quantity__c,
-                               ProductGroup__c
-                          FROM ProductMix__c
-                         WHERE ComboPromotion__c IN: combosById.keySet()
-                    ]) {
-                        productMix.Quantity__c = productMix.Quantity__c - quantitiesByProductGroup.get(productMix.ProductGroup__c);
-                        productMixToUpdate.add(productMix);
-                    }
-                    update productMixToUpdate;
                 }
 
                 Integer divisionCounter = 1;

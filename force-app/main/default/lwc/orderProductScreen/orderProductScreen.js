@@ -338,10 +338,12 @@ export default class OrderProductScreen extends LightningElement {
             comboDiscountPercent: this.isFilled(currentProduct.comboDiscountPercent) ? currentProduct.comboDiscountPercent : '0%',
             comboDiscountValue: this.isFilled(currentProduct.comboDiscountValue) ? currentProduct.comboDiscountValue : 0,
             comboId: this.isFilled(currentProduct.comboId) ? currentProduct.comboId : null,
-            industryCombo: this.isFilled(currentProduct.comboId) ? currentProduct.industryCombo : false
+            industryCombo: this.isFilled(currentProduct.comboId) ? currentProduct.industryCombo : false,
+            containsCombo: this.isFilled(currentProduct.containsCombo) ? currentProduct.containsCombo : false
         };
         if (this.isFilled(newProduct.comboId)) {
             this.disabled = true;
+            this.unitPriceDisabled = true;
         } else {
             this.disabled = false;
         }
@@ -507,13 +509,20 @@ export default class OrderProductScreen extends LightningElement {
                                     currentItem.dosage = formerProductQuantity / this.hectares;
                                     currentItem.dosageFront = this.fixDecimalPlacesFront(currentItem.dosage);
                                     comboItens.push(currentItem);
+
+                                    for (let index = 0; index < this.products.length; index++) {
+                                        if (currentItem.productId == formerItens[index].productId) {
+                                            this.products.splice(index, 1);
+                                        }
+                                    }
                                 } else {
                                     let comboValues = {
                                         dosage: formerProductQuantity / this.hectares,
                                         quantity: formerProductQuantity,
                                         comboDiscount: 0,
                                         comboId: formerItens[index].comboId,
-                                        industryCombo: formerItens[index].industryCombo
+                                        industryCombo: formerItens[index].industryCombo,
+                                        containsCombo: true
                                     }
     
                                     let productInfos = this.getProductByPriority({Id: formerItens[index].productId});
@@ -538,13 +547,20 @@ export default class OrderProductScreen extends LightningElement {
                                     currentItem.dosageFront = this.fixDecimalPlacesFront(currentItem.dosage);
                                     currentItem.comboDiscountPercent = benefitItens[index].discountPercentage + '%';
                                     comboItens.push(currentItem);
+
+                                    for (let index = 0; index < this.products.length; index++) {
+                                        if (currentItem.productId == benefitItens[index].productId) {
+                                            this.products.splice(index, 1);
+                                        }
+                                    }
                                 } else {
                                     let comboValues = {
                                         dosage: benefitProductQuantity / this.hectares,
                                         quantity: benefitProductQuantity,
                                         comboDiscount: benefitItens[index].discountPercentage,
                                         comboId: benefitItens[index].comboId,
-                                        industryCombo: benefitItens[index].industryCombo
+                                        industryCombo: benefitItens[index].industryCombo,
+                                        containsCombo: true
                                     }
 
                                     let productInfos = this.getProductByPriority({Id: benefitItens[index].productId});
@@ -844,10 +860,12 @@ export default class OrderProductScreen extends LightningElement {
             comboDiscountValue: 0,
             comboId: this.isFilled(comboValues) ? comboValues.comboId : null,
             industryCombo: this.isFilled(comboValues) ? comboValues.industryCombo : false,
-            position: this.isFilled(counter) ? counter : null
+            position: this.isFilled(counter) ? counter : null,
+            containsCombo: this.isFilled(comboValues) ? comboValues.containsCombo : (this.isFilled(currentProduct.containsCombo) ? currentProduct.containsCombo : false)
         };
         if (this.isFilled(currentProduct.comboId)) {
             this.disabled = true;
+            this.unitPriceDisabled = true;
         } else {
             this.disabled = false;
         }
@@ -1233,7 +1251,7 @@ export default class OrderProductScreen extends LightningElement {
             let margin = this.isFilled(this.addProduct.practicedCost) ? this.fixDecimalPlaces((1 - (Number(this.addProduct.practicedCost) / (prod.totalPrice / prod.quantity))) * 100) : 0;
             let comboDiscountPercent = this.verifyComboAndPromotion(prod.quantity);
             
-            if (prod.comboDiscountPercent == '0%' && comboDiscountPercent != null) {
+            if (prod.commercialDiscountPercentageFront == '0%' && prod.comboDiscountPercent == '0%' && comboDiscountPercent != null) {
                 prod.comboId = comboDiscountPercent.comboId;
                 prod.comboDiscountPercent = comboDiscountPercent.discount + '%';
                 prod.comboDiscountValue = this.calculateValue(comboDiscountPercent.discount + '%', prod.totalPrice);
@@ -1242,6 +1260,7 @@ export default class OrderProductScreen extends LightningElement {
                 prod.industryCombo = comboDiscountPercent.industryCombo;
                 prod.unitPrice = this.fixDecimalPlaces(prod.totalPrice / prod.quantity);
                 prod.unitPriceFront = this.fixDecimalPlacesFront(prod.unitPrice);
+                prod.containsCombo = true;
                 
                 let allCombos = JSON.parse(JSON.stringify(this.combosSelecteds));
                 let currentCombo = allCombos.find(e => e.comboId == comboDiscountPercent.comboId);
@@ -1250,7 +1269,7 @@ export default class OrderProductScreen extends LightningElement {
                 } else {
                     allCombos.push({
                         comboId: comboDiscountPercent.comboId,
-                        comboQuantity: 1,
+                        comboQuantity: comboDiscountPercent.comboQuantity,
                         productQuantity: prod.quantity,
                         productId: prod.productId,
                         specificItemCombo: false
@@ -1291,11 +1310,12 @@ export default class OrderProductScreen extends LightningElement {
                 
                 if (this.isFilled(groupsData)) {
                     let productGroupCombo = groupsData.find(e => e.productGroupId == this.addProduct.productGroupId);
-                    if (this.isFilled(productGroupCombo) && productGroupCombo.quantity > quantity && combos[index].recTypeDevName == 'ProductMix') {
+                    if (this.isFilled(productGroupCombo) && quantity >= productGroupCombo.quantity && combos[index].recTypeDevName == 'ProductMix') {
                         return {
                             discount: combos[index].comboDiscountPercentage,
                             comboId: combos[index].comboId,
-                            industryCombo: combos[index].comboType.comboType == 'Indústria'
+                            industryCombo: combos[index].comboType.comboType == 'Indústria',
+                            comboQuantity: Math.floor(quantity / productGroupCombo.quantity)
                         };
                     }
                 }
@@ -1306,7 +1326,8 @@ export default class OrderProductScreen extends LightningElement {
                 return {
                     discount: paymentConditionCombo.comboDiscountPercentage,
                     comboId: paymentConditionCombo.comboId,
-                    industryCombo: paymentConditionCombo.comboType.comboType == 'Indústria'
+                    industryCombo: paymentConditionCombo.comboType.comboType == 'Indústria',
+                    comboQuantity: 1
                 };
             }
         }
