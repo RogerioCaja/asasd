@@ -1008,13 +1008,12 @@ public without sharing class FactoryBuilder {
                 conditionParametersList.add(new ConditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZDEC', (isNotation(ordIt.DiscountPercent__c)*-1).toPlainString(), ''));
             }
             conditionParametersList.add(new ConditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZMAR', String.valueOf(isNotation(ordIt.CommercialMargin__c)), ''));
-            // conditionParametersList.add(new conditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZFRE', String.valueOf(isNotation(order.Freight__c)), ''));// coming soon
             conditionParametersList.add(new conditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZCOR', String.valueOf(isNotation(ordIt.Brokerage__c)), ''));
             if(salesCondition == '99'){
                 conditionParametersList.add(new ConditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZPR0', String.valueOf(isNotation(ordIt.ListPrice__c)), ''));
             }
         }
- 
+        conditionParametersList.add('0', 'ZFRE', String.valueOf(isNotation(order.Freight__c)), 'BRL');
         return conditionParametersList;
     }
 
