@@ -1013,7 +1013,7 @@ public without sharing class FactoryBuilder {
                 conditionParametersList.add(new ConditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZPR0', String.valueOf(isNotation(ordIt.ListPrice__c)), ''));
             }
         }
-        conditionParametersList.add(new ConditionParameters('0', 'ZFRE', String.valueOf(isNotation(Decimal.valueOf(order.FreightValue__c))), 'BRL'));
+        conditionParametersList.add(new ConditionParameters('0', 'ZFRE', String.valueOf(isNotation(order.FreightValue__c)), 'BRL'));
         return conditionParametersList;
     }
 
