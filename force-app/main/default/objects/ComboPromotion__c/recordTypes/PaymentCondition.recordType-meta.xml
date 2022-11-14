@@ -2,6 +2,7 @@
 <RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>PaymentCondition</fullName>
     <active>true</active>
+    <compactLayoutAssignment>ComboPromotion</compactLayoutAssignment>
     <label>Condição de Pagamento</label>
     <picklistValues>
         <picklist>ComboType__c</picklist>
