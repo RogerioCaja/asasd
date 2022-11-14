@@ -2,6 +2,7 @@
 <RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Specific_Items</fullName>
     <active>true</active>
+    <compactLayoutAssignment>ComboPromotion</compactLayoutAssignment>
     <label>Utilização de Itens Específicos</label>
     <picklistValues>
         <picklist>ComboType__c</picklist>

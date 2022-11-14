@@ -2,6 +2,7 @@
 <RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>ProductMix</fullName>
     <active>true</active>
+    <compactLayoutAssignment>ComboPromotion</compactLayoutAssignment>
     <label>Mix de Produtos</label>
     <picklistValues>
         <picklist>ComboType__c</picklist>
