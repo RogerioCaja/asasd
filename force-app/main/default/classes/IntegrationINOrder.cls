@@ -536,9 +536,16 @@ global without sharing class IntegrationINOrder {
              System.debug('order.FinalTotalValue__c ' + order.FinalTotalValue__c);
              OrderHelper.disableTrigger();
              Database.update(order, false);
-             OrderHelper.enableTrigger();         
-        
-        
+             OrderHelper.enableTrigger();    
+             
+             
+             AggregateResult[] freightTotal = [SELECT SUM(FreightValue__c) somatoria FROM OrderItem WHERE  OrderId =: orderIdEx.KeySet() AND ReasonRefuse__c =: null AND ReasonRefuse__c =: ''];
+             Order orderFreight = new Order();
+             orderFreight.Id = (new List<String>(orderIdEx.KeySet()))[0];
+             orderFreight.FreightValue__c = (Decimal)freightTotal[0].get('somatoria');
+             OrderHelper.disableTrigger();
+             Database.update(order, false);
+             OrderHelper.enableTrigger();
 
         //Associating child object's response with object response
         // Pega todas as respostas dos OrderItem

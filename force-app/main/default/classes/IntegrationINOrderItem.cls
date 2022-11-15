@@ -51,6 +51,10 @@ global with sharing class IntegrationINOrderItem {
                         OrderItemINData.margemComercial = Decimal.valueOf(conditions.KBETR);
                     }
 
+                    if(conditions.KSCHL == 'ZFRE'){
+                        OrderItemInData.freteItem = Decimal.valueOf(conditions.KBETR);
+                    }
+
                     if(conditions.KSCHL == 'ZCP0'){
                         Decimal custoPraticado = Decimal.valueOf(conditions.KBETR) / OrderItemINData.quantidade;
                         OrderItemINData.custoPreco = custoPraticado;
@@ -267,7 +271,19 @@ global with sharing class IntegrationINOrderItem {
     
                 if(orderItem.precoUnitario == null){
                     orderItem.precoUnitario = ordItem.UnitPrice;
-                }  
+                }
+
+                if(orderItem.peneira == null || orderItem.peneira == ''){
+                    orderItem.peneira = ordItem.Sieve__c;
+                }
+                
+                if(orderItem.classeCategoria == null || orderItem.classeCategoria == ''){
+                    orderItem.classeCategoria = ordItem.class__c;
+                }
+
+                if(orderItem.freteItem == null){
+                    orderItem.freteItem = ordItem.FreightValue__c;
+                }
             }
         }
         // Pega o produto com base no ExternalID recebido
