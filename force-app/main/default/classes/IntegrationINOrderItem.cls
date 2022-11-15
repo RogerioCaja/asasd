@@ -154,7 +154,7 @@ global with sharing class IntegrationINOrderItem {
         CommercialMargin__c, DiscountValue__c, ExternalId__c, FinalTotalValue__c, FinancialDiscountPercent__c,
         FinancialDiscountValue__c, FinancialAdditionPercent__c, FinancialAdditionValue__c,
         CommercialAdditionPercent__c, CommercialAdditionValue__c, Dosage__c, ListCost__c, NumeroSap__c,
-        PracticedCost__c, PracticedPrice__c, UnitPrice FROM OrderItem WHERE ExternalId__c IN: idsOrderItem]);
+        PracticedCost__c, PracticedPrice__c, UnitPrice, Sieve__c, Class__c, FreightValue__c FROM OrderItem WHERE ExternalId__c IN: idsOrderItem]);
     
         for(OrderItem ordItem : orderItemSelectList){
             orderItemsIdsMap.put(ordItem.ExternalId__c, ordItem);
@@ -276,7 +276,7 @@ global with sharing class IntegrationINOrderItem {
                 if(orderItem.peneira == null || orderItem.peneira == ''){
                     orderItem.peneira = ordItem.Sieve__c;
                 }
-                
+
                 if(orderItem.classeCategoria == null || orderItem.classeCategoria == ''){
                     orderItem.classeCategoria = ordItem.class__c;
                 }
