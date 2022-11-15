@@ -60,6 +60,8 @@ global without sharing class IntegrationINOrderInsert {
             distributionChannelLookups.add(order.DistributionChannel);
             
             order.hectare = order.hectare == null ? 1 : order.hectare;
+            order.company = order.PaymentAccount + order.CentroFornecedor + order.salesOrg + order.activitySector + order.distributionChannel + order.EscritorioVendas + order.EquipeVendas;
+
             companyLookups.add(order.company);
 
             
@@ -159,7 +161,6 @@ global without sharing class IntegrationINOrderInsert {
                     order.salesCTV = partnerList.KUNNR;
                 }
         }
-            order.company = order.PaymentAccount + order.CentroFornecedor + order.salesOrg + order.activitySector + order.distributionChannel + order.EscritorioVendas + order.EquipeVendas;
             conditionList.addAll(order.conditions);
              
             System.debug('shippingDivisonListToUpsert' + shippingDivisonListToUpsert);
@@ -321,7 +322,7 @@ global without sharing class IntegrationINOrderInsert {
              orderFreight.Id = (new List<String>(orderIdEx.KeySet()))[0];
              orderFreight.FreightValue__c = (Decimal)freightTotal[0].get('somatoria');
              OrderHelper.disableTrigger();
-             Database.update(order, false);
+             Database.update(orderFreight, false);
              OrderHelper.enableTrigger();
 
         System.debug('Chegou!? ');
