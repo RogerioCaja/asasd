@@ -24,6 +24,7 @@ export default class CustomOrderSearch extends LightningElement {
     @api className;
     @api productParams;
     @api territoryParams;
+    @api seedPrice;
     @api required = false;
     @track searchString;
     @api offSet = 0;
@@ -138,7 +139,8 @@ export default class CustomOrderSearch extends LightningElement {
                     data: JSON.stringify(this.productParams),
                     isCommodity: this.objectName == 'Commodity' ? true : false,
                     productsIds: [],
-                    priceScreen: false
+                    priceScreen: false,
+                    getSeedPrices: this.seedPrice
                 })
                 .then(result => {
                     const tabEvent = new CustomEvent("showresults");
