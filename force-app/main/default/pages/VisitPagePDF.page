@@ -136,12 +136,13 @@
                 <td class="information">
                     {! Visit.accountName}
                 </td>
-                <td class="title-information">
-                    MUNICÍPIO:
+                 <td class="title-information">
+                    CONTATO:
                 </td>
                 <td class="information">
-                    {! Visit.accountCity}
+                    {! Visit.accountPhone}
                 </td>
+                
             </tr>
             <tr>
                 <td class="title-information">
@@ -164,11 +165,11 @@
                 <td class="information">
                     {! Visit.accountState}
                 </td>
-                <td class="title-information">
-                    CONTATO:
+               <td class="title-information">
+                    MUNICÍPIO:
                 </td>
                 <td class="information">
-                    {! Visit.accountPhone}
+                    {! Visit.accountCity}
                 </td>
             </tr>
         </table>
@@ -185,7 +186,7 @@
                 PROPRIEDADE:
             </td>
             <td class="information">
-                {! Visit.accountName}
+                {! Visit.accountProperty}
             </td>
         </tr>
         <tr>
