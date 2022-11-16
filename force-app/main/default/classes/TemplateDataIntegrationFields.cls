@@ -460,6 +460,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String motivoRecusa;
         public String peneira;
         public String classeCategoria;
+        public Decimal freteItem;
         public OrderItem serialize(Map<String, Id> lookups){
 
             
@@ -495,7 +496,8 @@ global with sharing class TemplateDataIntegrationFields {
                 ReasonRefuse__c = this.motivoRecusa,
                 Description = '',
                 Sieve__c = this.peneira,
-                Class__c = this.classeCategoria
+                Class__c = this.classeCategoria,
+                FreightValue__c = this.freteItem
             );
         }
         public List<String> getRequiredFields(){
