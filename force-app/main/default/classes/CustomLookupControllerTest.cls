@@ -261,7 +261,7 @@ public class CustomLookupControllerTest {
         Id salesOfficeId = [SELECT Id FROM SalesOffice__c LIMIT 1].Id;
         Id salesTeamId = [SELECT Id FROM SalesTeam__c LIMIT 1].Id;
 
-        CustomLookupController.fetchProductsRecords('Milho', '{"salesConditionId":"' + scId + '","accountId":"' + accountId + '","ctvId":"' + UserInfo.getUserId() + '","safra":"' + cropId +'","productCurrency":"BRL","culture":"' + cultureId + '","orderType":"Venda Normal","supplierCenter":"1010","salesOrgId":"' + salesOrgId + '","salesOfficeId":"' + salesOfficeId + '","salesTeamId":"' + salesTeamId + '","numberOfRowsToSkip":0}', false, new List<String>{}, false);
+        CustomLookupController.fetchProductsRecords('Milho', '{"salesConditionId":"' + scId + '","accountId":"' + accountId + '","ctvId":"' + UserInfo.getUserId() + '","safra":"' + cropId +'","productCurrency":"BRL","culture":"' + cultureId + '","orderType":"Venda Normal","supplierCenter":"1010","salesOrgId":"' + salesOrgId + '","salesOfficeId":"' + salesOfficeId + '","salesTeamId":"' + salesTeamId + '","numberOfRowsToSkip":0}', false, new List<String>{}, false, false);
     }
 
     @isTest
@@ -274,7 +274,7 @@ public class CustomLookupControllerTest {
         Id salesOfficeId = [SELECT Id FROM SalesOffice__c LIMIT 1].Id;
         Id salesTeamId = [SELECT Id FROM SalesTeam__c LIMIT 1].Id;
 
-        CustomLookupController.fetchProductsRecords('Soja', '{"salesConditionId":"' + scId + '","accountId":"' + accountId + '","ctvId":"' + UserInfo.getUserId() + '","safra":"' + cropId +'","productCurrency":"BRL","culture":"' + cultureId + '","orderType":"Venda Normal","supplierCenter":"1010","salesOrgId":"' + salesOrgId + '","salesOfficeId":"' + salesOfficeId + '","salesTeamId":"' + salesTeamId + '","numberOfRowsToSkip":0}', true, new List<String>{}, false);
+        CustomLookupController.fetchProductsRecords('Soja', '{"salesConditionId":"' + scId + '","accountId":"' + accountId + '","ctvId":"' + UserInfo.getUserId() + '","safra":"' + cropId +'","productCurrency":"BRL","culture":"' + cultureId + '","orderType":"Venda Normal","supplierCenter":"1010","salesOrgId":"' + salesOrgId + '","salesOfficeId":"' + salesOfficeId + '","salesTeamId":"' + salesTeamId + '","numberOfRowsToSkip":0}', true, new List<String>{}, false, false);
     }
 
     @isTest
