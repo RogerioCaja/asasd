@@ -14,10 +14,11 @@ public without sharing class ReportController {
             //Queries 
             List<TechnicalReport__c> reportList = getReportById(reportIdPageReference, 
             new Set<String>{
-                'Id', 'Name', 'toLabel(VisitPlanning__r.Objetivo__c)', 'VisitPlanning__r.MainBp__r.Name' , 'VisitPlanning__r.InitialDate__c'
+                'Id', 'Name', 'toLabel(VisitPlanning__r.Objetivo__c)' , 'VisitPlanning__r.InitialDate__c'
                 , 'Note__c', 'VisitPlanning__r.Name', 'VisitPlanning__c', 'VisitPlanning__r.Name',
                 'VisitPlanning__r.Culture__r.Name' ,'VisitPlanning__r.Safra__r.Name' , 
                 'VisitPlanning__r.VisitSeller__r.Name', 'VisitPlanning__r.SellOrg__r.Name' , 
+                 'VisitPlanning__r.MainBP__r.Name', 'VisitPlanning__r.MainBP__r.Phone',
                 'VisitPlanning__r.BP_Property__r.Name', 'VisitPlanning__r.BP_Property__r.BillingStreet', 'VisitPlanning__r.BP_Property__r.BillingState' , 
                 'VisitPlanning__r.BP_Property__r.Phone', 'VisitPlanning__r.BP_Property__r.BillingCity',    'VisitPlanning__r.BP_Property__r.BillingLongitude', 'VisitPlanning__r.BP_Property__r.BillingLatitude'
             });
@@ -124,6 +125,7 @@ public without sharing class ReportController {
         public String visitCTV {get; set;}
         public String dateVisit {get; set;}
         public String accountName {get; set;}
+        public String accountProperty {get; set;}
         public String accountStreet {get; set;}
         public String accountState {get; set;}
         public String accountPhone {get; set;}
@@ -148,10 +150,11 @@ public without sharing class ReportController {
             //Bloco 1
             this.visitCTV = report.VisitPlanning__r.VisitSeller__r.Name;
             this.dateVisit = getFormattedDate(String.valueOf(report.VisitPlanning__r.InitialDate__c));
-            this.accountName = report.VisitPlanning__r.BP_Property__r.Name;
+            this.accountName = report.VisitPlanning__r.MainBP__r.Name;
+            this.accountProperty = report.VisitPlanning__r.BP_Property__r.Name;
             this.accountStreet = report.VisitPlanning__r.BP_Property__r.BillingStreet;
             this.accountState = report.VisitPlanning__r.BP_Property__r.BillingState;
-            this.accountPhone = getFormattedPhoneNum(report.VisitPlanning__r.BP_Property__r.Phone);
+            this.accountPhone = getFormattedPhoneNum(report.VisitPlanning__r.MainBP__r.Phone);
             this.accountCity = report.VisitPlanning__r.BP_Property__r.BillingCity;
 
             //Bloco 2
