@@ -15,9 +15,9 @@ public without sharing class ReportController {
             List<TechnicalReport__c> reportList = getReportById(reportIdPageReference, 
             new Set<String>{
                 'Id', 'Name', 'toLabel(VisitPlanning__r.Objetivo__c)', 'VisitPlanning__r.MainBp__r.Name' , 'VisitPlanning__r.InitialDate__c'
-                , 'Note__c', 'VisitPlanning__r.Name',
+                , 'Note__c', 'VisitPlanning__r.Name', 'VisitPlanning__c', 'VisitPlanning__r.Name',
                 'VisitPlanning__r.Culture__r.Name' ,'VisitPlanning__r.Safra__r.Name' , 
-                'VisitPlanning__r.VisitSeller__c', 'VisitPlanning__r.SellOrg__r.Name' , 
+                'VisitPlanning__r.VisitSeller__r.Name', 'VisitPlanning__r.SellOrg__r.Name' , 
                 'VisitPlanning__r.BP_Property__r.Name', 'VisitPlanning__r.BP_Property__r.BillingStreet', 'VisitPlanning__r.BP_Property__r.BillingState' , 
                 'VisitPlanning__r.BP_Property__r.Phone', 'VisitPlanning__r.BP_Property__r.BillingCity',    'VisitPlanning__r.BP_Property__r.BillingLongitude', 'VisitPlanning__r.BP_Property__r.BillingLatitude'
             });
@@ -140,17 +140,18 @@ public without sharing class ReportController {
 
         public String notes {get;set;}
         public String nextVisit {get;set;}
+        public String nextVisitName {get;set;}
 
         public ReportDTO(TechnicalReport__c report){
             this.id = report.Id;
             this.name = report.Name;
             //Bloco 1
-            this.visitCTV = report.VisitPlanning__r.VisitSeller__c;
-            this.dateVisit = String.valueOf(report.VisitPlanning__r.InitialDate__c);
+            this.visitCTV = report.VisitPlanning__r.VisitSeller__r.Name;
+            this.dateVisit = getFormattedDate(String.valueOf(report.VisitPlanning__r.InitialDate__c));
             this.accountName = report.VisitPlanning__r.BP_Property__r.Name;
             this.accountStreet = report.VisitPlanning__r.BP_Property__r.BillingStreet;
             this.accountState = report.VisitPlanning__r.BP_Property__r.BillingState;
-            this.accountPhone = report.VisitPlanning__r.BP_Property__r.Phone;
+            this.accountPhone = getFormattedPhoneNum(report.VisitPlanning__r.BP_Property__r.Phone);
             this.accountCity = report.VisitPlanning__r.BP_Property__r.BillingCity;
 
             //Bloco 2
@@ -166,8 +167,27 @@ public without sharing class ReportController {
 
             //Bloco 4
             this.notes = report.Note__c;
-            this.nextVisit = report.VisitPlanning__r.Name;
+            this.nextVisit = URL.getSalesforceBaseUrl().toExternalForm() + '/' + report.VisitPlanning__c ;
+            this.nextVisitName = report.VisitPlanning__r.Name;
         }
+
+        
+        public String getFormattedPhoneNum(String phone) {
+            if(phone == null){
+                return '';
+            }
+            else{
+                String s = '(' + phone.substring(0, 2) + ') ' + phone.substring(2, 7) + '-' + phone.substring(7);
+                return s;
+            }
+        }
+        
+        public String getFormattedDate(String dateToFormat){
+            Date  dt = Date.valueOf(dateToFormat);
+            String dateFormat = dt.format();
+            return dateFormat;
+        }
+
     }
 
   
