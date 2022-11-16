@@ -71,7 +71,9 @@ global with sharing class IntegrationINOrderItemInsert {
                     if(conditions.KSCHL == 'ZMAR'){
                         OrderItemINData.margemComercial = Decimal.valueOf(conditions.KBETR);
                     }
-
+                    if(conditions.KSCHL == 'ZFRE'){
+                        OrderItemINData.freteItem = Decimal.valueOf(conditions.KBETR);
+                    }
                     if(conditions.KSCHL == 'ZCP0'){
                         Decimal custoPraticado = Decimal.valueOf(conditions.KBETR) / OrderItemINData.quantidade;
                         OrderItemINData.custoPreco = custoPraticado;
