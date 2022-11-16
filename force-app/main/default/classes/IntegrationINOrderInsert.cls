@@ -316,7 +316,14 @@ global without sharing class IntegrationINOrderInsert {
              Database.update(order, false);
              OrderHelper.enableTrigger();
         
-        
+             AggregateResult[] freightTotal = [SELECT SUM(FreightValue__c) somatoria FROM OrderItem WHERE  OrderId =: orderIdEx.KeySet() AND ReasonRefuse__c =: null AND ReasonRefuse__c =: ''];
+             Order orderFreight = new Order();
+             orderFreight.Id = (new List<String>(orderIdEx.KeySet()))[0];
+             orderFreight.FreightValue__c = (Decimal)freightTotal[0].get('somatoria');
+             OrderHelper.disableTrigger();
+             Database.update(orderFreight, false);
+             OrderHelper.enableTrigger();
+
         System.debug('Chegou!? ');
         //Associating child object's response with object response
         // Pega todas as respostas dos OrderItem
