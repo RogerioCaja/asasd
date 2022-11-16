@@ -12,7 +12,7 @@
 					<span>Pesquisar <b>PRODUTO</b>:</span>
 				</div>
 				
-				<c-custom-order-search data-target-id="product-search" object-name="Product2" field-name="Name" product-params={productParams} onshowresults={showResults} label="Pesquisar PRODUTO:" placeholder="Digite o nome do Produto" required="true" onchild={getFieldsValueProduct}></c-custom-order-search>
+				<c-custom-order-search data-target-id="product-search" object-name="Product2" field-name="Name" product-params={productParams} seed-price={showRoyaltyTsi} onshowresults={showResults} label="Pesquisar PRODUTO:" placeholder="Digite o nome do Produto" required="true" onchild={getFieldsValueProduct}></c-custom-order-search>
 
 				<div style="width: 100%;">
 					<div class="product-column product-left"><span class="arrow-style" if:true={showArrows} onclick={backProductScreen}>&#8249;</span></div>

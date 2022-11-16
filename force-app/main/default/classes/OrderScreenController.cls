@@ -121,7 +121,11 @@ public without sharing class OrderScreenController {
                    Class__c,
                    ComboPromotion__c,
                    AgrogalaxyComboDiscount__c,
-                   IndustryComboDiscount__c
+                   IndustryComboDiscount__c,
+                   TSIValue__c,
+                   RoyaltyAmount__c,
+                   TotalTSIAmount__c,
+                   TotalRoyaltyAmount__c
               FROM OrderItem
              WHERE OrderId =: orderId
         ]){
@@ -471,15 +475,17 @@ public without sharing class OrderScreenController {
             Decimal biggerDiscount = 0;
             Boolean seedSale = isSeedSale(company.SalesOrg__c, null);
             Id productGroupId;
+            
             Set<Id> setOrderItemsIds = new Set<Id>();
             List<Id> listProductsIds = new List<Id>();
             Set<Id> setProductHierarchyIds = new Set<Id>();
             Map<String, Decimal> quantitiesById = new Map<String, Decimal>();
             Map<String, Decimal> smallerMarginByProductGroup = new Map<String, Decimal>();
+            
             for (ProductDeserialize orderProduct : orderData.productData) {
-                if(seedSale){
+                if (seedSale) {
                     orderTotalValue += orderProduct.totalPriceWithBrokerage;
-                }else{
+                } else {
                     orderTotalValue += orderProduct.totalPrice;
                 }
                 
@@ -501,7 +507,7 @@ public without sharing class OrderScreenController {
                     }
                 }
 
-                if(orderProduct.productHierarchyId != null && orderProduct.productHierarchyId != ''){
+                if (orderProduct.productHierarchyId != null && orderProduct.productHierarchyId != '') {
                     setProductHierarchyIds.add(orderProduct.productHierarchyId);
                 }
 
@@ -868,6 +874,10 @@ public without sharing class OrderScreenController {
                     orderItem.PriceListCode__c = orderProduct.priceListCode;
                     orderItem.Sieve__c = orderProduct.sieve;
                     orderItem.Class__c = orderProduct.productClass;
+                    orderItem.TSIValue__c = orderProduct.tListPrice;
+                    orderItem.RoyaltyAmount__c = orderProduct.rListPrice;
+                    orderItem.TotalTSIAmount__c = orderProduct.tsiTotalPrice;
+                    orderItem.TotalRoyaltyAmount__c = orderProduct.royaltyTotalPrice;
                     listOrderItems.add(orderItem);
                 }
 
@@ -1667,7 +1677,7 @@ public without sharing class OrderScreenController {
         }
 
         Set<Id> existingPrices = new Set<Id>();
-        CustomLookupController.ProductDataResult productPrices = CustomLookupController.fetchProductsRecords('', JSON.serialize(productParams), false, prodsIds, false);
+        CustomLookupController.ProductDataResult productPrices = CustomLookupController.fetchProductsRecords('', JSON.serialize(productParams), false, prodsIds, false, false);
         for (CustomLookupController.ProductData products : productPrices.recordsDataList) {
             existingPrices.add(products.Id);
         }
@@ -2003,6 +2013,10 @@ public without sharing class OrderScreenController {
         public Decimal commercialMarginPercentage;
         public Decimal comissionValue;
         public Decimal comboDiscountValue;
+        public Decimal tListPrice;
+        public Decimal rListPrice;
+        public Decimal tsiTotalPrice;
+        public Decimal royaltyTotalPrice;
     }
 
     public class DivisionDeserialize{
@@ -2311,6 +2325,10 @@ public without sharing class OrderScreenController {
         public Decimal commercialMarginPercentage;
         public Decimal comissionValue;
         public Decimal comboDiscountValue;
+        public Decimal tListPrice;
+        public Decimal rListPrice;
+        public Decimal tsiTotalPrice;
+        public Decimal royaltyTotalPrice;
 
         ProductSerialize(){}
 
@@ -2361,6 +2379,10 @@ public without sharing class OrderScreenController {
             this.priceListCode = orderItem.PriceListCode__c;
             this.sieve = orderItem.Sieve__c != null ? orderItem.Sieve__c : '';
             this.productClass = orderItem.Class__c != null ? orderItem.Class__c : '';
+            this.tListPrice = orderItem.TSIValue__c;
+            this.rListPrice = orderItem.RoyaltyAmount__c;
+            this.tsiTotalPrice = orderItem.TotalTSIAmount__c;
+            this.royaltyTotalPrice = orderItem.TotalRoyaltyAmount__c;
         }
     }
 
