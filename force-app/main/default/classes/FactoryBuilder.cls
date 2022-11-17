@@ -987,7 +987,7 @@ public without sharing class FactoryBuilder {
      }
 
      private static List<OrderItemParametersSeeds> generateOrderItemParameterBarterList(Order order){
-        List<OrderItemParametersSeeds> orderItemParametersList = new List<OrderItemParametersSeeds>();
+        List<OrderItemParameters> orderItemParametersList = new List<OrderItemParameters>();
         OrderCommodity__c orderCommodity = [SELECT CommodityPrice__c, Product__r.ExternalId__c, BagQuantity__c FROM OrderCommodity__c WHERE Order__c =: order.Id LIMIT 1];
         String plant = order.DistributionCenter__r.Code__c == null ? order.Company__r.SupplierCenter__c : order.DistributionCenter__r.Code__c;
         orderItemParametersList.add(new OrderItemParameters(orderCommodity, plant));
