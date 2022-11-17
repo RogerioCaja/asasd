@@ -363,7 +363,7 @@ public without sharing class FactoryBuilder {
         private final List<PartnerParameters> IT_PARTNERS;
         private final List<ScheduleParameters> IT_ORDER_SCHEDULES_IN;
         private final List<ConditionParameters> IT_CONDITIONS_IN;
-        private final List<OrderItemParametersSeeds> IT_ITEMS_IN;
+        private final List<OrderItemParameters> IT_ITEMS_IN;
 
         public RequestBarterSeeds(HeaderBarterSeeds IS_HEADER_IN, List<PartnerParameters> IT_PARTNERS, List<ScheduleParameters> IT_ORDER_SCHEDULES_IN,
                         List<ConditionParameters> IT_CONDITIONS_IN, List<OrderItemParametersSeeds> IT_ITEMS_IN, String IV_TYPE){
