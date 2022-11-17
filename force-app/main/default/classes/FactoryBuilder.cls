@@ -221,11 +221,11 @@ public without sharing class FactoryBuilder {
         }
 
         public void setOrderItems(){
-            this.IT_ITEMS_IN = generateOrderItemParameterList(this.orderItemMap, this.referenceItemMotherMap, this.order);
+            this.IT_ITEMS_IN = generateOrderItemParameterBarterList(this.order);
         }
 
         public void setConditions(){
-            this.IT_CONDITIONS_IN = generateConditionParametersList(this.orderItemMap, this.order);
+            this.IT_CONDITIONS_IN = generateConditionParametersBarterList(this.orderItemMap, this.order);
         }
 
         public void setShippingDivision(){
@@ -278,11 +278,11 @@ public without sharing class FactoryBuilder {
         }
 
         public void setOrderItems(){
-            this.IT_ITEMS_IN = generateOrderItemParameterSeedList(this.orderItemMap, this.referenceItemMotherMap, this.order);
+            this.IT_ITEMS_IN = generateOrderItemParameterBarterList(this.orderItemMap, this.referenceItemMotherMap, this.order);
         }
 
         public void setConditions(){
-            this.IT_CONDITIONS_IN = generateConditionParametersSeedList(this.orderItemMap, this.order);
+            this.IT_CONDITIONS_IN = generateConditionParametersBarterList(this.orderItemMap, this.order);
         }
 
         public void setShippingDivision(){
@@ -845,6 +845,13 @@ public without sharing class FactoryBuilder {
             this.TARGET_QTY =  String.valueOf(orderItem.Quantity);
             this.REF_DOC_IT = numReference != '' ? numReference.leftPad(6, '0') : '';
         }
+
+        public OrderItemParameters(OrderCommodity__c orderCommodity, String plant){
+            this.ITM_NUMBER = '10';
+            this.MATERIAL = orderCommodity.Product__r.ExternalId__c;
+            this.PLANT = plant;
+            this.TARGET_QTY =  String.valueOf(orderCommodity.BagQuantity__c);
+        }
     }
 
     private class OrderItemParametersSeeds{
@@ -979,6 +986,14 @@ public without sharing class FactoryBuilder {
         return orderItemParametersList;
      }
 
+     private static List<OrderItemParametersSeeds> generateOrderItemParameterBarterList(Order order){
+        List<OrderItemParametersSeeds> orderItemParametersList = new List<OrderItemParametersSeeds>();
+        OrderCommodity__c orderCommodity = [SELECT CommodityPrice__c, Product__r.ExternalId__c, BagQuantity__c FROM OrderCommodity__c WHERE Order__c =: order.Id LIMIT 1];
+        String plant = order.DistributionCenter__r.Code__c == null ? order.Company__r.SupplierCenter__c : order.DistributionCenter__r.Code__c;
+        orderItemParametersList.add(new OrderItemParameters(orderCommodity, plant));
+        return orderItemParametersList;
+     }
+
     private static List<ConditionParameters> generateConditionParametersList(Map<Id, OrderItem> orderItemMap, Order order){
         List<ConditionParameters> conditionParametersList = new List<ConditionParameters>();
         String salesCondition = String.valueOf(order.SalesCondition__r.ExternalId__c).leftPad(2, '0');
@@ -1017,6 +1032,14 @@ public without sharing class FactoryBuilder {
         return conditionParametersList;
     }
 
+    private static List<ConditionParameters> generateConditionParametersBarterList(Map<Id, OrderItem> orderItemMap, Order order){
+        List<ConditionParameters> conditionParametersList = new List<ConditionParameters>();
+        // OrderCommodity__c orderCommodity = [SELECT CommodityPrice__c FROM OrderCommodity__c WHERE Order__c =: order.Id LIMIT 1];
+        // conditionParametersList.add(new ConditionParameters('10', 'ACBS', String.valueOf(isNotation(orderCommodity.CommodityPrice__c)), 'BRL'));
+        return conditionParametersList;
+    }
+
+
     private static List<ScheduleParameters> generateScheduleParametersList(Map<Id, OrderItem> orderItemMap){
         List<ScheduleParameters> scheduleParametersList = new List<ScheduleParameters>();
         List<ShippingDivison__c> divisonList = [SELECT Id,Name, DeliveryDate__c, Quantity__c, OrderItem__c FROM ShippingDivison__c WHERE OrderItem__c IN: orderItemMap.keySet()];
@@ -1046,6 +1069,8 @@ public without sharing class FactoryBuilder {
  
         return scheduleParametersList;
     }
+
+    
 
     private static List<PartnerParameters> generatePartnerParametersList(Order order){
         List<PartnerParameters> partnerParametersList = new List<PartnerParameters>();
