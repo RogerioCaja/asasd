@@ -29,6 +29,10 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Required</behavior>
+                <field>SellOrg__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Required</behavior>
                 <field>InitialDate__c</field>
             </layoutItems>
             <layoutItems>
@@ -160,7 +164,7 @@
     <showRunAssignmentRulesCheckbox>false</showRunAssignmentRulesCheckbox>
     <showSubmitAndAttachButton>false</showSubmitAndAttachButton>
     <summaryLayout>
-        <masterLabel>00h3F000008pW3Y</masterLabel>
+        <masterLabel>00h8G000000EuPW</masterLabel>
         <sizeX>4</sizeX>
         <sizeY>0</sizeY>
         <summaryLayoutStyle>Default</summaryLayoutStyle>
