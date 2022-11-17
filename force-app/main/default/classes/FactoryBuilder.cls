@@ -221,7 +221,7 @@ public without sharing class FactoryBuilder {
         }
 
         public void setOrderItems(){
-            this.IT_ITEMS_IN = generateOrderItemParameterList(this.orderItemMap, this.referenceItemMotherMap, this.order);
+            this.IT_ITEMS_IN = generateOrderItemParameterBarterList(this.order);
         }
 
         public void setConditions(){
@@ -278,7 +278,7 @@ public without sharing class FactoryBuilder {
         }
 
         public void setOrderItems(){
-            this.IT_ITEMS_IN = generateOrderItemParameterSeedList(this.orderItemMap, this.referenceItemMotherMap, this.order);
+            this.IT_ITEMS_IN = generateOrderItemParameterBarterList(this.orderItemMap, this.referenceItemMotherMap, this.order);
         }
 
         public void setConditions(){
