@@ -244,7 +244,7 @@ public without sharing class FactoryBuilder {
         private List<PartnerParameters> IT_PARTNERS;
         private List<ScheduleParameters> IT_ORDER_SCHEDULES_IN;
         private List<ConditionParameters> IT_CONDITIONS_IN;
-        private List<OrderItemParametersSeeds> IT_ITEMS_IN;
+        private List<OrderItemParameters> IT_ITEMS_IN;
 
         //parameters to aux builder
         private Order order;
