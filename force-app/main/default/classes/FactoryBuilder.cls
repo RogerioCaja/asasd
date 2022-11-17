@@ -366,7 +366,7 @@ public without sharing class FactoryBuilder {
         private final List<OrderItemParameters> IT_ITEMS_IN;
 
         public RequestBarterSeeds(HeaderBarterSeeds IS_HEADER_IN, List<PartnerParameters> IT_PARTNERS, List<ScheduleParameters> IT_ORDER_SCHEDULES_IN,
-                        List<ConditionParameters> IT_CONDITIONS_IN, List<OrderItemParametersSeeds> IT_ITEMS_IN, String IV_TYPE){
+                        List<ConditionParameters> IT_CONDITIONS_IN, List<OrderItemParameters> IT_ITEMS_IN, String IV_TYPE){
             this.IV_TYPE = IV_TYPE;
             this.IS_HEADER_IN = IS_HEADER_IN;
             this.IT_PARTNERS = IT_PARTNERS;
