@@ -225,7 +225,7 @@ public without sharing class FactoryBuilder {
         }
 
         public void setConditions(){
-            this.IT_CONDITIONS_IN = generateConditionParametersList(this.orderItemMap, this.order);
+            this.IT_CONDITIONS_IN = generateConditionParametersBarterList(this.orderItemMap, this.order);
         }
 
         public void setShippingDivision(){
@@ -282,7 +282,7 @@ public without sharing class FactoryBuilder {
         }
 
         public void setConditions(){
-            this.IT_CONDITIONS_IN = generateConditionParametersSeedList(this.orderItemMap, this.order);
+            this.IT_CONDITIONS_IN = generateConditionParametersBarterList(this.orderItemMap, this.order);
         }
 
         public void setShippingDivision(){
@@ -1017,6 +1017,14 @@ public without sharing class FactoryBuilder {
         return conditionParametersList;
     }
 
+    private static List<ConditionParameters> generateConditionParametersBarterList(Map<Id, OrderItem> orderItemMap, Order order){
+        List<ConditionParameters> conditionParametersList = new List<ConditionParameters>();
+        OrderCommodity__c orderCommodity = [SELECT CommodityPrice__c FROM OrderCommodity__c WHERE Order__c =: order.Id LIMIT 1];
+        conditionParametersList.add(new ConditionParameters('10', 'ACBS', String.valueOf(isNotation(orderCommodity.CommodityPrice__c)), 'BRL'));
+        return conditionParametersList;
+    }
+
+
     private static List<ScheduleParameters> generateScheduleParametersList(Map<Id, OrderItem> orderItemMap){
         List<ScheduleParameters> scheduleParametersList = new List<ScheduleParameters>();
         List<ShippingDivison__c> divisonList = [SELECT Id,Name, DeliveryDate__c, Quantity__c, OrderItem__c FROM ShippingDivison__c WHERE OrderItem__c IN: orderItemMap.keySet()];
@@ -1046,6 +1054,8 @@ public without sharing class FactoryBuilder {
  
         return scheduleParametersList;
     }
+
+    
 
     private static List<PartnerParameters> generatePartnerParametersList(Order order){
         List<PartnerParameters> partnerParametersList = new List<PartnerParameters>();
