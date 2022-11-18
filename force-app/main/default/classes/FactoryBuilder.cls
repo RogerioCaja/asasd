@@ -244,7 +244,7 @@ public without sharing class FactoryBuilder {
         private List<PartnerParameters> IT_PARTNERS;
         private List<ScheduleParameters> IT_ORDER_SCHEDULES_IN;
         private List<ConditionParameters> IT_CONDITIONS_IN;
-        private List<OrderItemParametersSeeds> IT_ITEMS_IN;
+        private List<OrderItemParameters> IT_ITEMS_IN;
 
         //parameters to aux builder
         private Order order;
@@ -278,7 +278,7 @@ public without sharing class FactoryBuilder {
         }
 
         public void setOrderItems(){
-            this.IT_ITEMS_IN = generateOrderItemParameterBarterList(this.orderItemMap, this.referenceItemMotherMap, this.order);
+            this.IT_ITEMS_IN = generateOrderItemParameterBarterList(this.order);
         }
 
         public void setConditions(){
@@ -363,10 +363,10 @@ public without sharing class FactoryBuilder {
         private final List<PartnerParameters> IT_PARTNERS;
         private final List<ScheduleParameters> IT_ORDER_SCHEDULES_IN;
         private final List<ConditionParameters> IT_CONDITIONS_IN;
-        private final List<OrderItemParametersSeeds> IT_ITEMS_IN;
+        private final List<OrderItemParameters> IT_ITEMS_IN;
 
         public RequestBarterSeeds(HeaderBarterSeeds IS_HEADER_IN, List<PartnerParameters> IT_PARTNERS, List<ScheduleParameters> IT_ORDER_SCHEDULES_IN,
-                        List<ConditionParameters> IT_CONDITIONS_IN, List<OrderItemParametersSeeds> IT_ITEMS_IN, String IV_TYPE){
+                        List<ConditionParameters> IT_CONDITIONS_IN, List<OrderItemParameters> IT_ITEMS_IN, String IV_TYPE){
             this.IV_TYPE = IV_TYPE;
             this.IS_HEADER_IN = IS_HEADER_IN;
             this.IT_PARTNERS = IT_PARTNERS;
@@ -986,8 +986,8 @@ public without sharing class FactoryBuilder {
         return orderItemParametersList;
      }
 
-     private static List<OrderItemParametersSeeds> generateOrderItemParameterBarterList(Order order){
-        List<OrderItemParametersSeeds> orderItemParametersList = new List<OrderItemParametersSeeds>();
+     private static List<OrderItemParameters> generateOrderItemParameterBarterList(Order order){
+        List<OrderItemParameters> orderItemParametersList = new List<OrderItemParameters>();
         OrderCommodity__c orderCommodity = [SELECT CommodityPrice__c, Product__r.ExternalId__c, BagQuantity__c FROM OrderCommodity__c WHERE Order__c =: order.Id LIMIT 1];
         String plant = order.DistributionCenter__r.Code__c == null ? order.Company__r.SupplierCenter__c : order.DistributionCenter__r.Code__c;
         orderItemParametersList.add(new OrderItemParameters(orderCommodity, plant));
