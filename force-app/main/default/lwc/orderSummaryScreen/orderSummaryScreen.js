@@ -540,13 +540,29 @@ export default class OrderSummaryScreen extends LightningElement {
         let value = 0;
         let tsiValue = 0;
         let royaltiesValue = 0;
-        let allPayments = JSON.parse(JSON.stringify(this.formsOfPayment))
+        let allPayments = JSON.parse(JSON.stringify(this.formsOfPayment));
         
-        for (let index = 0; index < allPayments.length; index++) {
-            let currentValue = this.isFilled(allPayments[index].value) ? allPayments[index].value : 0;
-            if (allPayments[index].paymentType == 'Germoplasma') value += Number(currentValue);
-            if (allPayments[index].paymentType == 'TSI') tsiValue += Number(currentValue);
-            if (allPayments[index].paymentType == 'Royalties') royaltiesValue += Number(currentValue);
+        if (allPayments.length == 0) {
+            value = 0.01;
+            allPayments.push(this.createDefaultValues('Germoplasma'));
+
+            if (this.tsiTotalPrice > 0) {
+                tsiValue = 0.01;
+                allPayments.push(this.createDefaultValues('TSI'));
+            }
+            if (this.royaltiesTotalPrice > 0) {
+                royaltiesValue = 0.01;
+                allPayments.push(this.createDefaultValues('Royalties'));
+            }
+            this.formsOfPayment = JSON.parse(JSON.stringify(allPayments));
+
+        } else {
+            for (let index = 0; index < allPayments.length; index++) {
+                let currentValue = this.isFilled(allPayments[index].value) ? allPayments[index].value : 0;
+                if (allPayments[index].paymentType == 'Germoplasma') value += Number(currentValue);
+                if (allPayments[index].paymentType == 'TSI') tsiValue += Number(currentValue);
+                if (allPayments[index].paymentType == 'Royalties') royaltiesValue += Number(currentValue);
+            }
         }
         
         this.orderTotalToDistribution = this.fixDecimalPlacesFront(Number(this.orderTotalPrice) - Number(value));
@@ -557,6 +573,28 @@ export default class OrderSummaryScreen extends LightningElement {
         
         this.royaltiesTotalToDistribution = this.fixDecimalPlacesFront(Number(this.royaltiesTotalPrice) - Number(royaltiesValue));;
         this.showRoyaltiesRed = this.royaltiesTotalToDistribution < 0;
+    }
+
+    createDefaultValues(paymentType) {
+        this.paymentLastPosition = this.paymentLastPosition + 1;
+        let divPosition = this.paymentLastPosition;
+        let paymentTypeId = 'paymentTypeId-' + divPosition;
+        let paymentDayId = 'paymentDayId-' + divPosition;
+        let valueId = 'valueId-' + divPosition;
+        
+        let newDefaultValues = {
+            paymentType: paymentType,
+            paymentDay: this.headerData.data_pagamento,
+            value: 0.01,
+            valueFront: this.fixDecimalPlaces('0.01'),
+            paymentPosition: this.paymentLastPosition,
+            paymentTypeId: paymentTypeId,
+            paymentDayId: paymentDayId,
+            valueId: valueId,
+            paymentKey: paymentType + '-' + this.headerData.data_pagamento,
+            saved: true
+        };
+        return newDefaultValues;
     }
 
     newFields() {
