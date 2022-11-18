@@ -3,7 +3,7 @@
     <fullName>TotalRoyaltiesAmount__c</fullName>
     <externalId>false</externalId>
     <label>Valor Total Royalties</label>
-    <summarizedField>OrderItem.RoyaltyAmount__c</summarizedField>
+    <summarizedField>OrderItem.TotalRoyaltyAmount__c</summarizedField>
     <summaryForeignKey>OrderItem.OrderId</summaryForeignKey>
     <summaryOperation>sum</summaryOperation>
     <trackHistory>false</trackHistory>
