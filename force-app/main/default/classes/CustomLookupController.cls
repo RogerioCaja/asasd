@@ -135,13 +135,25 @@ public without sharing class CustomLookupController {
                 recTypeDevName = orderRecType.DeveloperName;
             }
 
+            String seedGroup = 'SEM001';
+            Set<String> insumosGroups = new Set<String>{'SEM001', 'SERV001'};
             Set<String> normalSale = new Set<String>{'HAWA', 'FERT'};
             String productType = isCommodity ? 'ZCOM' : (recTypeDevName == 'VendaServico' ? 'DIEN' : (recTypeDevName == 'VendaBarter' ? 'HAWA' : ''));
             
             Integer numberOfRowsToSkip = productParams.numberOfRowsToSkip;
-            String productQuery = 'SELECT Id, Name, ExternalId__c, UnidadeMedida__c, ProductGroup__c, ProductGroup__r.Name, ProductSubgroup__c, PrincipleActive__c, Multiplicity__c, ProductHierarchy__c' +
+            String productQuery = 'SELECT Id, Name, ExternalId__c, UnidadeMedida__c, ProductGroup__c, ProductGroup__r.Name, ProductGroup__r.ExternalId__c, ProductSubgroup__c, PrincipleActive__c, Multiplicity__c, ProductHierarchy__c' +
                                   '  FROM Product2' +
                                   ' WHERE Id IN:prodsId' +
+                                  (
+                                    getSeedPrices ? 
+                                        ' AND ProductGroup__r.ExternalId__c =: seedGroup' :
+                                        ''
+                                  ) +
+                                  (
+                                    productParams.dontGetSeeds && productParams.activitySectorName == 'Insumos' ?
+                                        ' AND ProductGroup__r.ExternalId__c NOT IN: insumosGroups' :
+                                        ''
+                                  ) +
                                   (
                                     productType == '' ? 
                                         ' AND ProductType__c IN: normalSale' :
@@ -596,6 +608,8 @@ public without sharing class CustomLookupController {
         public String  salesOrgId;
         public String  salesOfficeId;
         public String  salesTeamId;
+        public String  activitySectorName;
+        public Boolean dontGetSeeds;
         public Integer numberOfRowsToSkip;
     }
 
@@ -606,9 +620,9 @@ public without sharing class CustomLookupController {
     }
 
     public class SalesResult {
-        @AuraEnabled public Id salesOrgId;
         @AuraEnabled public Id salesOfficeId;
         @AuraEnabled public Id salesTeamId;
+        @AuraEnabled public Id salesOrgId;
         @AuraEnabled public String segmento;
         @AuraEnabled public String searchString;
     }
