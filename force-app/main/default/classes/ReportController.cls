@@ -14,10 +14,11 @@ public without sharing class ReportController {
             //Queries 
             List<TechnicalReport__c> reportList = getReportById(reportIdPageReference, 
             new Set<String>{
-                'Id', 'Name', 'toLabel(VisitPlanning__r.Objetivo__c)', 'VisitPlanning__r.MainBp__r.Name' , 'VisitPlanning__r.InitialDate__c'
+                'Id', 'Name', 'toLabel(VisitPlanning__r.Objetivo__c)' , 'VisitPlanning__r.InitialDate__c'
                 , 'Note__c', 'VisitPlanning__r.Name', 'VisitPlanning__c', 'VisitPlanning__r.Name',
-                'VisitPlanning__r.Culture__r.Name' ,'VisitPlanning__r.Safra__r.Name' , 
-                'VisitPlanning__r.VisitSeller__r.Name', 'VisitPlanning__r.SellOrg__r.Name' , 
+                'VisitPlanning__r.Culture__r.Name' ,'VisitPlanning__r.Safra__r.Name' , 'VisitPlanning__r.VisitSeller__c',
+                'VisitPlanning__r.VisitSeller__r.Name', 'VisitPlanning__r.SellOrg__r.Name' , 'VisitPlanning__r.MainBP__c',
+                 'VisitPlanning__r.MainBP__r.Name', 'VisitPlanning__r.MainBP__r.Phone',
                 'VisitPlanning__r.BP_Property__r.Name', 'VisitPlanning__r.BP_Property__r.BillingStreet', 'VisitPlanning__r.BP_Property__r.BillingState' , 
                 'VisitPlanning__r.BP_Property__r.Phone', 'VisitPlanning__r.BP_Property__r.BillingCity',    'VisitPlanning__r.BP_Property__r.BillingLongitude', 'VisitPlanning__r.BP_Property__r.BillingLatitude'
             });
@@ -124,6 +125,7 @@ public without sharing class ReportController {
         public String visitCTV {get; set;}
         public String dateVisit {get; set;}
         public String accountName {get; set;}
+        public String accountProperty {get; set;}
         public String accountStreet {get; set;}
         public String accountState {get; set;}
         public String accountPhone {get; set;}
@@ -148,10 +150,11 @@ public without sharing class ReportController {
             //Bloco 1
             this.visitCTV = report.VisitPlanning__r.VisitSeller__r.Name;
             this.dateVisit = getFormattedDate(String.valueOf(report.VisitPlanning__r.InitialDate__c));
-            this.accountName = report.VisitPlanning__r.BP_Property__r.Name;
+            this.accountName = report.VisitPlanning__r.MainBP__r.Name;
+            this.accountProperty = report.VisitPlanning__r.BP_Property__r.Name;
             this.accountStreet = report.VisitPlanning__r.BP_Property__r.BillingStreet;
             this.accountState = report.VisitPlanning__r.BP_Property__r.BillingState;
-            this.accountPhone = getFormattedPhoneNum(report.VisitPlanning__r.BP_Property__r.Phone);
+            this.accountPhone = getFormattedPhoneNum(report.VisitPlanning__r.MainBP__r.Phone);
             this.accountCity = report.VisitPlanning__r.BP_Property__r.BillingCity;
 
             //Bloco 2
@@ -163,7 +166,7 @@ public without sharing class ReportController {
             //Bloco 3
             this.accountLatitude = String.valueOf(report.VisitPlanning__r.BP_Property__r.BillingLatitude);
             this.accountLongitude =String.valueOf(report.VisitPlanning__r.BP_Property__r.BillingLongitude);
-            this.orgSales = report.VisitPlanning__r.SellOrg__r.Name;
+            this.orgSales = getSalesOrg(report.VisitPlanning__r.VisitSeller__c, report.VisitPlanning__r.MainBP__c);
 
             //Bloco 4
             this.notes = report.Note__c;
@@ -186,6 +189,73 @@ public without sharing class ReportController {
             Date  dt = Date.valueOf(dateToFormat);
             String dateFormat = dt.format();
             return dateFormat;
+        }
+
+        public String getSalesOrg(Id ctvId, Id accountId){
+            Id parentId;
+            String developerName;
+            String salesOrgCode;
+
+            Map<Id, Territory2> territoryAndParents = new Map<Id, Territory2>();
+            List<Id> territoriesRelatedToCtv = new List<Id>();
+            Id userTerritoriesId;
+            for (UserTerritory2Association userAssociation : [
+                SELECT Id,
+                       UserId,
+                       Territory2Id,
+                       Territory2.Territory2Type.DeveloperName
+                  FROM UserTerritory2Association
+                 WHERE UserId =: ctvId
+            ]) {
+                territoriesRelatedToCtv.add(userAssociation.Territory2Id);
+            }
+    
+            List<ObjectTerritory2Association> objAssociationList = [
+                SELECT  Id,
+                        Territory2Id,
+                        Territory2.ParentTerritory2Id,
+                        Territory2.Territory2Type.DeveloperName
+                FROM ObjectTerritory2Association
+                WHERE ObjectId =: accountId
+                AND Territory2Id IN: territoriesRelatedToCtv
+            ];
+
+            if(objAssociationList.size() == 0){
+                objAssociationList = [
+                SELECT  Id,
+                        Territory2Id,
+                        Territory2.ParentTerritory2Id,
+                        Territory2.Territory2Type.DeveloperName
+                FROM ObjectTerritory2Association
+                WHERE Territory2Id IN: territoriesRelatedToCtv
+                ];
+            }
+            userTerritoriesId = objAssociationList[0].Territory2.ParentTerritory2Id;
+           
+            
+            for(Territory2 territory : [
+                SELECT Id,
+                    DeveloperName,
+                    ParentTerritory2Id,
+                    Territory2Type.DeveloperName
+                FROM Territory2
+            ]){
+                territoryAndParents.put(territory.Id, territory);
+            }
+
+            String territoryType = '';
+            Id territoryLast = userTerritoriesId;
+            while(territoryType != 'SalesOrg'){
+                territoryType = territoryAndParents.get(territoryLast).Territory2Type.DeveloperName;
+                salesOrgCode = territoryAndParents.get(territoryLast).DeveloperName.substring(0, 1) == 'X' || territoryAndParents.get(territoryLast).DeveloperName.substring(0, 1) == 'Z' ?
+                              territoryAndParents.get(territoryLast).DeveloperName.substring(1) : territoryAndParents.get(territoryLast).DeveloperName;
+                territoryLast = territoryAndParents.get(territoryLast).ParentTerritory2Id;
+            }
+            
+            String salesOrgName = [SELECT Name, SalesOrganizationCode__c FROM SalesOrg__c WHERE SalesOrganizationCode__c =: salesOrgCode LIMIT 1][0].Name;
+
+        
+            return salesOrgName;
         }
 
     }

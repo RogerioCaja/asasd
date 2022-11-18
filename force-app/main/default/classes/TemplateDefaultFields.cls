@@ -481,7 +481,7 @@ public  class TemplateDefaultFields {
             MainBP__c = account.Id,
             BP_Property__c = account2.Id,
             CTVvisit__c = 'Teste',
-            VisitSeller__c = u.Id,
+            VisitSeller__c = UserInfo.getUserId(),
             Status__c = 'Agendado',
             Objetivo__c = 'Evento',
             EndTime__c  = Time.newInstance(1, 2, 3, 6),  
