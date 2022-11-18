@@ -3,7 +3,7 @@
     <fullName>TotalTSIAmount__c</fullName>
     <externalId>false</externalId>
     <label>Valor Total TSI</label>
-    <summarizedField>OrderItem.TSIValue__c</summarizedField>
+    <summarizedField>OrderItem.TotalTSIAmount__c</summarizedField>
     <summaryForeignKey>OrderItem.OrderId</summaryForeignKey>
     <summaryOperation>sum</summaryOperation>
     <trackHistory>false</trackHistory>
