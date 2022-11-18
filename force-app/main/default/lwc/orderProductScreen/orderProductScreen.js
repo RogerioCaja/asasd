@@ -67,6 +67,7 @@ export default class OrderProductScreen extends LightningElement {
     financialInfos = {};
     
     showRoyaltyTsi = false;
+    dontGetSeeds = false;
     selectCommodityScreen = false;
     // commodityScreens = ['chooseCommodity', 'fillCommodity', 'negotiationDetails', 'haScreen'];
     commodityScreens = ['chooseCommodity', 'fillCommodity', 'negotiationDetails'];
@@ -346,8 +347,14 @@ export default class OrderProductScreen extends LightningElement {
         
         isSeedSale({salesOrgId: this.selectedCompany.salesOrgId, productGroupName: null})
         .then((result) => {
-            this.showRoyaltyTsi = result;
             this.seedSale = result;
+            
+            if (this.selectedCompany.activitySectorName == 'Sementes') {
+                this.showRoyaltyTsi = result;
+            }
+            if (this.seedSale && this.selectedCompany.activitySectorName == 'Insumos') {
+                this.dontGetSeeds = true;
+            }
             let prodsIds = [];
             for (let index = 0; index < this.products.length; index++) {
                 prodsIds.push(this.products[index].productId);
@@ -395,10 +402,12 @@ export default class OrderProductScreen extends LightningElement {
                         culture: this.headerData.cultura.Id,
                         orderType: this.headerData.tipo_venda,
                         supplierCenter: this.selectedCompany.supplierCenter,
+                        activitySectorName: this.selectedCompany.activitySectorName,
                         salesOrgId: this.selectedCompany.salesOrgId != null ? this.selectedCompany.salesOrgId : '',
                         salesOfficeId: this.selectedCompany.salesOfficeId != null ? this.selectedCompany.salesOfficeId : '',
                         salesTeamId: this.selectedCompany.salesTeamId != null ? this.selectedCompany.salesTeamId : '',
-                        numberOfRowsToSkip: this.numberOfRowsToSkip
+                        numberOfRowsToSkip: this.numberOfRowsToSkip,
+                        dontGetSeeds: this.isFilled(this.dontGetSeeds) ? this.dontGetSeeds : false
                     };
 
                     let orderData = {
@@ -677,7 +686,6 @@ export default class OrderProductScreen extends LightningElement {
                 this.editProduct(existProduct.position, false);
             } else {
                 console.log('this.baseProducts: ' + JSON.stringify(this.baseProducts));
-                console.log('productId: ' + productId);
                 let currentProduct = this.baseProducts.find(e => e.Id == productId);
                 let priorityInfos = this.getProductByPriority(currentProduct);
     

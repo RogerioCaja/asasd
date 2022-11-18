@@ -427,7 +427,7 @@
 
 					<div if:true={chooseCommodities}>
 						<p class="new-product-title">Escolha de Commodities</p>
-						<c-custom-order-search class="commodity-search" object-name="Commodity" field-name="Name" product-params={productParams} onshowresults={showCommodityResults} label="Pesquisar COMMODITY:" placeholder="Digite o nome da Commodity" required="true" onchild={getFieldsValueCommodity}></c-custom-order-search>
+						<c-custom-order-search class="commodity-search" object-name="Commodity" field-name="Name" product-params={productParams} seed-price={showRoyaltyTsi} onshowresults={showCommodityResults} label="Pesquisar COMMODITY:" placeholder="Digite o nome da Commodity" required="true" onchild={getFieldsValueCommodity}></c-custom-order-search>
 						
 						<div if:true={selectCommodityScreen}>
 							<template for:each={commodities} for:item="commodity">
