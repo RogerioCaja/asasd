@@ -1537,6 +1537,8 @@ public without sharing class OrderScreenController {
         productParams.salesOrgId = company.salesOrgId;
         productParams.salesOfficeId = company.salesOfficeId;
         productParams.salesTeamId = company.salesTeamId;
+        productParams.dontGetSeeds = productParams.dontGetSeeds;
+        productParams.activitySectorName = company.activitySectorName;
         
         Map<Id, ComboPromotionData> result = new Map<Id, ComboPromotionData>();
         Map<Id, Set<Id>> combosByProductId = new Map<Id, Set<Id>>();
