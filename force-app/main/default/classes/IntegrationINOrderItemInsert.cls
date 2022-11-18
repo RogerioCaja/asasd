@@ -74,6 +74,17 @@ global with sharing class IntegrationINOrderItemInsert {
                     if(conditions.KSCHL == 'ZFRE'){
                         OrderItemINData.freteItem = Decimal.valueOf(conditions.KBETR);
                     }
+
+                    if(conditions.KSCHL == 'ZROY'){
+                        OrderItemInData.valorZroy = Decimal.valueOf(conditions.KBETR);
+                        OrderItemInData.valorTotalZroy = Decimal.valueOf(conditions.KBETR) * OrderItemInData.quantidade;
+                    }
+
+                    if(conditions.KSCHL == 'ZTRA'){
+                        OrderItemInData.valorZtra = Decimal.valueOf(conditions.KBETR);
+                        OrderItemINData.valorTotalZtra = Decimal.valueOf(conditions.KBETR) * OrderItemINData.quantidade;
+                    }
+                    
                     if(conditions.KSCHL == 'ZCP0'){
                         Decimal custoPraticado = Decimal.valueOf(conditions.KBETR) / OrderItemINData.quantidade;
                         OrderItemINData.custoPreco = custoPraticado;
