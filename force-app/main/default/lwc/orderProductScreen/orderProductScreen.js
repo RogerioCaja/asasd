@@ -2241,7 +2241,8 @@ export default class OrderProductScreen extends LightningElement {
             productCurrency: this.headerData.moeda,
             culture: this.headerData.cultura.Id,
             orderType: this.headerData.tipo_venda,
-            numberOfRowsToSkip: 0
+            numberOfRowsToSkip: 0,
+            dontGetSeeds: this.isFilled(this.dontGetSeeds) ? this.dontGetSeeds : false
         };
 
         getSpecificCombos({data: JSON.stringify(headerValues), companyData: JSON.stringify(getCompanyData), productData: JSON.stringify(productParams), childOrder: this.childOrder, existingCombosIds: this.combosIds})
