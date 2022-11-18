@@ -349,10 +349,10 @@ export default class OrderProductScreen extends LightningElement {
         .then((result) => {
             this.seedSale = result;
             
-            if (this.selectedCompany.activitySectorName == 'Sementes') {
+            if (This.isFilled(this.selectedCompany.activitySectorName) && this.selectedCompany.activitySectorName.toUpperCase() == 'SEMENTES') {
                 this.showRoyaltyTsi = result;
             }
-            if (this.seedSale && this.selectedCompany.activitySectorName == 'Insumos') {
+            if (this.seedSale && this.isFilled(this.selectedCompany.activitySectorName) && this.selectedCompany.activitySectorName.toUpperCase() == 'INSUMOS') {
                 this.dontGetSeeds = true;
             }
             let prodsIds = [];
