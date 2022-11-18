@@ -150,7 +150,7 @@ public without sharing class CustomLookupController {
                                         ''
                                   ) +
                                   (
-                                    productParams.dontGetSeeds && productParams.activitySectorName == 'Insumos' ?
+                                    productParams.dontGetSeeds && productParams.activitySectorName.toUpperCase() == 'INSUMOS' ?
                                         ' AND ProductGroup__r.ExternalId__c NOT IN: insumosGroups' :
                                         ''
                                   ) +
