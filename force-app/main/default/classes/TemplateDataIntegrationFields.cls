@@ -461,6 +461,10 @@ global with sharing class TemplateDataIntegrationFields {
         public String peneira;
         public String classeCategoria;
         public Decimal freteItem;
+        public Decimal valorZroy;
+        public Decimal valorTotalZroy;
+        public Decimal valorZtra;
+        public Decimal valorTotalZtra;
         public OrderItem serialize(Map<String, Id> lookups){
 
             
@@ -497,7 +501,11 @@ global with sharing class TemplateDataIntegrationFields {
                 Description = '',
                 Sieve__c = this.peneira,
                 Class__c = this.classeCategoria,
-                FreightValue__c = this.freteItem
+                FreightValue__c = this.freteItem,
+                RoyaltyAmount__c = this.valorZroy,
+                TSIValue__c = this.valorZtra,
+                TotalRoyaltyAmount__c = this.valorTotalZroy,
+                TotalTSIAmount__c = this.valorTotalZtra
             );
         }
         public List<String> getRequiredFields(){
