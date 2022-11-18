@@ -124,6 +124,33 @@
 							</div>
 						</div>
 
+						<div if:true={showRoyaltyTsi} class="row">
+							<hr class="line-divisor"/>
+							<p class="title-divisor">Valores Sementes</p>
+	
+							<div class="row">
+								<div class="column">
+									<label>Preço TSI</label><br>
+									<input class="input-design" type="text" value={addProduct.tListPriceFront} data-target-id="tsiPrice" disabled/>
+								</div>
+								<div class="column">
+									<label>Valor Total TSI</label><br>
+									<input class="input-design" type="text" value={addProduct.tsiTotalPriceFront} data-target-id="tsiTotalPrice" disabled/>
+								</div>
+							</div>
+							
+							<div class="row">
+								<div class="column">
+									<label>Preço Royalty</label><br>
+									<input class="input-design" type="text" value={addProduct.rListPriceFront} data-target-id="royaltyPrice" disabled/>
+								</div>
+								<div class="column">
+									<label>Valor Total Royalty</label><br>
+									<input class="input-design" type="text" value={addProduct.royaltyTotalPriceFront} data-target-id="royaltyTotalPrice" disabled/>
+								</div>
+							</div>
+						</div>
+
 						<div if:false={addProduct.containsCombo}>
 							<hr class="line-divisor"/>
 							<p class="title-divisor">Comercial</p>
