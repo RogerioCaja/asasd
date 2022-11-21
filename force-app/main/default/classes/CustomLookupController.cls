@@ -371,7 +371,9 @@ public without sharing class CustomLookupController {
                                 .add(new QConditionGroup(new List<Qcondition>{
                                     new Qcondition('Name').isLike('%' + String.escapeSingleQuotes(searchString.trim()) + '%'),
                                     new Qcondition('ExternalId__c').isLike('%' + String.escapeSingleQuotes(searchString.trim()) + '%')
-                                }).setLogicalOperatorAsOr());
+                                }).setLogicalOperatorAsOr())
+                                .addLimit(40000)
+                                .addOffset(territoryParams.offSet);
 
                     List<Account> accountList = Database.query(accountQuery.build());
                     Map<Id, Account> accountMap = new Map<Id, Account>();
@@ -410,7 +412,10 @@ public without sharing class CustomLookupController {
                     .add(new QConditionGroup(new List<Qcondition>{
                         new Qcondition('Name').isLike('%' + String.escapeSingleQuotes(searchString.trim()) + '%'),
                         new Qcondition('ExternalId__c').isLike('%' + String.escapeSingleQuotes(searchString.trim()) + '%')
-                    }).setLogicalOperatorAsOr());
+                    }).setLogicalOperatorAsOr())
+                    .addLimit(40000)
+                    .addOffset(territoryParams.offSet);
+
                     List<Account> accountList = Database.query(accountQuery.build());
                     Map<Id, Account> accountMap = new Map<Id, Account>();
                     for(Account acc : accountList){
@@ -454,7 +459,9 @@ public without sharing class CustomLookupController {
                     .add(new QConditionGroup(new List<Qcondition>{
                         new Qcondition('Name').isLike('%' + String.escapeSingleQuotes(searchString.trim()) + '%'),
                         new Qcondition('ExternalId__c').isLike('%' + String.escapeSingleQuotes(searchString.trim()) + '%')
-                    }).setLogicalOperatorAsOr());
+                    }).setLogicalOperatorAsOr())
+                    .addLimit(40000)
+                    .addOffset(territoryParams.offSet);
 
                     List<Account> accountList = Database.query(accountQuery.build());
                     Map<Id, Account> accountMap = new Map<Id, Account>();
@@ -500,14 +507,12 @@ public without sharing class CustomLookupController {
 
                 result.counter = counter;
 
-                Q accountQuery = new Q(Account.SObjectType)
-                .selectFields(fieldsSet)
-                .add(Q.condition('Name').isLike('%' + String.escapeSingleQuotes(searchString.trim()) + '%'))
-                .add(Q.condition('Id').isNotIn(accountIdList))
-                .addLimit(30)
-                .addOffset(territoryParams.offSet);
+                String query = 'SELECT Id, Name, ExternalId__c FROM Account WHERE (ExternalId__c LIKE \'%' + String.escapeSingleQuotes(searchString.trim()) + '%\' OR Name LIKE \'%' + String.escapeSingleQuotes(searchString.trim()) + '%\') AND Id NOT IN: accountIdList ' +
+				' ORDER BY Name' +
+				' LIMIT 30' + 
+				' OFFSET ' + territoryParams.offSet;
 
-                List<Account> accountList = Database.query(accountQuery.build());
+                List<Account> accountList = Database.query(query);
                 Map<Id, Account> accountMap = new Map<Id, Account>();
                 for(Account acc : accountList){
                     accountMap.put(acc.Id, acc);
