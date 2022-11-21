@@ -142,7 +142,7 @@ public without sharing class CalloutOrder {
         }else if(order.SalesOrg__r.SalesOrganizationCode__c == '1700' && (orderTypeName == 'Venda Barter')){
             builder = (FactoryBuilder.Builder) new FactoryBuilder.RequestBarterSeedsBuilder();
             director.constructRequestBarterSeeds(builder, order);
-        }else if(orderTypeName == 'Venda Barter'){
+        }else if(orderTypeName == 'Venda Barter' && order.CodigoSap__c != null){
             builder = (FactoryBuilder.Builder) new FactoryBuilder.RequestBarterBuilder();
             director.constructRequestBarter(builder, order);
         }else{
