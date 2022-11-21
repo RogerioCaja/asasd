@@ -1245,7 +1245,7 @@ public without sharing class OrderScreenController {
             if(companyInfos.orderType == 'Venda de Serviço')
                 proQuery.add(Q.condition('ActivitySector__r.Codigo__c').equalsTo('40'));
             else {
-                proQuery.add(Q.condition('ActivitySector__r.Codigo__c').equalsTo('10'));
+                proQuery.add(Q.condition('ActivitySector__r.Codigo__c').isIn(new List<String>{'10', '30'}));
             }
 
             if (companyInfos.accountId == '') proQuery.addLimit(1);

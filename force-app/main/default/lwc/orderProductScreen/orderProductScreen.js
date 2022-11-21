@@ -355,6 +355,24 @@ export default class OrderProductScreen extends LightningElement {
             if (this.seedSale && this.isFilled(this.selectedCompany.activitySectorName) && this.selectedCompany.activitySectorName.toUpperCase() == 'INSUMOS') {
                 this.dontGetSeeds = true;
             }
+
+            this.productParams = {
+                salesConditionId: this.headerData.condicao_venda.Id,
+                accountId: this.accountData.Id,
+                ctvId: this.headerData.ctv_venda.Id,
+                safra: this.headerData.safra.Id,
+                productCurrency: this.headerData.moeda,
+                culture: this.headerData.cultura.Id,
+                orderType: this.headerData.tipo_venda,
+                supplierCenter: this.selectedCompany.supplierCenter,
+                activitySectorName: this.selectedCompany.activitySectorName,
+                salesOrgId: this.selectedCompany.salesOrgId != null ? this.selectedCompany.salesOrgId : '',
+                salesOfficeId: this.selectedCompany.salesOfficeId != null ? this.selectedCompany.salesOfficeId : '',
+                salesTeamId: this.selectedCompany.salesTeamId != null ? this.selectedCompany.salesTeamId : '',
+                numberOfRowsToSkip: this.numberOfRowsToSkip,
+                dontGetSeeds: this.isFilled(this.dontGetSeeds) ? this.dontGetSeeds : false
+            };
+
             let prodsIds = [];
             for (let index = 0; index < this.products.length; index++) {
                 prodsIds.push(this.products[index].productId);
@@ -391,23 +409,6 @@ export default class OrderProductScreen extends LightningElement {
                     this.safraData = {
                         initialDate: safraResult.initialDate,
                         endDate: safraResult.endDateBilling
-                    };
-
-                    this.productParams = {
-                        salesConditionId: this.headerData.condicao_venda.Id,
-                        accountId: this.accountData.Id,
-                        ctvId: this.headerData.ctv_venda.Id,
-                        safra: this.headerData.safra.Id,
-                        productCurrency: this.headerData.moeda,
-                        culture: this.headerData.cultura.Id,
-                        orderType: this.headerData.tipo_venda,
-                        supplierCenter: this.selectedCompany.supplierCenter,
-                        activitySectorName: this.selectedCompany.activitySectorName,
-                        salesOrgId: this.selectedCompany.salesOrgId != null ? this.selectedCompany.salesOrgId : '',
-                        salesOfficeId: this.selectedCompany.salesOfficeId != null ? this.selectedCompany.salesOfficeId : '',
-                        salesTeamId: this.selectedCompany.salesTeamId != null ? this.selectedCompany.salesTeamId : '',
-                        numberOfRowsToSkip: this.numberOfRowsToSkip,
-                        dontGetSeeds: this.isFilled(this.dontGetSeeds) ? this.dontGetSeeds : false
                     };
 
                     let orderData = {
