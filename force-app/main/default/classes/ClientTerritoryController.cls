@@ -39,7 +39,7 @@ public without sharing class ClientTerritoryController {
         List<ObjectTerritory2Association> objectsAssociationsList = new List<ObjectTerritory2Association>();
         List<ObjectTerritory2Association> objectsAssociationsRemoveList = new List<ObjectTerritory2Association>();
         List<Id> territoryIds = new List<Id>(territoryMap.keySet());
-        List<ObjectTerritory2Association> objectList = [SELECT Id, ObjectId FROM ObjectTerritory2Association WHERE ObjectId IN: accountSet];
+        List<ObjectTerritory2Association> objectList = [SELECT Id, ObjectId FROM ObjectTerritory2Association WHERE ObjectId IN: accountSet AND Territory2Id =: parameters.territoryToGo] ;
         Map<Id, ObjectTerritory2Association> accountObjMap = new Map<Id, ObjectTerritory2Association>();
         for(ObjectTerritory2Association obj : objectList){
             accountObjMap.put(obj.ObjectId, obj);
