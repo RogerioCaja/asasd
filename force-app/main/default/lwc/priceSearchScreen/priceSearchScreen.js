@@ -177,8 +177,8 @@ export default class PriceSearchScreen extends LightningElement {
             salesOrgId: this.company[0].salesOrgId != null ? this.company[0].salesOrgId : '',
             salesOfficeId: this.company[0].salesOfficeId != null ? this.company[0].salesOfficeId : '',
             salesTeamId: this.company[0].salesTeamId != null ? this.company[0].salesTeamId : '',
-            activitySectorName: this.company[0].activitySectorName,
             accountId: this.isFilled(this.searchData.account.Id) ? this.searchData.account.Id : '',
+            activitySectorName: '',
             ctvId: this.isFilled(this.searchData.ctv.Id) ? this.searchData.ctv.Id : '',
             numberOfRowsToSkip: 0,
             salesConditionId : this.searchData.sales_condition.Id != null ? this.searchData.sales_condition.Id : '',
@@ -220,7 +220,6 @@ export default class PriceSearchScreen extends LightningElement {
                     for (let i = 0; i < priorityInfos.length; i++) {
                         let realValue = this.fixDecimalPlacesFront(priorityInfos[i].listPrice);
                         let discountedValue = this.calculateDiscountValues(priorityInfos[i]);
-                    
                         productRecords.push({
                             sapProductCode: priorityInfos[i].sapProductCode,
                             name: priorityInfos[i].Name,
@@ -247,12 +246,12 @@ export default class PriceSearchScreen extends LightningElement {
         let productsPrice = this.productsPriceMap;
         let productId = this.isFilled(selectedProduct.Id) ? selectedProduct.Id : selectedProduct.productId;
 
-        let key1 = this.searchData.account.Id + '-' + productId;
-        let key2 = this.salesInfos.segmento + '-' + productId;
-        let key3 = this.salesInfos.salesTeamId + '-' + productId;
-        let key4 = this.salesInfos.salesOfficeId + '-' + productId;
-        let key5 = selectedProduct.productGroupId;
-        let key6 = productId;
+        let key1 = 'G-' + this.searchData.account.Id + '-' + productId;
+        let key2 = 'G-' + this.salesInfos.segmento + '-' + productId;
+        let key3 = 'G-' + this.salesInfos.salesTeamId + '-' + productId;
+        let key4 = 'G-' + this.salesInfos.salesOfficeId + '-' + productId;
+        let key5 = 'G-' + selectedProduct.productGroupId;
+        let key6 = 'G-' + productId;
 
         if (this.isFilled(productsPrice[key1])) {
             priorityPrice.push(productsPrice[key1]);
