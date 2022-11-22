@@ -281,6 +281,8 @@ export default class OrderProductScreen extends LightningElement {
     }
 
     newProduct(currentProduct) {
+        let tTotalPrice = this.headerData.IsOrderChild ? this.fixDecimalPlaces((currentProduct.tListPrice * currentProduct.quantity)) : (this.isFilled(currentProduct.tsiTotalPrice) ? currentProduct.tsiTotalPrice : 0)
+        let rTotalPrice = this.headerData.IsOrderChild ? this.fixDecimalPlaces((currentProduct.rListPrice * currentProduct.quantity)) : (this.isFilled(currentProduct.royaltyTotalPrice) ? currentProduct.royaltyTotalPrice : 0)
         let newProduct = {
             orderItemId: currentProduct.orderItemId,
             name: currentProduct.name,
@@ -348,12 +350,12 @@ export default class OrderProductScreen extends LightningElement {
             containsCombo: this.isFilled(currentProduct.containsCombo) ? currentProduct.containsCombo : false,
             tListPrice: this.isFilled(currentProduct.tListPrice) ? currentProduct.tListPrice : 0,
             tListPriceFront: this.isFilled(currentProduct.tListPrice) ? 'R$' + this.fixDecimalPlacesFront(currentProduct.tListPrice) : 'R$0',
-            tsiTotalPrice: this.isFilled(currentProduct.tsiTotalPrice) ? currentProduct.tsiTotalPrice : 0,
-            tsiTotalPriceFront: this.isFilled(currentProduct.tsiTotalPrice) ? 'R$' + this.fixDecimalPlacesFront(currentProduct.tsiTotalPrice) : 'R$0',
+            tsiTotalPrice: tTotalPrice,
+            tsiTotalPriceFront: 'R$' + this.fixDecimalPlacesFront(tTotalPrice),
             rListPrice: this.isFilled(currentProduct.rListPrice) ? currentProduct.rListPrice : 0,
             rListPriceFront: this.isFilled(currentProduct.rListPrice) ? 'R$' + this.fixDecimalPlacesFront(currentProduct.rListPrice) : 'R$0',
-            royaltyTotalPrice: this.isFilled(currentProduct.royaltyTotalPrice) ? currentProduct.royaltyTotalPrice : 0,
-            royaltyTotalPriceFront: this.isFilled(currentProduct.royaltyTotalPrice) ? 'R$' + this.fixDecimalPlacesFront(currentProduct.royaltyTotalPrice) : 'R$0'
+            royaltyTotalPrice: rTotalPrice,
+            royaltyTotalPriceFront: 'R$' + this.fixDecimalPlacesFront(rTotalPrice)
         };
         if (this.isFilled(newProduct.comboId)) {
             this.disabled = true;
@@ -1107,6 +1109,15 @@ export default class OrderProductScreen extends LightningElement {
                 } else {
                     this.addProduct.totalPrice = this.fixDecimalPlaces((this.addProduct.unitPrice * this.addProduct.quantity));
                     this.addProduct.totalPriceFront = this.fixDecimalPlacesFront((this.addProduct.unitPrice * this.addProduct.quantity));
+
+                    if (this.seedSale) {
+                        this.addProduct.totalPriceWithBrokerage = Number(this.addProduct.totalPrice) + Number(this.addProduct.brokerage);
+                        this.addProduct.totalPriceWithBrokerageFront = this.fixDecimalPlacesFront(this.addProduct.totalPriceWithBrokerage);
+                        this.addProduct.tsiTotalPrice = this.addProduct.tListPrice * this.addProduct.quantity;
+                        this.addProduct.tsiTotalPriceFront = this.fixDecimalPlacesFront(this.addProduct.tsiTotalPrice);
+                        this.addProduct.royaltyTotalPrice = this.addProduct.rListPrice * this.addProduct.quantity;
+                        this.addProduct.royaltyTotalPriceFront = this.fixDecimalPlacesFront(this.addProduct.royaltyTotalPrice);
+                    }
                 }
             }
         }
