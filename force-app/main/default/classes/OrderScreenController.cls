@@ -473,6 +473,8 @@ public without sharing class OrderScreenController {
     
             Decimal orderTotalValue = 0;
             Decimal biggerDiscount = 0;
+            Decimal tsiTotalValue = 0;
+            Decimal royaltyTotalValue = 0;
             Boolean seedSale = isSeedSale(company.SalesOrg__c, null);
             Id productGroupId;
             
@@ -522,6 +524,11 @@ public without sharing class OrderScreenController {
                     if (motherItem.AmountUsed__c + orderProduct.quantity > motherItem.Quantity) {
                         return JSON.serializePretty(new AGRO_RemotingResult(true, '200', 'Não é possível efetivar o pedido por ter excedido as quantidades do pedido mãe.'));
                     }
+                }
+
+                if (seedSale) {
+                    tsiTotalValue += orderProduct.tsiTotalPrice;
+                    royaltyTotalValue += orderProduct.royaltyTotalPrice;
                 }
 
                 quantitiesById.put(orderProduct.productId, orderProduct.quantity);
@@ -767,6 +774,10 @@ public without sharing class OrderScreenController {
             }
             order.FreightValue__c = (orderData.summaryData.freightValue != null) ? orderData.summaryData.freightValue : 0;
 
+            if (seedSale) {
+                order.FinalTotalValue__c = order.FinalTotalValue__c + tsiTotalValue + royaltyTotalValue;
+            }
+
             if (Test.isRunningTest()) {
                 OrderHelper.disableTrigger();
             }
@@ -849,7 +860,7 @@ public without sharing class OrderScreenController {
                     orderItem.Dosage__c = orderProduct.dosage != null ? orderProduct.dosage.setScale(6) : 0;
                     orderItem.Status__c = orderProduct.sapStatus != null ? statusValueByLabel.get(orderProduct.sapStatus) : null;
                     orderItem.UnitMeasure__c = orderProduct.unity;
-                    orderItem.FinalTotalValue__c = !(seedSale) ? orderProduct.totalPrice : orderProduct.totalPriceWithBrokerage;
+                    orderItem.FinalTotalValue__c = !(seedSale) ? orderProduct.totalPrice : (orderProduct.totalPriceWithBrokerage + orderProduct.royaltyTotalPrice + orderProduct.tsiTotalPrice);
                     orderItem.Brokerage__c = orderProduct.brokerage;
                     orderItem.ListCost__c = orderProduct.listCost != null ? orderProduct.listCost : 0;
                     orderItem.PracticedCost__c = orderProduct.practicedCost != null ? orderProduct.practicedCost : 0;
@@ -2332,8 +2343,8 @@ public without sharing class OrderScreenController {
             this.motherAvailableQuantity = orderItem.AmountUsed__c != null ? orderItem.Quantity - orderItem.AmountUsed__c : null;
             this.listPrice = orderItem.ListPrice__c;
             this.unitPrice = orderItem.PracticedPrice__c;
-            this.totalPrice = orderItem.FinalTotalValue__c - this.comboDiscountValue;
-            this.totalPriceWithBrokerage = orderItem.Brokerage__c != null ? (orderItem.FinalTotalValue__c + orderItem.Brokerage__c) : orderItem.FinalTotalValue__c;
+            this.totalPrice = orderItem.PracticedPrice__c * this.quantity;
+            this.totalPriceWithBrokerage = orderItem.Brokerage__c != null ? (this.totalPrice + orderItem.Brokerage__c) : this.totalPrice;
             this.listCost = orderItem.ListCost__c;
             this.practicedCost = orderItem.PracticedCost__c;
             this.dosage = orderItem.Dosage__c;
@@ -2356,8 +2367,8 @@ public without sharing class OrderScreenController {
             this.productClass = orderItem.Class__c != null ? orderItem.Class__c : '';
             this.tListPrice = orderItem.TSIValue__c != null ? orderItem.TSIValue__c : 0;
             this.rListPrice = orderItem.RoyaltyAmount__c != null ? orderItem.RoyaltyAmount__c : 0;
-            this.tsiTotalPrice = orderItem.TotalTSIAmount__c;
-            this.royaltyTotalPrice = orderItem.TotalRoyaltyAmount__c;
+            this.tsiTotalPrice = this.tListPrice * this.quantity;
+            this.royaltyTotalPrice = this.rListPrice * this.quantity;
         }
     }
 
