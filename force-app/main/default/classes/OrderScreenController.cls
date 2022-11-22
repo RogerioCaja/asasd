@@ -1924,7 +1924,7 @@ public without sharing class OrderScreenController {
     @AuraEnabled
     public static string getBrokerageUnitPerProduct(String orderId){
         try {
-            Id orderMother = [SELECT OrderReference__c FROM Order WHERE Id =: orderId LIMIT 1][0].OrdeReference__c;
+            Id orderMother = [SELECT OrderReference__c FROM Order WHERE Id =: orderId LIMIT 1][0].OrderReference__c;
             Q orderItemQuery = new Q(OrderItem.SobjectType)
                                 .selectFields(new Set<String>{'Brokerage__c', 'Quantity', 'Product2Id'})
                                 .add(Q.condition('OrderId').equalsTo(orderMother));
