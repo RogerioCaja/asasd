@@ -1921,6 +1921,27 @@ public without sharing class OrderScreenController {
         }
     }
 
+    @AuraEnabled
+    public static string getBrokerageUnitPerProduct(String orderId){
+        try {
+            Q orderItemQuery = new Q(OrderItem.SobjectType)
+                                .selectFields(new Set<String>{'Brokerage__c', 'Quantity', 'Product2Id'})
+                                .add(Q.condition('OrderId').equalsTo(orderId));
+            
+            List<BrokerageQuantities> brokerageResult = new List<BrokerageQuantities>();
+            List<OrderItem> orderItemList = Database.query(orderItemQuery.build());
+            for(OrderItem orderItem : orderItemList){
+                BrokerageQuantities brokerageQuantity = new BrokerageQuantities();
+                brokerageQuantity.productId = orderItem.Product2Id;
+                brokerageQuantity.brokeragePerUnit = orderItem.Brokerage__c / orderItem.Quantity;
+                brokerageResult.add(brokerageQuantity);
+            }
+
+            return JSON.serialize(brokerageResult);
+        } catch (Exception e) {
+            throw new AuraHandledException(e.getMessage());
+        }
+    }
     public static Decimal stringToDecimal(String value) {
         if (value.contains(',')) value = value.replaceAll(',', '.');
         if (value.contains('%')) value = value.replaceAll('%', '');
@@ -2669,5 +2690,10 @@ public without sharing class OrderScreenController {
     public class GroupData {
         public String  productGroupId;
         public Decimal quantity;
+    }
+    
+    public class BrokerageQuantities{
+        public Id productId;
+        public Decimal brokeragePerUnit;
     }
 }
