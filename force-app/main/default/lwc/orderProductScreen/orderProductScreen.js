@@ -161,6 +161,8 @@ export default class OrderProductScreen extends LightningElement {
                     this.allProductsBrokerageMother = JSON.parse(JSON.stringify(result));
                 }
             })
+            let brokProducts = [];
+
 
             for(let i = 0; i < this.products.length; i++){
                 let productId = this.products[i].productId;
@@ -168,7 +170,9 @@ export default class OrderProductScreen extends LightningElement {
                 this.products[i].brokerage =  this.isFilled(value) ? this.products[i].quantity * Number(value) : this.products[i].brokerage;
                 this.products[i].totalPriceWithBrokerage = this.products[i].totalPrice + this.products[i].brokerage;
                 this.products[i].totalPriceWithBrokerageFront = this.fixDecimalPlacesFront(this.products[i].totalPriceWithBrokerage);
+                brokProducts.push(this.products[i]);
             }
+            this.products = JSON.parse(JSON.stringify(brokProducts));
             this._setData();
         }
 
@@ -851,7 +855,18 @@ export default class OrderProductScreen extends LightningElement {
                 } else {
                     this.addProduct.totalPrice = this.fixDecimalPlaces((this.addProduct.unitPrice * this.addProduct.quantity));
                     this.addProduct.totalPriceFront = this.fixDecimalPlacesFront((this.addProduct.unitPrice * this.addProduct.quantity));
-                    
+
+                    if (this.seedSale) {
+                        let value = this.allProductsBrokerageMother.find((element) => element.productId == this.addProduct.productId);
+                        this.addProduct.brokerage =  this.isFilled(value) ? this.addProduct.quantity * Number(value) : this.addProduct.brokerage;
+                        this.addProduct.brokerageFront = this.fixDecimalPlacesFront(this.addProduct.brokerage);
+                        this.addProduct.totalPriceWithBrokerage = Number(this.addProduct.totalPrice) + Number(this.addProduct.brokerage);
+                        this.addProduct.totalPriceWithBrokerageFront = this.fixDecimalPlacesFront(this.addProduct.totalPriceWithBrokerage);
+                        this.addProduct.tsiTotalPrice = this.addProduct.tListPrice * this.addProduct.quantity;
+                        this.addProduct.tsiTotalPriceFront = this.fixDecimalPlacesFront(this.addProduct.tsiTotalPrice);
+                        this.addProduct.royaltyTotalPrice = this.addProduct.rListPrice * this.addProduct.quantity;
+                        this.addProduct.royaltyTotalPriceFront = this.fixDecimalPlacesFront(this.addProduct.royaltyTotalPrice);
+                    }
                 }
             }
         }
