@@ -190,6 +190,7 @@ export default class OrderProductScreen extends LightningElement {
 
         if(this.headerData.IsOrderChild) {
             this.disableSearch = true;
+            console.log(JSON.stringify(this.headerData.Id))
             getBrokerageQuantities({orderId : this.headerData.Id})
             .then((result) => {
                 if(result){
@@ -201,8 +202,9 @@ export default class OrderProductScreen extends LightningElement {
 
             for(let i = 0; i < this.products.length; i++){
                 let productId = this.products[i].productId;
-                let value = this.allProductsBrokerageMother.find((element) => element.productId == productId);
-                this.products[i].brokerage =  this.isFilled(value) ? this.products[i].quantity * Number(value) : this.products[i].brokerage;
+                let value = this.allProductsBrokerageMother.find(element => element.productId == productId);
+                this.products[i].brokerage =  this.isFilled(value) ? this.products[i].quantity * Number(value.brokeragePerUnit) : this.products[i].brokerage;
+                this.products[i].brokerageFront =  this.fixDecimalPlacesFront(this.products[i].brokerage);
                 this.products[i].totalPriceWithBrokerage = this.products[i].totalPrice + this.products[i].brokerage;
                 this.products[i].totalPriceWithBrokerageFront = this.fixDecimalPlacesFront(this.products[i].totalPriceWithBrokerage);
                 brokProducts.push(this.products[i]);
@@ -1136,8 +1138,8 @@ export default class OrderProductScreen extends LightningElement {
                     this.addProduct.totalPriceFront = this.fixDecimalPlacesFront((this.addProduct.unitPrice * this.addProduct.quantity));
 
                     if (this.seedSale) {
-                        let value = this.allProductsBrokerageMother.find((element) => element.productId == this.addProduct.productId);
-                        this.addProduct.brokerage =  this.isFilled(value) ? this.addProduct.quantity * Number(value) : this.addProduct.brokerage;
+                        let value = this.allProductsBrokerageMother.find(element => element.productId == this.addProduct.productId);
+                        this.addProduct.brokerage =  this.isFilled(value) ? this.addProduct.quantity * Number(value.brokeragePerUnit) : this.addProduct.brokerage;
                         this.addProduct.brokerageFront = this.fixDecimalPlacesFront(this.addProduct.brokerage);
                         this.addProduct.totalPriceWithBrokerage = Number(this.addProduct.totalPrice) + Number(this.addProduct.brokerage);
                         this.addProduct.totalPriceWithBrokerageFront = this.fixDecimalPlacesFront(this.addProduct.totalPriceWithBrokerage);
