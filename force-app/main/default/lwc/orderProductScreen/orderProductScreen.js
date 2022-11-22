@@ -193,8 +193,9 @@ export default class OrderProductScreen extends LightningElement {
             console.log(JSON.stringify(this.headerData.Id))
             getBrokerageQuantities({orderId : this.headerData.Id})
             .then((result) => {
+                console.log(result);
                 if(result){
-                    this.allProductsBrokerageMother = JSON.parse(JSON.stringify(result));
+                    this.allProductsBrokerageMother = JSON.parse(result);
                 }
             })
             let brokProducts = [];
