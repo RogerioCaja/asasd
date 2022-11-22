@@ -203,6 +203,8 @@ export default class OrderProductScreen extends LightningElement {
             for(let i = 0; i < this.products.length; i++){
                 let productId = this.products[i].productId;
                 let value = this.allProductsBrokerageMother.find(element => element.productId == productId);
+                console.log('potato');
+                console.log(value);
                 this.products[i].brokerage =  this.isFilled(value) ? this.products[i].quantity * Number(value.brokeragePerUnit) : this.products[i].brokerage;
                 this.products[i].brokerageFront =  this.fixDecimalPlacesFront(this.products[i].brokerage);
                 this.products[i].totalPriceWithBrokerage = this.products[i].totalPrice + this.products[i].brokerage;
