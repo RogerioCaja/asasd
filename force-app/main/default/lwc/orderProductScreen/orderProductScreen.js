@@ -190,21 +190,17 @@ export default class OrderProductScreen extends LightningElement {
 
         if(this.headerData.IsOrderChild) {
             this.disableSearch = true;
-            console.log(JSON.stringify(this.headerData.Id))
             getBrokerageQuantities({orderId : this.headerData.Id})
             .then((result) => {
-                console.log(result);
                 if(result){
                     this.allProductsBrokerageMother = JSON.parse(result);
-                    
+                    let brokProducts = [];
                     for(let i = 0; i < this.products.length; i++){
                         let productId = this.products[i].productId;
                         let value = this.allProductsBrokerageMother.find(element => element.productId == productId);
-                        console.log('potato');
                         this.products[i].brokerage =  this.isFilled(value) ? this.products[i].quantity * Number(value.brokeragePerUnit) : this.products[i].brokerage;
                         this.products[i].brokerageFront =  this.fixDecimalPlacesFront(this.products[i].brokerage);
                         this.products[i].totalPriceWithBrokerage = Number(this.products[i].totalPrice) + Number(this.products[i].brokerage);
-                        console.log(JSON.stringify(this.products[i].totalPriceWithBrokerage))
                         this.products[i].totalPriceWithBrokerageFront = this.fixDecimalPlacesFront(this.products[i].totalPriceWithBrokerage);
                         brokProducts.push(this.products[i]);
                     }
@@ -212,10 +208,6 @@ export default class OrderProductScreen extends LightningElement {
                     console.log(JSON.stringify(this.products));
                 }
             })
-            let brokProducts = [];
-
-
-            
             this._setData();
         }
 
