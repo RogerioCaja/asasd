@@ -2070,8 +2070,8 @@ public without sharing class OrderScreenController {
             this.priceListCode = orderItem.PriceListCode__c;
             this.sieve = orderItem.Sieve__c != null ? orderItem.Sieve__c : '';
             this.productClass = orderItem.Class__c != null ? orderItem.Class__c : '';
-            this.tListPrice = orderItem.TSIValue__c;
-            this.rListPrice = orderItem.RoyaltyAmount__c;
+            this.tListPrice = orderItem.TSIValue__c != null ? orderItem.TSIValue__c : 0;
+            this.rListPrice = orderItem.RoyaltyAmount__c != null ? orderItem.RoyaltyAmount__c : 0;
             this.tsiTotalPrice = orderItem.TotalTSIAmount__c;
             this.royaltyTotalPrice = orderItem.TotalRoyaltyAmount__c;
         }
