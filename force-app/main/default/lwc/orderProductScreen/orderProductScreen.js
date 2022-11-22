@@ -205,6 +205,7 @@ export default class OrderProductScreen extends LightningElement {
                         brokProducts.push(this.products[i]);
                     }
                     this.products = JSON.parse(JSON.stringify(brokProducts));
+                    console.log(JSON.stringify(this.products));
                 }
             })
             this._setData();
