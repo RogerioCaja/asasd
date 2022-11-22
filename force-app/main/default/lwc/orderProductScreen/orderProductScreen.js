@@ -196,25 +196,27 @@ export default class OrderProductScreen extends LightningElement {
                 console.log(result);
                 if(result){
                     this.allProductsBrokerageMother = JSON.parse(result);
+                    
+                    for(let i = 0; i < this.products.length; i++){
+                        let productId = this.products[i].productId;
+                        let value = this.allProductsBrokerageMother.find(element => element.productId == productId);
+                        console.log('potato');
+                        console.log(JSON.stringify(productId));
+                        console.log(JSON.stringify(this.allProductsBrokerageMother));
+                        console.log(JSON.stringify(value));
+                        this.products[i].brokerage =  this.isFilled(value) ? this.products[i].quantity * Number(value.brokeragePerUnit) : this.products[i].brokerage;
+                        this.products[i].brokerageFront =  this.fixDecimalPlacesFront(this.products[i].brokerage);
+                        this.products[i].totalPriceWithBrokerage = this.products[i].totalPrice + this.products[i].brokerage;
+                        this.products[i].totalPriceWithBrokerageFront = this.fixDecimalPlacesFront(this.products[i].totalPriceWithBrokerage);
+                        brokProducts.push(this.products[i]);
+                    }
+                    this.products = JSON.parse(JSON.stringify(brokProducts));
                 }
             })
             let brokProducts = [];
 
 
-            for(let i = 0; i < this.products.length; i++){
-                let productId = this.products[i].productId;
-                let value = this.allProductsBrokerageMother.find(element => element.productId == productId);
-                console.log('potato');
-                console.log(JSON.stringify(productId));
-                console.log(JSON.stringify(this.allProductsBrokerageMother));
-                console.log(JSON.stringify(value));
-                this.products[i].brokerage =  this.isFilled(value) ? this.products[i].quantity * Number(value.brokeragePerUnit) : this.products[i].brokerage;
-                this.products[i].brokerageFront =  this.fixDecimalPlacesFront(this.products[i].brokerage);
-                this.products[i].totalPriceWithBrokerage = this.products[i].totalPrice + this.products[i].brokerage;
-                this.products[i].totalPriceWithBrokerageFront = this.fixDecimalPlacesFront(this.products[i].totalPriceWithBrokerage);
-                brokProducts.push(this.products[i]);
-            }
-            this.products = JSON.parse(JSON.stringify(brokProducts));
+            
             this._setData();
         }
 
