@@ -849,12 +849,6 @@ export default class OrderProductScreen extends LightningElement {
                     this.calculateDiscountOrAddition();
                     this.calculateTotalPrice(true);
                 } else {
-                    if(this.seedSale){
-                        let value = this.allProductsBrokerageMother.find((element) => element.productId == this.addProduct.productId);
-                        this.addProduct.brokerage =  this.isFilled(value) ? this.addProduct.quantity * Number(value) : this.addProduct.brokerage;
-                        this.addProduct.totalPriceWithBrokerage = this.addProduct.totalPrice + this.addProduct.brokerage;
-                        this.addProduct.totalPriceWithBrokerageFront = this.fixDecimalPlacesFront(this.addProduct.totalPriceWithBrokerage);
-                    }
                     this.addProduct.totalPrice = this.fixDecimalPlaces((this.addProduct.unitPrice * this.addProduct.quantity));
                     this.addProduct.totalPriceFront = this.fixDecimalPlacesFront((this.addProduct.unitPrice * this.addProduct.quantity));
                     
