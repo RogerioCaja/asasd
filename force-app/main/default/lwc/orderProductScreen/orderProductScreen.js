@@ -190,18 +190,29 @@ export default class OrderProductScreen extends LightningElement {
 
         if(this.headerData.IsOrderChild) {
             this.disableSearch = true;
-            console.log(JSON.stringify(this.headerData.Id))
-            if (this.seedSale) {
-                let value = this.allProductsBrokerageMother.find(element => element.productId == this.addProduct.productId);
-                this.addProduct.brokerage =  this.isFilled(value) ? this.addProduct.quantity * Number(value.brokeragePerUnit) : this.addProduct.brokerage;
-                this.addProduct.brokerageFront = this.fixDecimalPlacesFront(this.addProduct.brokerage);
-                this.addProduct.totalPriceWithBrokerage = Number(this.addProduct.totalPrice) + Number(this.addProduct.brokerage);
-                this.addProduct.totalPriceWithBrokerageFront = this.fixDecimalPlacesFront(this.addProduct.totalPriceWithBrokerage);
-                this.addProduct.tsiTotalPrice = this.addProduct.tListPrice * this.addProduct.quantity;
-                this.addProduct.tsiTotalPriceFront = this.fixDecimalPlacesFront(this.addProduct.tsiTotalPrice);
-                this.addProduct.royaltyTotalPrice = this.addProduct.rListPrice * this.addProduct.quantity;
-                this.addProduct.royaltyTotalPriceFront = this.fixDecimalPlacesFront(this.addProduct.royaltyTotalPrice);
-            }
+            getBrokerageQuantities({orderId : this.headerData.Id})
+            .then((result) => {
+                if(result){
+                    this.allProductsBrokerageMother = JSON.parse(result);
+                    
+                    for(let i = 0; i < this.products.length; i++){
+                        let productId = this.products[i].productId;
+                        let value = this.allProductsBrokerageMother.find(element => element.productId == productId);
+                        console.log('potato');
+                        console.log(JSON.stringify(productId));
+                        console.log(JSON.stringify(this.allProductsBrokerageMother));
+                        console.log(JSON.stringify(value));
+                        this.products[i].brokerage =  this.isFilled(value) ? this.products[i].quantity * Number(value.brokeragePerUnit) : this.products[i].brokerage;
+                        this.products[i].brokerageFront =  this.fixDecimalPlacesFront(this.products[i].brokerage);
+                        this.products[i].totalPriceWithBrokerage = this.products[i].totalPrice + this.products[i].brokerage;
+                        this.products[i].totalPriceWithBrokerageFront = this.fixDecimalPlacesFront(this.products[i].totalPriceWithBrokerage);
+                        brokProducts.push(this.products[i]);
+                    }
+                    this.products = JSON.parse(JSON.stringify(brokProducts));
+                }
+            })
+            let brokProducts = [];
+            
             this._setData();
         }
 
