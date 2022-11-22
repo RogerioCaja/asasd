@@ -242,7 +242,9 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             try
             {
                 this.productData.forEach(product =>{
-                    this.valorTotal  += parseFloat(product.totalPrice);
+                    let totalPrice = this.isFilled(product.totalPriceWithBrokerage) ? Number(product.totalPriceWithBrokerage) : Number(product.totalPrice);
+                    totalPrice = Number(totalPrice) + Number(product.tsiTotalPrice) + Number(product.royaltyTotalPrice);
+                    this.valorTotal += parseFloat(totalPrice);
                 })
                 this.valorTotal = parseFloat(this.valorTotal).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
 
@@ -335,7 +337,9 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             try
             {
                 this.productData.forEach(product =>{
-                    this.valorTotal  += parseFloat(product.totalPrice);
+                    let totalPrice = this.isFilled(product.totalPriceWithBrokerage) ? Number(product.totalPriceWithBrokerage) : Number(product.totalPrice);
+                    totalPrice = Number(totalPrice) + Number(product.tsiTotalPrice) + Number(product.royaltyTotalPrice);
+                    this.valorTotal += parseFloat(totalPrice);
                 })
                 this.valorTotal = parseFloat(this.valorTotal).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
 
@@ -668,11 +672,15 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         {
             if(this.template.querySelector(this.tabs[2].component).seedSale){
                 this.productData.forEach(product =>{
-                    this.valorTotal  += parseFloat(product.totalPriceWithBrokerage);
+                    let totalPrice = this.isFilled(product.totalPriceWithBrokerage) ? Number(product.totalPriceWithBrokerage) : Number(product.totalPrice);
+                    totalPrice = Number(totalPrice) + Number(product.tsiTotalPrice) + Number(product.royaltyTotalPrice);
+                    this.valorTotal  += parseFloat(totalPrice);
                 })
             }else{
                 this.productData.forEach(product =>{
-                    this.valorTotal  += parseFloat(product.totalPrice);
+                    let totalPrice = this.isFilled(product.totalPriceWithBrokerage) ? Number(product.totalPriceWithBrokerage) : Number(product.totalPrice);
+                    totalPrice = Number(totalPrice) + Number(product.tsiTotalPrice) + Number(product.royaltyTotalPrice);
+                    this.valorTotal  += parseFloat(totalPrice);
                 })
             }
             this.valorTotal = parseFloat(this.valorTotal).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
