@@ -702,7 +702,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     checkProductDivisionAndCommodities() {
         let enableScreen = true;
 
-        if(this.headerData.pedido_mae_check){
+        if(this.headerData.pedido_mae_check && !this.headerData.IsOrderChild){
             return true
         }
         if (this.isFilled(this.productData) && this.isFilled(this.divisionData)) {
