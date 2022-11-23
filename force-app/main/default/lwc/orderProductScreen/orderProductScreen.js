@@ -8,7 +8,6 @@ import isSeedSale from '@salesforce/apex/OrderScreenController.isSeedSale';
 import getSafraInfos from '@salesforce/apex/OrderScreenController.getSafraInfos';
 import getFinancialInfos from '@salesforce/apex/OrderScreenController.getFinancialInfos';
 import checkQuotaQuantity from '@salesforce/apex/OrderScreenController.checkQuotaQuantity';
-import getBrokerageQuantities from '@salesforce/apex/OrderScreenController.getBrokerageUnitPerProduct';
 import getAccountCompanies from '@salesforce/apex/OrderScreenController.getAccountCompanies';
 import fetchOrderRecords from '@salesforce/apex/CustomLookupController.fetchProductsRecords';
 
