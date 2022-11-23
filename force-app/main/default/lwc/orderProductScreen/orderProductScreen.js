@@ -69,14 +69,12 @@ export default class OrderProductScreen extends LightningElement {
     financialInfos = {};
     
     selectCommodityScreen = false;
-    // commodityScreens = ['chooseCommodity', 'fillCommodity', 'negotiationDetails', 'haScreen'];
     commodityScreens = ['chooseCommodity', 'fillCommodity', 'negotiationDetails'];
     currentScreen = 'chooseCommodity';
     
     commodities = [];
     showCommodityData = false;
     openCommoditiesData = false;
-    // commoditiesData = [];
     chooseCommodities = false;
     showCommodities = false;
     commoditySelected = false;
@@ -85,7 +83,6 @@ export default class OrderProductScreen extends LightningElement {
         {label: 'Produto', fieldName: 'product'},
         {label: 'Dose', fieldName: 'desage'},
         {label: 'Área', fieldName: 'area'},
-        // {label: 'Quantidade', fieldName: 'quantity'},
         {label: 'Desconto', fieldName: 'discountFront'},
         {label: 'Margem', fieldName: 'marginFront'},
         {label: 'Entrega Total', fieldName: 'totalDeliveryFront'}
@@ -109,21 +106,6 @@ export default class OrderProductScreen extends LightningElement {
         benefitsIds: []
     }
 
-    // haScreen = false;
-    /* haData = [{
-        productSubGroup: 'productSubGroup',
-        totalQuantity: 'totalQuantity',
-        haCost: 'haCost',
-        haPotential: 'haPotential',
-        customerShare: 'customerShare'
-    }];
-    haColumns = [
-        {label: 'Sub Grupo de Produto', fieldName: 'productSubGroup'},
-        {label: 'Quantidade Total', fieldName: 'totalQuantity'},
-        {label: 'Custo/HA', fieldName: 'haCost'},
-        {label: 'Potencial/HA', fieldName: 'haPotential'},
-        {label: 'Customer Share', fieldName: 'customerShare'}
-    ]; */
     @track products = [];
     @track commoditiesData = [];
 
@@ -343,7 +325,9 @@ export default class OrderProductScreen extends LightningElement {
             comboDiscountValue: this.isFilled(currentProduct.comboDiscountValue) ? currentProduct.comboDiscountValue : 0,
             comboId: this.isFilled(currentProduct.comboId) ? currentProduct.comboId : null,
             industryCombo: this.isFilled(currentProduct.comboId) ? currentProduct.industryCombo : false,
-            containsCombo: this.isFilled(currentProduct.containsCombo) ? currentProduct.containsCombo : false
+            containsCombo: this.isFilled(currentProduct.containsCombo) ? currentProduct.containsCombo : false,
+            formerItem: this.isFilled(currentProduct.formerItem) ? currentProduct.formerItem : false,
+            benefitItem: this.isFilled(currentProduct.benefitItem) ? currentProduct.benefitItem : false
         };
         if (this.isFilled(newProduct.comboId)) {
             this.disabled = true;
@@ -378,6 +362,15 @@ export default class OrderProductScreen extends LightningElement {
             }
         }
         this.companyResult = JSON.parse(JSON.stringify(companies));
+    }
+
+    getCurrentProductPosition() {
+        let lastPosition = 0;
+        for (let index = 0; index < this.products.length; index++) {
+            if (this.products[index].position > lastPosition) {
+                lastPosition = this.products[index].position;
+            }
+        }
     }
 
     onSelectCompany() {
@@ -491,7 +484,10 @@ export default class OrderProductScreen extends LightningElement {
                     let allowChange = (this.headerData.tipo_pedido != 'Pedido Filho' && !this.headerData.IsOrderChild && this.isFilled(this.headerData.codigo_sap)) ||
                                     (this.headerData.tipo_pedido == 'Pedido Filho' && this.isFilled(this.headerData.codigo_sap)) ? false : true;
                             
+                    let checkFinancialInfos = true;
                     if (this.headerData.pre_pedido && (allowChange || this.checkCombo)) {
+                        this.financialInfoLogic(orderData);
+                        checkFinancialInfos = false;
                         fetchOrderRecords({
                             searchString: '',
                             data: JSON.stringify(this.productParams),
@@ -506,7 +502,7 @@ export default class OrderProductScreen extends LightningElement {
                             let listPriceChange = false;
                             let productsWithoutPrice = '';
                             let itemToExclude = [];
-                            let counter = 0;
+                            let counter = 1;
                             let comboItens = [];
                             
                             for (let index = 0; index < formerItens.length; index++) {
@@ -531,17 +527,19 @@ export default class OrderProductScreen extends LightningElement {
                                         comboDiscount: 0,
                                         comboId: formerItens[index].comboId,
                                         industryCombo: formerItens[index].industryCombo,
-                                        containsCombo: true
+                                        containsCombo: true,
+                                        formerItem: true,
+                                        benefitItem: true
                                     }
     
                                     let productInfos = this.getProductByPriority({Id: formerItens[index].productId});
                                     let priorityPrice = {
-                                        listPrice: productInfos.listPrice,
-                                        costPrice: productInfos.costPrice,
-                                        priceListCode: productInfos.priceListCode
+                                        listPrice: productInfos.priorityPrice.listPrice,
+                                        costPrice: productInfos.priorityPrice.costPrice,
+                                        priceListCode: productInfos.priorityPrice.priceListCode
                                     };
                                     
-                                    comboItens.push(this.createProduct(productInfos, priorityPrice, comboValues, counter));
+                                    comboItens.push(this.createProduct(productInfos.productInfos, priorityPrice, comboValues, this.getCurrentProductPosition() + counter));
                                     counter++;
                                 }
                             }
@@ -569,17 +567,19 @@ export default class OrderProductScreen extends LightningElement {
                                         comboDiscount: benefitItens[index].discountPercentage,
                                         comboId: benefitItens[index].comboId,
                                         industryCombo: benefitItens[index].industryCombo,
-                                        containsCombo: true
+                                        containsCombo: true,
+                                        formerItem: true,
+                                        benefitItem: true
                                     }
 
                                     let productInfos = this.getProductByPriority({Id: benefitItens[index].productId});
                                     let priorityPrice = {
-                                        listPrice: productInfos.listPrice,
-                                        costPrice: productInfos.costPrice,
-                                        priceListCode: productInfos.priceListCode
+                                        listPrice: productInfos.priorityPrice.listPrice,
+                                        costPrice: productInfos.priorityPrice.costPrice,
+                                        priceListCode: productInfos.priorityPrice.priceListCode
                                     };
 
-                                    comboItens.push(this.createProduct(productInfos, priorityPrice, comboValues, counter));
+                                    comboItens.push(this.createProduct(productInfos.productInfos, priorityPrice, comboValues, this.getCurrentProductPosition() + counter));
                                     counter++;
                                 }
                             }
@@ -588,7 +588,7 @@ export default class OrderProductScreen extends LightningElement {
 
                             for (let index = 0; index < this.products.length; index++) {
                                 this.addProduct = this.products[index];
-                                let priorityInfos = this.getProductByPriority(this.addProduct);
+                                let priorityInfos = this.getProductByPriority({Id: this.addProduct.productId}).priorityPrice;
                                 
                                 if (this.isFilled(priorityInfos)) {
                                     if (priorityInfos.listPrice != this.addProduct.listPrice || priorityInfos.costPrice != this.addProduct.listCost || this.checkCombo) {
@@ -635,61 +635,8 @@ export default class OrderProductScreen extends LightningElement {
                         });
                     }
 
-                    if (!this.headerData.IsOrderChild && allowChange) {
-                        getFinancialInfos({data: JSON.stringify(orderData)})
-                        .then((result) => {
-                            console.log(JSON.stringify(result));
-                            this.financialInfos = JSON.parse(result);
-                            
-                            if (this.products.length > 0) {
-                                let showPriceChange = false;
-                                let showQuantityChange = false;
-                                let priceChangeMessage = '';
-                                let currentProducts = this.products;
-                                
-                                for (let index = 0; index < currentProducts.length; index++) {
-                                    this.recalculatePrice = true;
-                                    this.editProduct(currentProducts[index].position, true);
-                                    let oldQUantity = currentProducts[index].quantity;
-                                    this.addProduct.quantity = this.calculateMultiplicity(this.addProduct.dosage * this.hectares, false);
-                                    
-                                    if (this.addProduct.quantity != oldQUantity) {
-                                        showQuantityChange = true;
-                                    }
-
-                                    let oldPrice = currentProducts[index].unitPrice;
-                                    this.calculateTotalPrice(true);
-                                    let newPrice = this.changeProduct(this.addProduct);
-                                    
-                                    if (oldPrice != newPrice) {
-                                        showPriceChange = true;
-                                        priceChangeMessage += 'O preço do ' + currentProducts[index].name + ' foi alterado de ' + oldPrice + ' para ' + newPrice + '.\n';
-                                    }
-                                }
-                                
-                                this.recalculatePrice = false;
-                                
-                                if (showPriceChange) {
-                                    if (currentProducts.length > 1) {
-                                        priceChangeMessage = 'Os preços foram recalculados devido a alteração de data de pagamento. Verifique-os.';
-                                    }
-                                    this.showToast('warning', 'Alteração nos preços!', priceChangeMessage);
-                                }
-
-                                if (showQuantityChange) {
-                                    this.showToast('warning', 'Alteração nas quantidades!', 'As quantidades foram recalculados devido a alteração no hectar. Verifique-os.');
-                                }
-
-                                if ((showPriceChange || showQuantityChange) && this.headerData.tipo_venda == 'Venda Barter') {
-                                    this.recalculateCommodities();
-                                }
-                                this.showLoading = false;
-                            } else {
-                                this.showLoading = false;
-                            }
-
-                            this._setData();
-                        })
+                    if (!this.headerData.IsOrderChild && allowChange && checkFinancialInfos) {
+                        this.financialInfoLogic(orderData);
                     } else {
                         this.showLoading = false;
                     }
@@ -718,36 +665,132 @@ export default class OrderProductScreen extends LightningElement {
         });
     }
 
+    financialInfoLogic(orderData) {
+        getFinancialInfos({data: JSON.stringify(orderData)})
+        .then((result) => {
+            this.financialInfos = JSON.parse(result);
+            
+            if (this.products.length > 0) {
+                let showPriceChange = false;
+                let showQuantityChange = false;
+                let priceChangeMessage = '';
+                let currentProducts = this.products;
+                
+                for (let index = 0; index < currentProducts.length; index++) {
+                    this.recalculatePrice = true;
+                    this.editProduct(currentProducts[index].position, true);
+                    let oldQUantity = currentProducts[index].quantity;
+                    this.addProduct.quantity = this.calculateMultiplicity(this.addProduct.dosage * this.hectares, false);
+                    
+                    if (this.addProduct.quantity != oldQUantity) {
+                        showQuantityChange = true;
+                    }
+
+                    let oldPrice = currentProducts[index].unitPrice;
+                    this.calculateTotalPrice(true);
+                    let newPrice = this.changeProduct(this.addProduct);
+                    
+                    if (oldPrice != newPrice) {
+                        showPriceChange = true;
+                        priceChangeMessage += 'O preço do ' + currentProducts[index].name + ' foi alterado de ' + oldPrice + ' para ' + newPrice + '.\n';
+                    }
+                }
+                
+                this.recalculatePrice = false;
+                
+                if (showPriceChange) {
+                    if (currentProducts.length > 1) {
+                        priceChangeMessage = 'Os preços foram recalculados devido a alteração de data de pagamento. Verifique-os.';
+                    }
+                    this.showToast('warning', 'Alteração nos preços!', priceChangeMessage);
+                }
+
+                if (showQuantityChange) {
+                    this.showToast('warning', 'Alteração nas quantidades!', 'As quantidades foram recalculados devido a alteração no hectar. Verifique-os.');
+                }
+
+                if ((showPriceChange || showQuantityChange) && this.headerData.tipo_venda == 'Venda Barter') {
+                    this.recalculateCommodities();
+                }
+                this.showLoading = false;
+            } else {
+                this.showLoading = false;
+            }
+
+            this._setData();
+        })
+    }
+
     getProductByPriority(selectedProduct) {
-        let priorityPrice;
         let productsPrice = this.productsPriceMap;
         let productId = this.isFilled(selectedProduct.Id) ? selectedProduct.Id : selectedProduct.productId;
+        
+        let priorityPrice = {
+            Id: productId,
+            costPrice: 0,
+            listPrice: 0,
+            priceListCode: 0,
+            rCostPrice: 0,
+            rListPrice: 0,
+            rPriceListCode: 0,
+            tCostPrice: 0,
+            tListPrice: 0,
+            tPriceListCode: 0
+        };
 
-        let key1 = this.accountData.Id + '-' + productId;
-        let key2 = this.salesInfos.segmento + '-' + productId;
-        let key3 = this.headerData.cultura.Id + '-' + this.salesInfos.salesTeamId + '-' + productId;
-        let key4 = this.salesInfos.salesTeamId + '-' + productId;
-        let key5 = this.salesInfos.salesOfficeId + '-' + productId;
-        let key6 = selectedProduct.productGroupId;
-        let key7 = productId;
+        let counter = 1;
+        let currentPrice;
+        let counterMax = this.showRoyaltyTsi ? 3 : 1;
+        while (counter <= counterMax) {
+            let prefix;
+            if (counter == 1) prefix = 'G-';
+            if (counter == 2) prefix = 'R-';
+            if (counter == 3) prefix = 'T-';
 
-        if (this.isFilled(productsPrice[key1])) {
-            priorityPrice = productsPrice[key1];
-        } else if (this.isFilled(productsPrice[key2])) {
-            priorityPrice = productsPrice[key2];
-        } else if (this.isFilled(productsPrice[key3])) {
-            priorityPrice = productsPrice[key3];
-        } else if (this.isFilled(productsPrice[key4])) {
-            priorityPrice = productsPrice[key4];
-        } else if (this.isFilled(productsPrice[key5])) {
-            priorityPrice = productsPrice[key5];
-        } else if (this.isFilled(productsPrice[key6])) {
-            priorityPrice = productsPrice[key6];
-        } else if (this.isFilled(productsPrice[key7])) {
-            priorityPrice = productsPrice[key7];
+            let key1 = prefix + this.accountData.Id + '-' + productId;
+            let key2 = prefix + this.salesInfos.segmento + '-' + productId;
+            let key3 = prefix + this.headerData.cultura.Id + '-' + this.salesInfos.salesTeamId + '-' + productId;
+            let key4 = prefix + this.salesInfos.salesTeamId + '-' + productId;
+            let key5 = prefix + this.salesInfos.salesOfficeId + '-' + productId;
+            let key6 = prefix + selectedProduct.productGroupId;
+            let key7 = prefix + productId;
+
+            if (this.isFilled(productsPrice[key1])) {
+                currentPrice = productsPrice[key1];
+            } else if (this.isFilled(productsPrice[key2])) {
+                currentPrice = productsPrice[key2];
+            } else if (this.isFilled(productsPrice[key3])) {
+                currentPrice = productsPrice[key3];
+            } else if (this.isFilled(productsPrice[key4])) {
+                currentPrice = productsPrice[key4];
+            } else if (this.isFilled(productsPrice[key5])) {
+                currentPrice = productsPrice[key5];
+            } else if (this.isFilled(productsPrice[key6])) {
+                currentPrice = productsPrice[key6];
+            } else if (this.isFilled(productsPrice[key7])) {
+                currentPrice = productsPrice[key7];
+            }
+
+            if (this.isFilled(currentPrice)) {
+                if (counter == 1) {
+                    priorityPrice.costPrice = currentPrice.costPrice;
+                    priorityPrice.listPrice = currentPrice.listPrice;
+                    priorityPrice.priceListCode = currentPrice.priceListCode;
+                } else if (counter == 2) {
+                    priorityPrice.rCostPrice = currentPrice.costPrice;
+                    priorityPrice.rListPrice = currentPrice.listPrice;
+                    priorityPrice.rPriceListCode = currentPrice.priceListCode;
+                } else if (counter == 3) {
+                    priorityPrice.tCostPrice = currentPrice.costPrice;
+                    priorityPrice.tListPrice = currentPrice.listPrice;
+                    priorityPrice.tPriceListCode = currentPrice.priceListCode;
+                }
+            }
+            
+            counter++;
         }
 
-        return priorityPrice;
+        return {productInfos: currentPrice, priorityPrice: priorityPrice};
     }
 
     showProductModal(event) {
@@ -809,8 +852,8 @@ export default class OrderProductScreen extends LightningElement {
                 let priorityInfos = this.getProductByPriority(currentProduct);
     
                 this.multiplicity = this.isFilled(currentProduct.multiplicity) ? currentProduct.multiplicity : 1;
-                this.costPrice = priorityInfos.costPrice;
-                this.addProduct = this.createProduct(currentProduct, priorityInfos);
+                this.costPrice = priorityInfos.priorityPrice.costPrice;
+                this.addProduct = this.createProduct(currentProduct, priorityInfos, null, this.getCurrentProductPosition() + 1);
             }
         }
     }
@@ -871,8 +914,11 @@ export default class OrderProductScreen extends LightningElement {
             comboId: this.isFilled(comboValues) ? comboValues.comboId : null,
             industryCombo: this.isFilled(comboValues) ? comboValues.industryCombo : false,
             position: this.isFilled(counter) ? counter : null,
-            containsCombo: this.isFilled(comboValues) ? comboValues.containsCombo : (this.isFilled(currentProduct.containsCombo) ? currentProduct.containsCombo : false)
+            containsCombo: this.isFilled(comboValues) ? comboValues.containsCombo : (this.isFilled(currentProduct.containsCombo) ? currentProduct.containsCombo : false),
+            formerItem: this.isFilled(comboValues) ? comboValues.formerItem : false,
+            benefitItem: this.isFilled(comboValues) ? comboValues.benefitItem : false
         };
+
         if (this.isFilled(currentProduct.comboId)) {
             this.disabled = true;
             this.unitPriceDisabled = true;
@@ -1654,9 +1700,29 @@ export default class OrderProductScreen extends LightningElement {
         let excludedProducts = this.isFilled(this.excludedItems) ? JSON.parse(JSON.stringify(this.excludedItems)) : [];
         
         let counter;
+        let comboId;
         for (let index = 0; index < excludeProduct.length; index++) {
             if (excludeProduct[index].position == position) {
                 counter = index;
+                
+                if (excludeProduct[index].containsCombo && excludeProduct[index].formerItem) {
+                    comboId = excludeProduct[index].comboId;
+                }
+            }
+        }
+
+        if (this.isFilled(comboId)) {
+            for (let index = 0; index < excludeProduct.length; index++) {
+                if (excludeProduct[index].comboId == comboId && excludeProduct[index].benefitItem) {
+                    excludeProduct[index].totalPrice += excludeProduct[index].comboDiscountValue;
+                    excludeProduct[index].comboDiscountPercent = '0%';
+                    excludeProduct[index].comboDiscountValue = 0;
+                    excludeProduct[index].comboId = null;
+                    excludeProduct[index].industryCombo = false;
+                    excludeProduct[index].containsCombo = false;
+                    excludeProduct[index].formerItem = false;
+                    excludeProduct[index].benefitItem = false;
+                }
             }
         }
         
@@ -1971,7 +2037,6 @@ export default class OrderProductScreen extends LightningElement {
         this.chooseCommodities = false;
         this.commoditySelected = false;
         this.summaryScreen = false;
-        // this.haScreen = false;
     }
 
     openCommodityData(event) {
@@ -2011,9 +2076,7 @@ export default class OrderProductScreen extends LightningElement {
         this.chooseCommodities = false;
         this.commoditySelected = false;
         this.summaryScreen = false;
-        // this.haScreen = false;
 
-        //Validation
         if(this.currentScreen== 'fillCommodity' && this.commodityScreens[this.commodityScreens.indexOf(this.currentScreen) + 1] == 'negotiationDetails'){
             if(!this.verifyConditions(this.selectedCommodity.startDate, this.selectedCommodity.endDate, this.selectedCommodity.deliveryAddress)){
                 this.commoditySelected = true;
@@ -2025,22 +2088,17 @@ export default class OrderProductScreen extends LightningElement {
         if (this.currentScreen == 'chooseCommodity') {this.selectCommodityScreen = true;this.chooseCommodities = true;}
         if (this.currentScreen == 'fillCommodity')  this.commoditySelected = true;
         if (this.currentScreen == 'negotiationDetails') this.fillCommodity();
-     
-
-        // if (this.currentScreen == 'haScreen') this.haScreen = true;
     }
 
     backScreen(event) {
         this.selectCommodityScreen = false;
         this.commoditySelected = false;
         this.summaryScreen = false;
-        // this.haScreen = false;
 
         this.currentScreen = this.commodityScreens[this.commodityScreens.indexOf(this.currentScreen) - 1];
         if (this.currentScreen == 'chooseCommodity') {this.selectCommodityScreen = true;this.chooseCommodities = true;}
         if (this.currentScreen == 'fillCommodity') this.commoditySelected = true;
         if (this.currentScreen == 'negotiationDetails') this.summaryScreen = true;
-        // if (this.currentScreen == 'haScreen') this.haScreen = true;
     }
 
     recalculateCommodities() {
