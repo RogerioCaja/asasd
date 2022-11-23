@@ -48,12 +48,19 @@ public without sharing class CustomLookupController {
 	}
 
     @AuraEnabled
-    public static ProductDataResult fetchProductsRecords(String searchString, String data, Boolean isCommodity, List<String> productsIds, Boolean priceScreen) {
+    public static ProductDataResult fetchProductsRecords(String searchString, String data, Boolean isCommodity, List<String> productsIds, Boolean priceScreen, Boolean getSeedPrices) {
         try {
             ProductDataResult result = new ProductDataResult();
             ProductParams productParams = (ProductParams) JSON.deserialize(data, ProductParams.class);
             System.debug('productParams: ' + productParams);
-            Id commodityRecType = Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get('ZPR0').getRecordTypeId();
+            
+            List<Id> pricesRecTypes = new List<Id>();
+            pricesRecTypes.add(Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get('ZPR0').getRecordTypeId());
+            if (getSeedPrices) {
+                pricesRecTypes.add(Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get('ZROY').getRecordTypeId());
+                pricesRecTypes.add(Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get('ZTRA').getRecordTypeId());
+            }
+
             List<Account> lstAccount = new List<Account>();
             if (productParams.accountId != '') lstAccount = [SELECT Industry FROM Account WHERE Id =: productParams.accountId];
 
@@ -65,10 +72,10 @@ public without sharing class CustomLookupController {
             salesResult.searchString = searchString;
             result.salesResult = salesResult;
 
-            Set<String> priceFields = new Set<String>{'Id', 'UnitPrice__c', 'Cost__c', 'Product__c', 'ProductGroup__c', 'Currency__c', 'SalesOrg__c', 'SalesTeam__c', 'SalesOffice__c', 'Account__c', 'Culture__c', 'ProductMultiplier__c', 'ExternalId__c', 'SalesCondition__r.Name'};
+            Set<String> priceFields = new Set<String>{'Id', 'UnitPrice__c', 'Cost__c', 'Product__c', 'ProductGroup__c', 'Currency__c', 'SalesOrg__c', 'SalesTeam__c', 'SalesOffice__c', 'Account__c', 'Culture__c', 'ProductMultiplier__c', 'ExternalId__c', 'SalesCondition__r.Name', 'RecordType.DeveloperName'};
             Q priceQuery = new Q(JurosDescontoAntecipao__c.SObjectType)
                                 .selectFields(priceFields)
-                                .add(Q.condition('RecordTypeId').equalsTo(commodityRecType))
+                                .add(Q.condition('RecordTypeId').isIn(pricesRecTypes))
                                 .add(Q.condition('harvest__c').equalsTo(productParams.safra))
                                 .add(Q.condition('SalesOrg__c').equalsTo(salesResult.salesOrgId))
                                 .add(Q.condition('IsActive__c').equalsTo(true))
@@ -128,13 +135,26 @@ public without sharing class CustomLookupController {
                 recTypeDevName = orderRecType.DeveloperName;
             }
 
+            String seedGroup = 'SEM001';
+            Set<String> insumosGroups = new Set<String>{'SEM001', 'SERV001'};
             Set<String> normalSale = new Set<String>{'HAWA', 'FERT'};
             String productType = isCommodity ? 'ZCOM' : (recTypeDevName == 'VendaServico' ? 'DIEN' : (recTypeDevName == 'VendaBarter' ? 'HAWA' : ''));
             
             Integer numberOfRowsToSkip = productParams.numberOfRowsToSkip;
-            String productQuery = 'SELECT Id, Name, ExternalId__c, UnidadeMedida__c, ProductGroup__c, ProductGroup__r.Name, ProductSubgroup__c, PrincipleActive__c, Multiplicity__c, ProductHierarchy__c' +
+            String productQuery = 'SELECT Id, Name, ExternalId__c, UnidadeMedida__c, ProductGroup__c, ProductGroup__r.Name, ProductGroup__r.ExternalId__c, ProductSubgroup__c, PrincipleActive__c, Multiplicity__c, ProductHierarchy__c' +
                                   '  FROM Product2' +
                                   ' WHERE Id IN:prodsId' +
+                                  (
+                                    getSeedPrices ? 
+                                        ' AND ProductGroup__r.ExternalId__c =: seedGroup' :
+                                        ''
+                                  ) +
+                                  (
+                                    productParams.dontGetSeeds && productParams.activitySectorName.toUpperCase() == 'INSUMOS' ||
+                                    productParams.dontGetSeeds && productParams.activitySectorName.toUpperCase() == 'INSUMO' ?
+                                        ' AND ProductGroup__r.ExternalId__c NOT IN: insumosGroups' :
+                                        ''
+                                  ) +
                                   (
                                     productType == '' ? 
                                         ' AND ProductType__c IN: normalSale' :
@@ -242,11 +262,13 @@ public without sharing class CustomLookupController {
             for(SObject s : queryResult) {
                 List<JurosDescontoAntecipao__c> jdaList = productsPriceById.get((Id) s.get('Id'));
                 Boolean productIncluded = false;
+                
                 for (JurosDescontoAntecipao__c jda : jdaList) {
+                    String prefix = jda.RecordType.DeveloperName == 'ZPR0' ? 'G-' : (jda.RecordType.DeveloperName == 'ZROY' ? 'R-' : 'T-');
                     if ((jda.SalesOrg__c == salesResult.salesOrgId || jda.SalesOrg__c == null) &&
                         (jda.SalesOffice__c == salesResult.salesOfficeId || jda.SalesOffice__c == null) &&
                         (jda.SalesTeam__c == salesResult.salesTeamId || jda.SalesTeam__c == null) &&
-                        (productParams.accountId == '' || jda.Account__c == productParams.accountId || jda.Account__c == null))  {
+                        (productParams.accountId == '' || jda.Account__c == productParams.accountId || jda.Account__c == null) )  {
                         String productGroupId = (String)s.get('ProductGroup__c');
                         String productSubgroupId = (String)s.get('ProductSubgroup__c');
                         String productHierarchyId = (String)s.get('ProductHierarchy__c');
@@ -270,7 +292,7 @@ public without sharing class CustomLookupController {
                         ProductData productData = new ProductData((String)s.get('Id'), (String)s.get('Name'), (String)s.get('ExternalId__c'), (String)s.get('UnidadeMedida__c'), (String)s.get('PrincipleActive__c'), (Decimal)s.get('Multiplicity__c'), productGroupId, productHierarchyId, productGroupName, productSubgroupId, productSubgroupName, jda.Currency__c, jda.Id, jda.UnitPrice__c, jda.Cost__c, commissionPercentage, jda.ProductMultiplier__c, isPtaProduct, jda.ExternalId__c, jda.SalesCondition__r.Name);
                         
                         Boolean priceIncluded = false;
-                        String key = jda.Account__c + '-' + (String)s.get('Id');
+                        String key = prefix + jda.Account__c + '-' + (String)s.get('Id');
                         if (((productParams.accountId == '' && jda.Account__c == null) || (productParams.accountId != '')) && ((seedSale == true && !prodIdsWithoutQuota.contains((String)s.get('Id'))) || !seedSale)) {
                             if (jda.Account__c != null && !result.recordsDataMap.containsKey(key)) {
                                 result.recordsDataMap.put(key, productData);
@@ -278,37 +300,37 @@ public without sharing class CustomLookupController {
                             }
             
                             String accountSegment = jda.Account__c != null ? industryByAccountIds.get(jda.Account__c).Industry : '';
-                            key = accountSegment + '-' + (String)s.get('Id');
+                            key = prefix + accountSegment + '-' + (String)s.get('Id');
                             if (!priceIncluded && accountSegment != '' && !result.recordsDataMap.containsKey(key)) {
                                 result.recordsDataMap.put(key, productData);
                                 priceIncluded = true;
                             }
             
-                            key = jda.Culture__c + '-' + jda.SalesTeam__c + '-' + (String)s.get('Id');
+                            key = prefix + jda.Culture__c + '-' + jda.SalesTeam__c + '-' + (String)s.get('Id');
                             if (!priceIncluded && jda.Culture__c != null && jda.SalesTeam__c != null && !result.recordsDataMap.containsKey(key)) {
                                 result.recordsDataMap.put(key, productData);
                                 priceIncluded = true;
                             }
             
-                            key = jda.SalesTeam__c + '-' + (String)s.get('Id');
+                            key = prefix + jda.SalesTeam__c + '-' + (String)s.get('Id');
                             if (!priceIncluded && jda.SalesTeam__c != null && !result.recordsDataMap.containsKey(key)) {
                                 result.recordsDataMap.put(key, productData);
                                 priceIncluded = true;
                             }
             
-                            key = jda.SalesOffice__c + '-' + (String)s.get('Id');
+                            key = prefix + jda.SalesOffice__c + '-' + (String)s.get('Id');
                             if (!priceIncluded && jda.SalesOffice__c != null && !result.recordsDataMap.containsKey(key)) {
                                 result.recordsDataMap.put(key, productData);
                                 priceIncluded = true;
                             }
             
-                            key = jda.ProductGroup__c;
+                            key = prefix + jda.ProductGroup__c;
                             if (!priceIncluded && jda.ProductGroup__c != null && !result.recordsDataMap.containsKey(key)) {
                                 result.recordsDataMap.put(key, productData);
                                 priceIncluded = true;
                             }
             
-                            key = (String)s.get('Id');
+                            key = prefix + (String)s.get('Id');
                             if (!priceIncluded && !result.recordsDataMap.containsKey(key)) {
                                 result.recordsDataMap.put(key, productData);
                                 priceIncluded = true;
@@ -350,7 +372,9 @@ public without sharing class CustomLookupController {
                                 .add(new QConditionGroup(new List<Qcondition>{
                                     new Qcondition('Name').isLike('%' + String.escapeSingleQuotes(searchString.trim()) + '%'),
                                     new Qcondition('ExternalId__c').isLike('%' + String.escapeSingleQuotes(searchString.trim()) + '%')
-                                }).setLogicalOperatorAsOr());
+                                }).setLogicalOperatorAsOr())
+                                .addLimit(40000)
+                                .addOffset(territoryParams.offSet);
 
                     List<Account> accountList = Database.query(accountQuery.build());
                     Map<Id, Account> accountMap = new Map<Id, Account>();
@@ -389,7 +413,10 @@ public without sharing class CustomLookupController {
                     .add(new QConditionGroup(new List<Qcondition>{
                         new Qcondition('Name').isLike('%' + String.escapeSingleQuotes(searchString.trim()) + '%'),
                         new Qcondition('ExternalId__c').isLike('%' + String.escapeSingleQuotes(searchString.trim()) + '%')
-                    }).setLogicalOperatorAsOr());
+                    }).setLogicalOperatorAsOr())
+                    .addLimit(40000)
+                    .addOffset(territoryParams.offSet);
+
                     List<Account> accountList = Database.query(accountQuery.build());
                     Map<Id, Account> accountMap = new Map<Id, Account>();
                     for(Account acc : accountList){
@@ -433,7 +460,9 @@ public without sharing class CustomLookupController {
                     .add(new QConditionGroup(new List<Qcondition>{
                         new Qcondition('Name').isLike('%' + String.escapeSingleQuotes(searchString.trim()) + '%'),
                         new Qcondition('ExternalId__c').isLike('%' + String.escapeSingleQuotes(searchString.trim()) + '%')
-                    }).setLogicalOperatorAsOr());
+                    }).setLogicalOperatorAsOr())
+                    .addLimit(40000)
+                    .addOffset(territoryParams.offSet);
 
                     List<Account> accountList = Database.query(accountQuery.build());
                     Map<Id, Account> accountMap = new Map<Id, Account>();
@@ -479,14 +508,12 @@ public without sharing class CustomLookupController {
 
                 result.counter = counter;
 
-                Q accountQuery = new Q(Account.SObjectType)
-                .selectFields(fieldsSet)
-                .add(Q.condition('Name').isLike('%' + String.escapeSingleQuotes(searchString.trim()) + '%'))
-                .add(Q.condition('Id').isNotIn(accountIdList))
-                .addLimit(30)
-                .addOffset(territoryParams.offSet);
+                String query = 'SELECT Id, Name, ExternalId__c FROM Account WHERE (ExternalId__c LIKE \'%' + String.escapeSingleQuotes(searchString.trim()) + '%\' OR Name LIKE \'%' + String.escapeSingleQuotes(searchString.trim()) + '%\') AND Id NOT IN: accountIdList ' +
+				' ORDER BY Name' +
+				' LIMIT 30' + 
+				' OFFSET ' + territoryParams.offSet;
 
-                List<Account> accountList = Database.query(accountQuery.build());
+                List<Account> accountList = Database.query(query);
                 Map<Id, Account> accountMap = new Map<Id, Account>();
                 for(Account acc : accountList){
                     accountMap.put(acc.Id, acc);
@@ -579,6 +606,8 @@ public without sharing class CustomLookupController {
         public String  salesOrgId;
         public String  salesOfficeId;
         public String  salesTeamId;
+        public String  activitySectorName;
+        public Boolean dontGetSeeds;
         public Integer numberOfRowsToSkip;
     }
 
@@ -589,9 +618,9 @@ public without sharing class CustomLookupController {
     }
 
     public class SalesResult {
-        @AuraEnabled public Id salesOrgId;
         @AuraEnabled public Id salesOfficeId;
         @AuraEnabled public Id salesTeamId;
+        @AuraEnabled public Id salesOrgId;
         @AuraEnabled public String segmento;
         @AuraEnabled public String searchString;
     }

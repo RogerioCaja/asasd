@@ -9,6 +9,7 @@ import getSafraInfos from '@salesforce/apex/OrderScreenController.getSafraInfos'
 import getFinancialInfos from '@salesforce/apex/OrderScreenController.getFinancialInfos';
 import getSpecificCombos from '@salesforce/apex/OrderScreenController.getSpecificCombos';
 import checkQuotaQuantity from '@salesforce/apex/OrderScreenController.checkQuotaQuantity';
+import getBrokerageQuantities from '@salesforce/apex/OrderScreenController.getBrokerageUnitPerProduct';
 import getAccountCompanies from '@salesforce/apex/OrderScreenController.getAccountCompanies';
 import getMixAndConditionCombos from '@salesforce/apex/OrderScreenController.getMixAndConditionCombos';
 import fetchOrderRecords from '@salesforce/apex/CustomLookupController.fetchProductsRecords';
@@ -25,6 +26,7 @@ export default class OrderProductScreen extends LightningElement {
     @api seedSale;
     verifyQuota;
     allProductQuotas = [];
+    allProductsBrokerageMother = [];
 
     selectedColumns={
         columnUnity: true,
@@ -68,6 +70,8 @@ export default class OrderProductScreen extends LightningElement {
     allDivisionProducts = [];
     financialInfos = {};
     
+    showRoyaltyTsi = false;
+    dontGetSeeds = false;
     selectCommodityScreen = false;
     commodityScreens = ['chooseCommodity', 'fillCommodity', 'negotiationDetails'];
     currentScreen = 'chooseCommodity';
@@ -168,6 +172,23 @@ export default class OrderProductScreen extends LightningElement {
 
         if(this.headerData.IsOrderChild) {
             this.disableSearch = true;
+            getBrokerageQuantities({orderId : this.headerData.Id})
+            .then((result) => {
+                if(result){
+                    this.allProductsBrokerageMother = JSON.parse(result);
+                    let brokProducts = [];
+                    for(let i = 0; i < this.products.length; i++){
+                        let productId = this.products[i].productId;
+                        let value = this.allProductsBrokerageMother.find(element => element.productId == productId);
+                        this.products[i].brokerage =  this.isFilled(value) ? this.products[i].quantity * Number(value.brokeragePerUnit) : this.products[i].brokerage;
+                        this.products[i].brokerageFront =  this.fixDecimalPlacesFront(this.products[i].brokerage);
+                        this.products[i].totalPriceWithBrokerage = Number(this.products[i].totalPrice) + Number(this.products[i].brokerage);
+                        this.products[i].totalPriceWithBrokerageFront = this.fixDecimalPlacesFront(this.products[i].totalPriceWithBrokerage);
+                        brokProducts.push(this.products[i]);
+                    }
+                    this.products = JSON.parse(JSON.stringify(brokProducts));
+                }
+            })
             this._setData();
         }
 
@@ -261,6 +282,8 @@ export default class OrderProductScreen extends LightningElement {
     }
 
     newProduct(currentProduct) {
+        let tTotalPrice = this.headerData.IsOrderChild ? this.fixDecimalPlaces((currentProduct.tListPrice * currentProduct.quantity)) : (this.isFilled(currentProduct.tsiTotalPrice) ? currentProduct.tsiTotalPrice : 0)
+        let rTotalPrice = this.headerData.IsOrderChild ? this.fixDecimalPlaces((currentProduct.rListPrice * currentProduct.quantity)) : (this.isFilled(currentProduct.royaltyTotalPrice) ? currentProduct.royaltyTotalPrice : 0)
         let newProduct = {
             orderItemId: currentProduct.orderItemId,
             name: currentProduct.name,
@@ -296,8 +319,8 @@ export default class OrderProductScreen extends LightningElement {
             unitPriceFront: this.fixDecimalPlacesFront(currentProduct.unitPrice),
             totalPrice: this.headerData.IsOrderChild ? this.fixDecimalPlaces((currentProduct.unitPrice * currentProduct.quantity)) : currentProduct.totalPrice,
             totalPriceFront: this.headerData.IsOrderChild ? this.fixDecimalPlacesFront((currentProduct.unitPrice * currentProduct.quantity)) : this.fixDecimalPlacesFront(currentProduct.totalPrice),
-            totalPriceWithBrokerage: this.headerData.IsOrderChild ? this.fixDecimalPlaces((currentProduct.unitPrice * currentProduct.quantity)) : currentProduct.totalPriceWithBrokerage,
-            totalPriceWithBrokerageFront: this.headerData.IsOrderChild ? this.fixDecimalPlacesFront((currentProduct.unitPrice * currentProduct.quantity)) : this.fixDecimalPlacesFront(currentProduct.totalPriceWithBrokerage),
+            totalPriceWithBrokerage: this.isFilled(currentProduct.totalPriceWithBrokerage) ? currentProduct.totalPriceWithBrokerage : 0,
+            totalPriceWithBrokerageFront: this.isFilled(currentProduct.totalPriceWithBrokerage) ? this.fixDecimalPlacesFront(currentProduct.totalPriceWithBrokerage) : 0,
             costPrice: currentProduct.listCost,
             listCost: currentProduct.listCost,
             practicedCost: currentProduct.practicedCost,
@@ -327,7 +350,15 @@ export default class OrderProductScreen extends LightningElement {
             industryCombo: this.isFilled(currentProduct.comboId) ? currentProduct.industryCombo : false,
             containsCombo: this.isFilled(currentProduct.containsCombo) ? currentProduct.containsCombo : false,
             formerItem: this.isFilled(currentProduct.formerItem) ? currentProduct.formerItem : false,
-            benefitItem: this.isFilled(currentProduct.benefitItem) ? currentProduct.benefitItem : false
+            benefitItem: this.isFilled(currentProduct.benefitItem) ? currentProduct.benefitItem : false,
+            tListPrice: this.isFilled(currentProduct.tListPrice) ? currentProduct.tListPrice : 0,
+            tListPriceFront: this.isFilled(currentProduct.tListPrice) ? 'R$' + this.fixDecimalPlacesFront(currentProduct.tListPrice) : 'R$0',
+            tsiTotalPrice: tTotalPrice,
+            tsiTotalPriceFront: 'R$' + this.fixDecimalPlacesFront(tTotalPrice),
+            rListPrice: this.isFilled(currentProduct.rListPrice) ? currentProduct.rListPrice : 0,
+            rListPriceFront: this.isFilled(currentProduct.rListPrice) ? 'R$' + this.fixDecimalPlacesFront(currentProduct.rListPrice) : 'R$0',
+            royaltyTotalPrice: rTotalPrice,
+            royaltyTotalPriceFront: 'R$' + this.fixDecimalPlacesFront(rTotalPrice)
         };
         if (this.isFilled(newProduct.comboId)) {
             this.disabled = true;
@@ -383,6 +414,33 @@ export default class OrderProductScreen extends LightningElement {
         isSeedSale({salesOrgId: this.selectedCompany.salesOrgId, productGroupName: null})
         .then((result) => {
             this.seedSale = result;
+            
+            if (this.isFilled(this.selectedCompany.activitySectorName) &&
+                (this.selectedCompany.activitySectorName.toUpperCase() == 'SEMENTES' || this.selectedCompany.activitySectorName.toUpperCase() == 'SEMENTE')) {
+                this.showRoyaltyTsi = result;
+            }
+            if (this.seedSale && this.isFilled(this.selectedCompany.activitySectorName) &&
+                (this.selectedCompany.activitySectorName.toUpperCase() == 'INSUMOS' || this.selectedCompany.activitySectorName.toUpperCase() == 'INSUMO')) {
+                this.dontGetSeeds = true;
+            }
+
+            this.productParams = {
+                salesConditionId: this.headerData.condicao_venda.Id,
+                accountId: this.accountData.Id,
+                ctvId: this.headerData.ctv_venda.Id,
+                safra: this.headerData.safra.Id,
+                productCurrency: this.headerData.moeda,
+                culture: this.headerData.cultura.Id,
+                orderType: this.headerData.tipo_venda,
+                supplierCenter: this.selectedCompany.supplierCenter,
+                activitySectorName: this.selectedCompany.activitySectorName,
+                salesOrgId: this.selectedCompany.salesOrgId != null ? this.selectedCompany.salesOrgId : '',
+                salesOfficeId: this.selectedCompany.salesOfficeId != null ? this.selectedCompany.salesOfficeId : '',
+                salesTeamId: this.selectedCompany.salesTeamId != null ? this.selectedCompany.salesTeamId : '',
+                numberOfRowsToSkip: this.numberOfRowsToSkip,
+                dontGetSeeds: this.isFilled(this.dontGetSeeds) ? this.dontGetSeeds : false
+            };
+
             let prodsIds = [];
             for (let index = 0; index < this.products.length; index++) {
                 prodsIds.push(this.products[index].productId);
@@ -456,21 +514,6 @@ export default class OrderProductScreen extends LightningElement {
                         endDate: safraResult.endDateBilling
                     };
 
-                    this.productParams = {
-                        salesConditionId: this.headerData.condicao_venda.Id,
-                        accountId: this.accountData.Id,
-                        ctvId: this.headerData.ctv_venda.Id,
-                        safra: this.headerData.safra.Id,
-                        productCurrency: this.headerData.moeda,
-                        culture: this.headerData.cultura.Id,
-                        orderType: this.headerData.tipo_venda,
-                        supplierCenter: this.selectedCompany.supplierCenter,
-                        salesOrgId: this.selectedCompany.salesOrgId != null ? this.selectedCompany.salesOrgId : '',
-                        salesOfficeId: this.selectedCompany.salesOfficeId != null ? this.selectedCompany.salesOfficeId : '',
-                        salesTeamId: this.selectedCompany.salesTeamId != null ? this.selectedCompany.salesTeamId : '',
-                        numberOfRowsToSkip: this.numberOfRowsToSkip
-                    };
-
                     let orderData = {
                         paymentDate: this.headerData.data_pagamento != null ? this.headerData.data_pagamento : '',
                         salesOrg: this.selectedCompany.salesOrgId != null ? this.selectedCompany.salesOrgId : '',
@@ -493,7 +536,8 @@ export default class OrderProductScreen extends LightningElement {
                             data: JSON.stringify(this.productParams),
                             isCommodity: false,
                             productsIds: prodsIds,
-                            priceScreen: false
+                            priceScreen: false,
+                            getSeedPrices: this.showRoyaltyTsi
                         })
                         .then(result => {
                             this.productsPriceMap = result.recordsDataMap;
@@ -597,6 +641,12 @@ export default class OrderProductScreen extends LightningElement {
                                         this.addProduct.listCost = this.isFilled(priorityInfos.costPrice) ? this.fixDecimalPlaces(priorityInfos.costPrice) : 0;
                                         this.addProduct.practicedCost = this.isFilled(priorityInfos.costPrice) ? this.fixDecimalPlaces(priorityInfos.costPrice) : 0;
                                         this.addProduct.priceListCode = priorityInfos.priceListCode;
+                                        
+                                        this.addProduct.tListPrice = this.isFilled(priorityInfos.tListPrice) ? priorityInfos.tListPrice : 0;
+                                        this.addProduct.tListPriceFront = this.isFilled(priorityInfos.tListPrice) ? 'R$' + this.fixDecimalPlacesFront(priorityInfos.tListPrice) : 'R$0';
+                                        
+                                        this.addProduct.rListPrice = this.isFilled(priorityInfos.rListPrice) ? priorityInfos.rListPrice : 0;
+                                        this.addProduct.rListPriceFront = this.isFilled(priorityInfos.rListPrice) ? 'R$' + this.fixDecimalPlacesFront(priorityInfos.rListPrice) : 'R$0';
                                         
                                         if (this.addProduct.commercialAdditionPercentage != '0%') {
                                             this.addProduct.unitPrice = this.addProduct.listPrice + this.calculateValue(this.addProduct.commercialAdditionPercentage, this.addProduct.listPrice);
@@ -848,6 +898,7 @@ export default class OrderProductScreen extends LightningElement {
                 this.createNewProduct = false;
                 this.editProduct(existProduct.position, false);
             } else {
+                console.log('this.baseProducts: ' + JSON.stringify(this.baseProducts));
                 let currentProduct = this.baseProducts.find(e => e.Id == productId);
                 let priorityInfos = this.getProductByPriority(currentProduct);
     
@@ -916,7 +967,15 @@ export default class OrderProductScreen extends LightningElement {
             position: this.isFilled(counter) ? counter : null,
             containsCombo: this.isFilled(comboValues) ? comboValues.containsCombo : (this.isFilled(currentProduct.containsCombo) ? currentProduct.containsCombo : false),
             formerItem: this.isFilled(comboValues) ? comboValues.formerItem : false,
-            benefitItem: this.isFilled(comboValues) ? comboValues.benefitItem : false
+            benefitItem: this.isFilled(comboValues) ? comboValues.benefitItem : false,
+            tListPrice: this.isFilled(priorityInfos.tListPrice) ? priorityInfos.tListPrice : 0,
+            tListPriceFront: this.isFilled(priorityInfos.tListPrice) ? 'R$' + this.fixDecimalPlacesFront(priorityInfos.tListPrice) : 'R$0',
+            tsiTotalPrice: 0,
+            tsiTotalPriceFront: 0,
+            rListPrice: this.isFilled(priorityInfos.rListPrice) ? priorityInfos.rListPrice : 0,
+            rListPriceFront: this.isFilled(priorityInfos.rListPrice) ? 'R$' + this.fixDecimalPlacesFront(priorityInfos.rListPrice) : 'R$0',
+            royaltyTotalPrice: 0,
+            royaltyTotalPriceFront: 0
         };
 
         if (this.isFilled(currentProduct.comboId)) {
@@ -1061,9 +1120,14 @@ export default class OrderProductScreen extends LightningElement {
                     this.calculateTotalPrice(true);
                 }
             } else if (fieldId == 'brokerage'){
-
-                this.addProduct.brokerageFront = this.fixDecimalPlacesFront(this.addProduct.brokerage);
-                this.calculateTotalPrice(true);
+                if (!this.headerData.IsOrderChild) {
+                    this.addProduct.brokerageFront = this.fixDecimalPlacesFront(this.addProduct.brokerage);
+                    this.calculateTotalPrice(true);
+                }else{
+                    this.addProduct.brokerageFront = this.fixDecimalPlacesFront(this.addProduct.brokerage);
+                    this.addProduct.totalPriceWithBrokerage = this.addProduct.totalPrice + this.addProduct.brokerage;
+                    this.addProduct.totalPriceWithBrokerageFront = this.fixDecimalPlacesFront(this.addProduct.totalPriceWithBrokerage);
+                }
 
             } else if (fieldId == 'quantity') {
                 this.addProduct.quantity = this.calculateMultiplicity(this.addProduct.quantity, false);
@@ -1076,6 +1140,18 @@ export default class OrderProductScreen extends LightningElement {
                 } else {
                     this.addProduct.totalPrice = this.fixDecimalPlaces((this.addProduct.unitPrice * this.addProduct.quantity));
                     this.addProduct.totalPriceFront = this.fixDecimalPlacesFront((this.addProduct.unitPrice * this.addProduct.quantity));
+
+                    if (this.seedSale) {
+                        let value = this.allProductsBrokerageMother.find(element => element.productId == this.addProduct.productId);
+                        this.addProduct.brokerage =  this.isFilled(value) ? this.addProduct.quantity * Number(value.brokeragePerUnit) : this.addProduct.brokerage;
+                        this.addProduct.brokerageFront = this.fixDecimalPlacesFront(this.addProduct.brokerage);
+                        this.addProduct.totalPriceWithBrokerage = Number(this.addProduct.totalPrice) + Number(this.addProduct.brokerage);
+                        this.addProduct.totalPriceWithBrokerageFront = this.fixDecimalPlacesFront(this.addProduct.totalPriceWithBrokerage);
+                        this.addProduct.tsiTotalPrice = this.addProduct.tListPrice * this.addProduct.quantity;
+                        this.addProduct.tsiTotalPriceFront = this.fixDecimalPlacesFront(this.addProduct.tsiTotalPrice);
+                        this.addProduct.royaltyTotalPrice = this.addProduct.rListPrice * this.addProduct.quantity;
+                        this.addProduct.royaltyTotalPriceFront = this.fixDecimalPlacesFront(this.addProduct.royaltyTotalPrice);
+                    }
                 }
             }
         }
@@ -1107,6 +1183,11 @@ export default class OrderProductScreen extends LightningElement {
     calculateTotalPrice(recalculateUnitPrice, isDiscount) {
         this.addProduct.totalPrice = null;
         this.addProduct.totalPriceWithBrokerage = null;
+
+        this.addProduct.tsiTotalPrice = this.addProduct.tListPrice * this.addProduct.quantity;
+        this.addProduct.tsiTotalPriceFront = this.fixDecimalPlacesFront(this.addProduct.tsiTotalPrice);
+        this.addProduct.royaltyTotalPrice = this.addProduct.rListPrice * this.addProduct.quantity;
+        this.addProduct.royaltyTotalPriceFront = this.fixDecimalPlacesFront(this.addProduct.royaltyTotalPrice);
 
         if (this.isFilled(isDiscount)) {
             if (isDiscount && this.addProduct.commercialDiscountValue > 0) {
@@ -2169,7 +2250,9 @@ export default class OrderProductScreen extends LightningElement {
             searchString: this.salesInfos.searchString,
             data: JSON.stringify(this.productParams),
             isCommodity: false,
-            productsIds: []
+            productsIds: [],
+            priceScreen: false,
+            getSeedPrices: this.showRoyaltyTsi
         })
         .then(result => {
             this.showBaseProducts = result.recordsDataList.length > 0;
@@ -2218,7 +2301,8 @@ export default class OrderProductScreen extends LightningElement {
             productCurrency: this.headerData.moeda,
             culture: this.headerData.cultura.Id,
             orderType: this.headerData.tipo_venda,
-            numberOfRowsToSkip: 0
+            numberOfRowsToSkip: 0,
+            dontGetSeeds: this.isFilled(this.dontGetSeeds) ? this.dontGetSeeds : false
         };
 
         getSpecificCombos({data: JSON.stringify(headerValues), companyData: JSON.stringify(getCompanyData), productData: JSON.stringify(productParams), childOrder: this.childOrder, existingCombosIds: this.combosIds})

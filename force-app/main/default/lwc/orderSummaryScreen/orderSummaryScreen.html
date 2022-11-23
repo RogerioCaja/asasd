@@ -318,22 +318,54 @@
 
                 <div class="quantities-div">
                     <div class="column">
-                        Total de pagamento: <label class="quantities-bold">{orderTotalPriceFront}</label><br>
+                        Total de Pagamento Germoplasma: <label class="quantities-bold">{orderTotalPriceFront}</label><br>
                     </div>
                     <template if:true={showRed}>
                         <div class="column">
-                            Total a distribuir: <label class="quantities-red">{orderTotalToDistribution}</label><br>
+                            Total a Distribuir Germoplasma: <label class="quantities-red">{orderTotalToDistribution}</label><br>
                         </div>
                     </template>
                     <template if:false={showRed}>
                         <div class="column">
-                            Total a distribuir: <label class="quantities-bold">{orderTotalToDistribution}</label><br>
+                            Total a Distribuir Germoplasma: <label class="quantities-bold">{orderTotalToDistribution}</label><br>
+                        </div>
+                    </template>
+                </div>
+
+                <div if:true={seedSale} class="quantities-div">
+                    <div class="column">
+                        Total de Pagamento Royalties: <label class="quantities-bold">{royaltiesTotalPriceFront}</label><br>
+                    </div>
+                    <template if:true={showRoyaltiesRed}>
+                        <div class="column">
+                            Total a Distribuir Royalties: <label class="quantities-red">{royaltiesTotalToDistribution}</label><br>
+                        </div>
+                    </template>
+                    <template if:false={showRoyaltiesRed}>
+                        <div class="column">
+                            Total a Distribuir Royalties: <label class="quantities-bold">{royaltiesTotalToDistribution}</label><br>
+                        </div>
+                    </template>
+                </div>
+
+                <div if:true={seedSale} class="quantities-div">
+                    <div class="column">
+                        Total de Pagamento Tsi: <label class="quantities-bold">{tsiTotalPriceFront}</label><br>
+                    </div>
+                    <template if:true={showTsiRed}>
+                        <div class="column">
+                            Total a Distribuir Tsi: <label class="quantities-red">{tsiTotalToDistribution}</label><br>
+                        </div>
+                    </template>
+                    <template if:false={showTsiRed}>
+                        <div class="column">
+                            Total a Distribuir Tsi: <label class="quantities-bold">{tsiTotalToDistribution}</label><br>
                         </div>
                     </template>
                 </div>
 
                 <template for:each={formsOfPayment} for:item="payments">
-                    <div class="slds-form-element__row" key={payments.paymentPosition}>
+                    <div class="slds-form-element__row" style="padding-top: 70px;" key={payments.paymentPosition}>
                         <div class="slds-form-element payment-column">
                             <lightning-combobox 
                                 data-target-id={payments.paymentTypeId}
@@ -358,6 +390,7 @@
                                 onblur={changeValue} 
                                 required="true"
                                 min={currentDate}
+                                max={maxDate}
                                 disabled={blockPaymentFields}>
                             </lightning-input>
                         </div>

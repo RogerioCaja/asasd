@@ -244,7 +244,9 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             try
             {
                 this.productData.forEach(product =>{
-                    this.valorTotal  += parseFloat(product.totalPrice);
+                    let totalPrice = this.isFilled(product.totalPriceWithBrokerage) ? Number(product.totalPriceWithBrokerage) : Number(product.totalPrice);
+                    totalPrice = Number(totalPrice) + Number(product.tsiTotalPrice) + Number(product.royaltyTotalPrice);
+                    this.valorTotal += parseFloat(totalPrice);
                 })
                 this.valorTotal = parseFloat(this.valorTotal).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
 
@@ -337,7 +339,9 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             try
             {
                 this.productData.forEach(product =>{
-                    this.valorTotal  += parseFloat(product.totalPrice);
+                    let totalPrice = this.isFilled(product.totalPriceWithBrokerage) ? Number(product.totalPriceWithBrokerage) : Number(product.totalPrice);
+                    totalPrice = Number(totalPrice) + Number(product.tsiTotalPrice) + Number(product.royaltyTotalPrice);
+                    this.valorTotal += parseFloat(totalPrice);
                 })
                 this.valorTotal = parseFloat(this.valorTotal).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
 
@@ -485,21 +489,35 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         }
 
         let totalPayment = 0;
+        let totalPaymentTsi = 0;
+        let totalPaymentRoyalties = 0;
         let prodsIds = [];
         for (let index = 0; index < this.productData.length; index++) {
             totalPayment += Number(this.productData[index].unitPrice) * Number(this.productData[index].quantity) + Number(this.productData[index].brokerage);
+            totalPaymentTsi += Number(this.productData[index].tsiTotalPrice);
+            totalPaymentRoyalties += Number(this.productData[index].royaltyTotalPrice);
             prodsIds.push(this.productData[index].productId);
         }
 
-        let orderTotalPrice = 0;
-        if(this.template.querySelector(this.tabs[3].component).seedSale){
-            if(this.formsOfPayment != undefined && this.formsOfPayment != null){
+        if (this.template.querySelector(this.tabs[3].component).seedSale) {
+            let orderTotalPrice = 0;
+            let orderTotalPaymentTsi = 0;
+            let orderTotalPaymentRoyalties = 0;
+            if (this.formsOfPayment != undefined && this.formsOfPayment != null) {
                 for (let index = 0; index < this.formsOfPayment.length; index++) {
-                    orderTotalPrice += Number(this.formsOfPayment[index].value);
+                    if (this.formsOfPayment[index].paymentType == 'Germoplasma') orderTotalPrice += Number(this.formsOfPayment[index].value);
+                    if (this.formsOfPayment[index].paymentType == 'TSI') orderTotalPaymentTsi += Number(this.formsOfPayment[index].value);
+                    if (this.formsOfPayment[index].paymentType == 'Royalties') orderTotalPaymentRoyalties += Number(this.formsOfPayment[index].value);
                 }
+            } else {
+                this.showNotification('O valor total do pagamento deve ser igual ao do pedido', 'Atenção', 'warning');
+                this.isLoading = false;
+                return;
             }
 
-            if (this.fixDecimalPlacesFront(totalPayment) != this.fixDecimalPlacesFront(orderTotalPrice)) {
+            if (this.fixDecimalPlacesFront(totalPayment) != this.fixDecimalPlacesFront(orderTotalPrice) ||
+                this.fixDecimalPlacesFront(totalPaymentTsi) != this.fixDecimalPlacesFront(orderTotalPaymentTsi) ||
+                this.fixDecimalPlacesFront(totalPaymentRoyalties) != this.fixDecimalPlacesFront(orderTotalPaymentRoyalties)) {
                 this.showNotification('O valor total do pagamento deve ser igual ao do pedido', 'Atenção', 'warning');
                 this.isLoading = false;
                 return;
@@ -656,11 +674,15 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         {
             if(this.template.querySelector(this.tabs[2].component).seedSale){
                 this.productData.forEach(product =>{
-                    this.valorTotal  += parseFloat(product.totalPriceWithBrokerage);
+                    let totalPrice = this.isFilled(product.totalPriceWithBrokerage) ? Number(product.totalPriceWithBrokerage) : Number(product.totalPrice);
+                    totalPrice = Number(totalPrice) + Number(product.tsiTotalPrice) + Number(product.royaltyTotalPrice);
+                    this.valorTotal  += parseFloat(totalPrice);
                 })
             }else{
                 this.productData.forEach(product =>{
-                    this.valorTotal  += parseFloat(product.totalPrice);
+                    let totalPrice = this.isFilled(product.totalPriceWithBrokerage) ? Number(product.totalPriceWithBrokerage) : Number(product.totalPrice);
+                    totalPrice = Number(totalPrice) + Number(product.tsiTotalPrice) + Number(product.royaltyTotalPrice);
+                    this.valorTotal  += parseFloat(totalPrice);
                 })
             }
             this.valorTotal = parseFloat(this.valorTotal).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
@@ -688,7 +710,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     checkProductDivisionAndCommodities() {
         let enableScreen = true;
 
-        if(this.headerData.pedido_mae_check){
+        if(this.headerData.pedido_mae_check && !this.headerData.IsOrderChild){
             return true
         }
         if (this.isFilled(this.productData) && this.isFilled(this.divisionData)) {
