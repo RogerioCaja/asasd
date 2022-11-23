@@ -2395,9 +2395,9 @@ public without sharing class OrderScreenController {
             this.motherAvailableQuantity = orderItem.AmountUsed__c != null ? orderItem.Quantity - orderItem.AmountUsed__c : null;
             this.listPrice = orderItem.ListPrice__c;
             this.unitPrice = orderItem.PracticedPrice__c;
-            this.totalPrice = orderItem.FinalTotalValue__c;
-            this.brokerage = brokeragePerUnit != null ? orderItem.Quantity * brokeragePerUnit : orderItem.Brokerage__c;
-            this.totalPriceWithBrokerage = this.brokerage != null ? (orderItem.FinalTotalValue__c + this.brokerage) : orderItem.FinalTotalValue__c;
+            this.totalPrice = orderItem.PracticedPrice__c * this.quantity;
+            this.brokerage = brokeragePerUnit != null ? this.quantity * brokeragePerUnit : orderItem.Brokerage__c;
+            this.totalPriceWithBrokerage = this.brokerage != null ? (this.totalPrice + this.brokerage) : this.totalPrice;
             this.listCost = orderItem.ListCost__c;
             this.practicedCost = orderItem.PracticedCost__c;
             this.dosage = orderItem.Dosage__c;
