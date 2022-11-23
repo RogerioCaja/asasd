@@ -67,7 +67,29 @@ public without sharing class OrderScreenController {
         return new HeaderSerialize(order, cloneOrder);
     }
 
+    public static Map<String, Decimal> verifyConditionsToCalcBrokerage(Id orderId){
+        Order order = [SELECT Id, SalesOrg__c, OrderReference__c, OrderType__c FROM Order WHERE Id =: orderId LIMIT 1];
+        Map<String, Decimal> productBrokerageUnitMap = new Map<String,Decimal>();
+        Id orderDefinitive;
+        Boolean seedSale = isSeedSale(order.SalesOrg__c, null);
+        if(seedSale && order.OrderType__c != 'Pedido Filho'){
+            orderDefinitive = order.Id;
+        }else if(seedSale && order.OrderType__c == 'Pedido Filho'){
+            orderDefinitive = order.OrderReference__c;
+        }
+
+        if(orderDefinitive != null){
+            List<OrderItem> orderItemList = [SELECT Brokerage__c, Quantity, Product2Id FROM OrderItem WHERE OrderId =: orderDefinitive];
+            for(OrderItem orderItem : orderItemList){
+                productBrokerageUnitMap.put(orderItem.Product2Id, (orderItem.Brokerage__c / orderItem.Quantity));
+            }
+        }
+        return productBrokerageUnitMap;
+
+    }
     public static List<ProductSerialize> getOrderItemData(Id orderId, Boolean cloneOrder) {
+        Map<String, Decimal> productBrokerageUnitMap = verifyConditionsToCalcBrokerage(orderId);
+
         List<ProductSerialize> prods = new List<ProductSerialize>();
         orderItemsPosition = new Map<Id, Integer>();
         totalCost = 0;
@@ -128,7 +150,8 @@ public without sharing class OrderScreenController {
                 totalCost += itemPracticedCost * item.Quantity;
                 totalDiscount += itemDiscount;
                 totalQuantity += item.Quantity;
-                prods.add(new ProductSerialize(item, counter, cloneOrder));
+                Decimal brokerageUnit = productBrokerageUnitMap.containsKey(item.Product2Id) ? productBrokerageUnitMap.get(item.Product2Id) : null;
+                prods.add(new ProductSerialize(item, counter, cloneOrder, brokerageUnit));
                 orderItemsPosition.put(item.Id, counter);
                 counter++;
             }
@@ -1608,30 +1631,6 @@ public without sharing class OrderScreenController {
         }
     }
 
-    @AuraEnabled
-    public static string getBrokerageUnitPerProduct(String orderId){
-        try {
-            System.debug('orderId =>'+ orderId);
-            // Id orderMother = [SELECT OrderReference__c FROM Order WHERE Id =: orderId LIMIT 1][0].OrderReference__c;
-            Q orderItemQuery = new Q(OrderItem.SobjectType)
-                                .selectFields(new Set<String>{'Brokerage__c', 'Quantity', 'Product2Id'})
-                                .add(Q.condition('OrderId').equalsTo(orderId));
-            
-            List<BrokerageQuantities> brokerageResult = new List<BrokerageQuantities>();
-            List<OrderItem> orderItemList = Database.query(orderItemQuery.build());
-            System.debug('orderItemList =>'+ orderItemList);
-            for(OrderItem orderItem : orderItemList){
-                BrokerageQuantities brokerageQuantity = new BrokerageQuantities();
-                brokerageQuantity.productId = orderItem.Product2Id;
-                brokerageQuantity.brokeragePerUnit = orderItem.Brokerage__c / orderItem.Quantity;
-                brokerageResult.add(brokerageQuantity);
-            }
-            System.debug('brokerageResult =>'+ brokerageResult);
-            return JSON.serialize(brokerageResult);
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
-    }
     public static Decimal stringToDecimal(String value) {
         if (value.contains(',')) value = value.replaceAll(',', '.');
         if (value.contains('%')) value = value.replaceAll('%', '');
@@ -1732,6 +1731,7 @@ public without sharing class OrderScreenController {
         public Decimal financialDecreaseValue;
         public Decimal commercialMarginPercentage;
         public Decimal comissionValue;
+        public Decimal brokeragePerUnit;
     }
 
     public class DivisionDeserialize{
@@ -2031,10 +2031,11 @@ public without sharing class OrderScreenController {
         public Decimal financialDecreaseValue;
         public Decimal commercialMarginPercentage;
         public Decimal comissionValue;
+        public Decimal brokeragePerUnit;
 
         ProductSerialize(){}
 
-        ProductSerialize(OrderItem orderItem, Integer position, Boolean cloneOrder){
+        ProductSerialize(OrderItem orderItem, Integer position, Boolean cloneOrder, Decimal brokeragePerUnit){
             this.position = position;
             this.orderItemId = orderItem.Id;
             this.productId = orderItem.Product2Id;
@@ -2060,7 +2061,7 @@ public without sharing class OrderScreenController {
             this.listCost = orderItem.ListCost__c;
             this.practicedCost = orderItem.PracticedCost__c;
             this.dosage = orderItem.Dosage__c;
-            this.brokerage = orderItem.Brokerage__c;
+            this.brokerage = brokeragePerUnit != null ? orderItem.Quantity * brokeragePerUnit : orderItem.Brokerage__c;
             this.sapStatus = orderItem.Status__c;
             this.unity = orderItem.UnitMeasure__c;
             this.commercialDiscountPercentage = orderItem.DiscountPercent__c != null ? (orderItem.DiscountPercent__c == 0 ? '0%' : String.valueOf(orderItem.DiscountPercent__c) + '%') : '0%';
@@ -2077,6 +2078,7 @@ public without sharing class OrderScreenController {
             this.priceListCode = orderItem.PriceListCode__c;
             this.sieve = orderItem.Sieve__c != null ? orderItem.Sieve__c : '';
             this.productClass = orderItem.Class__c != null ? orderItem.Class__c : '';
+            this.brokeragePerUnit = brokeragePerUnit != null ? brokeragePerUnit : '';
         }
     }
 
@@ -2315,8 +2317,4 @@ public without sharing class OrderScreenController {
         public List<IndividualQuotas__c> individualQuotasToUpdate = new List<IndividualQuotas__c>();
     }
 
-    public class BrokerageQuantities{
-        public Id productId;
-        public Decimal brokeragePerUnit;
-    }
 }
