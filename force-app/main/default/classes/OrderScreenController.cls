@@ -2053,7 +2053,7 @@ public without sharing class OrderScreenController {
         public Decimal rListPrice;
         public Decimal tsiTotalPrice;
         public Decimal royaltyTotalPrice;
-        public Decimal brokeragePerUnit;
+        public String brokeragePerUnit;
     }
 
     public class DivisionDeserialize{
@@ -2366,7 +2366,7 @@ public without sharing class OrderScreenController {
         public Decimal rListPrice;
         public Decimal tsiTotalPrice;
         public Decimal royaltyTotalPrice;
-        public Decimal brokeragePerUnit;
+        public String brokeragePerUnit;
 
         ProductSerialize(){}
 
@@ -2421,7 +2421,7 @@ public without sharing class OrderScreenController {
             this.rListPrice = orderItem.RoyaltyAmount__c != null ? orderItem.RoyaltyAmount__c : 0;
             this.tsiTotalPrice = this.tListPrice * this.quantity;
             this.royaltyTotalPrice = this.rListPrice * this.quantity;
-            this.brokeragePerUnit = brokeragePerUnit != null ? brokeragePerUnit : 0;
+            this.brokeragePerUnit = brokeragePerUnit != null ? String.valueOf(brokeragePerUnit) : '';
         }
     }
 
