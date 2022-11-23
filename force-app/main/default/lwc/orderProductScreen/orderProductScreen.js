@@ -905,7 +905,7 @@ export default class OrderProductScreen extends LightningElement {
     
                 this.multiplicity = this.isFilled(currentProduct.multiplicity) ? currentProduct.multiplicity : 1;
                 this.costPrice = priorityInfos.priorityPrice.costPrice;
-                this.addProduct = this.createProduct(currentProduct, priorityInfos, null, this.getCurrentProductPosition() + 1);
+                this.addProduct = this.createProduct(currentProduct, priorityInfos.priorityPrice, null, this.getCurrentProductPosition() + 1);
             }
         }
     }
