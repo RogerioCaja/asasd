@@ -2078,7 +2078,7 @@ public without sharing class OrderScreenController {
             this.priceListCode = orderItem.PriceListCode__c;
             this.sieve = orderItem.Sieve__c != null ? orderItem.Sieve__c : '';
             this.productClass = orderItem.Class__c != null ? orderItem.Class__c : '';
-            this.brokeragePerUnit = brokeragePerUnit != null ? brokeragePerUnit : '';
+            this.brokeragePerUnit = brokeragePerUnit != null ? brokeragePerUnit : 0;
         }
     }
 
