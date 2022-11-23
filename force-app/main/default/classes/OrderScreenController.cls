@@ -2057,11 +2057,11 @@ public without sharing class OrderScreenController {
             this.listPrice = orderItem.ListPrice__c;
             this.unitPrice = orderItem.PracticedPrice__c;
             this.totalPrice = orderItem.FinalTotalValue__c;
-            this.totalPriceWithBrokerage = orderItem.Brokerage__c != null ? (orderItem.FinalTotalValue__c + orderItem.Brokerage__c) : orderItem.FinalTotalValue__c;
+            this.brokerage = brokeragePerUnit != null ? orderItem.Quantity * brokeragePerUnit : orderItem.Brokerage__c;
+            this.totalPriceWithBrokerage = this.brokerage != null ? (orderItem.FinalTotalValue__c + this.brokerage) : orderItem.FinalTotalValue__c;
             this.listCost = orderItem.ListCost__c;
             this.practicedCost = orderItem.PracticedCost__c;
             this.dosage = orderItem.Dosage__c;
-            this.brokerage = brokeragePerUnit != null ? orderItem.Quantity * brokeragePerUnit : orderItem.Brokerage__c;
             this.sapStatus = orderItem.Status__c;
             this.unity = orderItem.UnitMeasure__c;
             this.commercialDiscountPercentage = orderItem.DiscountPercent__c != null ? (orderItem.DiscountPercent__c == 0 ? '0%' : String.valueOf(orderItem.DiscountPercent__c) + '%') : '0%';
