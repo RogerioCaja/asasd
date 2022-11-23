@@ -30,7 +30,7 @@ public without sharing class CalloutOrder {
 			List<Order> orderList = new List<Order>();
 			
             for(Messages message : resp.responses.ET_RETURN.item){
-                if(message.TYPE != 'S' && message.TYPE != 'W'){
+                if(message.TYPE != 'S' && message.TYPE != 'W' && message.TYPE != 'I'){
                     calloutResponse.success = false;
                     calloutResponse.errorMessage = (calloutResponse.errorMessage != null ? calloutResponse.errorMessage : '') + message.MESSAGE + '\n';
                 }
