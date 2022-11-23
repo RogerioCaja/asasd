@@ -121,7 +121,11 @@ public without sharing class OrderScreenController {
                    Class__c,
                    ComboPromotion__c,
                    AgrogalaxyComboDiscount__c,
-                   IndustryComboDiscount__c
+                   IndustryComboDiscount__c,
+                   TSIValue__c,
+                   RoyaltyAmount__c,
+                   TotalTSIAmount__c,
+                   TotalRoyaltyAmount__c
               FROM OrderItem
              WHERE OrderId =: orderId
         ]){
@@ -469,17 +473,21 @@ public without sharing class OrderScreenController {
     
             Decimal orderTotalValue = 0;
             Decimal biggerDiscount = 0;
+            Decimal tsiTotalValue = 0;
+            Decimal royaltyTotalValue = 0;
             Boolean seedSale = isSeedSale(company.SalesOrg__c, null);
             Id productGroupId;
+            
             Set<Id> setOrderItemsIds = new Set<Id>();
             List<Id> listProductsIds = new List<Id>();
             Set<Id> setProductHierarchyIds = new Set<Id>();
             Map<String, Decimal> quantitiesById = new Map<String, Decimal>();
             Map<String, Decimal> smallerMarginByProductGroup = new Map<String, Decimal>();
+            
             for (ProductDeserialize orderProduct : orderData.productData) {
-                if(seedSale){
+                if (seedSale) {
                     orderTotalValue += orderProduct.totalPriceWithBrokerage;
-                }else{
+                } else {
                     orderTotalValue += orderProduct.totalPrice;
                 }
                 
@@ -501,7 +509,7 @@ public without sharing class OrderScreenController {
                     }
                 }
 
-                if(orderProduct.productHierarchyId != null && orderProduct.productHierarchyId != ''){
+                if (orderProduct.productHierarchyId != null && orderProduct.productHierarchyId != '') {
                     setProductHierarchyIds.add(orderProduct.productHierarchyId);
                 }
 
@@ -516,6 +524,11 @@ public without sharing class OrderScreenController {
                     if (motherItem.AmountUsed__c + orderProduct.quantity > motherItem.Quantity) {
                         return JSON.serializePretty(new AGRO_RemotingResult(true, '200', 'Não é possível efetivar o pedido por ter excedido as quantidades do pedido mãe.'));
                     }
+                }
+
+                if (seedSale) {
+                    tsiTotalValue += orderProduct.tsiTotalPrice;
+                    royaltyTotalValue += orderProduct.royaltyTotalPrice;
                 }
 
                 quantitiesById.put(orderProduct.productId, orderProduct.quantity);
@@ -761,6 +774,10 @@ public without sharing class OrderScreenController {
             }
             order.FreightValue__c = (orderData.summaryData.freightValue != null) ? orderData.summaryData.freightValue : 0;
 
+            if (seedSale) {
+                order.FinalTotalValue__c = order.FinalTotalValue__c + tsiTotalValue + royaltyTotalValue;
+            }
+
             if (Test.isRunningTest()) {
                 OrderHelper.disableTrigger();
             }
@@ -843,7 +860,7 @@ public without sharing class OrderScreenController {
                     orderItem.Dosage__c = orderProduct.dosage != null ? orderProduct.dosage.setScale(6) : 0;
                     orderItem.Status__c = orderProduct.sapStatus != null ? statusValueByLabel.get(orderProduct.sapStatus) : null;
                     orderItem.UnitMeasure__c = orderProduct.unity;
-                    orderItem.FinalTotalValue__c = !(seedSale) ? orderProduct.totalPrice : orderProduct.totalPriceWithBrokerage;
+                    orderItem.FinalTotalValue__c = !(seedSale) ? orderProduct.totalPrice : (orderProduct.totalPriceWithBrokerage + orderProduct.royaltyTotalPrice + orderProduct.tsiTotalPrice);
                     orderItem.Brokerage__c = orderProduct.brokerage;
                     orderItem.ListCost__c = orderProduct.listCost != null ? orderProduct.listCost : 0;
                     orderItem.PracticedCost__c = orderProduct.practicedCost != null ? orderProduct.practicedCost : 0;
@@ -868,6 +885,10 @@ public without sharing class OrderScreenController {
                     orderItem.PriceListCode__c = orderProduct.priceListCode;
                     orderItem.Sieve__c = orderProduct.sieve;
                     orderItem.Class__c = orderProduct.productClass;
+                    orderItem.TSIValue__c = orderProduct.tListPrice;
+                    orderItem.RoyaltyAmount__c = orderProduct.rListPrice;
+                    orderItem.TotalTSIAmount__c = orderProduct.tsiTotalPrice;
+                    orderItem.TotalRoyaltyAmount__c = orderProduct.royaltyTotalPrice;
                     listOrderItems.add(orderItem);
                 }
 
@@ -1312,7 +1333,7 @@ public without sharing class OrderScreenController {
                 if(companyInfos.orderType == 'Venda de Serviço')
                     proQuery.add(Q.condition('ActivitySector__r.Codigo__c').equalsTo('40'));
                 else {
-                    proQuery.add(Q.condition('ActivitySector__r.Codigo__c').equalsTo('10'));
+                    proQuery.add(Q.condition('ActivitySector__r.Codigo__c').isIn(new List<String>{'10', '30'}));
                 }
 
                 if (companyInfos.accountId == '') proQuery.addLimit(1);
@@ -1554,6 +1575,8 @@ public without sharing class OrderScreenController {
         productParams.salesOrgId = company.salesOrgId;
         productParams.salesOfficeId = company.salesOfficeId;
         productParams.salesTeamId = company.salesTeamId;
+        productParams.dontGetSeeds = productParams.dontGetSeeds;
+        productParams.activitySectorName = company.activitySectorName;
         
         Map<Id, ComboPromotionData> result = new Map<Id, ComboPromotionData>();
         Map<Id, Set<Id>> combosByProductId = new Map<Id, Set<Id>>();
@@ -1667,7 +1690,7 @@ public without sharing class OrderScreenController {
         }
 
         Set<Id> existingPrices = new Set<Id>();
-        CustomLookupController.ProductDataResult productPrices = CustomLookupController.fetchProductsRecords('', JSON.serialize(productParams), false, prodsIds, false);
+        CustomLookupController.ProductDataResult productPrices = CustomLookupController.fetchProductsRecords('', JSON.serialize(productParams), false, prodsIds, false, false);
         for (CustomLookupController.ProductData products : productPrices.recordsDataList) {
             existingPrices.add(products.Id);
         }
@@ -1898,6 +1921,30 @@ public without sharing class OrderScreenController {
         }
     }
 
+    @AuraEnabled
+    public static string getBrokerageUnitPerProduct(String orderId){
+        try {
+            System.debug('orderId =>'+ orderId);
+            // Id orderMother = [SELECT OrderReference__c FROM Order WHERE Id =: orderId LIMIT 1][0].OrderReference__c;
+            Q orderItemQuery = new Q(OrderItem.SobjectType)
+                                .selectFields(new Set<String>{'Brokerage__c', 'Quantity', 'Product2Id'})
+                                .add(Q.condition('OrderId').equalsTo(orderId));
+            
+            List<BrokerageQuantities> brokerageResult = new List<BrokerageQuantities>();
+            List<OrderItem> orderItemList = Database.query(orderItemQuery.build());
+            System.debug('orderItemList =>'+ orderItemList);
+            for(OrderItem orderItem : orderItemList){
+                BrokerageQuantities brokerageQuantity = new BrokerageQuantities();
+                brokerageQuantity.productId = orderItem.Product2Id;
+                brokerageQuantity.brokeragePerUnit = orderItem.Brokerage__c / orderItem.Quantity;
+                brokerageResult.add(brokerageQuantity);
+            }
+            System.debug('brokerageResult =>'+ brokerageResult);
+            return JSON.serialize(brokerageResult);
+        } catch (Exception e) {
+            throw new AuraHandledException(e.getMessage());
+        }
+    }
     public static Decimal stringToDecimal(String value) {
         if (value.contains(',')) value = value.replaceAll(',', '.');
         if (value.contains('%')) value = value.replaceAll('%', '');
@@ -2003,6 +2050,10 @@ public without sharing class OrderScreenController {
         public Decimal commercialMarginPercentage;
         public Decimal comissionValue;
         public Decimal comboDiscountValue;
+        public Decimal tListPrice;
+        public Decimal rListPrice;
+        public Decimal tsiTotalPrice;
+        public Decimal royaltyTotalPrice;
     }
 
     public class DivisionDeserialize{
@@ -2311,6 +2362,10 @@ public without sharing class OrderScreenController {
         public Decimal commercialMarginPercentage;
         public Decimal comissionValue;
         public Decimal comboDiscountValue;
+        public Decimal tListPrice;
+        public Decimal rListPrice;
+        public Decimal tsiTotalPrice;
+        public Decimal royaltyTotalPrice;
 
         ProductSerialize(){}
 
@@ -2339,8 +2394,8 @@ public without sharing class OrderScreenController {
             this.motherAvailableQuantity = orderItem.AmountUsed__c != null ? orderItem.Quantity - orderItem.AmountUsed__c : null;
             this.listPrice = orderItem.ListPrice__c;
             this.unitPrice = orderItem.PracticedPrice__c;
-            this.totalPrice = orderItem.FinalTotalValue__c - this.comboDiscountValue;
-            this.totalPriceWithBrokerage = orderItem.Brokerage__c != null ? (orderItem.FinalTotalValue__c + orderItem.Brokerage__c) : orderItem.FinalTotalValue__c;
+            this.totalPrice = orderItem.PracticedPrice__c * this.quantity;
+            this.totalPriceWithBrokerage = orderItem.Brokerage__c != null ? (this.totalPrice + orderItem.Brokerage__c) : this.totalPrice;
             this.listCost = orderItem.ListCost__c;
             this.practicedCost = orderItem.PracticedCost__c;
             this.dosage = orderItem.Dosage__c;
@@ -2361,6 +2416,10 @@ public without sharing class OrderScreenController {
             this.priceListCode = orderItem.PriceListCode__c;
             this.sieve = orderItem.Sieve__c != null ? orderItem.Sieve__c : '';
             this.productClass = orderItem.Class__c != null ? orderItem.Class__c : '';
+            this.tListPrice = orderItem.TSIValue__c != null ? orderItem.TSIValue__c : 0;
+            this.rListPrice = orderItem.RoyaltyAmount__c != null ? orderItem.RoyaltyAmount__c : 0;
+            this.tsiTotalPrice = this.tListPrice * this.quantity;
+            this.royaltyTotalPrice = this.rListPrice * this.quantity;
         }
     }
 
@@ -2634,5 +2693,10 @@ public without sharing class OrderScreenController {
     public class GroupData {
         public String  productGroupId;
         public Decimal quantity;
+    }
+    
+    public class BrokerageQuantities{
+        public Id productId;
+        public Decimal brokeragePerUnit;
     }
 }

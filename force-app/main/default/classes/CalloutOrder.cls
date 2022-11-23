@@ -14,7 +14,7 @@ public without sharing class CalloutOrder {
 
 		Order parentOrder = [SELECT Id, CodigoSap__c, ShippingAccount__r.ExternalId__c, Company__r.SupplierCenter__c, Account.ExternalId__c, Type, SalesOrg__r.SalesOrganizationCode__c, DistributionChannel__c, DistributionChannel__r.Codigo__c, SalesCondition__r.ExternalId__c, Company__r.salesOffice__r.Codigo__c,
                             ActivitySector__c, ActivitySector__r.Codigo__c, PaymentCondition__r.CashPayment__c, Incoterms__c, Incoterms2__c, PaymentCondition__r.Code__c, OrderReason__c , SalesCTV__r.CodigoSap__c, PaymentDate__c,EffectiveDate, OrderReference__r.CodigoSap__c, Company__r.salesTeam__r.ExternalId__c,
-                            OrderNumber, Crop__r.Code__c, Crop__r.StartDateOrderInsertion__c, Crop__r.EndDateInsertionOrders__c ,Culture__r.Codigo__c, EndDate, TotalAmount, PaymentForm__c, OrderReference__c, CustomerOrderNumber__c, SalesCTV__r.SellerType__c, EffectiveOrderDate__c, NumeroPedidoApp__c, Freight__c,
+                            OrderNumber, Crop__r.Code__c, Crop__r.StartDateOrderInsertion__c, Crop__r.EndDateInsertionOrders__c ,Culture__r.Codigo__c, EndDate, TotalAmount, PaymentForm__c, OrderReference__c, CustomerOrderNumber__c, SalesCTV__r.SellerType__c, EffectiveOrderDate__c, NumeroPedidoApp__c, FreightValue__c,
                             Currency__c, Crop__r.PaymentBaseDate__c,IsOrderMother__c, RecordTypeId,Description,DescriptionBillingSale__c, DistributionCenter__r.Code__c, RecordType.DeveloperName, (SELECT Id FROM OrderItems) 
                             FROM Order WHERE Id = :orderId];
 		
@@ -142,7 +142,7 @@ public without sharing class CalloutOrder {
         }else if(order.SalesOrg__r.SalesOrganizationCode__c == '1700' && (orderTypeName == 'Venda Barter')){
             builder = (FactoryBuilder.Builder) new FactoryBuilder.RequestBarterSeedsBuilder();
             director.constructRequestBarterSeeds(builder, order);
-        }else if(orderTypeName == 'Venda Barter'){
+        }else if(orderTypeName == 'Venda Barter' && order.CodigoSap__c != null){
             builder = (FactoryBuilder.Builder) new FactoryBuilder.RequestBarterBuilder();
             director.constructRequestBarter(builder, order);
         }else{
