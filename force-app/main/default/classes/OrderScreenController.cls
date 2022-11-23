@@ -1731,7 +1731,12 @@ public without sharing class OrderScreenController {
         public Decimal financialDecreaseValue;
         public Decimal commercialMarginPercentage;
         public Decimal comissionValue;
-        public Decimal brokeragePerUnit;
+        public Decimal comboDiscountValue;
+        public Decimal tListPrice;
+        public Decimal rListPrice;
+        public Decimal tsiTotalPrice;
+        public Decimal royaltyTotalPrice;
+        public String brokeragePerUnit;
     }
 
     public class DivisionDeserialize{
@@ -2031,7 +2036,12 @@ public without sharing class OrderScreenController {
         public Decimal financialDecreaseValue;
         public Decimal commercialMarginPercentage;
         public Decimal comissionValue;
-        public Decimal brokeragePerUnit;
+        public Decimal comboDiscountValue;
+        public Decimal tListPrice;
+        public Decimal rListPrice;
+        public Decimal tsiTotalPrice;
+        public Decimal royaltyTotalPrice;
+        public String brokeragePerUnit;
 
         ProductSerialize(){}
 
@@ -2078,7 +2088,11 @@ public without sharing class OrderScreenController {
             this.priceListCode = orderItem.PriceListCode__c;
             this.sieve = orderItem.Sieve__c != null ? orderItem.Sieve__c : '';
             this.productClass = orderItem.Class__c != null ? orderItem.Class__c : '';
-            this.brokeragePerUnit = brokeragePerUnit != null ? brokeragePerUnit : 0;
+            this.tListPrice = orderItem.TSIValue__c != null ? orderItem.TSIValue__c : 0;
+            this.rListPrice = orderItem.RoyaltyAmount__c != null ? orderItem.RoyaltyAmount__c : 0;
+            this.tsiTotalPrice = this.tListPrice * this.quantity;
+            this.royaltyTotalPrice = this.rListPrice * this.quantity;
+            this.brokeragePerUnit = brokeragePerUnit != null ? String.valueOf(brokeragePerUnit) : '';
         }
     }
 
