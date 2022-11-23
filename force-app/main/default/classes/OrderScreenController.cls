@@ -482,7 +482,7 @@ public without sharing class OrderScreenController {
             Map<String, Decimal> smallerMarginByProductGroup = new Map<String, Decimal>();
             
             for (ProductDeserialize orderProduct : orderData.productData) {
-                if (seedSale) {
+                if (seedSale && orderProduct.brokerage != null && orderProduct.brokerage > 0) {
                     orderTotalValue += orderProduct.totalPriceWithBrokerage;
                 } else {
                     orderTotalValue += orderProduct.totalPrice;
