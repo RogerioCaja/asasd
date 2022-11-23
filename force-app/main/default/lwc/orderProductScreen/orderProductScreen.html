@@ -93,7 +93,12 @@
 
 							<div class="column" if:true={seedSale}>
 								<label>Corretagem</label><br>
-								<input class="input-design" type="text" value={addProduct.brokerageFront} onchange={changeValue} data-target-id="brokerage"  disabled={disabled}/>
+								<template if:true={headerData.IsOrderChild}>
+									<input class="input-design" type="text" value={addProduct.brokerageFront} onchange={changeValue} data-target-id="brokerage"  disabled/>
+								</template>
+								<template if:false={headerData.IsOrderChild}>
+									<input class="input-design" type="text" value={addProduct.brokerageFront} onchange={changeValue} data-target-id="brokerage"  disabled={disabled}/>
+								</template>
 							</div>
 
 							<div class="column">
