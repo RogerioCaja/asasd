@@ -2421,7 +2421,7 @@ public without sharing class OrderScreenController {
             this.rListPrice = orderItem.RoyaltyAmount__c != null ? orderItem.RoyaltyAmount__c : 0;
             this.tsiTotalPrice = this.tListPrice * this.quantity;
             this.royaltyTotalPrice = this.rListPrice * this.quantity;
-            this.brokeragePerUnit = brokeragePerUnit != null ? brokeragePerUnit : '';
+            this.brokeragePerUnit = brokeragePerUnit != null ? brokeragePerUnit : 0;
         }
     }
 
