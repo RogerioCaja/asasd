@@ -4,7 +4,18 @@
 <!-- Estilização Básica do PDF => Cores e dimensionamento -->
 <head>
     <style>
-    
+         @page {
+                             
+            @bottom-center {
+            content: element(footer);
+            }
+        }
+    div.footer {
+        display: block;
+        padding: 5px;
+        font-size: 8pt;
+        position: running(footer);
+    }
     body{
         font-family: Arial, Helvetica, sans-serif;
     }
@@ -66,7 +77,13 @@
 
     </style>
 </head>
-
+    
+<div class="footer">
+    <div  style="width: 100%; text-align: center;">
+        Relatório em Tempo Real - Emissão: {! Datetime }
+    </div>
+</div>
+    
 <!-- Cabeçalho do PDF => Comporta o Logo e as informações da Organização de Vendas -->
 <div class="Header-1">
 
@@ -82,12 +99,7 @@
                    </tr>
                    <tr>
                         <td>
-                            {! visit.orgSales } - Primavera/Verão 
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            Emissão: {! Datetime }
+                            {! visit.orgSales } -  {! Visit.crop}
                         </td>
                     </tr>
                </table>
@@ -124,12 +136,13 @@
                 <td class="information">
                     {! Visit.accountName}
                 </td>
-                <td class="title-information">
-                    MUNICÍPIO:
+                 <td class="title-information">
+                    CONTATO:
                 </td>
                 <td class="information">
-                    {! Visit.accountCity}
+                    {! Visit.accountPhone}
                 </td>
+                
             </tr>
             <tr>
                 <td class="title-information">
@@ -152,11 +165,11 @@
                 <td class="information">
                     {! Visit.accountState}
                 </td>
-                <td class="title-information">
-                    CONTATO:
+               <td class="title-information">
+                    MUNICÍPIO:
                 </td>
                 <td class="information">
-                    {! Visit.accountPhone}
+                    {! Visit.accountCity}
                 </td>
             </tr>
         </table>
@@ -173,7 +186,7 @@
                 PROPRIEDADE:
             </td>
             <td class="information">
-                {! Visit.accountName}
+                {! Visit.accountProperty}
             </td>
         </tr>
         <tr>
@@ -193,11 +206,12 @@
 
     <!-- Informações de coordenadas => Localização do Cliente -->
     <h4>Coordenadas</h4>
-        <span>Latitude: {! visit.accountLatitude}</span><br/>
+        <!--
+		<span>Latitude: {! visit.accountLatitude}</span><br/>
         <span>Longitude: {! visit.accountLongitude}</span>
-
+ 		-->
         
-            <apex:repeat value="{! Photos}" var='photo'>
+            <apex:repeat value="{! Photos}" var="photo">
                 <div style="page-break-inside: avoid;">
                     <table class="coordinate" style="width:100%; height:100%">
                         <tr style="width:100%">
@@ -222,29 +236,35 @@
         
         
     <!-- Possíveis Observações Finais do Cliente -->
-    <h4>Considerações Finais</h4>
+    <div style="page-break-inside: avoid;">
+        <h4>Considerações Finais</h4>
+            <table>
+                <tr>
+                    <td>
+                        {!Visit.notes}
+                    </td>
+                </tr>
+            </table>
+    </div>
+
+    
+    
+
+    <div style="page-break-inside: avoid;">
+        <!-- Informações sobre a próxima visita => datas, endereços, coisas assim -->
+        <h4>Próxima Visita:</h4>
         <table>
             <tr>
                 <td>
-                    {!Visit.notes}
+                    <a id="theLink" name="theLink" href="{! Visit.nextVisit  }">Próxima Visita - {! Visit.nextVisitName}</a>
                 </td>
             </tr>
         </table>
-
-    
-    
-
-
-    <!-- Informações sobre a próxima visita => datas, endereços, coisas assim -->
-    <h4>Próxima Visita:</h4>
-    <table>
-        <tr>
-            <td>
-                {!Visit.nextVisit}
-            </td>
-        </tr>
-    </table>
+    </div>
 </div>
+    
+
+ 
 
 
 </apex:page>

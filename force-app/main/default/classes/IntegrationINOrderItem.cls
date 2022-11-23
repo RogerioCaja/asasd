@@ -51,6 +51,20 @@ global with sharing class IntegrationINOrderItem {
                         OrderItemINData.margemComercial = Decimal.valueOf(conditions.KBETR);
                     }
 
+                    if(conditions.KSCHL == 'ZFRE'){
+                        OrderItemInData.freteItem = Decimal.valueOf(conditions.KBETR);
+                    }
+
+                    if(conditions.KSCHL == 'ZROY'){
+                        OrderItemInData.valorZroy = Decimal.valueOf(conditions.KBETR);
+                        OrderItemInData.valorTotalZroy = Decimal.valueOf(conditions.KBETR) * OrderItemInData.quantidade;
+                    }
+
+                    if(conditions.KSCHL == 'ZTRA'){
+                        OrderItemInData.valorZtra = Decimal.valueOf(conditions.KBETR);
+                        OrderItemINData.valorTotalZtra = Decimal.valueOf(conditions.KBETR) * OrderItemINData.quantidade;
+                    }
+
                     if(conditions.KSCHL == 'ZCP0'){
                         Decimal custoPraticado = Decimal.valueOf(conditions.KBETR) / OrderItemINData.quantidade;
                         OrderItemINData.custoPreco = custoPraticado;
@@ -150,7 +164,7 @@ global with sharing class IntegrationINOrderItem {
         CommercialMargin__c, DiscountValue__c, ExternalId__c, FinalTotalValue__c, FinancialDiscountPercent__c,
         FinancialDiscountValue__c, FinancialAdditionPercent__c, FinancialAdditionValue__c,
         CommercialAdditionPercent__c, CommercialAdditionValue__c, Dosage__c, ListCost__c, NumeroSap__c,
-        PracticedCost__c, PracticedPrice__c, UnitPrice, Class__c, Sieve__c FROM OrderItem WHERE ExternalId__c IN: idsOrderItem]);
+        PracticedCost__c, PracticedPrice__c, UnitPrice, Sieve__c, Class__c, FreightValue__c, RoyaltyAmount__c, TSIValue__c, TotalRoyaltyAmount__c, TotalTSIAmount__c FROM OrderItem WHERE ExternalId__c IN: idsOrderItem]);
     
         for(OrderItem ordItem : orderItemSelectList){
             orderItemsIdsMap.put(ordItem.ExternalId__c, ordItem);
@@ -270,13 +284,33 @@ global with sharing class IntegrationINOrderItem {
                 if(orderItem.precoUnitario == null){
                     orderItem.precoUnitario = ordItem.UnitPrice;
                 }
-                
-                if(orderItem.classeCategoria == null || orderItem.classeCategoria == ''){
-                    orderItem.classeCategoria = ordItem.Class__c;
-                }
 
                 if(orderItem.peneira == null || orderItem.peneira == ''){
                     orderItem.peneira = ordItem.Sieve__c;
+                }
+
+                if(orderItem.classeCategoria == null || orderItem.classeCategoria == ''){
+                    orderItem.classeCategoria = ordItem.class__c;
+                }
+
+                if(orderItem.freteItem == null){
+                    orderItem.freteItem = ordItem.FreightValue__c;
+                }
+
+                if(OrderItem.valorZroy == null){
+                    orderItem.valorZroy = ordItem.RoyaltyAmount__c;
+                }
+
+                if(OrderItem.valorTotalZroy == null){
+                    orderItem.valorTotalZroy = ordItem.TotalRoyaltyAmount__c;
+                }
+
+                if(OrderItem.valorZtra == null){
+                    OrderItem.valorZtra = ordItem.TSIValue__c;
+                }
+
+                if(OrderItem.valorTotalZtra == null){
+                    OrderItem.valorTotalZtra = ordItem.TotalTSIAmount__c;
                 }
             }
         }

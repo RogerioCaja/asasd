@@ -12,7 +12,7 @@
 					<span>Pesquisar <b>PRODUTO</b>:</span>
 				</div>
 				
-				<c-custom-order-search data-target-id="product-search" object-name="Product2" field-name="Name" product-params={productParams} onshowresults={showResults} label="Pesquisar PRODUTO:" placeholder="Digite o nome do Produto" required="true" onchild={getFieldsValueProduct}></c-custom-order-search>
+				<c-custom-order-search data-target-id="product-search" object-name="Product2" field-name="Name" product-params={productParams} seed-price={showRoyaltyTsi} onshowresults={showResults} label="Pesquisar PRODUTO:" placeholder="Digite o nome do Produto" required="true" onchild={getFieldsValueProduct}></c-custom-order-search>
 
 				<div style="width: 100%;">
 					<div class="product-column product-left"><span class="arrow-style" if:true={showArrows} onclick={backProductScreen}>&#8249;</span></div>
@@ -93,7 +93,12 @@
 
 							<div class="column" if:true={seedSale}>
 								<label>Corretagem</label><br>
-								<input class="input-design" type="text" value={addProduct.brokerageFront} onchange={changeValue} data-target-id="brokerage"  disabled={disabled}/>
+								<template if:true={headerData.IsOrderChild}>
+									<input class="input-design" type="text" value={addProduct.brokerageFront} onchange={changeValue} data-target-id="brokerage"  disabled/>
+								</template>
+								<template if:false={headerData.IsOrderChild}>
+									<input class="input-design" type="text" value={addProduct.brokerageFront} onchange={changeValue} data-target-id="brokerage"  disabled={disabled}/>
+								</template>
 							</div>
 
 							<div class="column">
@@ -121,6 +126,33 @@
 								<template if:true={seedSale}>
 									<input class="input-design" type="text" value={addProduct.totalPriceWithBrokerageFront} disabled/>
 								</template>
+							</div>
+						</div>
+
+						<div if:true={seedSale} class="row">
+							<hr class="line-divisor"/>
+							<p class="title-divisor">Valores Sementes</p>
+	
+							<div class="row">
+								<div class="column">
+									<label>Preço TSI</label><br>
+									<input class="input-design" type="text" value={addProduct.tListPriceFront} data-target-id="tsiPrice" disabled/>
+								</div>
+								<div class="column">
+									<label>Valor Total TSI</label><br>
+									<input class="input-design" type="text" value={addProduct.tsiTotalPriceFront} data-target-id="tsiTotalPrice" disabled/>
+								</div>
+							</div>
+							
+							<div class="row">
+								<div class="column">
+									<label>Preço Royalty</label><br>
+									<input class="input-design" type="text" value={addProduct.rListPriceFront} data-target-id="royaltyPrice" disabled/>
+								</div>
+								<div class="column">
+									<label>Valor Total Royalty</label><br>
+									<input class="input-design" type="text" value={addProduct.royaltyTotalPriceFront} data-target-id="royaltyTotalPrice" disabled/>
+								</div>
 							</div>
 						</div>
 
@@ -402,7 +434,7 @@
 
 						<div if:true={chooseCommodities}>
 							<p class="new-product-title">Escolha de Commodities</p>
-							<c-custom-order-search class="commodity-search" object-name="Commodity" field-name="Name" product-params={productParams} onshowresults={showCommodityResults} label="Pesquisar COMMODITY:" placeholder="Digite o nome da Commodity" required="true" onchild={getFieldsValueCommodity}></c-custom-order-search>
+							<c-custom-order-search class="commodity-search" object-name="Commodity" field-name="Name" product-params={productParams} seed-price={showRoyaltyTsi} onshowresults={showCommodityResults} label="Pesquisar COMMODITY:" placeholder="Digite o nome da Commodity" required="true" onchild={getFieldsValueCommodity}></c-custom-order-search>
 							
 							<div if:true={selectCommodityScreen}>
 								<template for:each={commodities} for:item="commodity">

@@ -228,7 +228,7 @@ global without sharing class IntegrationINOrder {
         
         Map<String, Order> ordersIdsMap = new Map<String, Order>();
         List<Order> orderSelectList = new List<Order>([SELECT Id, NumeroPedidoApp__c,PaymentDate__c,ShippingDate__c,Type,CustomerOrderNumber__c,
-        Currency__c,Description,DescriptionBillingSale__c,FinalTotalValue__c,Hectare__c,OrderMargin__c,OrderType__c,SalesCondition__c,IsOrderMother__c, RecordTypeId, OwnerId,
+        Currency__c,Description,DescriptionBillingSale__c,FinalTotalValue__c,Hectare__c,OrderMargin__c,OrderType__c,SalesCondition__c,IsOrderMother__c, RecordTypeId, OwnerId, FreightValue__c,
         CodigoSap__c, Pricebook2Id, Pricebook2.Name,EffectiveDate,Status,StatusRecusa__c,Incoterms__c,Incoterms2__c,PaymentForm__c, Crop__r.Code__c, Crop__c, Culture__c, Culture__r.Codigo__c, SalesOrg__r.SalesOrganizationCode__c, SalesOrg__c, SalesCondition__r.ExternalId__c,ActivitySector__r.Codigo__c,
         SalesCTV__r.CodigoSap__c, SalesCTV__c, PaymentCondition__r.Code__c, PaymentCondition__c,OrderReference__r.CodigoSap__c, OrderReference__c, Account.ExternalId__c, AccountId, ShippingAccount__r.ExternalId__c, ShippingAccount__c,Company__r.ExternalID__c,Company__c,DistributionChannel__r.Codigo__c,DistributionChannel__c
         FROM Order WHERE CodigoSap__c  IN : idOrders]);
@@ -528,17 +528,54 @@ global without sharing class IntegrationINOrder {
         }
         
        
-            AggregateResult[] resulTotal =[SELECT SUM(FinalTotalValue__c) somatoria FROM OrderItem WHERE OrderId =: orderIdEx.keySet() AND ReasonRefuse__c  =: null AND ReasonRefuse__c  =: ''];
-             Order order = new Order();
-             order.Id = (new List<String>(orderIdEx.keySet()))[0]; //(new List<String>(posts.keySet()))[0]
-             //Object avgAmount = resulTotal[0].get('somatoria');
-             order.FinalTotalValue__c  = (Decimal)resulTotal[0].get('somatoria');
-             System.debug('order.FinalTotalValue__c ' + order.FinalTotalValue__c);
-             OrderHelper.disableTrigger();
-             Database.update(order, false);
-             OrderHelper.enableTrigger();         
+        AggregateResult[] resulTotal =[SELECT SUM(FinalTotalValue__c) somatoria  FROM OrderItem WHERE OrderId =: orderIdEx.keySet() AND ReasonRefuse__c  =: null AND ReasonRefuse__c  =: ''];
+        AggregateResult[] sumTSI = [SELECT SUM(TotalTSIAmount__c) somatoria FROM OrderItem WHERE OrderId =: orderIdEx.KeySet() AND ReasonRefuse__c =: null AND ReasonRefuse__c =: '' AND TotalTSIAmount__c != null];
+        AggregateResult[] sumRoy = [SELECT SUM(TotalRoyaltyAmount__c) somatoria FROM OrderItem WHERE OrderId =: orderIdEx.KeySet() AND ReasonRefuse__c =: null AND ReasonRefuse__c =: '' AND TotalRoyaltyAmount__c != null];
+        AggregateResult[] totalValueWthCif = [SELECT SUM(FreightValue__c) somatoria FROM OrderItem WHERE  OrderId =: orderIdEx.KeySet() AND ReasonRefuse__c =: null AND ReasonRefuse__c =: '' AND Order.Incoterms__c = 'CIF'];
+        AggregateResult[] sumBrokerage = [SELECT SUM(Brokerage__c) somatoria FROM OrderItem WHERE OrderId =: orderIdEx.KeySet() AND ReasonRefuse__c =: null AND ReasonRefuse__c =: '' AND Brokerage__c != null];
+        Order order = new Order();
+         order.Id = (new List<String>(orderIdEx.keySet()))[0]; //(new List<String>(posts.keySet()))[0]
+         //Object avgAmount = resulTotal[0].get('somatoria');
+         System.debug('Somatoria TSI ' + (Decimal)sumTSI[0].get('somatoria'));
+         System.debug('Somatoria ROY ' + (Decimal)sumRoy[0].get('somatoria'));
         
+         System.debug('Somatoria Total ' + (Decimal)resulTotal[0].get('somatoria'));
         
+         order.FinalTotalValue__c  = (Decimal)resulTotal[0].get('somatoria');
+
+         if((Decimal)sumTSI[0].get('somatoria') != null){
+             order.FinalTotalValue__c  += (Decimal)sumTSI[0].get('somatoria');
+            System.debug('Valor total com TSI ' + order.FinalTotalValue__c); 
+         }
+         if((Decimal)sumRoy[0].get('somatoria') != null) {
+            order.FinalTotalValue__c  += (Decimal)sumRoy[0].get('somatoria');
+             System.debug('Valor total com ROY ' + order.FinalTotalValue__c); 
+         }
+         if((Decimal)totalValueWthCif[0].get('somatoria') != null){
+            order.FinalTotalValue__c  += (Decimal)totalValueWthCif[0].get('somatoria');
+             System.debug('Valor total com Frete ' + order.FinalTotalValue__c); 
+         }
+         
+         if((Decimal)sumBrokerage[0].get('somatoria') != null){
+            order.FinalTotalValue__c  += (Decimal)sumBrokerage[0].get('somatoria');
+             System.debug('Valor total com Corretagem ' + order.FinalTotalValue__c); 
+         }
+         //order.FinalTotalValue__c  = (Decimal)resulTotal[0].get('somatoria');
+         System.debug('order.FinalTotalValue__c ' + order.FinalTotalValue__c);
+         OrderHelper.disableTrigger();
+         Database.update(order, false);
+         OrderHelper.enableTrigger();    
+         
+         
+         AggregateResult[] freightTotal = [SELECT SUM(FreightValue__c) somatoria FROM OrderItem WHERE  OrderId =: orderIdEx.KeySet() AND ReasonRefuse__c =: null AND ReasonRefuse__c =: ''];
+         
+         Order orderFreight = new Order();
+         orderFreight.Id = (new List<String>(orderIdEx.KeySet()))[0];
+         orderFreight.FreightValue__c = (Decimal)freightTotal[0].get('somatoria');
+         System.debug('Frete total ' + orderFreight.FreightValue__c);
+         OrderHelper.disableTrigger();
+         Database.update(orderFreight, false);
+         OrderHelper.enableTrigger();
 
         //Associating child object's response with object response
         // Pega todas as respostas dos OrderItem
