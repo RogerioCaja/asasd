@@ -244,7 +244,8 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             try
             {
                 this.productData.forEach(product =>{
-                    let totalPrice = this.isFilled(product.totalPriceWithBrokerage) ? Number(product.totalPriceWithBrokerage) : Number(product.totalPrice);
+                    let useBrookerage = this.isFilled(product.brokerage) && product.brokerage > 0 ? true : false;
+                    let totalPrice = this.isFilled(product.totalPriceWithBrokerage) && useBrookerage ? Number(product.totalPriceWithBrokerage) : Number(product.totalPrice);
                     totalPrice = Number(totalPrice) + Number(product.tsiTotalPrice) + Number(product.royaltyTotalPrice);
                     this.valorTotal += parseFloat(totalPrice);
                 })
@@ -339,7 +340,8 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             try
             {
                 this.productData.forEach(product =>{
-                    let totalPrice = this.isFilled(product.totalPriceWithBrokerage) ? Number(product.totalPriceWithBrokerage) : Number(product.totalPrice);
+                    let useBrookerage = this.isFilled(product.brokerage) && product.brokerage > 0 ? true : false;
+                    let totalPrice = this.isFilled(product.totalPriceWithBrokerage) && useBrookerage ? Number(product.totalPriceWithBrokerage) : Number(product.totalPrice);
                     totalPrice = Number(totalPrice) + Number(product.tsiTotalPrice) + Number(product.royaltyTotalPrice);
                     this.valorTotal += parseFloat(totalPrice);
                 })
@@ -680,7 +682,8 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
                 })
             }else{
                 this.productData.forEach(product =>{
-                    let totalPrice = this.isFilled(product.totalPriceWithBrokerage) ? Number(product.totalPriceWithBrokerage) : Number(product.totalPrice);
+                    let useBrookerage = this.isFilled(product.brokerage) && product.brokerage > 0 ? true : false;
+                    let totalPrice = this.isFilled(product.totalPriceWithBrokerage) && useBrookerage ? Number(product.totalPriceWithBrokerage) : Number(product.totalPrice);
                     totalPrice = Number(totalPrice) + Number(product.tsiTotalPrice) + Number(product.royaltyTotalPrice);
                     this.valorTotal  += parseFloat(totalPrice);
                 })
