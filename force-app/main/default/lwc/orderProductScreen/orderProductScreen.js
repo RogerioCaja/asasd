@@ -340,7 +340,7 @@ export default class OrderProductScreen extends LightningElement {
             comboDiscountValue: this.isFilled(currentProduct.comboDiscountValue) ? currentProduct.comboDiscountValue : 0,
             comboId: this.isFilled(currentProduct.comboId) ? currentProduct.comboId : null,
             industryCombo: this.isFilled(currentProduct.comboId) ? currentProduct.industryCombo : false,
-            containsCombo: this.isFilled(currentProduct.containsCombo) ? currentProduct.containsCombo : false,
+            containsCombo: this.isFilled(currentProduct.comboId) ? true : false,
             formerItem: this.isFilled(currentProduct.formerItem) ? currentProduct.formerItem : false,
             benefitItem: this.isFilled(currentProduct.benefitItem) ? currentProduct.benefitItem : false,
             tListPrice: this.isFilled(currentProduct.tListPrice) ? currentProduct.tListPrice : 0,
