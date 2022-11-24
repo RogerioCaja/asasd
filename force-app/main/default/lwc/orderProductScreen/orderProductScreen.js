@@ -9,7 +9,6 @@ import getSafraInfos from '@salesforce/apex/OrderScreenController.getSafraInfos'
 import getFinancialInfos from '@salesforce/apex/OrderScreenController.getFinancialInfos';
 import getSpecificCombos from '@salesforce/apex/OrderScreenController.getSpecificCombos';
 import checkQuotaQuantity from '@salesforce/apex/OrderScreenController.checkQuotaQuantity';
-import getBrokerageQuantities from '@salesforce/apex/OrderScreenController.getBrokerageUnitPerProduct';
 import getAccountCompanies from '@salesforce/apex/OrderScreenController.getAccountCompanies';
 import getMixAndConditionCombos from '@salesforce/apex/OrderScreenController.getMixAndConditionCombos';
 import fetchOrderRecords from '@salesforce/apex/CustomLookupController.fetchProductsRecords';
@@ -26,7 +25,6 @@ export default class OrderProductScreen extends LightningElement {
     @api seedSale;
     verifyQuota;
     allProductQuotas = [];
-    allProductsBrokerageMother = [];
 
     selectedColumns={
         columnUnity: true,
@@ -95,7 +93,7 @@ export default class OrderProductScreen extends LightningElement {
 
     disabled=false;
     disableSearch=false;
-    unitPriceDisabled=false;
+    // unitPriceDisabled=false;
     numberOfRowsToSkip=0;
     showLoading=true;
     combosIds = [];
@@ -125,8 +123,9 @@ export default class OrderProductScreen extends LightningElement {
     @api combosSelecteds;
 
     connectedCallback(event) {
-        if (!this.isFilled(this.combosSelecteds)) this.combosSelecteds=[];
         
+        try{
+        if (!this.isFilled(this.combosSelecteds)) this.combosSelecteds=[];
         let today = new Date();
         let dd = String(today.getDate()).padStart(2, '0');
         let mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -172,32 +171,14 @@ export default class OrderProductScreen extends LightningElement {
 
         if(this.headerData.IsOrderChild) {
             this.disableSearch = true;
-            getBrokerageQuantities({orderId : this.headerData.Id})
-            .then((result) => {
-                if(result){
-                    this.allProductsBrokerageMother = JSON.parse(result);
-                    let brokProducts = [];
-                    for(let i = 0; i < this.products.length; i++){
-                        let productId = this.products[i].productId;
-                        let value = this.allProductsBrokerageMother.find(element => element.productId == productId);
-                        this.products[i].brokerage =  this.isFilled(value) ? this.products[i].quantity * Number(value.brokeragePerUnit) : this.products[i].brokerage;
-                        this.products[i].brokerageFront =  this.fixDecimalPlacesFront(this.products[i].brokerage);
-                        this.products[i].totalPriceWithBrokerage = Number(this.products[i].totalPrice) + Number(this.products[i].brokerage);
-                        this.products[i].totalPriceWithBrokerageFront = this.fixDecimalPlacesFront(this.products[i].totalPriceWithBrokerage);
-                        brokProducts.push(this.products[i]);
-                    }
-                    this.products = JSON.parse(JSON.stringify(brokProducts));
-                    console.log(JSON.stringify(this.products));
-                }
-            })
             this._setData();
         }
-
+        console.log(this.headerData.status_pedido);
         if (this.headerData.status_pedido == 'Em aprovação - Gerente Filial' || this.headerData.status_pedido == 'Em aprovação - Gerente Regional' ||
             this.headerData.status_pedido == 'Em aprovação - Diretor' || this.headerData.status_pedido == 'Em aprovação - Comitê Margem' || this.headerData.status_pedido == 'Em aprovação - Mesa de Grãos') {
             this.disabled = true;
             this.disableSearch = true;
-            this.unitPriceDisabled = true;
+            // this.unitPriceDisabled = true;
         }
 
         if (this.isFilled(this.commoditiesData) && this.commoditiesData.length > 0) this.showCommodityData = true;
@@ -211,11 +192,15 @@ export default class OrderProductScreen extends LightningElement {
         });
 
         actions = [];
+        console.log(this.disabled);
+        console.log(this.headerData.IsOrderChild);
+        console.log(this.headerData.pedido_mae_check);
         if (this.disabled) actions.push({ label: 'Visualizar', name: 'visualize' })
         else if(this.headerData.IsOrderChild) actions.push({ label: 'Editar', name: 'edit' }, { label: 'Divisão de Remessas', name: 'shippingDivision' }, { label: 'Excluir', name: 'delete' });
         else if (this.headerData.pedido_mae_check) actions.push({ label: 'Editar', name: 'edit' }, { label: 'Excluir', name: 'delete' });
         else actions.push({ label: 'Editar', name: 'edit' }, { label: 'Divisão de Remessas', name: 'shippingDivision' }, { label: 'Excluir', name: 'delete' });
 
+        console.log(actions);
         this.showIncludedProducts = this.products.length > 0;
         if (this.headerData.tipo_venda == 'Venda Barter') {
             this.hideChooseColumns = true;
@@ -251,6 +236,9 @@ export default class OrderProductScreen extends LightningElement {
         } else {
             this.getCompanies(getCompanyData);
         }
+        }catch(err){
+            console.log(err);
+        }
     }
 
     getCompanies(getCompanyData) {
@@ -280,6 +268,9 @@ export default class OrderProductScreen extends LightningElement {
                 }
             }
         });
+    
+
+        
     }
 
     newProduct(currentProduct) {
@@ -349,7 +340,7 @@ export default class OrderProductScreen extends LightningElement {
             comboDiscountValue: this.isFilled(currentProduct.comboDiscountValue) ? currentProduct.comboDiscountValue : 0,
             comboId: this.isFilled(currentProduct.comboId) ? currentProduct.comboId : null,
             industryCombo: this.isFilled(currentProduct.comboId) ? currentProduct.industryCombo : false,
-            containsCombo: this.isFilled(currentProduct.containsCombo) ? currentProduct.containsCombo : false,
+            containsCombo: this.isFilled(currentProduct.comboId) ? true : false,
             formerItem: this.isFilled(currentProduct.formerItem) ? currentProduct.formerItem : false,
             benefitItem: this.isFilled(currentProduct.benefitItem) ? currentProduct.benefitItem : false,
             tListPrice: this.isFilled(currentProduct.tListPrice) ? currentProduct.tListPrice : 0,
@@ -359,14 +350,15 @@ export default class OrderProductScreen extends LightningElement {
             rListPrice: this.isFilled(currentProduct.rListPrice) ? currentProduct.rListPrice : 0,
             rListPriceFront: this.isFilled(currentProduct.rListPrice) ? 'R$' + this.fixDecimalPlacesFront(currentProduct.rListPrice) : 'R$0',
             royaltyTotalPrice: rTotalPrice,
-            royaltyTotalPriceFront: 'R$' + this.fixDecimalPlacesFront(rTotalPrice)
+            royaltyTotalPriceFront: 'R$' + this.fixDecimalPlacesFront(rTotalPrice),
+            brokeragePerUnit: this.isFilled(currentProduct.brokeragePerUnit) ? currentProduct.brokeragePerUnit : ''
         };
-        if (this.isFilled(newProduct.comboId)) {
+        /* if (this.isFilled(newProduct.comboId)) {
             this.disabled = true;
             this.unitPriceDisabled = true;
         } else {
             this.disabled = false;
-        }
+        } */
 
         return newProduct;
     }
@@ -978,15 +970,16 @@ export default class OrderProductScreen extends LightningElement {
             rListPrice: this.isFilled(priorityInfos.rListPrice) ? priorityInfos.rListPrice : 0,
             rListPriceFront: this.isFilled(priorityInfos.rListPrice) ? 'R$' + this.fixDecimalPlacesFront(priorityInfos.rListPrice) : 'R$0',
             royaltyTotalPrice: 0,
-            royaltyTotalPriceFront: 0
+            royaltyTotalPriceFront: 0,
+            brokeragePerUnit: this.isFilled(currentProduct.brokeragePerUnit) ? currentProduct.brokeragePerUnit : ''
         };
 
-        if (this.isFilled(currentProduct.comboId)) {
+        /* if (this.isFilled(currentProduct.comboId)) {
             this.disabled = true;
             this.unitPriceDisabled = true;
         } else {
             this.disabled = false;
-        }
+        } */
         return newProductData;
     }
 
@@ -1019,6 +1012,7 @@ export default class OrderProductScreen extends LightningElement {
         if (this.isSelected(this.selectedColumns.columnSieve)) selectedColumns.push({label: 'Peneira', fieldName: 'sieve'})
         if (this.isSelected(this.selectedColumns.columnProductClass)) selectedColumns.push({label: 'Classe/Categoria', fieldName: 'productClass'})
 
+        console.log(actions);
         if (selectedColumns.length >= 2) {
             selectedColumns.push({
                 type: 'action',
@@ -1145,8 +1139,7 @@ export default class OrderProductScreen extends LightningElement {
                     this.addProduct.totalPriceFront = this.fixDecimalPlacesFront((this.addProduct.unitPrice * this.addProduct.quantity));
 
                     if (this.seedSale) {
-                        let value = this.allProductsBrokerageMother.find(element => element.productId == this.addProduct.productId);
-                        this.addProduct.brokerage =  this.isFilled(value) ? this.addProduct.quantity * Number(value.brokeragePerUnit) : this.addProduct.brokerage;
+                        this.addProduct.brokerage =  this.isFilled(this.addProduct.brokeragePerUnit) ? this.addProduct.quantity * Number(this.addProduct.brokeragePerUnit) : this.addProduct.brokerage;
                         this.addProduct.brokerageFront = this.fixDecimalPlacesFront(this.addProduct.brokerage);
                         this.addProduct.totalPriceWithBrokerage = Number(this.addProduct.totalPrice) + Number(this.addProduct.brokerage);
                         this.addProduct.totalPriceWithBrokerageFront = this.fixDecimalPlacesFront(this.addProduct.totalPriceWithBrokerage);
@@ -2009,7 +2002,7 @@ export default class OrderProductScreen extends LightningElement {
         if ((this.isFilled(this.comboProducts.formerIds) && this.comboProducts.formerIds.length > 0) ||
             (this.isFilled(this.comboProducts.benefitsIds) && this.comboProducts.benefitsIds.length > 0)) {
             this.checkCombo = true;
-            this.unitPriceDisabled = true;
+            // this.unitPriceDisabled = true;
         }
 
         this.getCompanies(getCompanyData);
