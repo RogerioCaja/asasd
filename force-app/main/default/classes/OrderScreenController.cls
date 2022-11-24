@@ -2053,7 +2053,7 @@ public without sharing class OrderScreenController {
         public Decimal rListPrice;
         public Decimal tsiTotalPrice;
         public Decimal royaltyTotalPrice;
-        public Decimal brokeragePerUnit;
+        public String brokeragePerUnit;
     }
 
     public class DivisionDeserialize{
@@ -2366,7 +2366,7 @@ public without sharing class OrderScreenController {
         public Decimal rListPrice;
         public Decimal tsiTotalPrice;
         public Decimal royaltyTotalPrice;
-        public Decimal brokeragePerUnit;
+        public String brokeragePerUnit;
 
         ProductSerialize(){}
 
@@ -2395,9 +2395,9 @@ public without sharing class OrderScreenController {
             this.motherAvailableQuantity = orderItem.AmountUsed__c != null ? orderItem.Quantity - orderItem.AmountUsed__c : null;
             this.listPrice = orderItem.ListPrice__c;
             this.unitPrice = orderItem.PracticedPrice__c;
-            this.totalPrice = orderItem.FinalTotalValue__c;
-            this.brokerage = brokeragePerUnit != null ? orderItem.Quantity * brokeragePerUnit : orderItem.Brokerage__c;
-            this.totalPriceWithBrokerage = this.brokerage != null ? (orderItem.FinalTotalValue__c + this.brokerage) : orderItem.FinalTotalValue__c;
+            this.totalPrice = orderItem.PracticedPrice__c * this.quantity;
+            this.brokerage = brokeragePerUnit != null ? this.quantity * brokeragePerUnit : orderItem.Brokerage__c;
+            this.totalPriceWithBrokerage = this.brokerage != null ? (this.totalPrice + this.brokerage) : this.totalPrice;
             this.listCost = orderItem.ListCost__c;
             this.practicedCost = orderItem.PracticedCost__c;
             this.dosage = orderItem.Dosage__c;
@@ -2421,7 +2421,7 @@ public without sharing class OrderScreenController {
             this.rListPrice = orderItem.RoyaltyAmount__c != null ? orderItem.RoyaltyAmount__c : 0;
             this.tsiTotalPrice = this.tListPrice * this.quantity;
             this.royaltyTotalPrice = this.rListPrice * this.quantity;
-            this.brokeragePerUnit = brokeragePerUnit != null ? brokeragePerUnit : 0;
+            this.brokeragePerUnit = brokeragePerUnit != null ? String.valueOf(brokeragePerUnit) : '';
         }
     }
 
