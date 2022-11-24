@@ -565,7 +565,11 @@ export default class OrderProductScreen extends LightningElement {
     }
 
     getProductByPriority(selectedProduct) {
+        let productsPrice = this.productsPriceMap;
+        let productId = this.isFilled(selectedProduct.Id) ? selectedProduct.Id : selectedProduct.productId;
+        
         let priorityPrice = {
+            Id: productId,
             costPrice: 0,
             listPrice: 0,
             priceListCode: 0,
@@ -577,13 +581,12 @@ export default class OrderProductScreen extends LightningElement {
             tPriceListCode: 0
         };
 
-        let productsPrice = this.productsPriceMap;
-        let productId = this.isFilled(selectedProduct.Id) ? selectedProduct.Id : selectedProduct.productId;
-
         let counter = 1;
+        let currentinfos;
         let counterMax = this.showRoyaltyTsi ? 3 : 1;
         while (counter <= counterMax) {
             let prefix;
+            let currentPrice;
             if (counter == 1) prefix = 'G-';
             if (counter == 2) prefix = 'R-';
             if (counter == 3) prefix = 'T-';
@@ -596,7 +599,6 @@ export default class OrderProductScreen extends LightningElement {
             let key6 = prefix + selectedProduct.productGroupId;
             let key7 = prefix + productId;
 
-            let currentPrice;
             if (this.isFilled(productsPrice[key1])) {
                 currentPrice = productsPrice[key1];
             } else if (this.isFilled(productsPrice[key2])) {
@@ -629,10 +631,11 @@ export default class OrderProductScreen extends LightningElement {
                 }
             }
             
+            currentinfos = currentPrice;
             counter++;
         }
 
-        return priorityPrice;
+        return {productInfos: currentinfos, priorityPrice: priorityPrice};
     }
 
     showProductModal(event) {
@@ -694,7 +697,7 @@ export default class OrderProductScreen extends LightningElement {
                 let currentProduct = this.baseProducts.find(e => e.Id == productId);
                 let priorityInfos = this.getProductByPriority(currentProduct);
     
-                this.multiplicity = this.isFilled(currentProduct.multiplicity) ? currentProduct.multiplicity : 1;
+                this.multiplicity = this.isFilled(currentProduct.multiplicity) && currentProduct.multiplicity > 0 ? currentProduct.multiplicity : 1;
                 this.costPrice = priorityInfos.costPrice;
                 this.addProduct = {
                     entryId: currentProduct.entryId,
@@ -923,6 +926,7 @@ export default class OrderProductScreen extends LightningElement {
 
     calculateMultiplicity(quantity, isDivision) {
         if (this.isFilled(this.multiplicity)) {
+            this.multiplicity = this.multiplicity > 0 ? this.multiplicity : 1;
             let remainder = (quantity * 100) % (this.multiplicity * 100);
             if (isDivision && quantity > this.currentDivisionProduct.availableQuantity) {
                 this.showToast('warning', 'Atenção!', 'A quantidade não pode ultrapassar ' + this.currentDivisionProduct.availableQuantity + '.');
@@ -1155,7 +1159,7 @@ export default class OrderProductScreen extends LightningElement {
             
             prod.commercialMarginPercentage = margin;
             prod.costPrice = this.costPrice;
-            prod.multiplicity = this.multiplicity;
+            prod.multiplicity = this.multiplicity > 0 ? this.multiplicity : 1;
             prod.position = this.isFilled(this.products) ? this.products.length : 0
             allProducts.push(prod);
 
@@ -1199,7 +1203,7 @@ export default class OrderProductScreen extends LightningElement {
 
                     let margin = this.isFilled(this.addProduct.practicedCost) ? this.fixDecimalPlaces(((1 - (Number(this.addProduct.practicedCost) / (Number(this.addProduct.totalPrice) / Number(this.addProduct.quantity)))) * 100)) : null;
                     this.addProduct.commercialMarginPercentage = this.headerData.IsOrderChild ? this.addProduct.commercialMarginPercentage : margin;
-                    this.addProduct.multiplicity = this.multiplicity;
+                    this.addProduct.multiplicity = this.multiplicity > 0 ? this.multiplicity : 1;
                     includedProducts[index] = JSON.parse(JSON.stringify(this.addProduct));
                     break;
                 } else {
@@ -1330,7 +1334,7 @@ export default class OrderProductScreen extends LightningElement {
         .then((result) => {
             this.seedSale = result;
         });
-        this.multiplicity = this.isFilled(currentProduct.multiplicity) ? currentProduct.multiplicity : 1;
+        this.multiplicity = this.isFilled(currentProduct.multiplicity) && currentProduct.multiplicity > 0 ? currentProduct.multiplicity : 1;
 
         this.addProduct = this.newProduct(currentProduct);
         console.log('this.addProduct: ' + JSON.stringify(this.addProduct));
@@ -1359,7 +1363,7 @@ export default class OrderProductScreen extends LightningElement {
         let availableQuantity = Number(currentProduct.quantity) - Number(distributedQuantity);
 
         this.productPosition = position;
-        this.multiplicity = this.isFilled(currentProduct.multiplicity) ? currentProduct.multiplicity : 1;
+        this.multiplicity = this.isFilled(currentProduct.multiplicity) && currentProduct.multiplicity > 0 ? currentProduct.multiplicity : 1;
         let allowChange = (this.headerData.tipo_pedido != 'Pedido Filho' && !this.headerData.IsOrderChild && this.isFilled(this.headerData.codigo_sap)) ||
                           (this.headerData.tipo_pedido == 'Pedido Filho' && this.isFilled(this.headerData.codigo_sap)) ? true : false;
         this.currentDivisionProduct = {
