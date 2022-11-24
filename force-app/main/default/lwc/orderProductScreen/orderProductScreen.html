@@ -106,7 +106,7 @@
 								<template if:true={addProduct.containsCombo}>
 									<input class="input-design" type="text" value={addProduct.quantity} onchange={changeValue} data-target-id="quantity" disabled/>
 								</template>
-								<template if:true={addProduct.containsCombo}>
+								<template if:false={addProduct.containsCombo}>
 									<input class="input-design" type="text" value={addProduct.quantity} onchange={changeValue} data-target-id="quantity" disabled={disabled}/>
 								</template>
 							</div>
