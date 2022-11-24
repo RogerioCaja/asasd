@@ -114,7 +114,7 @@
 									<input class="input-design" type="text" value={addProduct.unitPriceFront} onchange={changeValue} data-target-id="unitPrice" disabled/>
 								</template>
 								<template if:false={headerData.IsOrderChild}>
-									<input class="input-design" type="text" value={addProduct.unitPriceFront} onchange={changeValue} data-target-id="unitPrice" disabled={unitPriceDisabled}/>
+									<input class="input-design" type="text" value={addProduct.unitPriceFront} onchange={changeValue} data-target-id="unitPrice" disabled={addProduct.containsCombo}/>
 								</template>
 							</div>
 							<div class="column">
@@ -274,16 +274,18 @@
 							<div class="back-button">
 								<a onclick={hideProductModal}>Fechar</a>
 							</div>
-							<template if:false={disabled}>
-								<template if:true={updateProduct}>
-									<div class="column">
-										<button class="confirm-button" onclick={changeProduct}>Alterar Produto</button>
-									</div>
-								</template>
-								<template if:false={updateProduct}>
-									<div class="column">
-										<button class="confirm-button" onclick={includeProduct}>Incluir Produto</button>
-									</div>
+							<template if:false={addProduct.containsCombo}>
+								<template if:false={disabled}>
+									<template if:true={updateProduct}>
+										<div class="column">
+											<button class="confirm-button" onclick={changeProduct}>Alterar Produto</button>
+										</div>
+									</template>
+									<template if:false={updateProduct}>
+										<div class="column">
+											<button class="confirm-button" onclick={includeProduct}>Incluir Produto</button>
+										</div>
+									</template>
 								</template>
 							</template>
 						</div>
