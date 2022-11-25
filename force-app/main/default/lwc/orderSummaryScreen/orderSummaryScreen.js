@@ -274,11 +274,11 @@ export default class OrderSummaryScreen extends LightningElement {
                     console.log(this.seedSale)
                     orderTotalPrice += Number(this.productDataLocale[i].unitPrice) * Number(this.productDataLocale[i].quantity) + (this.seedSale ? Number(this.productDataLocale[i].brokerage) : 0);
                     orderTotalCost += Number(this.productDataLocale[i].practicedCost) * Number(this.productDataLocale[i].quantity);
-                    tsiTotalPrice += this.productDataLocale[i].tsiTotalPrice;
-                    royaltiesTotalPrice += this.productDataLocale[i].royaltyTotalPrice;
+                    tsiTotalPrice += Number(this.productDataLocale[i].tsiTotalPrice);
+                    royaltiesTotalPrice += Number(this.productDataLocale[i].royaltyTotalPrice);
                     
                     this.productDataLocale[i]['unitPrice'] = 'R$ ' + this.fixDecimalPlacesFront(this.productDataLocale[i].unitPrice);
-                    this.productDataLocale[i]['totalPrice']  = 'R$ ' + this.fixDecimalPlacesFront(this.seedSale ? this.productDataLocale[i].totalPriceWithBrokerage : this.productDataLocale[i].totalPrice);
+                    this.productDataLocale[i]['totalPrice']  = 'R$ ' + this.fixDecimalPlacesFront(this.seedSale && this.isFilled(this.productDataLocale[i].brokerage) && this.productDataLocale[i].brokerage > 0 ? this.productDataLocale[i].totalPriceWithBrokerage : this.productDataLocale[i].totalPrice);
                     this.productDataLocale[i]['commercialDiscountValue']  = 'R$ ' +  this.fixDecimalPlacesFront(this.productDataLocale[i].commercialDiscountValue);
                     this.productDataLocale[i]['commercialDiscountPercentage']  =  this.fixDecimalPlacesPercentage(this.productDataLocale[i].commercialDiscountPercentage);
                     this.productDataLocale[i]['commercialMarginPercentage']  = this.fixDecimalPlacesFront(this.productDataLocale[i].commercialMarginPercentage) + '%';

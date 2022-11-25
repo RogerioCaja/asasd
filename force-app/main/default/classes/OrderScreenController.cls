@@ -67,7 +67,29 @@ public without sharing class OrderScreenController {
         return new HeaderSerialize(order, cloneOrder);
     }
 
+    public static Map<String, Decimal> verifyConditionsToCalcBrokerage(Id orderId){
+        Order order = [SELECT Id, SalesOrg__c, OrderReference__c, OrderType__c FROM Order WHERE Id =: orderId LIMIT 1];
+        Map<String, Decimal> productBrokerageUnitMap = new Map<String,Decimal>();
+        Id orderDefinitive;
+        Boolean seedSale = isSeedSale(order.SalesOrg__c, null);
+        if(seedSale && order.OrderType__c != 'Pedido Filho'){
+            orderDefinitive = order.Id;
+        }else if(seedSale && order.OrderType__c == 'Pedido Filho'){
+            orderDefinitive = order.OrderReference__c;
+        }
+
+        if(orderDefinitive != null){
+            List<OrderItem> orderItemList = [SELECT Brokerage__c, Quantity, Product2Id FROM OrderItem WHERE OrderId =: orderDefinitive];
+            for(OrderItem orderItem : orderItemList){
+                productBrokerageUnitMap.put(orderItem.Product2Id, (orderItem.Brokerage__c / orderItem.Quantity));
+            }
+        }
+        return productBrokerageUnitMap;
+
+    }
     public static List<ProductSerialize> getOrderItemData(Id orderId, Boolean cloneOrder) {
+        Map<String, Decimal> productBrokerageUnitMap = verifyConditionsToCalcBrokerage(orderId);
+
         List<ProductSerialize> prods = new List<ProductSerialize>();
         orderItemsPosition = new Map<Id, Integer>();
         totalCost = 0;
@@ -135,7 +157,8 @@ public without sharing class OrderScreenController {
                 totalCost += itemPracticedCost * item.Quantity;
                 totalDiscount += itemDiscount;
                 totalQuantity += item.Quantity;
-                prods.add(new ProductSerialize(item, counter, cloneOrder));
+                Decimal brokerageUnit = productBrokerageUnitMap.containsKey(item.Product2Id) ? productBrokerageUnitMap.get(item.Product2Id) : null;
+                prods.add(new ProductSerialize(item, counter, cloneOrder, brokerageUnit));
                 orderItemsPosition.put(item.Id, counter);
                 counter++;
             }
@@ -485,7 +508,7 @@ public without sharing class OrderScreenController {
             Map<String, Decimal> smallerMarginByProductGroup = new Map<String, Decimal>();
             
             for (ProductDeserialize orderProduct : orderData.productData) {
-                if (seedSale) {
+                if (seedSale && orderProduct.brokerage != null && orderProduct.brokerage > 0) {
                     orderTotalValue += orderProduct.totalPriceWithBrokerage;
                 } else {
                     orderTotalValue += orderProduct.totalPrice;
@@ -1894,30 +1917,6 @@ public without sharing class OrderScreenController {
         }
     }
 
-    @AuraEnabled
-    public static string getBrokerageUnitPerProduct(String orderId){
-        try {
-            System.debug('orderId =>'+ orderId);
-            // Id orderMother = [SELECT OrderReference__c FROM Order WHERE Id =: orderId LIMIT 1][0].OrderReference__c;
-            Q orderItemQuery = new Q(OrderItem.SobjectType)
-                                .selectFields(new Set<String>{'Brokerage__c', 'Quantity', 'Product2Id'})
-                                .add(Q.condition('OrderId').equalsTo(orderId));
-            
-            List<BrokerageQuantities> brokerageResult = new List<BrokerageQuantities>();
-            List<OrderItem> orderItemList = Database.query(orderItemQuery.build());
-            System.debug('orderItemList =>'+ orderItemList);
-            for(OrderItem orderItem : orderItemList){
-                BrokerageQuantities brokerageQuantity = new BrokerageQuantities();
-                brokerageQuantity.productId = orderItem.Product2Id;
-                brokerageQuantity.brokeragePerUnit = orderItem.Brokerage__c / orderItem.Quantity;
-                brokerageResult.add(brokerageQuantity);
-            }
-            System.debug('brokerageResult =>'+ brokerageResult);
-            return JSON.serialize(brokerageResult);
-        } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
-        }
-    }
     public static Decimal stringToDecimal(String value) {
         if (value.contains(',')) value = value.replaceAll(',', '.');
         if (value.contains('%')) value = value.replaceAll('%', '');
@@ -2027,6 +2026,7 @@ public without sharing class OrderScreenController {
         public Decimal rListPrice;
         public Decimal tsiTotalPrice;
         public Decimal royaltyTotalPrice;
+        public String brokeragePerUnit;
     }
 
     public class DivisionDeserialize{
@@ -2339,10 +2339,11 @@ public without sharing class OrderScreenController {
         public Decimal rListPrice;
         public Decimal tsiTotalPrice;
         public Decimal royaltyTotalPrice;
+        public String brokeragePerUnit;
 
         ProductSerialize(){}
 
-        ProductSerialize(OrderItem orderItem, Integer position, Boolean cloneOrder){
+        ProductSerialize(OrderItem orderItem, Integer position, Boolean cloneOrder, Decimal brokeragePerUnit){
             this.comboId = orderItem.ComboPromotion__c;
             this.industryCombo = orderItem.AgrogalaxyComboDiscount__c != 0 ? true : false;
             this.comboDiscountPercent = '0%';
@@ -2368,11 +2369,11 @@ public without sharing class OrderScreenController {
             this.listPrice = orderItem.ListPrice__c;
             this.unitPrice = orderItem.PracticedPrice__c;
             this.totalPrice = orderItem.PracticedPrice__c * this.quantity;
-            this.totalPriceWithBrokerage = orderItem.Brokerage__c != null ? (this.totalPrice + orderItem.Brokerage__c) : this.totalPrice;
+            this.brokerage = brokeragePerUnit != null ? this.quantity * brokeragePerUnit : orderItem.Brokerage__c;
+            this.totalPriceWithBrokerage = this.brokerage != null ? (this.totalPrice + this.brokerage) : this.totalPrice;
             this.listCost = orderItem.ListCost__c;
             this.practicedCost = orderItem.PracticedCost__c;
             this.dosage = orderItem.Dosage__c;
-            this.brokerage = orderItem.Brokerage__c;
             this.sapStatus = orderItem.Status__c;
             this.unity = orderItem.UnitMeasure__c;
             this.commercialDiscountPercentage = orderItem.DiscountPercent__c != null ? (orderItem.DiscountPercent__c == 0 ? '0%' : String.valueOf(orderItem.DiscountPercent__c) + '%') : '0%';
@@ -2393,6 +2394,7 @@ public without sharing class OrderScreenController {
             this.rListPrice = orderItem.RoyaltyAmount__c != null ? orderItem.RoyaltyAmount__c : 0;
             this.tsiTotalPrice = this.tListPrice * this.quantity;
             this.royaltyTotalPrice = this.rListPrice * this.quantity;
+            this.brokeragePerUnit = brokeragePerUnit != null ? String.valueOf(brokeragePerUnit) : '';
         }
     }
 
@@ -2667,9 +2669,5 @@ public without sharing class OrderScreenController {
         public String  productGroupId;
         public Decimal quantity;
     }
-    
-    public class BrokerageQuantities{
-        public Id productId;
-        public Decimal brokeragePerUnit;
-    }
+  
 }
