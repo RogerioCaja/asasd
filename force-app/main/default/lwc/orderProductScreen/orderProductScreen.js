@@ -93,7 +93,6 @@ export default class OrderProductScreen extends LightningElement {
 
     disabled=false;
     disableSearch=false;
-    // unitPriceDisabled=false;
     numberOfRowsToSkip=0;
     showLoading=true;
     combosIds = [];
@@ -178,7 +177,6 @@ export default class OrderProductScreen extends LightningElement {
             this.headerData.status_pedido == 'Em aprovação - Diretor' || this.headerData.status_pedido == 'Em aprovação - Comitê Margem' || this.headerData.status_pedido == 'Em aprovação - Mesa de Grãos') {
             this.disabled = true;
             this.disableSearch = true;
-            // this.unitPriceDisabled = true;
         }
 
         if (this.isFilled(this.commoditiesData) && this.commoditiesData.length > 0) this.showCommodityData = true;
@@ -353,13 +351,6 @@ export default class OrderProductScreen extends LightningElement {
             royaltyTotalPriceFront: 'R$' + this.fixDecimalPlacesFront(rTotalPrice),
             brokeragePerUnit: this.isFilled(currentProduct.brokeragePerUnit) ? currentProduct.brokeragePerUnit : ''
         };
-        /* if (this.isFilled(newProduct.comboId)) {
-            this.disabled = true;
-            this.unitPriceDisabled = true;
-        } else {
-            this.disabled = false;
-        } */
-
         return newProduct;
     }
  
@@ -395,6 +386,7 @@ export default class OrderProductScreen extends LightningElement {
                 lastPosition = this.products[index].position;
             }
         }
+        return lastPosition;
     }
 
     onSelectCompany() {
@@ -973,13 +965,6 @@ export default class OrderProductScreen extends LightningElement {
             royaltyTotalPriceFront: 0,
             brokeragePerUnit: this.isFilled(currentProduct.brokeragePerUnit) ? currentProduct.brokeragePerUnit : ''
         };
-
-        /* if (this.isFilled(currentProduct.comboId)) {
-            this.disabled = true;
-            this.unitPriceDisabled = true;
-        } else {
-            this.disabled = false;
-        } */
         return newProductData;
     }
 
@@ -2002,7 +1987,6 @@ export default class OrderProductScreen extends LightningElement {
         if ((this.isFilled(this.comboProducts.formerIds) && this.comboProducts.formerIds.length > 0) ||
             (this.isFilled(this.comboProducts.benefitsIds) && this.comboProducts.benefitsIds.length > 0)) {
             this.checkCombo = true;
-            // this.unitPriceDisabled = true;
         }
 
         this.getCompanies(getCompanyData);
