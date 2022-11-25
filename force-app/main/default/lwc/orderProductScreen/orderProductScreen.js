@@ -102,6 +102,7 @@ export default class OrderProductScreen extends LightningElement {
     showCombos=false;
     checkCombo=false;
     comboRowsToSkip=0;
+    itensToRemove = [];
     comboProducts = {
         formerIds: [],
         benefitsIds: []
@@ -435,7 +436,7 @@ export default class OrderProductScreen extends LightningElement {
             let benefitItens = [];
             for (let index = 0; index < this.combosSelecteds.length; index++) {
                 let currentCombo = this.combosSelecteds[index];
-                if (this.isFilled(currentCombo)) {
+                if (this.isFilled(currentCombo) && currentCombo.comboQuantity > 0) {
                     for (let i = 0; i < currentCombo.formerItems.length; i++) {
                         formerItens.push({
                             productName: currentCombo.formerItems[i].productName,
@@ -1963,17 +1964,20 @@ export default class OrderProductScreen extends LightningElement {
         this.dispatchEvent(setItems);
 
         let allCombos = JSON.parse(JSON.stringify(this.combosSelecteds));
+        this.itensToRemove = [];
         this.comboProducts.formerIds = [];
         this.comboProducts.benefitsIds = [];
         
         for (let index = 0; index < allCombos.length; index++) {
             let currentCombo = allCombos[index];
             for (let i = 0; i < currentCombo.formerItems.length; i++) {
-                this.comboProducts.formerIds.push(currentCombo.formerItems[i].productId);
+                if (currentCombo.comboQuantity > 0) this.comboProducts.formerIds.push(currentCombo.formerItems[i].productId);
+                else this.itensToRemove.push(currentCombo.formerItems[i]);
             }
 
             for (let i = 0; i < currentCombo.benefitItems.length; i++) {
-                this.comboProducts.benefitsIds.push(currentCombo.benefitItems[i].productId);
+                if (currentCombo.comboQuantity > 0) this.comboProducts.benefitsIds.push(currentCombo.benefitItems[i].productId);
+                else this.itensToRemove.push(currentCombo.benefitItems[i]);
             }
         }
 
@@ -1988,6 +1992,16 @@ export default class OrderProductScreen extends LightningElement {
             (this.isFilled(this.comboProducts.benefitsIds) && this.comboProducts.benefitsIds.length > 0)) {
             this.checkCombo = true;
         }
+
+        let currentProducts = [];
+        for (let index = 0; index < this.products.length; index++) {
+            let itemToExclude = this.itensToRemove.find(e => e.productId == this.products[index].productId);
+            if (!this.isFilled(itemToExclude)) {
+                currentProducts.push(this.products[index]);
+            }
+        }
+        this.products = JSON.parse(JSON.stringify(currentProducts));
+        this._setData();
 
         this.getCompanies(getCompanyData);
     }
