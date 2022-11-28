@@ -31,11 +31,16 @@ public with sharing class OrderPageController {
         Decimal totalValue = 0;
         for(OrderItemDAO orderItem : this.orderToPage.orderItemList){
             totalValue += Decimal.valueOf(orderItem.totalAmount.replace(' sacas', '').replace('R$', '').replace(',00', '').replace('.', '').replace(',', '.').trim());
+            
+        }
+        
+        if(!this.orderToPage.isNormalSales){
+            	totalValue += Decimal.valueOf(this.orderToPage.totalTSI) + Decimal.valueOf(this.orderToPage.totalRoyalties);
         }
         List<String> args = new String[]{'0','number','###,###,##0.00'};
         totalValue += Decimal.valueOf(this.orderToPage.freightValue.replace('R$', '').replace(',00', '').replace('.', '').replace(',', '.').trim());
         this.orderToPage.totalAmount = this.orderToPage.currencyOrder == 'Barter' ? String.valueOf(totalValue) + ' sacas' : ('R$ ' + String.format(totalValue.format(), args)).contains(',') == true ?  'R$ ' + String.format(totalValue.format(), args): 'R$ ' + String.format(totalValue.format(), args) + ',00';
-       
+        
         String downloadingFileName = 'Pedido de Venda-' + this.orderToPage.codeSap + '.pdf';
         Apexpages.currentPage().getHeaders().put( 'content-disposition', 'inline; filename=' + downloadingFileName );
        
@@ -50,7 +55,7 @@ public with sharing class OrderPageController {
             'ShippingAccount__r.Name', 'ShippingAccount__r.Phone', 'ShippingAccount__r.Email__c', 'Account.BillingCity', 'Account.StateRegistration__c', 'SalesOrg__r.SalesOrganizationCode__c', 'SalesOrg__r.PDFLegalClauses__c',
             'Company__r.salesTeam__r.Address__c','Company__r.salesTeam__r.CNPJ__c', 'Company__r.salesTeam__r.Country__c', 'Company__r.salesTeam__r.Locale__c','Company__r.salesTeam__r.Phone__c',
             'Company__r.salesTeam__r.Registration__c','Company__r.salesTeam__r.State__c', 'Company__r.salesTeam__r.Subsidiary__c', 'Company__r.salesTeam__r.ZipCode__c',
-            'Account.CPF__c', 'Account.CNPJ__c', 'TotalAmount', 'Description', 'FinalTotalValue__c', 'Status',
+            'Account.CPF__c', 'Account.CNPJ__c', 'TotalAmount', 'Description', 'FinalTotalValue__c', 'Status', 'TotalRoyaltiesAmount__c', 'TotalTSIAmount__c',
             'Account.BillingPostalCode', 'Crop__r.Name', 'toLabel(PaymentForm__c)', 'PaymentDate__c', 'RecordTypeId',' Incoterms__c',
             'Currency__c', 'Culture__r.Name', 'CodigoSap__c', 'SalesCTV__r.CodigoSap__c', 'SalesCTV__r.Name', 'IsOrderMother__c', 'FreightValue__c'
         };
@@ -170,6 +175,9 @@ public with sharing class OrderPageController {
         public String salesTeamIE               {get; set;}
         public String legalClauses              {get; set;}
         public Boolean isNormalSales            {get; set;}
+        
+        public String totalTSI					{get; set;}
+        public String totalRoyalties        	{get; set;}
 
         public List<OrderItemDAO> orderItemList {get; set;}
 
@@ -208,6 +216,8 @@ public with sharing class OrderPageController {
             this.salesTeamIE = order.Company__r.salesTeam__r.Registration__c;
             this.isNormalSales = order.SalesOrg__r.SalesOrganizationCode__c == '1700' ? false : true;
             this.legalClauses = order.SalesOrg__r.PDFLegalClauses__c != null ? order.SalesOrg__r.PDFLegalClauses__c : '';
+            this.totalTSI = String.valueOf(order.TotalTSIAmount__c);
+            this.totalRoyalties = String.valueOf(order.TotalRoyaltiesAmount__c);
             this.orderItemList = new List<OrderItemDAO>();
         }
 
@@ -261,7 +271,7 @@ public with sharing class OrderPageController {
             this.unitOfMeasure = orderItem.Product2.GrossWeightUnitOfMeasure__c;
             this.unitPrice = commodity != null ? formatCurrency(((orderItem.PracticedPrice__c*100)/(commodity.CommodityPrice__c * 100)), currencyCode) + ' por saca': formatCurrency((orderItem.PracticedPrice__c + this.brokerage), currencyCode);
             this.quantity =  String.valueOf(orderItem.Quantity);
-            this.totalAmount = commodity != null ? formatCurrency(((orderItem.PracticedPrice__c*100)/(commodity.CommodityPrice__c * 100)).setScale(2) * orderItem.Quantity, currencyCode) + ' sacas' : formatCurrency(orderItem.FinalTotalValue__c, currencyCode) ;
+            this.totalAmount = commodity != null ? formatCurrency(((orderItem.PracticedPrice__c*100)/(commodity.CommodityPrice__c * 100)).setScale(2) * orderItem.Quantity, currencyCode) + ' sacas' : formatCurrency( (orderItem.PracticedPrice__c + this.brokerage)* Decimal.valueOf(this.quantity), currencyCode) ;
             this.culture = culture;
             this.divisonList = divisonList;
         }
