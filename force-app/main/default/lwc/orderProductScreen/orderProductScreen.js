@@ -123,8 +123,6 @@ export default class OrderProductScreen extends LightningElement {
     @api combosSelecteds;
 
     connectedCallback(event) {
-        
-        try{
         if (!this.isFilled(this.combosSelecteds)) this.combosSelecteds=[];
         let today = new Date();
         let dd = String(today.getDate()).padStart(2, '0');
@@ -173,7 +171,6 @@ export default class OrderProductScreen extends LightningElement {
             this.disableSearch = true;
             this._setData();
         }
-        console.log(this.headerData.status_pedido);
         if (this.headerData.status_pedido == 'Em aprovação - Gerente Filial' || this.headerData.status_pedido == 'Em aprovação - Gerente Regional' ||
             this.headerData.status_pedido == 'Em aprovação - Diretor' || this.headerData.status_pedido == 'Em aprovação - Comitê Margem' || this.headerData.status_pedido == 'Em aprovação - Mesa de Grãos') {
             this.disabled = true;
@@ -191,15 +188,11 @@ export default class OrderProductScreen extends LightningElement {
         });
 
         actions = [];
-        console.log(this.disabled);
-        console.log(this.headerData.IsOrderChild);
-        console.log(this.headerData.pedido_mae_check);
         if (this.disabled) actions.push({ label: 'Visualizar', name: 'visualize' })
         else if(this.headerData.IsOrderChild) actions.push({ label: 'Editar', name: 'edit' }, { label: 'Divisão de Remessas', name: 'shippingDivision' }, { label: 'Excluir', name: 'delete' });
         else if (this.headerData.pedido_mae_check) actions.push({ label: 'Editar', name: 'edit' }, { label: 'Excluir', name: 'delete' });
         else actions.push({ label: 'Editar', name: 'edit' }, { label: 'Divisão de Remessas', name: 'shippingDivision' }, { label: 'Excluir', name: 'delete' });
 
-        console.log(actions);
         this.showIncludedProducts = this.products.length > 0;
         if (this.headerData.tipo_venda == 'Venda Barter') {
             this.hideChooseColumns = true;
@@ -234,9 +227,6 @@ export default class OrderProductScreen extends LightningElement {
             this.getCombos();
         } else {
             this.getCompanies(getCompanyData);
-        }
-        }catch(err){
-            console.log(err);
         }
     }
 
@@ -1013,7 +1003,6 @@ export default class OrderProductScreen extends LightningElement {
         if (this.isSelected(this.selectedColumns.columnSieve)) selectedColumns.push({label: 'Peneira', fieldName: 'sieve'})
         if (this.isSelected(this.selectedColumns.columnProductClass)) selectedColumns.push({label: 'Classe/Categoria', fieldName: 'productClass'})
 
-        console.log(actions);
         if (selectedColumns.length >= 2) {
             selectedColumns.push({
                 type: 'action',
