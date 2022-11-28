@@ -1550,12 +1550,17 @@ export default class OrderProductScreen extends LightningElement {
         }
     }
 
+    resetData(){
+        this.productParams.numberOfRowsToSkip = 0;
+    }
+
     getProducts() {
         fetchOrderRecords({
             searchString: this.salesInfos.searchString,
             data: JSON.stringify(this.productParams),
             isCommodity: false,
-            productsIds: []
+            productsIds: [],
+            priceScreen: false
         })
         .then(result => {
             this.showBaseProducts = result.recordsDataList.length > 0;

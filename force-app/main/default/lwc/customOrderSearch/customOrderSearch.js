@@ -59,6 +59,8 @@ export default class CustomOrderSearch extends LightningElement {
     searchRecords(event) {
         console.log('searchRecords function');
         this.searchString = this.template.querySelector('input[name="search"]').value;
+        const tabEvent = new CustomEvent("modesearch");
+        this.dispatchEvent(tabEvent)
         console.log(this.searchString);
         if (this.searchString) {
             this.fetchData();
