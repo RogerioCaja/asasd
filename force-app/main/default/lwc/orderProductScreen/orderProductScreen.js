@@ -564,7 +564,7 @@ export default class OrderProductScreen extends LightningElement {
                                         industryCombo: formerItens[index].industryCombo,
                                         containsCombo: true,
                                         formerItem: true,
-                                        benefitItem: true
+                                        benefitItem: false
                                     }
     
                                     let productInfos = this.getProductByPriority({Id: formerItens[index].productId});
@@ -603,7 +603,7 @@ export default class OrderProductScreen extends LightningElement {
                                         comboId: benefitItens[index].comboId,
                                         industryCombo: benefitItens[index].industryCombo,
                                         containsCombo: true,
-                                        formerItem: true,
+                                        formerItem: false,
                                         benefitItem: true
                                     }
 
@@ -1792,7 +1792,9 @@ export default class OrderProductScreen extends LightningElement {
         if (this.isFilled(comboId)) {
             for (let index = 0; index < excludeProduct.length; index++) {
                 if (excludeProduct[index].comboId == comboId && excludeProduct[index].benefitItem) {
-                    excludeProduct[index].totalPrice += excludeProduct[index].comboDiscountValue;
+                    excludeProduct[index].totalPrice = Number(excludeProduct[index].totalPrice) + Number(excludeProduct[index].comboDiscountValue);
+                    excludeProduct[index].unitPrice = excludeProduct[index].listPrice;
+                    excludeProduct[index].unitPriceFront = this.fixDecimalPlacesFront(excludeProduct[index].unitPrice);
                     excludeProduct[index].comboDiscountPercent = '0%';
                     excludeProduct[index].comboDiscountValue = 0;
                     excludeProduct[index].comboId = null;
