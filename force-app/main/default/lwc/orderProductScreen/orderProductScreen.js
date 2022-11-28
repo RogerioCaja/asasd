@@ -381,33 +381,37 @@ export default class OrderProductScreen extends LightningElement {
             let benefitItens = [];
             for (let index = 0; index < this.combosSelecteds.length; index++) {
                 let currentCombo = this.combosSelecteds[index];
-                if (this.isFilled(currentCombo) && currentCombo.comboQuantity > 0) {
-                    for (let i = 0; i < currentCombo.formerItems.length; i++) {
-                        formerItens.push({
-                            productName: currentCombo.formerItems[i].productName,
-                            productId: currentCombo.formerItems[i].productId,
-                            productCode: currentCombo.formerItems[i].productCode,
-                            minQUantity: currentCombo.formerItems[i].minQUantity,
-                            discountPercentage: currentCombo.formerItems[i].discountPercentage,
-                            comboId: currentCombo.formerItems[i].comboId,
-                            comboQuantity: currentCombo.comboQuantity,
-                            industryCombo: currentCombo.comboType == 'Indústria'
-                        });
-                        prodsIds.push(currentCombo.formerItems[i].productId);
+                if (this.isFilled(currentCombo) && currentCombo.comboQuantity > 0 && currentCombo.specificItemCombo) {
+                    if (this.isFilled(currentCombo.formerItems) && currentCombo.formerItems.length > 0) {
+                        for (let i = 0; i < currentCombo.formerItems.length; i++) {
+                            formerItens.push({
+                                productName: currentCombo.formerItems[i].productName,
+                                productId: currentCombo.formerItems[i].productId,
+                                productCode: currentCombo.formerItems[i].productCode,
+                                minQUantity: currentCombo.formerItems[i].minQUantity,
+                                discountPercentage: currentCombo.formerItems[i].discountPercentage,
+                                comboId: currentCombo.formerItems[i].comboId,
+                                comboQuantity: currentCombo.comboQuantity,
+                                industryCombo: currentCombo.comboType == 'Indústria'
+                            });
+                            prodsIds.push(currentCombo.formerItems[i].productId);
+                        }
                     }
     
-                    for (let i = 0; i < currentCombo.benefitItems.length; i++) {
-                        benefitItens.push({
-                            productName: currentCombo.benefitItems[i].productName,
-                            productId: currentCombo.benefitItems[i].productId,
-                            productCode: currentCombo.benefitItems[i].productCode,
-                            minQUantity: currentCombo.benefitItems[i].minQUantity,
-                            discountPercentage: currentCombo.benefitItems[i].discountPercentage,
-                            comboId: currentCombo.benefitItems[i].comboId,
-                            comboQuantity: currentCombo.comboQuantity,
-                            industryCombo: currentCombo.comboType == 'Indústria'
-                        });
-                        prodsIds.push(currentCombo.benefitItems[i].productId);
+                    if (this.isFilled(currentCombo.benefitItems) && currentCombo.benefitItems.length > 0) {
+                        for (let i = 0; i < currentCombo.benefitItems.length; i++) {
+                            benefitItens.push({
+                                productName: currentCombo.benefitItems[i].productName,
+                                productId: currentCombo.benefitItems[i].productId,
+                                productCode: currentCombo.benefitItems[i].productCode,
+                                minQUantity: currentCombo.benefitItems[i].minQUantity,
+                                discountPercentage: currentCombo.benefitItems[i].discountPercentage,
+                                comboId: currentCombo.benefitItems[i].comboId,
+                                comboQuantity: currentCombo.comboQuantity,
+                                industryCombo: currentCombo.comboType == 'Indústria'
+                            });
+                            prodsIds.push(currentCombo.benefitItems[i].productId);
+                        }
                     }
                 }
             }
@@ -488,10 +492,11 @@ export default class OrderProductScreen extends LightningElement {
                             let itemToExclude = [];
                             let counter = 1;
                             let comboItens = [];
+                            let idsToRemove = [];
                             
                             for (let index = 0; index < formerItens.length; index++) {
                                 let formerProductQuantity = formerItens[index].minQUantity * formerItens[index].comboQuantity;
-                                let currentItem = this.products.find(e => e.productId == formerItens[index].productId)
+                                let currentItem = this.products.find(e => e.productId == formerItens[index].productId);
                                 
                                 if (this.isFilled(currentItem)) {
                                     currentItem.quantity = formerProductQuantity;
@@ -499,9 +504,9 @@ export default class OrderProductScreen extends LightningElement {
                                     currentItem.dosageFront = this.fixDecimalPlacesFront(currentItem.dosage);
                                     comboItens.push(currentItem);
 
-                                    for (let index = 0; index < this.products.length; index++) {
+                                    for (let i = 0; i < this.products.length; i++) {
                                         if (currentItem.productId == formerItens[index].productId) {
-                                            this.products.splice(index, 1);
+                                            idsToRemove.push(currentItem.productId);
                                         }
                                     }
                                 } else {
@@ -539,9 +544,9 @@ export default class OrderProductScreen extends LightningElement {
                                     currentItem.comboDiscountPercent = benefitItens[index].discountPercentage + '%';
                                     comboItens.push(currentItem);
 
-                                    for (let index = 0; index < this.products.length; index++) {
+                                    for (let i = 0; i < this.products.length; i++) {
                                         if (currentItem.productId == benefitItens[index].productId) {
-                                            this.products.splice(index, 1);
+                                            idsToRemove.push(currentItem.productId);
                                         }
                                     }
                                 } else {
@@ -567,7 +572,14 @@ export default class OrderProductScreen extends LightningElement {
                                     counter++;
                                 }
                             }
-                            comboItens.push.apply(comboItens, this.products);
+
+                            let allProducts = [];
+                            for (let index = 0; index < this.products.length; index++) {
+                                if (!idsToRemove.includes(this.products[index].productId)) {
+                                    allProducts.push(this.products[index]);
+                                }
+                            }
+                            comboItens.push.apply(comboItens, allProducts);
                             this.products = JSON.parse(JSON.stringify(comboItens));
 
                             for (let index = 0; index < this.products.length; index++) {
@@ -837,7 +849,9 @@ export default class OrderProductScreen extends LightningElement {
                 this.updateProduct = false;
                 this.multiplicity = this.isFilled(currentProduct.multiplicity) ? currentProduct.multiplicity : 1;
                 this.costPrice = priorityInfos.priorityPrice.costPrice;
-                this.addProduct = this.createProduct(currentProduct, priorityInfos.priorityPrice, null, this.getCurrentProductPosition() + 1);
+                let currentPosition = this.getCurrentProductPosition() + 1;
+                console.log('currentPosition: ' + currentPosition);
+                this.addProduct = this.createProduct(currentProduct, priorityInfos.priorityPrice, null, currentPosition);
             }
         }
     }
@@ -1315,7 +1329,6 @@ export default class OrderProductScreen extends LightningElement {
             prod.commercialMarginPercentage = margin;
             prod.costPrice = this.costPrice;
             prod.multiplicity = this.multiplicity;
-            prod.position = this.isFilled(this.products) ? this.products.length : 0
             allProducts.push(prod);
 
             console.log(JSON.stringify(allProducts));
@@ -1872,14 +1885,16 @@ export default class OrderProductScreen extends LightningElement {
         
         for (let index = 0; index < allCombos.length; index++) {
             let currentCombo = allCombos[index];
-            for (let i = 0; i < currentCombo.formerItems.length; i++) {
-                if (currentCombo.comboQuantity > 0) this.comboProducts.formerIds.push(currentCombo.formerItems[i].productId);
-                else this.itensToRemove.push(currentCombo.formerItems[i]);
-            }
+            if (currentCombo.specificItemCombo) {
+                for (let i = 0; i < currentCombo.formerItems.length; i++) {
+                    if (currentCombo.comboQuantity > 0) this.comboProducts.formerIds.push(currentCombo.formerItems[i].productId);
+                    else this.itensToRemove.push(currentCombo.formerItems[i]);
+                }
 
-            for (let i = 0; i < currentCombo.benefitItems.length; i++) {
-                if (currentCombo.comboQuantity > 0) this.comboProducts.benefitsIds.push(currentCombo.benefitItems[i].productId);
-                else this.itensToRemove.push(currentCombo.benefitItems[i]);
+                for (let i = 0; i < currentCombo.benefitItems.length; i++) {
+                    if (currentCombo.comboQuantity > 0) this.comboProducts.benefitsIds.push(currentCombo.benefitItems[i].productId);
+                    else this.itensToRemove.push(currentCombo.benefitItems[i]);
+                }
             }
         }
 
@@ -2214,7 +2229,7 @@ export default class OrderProductScreen extends LightningElement {
                         combosAndPromotions[index].comboQuantity = currentCombo.comboQuantity;
                     } else {
                         currentCombo = this.comboProductsAndQuantities.find(e => e.combo == combosAndPromotions[index].comboId);
-                        if (this.isFilled(currentCombo)) {
+                        if (this.isFilled(currentCombo) && currentCombo.specificItemCombo) {
                             let formerItem = combosAndPromotions[index].formerItems.find(e => e.productId == currentCombo.prodId);
                             let benefitItem = combosAndPromotions[index].benefitItems.find(e => e.productId == currentCombo.prodId);
                             
