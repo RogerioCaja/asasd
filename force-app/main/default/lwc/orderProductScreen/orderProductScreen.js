@@ -834,6 +834,7 @@ export default class OrderProductScreen extends LightningElement {
                 let currentProduct = this.baseProducts.find(e => e.Id == productId);
                 let priorityInfos = this.getProductByPriority(currentProduct);
     
+                this.updateProduct = false;
                 this.multiplicity = this.isFilled(currentProduct.multiplicity) ? currentProduct.multiplicity : 1;
                 this.costPrice = priorityInfos.priorityPrice.costPrice;
                 this.addProduct = this.createProduct(currentProduct, priorityInfos.priorityPrice, null, this.getCurrentProductPosition() + 1);
