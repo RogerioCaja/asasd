@@ -1414,7 +1414,7 @@ export default class OrderProductScreen extends LightningElement {
 
             prod.commercialMarginPercentage = margin;
             prod.costPrice = this.costPrice;
-            prod.multiplicity = this.multiplicity;
+            prod.multiplicity = this.multiplicity > 0 ? this.multiplicity : 1;
             allProducts.push(prod);
 
             console.log(JSON.stringify(allProducts));
