@@ -35,7 +35,10 @@ public with sharing class OrderPageController {
         }
         
         List<String> args = new String[]{'0','number','###,###,##0.00'};
-        totalValue += Decimal.valueOf(this.orderToPage.freightValue.replace('R$', '').replace(',00', '').replace('.', '').replace(',', '.').trim());
+        
+        if(!this.orderToPage.isNormalSales){
+			totalValue += Decimal.valueOf(this.orderToPage.freightValue.replace('R$', '').replace(',00', '').replace('.', '').replace(',', '.').trim());
+        }
         this.orderToPage.totalAmount = this.orderToPage.currencyOrder == 'Barter' ? String.valueOf(totalValue) + ' sacas' : ('R$ ' + String.format(totalValue.format(), args)).contains(',') == true ?  'R$ ' + String.format(totalValue.format(), args): 'R$ ' + String.format(totalValue.format(), args) + ',00';
         
         String downloadingFileName = 'Pedido de Venda-' + this.orderToPage.codeSap + '.pdf';
