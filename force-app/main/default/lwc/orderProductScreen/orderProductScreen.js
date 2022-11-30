@@ -1448,7 +1448,7 @@ export default class OrderProductScreen extends LightningElement {
                         return {
                             discount: combos[index].comboDiscountPercentage,
                             comboId: combos[index].comboId,
-                            industryCombo: combos[index].comboType.comboType == 'Indústria',
+                            industryCombo: combos[index].comboType == 'Indústria',
                             comboQuantity: Math.floor(quantity / productGroupCombo.quantity)
                         };
                     }
@@ -1457,12 +1457,19 @@ export default class OrderProductScreen extends LightningElement {
 
             let paymentConditionCombo = combos.find(e => e.paymentConditionId == this.headerData.condicao_pagamento.Id);
             if (this.isFilled(paymentConditionCombo) && paymentConditionCombo.recTypeDevName == 'PaymentCondition') {
-                return {
-                    discount: paymentConditionCombo.comboDiscountPercentage,
-                    comboId: paymentConditionCombo.comboId,
-                    industryCombo: paymentConditionCombo.comboType.comboType == 'Indústria',
-                    comboQuantity: 1
-                };
+                let groupsData = paymentConditionCombo.groupQuantities;
+                
+                if (this.isFilled(groupsData)) {
+                    let productGroupCombo = groupsData.find(e => e.productGroupId == this.addProduct.productGroupId);
+                    if (this.isFilled(productGroupCombo) && quantity >= productGroupCombo.quantity) {
+                        return {
+                            discount: paymentConditionCombo.comboDiscountPercentage,
+                            comboId: paymentConditionCombo.comboId,
+                            industryCombo: paymentConditionCombo.comboType == 'Indústria',
+                            comboQuantity: Math.floor(quantity / productGroupCombo.quantity)
+                        };
+                    }
+                }
             }
         }
 
@@ -1551,27 +1558,27 @@ export default class OrderProductScreen extends LightningElement {
                         if (!availableQuota) return;
                     }
 
-                    let comboDiscountPercent = this.verifyComboAndPromotion(includedProducts[index].quantity);
-                    if (includedProducts[index].comboDiscountPercent == '0%' && comboDiscountPercent != null) {
-                        includedProducts[index].comboId = comboDiscountPercent.comboId;
-                        includedProducts[index].comboDiscountPercent = comboDiscountPercent.discount + '%';
-                        includedProducts[index].comboDiscountValue = this.calculateValue(comboDiscountPercent.discount + '%', includedProducts[index].totalPrice);
-                        includedProducts[index].totalPrice = includedProducts[index].totalPrice - includedProducts[index].comboDiscountValue;
-                        includedProducts[index].totalPriceFront = this.fixDecimalPlacesFront(includedProducts[index].totalPrice);
-                        includedProducts[index].industryCombo = comboDiscountPercent.industryCombo;
-                        includedProducts[index].unitPrice = this.fixDecimalPlaces(includedProducts[index].totalPrice / includedProducts[index].quantity);
-                        includedProducts[index].unitPriceFront = this.fixDecimalPlacesFront(includedProducts[index].unitPrice);
+                    let comboDiscountPercent = this.verifyComboAndPromotion(this.addProduct.quantity);
+                    if (this.addProduct.comboDiscountPercent == '0%' && comboDiscountPercent != null) {
+                        this.addProduct.comboId = comboDiscountPercent.comboId;
+                        this.addProduct.comboDiscountPercent = comboDiscountPercent.discount + '%';
+                        this.addProduct.comboDiscountValue = this.calculateValue(comboDiscountPercent.discount + '%', this.addProduct.totalPrice);
+                        this.addProduct.totalPrice = this.addProduct.totalPrice - this.addProduct.comboDiscountValue;
+                        this.addProduct.totalPriceFront = this.fixDecimalPlacesFront(this.addProduct.totalPrice);
+                        this.addProduct.industryCombo = comboDiscountPercent.industryCombo;
+                        this.addProduct.unitPrice = this.fixDecimalPlaces(this.addProduct.totalPrice / this.addProduct.quantity);
+                        this.addProduct.unitPriceFront = this.fixDecimalPlacesFront(this.addProduct.unitPrice);
                         
                         let allCombos = JSON.parse(JSON.stringify(this.combosSelecteds));
                         let currentCombo = allCombos.find(e => e.comboId == comboDiscountPercent.comboId);
                         if (this.isFilled(currentCombo)) {
-                            currentCombo.productQuantity = includedProducts[index].quantity;
+                            currentCombo.productQuantity = this.addProduct.quantity;
                         } else {
                             allCombos.push({
                                 comboId: comboDiscountPercent.comboId,
                                 comboQuantity: 1,
-                                productQuantity: includedProducts[index].quantity,
-                                productId: includedProducts[index].productId,
+                                productQuantity: this.addProduct.quantity,
+                                productId: this.addProduct.productId,
                                 specificItemCombo: false
                             })
                         }
@@ -1772,7 +1779,7 @@ export default class OrderProductScreen extends LightningElement {
             if (excludeProduct[index].position == position) {
                 counter = index;
                 
-                if (excludeProduct[index].containsCombo && excludeProduct[index].formerItem) {
+                if (excludeProduct[index].containsCombo) {
                     comboId = excludeProduct[index].comboId;
                 }
             }
@@ -1780,7 +1787,7 @@ export default class OrderProductScreen extends LightningElement {
 
         if (this.isFilled(comboId)) {
             for (let index = 0; index < excludeProduct.length; index++) {
-                if (excludeProduct[index].comboId == comboId && excludeProduct[index].benefitItem) {
+                if (excludeProduct[index].comboId == comboId) {
                     excludeProduct[index].totalPrice = Number(excludeProduct[index].totalPrice) + Number(excludeProduct[index].comboDiscountValue);
                     excludeProduct[index].unitPrice = excludeProduct[index].listPrice;
                     excludeProduct[index].unitPriceFront = this.fixDecimalPlacesFront(excludeProduct[index].unitPrice);
@@ -1793,6 +1800,27 @@ export default class OrderProductScreen extends LightningElement {
                     excludeProduct[index].benefitItem = false;
                 }
             }
+
+            let indexToRemove;
+            let selectedCombos = JSON.parse(JSON.stringify(this.combosSelecteds));
+            for (let index = 0; index < selectedCombos.length; index++) {
+                if (selectedCombos[index].comboId == comboId) {
+                    indexToRemove = index;
+                }
+            }
+            selectedCombos.splice(indexToRemove, 1);
+            this.combosSelecteds = JSON.parse(JSON.stringify(selectedCombos));
+
+            let allCombos = JSON.parse(JSON.stringify(this.combosData));
+            for (let index = 0; index < allCombos.length; index++) {
+                if (allCombos[index].comboId == comboId) {
+                    allCombos[index].comboQuantity = 0;
+                }
+            }
+
+            console.log('JSON.stringify(allCombos): ' + JSON.stringify(allCombos));
+            this.combosData = JSON.parse(JSON.stringify(allCombos));
+            this._setcombosSelecteds();
         }
         
         excludedProducts.push(excludeProduct[counter].orderItemId);
