@@ -54,7 +54,7 @@ public without sharing class Lookup {
             ]) {
                 hasRelatedTerritory = true;
                 userTerritories.add(userAssociation.Territory2Id);
-                if (userAssociation.Territory2.Territory2Type.DeveloperName == 'SellerPosition' && profileName != 'Balcão') {
+                    if (userAssociation.Territory2.Territory2Type.DeveloperName == 'SellerPosition' && ((profileName != 'Balcão' && !priceScreen) || priceScreen)) {
                     userRelatedToTerritory = true;
                 }
 
