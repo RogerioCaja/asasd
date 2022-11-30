@@ -1,4 +1,8 @@
-import {LightningElement, api, track} from 'lwc';
+import {
+    LightningElement,
+    api,
+    track
+} from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import isSeedSale from '@salesforce/apex/OrderScreenController.isSeedSale';
 import getSafraInfos from '@salesforce/apex/OrderScreenController.getSafraInfos';
@@ -12,9 +16,98 @@ import fetchOrderRecords from '@salesforce/apex/CustomLookupController.fetchProd
 let actions = [];
 let commodityActions = [{label: 'Excluir', name: 'delete'}];
 export default class OrderProductScreen extends LightningElement {
-    @track products=[];
     @track addProduct={};
-    @track commoditiesData=[];
+    costPrice;
+    multiplicity;
+    listTotalPrice;
+    productPosition;
+    currentDate;
+    seedSale;
+    verifyQuota;
+    allProductQuotas = [];
+
+    selectedColumns={
+        columnUnity: true,
+        columnListPrice: true,
+        columnQuantity: true,
+        columnUnitPrice: true,
+        columnTotalPrice: true,
+        columnProductGroupName: true,
+        columnCommercialDiscountPercentage: true
+    }
+
+    companyResult=[];
+    selectCompany = false;
+    selectedCompany;
+    safraData={};
+    paymentDate;
+    hectares;
+    salesConditionId;
+    productParams={};
+    productsPriceMap;
+    salesInfos;
+    hideChooseColumns = false;
+
+    baseProducts = [];
+    showBaseProducts = false;
+    showArrows = false;
+    showIncludedProducts = false;
+    message = false;
+    createNewProduct = false;
+    updateProduct = false;
+    recalculatePrice = false;
+    showList = false;
+    changeColumns = false;
+    showProductDivision = false;
+    barterSale = false;
+    selectedProducts;
+    columns = [];
+    productName = '';
+    currentDivisionProduct = {};
+    divisionProducts = [];
+    allDivisionProducts = [];
+    financialInfos = {};
+    
+    selectCommodityScreen = false;
+    commodityScreens = ['chooseCommodity', 'fillCommodity', 'negotiationDetails'];
+    currentScreen = 'chooseCommodity';
+    
+    commodities = [];
+    showCommodityData = false;
+    openCommoditiesData = false;
+    chooseCommodities = false;
+    showCommodities = false;
+    commoditySelected = false;
+    summaryScreen = false;
+    commodityColumns = [
+        {label: 'Produto', fieldName: 'product'},
+        {label: 'Dose', fieldName: 'desage'},
+        {label: 'Área', fieldName: 'area'},
+        {label: 'Desconto', fieldName: 'discountFront'},
+        {label: 'Margem', fieldName: 'marginFront'},
+        {label: 'Entrega Total', fieldName: 'totalDeliveryFront'}
+    ];
+    visualizeCommodityColumns = [];
+
+    disabled=false;
+    disableSearch=false;
+    numberOfRowsToSkip=0;
+    showLoading=true;
+    combosIds = [];
+    comboProductsAndQuantities = [];
+
+    combosData;
+    showCombos=false;
+    checkCombo=false;
+    comboRowsToSkip=0;
+    itensToRemove = [];
+    comboProducts = {
+        formerIds: [],
+        benefitsIds: []
+    }
+
+    @track products = [];
+    @track commoditiesData = [];
 
     @api productData;
     @api commodityData;
@@ -27,90 +120,9 @@ export default class OrderProductScreen extends LightningElement {
     @api formsOfPayment;
     @api combosSelecteds;
 
-    costPrice;
-    multiplicity;
-    listTotalPrice;
-    productPosition;
-    currentDate;
-    seedSale;
-    verifyQuota;
-    allProductQuotas = [];
-    selectedColumns={
-        columnUnity: true,
-        columnListPrice: true,
-        columnQuantity: true,
-        columnUnitPrice: true,
-        columnTotalPrice: true,
-        columnProductGroupName: true,
-        columnCommercialDiscountPercentage: true
-    }
-    companyResult=[];
-    selectCompany = false;
-    selectedCompany;
-    safraData={};
-    paymentDate;
-    hectares;
-    salesConditionId;
-    productParams={};
-    productsPriceMap;
-    salesInfos;
-    hideChooseColumns=false;
-    baseProducts=[];
-    showBaseProducts=false;
-    showArrows=false;
-    showIncludedProducts=false;
-    message=false;
-    createNewProduct=false;
-    updateProduct=false;
-    recalculatePrice=false;
-    showList=false;
-    changeColumns=false;
-    showProductDivision=false;
-    barterSale=false;
-    selectedProducts;
-    columns=[];
-    productName='';
-    currentDivisionProduct={};
-    divisionProducts=[];
-    allDivisionProducts=[];
-    financialInfos={};
-    selectCommodityScreen=false;
-    commodityScreens=['chooseCommodity', 'fillCommodity', 'negotiationDetails'];
-    currentScreen='chooseCommodity';
-    commodities=[];
-    showCommodityData=false;
-    openCommoditiesData=false;
-    chooseCommodities=false;
-    showCommodities=false;
-    commoditySelected=false;
-    summaryScreen=false;
-    commodityColumns = [
-        {label: 'Produto', fieldName: 'product'},
-        {label: 'Dose', fieldName: 'desage'},
-        {label: 'Área', fieldName: 'area'},
-        {label: 'Desconto', fieldName: 'discountFront'},
-        {label: 'Margem', fieldName: 'marginFront'},
-        {label: 'Entrega Total', fieldName: 'totalDeliveryFront'}
-    ];
-    visualizeCommodityColumns=[];
-    disabled=false;
-    disableSearch=false;
-    numberOfRowsToSkip=0;
-    showLoading=true;
-    combosIds=[];
-    comboProductsAndQuantities=[];
-    combosData;
-    showCombos=false;
-    checkCombo=false;
-    comboRowsToSkip=0;
-    itensToRemove=[];
-    comboProducts = {
-        formerIds: [],
-        benefitsIds: []
-    }
-
     connectedCallback(event) {
         if (!this.isFilled(this.combosSelecteds)) this.combosSelecteds=[];
+        
         let today = new Date();
         let dd = String(today.getDate()).padStart(2, '0');
         let mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -130,7 +142,7 @@ export default class OrderProductScreen extends LightningElement {
             this.products = this.isFilled(this.productData) ? this.productData : [];
             this.allDivisionProducts = this.isFilled(this.divisionData) ? this.divisionData : [];
         }
-
+        
         let allProducts = JSON.parse(JSON.stringify(this.products));
         let newProducts = [];
         let combosIds = [];
@@ -146,6 +158,7 @@ export default class OrderProductScreen extends LightningElement {
                     }
                 );
             }
+
             newProducts.push(this.newProduct(allProducts[index]));
         }
 
@@ -175,18 +188,18 @@ export default class OrderProductScreen extends LightningElement {
         });
 
         actions = [];
-        if (this.disabled) actions.push({label:'Visualizar',name:'visualize'})
-        else if(this.headerData.IsOrderChild) actions.push({label:'Editar',name:'edit'},{label:'Divisão de Remessas',name:'shippingDivision'},{label:'Excluir',name:'delete'});
-        else if (this.headerData.pedido_mae_check) actions.push({label:'Editar',name:'edit'},{label:'Excluir',name:'delete'});
-        else actions.push({label:'Editar',name:'edit'},{label:'Divisão de Remessas',name:'shippingDivision'},{label:'Excluir',name:'delete'});
+        if (this.disabled) actions.push({ label: 'Visualizar', name: 'visualize' })
+        else if(this.headerData.IsOrderChild) actions.push({ label: 'Editar', name: 'edit' }, { label: 'Divisão de Remessas', name: 'shippingDivision' }, { label: 'Excluir', name: 'delete' });
+        else if (this.headerData.pedido_mae_check) actions.push({ label: 'Editar', name: 'edit' }, { label: 'Excluir', name: 'delete' });
+        else actions.push({ label: 'Editar', name: 'edit' }, { label: 'Divisão de Remessas', name: 'shippingDivision' }, { label: 'Excluir', name: 'delete' });
 
         this.showIncludedProducts = this.products.length > 0;
         if (this.headerData.tipo_venda == 'Venda Barter') {
             this.hideChooseColumns = true;
             let barterColumns = [
-                {label:'Produto',fieldName:'name'},
-                {label:'Unidade de Medida',fieldName:'unity'},
-                {label:'Qtd',fieldName:'quantity'}
+                {label: 'Produto', fieldName: 'name'},
+                {label: 'Unidade de Medida', fieldName: 'unity'},
+                {label: 'Qtd', fieldName: 'quantity'}
             ]
 
             barterColumns.push({
@@ -371,14 +384,32 @@ export default class OrderProductScreen extends LightningElement {
                 if (this.isFilled(currentCombo) && currentCombo.comboQuantity > 0 && currentCombo.specificItemCombo) {
                     if (this.isFilled(currentCombo.formerItems) && currentCombo.formerItems.length > 0) {
                         for (let i = 0; i < currentCombo.formerItems.length; i++) {
-                            formerItens.push({productName: currentCombo.formerItems[i].productName,productId: currentCombo.formerItems[i].productId,productCode: currentCombo.formerItems[i].productCode,minQUantity: currentCombo.formerItems[i].minQUantity,discountPercentage: currentCombo.formerItems[i].discountPercentage,comboId: currentCombo.formerItems[i].comboId,comboQuantity: currentCombo.comboQuantity,industryCombo: currentCombo.comboType == 'Indústria'});
+                            formerItens.push({
+                                productName: currentCombo.formerItems[i].productName,
+                                productId: currentCombo.formerItems[i].productId,
+                                productCode: currentCombo.formerItems[i].productCode,
+                                minQUantity: currentCombo.formerItems[i].minQUantity,
+                                discountPercentage: currentCombo.formerItems[i].discountPercentage,
+                                comboId: currentCombo.formerItems[i].comboId,
+                                comboQuantity: currentCombo.comboQuantity,
+                                industryCombo: currentCombo.comboType == 'Indústria'
+                            });
                             prodsIds.push(currentCombo.formerItems[i].productId);
                         }
                     }
     
                     if (this.isFilled(currentCombo.benefitItems) && currentCombo.benefitItems.length > 0) {
                         for (let i = 0; i < currentCombo.benefitItems.length; i++) {
-                            benefitItens.push({productName: currentCombo.benefitItems[i].productName,productId: currentCombo.benefitItems[i].productId,productCode: currentCombo.benefitItems[i].productCode,minQUantity: currentCombo.benefitItems[i].minQUantity,discountPercentage: currentCombo.benefitItems[i].discountPercentage,comboId: currentCombo.benefitItems[i].comboId,comboQuantity: currentCombo.comboQuantity,industryCombo: currentCombo.comboType == 'Indústria'});
+                            benefitItens.push({
+                                productName: currentCombo.benefitItems[i].productName,
+                                productId: currentCombo.benefitItems[i].productId,
+                                productCode: currentCombo.benefitItems[i].productCode,
+                                minQUantity: currentCombo.benefitItems[i].minQUantity,
+                                discountPercentage: currentCombo.benefitItems[i].discountPercentage,
+                                comboId: currentCombo.benefitItems[i].comboId,
+                                comboQuantity: currentCombo.comboQuantity,
+                                industryCombo: currentCombo.comboType == 'Indústria'
+                            });
                             prodsIds.push(currentCombo.benefitItems[i].productId);
                         }
                     }
@@ -438,13 +469,20 @@ export default class OrderProductScreen extends LightningElement {
                         culture: this.headerData.cultura.Id != null ? this.headerData.cultura.Id : ''
                     };
 
-                    let allowChange = (this.headerData.tipo_pedido != 'Pedido Filho' && !this.headerData.IsOrderChild && this.isFilled(this.headerData.codigo_sap)) || (this.headerData.tipo_pedido == 'Pedido Filho' && this.isFilled(this.headerData.codigo_sap)) ? false : true;
+                    let allowChange = (this.headerData.tipo_pedido != 'Pedido Filho' && !this.headerData.IsOrderChild && this.isFilled(this.headerData.codigo_sap)) ||
+                                    (this.headerData.tipo_pedido == 'Pedido Filho' && this.isFilled(this.headerData.codigo_sap)) ? false : true;
                             
                     let checkFinancialInfos = true;
                     if (this.headerData.pre_pedido && (allowChange || this.checkCombo)) {
                         this.financialInfoLogic(orderData);
                         checkFinancialInfos = false;
-                        fetchOrderRecords({searchString: '',data: JSON.stringify(this.productParams),isCommodity: false,productsIds: prodsIds,priceScreen: false})
+                        fetchOrderRecords({
+                            searchString: '',
+                            data: JSON.stringify(this.productParams),
+                            isCommodity: false,
+                            productsIds: prodsIds,
+                            priceScreen: false
+                        })
                         .then(result => {
                             this.productsPriceMap = result.recordsDataMap;
                             this.salesInfos = result.salesResult;
@@ -1745,10 +1783,16 @@ export default class OrderProductScreen extends LightningElement {
         let fieldValue = event.target.value;
         let currentProduct;
 
+        let today = new Date();
+        let dd = String(today.getDate()).padStart(2, '0');
+        let mm = String(today.getMonth() + 1).padStart(2, '0');
+        let yyyy = today.getFullYear();
+        let currentDate = yyyy + '-' + mm + '-' + dd;
+
         if (this.isFilled(fieldValue)) {
             if (fieldId.includes('deliveryId-')) {
                 currentProduct = allDivisions.find(e => e.deliveryId == fieldId);
-                if (fieldValue >= this.currentDate && fieldValue >= this.safraData.initialDate && fieldValue <= this.safraData.endDate) {
+                if (fieldValue >= currentDate && fieldValue >= this.safraData.initialDate && fieldValue <= this.safraData.endDate) {
                     currentProduct.deliveryDate = fieldValue;
                 } else {
                     currentProduct.deliveryDate = null;
