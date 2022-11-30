@@ -34,11 +34,11 @@ public with sharing class OrderPageController {
             
         }
         
-        if(!this.orderToPage.isNormalSales){
-            	totalValue += Decimal.valueOf(this.orderToPage.totalTSI) + Decimal.valueOf(this.orderToPage.totalRoyalties);
-        }
         List<String> args = new String[]{'0','number','###,###,##0.00'};
-        totalValue += Decimal.valueOf(this.orderToPage.freightValue.replace('R$', '').replace(',00', '').replace('.', '').replace(',', '.').trim());
+        
+        if(!this.orderToPage.isNormalSales){
+			totalValue += Decimal.valueOf(this.orderToPage.freightValue.replace('R$', '').replace(',00', '').replace('.', '').replace(',', '.').trim());
+        }
         this.orderToPage.totalAmount = this.orderToPage.currencyOrder == 'Barter' ? String.valueOf(totalValue) + ' sacas' : ('R$ ' + String.format(totalValue.format(), args)).contains(',') == true ?  'R$ ' + String.format(totalValue.format(), args): 'R$ ' + String.format(totalValue.format(), args) + ',00';
         
         String downloadingFileName = 'Pedido de Venda-' + this.orderToPage.codeSap + '.pdf';
@@ -71,7 +71,7 @@ public with sharing class OrderPageController {
     public static List<OrderItem> getOrderItemByOrderId(Id orderId){
 
         Set<String> fieldSet = new Set<String>{
-            'Product2Id','Product2.ProductCode' ,'Description', 'UnitMeasure__c', 'FinalTotalValue__c',
+            'Product2Id','Product2.ProductCode' ,'Description', 'UnitMeasure__c', 'FinalTotalValue__c', 'TotalRoyaltyAmount__c', 'TotalTSIAmount__c',
             'UnitPrice', 'PracticedPrice__c','Quantity','TotalPrice' , 'Product2.Name', 'Product2.GrossWeightUnitOfMeasure__c',
             'Brokerage__c'
         };
@@ -269,9 +269,9 @@ public with sharing class OrderPageController {
             this.brokerage = orderItem.Brokerage__c != null ? (orderItem.Brokerage__c / orderItem.Quantity) : 0;
             this.description = orderItem.Product2.Name;
             this.unitOfMeasure = orderItem.Product2.GrossWeightUnitOfMeasure__c;
-            this.unitPrice = commodity != null ? formatCurrency(((orderItem.PracticedPrice__c*100)/(commodity.CommodityPrice__c * 100)), currencyCode) + ' por saca': formatCurrency((orderItem.PracticedPrice__c + this.brokerage), currencyCode);
+            this.unitPrice = commodity != null ? formatCurrency(((orderItem.PracticedPrice__c*100)/(commodity.CommodityPrice__c * 100)), currencyCode) + ' por saca': formatCurrency((orderItem.PracticedPrice__c + this.brokerage + (orderItem.TotalTSIAmount__c / orderItem.Quantity) + (orderItem.TotalRoyaltyAmount__c / orderItem.Quantity) ), currencyCode);
             this.quantity =  String.valueOf(orderItem.Quantity);
-            this.totalAmount = commodity != null ? formatCurrency(((orderItem.PracticedPrice__c*100)/(commodity.CommodityPrice__c * 100)).setScale(2) * orderItem.Quantity, currencyCode) + ' sacas' : formatCurrency( (orderItem.PracticedPrice__c + this.brokerage)* Decimal.valueOf(this.quantity), currencyCode) ;
+            this.totalAmount = commodity != null ? formatCurrency(((orderItem.PracticedPrice__c*100)/(commodity.CommodityPrice__c * 100)).setScale(2) * orderItem.Quantity, currencyCode) + ' sacas' : formatCurrency( ((orderItem.PracticedPrice__c + this.brokerage)* Decimal.valueOf(this.quantity)) + orderItem.TotalTSIAmount__c + orderItem.TotalRoyaltyAmount__c, currencyCode) ;
             this.culture = culture;
             this.divisonList = divisonList;
         }

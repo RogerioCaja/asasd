@@ -2,7 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>VisitPlanning__c</fullName>
     <externalId>false</externalId>
-    <label>Próxima Visita</label>
+    <label>Visita</label>
     <referenceTo>VisitPlanning__c</referenceTo>
     <relationshipLabel>Relatórios Técnicos</relationshipLabel>
     <relationshipName>Relatorios_Tecnicos</relationshipName>
