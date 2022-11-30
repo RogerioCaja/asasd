@@ -252,11 +252,11 @@
 
     <div style="page-break-inside: avoid;">
         <!-- Informações sobre a próxima visita => datas, endereços, coisas assim -->
-        <h4>Próxima Visita:</h4>
+        <h4>Visita:</h4>
         <table>
             <tr>
                 <td>
-                    <a id="theLink" name="theLink" href="{! Visit.nextVisit  }">Próxima Visita - {! Visit.nextVisitName}</a>
+                    <a id="theLink" name="theLink" href="{! Visit.nextVisit  }">Visita - {! Visit.nextVisitName}</a>
                 </td>
             </tr>
         </table>
