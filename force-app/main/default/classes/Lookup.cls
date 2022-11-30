@@ -137,8 +137,8 @@ public without sharing class Lookup {
                             }
                         }
                         
-                        String territoryQuery = 'SELECT Id, Territory2Type.DeveloperName FROM Territory2 WHERE';
-                        if (addCondition) territoryQuery += ' Id IN: relatedTerritories ';
+                        String territoryQuery = 'SELECT Id, Territory2Type.DeveloperName FROM Territory2 ';
+                        if (addCondition) territoryQuery += 'WHERE Id IN: relatedTerritories ';
 
                         if (userTerritoryType == 'Torre') territoryQuery += 'AND ParentTerritory2.ParentTerritory2.ParentTerritory2.ParentTerritory2Id IN: userTerritories';
                         else if (userTerritoryType == 'SalesOrg') territoryQuery += 'AND ParentTerritory2.ParentTerritory2.ParentTerritory2Id IN: userTerritories';
