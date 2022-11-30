@@ -25,10 +25,6 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Required</behavior>
-                <field>Safra__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Required</behavior>
                 <field>InitialDate__c</field>
             </layoutItems>
             <layoutItems>
