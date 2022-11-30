@@ -522,7 +522,7 @@ public without sharing class OrderScreenController {
                     listProductsIds.add(orderProduct.productId);
                 }
 
-                if (orderProduct.productGroupId != null) {
+                if (orderProduct.productGroupId != null && !orderProduct.containsCombo) {
                     if (!smallerMarginByProductGroup.containsKey(orderProduct.productGroupId)) {
                         smallerMarginByProductGroup.put(orderProduct.productGroupId, orderProduct.commercialMarginPercentage);
                     } else {
@@ -855,7 +855,7 @@ public without sharing class OrderScreenController {
                     }
 
                     orderItem.CommitteeTrigger__c = false;
-                    if (orderMarginMap.get(orderProduct.productGroupId) >= orderProduct.commercialMarginPercentage) {
+                    if (orderMarginMap.get(orderProduct.productGroupId) >= orderProduct.commercialMarginPercentage && !orderProduct.containsCombo) {
                         orderItem.CommitteeTrigger__c = true;
                     }
 
@@ -1768,11 +1768,10 @@ public without sharing class OrderScreenController {
                 comboPromotionData.comboAvailableQuantity = promotion.CombosQuantity__c;
                 comboPromotionData.comboDiscountPercentage = promotion.DiscountPercentage__c;
                 comboPromotionData.specificItemCombo = false;
+                combosIds.add(promotion.Id);
+                comboPromotionData.groupQuantities = new List<GroupData>();
                 
-                if (promotion.RecordType.DeveloperName == 'ProductMix') {
-                    combosIds.add(promotion.Id);
-                    comboPromotionData.groupQuantities = new List<GroupData>();
-                } else {
+                if (promotion.RecordType.DeveloperName != 'ProductMix') {
                     comboPromotionData.paymentConditionId = promotion.PaymentCondition__c;
                 }
 
@@ -1831,7 +1830,7 @@ public without sharing class OrderScreenController {
                 productGroupId = orderProduct.productGroupId;
             }
 
-            if (orderProduct.productGroupId != null) {
+            if (orderProduct.productGroupId != null && !orderProduct.containsCombo) {
                 if (!smallerMarginByProductGroup.containsKey(orderProduct.productGroupId)) {
                     smallerMarginByProductGroup.put(orderProduct.productGroupId, orderProduct.commercialMarginPercentage);
                 } else {
@@ -2031,6 +2030,7 @@ public without sharing class OrderScreenController {
         public Integer position;
         public Boolean ptaProduct;
         public Boolean industryCombo;
+        public Boolean containsCombo;
         public Decimal invoicedQuantity;
         public Decimal motherAvailableQuantity;
         public Decimal quantity;
@@ -2343,6 +2343,7 @@ public without sharing class OrderScreenController {
         public Integer position;
         public Boolean ptaProduct;
         public Boolean industryCombo;
+        public Boolean containsCombo;
         public Decimal multiplicity;
         public Decimal invoicedQuantity;
         public Decimal quantity;
@@ -2372,6 +2373,7 @@ public without sharing class OrderScreenController {
 
         ProductSerialize(OrderItem orderItem, Integer position, Boolean cloneOrder, Decimal brokeragePerUnit){
             this.comboId = orderItem.ComboPromotion__c;
+            this.containsCombo = orderItem.ComboPromotion__c != null ? true : false;
             this.industryCombo = orderItem.AgrogalaxyComboDiscount__c != 0 ? true : false;
             this.comboDiscountPercent = '0%';
             this.comboDiscountValue = this.comboId != null ? (this.industryCombo ? orderItem.IndustryComboDiscount__c : orderItem.AgrogalaxyComboDiscount__c) : 0;
