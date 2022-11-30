@@ -146,8 +146,12 @@ public without sharing class CustomLookupController {
                                   '         OR PrincipleActive__c LIKE \'%' + String.escapeSingleQuotes(searchString.trim()) + '%\'' +
                                   '       )' +
                                   ' ORDER BY Name' +
-                                  ' LIMIT 9' +
-                                  ' OFFSET :numberOfRowsToSkip';
+                                  (
+                                    !priceScreen ? 
+                                        ' LIMIT 9' +
+                                        ' OFFSET :numberOfRowsToSkip' : 
+                                        ''
+                                  );
             
             List<SObject> queryResult = Database.query(productQuery);
             Set<Id> prodGroupIds = new Set<Id>();
