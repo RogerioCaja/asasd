@@ -131,13 +131,17 @@ public without sharing class Lookup {
                         }
                     }
                     
-                    String territoryQuery = 'SELECT Id, Territory2Type.DeveloperName FROM Territory2 WHERE';
-                    if (addCondition) territoryQuery += ' Id IN: relatedTerritories ';
+                    String territoryQuery = 'SELECT Id, Territory2Type.DeveloperName FROM Territory2 ';
+                    if (addCondition) {
+                        territoryQuery += 'WHERE Id IN: relatedTerritories AND';
+                    } else {
+                        territoryQuery += 'WHERE ';
+                    }
 
-                    if (userTerritoryType == 'Torre') territoryQuery += 'AND ParentTerritory2.ParentTerritory2.ParentTerritory2.ParentTerritory2Id IN: userTerritories';
-                    else if (userTerritoryType == 'SalesOrg') territoryQuery += 'AND ParentTerritory2.ParentTerritory2.ParentTerritory2Id IN: userTerritories';
-                    else if (userTerritoryType == 'SalesOffice') territoryQuery += 'AND ParentTerritory2.ParentTerritory2Id IN: userTerritories';
-                    else if (userTerritoryType == 'SalesTeam') territoryQuery += 'AND ParentTerritory2Id IN: userTerritories';
+                    if (userTerritoryType == 'Torre') territoryQuery += ' ParentTerritory2.ParentTerritory2.ParentTerritory2.ParentTerritory2Id IN: userTerritories';
+                    else if (userTerritoryType == 'SalesOrg') territoryQuery += ' ParentTerritory2.ParentTerritory2.ParentTerritory2Id IN: userTerritories';
+                    else if (userTerritoryType == 'SalesOffice') territoryQuery += ' ParentTerritory2.ParentTerritory2Id IN: userTerritories';
+                    else if (userTerritoryType == 'SalesTeam') territoryQuery += ' ParentTerritory2Id IN: userTerritories';
                     
                     for (SObject sobj : Database.query(territoryQuery)) {
                         relatedTerritories.add((Id)sobj.get('Id'));
