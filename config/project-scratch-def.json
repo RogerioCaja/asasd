@@ -35,8 +35,8 @@
     "entitlementSettings": {
       "enableEntitlements": true
     },
-    "orgPreferenceSettings": {
-      "chatterEnabled": true
+    "chatterSettings": {
+      "enableChatter" : true
     },
     "communitiesSettings": {
       "enableNetworksEnabled": true
