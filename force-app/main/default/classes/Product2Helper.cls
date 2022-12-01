@@ -37,6 +37,15 @@ public with sharing class Product2Helper {
                     CurrencyIsoCode = 'BRL'
                 )
             );  
+            pricebookEntryList.add(
+                new PriceBookEntry(
+                    pricebook2Id = STANDARD_PRICEBOOK_ID,
+                    product2Id = product2.id,
+                    unitPrice = 0,
+                    IsActive = true,
+                    CurrencyIsoCode = 'USD'
+                )
+            );  
         }
         if(!pricebookEntryList.isEmpty()){
             insert pricebookEntryList;
