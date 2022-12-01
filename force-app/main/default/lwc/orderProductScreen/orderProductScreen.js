@@ -1315,7 +1315,7 @@ export default class OrderProductScreen extends LightningElement {
                     }
 
                     let comboDiscountPercent = this.verifyComboAndPromotion(this.addProduct.quantity);
-                    if (this.addProduct.comboDiscountPercent == '0%' && comboDiscountPercent != null) {
+                    if (this.addProduct.commercialDiscountPercentageFront == '0%' && this.addProduct.comboDiscountPercent == '0%' && comboDiscountPercent != null) {
                         this.addProduct.comboId = comboDiscountPercent.comboId;
                         this.addProduct.comboDiscountPercent = comboDiscountPercent.discount + '%';
                         this.addProduct.comboDiscountValue = this.calculateValue(comboDiscountPercent.discount + '%', this.addProduct.totalPrice);
