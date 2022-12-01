@@ -487,12 +487,16 @@ export default class OrderProductScreen extends LightningElement {
                                     currentItem.quantity = formerProductQuantity;
                                     currentItem.dosage = formerProductQuantity / this.hectares;
                                     currentItem.dosageFront = this.fixDecimalPlacesFront(currentItem.dosage);
+                                    currentItem.comboId = formerItens[index].comboId;
+                                    currentItem.industryCombo = formerItens[index].industryCombo;
+                                    currentItem.containsCombo = true;
+                                    currentItem.formerItem = true;
                                     comboItens.push(currentItem);
                                     for (let i = 0; i < this.products.length; i++) {
                                         if (currentItem.productId == formerItens[index].productId) idsToRemove.push(currentItem.productId);
                                     }
                                 } else {
-                                    let comboValues = {dosage:formerProductQuantity/this.hectares,quantity:formerProductQuantity,comboDiscount:0,comboId:formerItens[index].comboId,industryCombo:formerItens[index].industryCombo,containsCombo:true,formerItem:true,benefitItem:false}
+                                    let comboValues = {dosage:formerProductQuantity/this.hectares,quantity:formerProductQuantity,comboDiscount:0,comboId:formerItens[index].comboId,industryCombo:formerItens[index].industryCombo,containsCombo:true,formerItem:true,benefitItem:false};
                                     let productInfos = this.getProductByPriority({Id: formerItens[index].productId});
                                     let priorityPrice = {listPrice:productInfos.priorityPrice.listPrice,costPrice:productInfos.priorityPrice.costPrice,priceListCode:productInfos.priorityPrice.priceListCode};
                                     comboItens.push(this.createProduct(productInfos.productInfos, priorityPrice, comboValues, this.getCurrentProductPosition() + counter));
@@ -508,24 +512,16 @@ export default class OrderProductScreen extends LightningElement {
                                     currentItem.dosage = benefitProductQuantity / this.hectares;
                                     currentItem.dosageFront = this.fixDecimalPlacesFront(currentItem.dosage);
                                     currentItem.comboDiscountPercent = benefitItens[index].discountPercentage + '%';
+                                    currentItem.comboId = formerItens[index].comboId;
+                                    currentItem.industryCombo = formerItens[index].industryCombo;
+                                    currentItem.containsCombo = true;
+                                    currentItem.benefitItem = true;
                                     comboItens.push(currentItem);
                                     for (let i = 0; i < this.products.length; i++) {
-                                        if (currentItem.productId == benefitItens[index].productId) {
-                                            idsToRemove.push(currentItem.productId);
-                                        }
+                                        if (currentItem.productId == benefitItens[index].productId) idsToRemove.push(currentItem.productId);
                                     }
                                 } else {
-                                    let comboValues = {
-                                        dosage: benefitProductQuantity / this.hectares,
-                                        quantity: benefitProductQuantity,
-                                        comboDiscount: benefitItens[index].discountPercentage,
-                                        comboId: benefitItens[index].comboId,
-                                        industryCombo: benefitItens[index].industryCombo,
-                                        containsCombo: true,
-                                        formerItem: false,
-                                        benefitItem: true
-                                    }
-
+                                    let comboValues = {dosage:benefitProductQuantity / this.hectares,quantity:benefitProductQuantity,comboDiscount:benefitItens[index].discountPercentage,comboId:benefitItens[index].comboId,industryCombo:benefitItens[index].industryCombo,containsCombo:true,formerItem:false,benefitItem:true};
                                     let productInfos = this.getProductByPriority({Id: benefitItens[index].productId});
                                     let priorityPrice = {listPrice:productInfos.priorityPrice.listPrice,costPrice:productInfos.priorityPrice.costPrice,priceListCode:productInfos.priorityPrice.priceListCode};
                                     comboItens.push(this.createProduct(productInfos.productInfos, priorityPrice, comboValues, this.getCurrentProductPosition() + counter));
@@ -1625,7 +1621,7 @@ export default class OrderProductScreen extends LightningElement {
 
         if (this.isFilled(comboId)) {
             for (let index = 0; index < excludeProduct.length; index++) {
-                if (excludeProduct[index].comboId == comboId) {
+                if (excludeProduct[index].comboId == comboId && (excludeProduct[index].formerItem || excludeProduct[index].benefitItem)) {
                     excludeProduct[index].totalPrice = Number(excludeProduct[index].totalPrice) + Number(excludeProduct[index].comboDiscountValue);
                     excludeProduct[index].unitPrice = excludeProduct[index].listPrice;
                     excludeProduct[index].unitPriceFront = this.fixDecimalPlacesFront(excludeProduct[index].unitPrice);
