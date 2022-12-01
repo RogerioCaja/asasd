@@ -584,7 +584,7 @@ public without sharing class OrderScreenController {
                 }
             }
 
-            Map<Id, PricebookEntry> entriesByProductsIds = new Map<Id, PricebookEntry>();
+            Map<String, PricebookEntry> entriesByProductsIds = new Map<String, PricebookEntry>();
             Id pricebookId;
             if (Test.isRunningTest()) {
                 for (PricebookEntry entry : [
@@ -603,13 +603,14 @@ public without sharing class OrderScreenController {
                     SELECT Id,
                            Product2Id,
                            Pricebook2Id,
-                           UnitPrice
+                           UnitPrice, 
+                           CurrencyIsoCode
                       FROM PricebookEntry
                      WHERE Pricebook2.IsStandard = true
                        AND Product2Id IN: listProductsIds
                 ]) {
                     pricebookId = entry.Pricebook2Id;
-                    entriesByProductsIds.put(entry.Product2Id, entry);
+                    entriesByProductsIds.put(entry.Product2Id + String.valueOf(entry.CurrencyIsoCode), entry);
                 }
             }
             
@@ -750,6 +751,7 @@ public without sharing class OrderScreenController {
             order.DistributionChannel__c = company.DistributionChannel__c ;
             order.ActivitySector__c = company.ActivitySector__c ;
             order.Currency__c = orderData.headerData.moeda ;
+            order.CurrencyIsoCode = orderData.headerData.moeda ;
             order.SalesCTV__c = orderData.headerData.ctv_venda.Id ;
             order.StatusSF__c = orderData.headerData.status_pedido;
             order.Status = typeOrder == 'prepedido' ? '0' : '001';
@@ -785,6 +787,7 @@ public without sharing class OrderScreenController {
             }
             
             Database.UpsertResult insResults = Database.upsert(order, false);
+            
             if (insResults.isSuccess()) {
                 msg = 'Pedido ' + (newOrder ? 'criado' : 'atualizado') + ' com sucesso';
 
@@ -815,9 +818,9 @@ public without sharing class OrderScreenController {
                         orderItem.NumeroSap__c = sapNumber;
                         orderItem.ExternalId__c = order.Id + '|' + orderItem.NumeroSap__c;
                         orderItem.OrderId = order.Id;
-                        orderItem.PricebookEntryId = entriesByProductsIds.get(orderProduct.productId).Id;
+                        orderItem.PricebookEntryId = entriesByProductsIds.get(orderProduct.productId + orderData.headerData.moeda).Id;
                         orderItem.Product2Id = orderProduct.productId;
-                        orderItem.ListPrice = entriesByProductsIds.get(orderProduct.productId).UnitPrice != null ? entriesByProductsIds.get(orderProduct.productId).UnitPrice.setScale(2) : 0;
+                        orderItem.ListPrice = entriesByProductsIds.get(orderProduct.productId + orderData.headerData.moeda).UnitPrice != null ? entriesByProductsIds.get(orderProduct.productId + orderData.headerData.moeda).UnitPrice.setScale(2) : 0;
                         orderItem.UnitPrice = orderProduct.unitPrice != null ? orderProduct.unitPrice.setScale(2) : 0;
                         orderItem.AmountUsed__c = order.IsOrderMother__c ? 0 : null;
                         orderItem.ServiceDate = System.today();
