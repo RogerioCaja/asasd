@@ -491,8 +491,7 @@ export default class OrderProductScreen extends LightningElement {
                                     currentItem.industryCombo = formerItens[index].industryCombo;
                                     currentItem.containsCombo = true;
                                     currentItem.formerItem = true;
-                                    currentItem.comboDiscountPercent = '0%';
-                                    currentItem.comboDiscountValue = 0;
+                                    currentItem = this.emptyDiscounFields(currentItem);
                                     comboItens.push(currentItem);
                                     for (let i = 0; i < this.products.length; i++) {
                                         if (currentItem.productId == formerItens[index].productId) idsToRemove.push(currentItem.productId);
@@ -604,6 +603,16 @@ export default class OrderProductScreen extends LightningElement {
                 this.showLoading = false;
             }
         });
+    }
+
+    emptyDiscounFields(item) {
+        item.commercialDiscountPercentage = '0%';
+        item.commercialDiscountValue = 0;
+        item.commercialAdditionPercentage = '0%';
+        item.commercialAdditionValue = 0;
+        item.comboDiscountPercent = '0%';
+        item.comboDiscountValue = 0;
+        return item;
     }
 
     financialInfoLogic(orderData) {
