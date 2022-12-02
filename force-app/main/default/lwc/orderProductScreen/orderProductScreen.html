@@ -83,11 +83,16 @@
 						<div class="row">
 							<div class="column">
 								<label>Dosagem</label><br>
-								<template if:true={headerData.IsOrderChild}>
+								<template if:true={addProduct.containsCombo}>
 									<input class="input-design" type="text" value={addProduct.dosageFront} onchange={changeValue} data-target-id="dosage" disabled/>
 								</template>
-								<template if:false={headerData.IsOrderChild}>
-									<input class="input-design" type="text" value={addProduct.dosageFront} onchange={changeValue} data-target-id="dosage" disabled={disabled}/>
+								<template if:false={addProduct.containsCombo}>
+									<template if:true={headerData.IsOrderChild}>
+										<input class="input-design" type="text" value={addProduct.dosageFront} onchange={changeValue} data-target-id="dosage" disabled/>
+									</template>
+									<template if:false={headerData.IsOrderChild}>
+										<input class="input-design" type="text" value={addProduct.dosageFront} onchange={changeValue} data-target-id="dosage" disabled={disabled}/>
+									</template>
 								</template>
 							</div>
 
