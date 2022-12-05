@@ -22,14 +22,23 @@ export default class OrderSummaryScreen extends LightningElement {
     hideMargin = false;
     @api seedSale = false;
     clientProperty = '';
-    
+
     orderTotalPrice = 0;
     orderTotalPriceFront = 0;
     orderTotalToDistribution = 0;
+    tsiTotalPriceFront = 0;
+    tsiTotalToDistribution = 0;
+    royaltiesTotalPriceFront = 0;
+    royaltiesTotalToDistribution = 0;
+    
     showRed;
+    showTsiRed;
+    showRoyaltiesRed;
+
     showFormOfPayment = false;
     blockPaymentFields = false;
     currentDate;
+    maxDate;
     paymentLastPosition = 0;
     paymentsTypes = [];
     @api formsOfPayment = [];
@@ -74,13 +83,6 @@ export default class OrderSummaryScreen extends LightningElement {
             }
         }
 
-        let today = new Date();
-        let dd = String(today.getDate()).padStart(2, '0');
-        let mm = String(today.getMonth() + 1).padStart(2, '0');
-        let yyyy = today.getFullYear();
-
-        this.currentDate = yyyy + '-' + mm + '-' + dd;
-
         getParentIdFromAccountProperty({
             accountId: this.headerData.cliente_entrega.Id
         }).then((result) =>{
@@ -102,6 +104,14 @@ export default class OrderSummaryScreen extends LightningElement {
             orderType: this.headerData.tipo_venda,
             approvalNumber: 1
         }
+        
+        let today = new Date();
+        let dd = String(today.getDate()).padStart(2, '0');
+        let mm = String(today.getMonth() + 1).padStart(2, '0');
+        let yyyy = today.getFullYear();
+
+        this.currentDate = yyyy + '-' + mm + '-' + dd;
+        this.maxDate = this.headerData.data_pagamento;
 
         console.log('this.childOrder: ' + this.childOrder);
         getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: false, verifyUserType: true, priceScreen: false, childOrder: this.childOrder})
@@ -110,7 +120,7 @@ export default class OrderSummaryScreen extends LightningElement {
         });
         isSeedSale({salesOrgId: this.headerData.organizacao_vendas.Id, productGroupName: null})
             .then((result) => {
-                this.seedSale = result
+                this.seedSale = result;
                 this.loadData();
         });
         
@@ -234,6 +244,8 @@ export default class OrderSummaryScreen extends LightningElement {
             
             let orderTotalPrice = 0;
             let orderTotalCost = 0;
+            let royaltiesTotalPrice = 0;
+            let tsiTotalPrice = 0;
             if(this.headerData.tipo_venda == 'Venda Barter'){
                 for(var i= 0; i< this.productDataLocale.length; i++){
                     this.isBarter = true;
@@ -261,8 +273,11 @@ export default class OrderSummaryScreen extends LightningElement {
                     console.log(this.seedSale)
                     orderTotalPrice += Number(this.productDataLocale[i].unitPrice) * Number(this.productDataLocale[i].quantity) + (this.seedSale ? Number(this.productDataLocale[i].brokerage) : 0);
                     orderTotalCost += Number(this.productDataLocale[i].practicedCost) * Number(this.productDataLocale[i].quantity);
+                    tsiTotalPrice += Number(this.productDataLocale[i].tsiTotalPrice);
+                    royaltiesTotalPrice += Number(this.productDataLocale[i].royaltyTotalPrice);
+                    
                     this.productDataLocale[i]['unitPrice'] = 'R$ ' + this.fixDecimalPlacesFront(this.productDataLocale[i].unitPrice);
-                    this.productDataLocale[i]['totalPrice']  = 'R$ ' + this.fixDecimalPlacesFront(this.seedSale ? this.productDataLocale[i].totalPriceWithBrokerage : this.productDataLocale[i].totalPrice);
+                    this.productDataLocale[i]['totalPrice']  = 'R$ ' + this.fixDecimalPlacesFront(this.seedSale && this.isFilled(this.productDataLocale[i].brokerage) && this.productDataLocale[i].brokerage > 0 ? this.productDataLocale[i].totalPriceWithBrokerage : this.productDataLocale[i].totalPrice);
                     this.productDataLocale[i]['commercialDiscountValue']  = 'R$ ' +  this.fixDecimalPlacesFront(this.productDataLocale[i].commercialDiscountValue);
                     this.productDataLocale[i]['commercialDiscountPercentage']  =  this.fixDecimalPlacesPercentage(this.productDataLocale[i].commercialDiscountPercentage);
                     this.productDataLocale[i]['commercialMarginPercentage']  = this.fixDecimalPlacesFront(this.productDataLocale[i].commercialMarginPercentage) + '%';
@@ -279,6 +294,15 @@ export default class OrderSummaryScreen extends LightningElement {
             this.orderTotalPrice = orderTotalPrice;
             this.orderTotalPriceFront = this.fixDecimalPlacesFront(orderTotalPrice);
             this.orderTotalToDistribution = orderTotalPrice;
+
+            this.royaltiesTotalPrice = royaltiesTotalPrice;
+            this.royaltiesTotalPriceFront = this.fixDecimalPlacesFront(royaltiesTotalPrice);
+            this.royaltiesTotalToDistribution = royaltiesTotalPrice;
+
+            this.tsiTotalPrice = tsiTotalPrice;
+            this.tsiTotalPriceFront = this.fixDecimalPlacesFront(tsiTotalPrice);
+            this.tsiTotalToDistribution = tsiTotalPrice;
+            
             if (this.headerData.tipo_venda != 'Venda Barter') {
                 let margin = (1 - (orderTotalCost / orderTotalPrice)) * 100;
                 this.orderMargin = this.fixDecimalPlacesFront(margin) + '%';
@@ -474,28 +498,84 @@ export default class OrderSummaryScreen extends LightningElement {
                     allPayments[index].paymentType = fieldValue;
                     if (allPayments[index].paymentDay != '') allPayments[index].paymentKey = fieldValue + '-' + allPayments[index].paymentDay;
                 } else if (fieldId.includes('paymentDayId')) {
-                    allPayments[index].paymentDay = fieldValue;
-                    if (allPayments[index].paymentType != '') allPayments[index].paymentKey = allPayments[index].paymentType + '-' + fieldValue;
+                    if (fieldValue > this.maxDate) {
+                        allPayments[index].paymentDay = null;
+                    } else {
+                        allPayments[index].paymentDay = fieldValue;
+                        if (allPayments[index].paymentType != '') allPayments[index].paymentKey = allPayments[index].paymentType + '-' + fieldValue;
+                    }
                 } else if (fieldId.includes('valueId')) {
                     fieldValue = fieldValue.toString().includes('.') ? fieldValue.toString().replaceAll('.', '') : fieldValue;
                     fieldValue = fieldValue.toString().includes(',') ? fieldValue.toString().replace(',', '.') : fieldValue;
                     allPayments[index].value = this.fixDecimalPlaces(fieldValue);
                     allPayments[index].valueFront = this.fixDecimalPlacesFront(fieldValue);
-                    this.recalcTotalToDistribution();
                 }
             }
         }
 
         this.formsOfPayment = JSON.parse(JSON.stringify(allPayments));
+        this.recalcTotalToDistribution();
     }
 
     recalcTotalToDistribution(){
         let value = 0;
-        let allPayments = JSON.parse(JSON.stringify(this.formsOfPayment))
-        for (let index = 0; index < allPayments.length; index++) {
-            value += Number(allPayments[index].value);
+        let tsiValue = 0;
+        let royaltiesValue = 0;
+        let allPayments = JSON.parse(JSON.stringify(this.formsOfPayment));
+        
+        if (allPayments.length == 0) {
+            value = 0.01;
+            allPayments.push(this.createDefaultValues('Germoplasma'));
+
+            if (this.tsiTotalPrice > 0) {
+                tsiValue = 0.01;
+                allPayments.push(this.createDefaultValues('TSI'));
+            }
+            if (this.royaltiesTotalPrice > 0) {
+                royaltiesValue = 0.01;
+                allPayments.push(this.createDefaultValues('Royalties'));
+            }
+            this.formsOfPayment = JSON.parse(JSON.stringify(allPayments));
+
+        } else {
+            for (let index = 0; index < allPayments.length; index++) {
+                let currentValue = this.isFilled(allPayments[index].value) ? allPayments[index].value : 0;
+                if (allPayments[index].paymentType == 'Germoplasma') value += Number(currentValue);
+                if (allPayments[index].paymentType == 'TSI') tsiValue += Number(currentValue);
+                if (allPayments[index].paymentType == 'Royalties') royaltiesValue += Number(currentValue);
+            }
         }
+        
         this.orderTotalToDistribution = this.fixDecimalPlacesFront(Number(this.orderTotalPrice) - Number(value));
+        this.showRed = this.orderTotalToDistribution < 0;
+        
+        this.tsiTotalToDistribution = this.fixDecimalPlacesFront(Number(this.tsiTotalPrice) - Number(tsiValue));;
+        this.showTsiRed = this.tsiTotalToDistribution < 0;
+        
+        this.royaltiesTotalToDistribution = this.fixDecimalPlacesFront(Number(this.royaltiesTotalPrice) - Number(royaltiesValue));;
+        this.showRoyaltiesRed = this.royaltiesTotalToDistribution < 0;
+    }
+
+    createDefaultValues(paymentType) {
+        this.paymentLastPosition = this.paymentLastPosition + 1;
+        let divPosition = this.paymentLastPosition;
+        let paymentTypeId = 'paymentTypeId-' + divPosition;
+        let paymentDayId = 'paymentDayId-' + divPosition;
+        let valueId = 'valueId-' + divPosition;
+        
+        let newDefaultValues = {
+            paymentType: paymentType,
+            paymentDay: this.headerData.data_pagamento,
+            value: 0.01,
+            valueFront: this.fixDecimalPlaces('0.01'),
+            paymentPosition: this.paymentLastPosition,
+            paymentTypeId: paymentTypeId,
+            paymentDayId: paymentDayId,
+            valueId: valueId,
+            paymentKey: paymentType + '-' + this.headerData.data_pagamento,
+            saved: true
+        };
+        return newDefaultValues;
     }
 
     newFields() {
