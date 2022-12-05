@@ -140,7 +140,11 @@ public without sharing class OrderScreenController {
                    PriceListCode__c,
                    ReasonRefuse__c,
                    Sieve__c,
-                   Class__c
+                   Class__c,
+                   TSIValue__c,
+                   RoyaltyAmount__c,
+                   TotalTSIAmount__c,
+                   TotalRoyaltyAmount__c
               FROM OrderItem
              WHERE OrderId =: orderId
         ]){
@@ -489,17 +493,21 @@ public without sharing class OrderScreenController {
     
             Decimal orderTotalValue = 0;
             Decimal biggerDiscount = 0;
+            Decimal tsiTotalValue = 0;
+            Decimal royaltyTotalValue = 0;
             Boolean seedSale = isSeedSale(company.SalesOrg__c, null);
             Id productGroupId;
+            
             Set<Id> setOrderItemsIds = new Set<Id>();
             List<Id> listProductsIds = new List<Id>();
             Set<Id> setProductHierarchyIds = new Set<Id>();
             Map<String, Decimal> quantitiesById = new Map<String, Decimal>();
             Map<String, Decimal> smallerMarginByProductGroup = new Map<String, Decimal>();
+            
             for (ProductDeserialize orderProduct : orderData.productData) {
-                if(seedSale){
+                if (seedSale && orderProduct.brokerage != null && orderProduct.brokerage > 0) {
                     orderTotalValue += orderProduct.totalPriceWithBrokerage;
-                }else{
+                } else {
                     orderTotalValue += orderProduct.totalPrice;
                 }
                 
@@ -521,7 +529,7 @@ public without sharing class OrderScreenController {
                     }
                 }
 
-                if(orderProduct.productHierarchyId != null && orderProduct.productHierarchyId != ''){
+                if (orderProduct.productHierarchyId != null && orderProduct.productHierarchyId != '') {
                     setProductHierarchyIds.add(orderProduct.productHierarchyId);
                 }
 
@@ -536,6 +544,11 @@ public without sharing class OrderScreenController {
                     if (motherItem.AmountUsed__c + orderProduct.quantity > motherItem.Quantity) {
                         return JSON.serializePretty(new AGRO_RemotingResult(true, '200', 'Não é possível efetivar o pedido por ter excedido as quantidades do pedido mãe.'));
                     }
+                }
+
+                if (seedSale) {
+                    tsiTotalValue += orderProduct.tsiTotalPrice;
+                    royaltyTotalValue += orderProduct.royaltyTotalPrice;
                 }
 
                 quantitiesById.put(orderProduct.productId, orderProduct.quantity);
@@ -782,6 +795,10 @@ public without sharing class OrderScreenController {
             }
             order.FreightValue__c = (orderData.summaryData.freightValue != null) ? orderData.summaryData.freightValue : 0;
 
+            if (seedSale) {
+                order.FinalTotalValue__c = order.FinalTotalValue__c + tsiTotalValue + royaltyTotalValue;
+            }
+
             if (Test.isRunningTest()) {
                 OrderHelper.disableTrigger();
             }
@@ -850,7 +867,7 @@ public without sharing class OrderScreenController {
                     orderItem.Dosage__c = orderProduct.dosage != null ? orderProduct.dosage.setScale(6) : 0;
                     orderItem.Status__c = orderProduct.sapStatus != null ? statusValueByLabel.get(orderProduct.sapStatus) : null;
                     orderItem.UnitMeasure__c = orderProduct.unity;
-                    orderItem.FinalTotalValue__c = !(seedSale) ? orderProduct.totalPrice : orderProduct.totalPriceWithBrokerage;
+                    orderItem.FinalTotalValue__c = !(seedSale) ? orderProduct.totalPrice : (orderProduct.totalPriceWithBrokerage + orderProduct.royaltyTotalPrice + orderProduct.tsiTotalPrice);
                     orderItem.Brokerage__c = orderProduct.brokerage;
                     orderItem.ListCost__c = orderProduct.listCost != null ? orderProduct.listCost : 0;
                     orderItem.PracticedCost__c = orderProduct.practicedCost != null ? orderProduct.practicedCost : 0;
@@ -875,6 +892,10 @@ public without sharing class OrderScreenController {
                     orderItem.PriceListCode__c = orderProduct.priceListCode;
                     orderItem.Sieve__c = orderProduct.sieve;
                     orderItem.Class__c = orderProduct.productClass;
+                    orderItem.TSIValue__c = orderProduct.tListPrice;
+                    orderItem.RoyaltyAmount__c = orderProduct.rListPrice;
+                    orderItem.TotalTSIAmount__c = orderProduct.tsiTotalPrice;
+                    orderItem.TotalRoyaltyAmount__c = orderProduct.royaltyTotalPrice;
                     listOrderItems.add(orderItem);
                 }
 
@@ -1262,7 +1283,7 @@ public without sharing class OrderScreenController {
             if(companyInfos.orderType == 'Venda de Serviço')
                 proQuery.add(Q.condition('ActivitySector__r.Codigo__c').equalsTo('40'));
             else {
-                proQuery.add(Q.condition('ActivitySector__r.Codigo__c').equalsTo('10'));
+                proQuery.add(Q.condition('ActivitySector__r.Codigo__c').isIn(new List<String>{'10', '30'}));
             }
 
             if (companyInfos.accountId == '') proQuery.addLimit(1);
