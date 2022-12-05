@@ -272,6 +272,8 @@ export default class OrderSummaryScreen extends LightningElement {
             else{
                 for(var i= 0; i< this.productDataLocale.length; i++){
                     console.log(this.seedSale)
+                    console.log(this.divisionData)
+                    console.log(JSON.stringify(this.productDataLocale[i]))
                     orderTotalPrice += Number(this.productDataLocale[i].unitPrice) * Number(this.productDataLocale[i].quantity) + (this.seedSale ? Number(this.productDataLocale[i].brokerage) : 0);
                     orderTotalCost += Number(this.productDataLocale[i].practicedCost) * Number(this.productDataLocale[i].quantity);
                     tsiTotalPrice += Number(this.productDataLocale[i].tsiTotalPrice);
@@ -285,7 +287,7 @@ export default class OrderSummaryScreen extends LightningElement {
                     this.productDataLocale[i]['divisionData'] = [];
                     if(this.divisionData){
                         for(var j=0; j< this.divisionData.length; j++){
-                            if(this.divisionData[j].productPosition == i)
+                            if(this.divisionData[j].productPosition == i+1)
                                 this.productDataLocale[i]['divisionData'].push(this.divisionData[j])
                         }
                     }
