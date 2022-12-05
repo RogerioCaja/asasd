@@ -504,7 +504,7 @@ export default class OrderProductScreen extends LightningElement {
                                     counter++;
                                 }
                             }
-                
+
                             for (let index = 0; index < benefitItens.length; index++) {
                                 let benefitProductQuantity = benefitItens[index].minQUantity * benefitItens[index].comboQuantity;
                                 let currentItem = this.products.find(e => e.productId == benefitItens[index].productId)
@@ -517,6 +517,7 @@ export default class OrderProductScreen extends LightningElement {
                                     currentItem.industryCombo = formerItens[index].industryCombo;
                                     currentItem.containsCombo = true;
                                     currentItem.benefitItem = true;
+                                    currentItem = this.emptyDiscounFields(currentItem);
                                     comboItens.push(currentItem);
                                     for (let i = 0; i < this.products.length; i++) {
                                         if (currentItem.productId == benefitItens[index].productId) idsToRemove.push(currentItem.productId);
@@ -607,9 +608,21 @@ export default class OrderProductScreen extends LightningElement {
 
     emptyDiscounFields(item) {
         item.commercialDiscountPercentage = '0%';
+        item.commercialDiscountPercentageFront = '0%';
         item.commercialDiscountValue = 0;
+        item.commercialDiscountValueFront = 0;
         item.commercialAdditionPercentage = '0%';
+        item.commercialAdditionPercentageFront = '0%';
         item.commercialAdditionValue = 0;
+        item.commercialAdditionValueFront = 0;
+        item.financialAdditionPercentage = '0%';
+        item.financialAdditionPercentageFront = '0%';
+        item.financialAdditionValue = 0;
+        item.financialAdditionValueFront = 0;
+        item.financialDecreasePercentage = '0%';
+        item.financialDecreasePercentageFront = '0%';
+        item.financialDecreaseValue = 0;
+        item.financialDecreaseValueFront = 0;
         item.comboDiscountPercent = '0%';
         item.comboDiscountValue = 0;
         return item;
@@ -619,7 +632,7 @@ export default class OrderProductScreen extends LightningElement {
         getFinancialInfos({data: JSON.stringify(orderData)})
         .then((result) => {
             this.financialInfos = JSON.parse(result);
-            
+
             if (this.products.length > 0) {
                 let showPriceChange = false;
                 let showQuantityChange = false;
@@ -630,7 +643,6 @@ export default class OrderProductScreen extends LightningElement {
                     this.editProduct(currentProducts[index].position, true);
                     let oldQUantity = currentProducts[index].quantity;
                     this.addProduct.quantity = this.calculateMultiplicity(this.addProduct.dosage * this.hectares, false);
-                    
                     if (this.addProduct.quantity != oldQUantity) {
                         showQuantityChange = true;
                     }
@@ -638,15 +650,14 @@ export default class OrderProductScreen extends LightningElement {
                     let oldPrice = currentProducts[index].unitPrice;
                     this.calculateTotalPrice(true);
                     let newPrice = this.changeProduct(this.addProduct);
-                    
+
                     if (oldPrice != newPrice) {
                         showPriceChange = true;
                         priceChangeMessage += 'O preço do ' + currentProducts[index].name + ' foi alterado de ' + oldPrice + ' para ' + newPrice + '.\n';
                     }
                 }
-                
+
                 this.recalculatePrice = false;
-                
                 if (showPriceChange) {
                     if (currentProducts.length > 1) priceChangeMessage = 'Os preços foram recalculados devido a alteração de data de pagamento. Verifique-os.';
                     this.showToast('warning', 'Alteração nos preços!', priceChangeMessage);
@@ -702,7 +713,7 @@ export default class OrderProductScreen extends LightningElement {
             else if (this.isFilled(productsPrice[key5])) currentPrice = productsPrice[key5];
             else if (this.isFilled(productsPrice[key6])) currentPrice = productsPrice[key6];
             else if (this.isFilled(productsPrice[key7])) currentPrice = productsPrice[key7];
-            
+
             if (this.isFilled(currentPrice)) {
                 if (counter == 1) {
                     priorityPrice.costPrice = currentPrice.costPrice;
@@ -743,7 +754,7 @@ export default class OrderProductScreen extends LightningElement {
                 let currentQuota;
                 if (allQuotas.length > 0) currentQuota = allQuotas.find(e => e.individualQuotaId == productQuota.individualQuotaId);
                 if (!this.isFilled(currentQuota) && productQuota.length > 0) allQuotas.push(productQuota[0]);
-                
+
                 this.allProductQuotas = JSON.parse(JSON.stringify(allQuotas));
                 if (productQuota.length == 0 || productQuota[0].balance == 0) {
                     this.showLoading = false;
@@ -778,7 +789,6 @@ export default class OrderProductScreen extends LightningElement {
                 this.multiplicity = this.isFilled(currentProduct.multiplicity) ? currentProduct.multiplicity : 1;
                 this.costPrice = priorityInfos.priorityPrice.costPrice;
                 let currentPosition = this.getCurrentProductPosition() + 1;
-                console.log('currentPosition: ' + currentPosition);
                 this.addProduct = this.createProduct(currentProduct, priorityInfos.priorityPrice, null, currentPosition);
             }
         }
@@ -1045,7 +1055,6 @@ export default class OrderProductScreen extends LightningElement {
     calculateTotalPrice(recalculateUnitPrice, isDiscount) {
         this.addProduct.totalPrice = null;
         this.addProduct.totalPriceWithBrokerage = null;
-
         this.addProduct.tsiTotalPrice = this.addProduct.tListPrice * this.addProduct.quantity;
         this.addProduct.tsiTotalPriceFront = this.fixDecimalPlacesFront(this.addProduct.tsiTotalPrice);
         this.addProduct.royaltyTotalPrice = this.addProduct.rListPrice * this.addProduct.quantity;
@@ -1079,7 +1088,7 @@ export default class OrderProductScreen extends LightningElement {
                 this.addProduct.financialDecreaseValue = this.calculateValue(this.addProduct.financialDecreasePercentage, this.addProduct.totalPrice);
                 this.addProduct.financialDecreaseValueFront = this.fixDecimalPlacesFront(this.addProduct.financialDecreaseValue);
             }
-            
+
             this.addProduct.totalPrice = this.isFilled(this.addProduct.financialAdditionValue) ? (this.addProduct.totalPrice + Number(this.addProduct.financialAdditionValue)) : this.addProduct.totalPrice;
             this.addProduct.totalPrice = this.isFilled(this.addProduct.financialDecreaseValue) ? (this.addProduct.totalPrice - Number(this.addProduct.financialDecreaseValue)) : this.addProduct.totalPrice;
             if (this.addProduct.comboDiscountPercent != '0%') {
@@ -1113,7 +1122,7 @@ export default class OrderProductScreen extends LightningElement {
             this.addProduct.commercialDiscountPercentageFront = this.fixDecimalPlacesPercentage(this.addProduct.commercialDiscountPercentage);
             let currentPrice = this.addProduct.unitPrice * this.addProduct.quantity;
             this.listTotalPrice = this.addProduct.listPrice * this.addProduct.quantity;
-            
+
             if (this.isFilled(currentPrice) && this.addProduct.unitPrice > this.addProduct.listPrice) {
                 this.addProduct.commercialAdditionValue = this.calculateValue(this.addProduct.commercialAdditionPercentage, this.listTotalPrice);
                 this.addProduct.commercialAdditionValueFront = this.fixDecimalPlacesFront(this.addProduct.commercialAdditionValue);
@@ -1137,7 +1146,7 @@ export default class OrderProductScreen extends LightningElement {
             this.addProduct.commercialDiscountValueFront = 0;
             this.addProduct.commercialDiscountPercentage = '0%';
             this.addProduct.commercialDiscountPercentageFront = '0%';
-            
+
             if (this.isFilled(currentPrice) && Number(currentPrice) > Number(totalPrice)) {
                 this.addProduct.commercialAdditionValue = this.fixDecimalPlaces((currentPrice - totalPrice));
                 this.addProduct.commercialAdditionValueFront = this.fixDecimalPlacesFront((currentPrice - totalPrice));
@@ -1196,7 +1205,7 @@ export default class OrderProductScreen extends LightningElement {
             let key2 = defaultKey + '-' + this.financialInfos.salesOffice + '-' + this.addProduct.productId;
             let key3 = defaultKey + '-' + this.financialInfos.salesOffice;
             let key4 = defaultKey + '-' + this.addProduct.productGroupId;
-            
+
             let currentDiscountOrAddition = 0;
             let financialValues = this.financialInfos.financialValues;
             if (this.isFilled(financialValues[key1])) currentDiscountOrAddition = financialValues[key1];
@@ -1204,7 +1213,7 @@ export default class OrderProductScreen extends LightningElement {
             else if (this.isFilled(financialValues[key3])) currentDiscountOrAddition = financialValues[key3];
             else if (this.isFilled(financialValues[key4])) currentDiscountOrAddition = financialValues[key4];
             else if (this.isFilled(financialValues[defaultKey])) currentDiscountOrAddition = financialValues[defaultKey];
-            
+
             let totalValue = this.isFilled(this.headerData.id) ? this.addProduct.quantity * this.addProduct.unitPrice : this.addProduct.totalPrice;
             currentDiscountOrAddition = (currentDiscountOrAddition / 30) * (this.financialInfos.dayDifference < 0 ? (this.financialInfos.dayDifference * -1) : this.financialInfos.dayDifference);
             this.addProduct.financialAdditionPercentage = this.financialInfos.correctPayment ? '0%' : this.fixDecimalPlaces(((this.financialInfos.isDiscount ? 0 : currentDiscountOrAddition))) + '%';
@@ -1215,7 +1224,7 @@ export default class OrderProductScreen extends LightningElement {
             this.addProduct.financialAdditionValueFront = this.fixDecimalPlacesFront(this.addProduct.financialAdditionValue);
             this.addProduct.financialDecreaseValue = this.calculateValue(this.addProduct.financialDecreasePercentage, totalValue);
             this.addProduct.financialDecreaseValueFront = this.fixDecimalPlacesFront(this.addProduct.financialDecreaseValue);
-            
+
             if (!this.financialInfos.correctPayment) {
                 if (this.financialInfos.isDiscount) {
                     this.addProduct.practicedCost = this.fixDecimalPlaces((Number(this.addProduct.listCost) - (Number(this.addProduct.listCost) * (Number(currentDiscountOrAddition) / 100))));
@@ -1260,7 +1269,7 @@ export default class OrderProductScreen extends LightningElement {
                 prod.unitPrice = this.fixDecimalPlaces(prod.totalPrice / prod.quantity);
                 prod.unitPriceFront = this.fixDecimalPlacesFront(prod.unitPrice);
                 prod.containsCombo = true;
-                
+
                 let allCombos = JSON.parse(JSON.stringify(this.combosSelecteds));
                 let currentCombo = allCombos.find(e => e.comboId == comboDiscountPercent.comboId);
                 if (this.isFilled(currentCombo)) {
@@ -1306,12 +1315,7 @@ export default class OrderProductScreen extends LightningElement {
                 if (this.isFilled(groupsData)) {
                     let productGroupCombo = groupsData.find(e => e.productGroupId == this.addProduct.productGroupId);
                     if (this.isFilled(productGroupCombo) && quantity >= productGroupCombo.quantity && combos[index].recTypeDevName == 'ProductMix') {
-                        return {
-                            discount: combos[index].comboDiscountPercentage,
-                            comboId: combos[index].comboId,
-                            industryCombo: combos[index].comboType == 'Indústria',
-                            comboQuantity: Math.floor(quantity / productGroupCombo.quantity)
-                        };
+                        return {discount: combos[index].comboDiscountPercentage,comboId: combos[index].comboId,industryCombo: combos[index].comboType == 'Indústria',comboQuantity: Math.floor(quantity / productGroupCombo.quantity)};
                     }
                 }
             }
@@ -1422,7 +1426,7 @@ export default class OrderProductScreen extends LightningElement {
                         this.addProduct.industryCombo = comboDiscountPercent.industryCombo;
                         this.addProduct.unitPrice = this.fixDecimalPlaces(this.addProduct.totalPrice / this.addProduct.quantity);
                         this.addProduct.unitPriceFront = this.fixDecimalPlacesFront(this.addProduct.unitPrice);
-                        
+
                         let allCombos = JSON.parse(JSON.stringify(this.combosSelecteds));
                         let currentCombo = allCombos.find(e => e.comboId == comboDiscountPercent.comboId);
                         if (this.isFilled(currentCombo)) {
@@ -1663,7 +1667,7 @@ export default class OrderProductScreen extends LightningElement {
             this.combosData = JSON.parse(JSON.stringify(allCombos));
             this._setcombosSelecteds();
         }
-        
+
         excludedProducts.push(excludeProduct[counter].orderItemId);
         excludeProduct.splice(counter, 1);
         if(excludeProduct.lenght - 1 != position){
@@ -1830,7 +1834,7 @@ export default class OrderProductScreen extends LightningElement {
         this.itensToRemove = [];
         this.comboProducts.formerIds = [];
         this.comboProducts.benefitsIds = [];
-        
+
         for (let index = 0; index < allCombos.length; index++) {
             let currentCombo = allCombos[index];
             if (currentCombo.specificItemCombo) {
@@ -1866,7 +1870,6 @@ export default class OrderProductScreen extends LightningElement {
         }
         this.products = JSON.parse(JSON.stringify(currentProducts));
         this._setData();
-
         this.getCompanies(getCompanyData);
     }
 
@@ -1972,7 +1975,7 @@ export default class OrderProductScreen extends LightningElement {
                 this.commoditiesData.splice(index, 1);
             }
         }
-        
+
         this.showCommodities = false;
         this.chooseCommodities = false;
         this.commoditySelected = false;
@@ -2002,12 +2005,10 @@ export default class OrderProductScreen extends LightningElement {
             return false;
         }
 
-
         if(deliveryAddress.trim() == "") {
             this.showToast('warning', 'Atenção', 'Campos Obrigatórios não preenchidos.');
             return false;
         }
-
         return true;
     }
 
@@ -2047,17 +2048,16 @@ export default class OrderProductScreen extends LightningElement {
             let orderTotalCost = 0;
             let productsQuantity = 0;
             let totalDiscount = 0;
-            
+
             for (let index = 0; index < this.products.length; index++) {
                 totalProducts += Number(this.products[index].totalPrice);
                 orderTotalCost += Number(this.products[index].practicedCost) * Number(this.products[index].quantity);
                 productsQuantity += Number(this.products[index].quantity);
                 totalDiscount += Number(this.products[index].commercialDiscountValue);
             }
-    
+
             let marginPercent = ((1 - (orderTotalCost / totalProducts)) * 100);
             let currentCommodityValues = JSON.parse(JSON.stringify(this.commoditiesData[0]));
-            
             currentCommodityValues.area = this.headerData.hectares;
             currentCommodityValues.quantity = productsQuantity;
             currentCommodityValues.discount = this.fixDecimalPlaces(totalDiscount / Number(currentCommodityValues.cotation)) + ' sacas';
@@ -2068,10 +2068,9 @@ export default class OrderProductScreen extends LightningElement {
             currentCommodityValues.marginValueFront = this.fixDecimalPlacesFront(((totalProducts * marginPercent) / 100) / Number(currentCommodityValues.cotation)) + ' sacas';
             currentCommodityValues.totalDelivery = Math.ceil((totalProducts / currentCommodityValues.cotation)) + ' sacas';
             currentCommodityValues.totalDeliveryFront = Math.ceil((totalProducts / currentCommodityValues.cotation)) + ' sacas';
-            
+
             this.commoditiesData = [];
             this.commoditiesData.push(currentCommodityValues);
-
             this._setCommodityData();
             this.showToast('warning', 'Atenção!', 'Os valores da commodity foram alterados de acordo com a alteração/inclusão de um produto.');
         }
@@ -2139,17 +2138,8 @@ export default class OrderProductScreen extends LightningElement {
 
     getCombos() {
         this.showLoading = true;
-        let headerValues = {
-            cropId: this.headerData.safra.Id,
-            rowsToSkip: this.comboRowsToSkip,
-            salesConditionId: this.headerData.condicao_venda.Id
-        }
-        let getCompanyData = {
-            ctvId: this.headerData.ctv_venda.Id != null ? this.headerData.ctv_venda.Id : '',
-            accountId: this.accountData.Id != null ? this.accountData.Id : '',
-            orderType: this.headerData.tipo_venda,
-            approvalNumber: 1
-        }
+        let headerValues = {cropId: this.headerData.safra.Id,rowsToSkip: this.comboRowsToSkip,salesConditionId: this.headerData.condicao_venda.Id};
+        let getCompanyData = {ctvId: this.headerData.ctv_venda.Id != null ? this.headerData.ctv_venda.Id : '',accountId: this.accountData.Id != null ? this.accountData.Id : '',orderType: this.headerData.tipo_venda,approvalNumber: 1};
         let productParams = {
             salesConditionId: this.headerData.condicao_venda.Id,
             accountId: this.accountData.Id,
