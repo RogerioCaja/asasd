@@ -621,6 +621,8 @@ export default class OrderProductScreen extends LightningElement {
         item.financialDecreasePercentageFront = '0%';
         item.financialDecreaseValue = 0;
         item.financialDecreaseValueFront = 0;
+        item.comboDiscountPercent = '0%';
+        item.comboDiscountValue = 0;
         return item;
     }
 
