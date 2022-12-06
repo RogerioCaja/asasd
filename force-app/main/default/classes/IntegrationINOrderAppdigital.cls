@@ -64,6 +64,8 @@ global without sharing class IntegrationINOrderAppdigital {
                 //Putting the Order's ExternalId parameter in the OrderItem
                 for (TemplateDataIntegrationFields.OrderItemINData orderItem : order.orderItems){
                     orderItem.orderItemCode = orderItem.orderItemCode.replaceFirst('^0+','');
+                    orderItem.currencyOrder = order.CurrencyOrder;
+                    System.debug('Curreny ' + orderItem.currencyOrder);
                     if(order.numeroPedidoApp != null && order.numeroPedidoApp != ''){
                         System.debug('orderItem.orderExternalId ' + orderItem.orderExternalId );
                         orderItem.orderExternalId = order.numeroPedidoApp;
