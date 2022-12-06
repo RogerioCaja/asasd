@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>NumberOfMonths__c</fullName>
-    <defaultValue>false</defaultValue>
     <externalId>false</externalId>
+    <length>255</length>
     <label>Número de meses</label>
-    <trackTrending>false</trackTrending>
     <type>Text</type>
 </CustomField>
