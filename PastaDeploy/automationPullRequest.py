@@ -164,7 +164,7 @@ class ProcessAutomation:
     def prepare_enviroments(self, env, branch_merge) -> None:
         command_1 = ["git", "checkout", env]
         command_2 = ["git", "checkout","-b", branch_merge, env]
-        command_3 = ["git", "merge", self.branch_safe_name]
+        command_3 = ["git", "merge", env]
         command_push = ["git", "push", "origin", branch_merge]
         run(command_1)
         run(command_2)
