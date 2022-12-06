@@ -101,9 +101,8 @@
         <style>CustomLinks</style>
     </layoutSections>
     <relatedLists>
-        <excludeButtons>MassChangeOwner</excludeButtons>
         <fields>NAME</fields>
-        <relatedList>ProductMix__c.ComboPromotion__c</relatedList>
+        <relatedList>FormerProduct__c.ComboPromotion__c</relatedList>
     </relatedLists>
     <relatedLists>
         <fields>Product2</fields>
@@ -132,7 +131,7 @@
     <showRunAssignmentRulesCheckbox>false</showRunAssignmentRulesCheckbox>
     <showSubmitAndAttachButton>false</showSubmitAndAttachButton>
     <summaryLayout>
-        <masterLabel>00h8N000000OhgJ</masterLabel>
+        <masterLabel>00hDP000001zcB0</masterLabel>
         <sizeX>4</sizeX>
         <sizeY>0</sizeY>
         <summaryLayoutStyle>Default</summaryLayoutStyle>
