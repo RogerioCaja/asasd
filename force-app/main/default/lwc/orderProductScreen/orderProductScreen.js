@@ -478,12 +478,12 @@ export default class OrderProductScreen extends LightningElement {
                                     currentItem.quantity = benefitProductQuantity;
                                     currentItem.dosage = benefitProductQuantity / this.hectares;
                                     currentItem.dosageFront = this.fixDecimalPlacesFront(currentItem.dosage);
-                                    currentItem.comboDiscountPercent = benefitItens[index].discountPercentage + '%';
                                     currentItem.comboId = formerItens[index].comboId;
                                     currentItem.industryCombo = formerItens[index].industryCombo;
                                     currentItem.containsCombo = true;
                                     currentItem.benefitItem = true;
                                     currentItem = this.emptyDiscounFields(currentItem);
+                                    currentItem.comboDiscountPercent = benefitItens[index].discountPercentage + '%';
                                     comboItens.push(currentItem);
                                     for (let i = 0; i < this.products.length; i++) {
                                         if (currentItem.productId == benefitItens[index].productId) idsToRemove.push(currentItem.productId);
@@ -573,6 +573,7 @@ export default class OrderProductScreen extends LightningElement {
         item.commercialAdditionValueFront = 0;
         item.comboDiscountPercent = '0%';
         item.comboDiscountValue = 0;
+        item.initialTotalValue = null;
         return item;
     }
 
