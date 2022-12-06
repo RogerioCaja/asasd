@@ -164,11 +164,13 @@ class ProcessAutomation:
     def prepare_enviroments(self, env, branch_merge) -> None:
         command_1 = ["git", "checkout", env]
         command_2 = ["git", "checkout","-b", branch_merge, env]
-        command_3 = ["git", "merge", self.branch_safe_name]
+        command_3 = ["git", "switch", branch_merge]
+        command_4 = ["git", "merge", self.branch_safe_name]
         command_push = ["git", "push", "origin", branch_merge]
         run(command_1)
         run(command_2)
         run(command_3)
+        run(command_4)
         run(command_push)
 
     def prepare_pull_request(self) -> None:
@@ -190,23 +192,23 @@ class ProcessAutomation:
 
         requests.request(
             "POST",
-            url,
+            self.url,
             data=payload,
-            headers=headers
+            headers=self.headers
         )
 
         requests.request(
             "POST",
-            url,
+            self.url,
             data=payload2,
-            headers=headers
+            headers=self.headers
         )
 
         requests.request(
             "POST",
-            url,
+            self.url,
             data=payload3,
-            headers=headers
+            headers=self.headers
         )
 
 if __name__ == '__main__':
