@@ -55,7 +55,7 @@ public class IntegrationINVisitsPlanningTest {
             Alias = 'standt', Email='standarduser@testorg.com', CodigoSap__c = '010',
             EmailEncodingKey='UTF-8', LastName='Testing', LanguageLocaleKey='en_US', 
             LocaleSidKey='en_US', ProfileId = p.Id, 
-            TimeZoneSidKey='America/Los_Angeles', UserName='testes_BP_TEST@testes.com',CodigoSap__c = 'test1');
+            TimeZoneSidKey='America/Los_Angeles', UserName='testes_BP_TEST@testes.com');
         insert u;
     }
     

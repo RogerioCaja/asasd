@@ -1,17 +1,15 @@
-public with sharing class IntegrationINTechnicalReport {
-    public IntegrationINTechnicalReport() {
+global with sharing class IntegrationINTechnicalReport {
 
-    }
     
     global static Map<String, List<TemplateDataINtegrationFields.Response>> upsertTechnicalReport (List<TemplateDataINtegrationFields.TechnicalReportINData> request){
 
         Map<String, Id> lookups = new Map<String, Id>();
-
+        Set<String> visitsLookup = new Set<String>();
         for(TemplateDataIntegrationFields.TechnicalReportINData report : request){
 
-            productLookups.add(report.ExternalIdVisit);
+            visitsLookup.add(report.ExternalIdVisit);
         }
-        for (VisitPlanning__c visit : [SELECT Id,ExternalId__c FROM VisitPlanning__c WHERE ExternalId__c IN: productLookups ]) {
+        for (VisitPlanning__c visit : [SELECT Id,ExternalId__c FROM VisitPlanning__c WHERE ExternalId__c IN: visitsLookup ]) {
             lookups.put('Visit' + visit.ExternalId__c, visit.Id);
         }
 
