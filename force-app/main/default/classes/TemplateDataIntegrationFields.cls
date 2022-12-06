@@ -736,7 +736,7 @@ global with sharing class TemplateDataIntegrationFields {
         public List<TemplateDataIntegrationFields.TechnicalReportINData> TechnicalReports;
         public VisitPlanning__c serialize(Map<String, Id> lookups){
             return new VisitPlanning__c(
-                //ExternalId__c = this.ExternalId precisa ser criado
+                ExternalId__c = this.ExternalId,
                 Name = this.Name,
                 MainBP__c = lookups.containsKey('Account'+this.BpCode) ? lookups.get('Account'+this.BpCode) : null,
                 BP_Property__c = lookups.containsKey('Account'+this.BpPropertyCode) ? lookups.get('Account'+this.BpPropertyCode) : null,
@@ -779,6 +779,7 @@ global with sharing class TemplateDataIntegrationFields {
     
     global class TechnicalReportINData implements FieldDataChild{
         public String Observation;
+        public String ExternalIdVisit;
         public String ExternalId;
         public Time EndTime;
         public Date EndDate;

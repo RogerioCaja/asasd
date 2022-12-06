@@ -11,6 +11,7 @@ global without sharing class IntegrationINVisitsPlanning {
         Set<String> userLookups = new Set<String>();
         Set<String> visitLookups = new Set<String>();
         List<TemplateDataIntegrationFields.ResponseParent> responseList = new List<TemplateDataIntegrationFields.ResponseParent>();
+        List<TemplateDataIntegrationFields.TechnicalReportINData> technicalReportList = new List<TemplateDataIntegrationFields.TechnicalReportINData>();
         List<VisitPlanning__c> visitsListToUpsert = new List<VisitPlanning__c>();
         
   
@@ -21,9 +22,11 @@ global without sharing class IntegrationINVisitsPlanning {
             cultureLookups.add(visit.Culture);
             userLookups.add(visit.CtvVisit);
             visitLookups.add(visit.ExternalId);
+            visit.ExternalId = visit.BpCode + visit.BpPropertyCode + visit.PlanStartDate + visit.PlanEndDate + visit.CtvVisit;
             for (TemplateDataIntegrationFields.TechnicalReportINData report : visit.TechnicalReports){
-                report.ExternalId = visit.ExternalId;
+                report.ExternalIdVisit = visit.ExternalId;
             }
+            technicalReportList.addALL(visit.TechnicalReports);
         }
         
         for (Account accoun : [SELECT Id, ExternalId__c FROM Account WHERE ExternalId__c IN : accountLookups]) {
@@ -51,7 +54,14 @@ global without sharing class IntegrationINVisitsPlanning {
             VisitPlanning__c.ExternalId__c
         );
 
+        Map<String, List<TemplateDataIntegrationFields.Response>> orderCommodityResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
         
+        if(technicalReportList.size() != 0){
+            orderCommodityResponse.putAll(
+                IntegrationINTechnicalReport.upsertTechnicalReport(technicalReportList)
+            );
+            System.debug('orderCommodityResponse' + orderCommodityResponse);
+        }
 
         System.debug('visitsListToUpsert' + visitsListToUpsert);
 
