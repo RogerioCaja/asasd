@@ -3,7 +3,7 @@ global class BatchDeleteIntegrationLogs implements Database.Batchable<sObject>, 
     global BatchDeleteIntegrationLogs() {}
 
     public static void run(){
-        Database.executeBatch(new BatchDeleteIntegrationLogs(), 200);
+        Database.executeBatch(new BatchDeleteIntegrationLogs(), 2000);
     }
 
     global Database.QueryLocator start(Database.BatchableContext BC) {
