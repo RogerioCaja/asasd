@@ -7,8 +7,8 @@ global class BatchDeleteIntegrationLogs implements Database.Batchable<sObject>, 
     }
 
     global Database.QueryLocator start(Database.BatchableContext BC) {
-        Decimal numberMonths = Decimal.valueOf(TimeOfMonths__c.getInstance('Log de Integrações').NumberOfMonths__c);
-        return Database.getQueryLocator('SELECT id FROM IntegrationLog__c WHERE CreatedDate < LAST_N_MONTHS:numberMonths ORDER BY CreatedDate DESC');
+        Integer numberMonths = Integer.valueOf(TimeOfMonths__c.getInstance('Log de Integrações').NumberOfMonths__c);
+        return Database.getQueryLocator('SELECT id FROM IntegrationLog__c WHERE CreatedDate < LAST_N_MONTHS:'+ numberMonths +' ORDER BY CreatedDate DESC');
     }
 
     global void execute(Database.BatchableContext BC, List<IntegrationLog__c> scope) {
