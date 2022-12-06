@@ -190,21 +190,21 @@ class ProcessAutomation:
 
         requests.request(
             "POST",
-            url,
+            self.url,
             data=payload,
             headers=headers
         )
 
         requests.request(
             "POST",
-            url,
+            self.url,
             data=payload2,
             headers=headers
         )
 
         requests.request(
             "POST",
-            url,
+            self.url,
             data=payload3,
             headers=headers
         )
