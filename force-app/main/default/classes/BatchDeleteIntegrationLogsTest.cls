@@ -4,12 +4,12 @@ public with sharing class BatchDeleteIntegrationLogsTest {
 
     @TestSetup
     public static void testSetup() {
-        TimeOfMonths__c time = new TimeOfMonths__c(
+        TimeOfMonths__c timeTest = new TimeOfMonths__c(
             Name = 'Log de Integrações',
             NumberOfMonths__c = '3'
         );
 
-        INSERT time;
+        INSERT timeTest;
             
         //Creating integration log
         IntegrationLog.createLog('Teste', 'OUT', '', 'Integração para Batch', true);
