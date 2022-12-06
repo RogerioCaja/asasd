@@ -64,6 +64,8 @@ global without sharing class IntegrationINOrderAppdigital {
                 //Putting the Order's ExternalId parameter in the OrderItem
                 for (TemplateDataIntegrationFields.OrderItemINData orderItem : order.orderItems){
                     orderItem.orderItemCode = orderItem.orderItemCode.replaceFirst('^0+','');
+                    orderItem.currencyOrder = order.CurrencyOrder;
+                    System.debug('Curreny ' + orderItem.currencyOrder);
                     if(order.numeroPedidoApp != null && order.numeroPedidoApp != ''){
                         System.debug('orderItem.orderExternalId ' + orderItem.orderExternalId );
                         orderItem.orderExternalId = order.numeroPedidoApp;
@@ -103,6 +105,8 @@ global without sharing class IntegrationINOrderAppdigital {
             if(order.commodity != null){
                 for(TemplateDataIntegrationFields.OrderCommodityINData orderCommodity : order.commodity){
                     //orderCommodity.orderItemCode = orderCommodity.orderItemCode.replaceFirst('^0+','');
+                    orderCommodity.orderCommodityECalendariazacao = order.eCalendarizacao;
+                    System.debug('orderCommodityECalendariazacao ' + orderCommodity.orderCommodityECalendariazacao);
                         if(order.numeroPedidoApp != null && order.numeroPedidoApp != ''){
                             orderCommodity.orderExternalId = order.numeroPedidoApp;
                         }
@@ -191,6 +195,8 @@ global without sharing class IntegrationINOrderAppdigital {
             if(order.salesType == null || order.eCalendarizacao == true){
                 order.recordIdToUpdate = ord.RecordTypeId;
             }
+
+            
             
 			if(order.pricebook2Id == null || order.eCalendarizacao == true ){
                 if(ord.Pricebook2Id != null){
@@ -417,7 +423,7 @@ global without sharing class IntegrationINOrderAppdigital {
             String orderId;
                 if(shipIt.orderExternalId != null){
                     orderId = orderUpMap.get(shipIt.orderExternalId);
-                    
+                    System.debug('orderId ' + orderId);
                     shipIt.orderExternalId = orderId;
                 } 
         }
