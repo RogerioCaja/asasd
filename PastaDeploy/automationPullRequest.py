@@ -112,11 +112,11 @@ from subprocess import PIPE, run
 # )
 
 class ProcessAutomation:
-    branch_name
-    branch_safe_name
-    branch_merge_develop
-    branch_merge_qa2
-    branch_merge_qa
+    branch_name=""
+    branch_safe_name=""
+    branch_merge_develop=""
+    branch_merge_qa2=""
+    branch_merge_qa=""
     url = "https://api.bitbucket.org/2.0/repositories/nescara/agrogalaxy-sf/pullrequests"
 
     headers = {
