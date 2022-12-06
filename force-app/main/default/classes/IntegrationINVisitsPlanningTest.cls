@@ -95,7 +95,7 @@ public class IntegrationINVisitsPlanningTest {
         visitList.add(visit);
         
         Test.startTest();
-        IntegrationINCropDelimitation.ResponseModel model = IntegrationINVisitsPlanning.upsertVisitsPlanning(visitList);
+        IntegrationINVisitsPlanning.ResponseModel model = IntegrationINVisitsPlanning.upsertVisitsPlanning(visitList);
         Test.stopTest();
         
         System.debug(model);
