@@ -8,6 +8,8 @@ global with sharing class IntegrationINOrderItemInsert {
 
         Set<String> orderLookups = new Set<String>();
         Set<String> productLookups = new Set<String>();
+
+        List<String> product2Ids = new List<String>();
         // Guarda um mapa com uma lista de respostas
         Map<String, List<TemplateDataIntegrationFields.Response>> responseMap = new Map<String, List<TemplateDataIntegrationFields.Response>>();
         // Guarda uma lista com os OrderItem para fazer o upsert
@@ -19,7 +21,26 @@ global with sharing class IntegrationINOrderItemInsert {
         for(TemplateDataIntegrationFields.OrderItemINData OrderItemINData : request){
             idsOrderItem.add(OrderItemINData.orderExternalId + '|' + OrderItemINData.orderItemCode);
             productLookups.add(OrderItemINData.material);
+
+            if(OrderItemINData.material !=null){
+                product2Ids.add(OrderItemINData.material);
+            }
         }
+
+        Map<String, PricebookEntry> pricebookEntryList = new Map<String, PricebookEntry>();
+
+        for(PricebookEntry priceEntry : [SELECT 
+        Product2Id, 
+        Pricebook2Id,
+        UnitPrice, 
+        CurrencyIsoCode,
+        Product2.ProductCode 
+        FROM PricebookEntry 
+        WHERE Pricebook2.IsStandard = true 
+        AND Product2.ProductCode IN: product2Ids]){
+            pricebookEntryList.put(priceEntry.Product2.ProductCode + String.valueOf(priceEntry.CurrencyIsoCode), priceEntry);
+        }
+
 
         Map<String, Product2> prdtMap = new Map<String, Product2>();
         List<Product2> prdList = new List<Product2>([SELECT ProductCode__c, UnidadeMedida__c FROM Product2  WHERE ProductCode__c IN: productLookups]);
@@ -38,6 +59,8 @@ global with sharing class IntegrationINOrderItemInsert {
             //Getting product parameters to search
             productLookups.add(OrderItemINData.material);
             OrderItemINData.dosagem = OrderItemINData.quantidade;
+            OrderItemInData.pricebookEntryId = pricebookEntryList.get(OrderItemInData.material + String.valueOf(OrderItemInData.currencyOrder)).Id;
+            System.debug('pricebookId ' + OrderItemInData.pricebookEntryId);
             idsOrderItem.add(OrderItemINData.orderExternalId + '|' + OrderItemINData.orderItemCode);
 
             
