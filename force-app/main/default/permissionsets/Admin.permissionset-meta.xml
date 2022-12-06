@@ -1200,6 +1200,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>false</editable>
+        <field>JurosDescontoAntecipao__c.ProductCode__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>true</editable>
         <field>JurosDescontoAntecipao__c.ProductGroup__c</field>
         <readable>true</readable>
