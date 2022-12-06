@@ -73,6 +73,7 @@ global without sharing class IntegrationINOrderInsert {
                 //Putting the Order's ExternalId parameter in the OrderItem
                 for (TemplateDataIntegrationFields.OrderItemINData orderItem : order.orderItems){
                     orderItem.orderExternalId = order.CodigoSap;
+                    orderItem.currencyOrder = order.CurrencyOrder;
                     orderItem.orderItemCode = orderItem.orderItemCode.replaceFirst('^0+','');
                 }
                 // Adiciona os orderItem na lista para upsert
