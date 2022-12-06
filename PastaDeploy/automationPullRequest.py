@@ -210,4 +210,4 @@ class ProcessAutomation:
         )
 
 if __name__ == '__main__':
-    ProcessAutomation.prepare_data_git()
+    ProcessAutomation().prepare_data_git()
