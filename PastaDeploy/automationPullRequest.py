@@ -158,7 +158,7 @@ class ProcessAutomation:
     def prepare_data_git(self) -> None:
         self.prepare_enviroments("develop", self.branch_merge_develop)
         self.prepare_enviroments("qa2", self.branch_merge_qa2)
-        self.prepare_enviroments("qa", self.branch_merge_develop)
+        self.prepare_enviroments("qa", self.branch_merge_qa)
         self.prepare_pull_request()
     
     def prepare_enviroments(self, env, branch_merge) -> None:
