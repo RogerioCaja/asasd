@@ -192,21 +192,21 @@ class ProcessAutomation:
             "POST",
             self.url,
             data=payload,
-            headers=headers
+            headers=self.headers
         )
 
         requests.request(
             "POST",
             self.url,
             data=payload2,
-            headers=headers
+            headers=self.headers
         )
 
         requests.request(
             "POST",
             self.url,
             data=payload3,
-            headers=headers
+            headers=self.headers
         )
 
 if __name__ == '__main__':
