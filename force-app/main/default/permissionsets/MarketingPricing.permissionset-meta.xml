@@ -3226,10 +3226,6 @@
         <visible>true</visible>
     </recordTypeVisibilities>
     <recordTypeVisibilities>
-        <recordType>Order.VendaFinsEspecificosExportacao</recordType>
-        <visible>true</visible>
-    </recordTypeVisibilities>
-    <recordTypeVisibilities>
         <recordType>Order.VendaNormal</recordType>
         <visible>true</visible>
     </recordTypeVisibilities>
