@@ -18,7 +18,7 @@ global with sharing class IntegrationINPhotos {
         List<Fotos__c> photosListToUpsert = new List<Fotos__c>();
     
         Map<String, String> parentMapKeys = new Map<String, String>();
-        for(TemplateDataIntegrationFields.TechnicalReportINData report : request){
+        for(TemplateDataIntegrationFields.PhotosINData report : request){
             parentMapKeys.put(report.Rtr, lookups.containsKey('Visit'+report.Rtr) ? String.valueOf(lookups.get('Visit'+report.Rtr)) : report.Rtr);
         }
 
