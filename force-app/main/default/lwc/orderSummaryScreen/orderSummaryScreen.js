@@ -546,13 +546,13 @@ export default class OrderSummaryScreen extends LightningElement {
             value = 0.01;
             allPayments.push(this.createDefaultValues('Germoplasma'));
 
-            if (this.tsiTotalPrice > 0) {
-                tsiValue = 0.01;
-                allPayments.push(this.createDefaultValues('TSI'));
-            }
             if (this.royaltiesTotalPrice > 0) {
                 royaltiesValue = 0.01;
                 allPayments.push(this.createDefaultValues('Royalties'));
+            }
+            if (this.tsiTotalPrice > 0) {
+                tsiValue = 0.01;
+                allPayments.push(this.createDefaultValues('TSI'));
             }
             this.formsOfPayment = JSON.parse(JSON.stringify(allPayments));
 
@@ -644,7 +644,7 @@ export default class OrderSummaryScreen extends LightningElement {
         for (let index = 0; index < allPayments.length; index++) {
             let checkFields = allPayments[index];
             let pushValue = true;
-            if (allPayments[index].paymentType != '' && allPayments[index].paymentDay != '' && allPayments[index].value != '') {
+            if (this.isFilled(allPayments[index].paymentType) && this.isFilled(allPayments[index].paymentDay) && this.isFilled(allPayments[index].value)) {
                 if (checkFields.paymentKey != '') {
                     for (let i = 0; i < groupedFormsOfPayment.length; i++) {
                         if (groupedFormsOfPayment[i].paymentKey == checkFields.paymentKey) {
