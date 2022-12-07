@@ -459,9 +459,7 @@ export default class OrderProductScreen extends LightningElement {
                 .then((result) => {
                     let safraResult = JSON.parse(result);
                     this.safraData = {initialDate:safraResult.initialDate,endDate:safraResult.endDateBilling};
-
-                    let orderData = {paymentDate:this.headerData.data_pagamento != null ? this.headerData.data_pagamento : '',salesOrg:this.selectedCompany.salesOrgId != null ? this.selectedCompany.salesOrgId : '',salesOffice:this.selectedCompany.salesOfficeId != null ? this.selectedCompany.salesOfficeId : '',salesTeam:this.selectedCompany.salesTeamId != null ? this.selectedCompany.salesTeamId : '',salesCondition:this.salesConditionId != null ? this.salesConditionId : '',safra:this.headerData.safra.Id != null ? this.headerData.safra.Id  : '',culture:this.headerData.cultura.Id != null ? this.headerData.cultura.Id : ''};
-
+                    let orderData = {paymentDate:this.headerData.data_pagamento != null ? this.headerData.data_pagamento : '',salesOrg:this.selectedCompany.salesOrgId != null ? this.selectedCompany.salesOrgId : '',salesOffice:this.selectedCompany.salesOfficeId != null ? this.selectedCompany.salesOfficeId : '',salesTeam:this.selectedCompany.salesTeamId != null ? this.selectedCompany.salesTeamId : '',salesCondition:this.salesConditionId != null ? this.salesConditionId : '',safra:this.headerData.safra.Id != null ? this.headerData.safra.Id : '',culture:this.headerData.cultura.Id != null ? this.headerData.cultura.Id : ''};
                     let allowChange = (this.headerData.tipo_pedido != 'Pedido Filho' && !this.headerData.IsOrderChild && this.isFilled(this.headerData.codigo_sap)) ||
                                     (this.headerData.tipo_pedido == 'Pedido Filho' && this.isFilled(this.headerData.codigo_sap)) ? false : true;
                             
@@ -594,6 +592,7 @@ export default class OrderProductScreen extends LightningElement {
                         getMixAndConditionCombos({data: JSON.stringify(headerValues)})
                         .then((result) => {
                             let combosAndPromotions = JSON.parse(result);
+                            console.log('combosAndPromotions: ' + JSON.stringify(combosAndPromotions));
                             if (combosAndPromotions.length > 0) this.combosData = combosAndPromotions;
                         });
                     }
@@ -1304,11 +1303,13 @@ export default class OrderProductScreen extends LightningElement {
         if (this.isFilled(this.combosData)) {
             let combos = JSON.parse(JSON.stringify(this.combosData));
             for (let index = 0; index < combos.length; index++) {
-                let groupsData = combos[index].groupQuantities;
-                if (this.isFilled(groupsData)) {
-                    let productGroupCombo = groupsData.find(e => e.productGroupId == this.addProduct.productGroupId);
-                    if (this.isFilled(productGroupCombo) && quantity >= productGroupCombo.quantity && combos[index].recTypeDevName == 'ProductMix') {
-                        return {discount: combos[index].comboDiscountPercentage,comboId: combos[index].comboId,industryCombo: combos[index].comboType == 'Indústria',comboQuantity: Math.floor(quantity / productGroupCombo.quantity)};
+                if (combos[index].recTypeDevName == 'ProductMix') {
+                    let groupsData = combos[index].groupQuantities;
+                    if (this.isFilled(groupsData)) {
+                        let productGroupCombo = groupsData.find(e => e.productId == this.addProduct.productId);
+                        if (this.isFilled(productGroupCombo) && quantity >= productGroupCombo.quantity && combos[index].recTypeDevName == 'ProductMix') {
+                            return {discount: combos[index].comboDiscountPercentage,comboId: combos[index].comboId,industryCombo: combos[index].comboType == 'Indústria',comboQuantity: Math.floor(quantity / productGroupCombo.quantity)};
+                        }
                     }
                 }
             }
@@ -1324,7 +1325,6 @@ export default class OrderProductScreen extends LightningElement {
                 }
             }
         }
-
         return null;
     }
 
