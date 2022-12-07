@@ -788,8 +788,9 @@ global with sharing class TemplateDataIntegrationFields {
 
         public TechnicalReport__c serialize(Map<String, Id> lookups){
             return new TechnicalReport__c(
-                VisitPlanning__c = lookups.containsKey('Visit'+this.ExternalId) ? lookups.get('Visit'+this.ExternalId) : null,
+                VisitPlanning__c = lookups.containsKey('Visit'+this.ExternalIdVisit) ? lookups.get('Visit'+this.ExternalIdVisit) : null,
                 Note__c = this.Observation,
+                ExternalId__c = this.ExternalIdVisit,
                 EndTime__c = this.EndTime,
                 EndDate__c = this.EndDate,
                 Status__c = this.Status,
