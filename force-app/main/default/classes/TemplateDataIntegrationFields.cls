@@ -785,6 +785,7 @@ global with sharing class TemplateDataIntegrationFields {
         public Date EndDate;
         public String Status;
         public String CancellationReason;
+        public List<TemplateDataIntegrationFields.PhotosINData> Photos;
 
         public TechnicalReport__c serialize(Map<String, Id> lookups){
             return new TechnicalReport__c(
@@ -795,6 +796,38 @@ global with sharing class TemplateDataIntegrationFields {
                 EndDate__c = this.EndDate,
                 Status__c = this.Status,
                 CancellationReason__c = this.CancellationReason
+            );
+        }
+
+        public List<String> getRequiredFields(){
+            return new List<String>{
+
+            };
+        }
+
+        public String getFieldKey(){
+            return 'Id';
+        }
+
+        public String getFieldExternal(){
+            return 'ExternalId__c';
+        }
+
+        public String getParentKey(){
+            return 'OrderId';
+        }
+    }
+
+    global class PhotosINData implements FieldDataChild{
+        public String Base64;
+        public String filename;
+        public String Rtr;
+        public String Observation;
+        
+        public Fotos__c serialize(Map<String, Id> lookups){
+            return new Fotos__c(
+                RTR__c = lookups.containsKey('Technical'+this.Rtr) ? lookups.get('Technical'+this.Rtr) : null,
+                Observation__c = this.Observation
             );
         }
 
