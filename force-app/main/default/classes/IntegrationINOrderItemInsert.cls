@@ -1,4 +1,4 @@
-global with sharing class IntegrationINOrderItemInsert {
+global without sharing class IntegrationINOrderItemInsert {
     public IntegrationINOrderItemInsert() {
 
     }
