@@ -12,7 +12,7 @@ global without sharing class IntegrationINVisitsPlanning {
         Set<String> visitLookups = new Set<String>();
         List<TemplateDataIntegrationFields.ResponseParent> responseList = new List<TemplateDataIntegrationFields.ResponseParent>();
         List<TemplateDataIntegrationFields.TechnicalReportINData> technicalReportList = new List<TemplateDataIntegrationFields.TechnicalReportINData>();
-        List<TemplateDataIntegrationFields.PhotosINData> photosList = new List<TemplateDataIntegrationFields.PhotosINData>();
+        List<TemplateDataIntegrationFields.FotosINData> photosList = new List<TemplateDataIntegrationFields.FotosINData>();
         List<VisitPlanning__c> visitsListToUpsert = new List<VisitPlanning__c>();
         
   
@@ -60,7 +60,7 @@ global without sharing class IntegrationINVisitsPlanning {
         
         if(technicalReportList.size() != 0){
             for(TemplateDataIntegrationFields.TechnicalReportINData technical : technicalReportList){
-                for(TemplateDataIntegrationFields.PhotosINData photos : technical.Photos){
+                for(TemplateDataIntegrationFields.FotosINData photos : technical.Photos){
 
                     photos.Rtr = technical.ExternalId; 
                 }

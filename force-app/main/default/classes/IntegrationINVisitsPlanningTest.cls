@@ -68,12 +68,21 @@ public class IntegrationINVisitsPlanningTest {
     
     @isTest
     static void verifyIntegrationINVisitPlanning(){
+        List<TemplateDataIntegrationFields.FotosINData> photoList = new List<TemplateDataIntegrationFields.FotosINData>();
+        TemplateDataIntegrationFields.FotosINData photo = new TemplateDataIntegrationFields.FotosINData();
+        photo.Observation = 'test';
+        photo.Base64 = '';
+        photoList.add(photo);
+
+
         List<TemplateDataIntegrationFields.TechnicalReportINData> technicalList = new List<TemplateDataIntegrationFields.TechnicalReportINData>();
         TemplateDataIntegrationFields.TechnicalReportINData technical = new TemplateDataIntegrationFields.TechnicalReportINData();
         technical.Observation = 'test';
         technical.EndTime = Time.newInstance(18, 30, 2, 20);
         technical.EndDate = Date.valueOf('2022-09-23');
         technical.Status = 'Gerado';
+        technical.Photos = new List<TemplateDataINtegrationFields.FotosINData>();
+        technical.Photos.addAll(photoList);
         technicalList.add(technical);
 
 
