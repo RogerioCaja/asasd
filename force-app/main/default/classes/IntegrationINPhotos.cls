@@ -9,7 +9,7 @@ global with sharing class IntegrationINPhotos {
 
             technicalLookup.add(photos.Rtr);
         }
-        for (VisitPlanning__c visit : [SELECT Id, ExternalId__c FROM TechnicalReport__c WHERE ExternalId__c IN: technicalLookup ]) {
+        for (TechnicalReport__c visit : [SELECT Id, ExternalId__c FROM TechnicalReport__c WHERE ExternalId__c IN: technicalLookup ]) {
             lookups.put('Technical' + visit.ExternalId__c, visit.Id);
         }
 
