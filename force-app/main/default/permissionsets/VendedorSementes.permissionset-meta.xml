@@ -1632,11 +1632,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>OrderItem.ComissionValue__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
         <field>OrderItem.CommercialAdditionPercent__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1723,11 +1718,6 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>OrderItem.NumeroSap__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>OrderItem.PercentComission__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
