@@ -18,11 +18,14 @@ public class IntegrationINVisitsPlanningTest {
         );
         insert safra;
 
+        
         Account account = new Account(
             Name = 'Teste 1',
             BillingStreet = ' ',
             BillingState = '' ,
+     
             Phone= '', 
+            BpType__c = 'Proprietario',
             BillingCity = ' ', 
             BillingLongitude = 000000,
             BillingLatitude = 00000,
@@ -35,8 +38,10 @@ public class IntegrationINVisitsPlanningTest {
             Name = 'Teste 2',
             BillingStreet = ' ',
             BillingState = '' ,
+            ParentId = account.Id,
             Phone= '', 
             BillingCity = ' ', 
+            BpType__c = 'Propriedade',
             BillingLongitude = 000000,
             BillingLatitude = 00000,
             BillingPostalCode = '',
@@ -44,6 +49,8 @@ public class IntegrationINVisitsPlanningTest {
             Company__c = 'Empresa 1'
         );
         insert account2;
+        
+        
         Cultura__c cultura = new Cultura__c(
             Name = 'Safrinha',
             Name__c = 'Safrinha',
@@ -63,7 +70,7 @@ public class IntegrationINVisitsPlanningTest {
     static void verifyIntegrationINVisitPlanning(){
         List<TemplateDataIntegrationFields.TechnicalReportINData> technicalList = new List<TemplateDataIntegrationFields.TechnicalReportINData>();
         TemplateDataIntegrationFields.TechnicalReportINData technical = new TemplateDataIntegrationFields.TechnicalReportINData();
-        technical.Observation = '';
+        technical.Observation = 'test';
         technical.EndTime = Time.newInstance(18, 30, 2, 20);
         technical.EndDate = Date.valueOf('2022-09-23');
         technical.Status = 'Gerado';
@@ -86,11 +93,12 @@ public class IntegrationINVisitsPlanningTest {
         visit.Email = 'test@gmail.com';
         visit.Presential = true;
         visit.Reminder = false;
-        visit.Displacement  = 'test1';
+        visit.Displacement  = 'Sim';
         visit.CtvVisit = '010';
         visit.Observation = 'test1';
         visit.ReasonRescheduling = 'test1';
         visit.ReasonCancellation = 'test1';
+        visit.TechnicalReports = new List<TemplateDataINtegrationFields.TechnicalReportINData>();
         visit.TechnicalReports.addAll(technicalList);
         visitList.add(visit);
         
