@@ -86,11 +86,12 @@ public class IntegrationINVisitsPlanningTest {
         visit.Email = 'test@gmail.com';
         visit.Presential = true;
         visit.Reminder = false;
-        visit.Displacement  = 'test1';
+        visit.Displacement  = 'Sim';
         visit.CtvVisit = '010';
         visit.Observation = 'test1';
         visit.ReasonRescheduling = 'test1';
         visit.ReasonCancellation = 'test1';
+        visit.TechnicalReports = new List<TemplateDataINtegrationFields.TechnicalReportINData>();
         visit.TechnicalReports.addAll(technicalList);
         visitList.add(visit);
         
