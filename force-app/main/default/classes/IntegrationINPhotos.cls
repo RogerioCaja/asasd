@@ -1,11 +1,11 @@
 global with sharing class IntegrationINPhotos {
 
     
-    global static Map<String, List<TemplateDataINtegrationFields.Response>> upsertPhotos (List<TemplateDataINtegrationFields.PhotosINData> request){
+    global static Map<String, List<TemplateDataINtegrationFields.Response>> upsertPhotos (List<TemplateDataINtegrationFields.FotosINData> request){
 
         Map<String, Id> lookups = new Map<String, Id>();
         Set<String> technicalLookup = new Set<String>();
-        for(TemplateDataIntegrationFields.PhotosINData photos : request){
+        for(TemplateDataIntegrationFields.FotosINData photos : request){
 
             technicalLookup.add(photos.Rtr);
         }
@@ -18,7 +18,7 @@ global with sharing class IntegrationINPhotos {
         List<Fotos__c> photosListToUpsert = new List<Fotos__c>();
     
         Map<String, String> parentMapKeys = new Map<String, String>();
-        for(TemplateDataIntegrationFields.PhotosINData report : request){
+        for(TemplateDataIntegrationFields.FotosINData report : request){
             parentMapKeys.put(report.Rtr, lookups.containsKey('Visit'+report.Rtr) ? String.valueOf(lookups.get('Visit'+report.Rtr)) : report.Rtr);
         }
 

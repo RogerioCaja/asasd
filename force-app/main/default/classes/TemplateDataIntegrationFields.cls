@@ -785,7 +785,7 @@ global with sharing class TemplateDataIntegrationFields {
         public Date EndDate;
         public String Status;
         public String CancellationReason;
-        public List<TemplateDataIntegrationFields.PhotosINData> Photos;
+        public List<TemplateDataIntegrationFields.FotosINData> Photos;
 
         public TechnicalReport__c serialize(Map<String, Id> lookups){
             return new TechnicalReport__c(
@@ -818,7 +818,7 @@ global with sharing class TemplateDataIntegrationFields {
         }
     }
 
-    global class PhotosINData implements FieldDataChild{
+    global class FotosINData implements FieldDataChild{
         public String Base64;
         public String filename;
         public String Rtr;
