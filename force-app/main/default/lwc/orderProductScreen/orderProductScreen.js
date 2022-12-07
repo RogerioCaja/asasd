@@ -317,7 +317,13 @@ export default class OrderProductScreen extends LightningElement {
             priceListCode: currentProduct.priceListCode,
             sieve: this.isFilled(currentProduct.sieve) ? currentProduct.sieve : '',
             productClass: this.isFilled(currentProduct.productClass) ? currentProduct.productClass : '',
-            brokeragePerUnit: this.isFilled(currentProduct.brokeragePerUnit) ? currentProduct.brokeragePerUnit : '',
+            comboDiscountPercent: this.isFilled(currentProduct.comboDiscountPercent) ? currentProduct.comboDiscountPercent : '0%',
+            comboDiscountValue: this.isFilled(currentProduct.comboDiscountValue) ? currentProduct.comboDiscountValue : 0,
+            comboId: this.isFilled(currentProduct.comboId) ? currentProduct.comboId : null,
+            industryCombo: this.isFilled(currentProduct.comboId) ? currentProduct.industryCombo : false,
+            containsCombo: this.isFilled(currentProduct.comboId) ? true : false,
+            formerItem: this.isFilled(currentProduct.formerItem) ? currentProduct.formerItem : false,
+            benefitItem: this.isFilled(currentProduct.benefitItem) ? currentProduct.benefitItem : false,
             tListPrice: this.isFilled(currentProduct.tListPrice) ? currentProduct.tListPrice : 0,
             tListPriceFront: this.isFilled(currentProduct.tListPrice) ? 'R$' + this.fixDecimalPlacesFront(currentProduct.tListPrice) : 'R$0',
             tsiTotalPrice: tTotalPrice,
@@ -326,13 +332,7 @@ export default class OrderProductScreen extends LightningElement {
             rListPriceFront: this.isFilled(currentProduct.rListPrice) ? 'R$' + this.fixDecimalPlacesFront(currentProduct.rListPrice) : 'R$0',
             royaltyTotalPrice: rTotalPrice,
             royaltyTotalPriceFront: 'R$' + this.fixDecimalPlacesFront(rTotalPrice),
-            comboDiscountPercent: this.isFilled(currentProduct.comboDiscountPercent) ? currentProduct.comboDiscountPercent : '0%',
-            comboDiscountValue: this.isFilled(currentProduct.comboDiscountValue) ? currentProduct.comboDiscountValue : 0,
-            comboId: this.isFilled(currentProduct.comboId) ? currentProduct.comboId : null,
-            industryCombo: this.isFilled(currentProduct.comboId) ? currentProduct.industryCombo : false,
-            containsCombo: this.isFilled(currentProduct.comboId) ? true : false,
-            formerItem: this.isFilled(currentProduct.formerItem) ? currentProduct.formerItem : false,
-            benefitItem: this.isFilled(currentProduct.benefitItem) ? currentProduct.benefitItem : false
+            brokeragePerUnit: this.isFilled(currentProduct.brokeragePerUnit) ? currentProduct.brokeragePerUnit : ''
         };
         return newProduct;
     }
@@ -458,7 +458,7 @@ export default class OrderProductScreen extends LightningElement {
                 .then((result) => {
                     let safraResult = JSON.parse(result);
                     this.safraData = {initialDate:safraResult.initialDate,endDate:safraResult.endDateBilling};
-                    let orderData = {paymentDate:this.headerData.data_pagamento != null ? this.headerData.data_pagamento : '',salesOrg:this.selectedCompany.salesOrgId != null ? this.selectedCompany.salesOrgId : '',salesOffice:this.selectedCompany.salesOfficeId != null ? this.selectedCompany.salesOfficeId : '',salesTeam:this.selectedCompany.salesTeamId != null ? this.selectedCompany.salesTeamId : '',safra:this.headerData.safra.Id != null ? this.headerData.safra.Id : '',culture:this.headerData.cultura.Id != null ? this.headerData.cultura.Id : ''};
+                    let orderData = {paymentDate:this.headerData.data_pagamento != null ? this.headerData.data_pagamento : '',salesOrg:this.selectedCompany.salesOrgId != null ? this.selectedCompany.salesOrgId : '',salesOffice:this.selectedCompany.salesOfficeId != null ? this.selectedCompany.salesOfficeId : '',salesTeam:this.selectedCompany.salesTeamId != null ? this.selectedCompany.salesTeamId : '',salesCondition:this.salesConditionId != null ? this.salesConditionId : '',safra:this.headerData.safra.Id != null ? this.headerData.safra.Id : '',culture:this.headerData.cultura.Id != null ? this.headerData.cultura.Id : ''};
                     let allowChange = (this.headerData.tipo_pedido != 'Pedido Filho' && !this.headerData.IsOrderChild && this.isFilled(this.headerData.codigo_sap)) ||
                                     (this.headerData.tipo_pedido == 'Pedido Filho' && this.isFilled(this.headerData.codigo_sap)) ? false : true;
                             
@@ -466,7 +466,7 @@ export default class OrderProductScreen extends LightningElement {
                     if (this.headerData.pre_pedido && (allowChange || this.checkCombo)) {
                         this.financialInfoLogic(orderData);
                         checkFinancialInfos = false;
-                        fetchOrderRecords({searchString:'',data:JSON.stringify(this.productParams),isCommodity:false,productsIds:prodsIds,priceScreen:false})
+                        fetchOrderRecords({searchString:'',data:JSON.stringify(this.productParams),isCommodity:false,productsIds:prodsIds,priceScreen:false,getSeedPrices:this.showRoyaltyTsi})
                         .then(result => {
                             this.productsPriceMap = result.recordsDataMap;
                             this.salesInfos = result.salesResult;
@@ -770,7 +770,7 @@ export default class OrderProductScreen extends LightningElement {
                 let currentProduct = this.baseProducts.find(e => e.Id == productId);
                 let priorityInfos = this.getProductByPriority(currentProduct);
                 this.updateProduct = false;
-                this.multiplicity = this.isFilled(currentProduct.multiplicity) ? currentProduct.multiplicity : 1;
+                this.multiplicity = this.isFilled(currentProduct.multiplicity) && currentProduct.multiplicity > 0 ? currentProduct.multiplicity : 1;
                 this.costPrice = priorityInfos.priorityPrice.costPrice;
                 let currentPosition = this.getCurrentProductPosition() + 1;
                 this.addProduct = this.createProduct(currentProduct, priorityInfos.priorityPrice, null, currentPosition);
@@ -836,7 +836,16 @@ export default class OrderProductScreen extends LightningElement {
             position: this.isFilled(counter) ? counter : null,
             containsCombo: this.isFilled(comboValues) ? comboValues.containsCombo : (this.isFilled(currentProduct.containsCombo) ? currentProduct.containsCombo : false),
             formerItem: this.isFilled(comboValues) ? comboValues.formerItem : false,
-            benefitItem: this.isFilled(comboValues) ? comboValues.benefitItem : false
+            benefitItem: this.isFilled(comboValues) ? comboValues.benefitItem : false,
+            tListPrice: this.isFilled(priorityInfos.tListPrice) ? priorityInfos.tListPrice : 0,
+            tListPriceFront: this.isFilled(priorityInfos.tListPrice) ? 'R$' + this.fixDecimalPlacesFront(priorityInfos.tListPrice) : 'R$0',
+            tsiTotalPrice: 0,
+            tsiTotalPriceFront: 0,
+            rListPrice: this.isFilled(priorityInfos.rListPrice) ? priorityInfos.rListPrice : 0,
+            rListPriceFront: this.isFilled(priorityInfos.rListPrice) ? 'R$' + this.fixDecimalPlacesFront(priorityInfos.rListPrice) : 'R$0',
+            royaltyTotalPrice: 0,
+            royaltyTotalPriceFront: 0,
+            brokeragePerUnit: this.isFilled(currentProduct.brokeragePerUnit) ? currentProduct.brokeragePerUnit : ''
         };
         return newProductData;
     }
@@ -1019,6 +1028,8 @@ export default class OrderProductScreen extends LightningElement {
             if (remainder == 0) {
                 return quantity;
             } else {
+                quantity = this.fixDecimalPlacesFront(quantity);
+                quantity = quantity.toString().includes(',') ? Number(quantity.replace(',', '.')) : quantity;
                 quantity = Math.ceil(quantity / this.multiplicity) * this.multiplicity;
                 this.showToast('warning', 'Atenção!', 'A quantidade foi arredondada para ' + quantity + '.');
                 return quantity;
@@ -1305,7 +1316,6 @@ export default class OrderProductScreen extends LightningElement {
                 }
             }
         }
-
         return null;
     }
 
@@ -2121,7 +2131,8 @@ export default class OrderProductScreen extends LightningElement {
             productCurrency: this.headerData.moeda,
             culture: this.headerData.cultura.Id,
             orderType: this.headerData.tipo_venda,
-            numberOfRowsToSkip: 0
+            numberOfRowsToSkip: 0,
+            dontGetSeeds: this.isFilled(this.dontGetSeeds) ? this.dontGetSeeds : false
         };
         getSpecificCombos({data: JSON.stringify(headerValues), companyData: JSON.stringify(getCompanyData), productData: JSON.stringify(productParams), childOrder: this.childOrder, existingCombosIds: this.combosIds})
         .then((result) => {
