@@ -1,4 +1,4 @@
-global with sharing class IntegrationINOrderItem {
+global without sharing class IntegrationINOrderItem {
     public IntegrationINOrderItem() {
     }
     // Integração do OrderItem Upsert
@@ -188,13 +188,7 @@ global with sharing class IntegrationINOrderItem {
                         System.debug('lookups ' + lookups);
                     }
                 }
-                
-                if(orderItem.material == null || orderItem.material == ''){
-                    if(ordItem.Product2Id != null){
-                        orderItem.material = ordItem.Product2.ProductCode__c;
-                        lookups.put('PricebookEntry' + ordItem.Product2.ProductCode__c, ordItem.Product2Id);
-                    } 
-                }
+            
                 
     
                 if(orderItem.material == null || orderItem.material == ''){
@@ -311,6 +305,10 @@ global with sharing class IntegrationINOrderItem {
 
                 if(OrderItem.valorTotalZtra == null){
                     OrderItem.valorTotalZtra = ordItem.TotalTSIAmount__c;
+                }
+
+                if(OrderItem.pricebookEntryId == null || OrderItem.pricebookEntryId == ''){
+                    OrderItem.pricebookEntryId = ordItem.PricebookEntryId;
                 }
             }
         }
