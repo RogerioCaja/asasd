@@ -43,7 +43,7 @@ global with sharing class IntegrationINPhotos {
         Map<String, ContentVersion> contentVersionMap = new Map<String, ContentVersion>();
         Map<String, ContentVersion> contentVersionUpdatedMap = new Map<String, ContentVersion>();
         List<String> contentVersionList = new List<String>();
-
+        /*
         for(Fotos__c photo : photosListToUpsert){
             TemplateDataINtegrationFields.FotosINData requestFotos = fotosMap.get(photo.ExternalId__c);
             ContentVersion cv = new ContentVersion();
@@ -73,7 +73,7 @@ global with sharing class IntegrationINPhotos {
             cdl.ShareType = 'V';
             contentDocumentLinkToInsert.add(cdl);
         }
-        insert contentDocumentLinkToInsert;
+        insert contentDocumentLinkToInsert;*/
         return responseMap;
     }
 }
