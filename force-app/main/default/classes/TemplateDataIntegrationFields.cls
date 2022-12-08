@@ -663,7 +663,8 @@ global with sharing class TemplateDataIntegrationFields {
             return 'Id';
         }
     }
-    
+
+
     global class OrderCommodityINData implements FieldDataChild{
         public String orderExternalId;
         //public String OrderItemCode;
@@ -711,7 +712,146 @@ global with sharing class TemplateDataIntegrationFields {
         }
     }
 
+    global class VisitPlanningINData implements FieldData{
+        public String Name;
+        public String BpCode;
+        public String ExternalId;
+        public String BpPropertyCode;
+        public Date PlanStartDate;
+        public Date PlanEndDate;
+        public Time StartTime;
+        public Time EndTime;
+        public String Status;
+        public String Objective;
+        public String Crop;
+        public String Culture;
+        public String Email;
+        public Boolean Presential;
+        public Boolean Reminder;
+        public String Displacement;
+        public String CtvVisit;
+        public String Observation;
+        public String ReasonRescheduling;
+        public String ReasonCancellation;
+        public List<TemplateDataIntegrationFields.TechnicalReportINData> TechnicalReports;
+        public VisitPlanning__c serialize(Map<String, Id> lookups){
+            return new VisitPlanning__c(
+                ExternalId__c = this.ExternalId,
+                Name = this.Name,
+                MainBP__c = lookups.containsKey('Account'+this.BpCode) ? lookups.get('Account'+this.BpCode) : null,
+                BP_Property__c = lookups.containsKey('Account'+this.BpPropertyCode) ? lookups.get('Account'+this.BpPropertyCode) : null,
+                InitialDate__c = this.PlanStartDate,
+                EndDate__c = this.PlanEndDate,
+                StartTime__c = this.StartTime,
+                EndTime__c = this.EndTime,
+                Status__c = this.Status,
+                Objetivo__c = this.Objective,
+                Safra__c = lookups.containsKey('Safra'+this.Crop) ? lookups.get('Safra'+this.Crop) : null,
+                Culture__c = lookups.containsKey('Culture'+this.Culture) ? lookups.get('Culture'+this.Culture) : null,
+                Email__c = this.Email,
+                Presential__c = this.Presential,
+                Reminder__c = this.Reminder,
+                Displacement__c = this.Displacement,
+                VisitSeller__c = lookups.containsKey('User'+this.CtvVisit) ? lookups.get('User'+this.CtvVisit) : null,
+                Note__c = this.Observation,
+                ReschedulingReason__c = this.ReasonRescheduling,
+                CancellationReason__c = this.ReasonCancellation
+            );
+        }
+
+        //Required fields for integration
+        public List<String> getRequiredFields(){
+            return new List<String>{
+       
+            };
+        }
+
+        //ExternalId field
+        public String getFieldKey(){
+            return 'ExternalId__c';
+        }
+        
+        //Id field
+        public String getFieldId() {
+            return 'Id';
+        }
+    }
     
+    global class TechnicalReportINData implements FieldDataChild{
+        public String Observation;
+        public String ExternalIdVisit;
+        public String ExternalId;
+        public Time EndTime;
+        public Date EndDate;
+        public String Status;
+        public String CancellationReason;
+        public List<TemplateDataIntegrationFields.FotosINData> Photos;
+
+        public TechnicalReport__c serialize(Map<String, Id> lookups){
+            return new TechnicalReport__c(
+                VisitPlanning__c = lookups.containsKey('Visit'+this.ExternalIdVisit) ? lookups.get('Visit'+this.ExternalIdVisit) : null,
+                Note__c = this.Observation,
+                ExternalId__c = this.ExternalIdVisit,
+                EndTime__c = this.EndTime,
+                EndDate__c = this.EndDate,
+                Status__c = this.Status,
+                CancellationReason__c = this.CancellationReason
+            );
+        }
+
+        public List<String> getRequiredFields(){
+            return new List<String>{
+
+            };
+        }
+
+        public String getFieldKey(){
+            return 'Id';
+        }
+
+        public String getFieldExternal(){
+            return 'ExternalId__c';
+        }
+
+        public String getParentKey(){
+            return 'OrderId';
+        }
+    }
+
+    global class FotosINData implements FieldDataChild{
+        public String Photo;
+        public String filename;
+        public String Rtr;
+        public String ExternalId;
+        public String Observation;
+        
+        public Fotos__c serialize(Map<String, Id> lookups){
+            return new Fotos__c(
+                RTR__c = lookups.containsKey('Technical'+this.Rtr) ? lookups.get('Technical'+this.Rtr) : null,
+                Observation__c = this.Observation,
+                ExternalId__c = this.ExternalId
+            );
+        }
+
+        public List<String> getRequiredFields(){
+            return new List<String>{
+
+            };
+        }
+
+        public String getFieldKey(){
+            return 'Id';
+        }
+
+        public String getFieldExternal(){
+            return 'ExternalId__c';
+        }
+
+        public String getParentKey(){
+            return 'OrderId';
+        }
+    }
+
     global class NotaFiscalINData implements FieldData{
         //JSON fields Example
         
