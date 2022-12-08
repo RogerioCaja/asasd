@@ -45,7 +45,7 @@ global with sharing class IntegrationINPhotos {
         List<String> contentVersionList = new List<String>();
         List<String> photoIdList = new List<String>();
         for(Fotos__c photo : photosListToUpsert){
-            photoIdList.add(photo);
+            photoIdList.add(photo.Id);
             TemplateDataINtegrationFields.FotosINData requestFotos = fotosMap.get(photo.ExternalId__c);
             if(requestFotos.Photo != null && requestFotos.Photo != ''){
                 ContentVersion cv = new ContentVersion();
@@ -57,13 +57,8 @@ global with sharing class IntegrationINPhotos {
         }
         List<String> contendToRemoveListId = new List<String>();
         List<ContentDocumentLink> contendLinkToRemoveList = new List<ContentDocumentLink>([SELECT Id, LinkedEntityId, ContentDocumentId, IsDeleted, SystemModstamp, ShareType, Visibility FROM ContentDocumentLink WHERE LinkedEntityId IN: photoIdList]);
-        for(ContentDocumentLink contend : contendLinkToRemove){
-            contendToRemoveListId.add(contend.ContentDocumentId);
-        }
-        List<ContentVersion> contendToRemoveList = new List<ContentVersion>([SELECT Id FROM ContentVersion WHERE Id IN: contendToRemoveListId]);
         if (!contendLinkToRemoveList.isEmpty()) {
-            delete contentDocumentLinkToInsert;
-            delete contendToRemoveList;
+            Database.delete(contendLinkToRemoveList, false);
         }
         try {
             insert contentVersionMap.values();
