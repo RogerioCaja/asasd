@@ -45,9 +45,9 @@ global with sharing class IntegrationINPhotos {
         List<String> contentVersionList = new List<String>();
 
         for(Fotos__c photo : photosListToUpsert){
-            TemplateDataINtegrationFields.FotosINData request = fotosMap.get(photo.ExternalId__c);
+            TemplateDataINtegrationFields.FotosINData requestFotos = fotosMap.get(photo.ExternalId__c);
             ContentVersion cv = new ContentVersion();
-            cv.VersionData = EncodingUtil.base64Decode(request.Photo);
+            cv.VersionData = EncodingUtil.base64Decode(requestFotos.Photo);
             cv.Title = 'Foto';
             cv.PathOnClient = 'Foto';
             contentVersionMap.put(photo.ExternalId,cv);
