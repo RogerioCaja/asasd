@@ -12,6 +12,7 @@ global without sharing class IntegrationINVisitsPlanning {
         Set<String> visitLookups = new Set<String>();
         List<TemplateDataIntegrationFields.ResponseParent> responseList = new List<TemplateDataIntegrationFields.ResponseParent>();
         List<TemplateDataIntegrationFields.TechnicalReportINData> technicalReportList = new List<TemplateDataIntegrationFields.TechnicalReportINData>();
+        List<TemplateDataIntegrationFields.FotosINData> photosList = new List<TemplateDataIntegrationFields.FotosINData>();
         List<VisitPlanning__c> visitsListToUpsert = new List<VisitPlanning__c>();
         
   
@@ -25,6 +26,7 @@ global without sharing class IntegrationINVisitsPlanning {
             visit.ExternalId = visit.BpCode + visit.BpPropertyCode + visit.PlanStartDate + visit.PlanEndDate + visit.CtvVisit;
             for (TemplateDataIntegrationFields.TechnicalReportINData report : visit.TechnicalReports){
                 report.ExternalIdVisit = visit.ExternalId;
+                report.ExternalId = visit.ExternalId;// mudar depois quando souber qual sera
             }
             technicalReportList.addALL(visit.TechnicalReports);
         }
@@ -57,13 +59,24 @@ global without sharing class IntegrationINVisitsPlanning {
         Map<String, List<TemplateDataIntegrationFields.Response>> orderCommodityResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
         
         if(technicalReportList.size() != 0){
+            for(TemplateDataIntegrationFields.TechnicalReportINData technical : technicalReportList){
+                for(TemplateDataIntegrationFields.FotosINData photos : technical.Photos){
+
+                    photos.Rtr = technical.ExternalId; 
+                }
+                photosList.addALL(technical.Photos);
+            }
             orderCommodityResponse.putAll(
                 IntegrationINTechnicalReport.upsertTechnicalReport(technicalReportList)
             );
             System.debug('orderCommodityResponse' + orderCommodityResponse);
         }
-
-        System.debug('visitsListToUpsert' + visitsListToUpsert);
+        if(photosList.size() != 0){
+            orderCommodityResponse.putAll(
+                IntegrationINPhotos.upsertPhotos(photosList)
+            );
+            System.debug('orderCommodityResponse' + orderCommodityResponse);
+        }
 
         //Checking integration errors to log
         // Verifica erros de integração para o log
