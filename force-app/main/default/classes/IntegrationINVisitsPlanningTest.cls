@@ -18,7 +18,6 @@ public class IntegrationINVisitsPlanningTest {
         );
         insert safra;
 
-        
         Account account = new Account(
             Name = 'Teste 1',
             BillingStreet = ' ',
@@ -72,6 +71,7 @@ public class IntegrationINVisitsPlanningTest {
         TemplateDataIntegrationFields.FotosINData photo = new TemplateDataIntegrationFields.FotosINData();
         photo.Observation = 'test';
         photo.Base64 = '';
+        photo.ExternalId = '422';
         photoList.add(photo);
 
 

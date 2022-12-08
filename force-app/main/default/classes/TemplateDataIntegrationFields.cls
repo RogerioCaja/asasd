@@ -822,12 +822,14 @@ global with sharing class TemplateDataIntegrationFields {
         public String Base64;
         public String filename;
         public String Rtr;
+        public String ExternalId;
         public String Observation;
         
         public Fotos__c serialize(Map<String, Id> lookups){
             return new Fotos__c(
                 RTR__c = lookups.containsKey('Technical'+this.Rtr) ? lookups.get('Technical'+this.Rtr) : null,
-                Observation__c = this.Observation
+                Observation__c = this.Observation,
+                ExternalId__c = this.ExternalId
             );
         }
 

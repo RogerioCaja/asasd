@@ -19,7 +19,7 @@ global with sharing class IntegrationINPhotos {
     
         Map<String, String> parentMapKeys = new Map<String, String>();
         for(TemplateDataIntegrationFields.FotosINData report : request){
-            parentMapKeys.put(report.Rtr, lookups.containsKey('Visit'+report.Rtr) ? String.valueOf(lookups.get('Visit'+report.Rtr)) : report.Rtr);
+            parentMapKeys.put(report.Rtr, lookups.containsKey('Technical'+report.Rtr) ? String.valueOf(lookups.get('Technical'+report.Rtr)) : report.Rtr);
         }
 
 
