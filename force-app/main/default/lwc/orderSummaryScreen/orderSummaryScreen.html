@@ -154,6 +154,7 @@
                 <th>Produto(Código-Nome)</th>
                 <th>U. M.</th>
                 <th>Quantidade</th>
+                <th>Produto Combo</th>
                 <th if:false={isBarter}>Preço Praticado</th>
                 <!-- <th if:true={isBarter}>Preço por saca</th> -->
                 <th if:false={isBarter}>Preço Total</th>
@@ -170,6 +171,8 @@
                         <td>{product.sapProductCode} - {product.name}  </td>
                         <td>{product.unity}</td>
                         <td>{product.quantity}</td>
+                        <td if:true={product.containsCombo}>Sim</td>
+                        <td if:false={product.containsCombo}>Não</td>
                         <td if:false={isBarter}>{product.unitPrice}</td>
                         <td if:false={isBarter}>{product.totalPrice}</td>
                         <td if:false={isBarter}>{product.commercialDiscountValue}</td>
