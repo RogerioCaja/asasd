@@ -43,14 +43,14 @@ global with sharing class IntegrationINPhotos {
         Map<String, ContentVersion> contentVersionMap = new Map<String, ContentVersion>();
         Map<String, ContentVersion> contentVersionUpdatedMap = new Map<String, ContentVersion>();
         List<String> contentVersionList = new List<String>();
-
+        
         for(Fotos__c photo : photosListToUpsert){
-            TemplateDataINtegrationFields.FotosINData request = fotosMap.get(photo.ExternalId__c);
+            TemplateDataINtegrationFields.FotosINData requestFotos = fotosMap.get(photo.ExternalId__c);
             ContentVersion cv = new ContentVersion();
-            cv.VersionData = EncodingUtil.base64Decode(request.Photo);
+            cv.VersionData = EncodingUtil.base64Decode(requestFotos.Photo);
             cv.Title = 'Foto';
             cv.PathOnClient = 'Foto';
-            contentVersionMap.put(photo.ExternalId,cv);
+            contentVersionMap.put(photo.ExternalId__c,cv);
         }
         try {
             insert contentVersionMap.values();
@@ -65,7 +65,7 @@ global with sharing class IntegrationINPhotos {
         }
         List<ContentDocumentLink> contentDocumentLinkToInsert = new List<ContentDocumentLink>();
         for(Fotos__c photo : photosListToUpsert){
-            ContentVersion content = contentVersionMap.get(photo.ExternalId);
+            ContentVersion content = contentVersionMap.get(photo.ExternalId__c);
             ContentVersion contentDocument = contentVersionUpdatedMap.get(content.Id);
             ContentDocumentLink cdl = new ContentDocumentLink();
             cdl.ContentDocumentId = contentDocument.ContentDocumentId;
