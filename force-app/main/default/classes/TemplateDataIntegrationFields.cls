@@ -824,7 +824,7 @@ global with sharing class TemplateDataIntegrationFields {
     }
 
     global class FotosINData implements FieldDataChild{
-        public String Base64;
+        public String Photo;
         public String filename;
         public String Rtr;
         public String ExternalId;
