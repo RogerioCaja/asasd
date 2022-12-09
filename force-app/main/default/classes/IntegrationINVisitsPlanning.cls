@@ -26,7 +26,7 @@ global without sharing class IntegrationINVisitsPlanning {
             visit.ExternalId = visit.BpCode + visit.BpPropertyCode + visit.PlanStartDate + visit.PlanEndDate + visit.CtvVisit;
             for (TemplateDataIntegrationFields.TechnicalReportINData report : visit.TechnicalReports){
                 report.ExternalIdVisit = visit.ExternalId;
-                report.ExternalId = visit.ExternalId;// mudar depois quando souber qual sera
+                report.ExternalId = visit.ExternalId + visit.RtrLine;
             }
             technicalReportList.addALL(visit.TechnicalReports);
         }
