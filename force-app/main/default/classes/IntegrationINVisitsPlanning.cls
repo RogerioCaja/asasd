@@ -26,7 +26,7 @@ global without sharing class IntegrationINVisitsPlanning {
             visit.ExternalId = visit.BpCode + visit.BpPropertyCode + visit.PlanStartDate + visit.PlanEndDate + visit.CtvVisit;
             for (TemplateDataIntegrationFields.TechnicalReportINData report : visit.TechnicalReports){
                 report.ExternalIdVisit = visit.ExternalId;
-                report.ExternalId = visit.ExternalId + report.RtrLine;
+                report.ExternalId = visit.ExternalId;
             }
             technicalReportList.addALL(visit.TechnicalReports);
         }
@@ -62,7 +62,7 @@ global without sharing class IntegrationINVisitsPlanning {
             for(TemplateDataIntegrationFields.TechnicalReportINData technical : technicalReportList){
                 for(TemplateDataIntegrationFields.FotosINData photos : technical.Photos){
 
-                    photos.Rtr = technical.ExternalId; 
+                    photos.Rtr = technical.ExternalId + technical.RtrLine; 
                 }
                 photosList.addALL(technical.Photos);
             }
