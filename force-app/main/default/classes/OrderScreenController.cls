@@ -1400,6 +1400,7 @@ public without sharing class OrderScreenController {
         ]) {
             DistrCenterData distrData = new DistrCenterData();
             distrData.centerId = distrCenter.Id;
+            distrData.centerName = distrCenter.Name;
             distrData.code = distrCenter.Code__c;
             distrData.salesOrgName = distrCenter.SalesOrg__r.Name;
             distrData.selected = false;
@@ -1411,6 +1412,7 @@ public without sharing class OrderScreenController {
 
     public class DistrCenterData {
         public String centerId;
+        public String centerName;
         public String code;
         public String salesOrgName;
         public Boolean selected;
