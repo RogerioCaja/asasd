@@ -43,14 +43,22 @@ global with sharing class IntegrationINPhotos {
         Map<String, ContentVersion> contentVersionMap = new Map<String, ContentVersion>();
         Map<String, ContentVersion> contentVersionUpdatedMap = new Map<String, ContentVersion>();
         List<String> contentVersionList = new List<String>();
-        
+        List<String> photoIdList = new List<String>();
         for(Fotos__c photo : photosListToUpsert){
+            photoIdList.add(photo.Id);
             TemplateDataINtegrationFields.FotosINData requestFotos = fotosMap.get(photo.ExternalId__c);
-            ContentVersion cv = new ContentVersion();
-            cv.VersionData = EncodingUtil.base64Decode(requestFotos.Photo);
-            cv.Title = 'Foto';
-            cv.PathOnClient = 'Foto';
-            contentVersionMap.put(photo.ExternalId__c,cv);
+            if(requestFotos.Photo != null && requestFotos.Photo != ''){
+                ContentVersion cv = new ContentVersion();
+                cv.VersionData = EncodingUtil.base64Decode(requestFotos.Photo);
+                cv.Title = 'Foto.png';
+                cv.PathOnClient = 'Foto.png';
+                contentVersionMap.put(photo.ExternalId__c,cv);
+            }
+        }
+        List<String> contendToRemoveListId = new List<String>();
+        List<ContentDocumentLink> contendLinkToRemoveList = new List<ContentDocumentLink>([SELECT Id, LinkedEntityId, ContentDocumentId, IsDeleted, SystemModstamp, ShareType, Visibility FROM ContentDocumentLink WHERE LinkedEntityId IN: photoIdList]);
+        if (!contendLinkToRemoveList.isEmpty()) {
+            Database.delete(contendLinkToRemoveList, false);
         }
         try {
             insert contentVersionMap.values();
@@ -65,15 +73,20 @@ global with sharing class IntegrationINPhotos {
         }
         List<ContentDocumentLink> contentDocumentLinkToInsert = new List<ContentDocumentLink>();
         for(Fotos__c photo : photosListToUpsert){
-            ContentVersion content = contentVersionMap.get(photo.ExternalId__c);
-            ContentVersion contentDocument = contentVersionUpdatedMap.get(content.Id);
-            ContentDocumentLink cdl = new ContentDocumentLink();
-            cdl.ContentDocumentId = contentDocument.ContentDocumentId;
-            cdl.LinkedEntityId = photo.Id;
-            cdl.ShareType = 'V';
-            contentDocumentLinkToInsert.add(cdl);
+            TemplateDataINtegrationFields.FotosINData requestFotos = fotosMap.get(photo.ExternalId__c);
+            if(requestFotos.Photo != null && requestFotos.Photo != ''){
+                ContentVersion content = contentVersionMap.get(photo.ExternalId__c);
+                ContentVersion contentDocument = contentVersionUpdatedMap.get(content.Id);
+                ContentDocumentLink cdl = new ContentDocumentLink();
+                cdl.ContentDocumentId = contentDocument.ContentDocumentId;
+                cdl.LinkedEntityId = photo.Id;
+                cdl.ShareType = 'V';
+                contentDocumentLinkToInsert.add(cdl);
+            }
         }
-        insert contentDocumentLinkToInsert;
+        if (!contentDocumentLinkToInsert.isEmpty()) {
+            insert contentDocumentLinkToInsert;
+        }
         return responseMap;
     }
 }
