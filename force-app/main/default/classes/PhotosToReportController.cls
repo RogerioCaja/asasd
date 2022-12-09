@@ -3,8 +3,10 @@ public without sharing class PhotosToReportController {
 
     @AuraEnabled
     public static String createPhoto(String base64, String filename, String rtrId, String observation){
-       
+        String externalIdRtr = [SELECT ExternalId__c FROM TechnicalReport__c WHERE Id =: rtrId LIMIT 1].ExternalId__c;
+        Integer numberPhotos = [SELECT COUNT() FROM Fotos__c WHERE RTR__c =: rtrId];
         Fotos__c photo = new Fotos__c(
+            ExternalId__c = externalIdRtr + '_' + (++numberPhotos),
             Observation__c = observation,
             RTR__c = rtrId
         );
