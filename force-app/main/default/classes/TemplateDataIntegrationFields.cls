@@ -785,16 +785,20 @@ global with sharing class TemplateDataIntegrationFields {
     global class TechnicalReportINData implements FieldDataChild{
         public String Observation;
         public String ExternalIdVisit;
+        public String RtrLine;
         public String ExternalId;
         public Time EndTime;
         public Date EndDate;
         public String Status;
         public String CancellationReason;
+        public List<TemplateDataIntegrationFields.FotosINData> Photos;
 
         public TechnicalReport__c serialize(Map<String, Id> lookups){
             return new TechnicalReport__c(
-                VisitPlanning__c = lookups.containsKey('Visit'+this.ExternalId) ? lookups.get('Visit'+this.ExternalId) : null,
+                VisitPlanning__c = lookups.containsKey('Visit'+this.ExternalIdVisit) ? lookups.get('Visit'+this.ExternalIdVisit) : null,
                 Note__c = this.Observation,
+                ExternalId__c = this.ExternalId + this.RtrLine,
+                rtrControl__c = Decimal.valueOf(this.RtrLine),
                 EndTime__c = this.EndTime,
                 EndDate__c = this.EndDate,
                 Status__c = this.Status,
@@ -805,6 +809,41 @@ global with sharing class TemplateDataIntegrationFields {
         public List<String> getRequiredFields(){
             return new List<String>{
 
+            };
+        }
+
+        public String getFieldKey(){
+            return 'Id';
+        }
+
+        public String getFieldExternal(){
+            return 'ExternalId__c';
+        }
+
+        public String getParentKey(){
+            return 'OrderId';
+        }
+    }
+
+    global class FotosINData implements FieldDataChild{
+        public String Photo;
+        public String filename;
+        public String Rtr;
+        public String FileLine;
+        public String ExternalId;
+        public String Observation;
+        
+        public Fotos__c serialize(Map<String, Id> lookups){
+            return new Fotos__c(
+                RTR__c = lookups.containsKey('Technical'+this.Rtr) ? lookups.get('Technical'+this.Rtr) : null,
+                Observation__c = this.Observation,
+                ExternalId__c = this.ExternalId,
+                FotoControl__c = Decimal.valueOf(this.FileLine)
+            );
+        }
+
+        public List<String> getRequiredFields(){
+            return new List<String>{
             };
         }
 
