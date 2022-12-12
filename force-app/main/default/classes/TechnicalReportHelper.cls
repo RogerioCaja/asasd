@@ -1,7 +1,6 @@
 public without sharing class TechnicalReportHelper {
     public TechnicalReportHelper() {
     }
-
     private static Boolean isEnabled;
 
     static{
@@ -19,7 +18,6 @@ public without sharing class TechnicalReportHelper {
     public static Boolean enableTrigger(){
         return isEnabled = true;
     }
-    
     public static void incrementLineItem(List<TechnicalReport__c> tech){
         List<String> visitIds = new List<String>();
         for(TechnicalReport__c techRep : tech){
