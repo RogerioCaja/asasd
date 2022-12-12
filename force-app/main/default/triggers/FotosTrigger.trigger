@@ -1,10 +1,10 @@
 trigger FotosTrigger on Fotos__c (before insert) {
 
-    FotosTriggerHandler handler = new TechnicalReportTriggerHandler(
+    FotosTriggerHandler handler = new FotosTriggerHandler(
         Trigger.old, Trigger.new, Trigger.oldMap, Trigger.newMap
     );
 
-    if (Product2Helper.isTriggerEnabled()){
+    if (FotosHelper.isTriggerEnabled()){
         switch on Trigger.operationType {
             when AFTER_INSERT {
                 
