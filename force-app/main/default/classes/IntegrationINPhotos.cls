@@ -8,7 +8,7 @@ global with sharing class IntegrationINPhotos {
         Map<String,TemplateDataINtegrationFields.FotosINData> fotosMap = new Map<String,TemplateDataINtegrationFields.FotosINData>(); 
 
         for(TemplateDataIntegrationFields.FotosINData photos : request){
-            fotosMap.put(photos.ExternalId, photos);
+            fotosMap.put(photos.ExternalId + photos.FileLine, photos);
             technicalLookup.add(photos.Rtr);
         }
         for (TechnicalReport__c visit : [SELECT Id, ExternalId__c FROM TechnicalReport__c WHERE ExternalId__c IN: technicalLookup ]) {
@@ -34,12 +34,12 @@ global with sharing class IntegrationINPhotos {
             lookups,
             parentMapKeys
         );
-     
+     	FotosHelper.disableTrigger();
         List<Database.UpsertResult> upsResults = Database.upsert(photosListToUpsert, Fotos__c.ExternalId__c, false);
 
         System.debug('upsResults' + upsResults);
         IntegrationUtils.upsertChildRecords(upsResults, responseMap, photosListToUpsert, Fotos__c.ExternalId__c);
-        
+        FotosHelper.enableTrigger();
         Map<String, ContentVersion> contentVersionMap = new Map<String, ContentVersion>();
         Map<String, ContentVersion> contentVersionUpdatedMap = new Map<String, ContentVersion>();
         List<String> contentVersionList = new List<String>();
