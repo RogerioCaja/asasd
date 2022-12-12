@@ -39,14 +39,18 @@ public without sharing class TechnicalReportHelper {
             String visit = mapVisitPlanning.get(techRepIncrement.VisitPlanning__c);
             System.debug('Visti ' + visit);
             if(!mapTechnicalReport.containsKey(techRepIncrement.VisitPlanning__c)){
-                techRepIncrement.rtrControl__c = 10;
-                System.debug('Teste ' + techRepIncrement.visitplanning__r.ExternalId__c);
-                techRepIncrement.ExternalId__c = visit + techRepIncrement.rtrControl__c;
+                if(techRepIncrement.ExternalId__c == null){
+                    techRepIncrement.rtrControl__c = 10;
+                    System.debug('Teste ' + techRepIncrement.visitplanning__r.ExternalId__c);
+                    techRepIncrement.ExternalId__c = visit + techRepIncrement.rtrControl__c;
+                }
             }
             else {
-                TechnicalReport__c techReportNew = mapTechnicalReport.get(techRepIncrement.VisitPlanning__c);
-                techRepIncrement.rtrControl__c = (techReportNew.rtrControl__c + 10);
-                techRepIncrement.ExternalId__c = visit + techRepIncrement.rtrControl__c;
+                if(techRepIncrement.ExternalId__c == null){
+                    TechnicalReport__c techReportNew = mapTechnicalReport.get(techRepIncrement.VisitPlanning__c);
+                    techRepIncrement.rtrControl__c = (techReportNew.rtrControl__c + 10);
+                    techRepIncrement.ExternalId__c = visit + techRepIncrement.rtrControl__c;
+                }
             }
         }
     }
