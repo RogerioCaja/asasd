@@ -832,14 +832,13 @@ global with sharing class TemplateDataIntegrationFields {
             return new Fotos__c(
                 RTR__c = lookups.containsKey('Technical'+this.Rtr) ? lookups.get('Technical'+this.Rtr) : null,
                 Observation__c = this.Observation,
-                ExternalId__c = this.ExternalId + this.FileLine,
+                ExternalId__c = this.ExternalId,
                 FotoControl__c = Decimal.valueOf(this.FileLine)
             );
         }
 
         public List<String> getRequiredFields(){
             return new List<String>{
-
             };
         }
 
