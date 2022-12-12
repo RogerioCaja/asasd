@@ -85,11 +85,16 @@
     <relatedLists>
         <excludeButtons>MassChangeOwner</excludeButtons>
         <fields>NAME</fields>
+        <fields>Product__c</fields>
+        <fields>MinQuantity__c</fields>
         <relatedList>FormerProduct__c.ComboPromotion__c</relatedList>
     </relatedLists>
     <relatedLists>
         <excludeButtons>MassChangeOwner</excludeButtons>
         <fields>NAME</fields>
+        <fields>Product__c</fields>
+        <fields>MinQuantity__c</fields>
+        <fields>DiscountPercentage__c</fields>
         <relatedList>BenefitProduct__c.ComboPromotion__c</relatedList>
     </relatedLists>
     <relatedLists>
@@ -119,7 +124,7 @@
     <showRunAssignmentRulesCheckbox>false</showRunAssignmentRulesCheckbox>
     <showSubmitAndAttachButton>false</showSubmitAndAttachButton>
     <summaryLayout>
-        <masterLabel>00h8N000000OheI</masterLabel>
+        <masterLabel>00hP00000055YL8</masterLabel>
         <sizeX>4</sizeX>
         <sizeY>0</sizeY>
         <summaryLayoutStyle>Default</summaryLayoutStyle>
