@@ -1,4 +1,4 @@
-global with sharing class IntegrationINOrderItem {
+global without sharing class IntegrationINOrderItem {
     public IntegrationINOrderItem() {
     }
     // Integração do OrderItem Upsert
@@ -164,7 +164,7 @@ global with sharing class IntegrationINOrderItem {
         CommercialMargin__c, DiscountValue__c, ExternalId__c, FinalTotalValue__c, FinancialDiscountPercent__c,
         FinancialDiscountValue__c, FinancialAdditionPercent__c, FinancialAdditionValue__c,
         CommercialAdditionPercent__c, CommercialAdditionValue__c, Dosage__c, ListCost__c, NumeroSap__c,
-        PracticedCost__c, PracticedPrice__c, UnitPrice, Sieve__c, Class__c, FreightValue__c, RoyaltyAmount__c, TSIValue__c, TotalRoyaltyAmount__c, TotalTSIAmount__c FROM OrderItem WHERE ExternalId__c IN: idsOrderItem]);
+        PracticedCost__c, PracticedPrice__c, UnitPrice, Sieve__c, Class__c, FreightValue__c, RoyaltyAmount__c, TSIValue__c, TotalRoyaltyAmount__c, TotalTSIAmount__c, PricebookEntryId FROM OrderItem WHERE ExternalId__c IN: idsOrderItem]);
     
         for(OrderItem ordItem : orderItemSelectList){
             orderItemsIdsMap.put(ordItem.ExternalId__c, ordItem);
@@ -186,13 +186,7 @@ global with sharing class IntegrationINOrderItem {
                         System.debug('lookups ' + lookups);
                     }
                 }
-                
-                if(orderItem.material == null || orderItem.material == ''){
-                    if(ordItem.Product2Id != null){
-                        orderItem.material = ordItem.Product2.ProductCode__c;
-                        lookups.put('PricebookEntry' + ordItem.Product2.ProductCode__c, ordItem.Product2Id);
-                    } 
-                }
+            
                 
     
                 if(orderItem.material == null || orderItem.material == ''){
@@ -309,6 +303,10 @@ global with sharing class IntegrationINOrderItem {
 
                 if(OrderItem.valorTotalZtra == null){
                     OrderItem.valorTotalZtra = ordItem.TotalTSIAmount__c;
+                }
+
+                if(OrderItem.pricebookEntryId == null || OrderItem.pricebookEntryId == ''){
+                    OrderItem.pricebookEntryId = ordItem.PricebookEntryId;
                 }
             }
         }

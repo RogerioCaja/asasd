@@ -393,6 +393,7 @@ global with sharing class TemplateDataIntegrationFields {
                 PaymentForm__c = this.paymentForm,
                 StatusSF__c = (this.CodigoSap != null && this.CodigoSap != '') ? 'Integrado' :'Em digitação',
                 Currency__c = this.CurrencyOrder,
+                CurrencyIsoCode = this.CurrencyOrder,
                 Incoterms__c = this.incoterms,
                 Incoterms2__c = this.incoterms,
                 Description = this.description + '1n73gr4ção N3sc4r4 5F x 4PP',
@@ -465,15 +466,17 @@ global with sharing class TemplateDataIntegrationFields {
         public Decimal valorTotalZroy;
         public Decimal valorZtra;
         public Decimal valorTotalZtra;
+        public String currencyOrder;
+        public String pricebookEntryId; // Passar do Order para o OrderItem.
         public OrderItem serialize(Map<String, Id> lookups){
 
             
             orderItemCode = orderItemCode.replaceFirst('^0+','');
-            
             return new OrderItem(
                 OrderId = this.orderExternalId,
                 Product2Id = lookups.containsKey('Product2'+this.material) ? lookups.get('Product2'+this.material) : null,
-                PricebookEntryId = lookups.containsKey('PricebookEntry'+ this.material) ? lookups.get('PricebookEntry' + this.material) : null,
+                //PricebookEntryId = lookups.containsKey('PricebookEntry'+ this.material) ? lookups.get('PricebookEntry' + this.material) : null,
+                PricebookEntryId = this.pricebookEntryId,
                 //ProductCode = this.material,
                 ExternalId__c = this.orderExternalId + '|' + this.orderItemCode,
                 Quantity = this.quantidade,
