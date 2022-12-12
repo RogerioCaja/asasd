@@ -8,7 +8,7 @@ global with sharing class IntegrationINPhotos {
         Map<String,TemplateDataINtegrationFields.FotosINData> fotosMap = new Map<String,TemplateDataINtegrationFields.FotosINData>(); 
 
         for(TemplateDataIntegrationFields.FotosINData photos : request){
-            fotosMap.put(photos.ExternalId + photos.FileLine, photos);
+            fotosMap.put(photos.ExternalId, photos);
             technicalLookup.add(photos.Rtr);
         }
         for (TechnicalReport__c visit : [SELECT Id, ExternalId__c FROM TechnicalReport__c WHERE ExternalId__c IN: technicalLookup ]) {
