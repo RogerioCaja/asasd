@@ -32,11 +32,11 @@ global with sharing class IntegrationINTechnicalReport {
             lookups,
             parentMapKeys
         );
-
+        TechnicalReportHelper.disableTrigger();
         List<Database.UpsertResult> upsResults = Database.upsert(technicalReportListToUpsert, TechnicalReport__c.ExternalId__c, false);
         System.debug('upsResults' + upsResults);
         IntegrationUtils.upsertChildRecords(upsResults, responseMap, technicalReportListToUpsert, TechnicalReport__c.ExternalId__c);
-
+        TechnicalReportHelper.enableTrigger();
         return responseMap;
     }
 }
