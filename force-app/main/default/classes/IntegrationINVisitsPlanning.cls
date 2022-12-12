@@ -56,8 +56,8 @@ global without sharing class IntegrationINVisitsPlanning {
             VisitPlanning__c.ExternalId__c
         );
 
-        Map<String, List<TemplateDataIntegrationFields.Response>> orderCommodityResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
-        
+        Map<String, List<TemplateDataIntegrationFields.Response>> visitsTechnicalResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
+        Map<String, List<TemplateDataIntegrationFields.Response>> photosResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
         if(technicalReportList.size() != 0){
             for(TemplateDataIntegrationFields.TechnicalReportINData technical : technicalReportList){
                 for(TemplateDataIntegrationFields.FotosINData photos : technical.Photos){
@@ -66,26 +66,48 @@ global without sharing class IntegrationINVisitsPlanning {
                 }
                 photosList.addALL(technical.Photos);
             }
-            orderCommodityResponse.putAll(
+            visitsTechnicalResponse.putAll(
                 IntegrationINTechnicalReport.upsertTechnicalReport(technicalReportList)
             );
-            System.debug('orderCommodityResponse' + orderCommodityResponse);
         }
         if(photosList.size() != 0){
-            orderCommodityResponse.putAll(
+            photosResponse.putAll(
                 IntegrationINPhotos.upsertPhotos(photosList)
             );
-            System.debug('orderCommodityResponse' + orderCommodityResponse);
         }
+        //Associating child object's response with object response
+        // Pega todas as respostas dos OrderItem
+        for(TemplateDataIntegrationFields.ResponseParent response : responseList){
+            response.items = new List<TemplateDataIntegrationFields.Response>();
 
+            
+            System.debug('visitsTechnicalResponse=>'+visitsTechnicalResponse);
+            System.debug('photosResponse=>'+photosResponse);
+            
+            if(visitsTechnicalResponse.size() != 0 && visitsTechnicalResponse.containsKey(response.idSalesforce)){
+                response.items.addAll(visitsTechnicalResponse.get(response.idSalesforce));
+                
+            }
+            if(photosResponse.size() != 0 && photosResponse.containsKey(response.idSalesforce)){
+                response.items.addAll(photosResponse.get(response.idSalesforce));
+                
+            }
+        }
         //Checking integration errors to log
         // Verifica erros de integração para o log
         Boolean hasError = false;
 
-        for(TemplateDataIntegrationFields.ResponseParent responseInvoice : responseList){
-            if(responseInvoice.status == false){
+        for(TemplateDataIntegrationFields.ResponseParent responseOrder : responseList){
+            if(responseOrder.status == false){
                 hasError = true;
                 break;
+            } else {
+                for(TemplateDataIntegrationFields.Response response : responseOrder.items){
+                    if(response.status == false){
+                        hasError = true;
+                        break;
+                    }
+                }
             }
         }
 		
