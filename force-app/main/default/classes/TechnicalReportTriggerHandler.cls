@@ -1,4 +1,4 @@
-public with sharing class TechnicalReportTriggerHandler {
+public without sharing class TechnicalReportTriggerHandler {
    
         List<TechnicalReport__c> oldRecords {get; set;} // Trigger.old 
         List<TechnicalReport__c> newRecords {get; set;} // Trigger.new
