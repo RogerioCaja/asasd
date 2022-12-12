@@ -33,7 +33,8 @@ export default class OrderProductScreen extends LightningElement {
         columnUnitPrice: true,
         columnTotalPrice: true,
         columnProductGroupName: true,
-        columnCommercialDiscountPercentage: true
+        columnCommercialDiscountPercentage: true,
+        columnContainsCombo: true
     }
 
     companyResult=[];
@@ -322,6 +323,7 @@ export default class OrderProductScreen extends LightningElement {
             comboId: this.isFilled(currentProduct.comboId) ? currentProduct.comboId : null,
             industryCombo: this.isFilled(currentProduct.comboId) ? currentProduct.industryCombo : false,
             containsCombo: this.isFilled(currentProduct.comboId) ? true : false,
+            containsComboString: this.isFilled(currentProduct.comboId) ? 'Sim' : 'Não',
             formerItem: this.isFilled(currentProduct.formerItem) ? currentProduct.formerItem : false,
             benefitItem: this.isFilled(currentProduct.benefitItem) ? currentProduct.benefitItem : false,
             tListPrice: this.isFilled(currentProduct.tListPrice) ? currentProduct.tListPrice : 0,
@@ -458,9 +460,7 @@ export default class OrderProductScreen extends LightningElement {
                 .then((result) => {
                     let safraResult = JSON.parse(result);
                     this.safraData = {initialDate:safraResult.initialDate,endDate:safraResult.endDateBilling};
-
-                    let orderData = {paymentDate:this.headerData.data_pagamento != null ? this.headerData.data_pagamento : '',salesOrg:this.selectedCompany.salesOrgId != null ? this.selectedCompany.salesOrgId : '',salesOffice:this.selectedCompany.salesOfficeId != null ? this.selectedCompany.salesOfficeId : '',salesTeam:this.selectedCompany.salesTeamId != null ? this.selectedCompany.salesTeamId : '',salesCondition:this.salesConditionId != null ? this.salesConditionId : '',safra:this.headerData.safra.Id != null ? this.headerData.safra.Id  : '',culture:this.headerData.cultura.Id != null ? this.headerData.cultura.Id : ''};
-
+                    let orderData = {paymentDate:this.headerData.data_pagamento != null ? this.headerData.data_pagamento : '',salesOrg:this.selectedCompany.salesOrgId != null ? this.selectedCompany.salesOrgId : '',salesOffice:this.selectedCompany.salesOfficeId != null ? this.selectedCompany.salesOfficeId : '',salesTeam:this.selectedCompany.salesTeamId != null ? this.selectedCompany.salesTeamId : '',salesCondition:this.salesConditionId != null ? this.salesConditionId : '',safra:this.headerData.safra.Id != null ? this.headerData.safra.Id : '',culture:this.headerData.cultura.Id != null ? this.headerData.cultura.Id : ''};
                     let allowChange = (this.headerData.tipo_pedido != 'Pedido Filho' && !this.headerData.IsOrderChild && this.isFilled(this.headerData.codigo_sap)) ||
                                     (this.headerData.tipo_pedido == 'Pedido Filho' && this.isFilled(this.headerData.codigo_sap)) ? false : true;
                             
@@ -490,6 +490,7 @@ export default class OrderProductScreen extends LightningElement {
                                     currentItem.comboId = formerItens[index].comboId;
                                     currentItem.industryCombo = formerItens[index].industryCombo;
                                     currentItem.containsCombo = true;
+                                    currentItem.containsComboString = 'Sim';
                                     currentItem.formerItem = true;
                                     currentItem = this.emptyDiscounFields(currentItem);
                                     comboItens.push(currentItem);
@@ -515,6 +516,7 @@ export default class OrderProductScreen extends LightningElement {
                                     currentItem.comboId = formerItens[index].comboId;
                                     currentItem.industryCombo = formerItens[index].industryCombo;
                                     currentItem.containsCombo = true;
+                                    currentItem.containsComboString = 'Sim';
                                     currentItem.benefitItem = true;
                                     currentItem = this.emptyDiscounFields(currentItem);
                                     currentItem.comboDiscountPercent = benefitItens[index].discountPercentage + '%';
@@ -596,6 +598,7 @@ export default class OrderProductScreen extends LightningElement {
                         getMixAndConditionCombos({data: JSON.stringify(headerValues)})
                         .then((result) => {
                             let combosAndPromotions = JSON.parse(result);
+                            console.log('combosAndPromotions: ' + JSON.stringify(combosAndPromotions));
                             if (combosAndPromotions.length > 0) this.combosData = combosAndPromotions;
                         });
                     }
@@ -853,8 +856,11 @@ export default class OrderProductScreen extends LightningElement {
             rListPrice: this.isFilled(priorityInfos.rListPrice) ? priorityInfos.rListPrice : 0,
             rListPriceFront: this.isFilled(priorityInfos.rListPrice) ? 'R$' + this.fixDecimalPlacesFront(priorityInfos.rListPrice) : 'R$0',
             royaltyTotalPrice: 0,
-            royaltyTotalPriceFront: 0
+            royaltyTotalPriceFront: 0,
+            brokeragePerUnit: this.isFilled(currentProduct.brokeragePerUnit) ? currentProduct.brokeragePerUnit : '',
+            containsComboString: 'Não'
         };
+        newProductData.containsComboString = newProductData.containsCombo ? 'Sim' : 'Não';
         return newProductData;
     }
 
@@ -886,6 +892,7 @@ export default class OrderProductScreen extends LightningElement {
         if (this.isSelected(this.selectedColumns.columnproductSubgroupName)) selectedColumns.push({label: 'Subgrupo do Produto', fieldName: 'productSubgroupName'})
         if (this.isSelected(this.selectedColumns.columnSieve)) selectedColumns.push({label: 'Peneira', fieldName: 'sieve'})
         if (this.isSelected(this.selectedColumns.columnProductClass)) selectedColumns.push({label: 'Classe/Categoria', fieldName: 'productClass'})
+        if (this.isSelected(this.selectedColumns.columnContainsCombo)) selectedColumns.push({label: 'Produto Combo', fieldName: 'containsComboString'})
         if (selectedColumns.length >= 2) {
             selectedColumns.push({
                 type: 'action',
@@ -1262,6 +1269,7 @@ export default class OrderProductScreen extends LightningElement {
                 prod.unitPrice = this.fixDecimalPlaces(prod.totalPrice / prod.quantity);
                 prod.unitPriceFront = this.fixDecimalPlacesFront(prod.unitPrice);
                 prod.containsCombo = true;
+                prod.containsComboString = prod.containsCombo ? 'Sim' : 'Não';
 
                 let allCombos = JSON.parse(JSON.stringify(this.combosSelecteds));
                 let currentCombo = allCombos.find(e => e.comboId == comboDiscountPercent.comboId);
@@ -1304,11 +1312,13 @@ export default class OrderProductScreen extends LightningElement {
         if (this.isFilled(this.combosData)) {
             let combos = JSON.parse(JSON.stringify(this.combosData));
             for (let index = 0; index < combos.length; index++) {
-                let groupsData = combos[index].groupQuantities;
-                if (this.isFilled(groupsData)) {
-                    let productGroupCombo = groupsData.find(e => e.productGroupId == this.addProduct.productGroupId);
-                    if (this.isFilled(productGroupCombo) && quantity >= productGroupCombo.quantity && combos[index].recTypeDevName == 'ProductMix') {
-                        return {discount: combos[index].comboDiscountPercentage,comboId: combos[index].comboId,industryCombo: combos[index].comboType == 'Indústria',comboQuantity: Math.floor(quantity / productGroupCombo.quantity)};
+                if (combos[index].recTypeDevName == 'ProductMix') {
+                    let groupsData = combos[index].groupQuantities;
+                    if (this.isFilled(groupsData)) {
+                        let productGroupCombo = groupsData.find(e => e.productId == this.addProduct.productId);
+                        if (this.isFilled(productGroupCombo) && quantity >= productGroupCombo.quantity && combos[index].recTypeDevName == 'ProductMix') {
+                            return {discount: combos[index].comboDiscountPercentage,comboId: combos[index].comboId,industryCombo: combos[index].comboType == 'Indústria',comboQuantity: Math.floor(quantity / productGroupCombo.quantity)};
+                        }
                     }
                 }
             }
@@ -1324,7 +1334,6 @@ export default class OrderProductScreen extends LightningElement {
                 }
             }
         }
-
         return null;
     }
 
@@ -1638,6 +1647,7 @@ export default class OrderProductScreen extends LightningElement {
                     excludeProduct[index].comboId = null;
                     excludeProduct[index].industryCombo = false;
                     excludeProduct[index].containsCombo = false;
+                    excludeProduct[index].containsComboString = 'Não';
                     excludeProduct[index].formerItem = false;
                     excludeProduct[index].benefitItem = false;
                 }
@@ -1656,7 +1666,6 @@ export default class OrderProductScreen extends LightningElement {
                 if (allCombos[index].comboId == comboId) allCombos[index].comboQuantity = 0;
             }
 
-            console.log('JSON.stringify(allCombos): ' + JSON.stringify(allCombos));
             this.combosData = JSON.parse(JSON.stringify(allCombos));
             this._setcombosSelecteds();
         }
@@ -1822,7 +1831,6 @@ export default class OrderProductScreen extends LightningElement {
         const setItems = new CustomEvent('sethandlenext');
         setItems.data = false;
         this.dispatchEvent(setItems);
-
         let allCombos = JSON.parse(JSON.stringify(this.combosSelecteds));
         this.itensToRemove = [];
         this.comboProducts.formerIds = [];
@@ -1842,13 +1850,7 @@ export default class OrderProductScreen extends LightningElement {
             }
         }
 
-        let getCompanyData = {
-            ctvId: this.headerData.ctv_venda.Id != null ? this.headerData.ctv_venda.Id : '',
-            accountId: this.accountData.Id != null ? this.accountData.Id : '',
-            orderType: this.headerData.tipo_venda,
-            approvalNumber: 1
-        }
-
+        let getCompanyData = {ctvId: this.headerData.ctv_venda.Id != null ? this.headerData.ctv_venda.Id : '',accountId: this.accountData.Id != null ? this.accountData.Id : '',orderType: this.headerData.tipo_venda,approvalNumber: 1};
         if ((this.isFilled(this.comboProducts.formerIds) && this.comboProducts.formerIds.length > 0) ||
             (this.isFilled(this.comboProducts.benefitsIds) && this.comboProducts.benefitsIds.length > 0)) {
             this.checkCombo = true;
@@ -1894,7 +1896,6 @@ export default class OrderProductScreen extends LightningElement {
         let orderTotalCost = 0;
         let productsQuantity = 0;
         let totalDiscount = 0;
-
         for (let index = 0; index < this.products.length; index++) {
             totalProducts += Number(this.products[index].totalPrice);
             orderTotalCost += Number(this.products[index].practicedCost) * Number(this.products[index].quantity);
@@ -1904,7 +1905,6 @@ export default class OrderProductScreen extends LightningElement {
 
         let chooseCommodity = this.commodities.find(e => e.Id == event.target.dataset.targetId);
         let marginPercent = ((1 - (orderTotalCost / totalProducts)) * 100);
-
         this.selectedCommodity = {
             id: chooseCommodity.Id,
             name: chooseCommodity.Name,
@@ -1934,7 +1934,6 @@ export default class OrderProductScreen extends LightningElement {
                 return;
             }
         }
-
         this.commoditiesData.push({
             product: this.selectedCommodity.name,
             productId: this.selectedCommodity.id,
@@ -1997,7 +1996,6 @@ export default class OrderProductScreen extends LightningElement {
             this.showToast('warning', 'Atenção', 'Campos Obrigatórios não preenchidos.');
             return false;
         }
-
         if(deliveryAddress.trim() == "") {
             this.showToast('warning', 'Atenção', 'Campos Obrigatórios não preenchidos.');
             return false;
@@ -2010,7 +2008,6 @@ export default class OrderProductScreen extends LightningElement {
         this.chooseCommodities = false;
         this.commoditySelected = false;
         this.summaryScreen = false;
-
         if(this.currentScreen== 'fillCommodity' && this.commodityScreens[this.commodityScreens.indexOf(this.currentScreen) + 1] == 'negotiationDetails'){
             if(!this.verifyConditions(this.selectedCommodity.startDate, this.selectedCommodity.endDate, this.selectedCommodity.deliveryAddress)){
                 this.commoditySelected = true;
@@ -2028,7 +2025,6 @@ export default class OrderProductScreen extends LightningElement {
         this.selectCommodityScreen = false;
         this.commoditySelected = false;
         this.summaryScreen = false;
-
         this.currentScreen = this.commodityScreens[this.commodityScreens.indexOf(this.currentScreen) - 1];
         if (this.currentScreen == 'chooseCommodity') {this.selectCommodityScreen = true;this.chooseCommodities = true;}
         if (this.currentScreen == 'fillCommodity') this.commoditySelected = true;
@@ -2041,7 +2037,6 @@ export default class OrderProductScreen extends LightningElement {
             let orderTotalCost = 0;
             let productsQuantity = 0;
             let totalDiscount = 0;
-
             for (let index = 0; index < this.products.length; index++) {
                 totalProducts += Number(this.products[index].totalPrice);
                 orderTotalCost += Number(this.products[index].practicedCost) * Number(this.products[index].quantity);
@@ -2061,7 +2056,6 @@ export default class OrderProductScreen extends LightningElement {
             currentCommodityValues.marginValueFront = this.fixDecimalPlacesFront(((totalProducts * marginPercent) / 100) / Number(currentCommodityValues.cotation)) + ' sacas';
             currentCommodityValues.totalDelivery = Math.ceil((totalProducts / currentCommodityValues.cotation)) + ' sacas';
             currentCommodityValues.totalDeliveryFront = Math.ceil((totalProducts / currentCommodityValues.cotation)) + ' sacas';
-
             this.commoditiesData = [];
             this.commoditiesData.push(currentCommodityValues);
             this._setCommodityData();
