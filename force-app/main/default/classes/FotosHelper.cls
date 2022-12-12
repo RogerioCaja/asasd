@@ -17,7 +17,7 @@ public without sharing class FotosHelper {
     public static Boolean enableTrigger(){
         return isEnabled = true;
     }
-    
+
     public static void incrementItem(List<Fotos__c> fotosList){
 
         List<string> rtrList = new List<String>();
@@ -45,13 +45,13 @@ public without sharing class FotosHelper {
             String rtr = mapTechnicalReport.get(fotosIncrement.RTR__c);
             
             if(!fotosMap.containsKey(fotosIncrement.RTR__c)){
-                fotosIncrement.fotosControl__c = 10;
-                fotosIncrement.ExternalId__c = rtr+fotosIncrement.fotosControl__c;
+                fotosIncrement.FotoControl__c = 10;
+                fotosIncrement.ExternalId__c = rtr+fotosIncrement.FotoControl__c;
             }
             else{
                 Fotos__c fotosNew = fotosMap.get(fotosIncrement.RTR__c);
-                fotosIncrement.fotosControl__c = (fotosNew.fotosControl__c + 10);
-                fotosIncrement.ExternalId__c = rtr + fotosIncrement.fotosControl__c;
+                fotosIncrement.FotoControl__c = (fotosNew.FotoControl__c + 10);
+                fotosIncrement.ExternalId__c = rtr + fotosIncrement.FotoControl__c;
             }
         }
     }
