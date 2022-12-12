@@ -798,7 +798,7 @@ global with sharing class TemplateDataIntegrationFields {
                 VisitPlanning__c = lookups.containsKey('Visit'+this.ExternalIdVisit) ? lookups.get('Visit'+this.ExternalIdVisit) : null,
                 Note__c = this.Observation,
                 ExternalId__c = this.ExternalId,
-                rtrControl__c = this.FileLine,
+                rtrControl__c = Decimal.valueOf(this.RtrLine),
                 EndTime__c = this.EndTime,
                 EndDate__c = this.EndDate,
                 Status__c = this.Status,
@@ -838,7 +838,7 @@ global with sharing class TemplateDataIntegrationFields {
                 RTR__c = lookups.containsKey('Technical'+this.Rtr) ? lookups.get('Technical'+this.Rtr) : null,
                 Observation__c = this.Observation,
                 ExternalId__c = this.ExternalId + this.FileLine,
-                FotoControl__c = this.FileLine
+                FotoControl__c = Decimal.valueOf(this.FileLine)
             );
         }
 
