@@ -34,12 +34,12 @@ global with sharing class IntegrationINPhotos {
             lookups,
             parentMapKeys
         );
-     
+     	FotosHelper.disableTrigger();
         List<Database.UpsertResult> upsResults = Database.upsert(photosListToUpsert, Fotos__c.ExternalId__c, false);
 
         System.debug('upsResults' + upsResults);
         IntegrationUtils.upsertChildRecords(upsResults, responseMap, photosListToUpsert, Fotos__c.ExternalId__c);
-        
+        FotosHelper.enableTrigger();
         Map<String, ContentVersion> contentVersionMap = new Map<String, ContentVersion>();
         Map<String, ContentVersion> contentVersionUpdatedMap = new Map<String, ContentVersion>();
         List<String> contentVersionList = new List<String>();

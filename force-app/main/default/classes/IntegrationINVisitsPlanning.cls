@@ -61,8 +61,8 @@ global without sharing class IntegrationINVisitsPlanning {
         if(technicalReportList.size() != 0){
             for(TemplateDataIntegrationFields.TechnicalReportINData technical : technicalReportList){
                 for(TemplateDataIntegrationFields.FotosINData photos : technical.Photos){
-
                     photos.Rtr = technical.ExternalId + technical.RtrLine; 
+                    photos.ExternalId = photos.Rtr + photos.FileLine;
                 }
                 photosList.addALL(technical.Photos);
             }
