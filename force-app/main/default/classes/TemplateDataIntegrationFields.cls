@@ -792,7 +792,7 @@ global with sharing class TemplateDataIntegrationFields {
             return new TechnicalReport__c(
                 VisitPlanning__c = lookups.containsKey('Visit'+this.ExternalIdVisit) ? lookups.get('Visit'+this.ExternalIdVisit) : null,
                 Note__c = this.Observation,
-                ExternalId__c = this.ExternalId,
+                ExternalId__c = this.ExternalId + this.RtrLine,
                 rtrControl__c = Decimal.valueOf(this.RtrLine),
                 EndTime__c = this.EndTime,
                 EndDate__c = this.EndDate,
