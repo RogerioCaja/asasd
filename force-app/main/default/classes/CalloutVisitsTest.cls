@@ -110,6 +110,5 @@
             CalloutVisits.sendOrder(visitList);
             Test.stopTest();
             
-            System.debug(model);
         }
     }
