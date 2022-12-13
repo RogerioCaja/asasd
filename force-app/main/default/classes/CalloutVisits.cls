@@ -237,5 +237,3 @@ public without sharing class CalloutVisits {
             public String NumeroOrdemVenda;
         }
     }
-    
-}
