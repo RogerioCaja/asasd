@@ -2,8 +2,16 @@
 @page { 
     margin: 0;
     padding: 0;
+    
+     @bottom-center {
+        content: element(footer);
+    }
 } 
 
+ div.footer {
+    display: block;
+    position: running(footer);
+}
 
 .page-header img {
     width: 100%;
