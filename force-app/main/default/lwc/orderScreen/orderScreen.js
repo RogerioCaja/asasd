@@ -699,6 +699,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.handlePrevious();
             this.disableNextScreen();
             this.showNotification('Necessário incluir ao menos um produto', 'Atenção!', 'warning');
+            return;
         }
         
         if (!this.checkProductDivisionAndCommodities()) {
@@ -730,6 +731,9 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
                     break;
                 }
             }
+        }else{
+            enableScreen = false;
+            this.customErrorMessage = 'É preciso criar remessa para todos os produtos selecionados';
         }
         
         if (this.headerData.tipo_venda == 'Venda Barter' && (this.commodityData == undefined || this.commodityData == null || this.commodityData.length == 0)) {

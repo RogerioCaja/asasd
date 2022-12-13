@@ -390,13 +390,31 @@ export default class OrderSummaryScreen extends LightningElement {
             }
         }
 
+        let availableDivisions = [];
+        let divisions = JSON.parse(JSON.stringify(this.divisionData));
+        console.log('divisions: ' + JSON.stringify(divisions));
+        for (let index = 0; index < divisions.length; index++) {
+            console.log('divisions[index].productId: ' + divisions[index].productId);
+            let deletedProduct = this.unavailableProducts.find(e => e.productId == divisions[index].productId);
+            if (!this.isFilled(deletedProduct)) {
+                console.log('add - divisions[index].productId: ' + divisions[index].productId);
+                availableDivisions.push(divisions[index]);
+            }
+        }
+
+        console.log('availableDivisions: ' + JSON.stringify(availableDivisions));
+
         this.showUnavailableProducts = false;
         this.productData = JSON.parse(JSON.stringify(availableProducts));
         this._setProductData();
+
+        this.divisionData = JSON.parse(JSON.stringify(availableDivisions));
+        this._setDivisionData();
         if (availableProducts.length > 0) {
             this.loadData();
         }
     }
+    
     changeFreightValue(event) {
         let fieldValue = event.target.value;
         fieldValue = fieldValue.toString().includes('.') ? fieldValue.toString().replace('.', '') : fieldValue;
@@ -528,13 +546,13 @@ export default class OrderSummaryScreen extends LightningElement {
             value = 0.01;
             allPayments.push(this.createDefaultValues('Germoplasma'));
 
-            if (this.tsiTotalPrice > 0) {
-                tsiValue = 0.01;
-                allPayments.push(this.createDefaultValues('TSI'));
-            }
             if (this.royaltiesTotalPrice > 0) {
                 royaltiesValue = 0.01;
                 allPayments.push(this.createDefaultValues('Royalties'));
+            }
+            if (this.tsiTotalPrice > 0) {
+                tsiValue = 0.01;
+                allPayments.push(this.createDefaultValues('TSI'));
             }
             this.formsOfPayment = JSON.parse(JSON.stringify(allPayments));
 
@@ -626,7 +644,7 @@ export default class OrderSummaryScreen extends LightningElement {
         for (let index = 0; index < allPayments.length; index++) {
             let checkFields = allPayments[index];
             let pushValue = true;
-            if (allPayments[index].paymentType != '' && allPayments[index].paymentDay != '' && allPayments[index].value != '') {
+            if (this.isFilled(allPayments[index].paymentType) && this.isFilled(allPayments[index].paymentDay) && this.isFilled(allPayments[index].value)) {
                 if (checkFields.paymentKey != '') {
                     for (let i = 0; i < groupedFormsOfPayment.length; i++) {
                         if (groupedFormsOfPayment[i].paymentKey == checkFields.paymentKey) {
@@ -695,6 +713,7 @@ export default class OrderSummaryScreen extends LightningElement {
         setformsofpayment.data = this.formsOfPayment;
         this.dispatchEvent(setformsofpayment);
     }
+    
     changeFreight(){
         const setSummaryData = new CustomEvent('setsummarydata');
         setSummaryData.data = this.summaryDataLocale;
@@ -735,6 +754,12 @@ export default class OrderSummaryScreen extends LightningElement {
         const setProductData = new CustomEvent('setproductdata');
         setProductData.data = this.productData;
         this.dispatchEvent(setProductData);
+    }
+
+    _setDivisionData() {
+        const setdivisiondata = new CustomEvent('setdivisiondata');
+        setdivisiondata.data = this.divisionData;
+        this.dispatchEvent(setdivisiondata);
     }
    
     isFilled(field) {

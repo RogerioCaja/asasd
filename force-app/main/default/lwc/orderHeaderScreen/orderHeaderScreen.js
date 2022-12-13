@@ -424,7 +424,7 @@ export default class OrderHeaderScreen extends LightningElement {
             return;
         }else if(this.headerDictLocale[this.sequentialDict[index]] != ' ' && this.headerDictLocale[this.sequentialDict[index]] != null){
             let name = this.sequentialDict[index];
-            if(name == 'condicao_venda'  && this.headerData['moeda'] != ' ' && this.headerDictLocale['safra'].hasOwnProperty("Id")){
+            if(name == 'condicao_venda'  && this.headerDictLocale['moeda'] != ' ' && this.headerDictLocale['safra'].hasOwnProperty("Id")){
                 let condition = "condicao_venda";
                 setTimeout(()=>this.template.querySelector(`[data-name="${condition}"]`).disabled = false);
             }
@@ -456,6 +456,9 @@ export default class OrderHeaderScreen extends LightningElement {
             if(this.headerData){
                 this.fieldKey = true;
                 this.headerDictLocale = JSON.parse(JSON.stringify(this.headerData));
+                if(this.childOrder || this.headerData.IsOrderChild){
+                    this.salesOrgId = this.headerData.organizacao_vendas.Id;
+                }
                 if (this.headerDictLocale.tipo_venda == 'Venda Conta e Ordem' || this.headerDictLocale.tipo_venda == 'Venda Entrega Futura' || this.headerDictLocale.tipo_venda == 'Venda Normal') {
                     this.allowMotherOrder = true;
                 } else {
@@ -562,6 +565,7 @@ export default class OrderHeaderScreen extends LightningElement {
                     if(field == 'safra'){
                         this.safraName = record.Name;
                     }
+
                     if(field == 'condicao_venda'){
                         this.setDateLimit();
                     }
@@ -655,8 +659,9 @@ export default class OrderHeaderScreen extends LightningElement {
         });
         setTimeout(()=>this.template.querySelector('[data-target-id="data_pagamento"]').value =  " ");
         this.headerData = JSON.parse(JSON.stringify(this.headerDictLocale));
+
     }
-    
+
     removeItemRegisterByField(field){
         this.headerDictLocale[field] = {};
         this.headerDictLocale.isCompleted = false;

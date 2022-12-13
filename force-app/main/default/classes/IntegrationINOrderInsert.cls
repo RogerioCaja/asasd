@@ -61,7 +61,6 @@ global without sharing class IntegrationINOrderInsert {
             
             order.hectare = order.hectare == null ? 1 : order.hectare;
             order.company = order.PaymentAccount + order.CentroFornecedor + order.salesOrg + order.activitySector + order.distributionChannel + order.EscritorioVendas + order.EquipeVendas;
-
             companyLookups.add(order.company);
 
             

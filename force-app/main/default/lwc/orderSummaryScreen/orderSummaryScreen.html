@@ -154,6 +154,7 @@
                 <th>Produto(Código-Nome)</th>
                 <th>U. M.</th>
                 <th>Quantidade</th>
+                <th>Produto Combo</th>
                 <th if:false={isBarter}>Preço Praticado</th>
                 <!-- <th if:true={isBarter}>Preço por saca</th> -->
                 <th if:false={isBarter}>Preço Total</th>
@@ -170,6 +171,8 @@
                         <td>{product.sapProductCode} - {product.name}  </td>
                         <td>{product.unity}</td>
                         <td>{product.quantity}</td>
+                        <td if:true={product.containsCombo}>Sim</td>
+                        <td if:false={product.containsCombo}>Não</td>
                         <td if:false={isBarter}>{product.unitPrice}</td>
                         <td if:false={isBarter}>{product.totalPrice}</td>
                         <td if:false={isBarter}>{product.commercialDiscountValue}</td>
@@ -262,6 +265,7 @@
                         <div key={distrCenter.centerId} class="company-card">
                             <div class="container">
                                 <div class="company-card-01">
+                                    <p><b>Nome do Centro Fornecedor:</b> {distrCenter.centerName}</p>
                                     <p><b>Centro Fornecedor:</b> {distrCenter.code}</p>
                                     <p><b>Organização de Vendas:</b> {distrCenter.salesOrgName}</p>
                                 </div>
@@ -434,7 +438,7 @@
           
     <template if:true={showFreightScreen}>
         <div class="modal">
-            <div class="modal-content"  style="width: 350px; border-radius: 5px;">
+            <div class="modal-content" style="width: 500px; border-radius: 5px; margin-top: 189px;">
                 <span class="close" onclick={closeFreightScreen}>&times;</span>
                 <p class="new-product-title">Frete do pedido</p>
 
