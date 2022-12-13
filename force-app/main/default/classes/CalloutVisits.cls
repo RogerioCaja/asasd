@@ -12,15 +12,15 @@ public without sharing class CalloutVisits {
             }
             List<TechnicalReport__c> technicalReportList  = new List<TechnicalReport__c>([SELECT id, ExternalId__c, Note__c, VisitPlanning__c, EndTime__c, EndDate__c, Status__c, CancellationReason__c FROM TechnicalReport__c WHERE VisitPlanning__c =: visitIdList]);
             Map<String, List<TechnicalReport__c>> technicalReportMap = new Map<String, List<TechnicalReport__c>>();
-            for (VisitPlanning__c technical : technicalReportList) {
+            for (TechnicalReport__c technical : technicalReportList) {
                 technicalReportIdList.add(technical.Id); 
 
                 if(technicalReportMap.containsKey(technical.VisitPlanning__c)){
-                    List<VisitPlanning__c> technicalReportList = technicalReportMap.get(technical.VisitPlanning__c);
-                    technicalReportList.add(technical);
-                    technicalReportMap.put(comp.Conta__r.ExternalId__c,technicalReportList);
+                    List<TechnicalReport__c> newTechnicalReportList = technicalReportMap.get(technical.VisitPlanning__c);
+                    newTechnicalReportList.add(technical);
+                    technicalReportMap.put(technical.VisitPlanning__c,newTechnicalReportList);
                 }else{
-                    List<VisitPlanning__c> newTechnicalReportList = new List<VisitPlanning__c>();
+                    List<TechnicalReport__c> newTechnicalReportList = new List<TechnicalReport__c>();
                     newTechnicalReportList.add(technical);
                     technicalReportMap.put(technical.VisitPlanning__c,newTechnicalReportList);
                 }
@@ -53,9 +53,9 @@ public without sharing class CalloutVisits {
 
             for (VisitPlanning__c visit : planningVisitsList) {
                 //criar map string,List technicalReport 
-                List<VisitPlanning__c> technicalReportList = technicalReportMap.get(visit.Id); 
-                request.add(new RequestParameters(visit,technicalReportList));
-                
+                List<VisitPlanning__c> newTechnicalReportList = technicalReportMap.get(visit.Id); 
+                request.add(new RequestParameters(visit,newTechnicalReportList));
+
             }
             String code = (!Test.isRunningTest() ? getAcessCode() : 'acessToken');
             System.debug('AcessCode: '+ code);
@@ -134,10 +134,10 @@ public without sharing class CalloutVisits {
                 header.ReasonCancellation = visit.CancellationReason__c;
 
 
-                List<CalloutCTVCarteira.TechnicalReportsParameters> technicalReportList= new List<CalloutCTVCarteira.TechnicalReportsParameters>();
+                List<CalloutVisits.TechnicalReportsParameters> technicalReportList= new List<CalloutVisits.TechnicalReportsParameters>();
                 
-                for(TechnicalReport__c technical : technicalReportList){
-                    technicalReportList.add(new CalloutCTVCarteira.TechnicalReportsParameters(technical));
+                for(CalloutVisits technical : technicalReportList){
+                    technicalReportList.add(new CalloutVisits.TechnicalReportsParameters(technical));
                     System.debug('technicalReportList'+ technicalReportList);
                 }
     
