@@ -785,6 +785,7 @@ global with sharing class TemplateDataIntegrationFields {
     global class TechnicalReportINData implements FieldDataChild{
         public String Observation;
         public String ExternalIdVisit;
+        public String RtrLine;
         public String ExternalId;
         public Time EndTime;
         public Date EndDate;
@@ -796,7 +797,8 @@ global with sharing class TemplateDataIntegrationFields {
             return new TechnicalReport__c(
                 VisitPlanning__c = lookups.containsKey('Visit'+this.ExternalIdVisit) ? lookups.get('Visit'+this.ExternalIdVisit) : null,
                 Note__c = this.Observation,
-                ExternalId__c = this.ExternalIdVisit,
+                ExternalId__c = this.ExternalId + this.RtrLine,
+                rtrControl__c = Decimal.valueOf(this.RtrLine),
                 EndTime__c = this.EndTime,
                 EndDate__c = this.EndDate,
                 Status__c = this.Status,
@@ -827,6 +829,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String Photo;
         public String filename;
         public String Rtr;
+        public String FileLine;
         public String ExternalId;
         public String Observation;
         
@@ -834,13 +837,13 @@ global with sharing class TemplateDataIntegrationFields {
             return new Fotos__c(
                 RTR__c = lookups.containsKey('Technical'+this.Rtr) ? lookups.get('Technical'+this.Rtr) : null,
                 Observation__c = this.Observation,
-                ExternalId__c = this.ExternalId
+                ExternalId__c = this.ExternalId,
+                FotoControl__c = Decimal.valueOf(this.FileLine)
             );
         }
 
         public List<String> getRequiredFields(){
             return new List<String>{
-
             };
         }
 
