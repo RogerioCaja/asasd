@@ -134,14 +134,14 @@ public without sharing class CalloutVisits {
             header.ReasonCancellation = visit.CancellationReason__c;
 
 
-            List<CalloutVisits.TechnicalReportsParameters> technicalReportList= new List<CalloutVisits.TechnicalReportsParameters>();
+            List<CalloutVisits.TechnicalReportsParameters> newtechnicalReportList= new List<CalloutVisits.TechnicalReportsParameters>();
             
             for(CalloutVisits technical : technicalReportList){
-                technicalReportList.add(new CalloutVisits.TechnicalReportsParameters(technical));
+                newtechnicalReportList.add(new CalloutVisits.TechnicalReportsParameters(technical));
                 System.debug('technicalReportList'+ technicalReportList);
             }
 
-            header.TechnicalReports = technicalReportList;
+            header.TechnicalReports = newtechnicalReportList;
             this.header = header;
         }
     }
@@ -200,7 +200,7 @@ public without sharing class CalloutVisits {
             technical.EndDate = technicalReport.EndDate__c;
             technical.Status = technicalReport.Status__c;
             technical.CancellationReason = technicalReport.CancellationReason__c;
-            technical.RtrLine = technicalReport.rtrControl__c;
+            technical.RtrLine = String.valueOf(technicalReport.rtrControl__c);
             technical.ExternalCodeTechnical = technicalReport.ExternalId__c;
         }
     }
