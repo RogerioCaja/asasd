@@ -1660,13 +1660,16 @@ export default class OrderProductScreen extends LightningElement {
             selectedCombos.splice(indexToRemove, 1);
             this.combosSelecteds = JSON.parse(JSON.stringify(selectedCombos));
 
-            let allCombos = JSON.parse(JSON.stringify(this.combosData));
-            for (let index = 0; index < allCombos.length; index++) {
-                if (allCombos[index].comboId == comboId) allCombos[index].comboQuantity = 0;
-            }
+            if (this.isFilled(this.combosData)) {
+                let allCombos = JSON.parse(JSON.stringify(this.combosData));
+                for (let index = 0; index < allCombos.length; index++) {
+                    if (allCombos[index].comboId == comboId) allCombos[index].comboQuantity = 0;
+                }
 
-            this.combosData = JSON.parse(JSON.stringify(allCombos));
-            this._setcombosSelecteds();
+                console.log('JSON.stringify(allCombos): ' + JSON.stringify(allCombos));
+                this.combosData = JSON.parse(JSON.stringify(allCombos));
+                this._setcombosSelecteds();
+            }
         }
 
         excludedProducts.push(excludeProduct[counter].orderItemId);

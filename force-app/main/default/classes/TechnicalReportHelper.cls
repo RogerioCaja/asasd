@@ -1,6 +1,23 @@
 public without sharing class TechnicalReportHelper {
     public TechnicalReportHelper() {
     }
+    private static Boolean isEnabled;
+
+    static{
+        isEnabled = true;
+    }
+
+    public static Boolean isTriggerEnabled(){
+        return isEnabled;
+    }
+
+    public static Boolean disableTrigger(){
+        return isEnabled = false;
+    }
+
+    public static Boolean enableTrigger(){
+        return isEnabled = true;
+    }
     public static void incrementLineItem(List<TechnicalReport__c> tech){
         List<String> visitIds = new List<String>();
         for(TechnicalReport__c techRep : tech){
@@ -22,14 +39,18 @@ public without sharing class TechnicalReportHelper {
             String visit = mapVisitPlanning.get(techRepIncrement.VisitPlanning__c);
             System.debug('Visti ' + visit);
             if(!mapTechnicalReport.containsKey(techRepIncrement.VisitPlanning__c)){
-                techRepIncrement.rtrControl__c = 10;
-                System.debug('Teste ' + techRepIncrement.visitplanning__r.ExternalId__c);
-                techRepIncrement.ExternalId__c = visit + techRepIncrement.rtrControl__c;
+                if(techRepIncrement.ExternalId__c == null){
+                    techRepIncrement.rtrControl__c = 10;
+                    System.debug('Teste ' + techRepIncrement.visitplanning__r.ExternalId__c);
+                    techRepIncrement.ExternalId__c = visit + techRepIncrement.rtrControl__c;
+                }
             }
             else {
-                TechnicalReport__c techReportNew = mapTechnicalReport.get(techRepIncrement.VisitPlanning__c);
-                techRepIncrement.rtrControl__c = (techReportNew.rtrControl__c + 10);
-                techRepIncrement.ExternalId__c = visit + techRepIncrement.rtrControl__c;
+                if(techRepIncrement.ExternalId__c == null){
+                    TechnicalReport__c techReportNew = mapTechnicalReport.get(techRepIncrement.VisitPlanning__c);
+                    techRepIncrement.rtrControl__c = (techReportNew.rtrControl__c + 10);
+                    techRepIncrement.ExternalId__c = visit + techRepIncrement.rtrControl__c;
+                }
             }
         }
     }
