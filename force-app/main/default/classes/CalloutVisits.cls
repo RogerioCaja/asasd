@@ -136,7 +136,7 @@ public without sharing class CalloutVisits {
 
             List<CalloutVisits.TechnicalReportsParameters> newtechnicalReportList= new List<CalloutVisits.TechnicalReportsParameters>();
             
-            for(CalloutVisits technical : technicalReportList){
+            for(TechnicalReport__c technical : technicalReportList){
                 newtechnicalReportList.add(new CalloutVisits.TechnicalReportsParameters(technical));
                 System.debug('technicalReportList'+ technicalReportList);
             }
