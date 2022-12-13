@@ -53,7 +53,7 @@ public without sharing class CalloutVisits {
 
         for (VisitPlanning__c visit : planningVisitsList) {
             //criar map string,List technicalReport 
-            List<VisitPlanning__c> newTechnicalReportList = technicalReportMap.get(visit.Id); 
+            List<TechnicalReport__c> newTechnicalReportList = technicalReportMap.get(visit.Id); 
             request.add(new RequestParameters(visit,newTechnicalReportList));
 
         }
