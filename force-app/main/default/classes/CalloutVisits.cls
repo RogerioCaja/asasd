@@ -191,17 +191,16 @@ public without sharing class CalloutVisits {
         public String RtrLine;
         public String ExternalCodeTechnical;
         
-        public List<CalloutVisits.PhotosParameters> Photos;
+        //public List<CalloutVisits.PhotosParameters> Photos;
         public TechnicalReportsParameters(TechnicalReport__c technicalReport){
-            CalloutVisits.TechnicalReportsParameters technical = new CalloutVisits.TechnicalReportsParameters();
 
-            technical.Observation = technicalReport.Note__c;
-            technical.EndTime = technicalReport.EndTime__c;
-            technical.EndDate = technicalReport.EndDate__c;
-            technical.Status = technicalReport.Status__c;
-            technical.CancellationReason = technicalReport.CancellationReason__c;
-            technical.RtrLine = String.valueOf(technicalReport.rtrControl__c);
-            technical.ExternalCodeTechnical = technicalReport.ExternalId__c;
+            this.Observation = technicalReport.Note__c;
+            this.EndTime = technicalReport.EndTime__c;
+            this.EndDate = technicalReport.EndDate__c;
+            this.Status = technicalReport.Status__c;
+            this.CancellationReason = technicalReport.CancellationReason__c;
+            this.RtrLine = String.valueOf(technicalReport.rtrControl__c);
+            this.ExternalCodeTechnical = technicalReport.ExternalId__c;
         }
     }
 
