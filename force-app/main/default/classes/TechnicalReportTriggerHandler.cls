@@ -16,21 +16,21 @@ public without sharing class TechnicalReportTriggerHandler {
             TechnicalReportHelper.incrementLineItem(this.newRecords);
         }
         
-        public void OnAfterInsert(){
+        // public void OnAfterInsert(){
         
-        }
+        // }
         
-        public void OnBeforeUpdate(){
+        // public void OnBeforeUpdate(){
     
-        }
+        // }
         
-        public void OnAfterUpdate(){
-        }
+        // public void OnAfterUpdate(){
+        // }
         
-        public void OnBeforeDelete(){}
+        // public void OnBeforeDelete(){}
         
-        public void OnAfterDelete(){}
+        // public void OnAfterDelete(){}
         
-        public void OnUndelete(){}
+        // public void OnUndelete(){}
 
 }
