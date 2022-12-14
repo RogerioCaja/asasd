@@ -27,7 +27,7 @@ public without sharing class CalloutVisits {
         }
         List<Fotos__c> photoList  = new List<Fotos__c>([SELECT id, RTR__c, Observation__c, ExternalId__c, FotoControl__c, IsIntegrated__c FROM Fotos__c WHERE RTR__c =: technicalReportIdList AND IsIntegrated__c = false]);
         Map<String, List<Fotos__c>> fotoMap = new Map<String, List<Fotos__c>>();
-        Map<String, List<Fotos__c>> fotoIdMap = new Map<String, List<Fotos__c>>();
+        Map<String, Fotos__c> fotoIdMap = new Map<String, Fotos__c>();
         for(Fotos__c fotos : photoList){
             fotoIdMap.put(fotos.Id,fotos);
             photoIdList.add(fotos.id);
@@ -43,34 +43,16 @@ public without sharing class CalloutVisits {
         }
         List<ContentDocumentLink> contendLinkList = new List<ContentDocumentLink>();
         if(!photoIdList.isEmpty()){
-            contendLinkList = [SELECT Id, LinkedEntityId, ContentDocumentId FROM ContentDocumentLink WHERE LinkedEntityId IN: photoIdList]; 
+            contendLinkList = [SELECT Id, LinkedEntityId, ContentDocumentId, ContentDocument.LatestPublishedVersion.VersionData FROM ContentDocumentLink WHERE LinkedEntityId IN: photoIdList]; 
         }
-        for(ContentDocumentLink contendLink : contendLinkList){
-            contentDocumentIdList.add(contendLink.ContentDocumentId);
-        }
-        Map<Id,ContentVersion> contendVersionMap = new Map<Id,ContentVersion>([SELECT Id, VersionData FROM ContentVersion WHERE Id IN: contentDocumentIdList]);
-        Map<String, Fotos__c> contendVersionphotoMap = new Map<String, Fotos__c>();
-        for(ContentDocumentLink contendLink : contendLinkList){
-            ContentVersion contendVersion = contendVersionMap.get(contendLink.ContentDocumentId);
-            Fotos__c photo = fotoIdMap.get(contendLink.LinkedEntityId);
-            contendVersionphotoMap.put(contendVersion.Id, photo);
-        }
-
-        //para pegar o base64
-        // usando o VersionData
+        System.debug('photoIdList ' + photoIdList);
+        System.debug('contendLinkList ' + contendLinkList);
         Map<String, String> photoBase64Map = new Map<String, String>();
-        for(ContentVersion contend : contendVersionMap.values()){
-            Fotos__c photo = contendVersionphotoMap.get(contend.Id);
-            Http h = new Http();
-            HttpRequest req = new HttpRequest();
-            req.setEndpoint(URL.getSalesforceBaseUrl().toExternalForm() + contend.VersionData);
-            req.setMethod('GET');
-            req.setHeader('Authorization', 'OAuth ' + UserInfo.getSessionId());
-            req.setHeader('Content-Type', 'application/json');
-            HttpResponse res = h.send(req);
-            system.debug(res.getBody());
-            photoBase64Map.put(photo.Id,res.getBody());
+        for(ContentDocumentLink contendLink : contendLinkList){
+            Fotos__c photo = fotoIdMap.get(contendLink.LinkedEntityId);
+            photoBase64Map.put(photo.Id,EncodingUtil.base64Encode(contendLink.ContentDocument.LatestPublishedVersion.VersionData));
         }
+		System.debug('photoBase64Map ' + photoBase64Map);
         
         
 
@@ -199,7 +181,7 @@ public without sharing class CalloutVisits {
         public String FileLine;
         public String ExternalCodePhoto;
         public PhotosParameters(Fotos__c photo, Map<String, String> photoBase64Map){
-            if(photoBase64Map.contains(photo.Id))
+            if(photoBase64Map.containsKey(photo.Id))
                 this.Photo = photoBase64Map.get(photo.Id);
             this.Observation = photo.Observation__c;
             this.FileLine = String.valueOf(photo.FotoControl__c);
