@@ -25,16 +25,29 @@ public without sharing class CalloutVisits {
                 technicalReportMap.put(technical.VisitPlanning__c,newTechnicalReportList);
             }
         }
-        List<Fotos__c> photoList  = new List<Fotos__c>([SELECT id, RTR__c, Observation__c, FotoControl__c, IsIntegrated__c FROM Fotos__c WHERE RTR__c =: technicalReportIdList AND IsIntegrated__c = false]);
-
+        List<Fotos__c> photoList  = new List<Fotos__c>([SELECT id, RTR__c, Observation__c, ExternalId__c, FotoControl__c, IsIntegrated__c FROM Fotos__c WHERE RTR__c =: technicalReportIdList AND IsIntegrated__c = false]);
+        Map<String, List<Fotos__c>> fotoMap = new Map<String, List<Fotos__c>>();
         for(Fotos__c fotos : photoList){
             photoIdList.add(fotos.id);
+            if(fotoMap.containsKey(fotos.RTR__c)){
+                List<Fotos__c> newFotoList = fotoMap.get(fotos.RTR__c);
+                newFotoList.add(fotos);
+                fotoMap.put(fotos.RTR__c,newFotoList);
+            }else{
+                List<Fotos__c> newfotoList = new List<Fotos__c>();
+                newfotoList.add(fotos);
+                fotoMap.put(fotos.RTR__c,newfotoList);
+            }
         }
-        //List<ContentDocumentLink> contendLinkList = new List<ContentDocumentLink>([SELECT Id, LinkedEntityId, ContentDocumentId FROM ContentDocumentLink WHERE LinkedEntityId IN: photoIdList]);
-        //for(ContentDocumentLink contendLink : contendLinkList){
-        //    contentDocumentIdList.add(contendLink.ContentDocumentId);
-        //}
-        //Map<Id,ContentVersion> contendVersionList = new Map<Id,ContentVersion>([SELECT Id, VersionData FROM ContentVersion WHERE Id IN: contentDocumentIdList]);
+        if(!photoIdList.isEmpty()){
+            List<ContentDocumentLink> contendLinkList = new List<ContentDocumentLink>([SELECT Id, LinkedEntityId, ContentDocumentId FROM ContentDocumentLink WHERE LinkedEntityId IN: photoIdList]); 
+        }else{
+            List<ContentDocumentLink> contendLinkList = new List<ContentDocumentLink>();
+        }
+        for(ContentDocumentLink contendLink : contendLinkList){
+            contentDocumentIdList.add(contendLink.ContentDocumentId);
+        }
+        Map<Id,ContentVersion> contendVersionList = new Map<Id,ContentVersion>([SELECT Id, VersionData FROM ContentVersion WHERE Id IN: contentDocumentIdList]);
 
 
         //para pegar o base64
@@ -54,7 +67,7 @@ public without sharing class CalloutVisits {
         for (VisitPlanning__c visit : planningVisitsList) {
             //criar map string,List technicalReport 
             List<TechnicalReport__c> newTechnicalReportList = technicalReportMap.get(visit.Id); 
-            request.add(new RequestParameters(visit,newTechnicalReportList));
+            request.add(new RequestParameters(visit,newTechnicalReportList, fotoMap));
 
         }
         String code = (!Test.isRunningTest() ? getAcessCode() : 'acessToken');
@@ -109,7 +122,7 @@ public without sharing class CalloutVisits {
     public class RequestParameters{
         public Object header;
 
-        public RequestParameters(VisitPlanning__c visit, List<TechnicalReport__c> technicalReportList){
+        public RequestParameters(VisitPlanning__c visit, List<TechnicalReport__c> technicalReportList, Map<String, List<Fotos__c>> fotoMap){
             CalloutVisits.HeaderInsert header = new CalloutVisits.HeaderInsert();
 
             header.Name  = visit.Name;
@@ -137,7 +150,7 @@ public without sharing class CalloutVisits {
             List<CalloutVisits.TechnicalReportsParameters> newtechnicalReportList= new List<CalloutVisits.TechnicalReportsParameters>();
             
             for(TechnicalReport__c technical : technicalReportList){
-                newtechnicalReportList.add(new CalloutVisits.TechnicalReportsParameters(technical));
+                newtechnicalReportList.add(new CalloutVisits.TechnicalReportsParameters(technical, fotoMap));
                 System.debug('technicalReportList'+ technicalReportList);
             }
 
@@ -175,10 +188,11 @@ public without sharing class CalloutVisits {
         public String Observation;
         public String FileLine;
         public String ExternalCodePhoto;
-        public PhotosParameters(Fotos__c photo,Map<String,String> base64PhotoMap){
+        public PhotosParameters(Fotos__c photo){
             //this.Photo = base64PhotoMap.get;
-            //this.Observation = photo;
-            //this.FileLine = photo;
+            this.Observation = photo.Observation__c;
+            this.FileLine = photo.FotoControl__c;
+            this.ExternalCodePhoto = photo.ExternalId__c;
         }
     }
 
@@ -191,8 +205,8 @@ public without sharing class CalloutVisits {
         public String RtrLine;
         public String ExternalCodeTechnical;
         
-        //public List<CalloutVisits.PhotosParameters> Photos;
-        public TechnicalReportsParameters(TechnicalReport__c technicalReport){
+        public List<CalloutVisits.PhotosParameters> Photos;
+        public TechnicalReportsParameters(TechnicalReport__c technicalReport,  Map<String, List<Fotos__c>> fotoMap){
 
             this.Observation = technicalReport.Note__c;
             this.EndTime = technicalReport.EndTime__c;
@@ -201,6 +215,15 @@ public without sharing class CalloutVisits {
             this.CancellationReason = technicalReport.CancellationReason__c;
             this.RtrLine = String.valueOf(technicalReport.rtrControl__c);
             this.ExternalCodeTechnical = technicalReport.ExternalId__c;
+
+            if(fotoMap.containsKey(technicalReport.id)){
+                List<CalloutVisits.PhotosParameters> newPhotoList= new List<CalloutVisits.PhotosParameters>();
+                List<Fotos__c> photoList = fotoMap.get(technicalReport.id);
+                for(Fotos__c photo : photoList){
+                    newPhotoList.add(new CalloutVisits.PhotosParameters(photo));
+                }
+                this.Photos = newPhotoList;
+            }
         }
     }
 
