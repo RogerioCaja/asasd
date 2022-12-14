@@ -190,7 +190,7 @@ public without sharing class CalloutVisits {
         public PhotosParameters(Fotos__c photo){
             //this.Photo = base64PhotoMap.get;
             this.Observation = photo.Observation__c;
-            this.FileLine = String.valueOf(hoto.FotoControl__c);
+            this.FileLine = String.valueOf(photo.FotoControl__c);
             this.ExternalCodePhoto = photo.ExternalId__c;
         }
     }
