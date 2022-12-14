@@ -39,10 +39,9 @@ public without sharing class CalloutVisits {
                 fotoMap.put(fotos.RTR__c,newfotoList);
             }
         }
+        List<ContentDocumentLink> contendLinkList = new List<ContentDocumentLink>();
         if(!photoIdList.isEmpty()){
-            List<ContentDocumentLink> contendLinkList = new List<ContentDocumentLink>([SELECT Id, LinkedEntityId, ContentDocumentId FROM ContentDocumentLink WHERE LinkedEntityId IN: photoIdList]); 
-        }else{
-            List<ContentDocumentLink> contendLinkList = new List<ContentDocumentLink>();
+            contendLinkList = [SELECT Id, LinkedEntityId, ContentDocumentId FROM ContentDocumentLink WHERE LinkedEntityId IN: photoIdList]; 
         }
         for(ContentDocumentLink contendLink : contendLinkList){
             contentDocumentIdList.add(contendLink.ContentDocumentId);
@@ -191,7 +190,7 @@ public without sharing class CalloutVisits {
         public PhotosParameters(Fotos__c photo){
             //this.Photo = base64PhotoMap.get;
             this.Observation = photo.Observation__c;
-            this.FileLine = photo.FotoControl__c;
+            this.FileLine = String.valueOf(hoto.FotoControl__c);
             this.ExternalCodePhoto = photo.ExternalId__c;
         }
     }
