@@ -10,7 +10,7 @@ public without sharing class CalloutVisits {
         for (VisitPlanning__c visit : planningVisitsList) {
             visitIdList.add(visit.Id); 
         }
-        List<TechnicalReport__c> technicalReportList  = new List<TechnicalReport__c>([SELECT id, ExternalId__c, Note__c, VisitPlanning__c, EndTime__c, EndDate__c, Status__c, CancellationReason__c FROM TechnicalReport__c WHERE VisitPlanning__c =: visitIdList]);
+        List<TechnicalReport__c> technicalReportList  = new List<TechnicalReport__c>([SELECT id, ExternalId__c, Note__c, rtrControl__c, VisitPlanning__c, EndTime__c, EndDate__c, Status__c, CancellationReason__c FROM TechnicalReport__c WHERE VisitPlanning__c =: visitIdList]);
         Map<String, List<TechnicalReport__c>> technicalReportMap = new Map<String, List<TechnicalReport__c>>();
         for (TechnicalReport__c technical : technicalReportList) {
             technicalReportIdList.add(technical.Id); 
@@ -30,11 +30,11 @@ public without sharing class CalloutVisits {
         for(Fotos__c fotos : photoList){
             photoIdList.add(fotos.id);
         }
-        List<ContentDocumentLink> contendLinkList = new List<ContentDocumentLink>([SELECT Id, LinkedEntityId, ContentDocumentId FROM ContentDocumentLink WHERE LinkedEntityId IN: photoIdList]);
-        for(ContentDocumentLink contendLink : contendLinkList){
-            contentDocumentIdList.add(contendLink.ContentDocumentId);
-        }
-        Map<Id,ContentVersion> contendVersionList = new Map<Id,ContentVersion>([SELECT Id, VersionData FROM ContentVersion WHERE Id IN: contentDocumentIdList]);
+        //List<ContentDocumentLink> contendLinkList = new List<ContentDocumentLink>([SELECT Id, LinkedEntityId, ContentDocumentId FROM ContentDocumentLink WHERE LinkedEntityId IN: photoIdList]);
+        //for(ContentDocumentLink contendLink : contendLinkList){
+        //    contentDocumentIdList.add(contendLink.ContentDocumentId);
+        //}
+        //Map<Id,ContentVersion> contendVersionList = new Map<Id,ContentVersion>([SELECT Id, VersionData FROM ContentVersion WHERE Id IN: contentDocumentIdList]);
 
 
         //para pegar o base64
