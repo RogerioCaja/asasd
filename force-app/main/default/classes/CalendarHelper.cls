@@ -38,7 +38,7 @@ public static void updateExternalId(List<VisitPlanning__c> visitPlanningList) {
 
     for(VisitPlanning__c visitPlanning : visitPlanningList){
         if(visitPlanning.ExternalId__c == null || visitPlanning.ExternalId__c == '')
-            visitPlanning.ExternalId__c = visitPlanning.MainBP__c + visitPlanning.BP_Property__c + visitPlanning.InitialDate__c + visitPlanning.EndDate__c + visitPlanning.VisitSeller__c;
+           visitPlanning.ExternalId__c = String.valueOf(visitPlanning.MainBP__c) + String.valueOf(visitPlanning.BP_Property__c) + visitPlanning.InitialDate__c + visitPlanning.EndDate__c + String.valueOf(visitPlanning.VisitSeller__c);
     }
 }
 public static void callVisitsIntegration(List<VisitPlanning__c> visitPlanningList) {
