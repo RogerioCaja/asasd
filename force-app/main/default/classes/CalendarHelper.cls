@@ -4,9 +4,11 @@ public with sharing class CalendarHelper {
     }
   
 private static Boolean isEnabled;
+private static Boolean isEnaBledForIntegration;
 
 static{
     isEnabled = true;
+    isEnaBledForIntegration = true;
 }
 
 public static Boolean isTriggerEnabled(){
@@ -21,6 +23,27 @@ public static Boolean enableTrigger(){
     return isEnabled = true;
 }
 
+public static Boolean isTriggerEnabledForIntegration(){
+    return isEnaBledForIntegration;
+}
+
+public static Boolean disableTriggerForIntegration(){
+    return isEnaBledForIntegration = false;
+}
+
+public static Boolean enableTriggerForIntegration(){
+    return isEnaBledForIntegration = true;
+}
+public static void updateExternalId(List<VisitPlanning__c> visitPlanningList) {
+
+    for(VisitPlanning__c visitPlanning : visitPlanningList){
+        if(visitPlanning.ExternalId__c == null || visitPlanning.ExternalId__c == '')
+            visitPlanning.ExternalId__c = visitPlanning.MainBP__c + visitPlanning.BP_Property__c + visitPlanning.InitialDate__c + visitPlanning.EndDate__c + visitPlanning.VisitSeller__c;
+    }
+}
+public static void callVisitsIntegration(List<VisitPlanning__c> visitPlanningList) {
+    CalloutVisits.sendOrder(visitPlanningList);
+}
 
 public static void createCalendarEvent(List<VisitPlanning__c> visitPlanningList) {
     //List<SObject_Visit> visitList = new List<SObject_Visit>();
