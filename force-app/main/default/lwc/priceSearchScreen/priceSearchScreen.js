@@ -133,7 +133,8 @@ export default class PriceSearchScreen extends LightningElement {
                 activitySectorName: companyResult[0].activitySectorName,
                 ctvId: this.isFilled(this.searchData.ctv.Id) ? this.searchData.ctv.Id : '',
                 numberOfRowsToSkip: 0,
-                dontGetSeeds: false
+                dontGetSeeds: false,
+                paymentDate: this.searchData.data_pagamento
             };
 
             let orderData = {
