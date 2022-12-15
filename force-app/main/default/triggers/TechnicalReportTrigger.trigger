@@ -4,7 +4,7 @@ trigger TechnicalReportTrigger on TechnicalReport__c (before insert) {
         Trigger.old, Trigger.new, Trigger.oldMap, Trigger.newMap
     );
 
-    
+    if (TechnicalReportHelper.isTriggerEnabled()) {
         switch on Trigger.operationType {
             // when AFTER_INSERT {
                 
@@ -25,5 +25,6 @@ trigger TechnicalReportTrigger on TechnicalReport__c (before insert) {
             //     //BEFORE DELETE Method
             // }
         }
+    }
     
 }

@@ -836,6 +836,7 @@ global with sharing class TemplateDataIntegrationFields {
         public Fotos__c serialize(Map<String, Id> lookups){
             return new Fotos__c(
                 RTR__c = lookups.containsKey('Technical'+this.Rtr) ? lookups.get('Technical'+this.Rtr) : null,
+                IsIntegrated__c = true,
                 Observation__c = this.Observation,
                 ExternalId__c = this.ExternalId,
                 FotoControl__c = Decimal.valueOf(this.FileLine)
