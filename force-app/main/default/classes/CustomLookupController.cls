@@ -73,15 +73,16 @@ public without sharing class CustomLookupController {
             result.salesResult = salesResult;
 
             Set<String> priceFields = new Set<String>{'Id', 'UnitPrice__c', 'Cost__c', 'Product__c', 'ProductGroup__c', 'Currency__c', 'SalesOrg__c', 'SalesTeam__c', 'Salesteam__r.Name', 'SalesOffice__c', 'Salesoffice__r.Name', 'Account__c', 'Culture__c', 'ProductMultiplier__c', 'ExternalId__c', 'SalesCondition__r.Name', 'RecordType.DeveloperName'};
+            Date dayToConsider = getSeedPrices ? Date.valueOf(productParams.paymentDate) : System.today();
             Q priceQuery = new Q(JurosDescontoAntecipao__c.SObjectType)
                                 .selectFields(priceFields)
                                 .add(Q.condition('RecordTypeId').isIn(pricesRecTypes))
                                 .add(Q.condition('harvest__c').equalsTo(productParams.safra))
                                 .add(Q.condition('SalesOrg__c').equalsTo(salesResult.salesOrgId))
                                 .add(Q.condition('IsActive__c').equalsTo(true))
-                                .add(Q.condition('StartDate__c').isLessOrEquals(System.today()))
-                                .add(Q.condition('EndDate__c').isGreaterOrEquals(System.today()))
-                                .add(Q.condition('SalesCondition__c').equalsTo(productParams.salesConditionId));
+                                .add(Q.condition('SalesCondition__c').equalsTo(productParams.salesConditionId))
+                                .add(Q.condition('StartDate__c').isLessOrEquals(dayToConsider))
+                                .add(Q.condition('EndDate__c').isGreaterOrEquals(dayToConsider));
 
             if (!priceScreen) {
                 priceQuery.add(Q.condition('Currency__c').equalsTo(productParams.productCurrency));
@@ -93,7 +94,6 @@ public without sharing class CustomLookupController {
             Map<Id, List<JurosDescontoAntecipao__c>> productsPriceById = new Map<Id, List<JurosDescontoAntecipao__c>>();
             Set<Id> accountIds = new Set<Id>();
             for(SObject jda : Database.query(priceQuery.build())) {
-                System.debug('jda: ' + jda);
                 if (!productsPriceById.containsKey((Id)jda.get('Product__c'))) {
                     productsPriceById.put((Id)jda.get('Product__c'), new List<JurosDescontoAntecipao__c>{(JurosDescontoAntecipao__c)jda});
                 } else {
@@ -615,6 +615,7 @@ public without sharing class CustomLookupController {
         public String  salesOfficeId;
         public String  salesTeamId;
         public String  activitySectorName;
+        public String  paymentDate;
         public Boolean dontGetSeeds;
         public Integer numberOfRowsToSkip;
     }
