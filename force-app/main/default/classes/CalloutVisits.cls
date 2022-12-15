@@ -27,7 +27,9 @@ public without sharing class CalloutVisits {
         }
         List<Fotos__c> photoList  = new List<Fotos__c>([SELECT id, RTR__c, Observation__c, ExternalId__c, FotoControl__c, IsIntegrated__c FROM Fotos__c WHERE RTR__c =: technicalReportIdList AND IsIntegrated__c = false]);
         Map<String, List<Fotos__c>> fotoMap = new Map<String, List<Fotos__c>>();
+        Map<String, Fotos__c> fotoIdMap = new Map<String, Fotos__c>();
         for(Fotos__c fotos : photoList){
+            fotoIdMap.put(fotos.Id,fotos);
             photoIdList.add(fotos.id);
             if(fotoMap.containsKey(fotos.RTR__c)){
                 List<Fotos__c> newFotoList = fotoMap.get(fotos.RTR__c);
@@ -41,32 +43,23 @@ public without sharing class CalloutVisits {
         }
         List<ContentDocumentLink> contendLinkList = new List<ContentDocumentLink>();
         if(!photoIdList.isEmpty()){
-            contendLinkList = [SELECT Id, LinkedEntityId, ContentDocumentId FROM ContentDocumentLink WHERE LinkedEntityId IN: photoIdList]; 
+            contendLinkList = [SELECT Id, LinkedEntityId, ContentDocumentId, ContentDocument.LatestPublishedVersion.VersionData FROM ContentDocumentLink WHERE LinkedEntityId IN: photoIdList]; 
         }
+        System.debug('photoIdList ' + photoIdList);
+        System.debug('contendLinkList ' + contendLinkList);
+        Map<String, String> photoBase64Map = new Map<String, String>();
         for(ContentDocumentLink contendLink : contendLinkList){
-            contentDocumentIdList.add(contendLink.ContentDocumentId);
+            Fotos__c photo = fotoIdMap.get(contendLink.LinkedEntityId);
+            photoBase64Map.put(photo.Id,EncodingUtil.base64Encode(contendLink.ContentDocument.LatestPublishedVersion.VersionData));
         }
-        Map<Id,ContentVersion> contendVersionList = new Map<Id,ContentVersion>([SELECT Id, VersionData FROM ContentVersion WHERE Id IN: contentDocumentIdList]);
-
-
-        //para pegar o base64
-        /* usando o VersionData
-        Http h = new Http();
-        HttpRequest req = new HttpRequest();
-        req.setEndpoint(URL.getSalesforceBaseUrl().toExternalForm() + '/services/data/v42.0/sobjects/ContentVersion/06890000003oTkqAAE/VersionData');
-        req.setMethod('GET');
-        req.setHeader('Authorization', 'OAuth ' + UserInfo.getSessionId());
-        req.setHeader('Content-Type', 'application/json');
-        HttpResponse res = h.send(req);
-        system.debug(res.getBody());
-        */
-
-        // por aqui
+		System.debug('photoBase64Map ' + photoBase64Map);
+        
+        
 
         for (VisitPlanning__c visit : planningVisitsList) {
             //criar map string,List technicalReport 
             List<TechnicalReport__c> newTechnicalReportList = technicalReportMap.get(visit.Id); 
-            request.add(new RequestParameters(visit,newTechnicalReportList, fotoMap));
+            request.add(new RequestParameters(visit,newTechnicalReportList, fotoMap, photoBase64Map));
 
         }
         String code = (!Test.isRunningTest() ? getAcessCode() : 'acessToken');
@@ -121,7 +114,7 @@ public without sharing class CalloutVisits {
     public class RequestParameters{
         public Object header;
 
-        public RequestParameters(VisitPlanning__c visit, List<TechnicalReport__c> technicalReportList, Map<String, List<Fotos__c>> fotoMap){
+        public RequestParameters(VisitPlanning__c visit, List<TechnicalReport__c> technicalReportList, Map<String, List<Fotos__c>> fotoMap, Map<String, String> photoBase64Map){
             CalloutVisits.HeaderInsert header = new CalloutVisits.HeaderInsert();
 
             header.Name  = visit.Name;
@@ -149,7 +142,7 @@ public without sharing class CalloutVisits {
             List<CalloutVisits.TechnicalReportsParameters> newtechnicalReportList= new List<CalloutVisits.TechnicalReportsParameters>();
             
             for(TechnicalReport__c technical : technicalReportList){
-                newtechnicalReportList.add(new CalloutVisits.TechnicalReportsParameters(technical, fotoMap));
+                newtechnicalReportList.add(new CalloutVisits.TechnicalReportsParameters(technical, fotoMap, photoBase64Map));
                 System.debug('technicalReportList'+ technicalReportList);
             }
 
@@ -187,8 +180,9 @@ public without sharing class CalloutVisits {
         public String Observation;
         public String FileLine;
         public String ExternalCodePhoto;
-        public PhotosParameters(Fotos__c photo){
-            //this.Photo = base64PhotoMap.get;
+        public PhotosParameters(Fotos__c photo, Map<String, String> photoBase64Map){
+            if(photoBase64Map.containsKey(photo.Id))
+                this.Photo = photoBase64Map.get(photo.Id);
             this.Observation = photo.Observation__c;
             this.FileLine = String.valueOf(photo.FotoControl__c);
             this.ExternalCodePhoto = photo.ExternalId__c;
@@ -205,7 +199,7 @@ public without sharing class CalloutVisits {
         public String ExternalCodeTechnical;
         
         public List<CalloutVisits.PhotosParameters> Photos;
-        public TechnicalReportsParameters(TechnicalReport__c technicalReport,  Map<String, List<Fotos__c>> fotoMap){
+        public TechnicalReportsParameters(TechnicalReport__c technicalReport,  Map<String, List<Fotos__c>> fotoMap, Map<String, String> photoBase64Map){
 
             this.Observation = technicalReport.Note__c;
             this.EndTime = technicalReport.EndTime__c;
@@ -219,7 +213,7 @@ public without sharing class CalloutVisits {
                 List<CalloutVisits.PhotosParameters> newPhotoList= new List<CalloutVisits.PhotosParameters>();
                 List<Fotos__c> photoList = fotoMap.get(technicalReport.id);
                 for(Fotos__c photo : photoList){
-                    newPhotoList.add(new CalloutVisits.PhotosParameters(photo));
+                    newPhotoList.add(new CalloutVisits.PhotosParameters(photo, photoBase64Map));
                 }
                 this.Photos = newPhotoList;
             }
