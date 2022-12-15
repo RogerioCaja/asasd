@@ -1,4 +1,4 @@
-trigger CalendarTrigger on VisitPlanning__c (before insert, before update) {
+trigger CalendarTrigger on VisitPlanning__c (before insert, before update, after insert, after update) {
 
 
     CalendarTriggerHandler handler = new CalendarTriggerHandler(
