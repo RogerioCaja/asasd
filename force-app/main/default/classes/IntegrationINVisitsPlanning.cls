@@ -48,14 +48,14 @@ global without sharing class IntegrationINVisitsPlanning {
         
         FactoryDataIntegration.convertSObject(new VisitPlanning__c(), 'IN', request, responseList, visitsListToUpsert, lookups);
         System.debug('visitListToUpsert First' + visitsListToUpsert);  
-
+        CalendarHelper.disableTriggerForIntegration();
 		IntegrationUtils.upsertRecords(
             Database.upsert(visitsListToUpsert, VisitPlanning__c.ExternalId__c, false), 
             responseList, 
             visitsListToUpsert, 
             VisitPlanning__c.ExternalId__c
         );
-
+        CalendarHelper.enableTriggerForIntegration();
         Map<String, List<TemplateDataIntegrationFields.Response>> visitsTechnicalResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
         Map<String, List<TemplateDataIntegrationFields.Response>> photosResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
         if(technicalReportList.size() != 0){
