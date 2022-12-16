@@ -10,6 +10,10 @@ public without sharing class CalloutVisits {
         for (VisitPlanning__c visit : planningVisitsList) {
             visitIdList.add(visit.Id); 
         }
+        List<VisitPlanning__c> visitUpdatedList = new List<VisitPlanning__c>([SELECT Id,Name, MainBP__r.ExternalId__c, BP_Property__r.ExternalId__c, InitialDate__c, EndDate__c, StartTime__c, EndTime__c, 
+            Status__c, Objetivo__c, Safra__r.Code__c, Culture__r.Codigo__c, Email__c, Presential__c, Reminder__c, Displacement__c, VisitSeller__r.CodigoSap__c, Note__c, ReschedulingReason__c, 
+            CancellationReason__c, ExternalId__c FROM VisitPlanning__c WHERE id IN: visitIdList]);
+
         List<TechnicalReport__c> technicalReportList  = new List<TechnicalReport__c>([SELECT id, ExternalId__c, Note__c, rtrControl__c, VisitPlanning__c, EndTime__c, EndDate__c, Status__c, CancellationReason__c FROM TechnicalReport__c WHERE VisitPlanning__c =: visitIdList]);
         Map<String, List<TechnicalReport__c>> technicalReportMap = new Map<String, List<TechnicalReport__c>>();
         for (TechnicalReport__c technical : technicalReportList) {
@@ -40,6 +44,7 @@ public without sharing class CalloutVisits {
                 newfotoList.add(fotos);
                 fotoMap.put(fotos.RTR__c,newfotoList);
             }
+            fotos.IsIntegrated__c = true;
         }
         List<ContentDocumentLink> contendLinkList = new List<ContentDocumentLink>();
         if(!photoIdList.isEmpty()){
@@ -56,12 +61,18 @@ public without sharing class CalloutVisits {
         
         
 
-        for (VisitPlanning__c visit : planningVisitsList) {
+        for (VisitPlanning__c visit : visitUpdatedList) {
             //criar map string,List technicalReport 
             List<TechnicalReport__c> newTechnicalReportList = technicalReportMap.get(visit.Id); 
             request.add(new RequestParameters(visit,newTechnicalReportList, fotoMap, photoBase64Map));
 
         }
+        if(!photoList.isEmpty()){
+            FotosHelper.disableTrigger();
+            upsert photoList;
+            FotosHelper.enableTrigger();
+        }
+
         String code = (!Test.isRunningTest() ? getAcessCode() : 'acessToken');
         System.debug('AcessCode: '+ code);
         String payload = JSON.serialize(request);
