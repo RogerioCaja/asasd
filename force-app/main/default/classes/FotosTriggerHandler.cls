@@ -19,7 +19,6 @@ public without sharing class FotosTriggerHandler {
         
         public void OnAfterInsert(){
             FotosHelper.callVisitsIntegration(this.newRecords);
-            FotosHelper.isIntegrated(this.newRecords, true);
         }
         
         public void OnBeforeUpdate(){
@@ -28,7 +27,6 @@ public without sharing class FotosTriggerHandler {
         
         public void OnAfterUpdate(){
            FotosHelper.callVisitsIntegration(this.newRecords);
-           FotosHelper.isIntegrated(this.newRecords, true);
         }
         
         public void OnBeforeDelete(){}

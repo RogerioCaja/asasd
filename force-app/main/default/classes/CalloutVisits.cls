@@ -40,6 +40,7 @@ public without sharing class CalloutVisits {
                 newfotoList.add(fotos);
                 fotoMap.put(fotos.RTR__c,newfotoList);
             }
+            fotos.IsIntegrated__c = true;
         }
         List<ContentDocumentLink> contendLinkList = new List<ContentDocumentLink>();
         if(!photoIdList.isEmpty()){
@@ -62,6 +63,12 @@ public without sharing class CalloutVisits {
             request.add(new RequestParameters(visit,newTechnicalReportList, fotoMap, photoBase64Map));
 
         }
+        if(!photoList.isEmpty()){
+            FotosHelper.disableTrigger();
+            upsert photoList;
+            FotosHelper.enableTrigger();
+        }
+
         String code = (!Test.isRunningTest() ? getAcessCode() : 'acessToken');
         System.debug('AcessCode: '+ code);
         String payload = JSON.serialize(request);
