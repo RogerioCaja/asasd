@@ -10,6 +10,10 @@ public without sharing class CalloutVisits {
         for (VisitPlanning__c visit : planningVisitsList) {
             visitIdList.add(visit.Id); 
         }
+        List<VisitPlanning__c> visitUpdatedList = new List<VisitPlanning__c>([SELECT Id,Name, MainBP__r.ExternalId__c, BP_Property__r.ExternalId__c, InitialDate__c, EndDate__c, StartTime__c, EndTime__c, 
+            Status__c, Objetivo__c, Safra__r.Code__c, Culture__r.Codigo__c, Email__c, Presential__c, Reminder__c, Displacement__c, VisitSeller__r.CodigoSap__c, Note__c, ReschedulingReason__c, 
+            CancellationReason__c, ExternalId__c FROM VisitPlanning__c WHERE id IN: visitIdList]);
+
         List<TechnicalReport__c> technicalReportList  = new List<TechnicalReport__c>([SELECT id, ExternalId__c, Note__c, rtrControl__c, VisitPlanning__c, EndTime__c, EndDate__c, Status__c, CancellationReason__c FROM TechnicalReport__c WHERE VisitPlanning__c =: visitIdList]);
         Map<String, List<TechnicalReport__c>> technicalReportMap = new Map<String, List<TechnicalReport__c>>();
         for (TechnicalReport__c technical : technicalReportList) {
@@ -40,6 +44,7 @@ public without sharing class CalloutVisits {
                 newfotoList.add(fotos);
                 fotoMap.put(fotos.RTR__c,newfotoList);
             }
+            fotos.IsIntegrated__c = true;
         }
         List<ContentDocumentLink> contendLinkList = new List<ContentDocumentLink>();
         if(!photoIdList.isEmpty()){
@@ -56,12 +61,18 @@ public without sharing class CalloutVisits {
         
         
 
-        for (VisitPlanning__c visit : planningVisitsList) {
+        for (VisitPlanning__c visit : visitUpdatedList) {
             //criar map string,List technicalReport 
             List<TechnicalReport__c> newTechnicalReportList = technicalReportMap.get(visit.Id); 
             request.add(new RequestParameters(visit,newTechnicalReportList, fotoMap, photoBase64Map));
 
         }
+        if(!photoList.isEmpty()){
+            FotosHelper.disableTrigger();
+            upsert photoList;
+            FotosHelper.enableTrigger();
+        }
+
         String code = (!Test.isRunningTest() ? getAcessCode() : 'acessToken');
         System.debug('AcessCode: '+ code);
         String payload = JSON.serialize(request);
@@ -139,13 +150,15 @@ public without sharing class CalloutVisits {
             header.ReasonCancellation = visit.CancellationReason__c;
 
 
-            List<CalloutVisits.TechnicalReportsParameters> newtechnicalReportList= new List<CalloutVisits.TechnicalReportsParameters>();
-            
-            for(TechnicalReport__c technical : technicalReportList){
-                newtechnicalReportList.add(new CalloutVisits.TechnicalReportsParameters(technical, fotoMap, photoBase64Map));
-                System.debug('technicalReportList'+ technicalReportList);
+            List<CalloutVisits.TechnicalReportsParameters> newtechnicalReportList = new List<CalloutVisits.TechnicalReportsParameters>();
+            if(technicalReportList != null){
+                for(TechnicalReport__c technical : technicalReportList){
+                    newtechnicalReportList.add(new CalloutVisits.TechnicalReportsParameters(technical, fotoMap, photoBase64Map));
+                    System.debug('technicalReportList'+ technicalReportList);
+                }
+            }else{
+                newtechnicalReportList.add(new CalloutVisits.TechnicalReportsParameters(null, fotoMap, photoBase64Map));
             }
-
             header.TechnicalReports = newtechnicalReportList;
             this.header = header;
         }
@@ -197,10 +210,10 @@ public without sharing class CalloutVisits {
         public String CancellationReason;
         public String RtrLine;
         public String ExternalCodeTechnical;
-        
+
         public List<CalloutVisits.PhotosParameters> Photos;
         public TechnicalReportsParameters(TechnicalReport__c technicalReport,  Map<String, List<Fotos__c>> fotoMap, Map<String, String> photoBase64Map){
-
+            if(technicalReport != null){
             this.Observation = technicalReport.Note__c;
             this.EndTime = technicalReport.EndTime__c;
             this.EndDate = technicalReport.EndDate__c;
@@ -216,6 +229,16 @@ public without sharing class CalloutVisits {
                     newPhotoList.add(new CalloutVisits.PhotosParameters(photo, photoBase64Map));
                 }
                 this.Photos = newPhotoList;
+            }
+            }else{
+                this.Observation = null;
+                this.EndTime = null;
+                this.EndDate = null;
+                this.Status = null;
+                this.CancellationReason = null;
+                this.RtrLine = null;
+                this.ExternalCodeTechnical = null;
+                this.Photos = null;
             }
         }
     }
