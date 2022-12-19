@@ -34,6 +34,7 @@ export default class OrderSummaryScreen extends LightningElement {
     showRed;
     showTsiRed;
     showRoyaltiesRed;
+    @api allowFormOfPayment = false;
 
     showFormOfPayment = false;
     blockPaymentFields = false;
@@ -122,6 +123,13 @@ export default class OrderSummaryScreen extends LightningElement {
         isSeedSale({salesOrgId: this.headerData.organizacao_vendas.Id, productGroupName: null})
             .then((result) => {
                 this.seedSale = result;
+                console.log('this.seedSale: ' + this.seedSale);
+                console.log('!this.childOrder: ' + !this.childOrder);
+                console.log('this.headerData.pedido_mae: ' + JSON.stringify(this.headerData.pedido_mae));
+                if (this.seedSale && !this.headerData.IsOrderChild) {
+                    this.allowFormOfPayment = true;
+                }
+                console.log('this.allowFormOfPayment: ' + this.allowFormOfPayment);
                 this.loadData();
         });
         
@@ -273,7 +281,7 @@ export default class OrderSummaryScreen extends LightningElement {
                 for(var i= 0; i< this.productDataLocale.length; i++){
                     console.log(this.seedSale)
                     orderTotalPrice += Number(this.productDataLocale[i].unitPrice) * Number(this.productDataLocale[i].quantity) + (this.seedSale ? Number(this.productDataLocale[i].brokerage) : 0);
-                    orderTotalCost += Number(this.productDataLocale[i].practicedCost) * Number(this.productDataLocale[i].quantity);
+                    orderTotalCost += Number(this.productDataLocale[i].listCost) * Number(this.productDataLocale[i].quantity);
                     tsiTotalPrice += Number(this.productDataLocale[i].tsiTotalPrice);
                     royaltiesTotalPrice += Number(this.productDataLocale[i].royaltyTotalPrice);
                     

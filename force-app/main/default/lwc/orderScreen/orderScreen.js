@@ -501,7 +501,8 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             prodsIds.push(this.productData[index].productId);
         }
 
-        if (this.template.querySelector(this.tabs[3].component).seedSale) {
+        console.log('this.template.querySelector(this.tabs[3].component).allowFormOfPayment: ' + this.template.querySelector(this.tabs[3].component).allowFormOfPayment);
+        if (this.template.querySelector(this.tabs[3].component).allowFormOfPayment) {
             let orderTotalPrice = 0;
             let orderTotalPaymentTsi = 0;
             let orderTotalPaymentRoyalties = 0;

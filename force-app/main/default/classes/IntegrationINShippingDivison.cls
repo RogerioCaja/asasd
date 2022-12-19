@@ -1,4 +1,4 @@
-global with sharing class IntegrationINShippingDivison {
+global without sharing class IntegrationINShippingDivison {
     public IntegrationINShippingDivison() {
 
     }
