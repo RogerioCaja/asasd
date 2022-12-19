@@ -1,4 +1,4 @@
-public with sharing class CalendarHelper {
+public without sharing class CalendarHelper {
     public CalendarHelper() {
 
     }

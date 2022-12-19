@@ -141,13 +141,13 @@ public without sharing class OrderScreenController {
                    ReasonRefuse__c,
                    Sieve__c,
                    Class__c,
+                   ComboPromotion__c,
+                   AgrogalaxyComboDiscount__c,
+                   IndustryComboDiscount__c,
                    TSIValue__c,
                    RoyaltyAmount__c,
                    TotalTSIAmount__c,
-                   TotalRoyaltyAmount__c,
-                   ComboPromotion__c,
-                   AgrogalaxyComboDiscount__c,
-                   IndustryComboDiscount__c
+                   TotalRoyaltyAmount__c
               FROM OrderItem
              WHERE OrderId =: orderId
         ]){
@@ -649,9 +649,10 @@ public without sharing class OrderScreenController {
                            ProductHierarchy__c,
                            SellerType__c,
                            CommissionPercentage__c 
-                    FROM Comissao__c
-                   WHERE ProductHierarchy__c IN: setProductHierarchyIds
-                     AND SellerType__c =: sellerType
+                      FROM Comissao__c
+                     WHERE ProductHierarchy__c IN: setProductHierarchyIds
+                       AND SellerType__c =: sellerType
+                       AND SalesOrg__c =: company.SalesOrg__c
                 ]) {
                     if (!commissionByHierarchy.containsKey(commission.ProductHierarchy__c)) {
                         commissionByHierarchy.put(commission.ProductHierarchy__c, commission);
@@ -994,11 +995,12 @@ public without sharing class OrderScreenController {
                     mapOrderItems.put(orderItem.Product2Id, orderItem);
                 }
                 
-                if (orderData.divisionData != null && orderData.divisionData.size() > 0 && typeOrder != 'prepedido') {
+                if (orderData.divisionData != null && orderData.divisionData.size() > 0) {
                     Map<String, DivisionDeserialize> divisionsByKey = new Map<String, DivisionDeserialize>();
                     for (DivisionDeserialize division : orderData.divisionData) {
                         if (division.divisionId != null) {
                             setDivisionIds.add(division.divisionId);
+                            divisionCounter++;
                         }
 
                         String key = division.deliveryDate + '-' + division.orderItemKey;
@@ -1252,6 +1254,7 @@ public without sharing class OrderScreenController {
             return JSON.serialize(sellerPosition);
         }
         
+        List<Id> territoriesRelatedToCtv = new List<Id>();
         for (UserTerritory2Association userAssociation : [
             SELECT Id,
                    UserId,
@@ -1259,9 +1262,19 @@ public without sharing class OrderScreenController {
                    Territory2.Territory2Type.DeveloperName
               FROM UserTerritory2Association
              WHERE UserId =: companyInfos.ctvId
-             LIMIT 1
         ]) {
-            userTerritoryId = userAssociation.Territory2Id;
+            territoriesRelatedToCtv.add(userAssociation.Territory2Id);
+        }
+
+        for (ObjectTerritory2Association objAssociation : [
+            SELECT Id,
+                   Territory2Id,
+                   Territory2.Territory2Type.DeveloperName
+              FROM ObjectTerritory2Association
+             WHERE ObjectId =: companyInfos.accountId
+               AND Territory2Id IN: territoriesRelatedToCtv
+        ]) {
+            userTerritoryId = objAssociation.Territory2Id;
         }
 
         Map<Id, Territory2> territoryAndParents = new Map<Id, Territory2>();
@@ -1308,15 +1321,15 @@ public without sharing class OrderScreenController {
         };
         Q proQuery = new Q(Company__c.SObjectType);
         proQuery.selectFields(fieldSet);
-        if (childOrder == null || !childOrder) proQuery.add(Q.condition('Status__c').equalsTo('Adicionada'));
         if (companyInfos.accountId != '') proQuery.add(Q.condition('Conta__c').equalsTo(companyInfos.accountId));
+        if (childOrder == null || !childOrder) proQuery.add(Q.condition('Status__c').equalsTo('Adicionada'));
         
         List<CompanyInfos> companyList = new List<CompanyInfos>();
         if (salesTeamTerritory != null && salesTeamTerritory.DeveloperName != null) {
             String salesTeamDevName = salesTeamTerritory.DeveloperName.substring(0, 1) == 'X' || salesTeamTerritory.DeveloperName.substring(0, 1) == 'Z' ?
                                       salesTeamTerritory.DeveloperName.substring(1, salesTeamTerritory.DeveloperName.length()) : salesTeamTerritory.DeveloperName;
             proQuery.add(Q.condition('SalesTeam__r.ExternalId__c').equalsTo(salesTeamDevName));
-            proQuery.add(Q.condition('SalesOrg__r.SalesOrganizationCode__c').isIn(new List<String>{'1000', '1700'}));
+            proQuery.add(Q.condition('SalesOrg__r.SalesOrganizationCode__c').isIn(new List<String>{'1000', '1700', '1100', '1900'}));
             if(companyInfos.orderType == 'Venda de Serviço')
                 proQuery.add(Q.condition('ActivitySector__r.Codigo__c').equalsTo('40'));
             else {
@@ -1360,6 +1373,7 @@ public without sharing class OrderScreenController {
         ]) {
             DistrCenterData distrData = new DistrCenterData();
             distrData.centerId = distrCenter.Id;
+            distrData.centerName = distrCenter.Name;
             distrData.code = distrCenter.Code__c;
             distrData.salesOrgName = distrCenter.SalesOrg__r.Name;
             distrData.selected = false;
@@ -1371,6 +1385,7 @@ public without sharing class OrderScreenController {
 
     public class DistrCenterData {
         public String centerId;
+        public String centerName;
         public String code;
         public String salesOrgName;
         public Boolean selected;
@@ -1561,6 +1576,8 @@ public without sharing class OrderScreenController {
         productParams.salesOrgId = company.salesOrgId;
         productParams.salesOfficeId = company.salesOfficeId;
         productParams.salesTeamId = company.salesTeamId;
+        productParams.dontGetSeeds = productParams.dontGetSeeds;
+        productParams.activitySectorName = company.activitySectorName;
         
         Map<Id, ComboPromotionData> result = new Map<Id, ComboPromotionData>();
         Map<Id, Set<Id>> combosByProductId = new Map<Id, Set<Id>>();
@@ -1701,7 +1718,8 @@ public without sharing class OrderScreenController {
         try {
             HeaderValues comboData = (HeaderValues) JSON.deserialize(data, HeaderValues.class);
             Map<Id, ComboPromotionData> result = new Map<Id, ComboPromotionData>();
-            Set<Id> combosIds = new Set<Id>();
+            Set<Id> mixCombosIds = new Set<Id>();
+            Set<Id> conditionCombosIds = new Set<Id>();
             
             Set<Id> recTypes = new Set<Id>();
             recTypes.add(Schema.SObjectType.ComboPromotion__c.getRecordTypeInfosByDeveloperName().get('ProductMix').getRecordTypeId());
@@ -1729,14 +1747,31 @@ public without sharing class OrderScreenController {
                 comboPromotionData.comboAvailableQuantity = promotion.CombosQuantity__c;
                 comboPromotionData.comboDiscountPercentage = promotion.DiscountPercentage__c;
                 comboPromotionData.specificItemCombo = false;
-                combosIds.add(promotion.Id);
                 comboPromotionData.groupQuantities = new List<GroupData>();
                 
-                if (promotion.RecordType.DeveloperName != 'ProductMix') {
+                if (promotion.RecordType.DeveloperName == 'ProductMix') {
+                    mixCombosIds.add(promotion.Id);
+                } else {
+                    conditionCombosIds.add(promotion.Id);
                     comboPromotionData.paymentConditionId = promotion.PaymentCondition__c;
                 }
 
                 result.put(promotion.Id, comboPromotionData);
+            }
+
+            for (FormerProduct__c formerProd : [
+                SELECT Id,
+                       Product__c,
+                       MinQuantity__c,
+                       ComboPromotion__c
+                  FROM FormerProduct__c
+                 WHERE ComboPromotion__c IN: mixCombosIds
+            ]) {
+                ComboPromotionData comboPromotionData = result.get(formerProd.ComboPromotion__c);
+                GroupData groupData = new GroupData();
+                groupData.productId = formerProd.Product__c;
+                groupData.quantity = formerProd.MinQuantity__c;
+                comboPromotionData.groupQuantities.add(groupData);
             }
 
             for (ProductMix__c prodMix : [
@@ -1745,7 +1780,7 @@ public without sharing class OrderScreenController {
                        ProductGroup__c,
                        ComboPromotion__c
                   FROM ProductMix__c
-                 WHERE ComboPromotion__c IN: combosIds
+                 WHERE ComboPromotion__c IN: conditionCombosIds
             ]) {
                 ComboPromotionData comboPromotionData = result.get(prodMix.ComboPromotion__c);
                 GroupData groupData = new GroupData();
@@ -2358,9 +2393,9 @@ public without sharing class OrderScreenController {
             this.motherAvailableQuantity = orderItem.AmountUsed__c != null ? orderItem.Quantity - orderItem.AmountUsed__c : null;
             this.listPrice = orderItem.ListPrice__c;
             this.unitPrice = orderItem.PracticedPrice__c;
+            this.totalPrice = orderItem.PracticedPrice__c * this.quantity;
             this.brokerage = brokeragePerUnit != null ? this.quantity * brokeragePerUnit : orderItem.Brokerage__c;
             this.totalPriceWithBrokerage = this.brokerage != null ? (this.totalPrice + this.brokerage) : this.totalPrice;
-            this.totalPrice = orderItem.FinalTotalValue__c - this.comboDiscountValue;
             this.listCost = orderItem.ListCost__c;
             this.practicedCost = orderItem.PracticedCost__c;
             this.dosage = orderItem.Dosage__c;
@@ -2656,7 +2691,9 @@ public without sharing class OrderScreenController {
     }
 
     public class GroupData {
+        public String  productId;
         public String  productGroupId;
         public Decimal quantity;
     }
+  
 }
