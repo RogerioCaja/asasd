@@ -126,7 +126,7 @@ export default class OrderSummaryScreen extends LightningElement {
                 console.log('this.seedSale: ' + this.seedSale);
                 console.log('!this.childOrder: ' + !this.childOrder);
                 console.log('this.headerData.pedido_mae: ' + JSON.stringify(this.headerData.pedido_mae));
-                if (this.seedSale && !this.childOrder && this.headerData.pedido_mae == {}) {
+                if (this.seedSale && !this.headerData.IsOrderChild) {
                     this.allowFormOfPayment = true;
                 }
                 console.log('this.allowFormOfPayment: ' + this.allowFormOfPayment);
