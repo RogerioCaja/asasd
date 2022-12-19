@@ -16,7 +16,7 @@ public without sharing class CalloutOrderDatalake {
         ShippingAccount__c, Account.ExternalId__c, AccountId,  
         Crop__r.Code__c, Crop__c, Culture__r.Codigo__c, Culture__c,  
         SalesOrg__r.SalesOrganizationCode__c, SalesOrg__c,  
-        SalesCTV__c, PaymentCondition__c, OrderReference__c, OrderReason__c,
+        SalesCTV__c, PaymentCondition__c, OrderReference__c,OrderReference__r.CodigoSap__c, OrderReason__c,
         OrderNumber, DistributionChannel__c, ActivitySector__c, PaymentDate__c,  
         EffectiveDate, ShippingDate__c, Status, StatusRecusa__c, Type,  
         CustomerOrderNumber__c, PaymentForm__c, StatusSF__c, Currency__c,  
@@ -145,7 +145,7 @@ public without sharing class CalloutOrderDatalake {
                 CommercialMargin__c, DiscountValue__c, FinalTotalValue__c,
                 FinancialDiscountPercent__c, FinancialDiscountValue__c, FinancialAdditionPercent__c,
                 FinancialAdditionValue__c, CommercialAdditionPercent__c, CommercialAdditionValue__c,
-                Dosage__c, ListCost__c, NumeroSap__c, PracticedCost__c, PracticedPrice__c, UnitPrice, ReasonRefuse__c
+                Dosage__c, ListCost__c, NumeroSap__c, PracticedCost__c, PracticedPrice__c, UnitPrice, ReasonRefuse__c, AmountUsed__c
                 FROM OrderItem
                 WHERE Id IN: orderItemIds
             ]);
@@ -239,7 +239,7 @@ public without sharing class CalloutOrderDatalake {
                 header.codigoSap = order.CodigoSap__c;
                 header.numeroPedidoApp = order.NumeroPedidoApp__c;
                 //header.pricebook2 = order.Pricebook2Id;
-                header.orderReferencie = order.OrderReference__c;
+                header.orderReference = order.OrderReference__r.CodigoSap__c;
                 header.paymentDate = order.PaymentDate__c;
                 header.effectiveDate = order.EffectiveDate;
                 header.shippingDate = order.ShippingDate__c;
@@ -303,7 +303,7 @@ public without sharing class CalloutOrderDatalake {
                 header.codigoSap = order.CodigoSap__c;
                 header.numeroPedidoApp = order.NumeroPedidoApp__c;
                 //header.pricebook2 = order.Pricebook2Id;
-                header.orderReferencie = order.OrderReference__c;
+                header.orderReference = order.OrderReference__r.CodigoSap__c;
                 header.paymentDate = order.PaymentDate__c;
                 header.effectiveDate = order.EffectiveDate;
                 header.shippingDate = order.ShippingDate__c;
@@ -363,7 +363,7 @@ public without sharing class CalloutOrderDatalake {
         public String cultureName; 
         public String salesOrgName; 
         public String paymentCondition; 
-        public String orderReferencie; 
+        public String orderReference; 
         public String distributionChannel; 
         public String activitySector; 
         public Date paymentDate; 
@@ -418,7 +418,7 @@ public without sharing class CalloutOrderDatalake {
         public String cultureName; 
         public String salesOrgName; 
         public String paymentCondition; 
-        public String orderReferencie; 
+        public String orderReference; 
         public String distributionChannel; 
         public String activitySector; 
         public Date paymentDate; 
@@ -533,6 +533,8 @@ public without sharing class CalloutOrderDatalake {
         public Decimal unitPrice;
         public String motivoRecusa;
         public String descMotivoRecusa;
+        public Decimal quantidadeUtilizada;
+
 
 
         public OrderItemParameters(OrderItem orderItem, List<Integer> shippingDivison){
@@ -567,6 +569,7 @@ public without sharing class CalloutOrderDatalake {
             this.unitPrice = orderItem.UnitPrice;
             this.motivoRecusa = orderItem.ReasonRefuse__c;
             this.descMotivoRecusa = motivoRecusa.get(orderItem.ReasonRefuse__c);
+            this.quantidadeUtilizada = orderItem.AmountUsed__c;
         }
     }
 
