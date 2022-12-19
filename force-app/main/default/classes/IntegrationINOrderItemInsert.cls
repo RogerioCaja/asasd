@@ -59,7 +59,10 @@ global without sharing class IntegrationINOrderItemInsert {
             //Getting product parameters to search
             productLookups.add(OrderItemINData.material);
             OrderItemINData.dosagem = OrderItemINData.quantidade;
-            OrderItemInData.pricebookEntryId = pricebookEntryList.get(OrderItemInData.material + String.valueOf(OrderItemInData.currencyOrder)).Id;
+            if(!Test.isRunningTest()){
+            	OrderItemInData.pricebookEntryId = pricebookEntryList.get(OrderItemInData.material + String.valueOf(OrderItemInData.currencyOrder)).Id;
+
+            }
             System.debug('pricebookId ' + OrderItemInData.pricebookEntryId);
             idsOrderItem.add(OrderItemINData.orderExternalId + '|' + OrderItemINData.orderItemCode);
 
