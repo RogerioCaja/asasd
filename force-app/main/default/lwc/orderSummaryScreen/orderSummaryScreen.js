@@ -34,6 +34,7 @@ export default class OrderSummaryScreen extends LightningElement {
     showRed;
     showTsiRed;
     showRoyaltiesRed;
+    @api allowFormOfPayment = false;
 
     showFormOfPayment = false;
     blockPaymentFields = false;
@@ -122,6 +123,13 @@ export default class OrderSummaryScreen extends LightningElement {
         isSeedSale({salesOrgId: this.headerData.organizacao_vendas.Id, productGroupName: null})
             .then((result) => {
                 this.seedSale = result;
+                console.log('this.seedSale: ' + this.seedSale);
+                console.log('!this.childOrder: ' + !this.childOrder);
+                console.log('this.headerData.pedido_mae: ' + JSON.stringify(this.headerData.pedido_mae));
+                if (this.seedSale && !this.childOrder && this.headerData.pedido_mae == {}) {
+                    this.allowFormOfPayment = true;
+                }
+                console.log('this.allowFormOfPayment: ' + this.allowFormOfPayment);
                 this.loadData();
         });
         
