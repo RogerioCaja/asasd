@@ -560,7 +560,7 @@ export default class OrderProductScreen extends LightningElement {
                                         this.addProduct.unitPriceFront = this.fixDecimalPlacesFront(this.addProduct.unitPrice);
                                         this.calculateDiscountOrAddition();
                                         this.calculateTotalPrice(true, this.addProduct.commercialDiscountValue > 0);
-                                        let margin = this.isFilled(this.addProduct.practicedCost) ? this.fixDecimalPlaces((1 - (Number(this.addProduct.practicedCost) / (this.addProduct.totalPrice / this.addProduct.quantity))) * 100) : 0;
+                                        let margin = this.isFilled(this.addProduct.listCost) ? this.fixDecimalPlaces((1 - (Number(this.addProduct.listCost) / (this.addProduct.totalPrice / this.addProduct.quantity))) * 100) : 0;
                                         this.addProduct.commercialMarginPercentage = margin;
                                         listPriceChange = true;
                                     }
@@ -1242,7 +1242,6 @@ export default class OrderProductScreen extends LightningElement {
 
         if (this.checkRequiredFields(prod)) {
             let allProducts = JSON.parse(JSON.stringify(this.products));
-            let margin = this.isFilled(this.addProduct.practicedCost) ? this.fixDecimalPlaces((1 - (Number(this.addProduct.practicedCost) / (prod.totalPrice / prod.quantity))) * 100) : 0;
             let comboDiscountPercent = this.verifyComboAndPromotion(prod.quantity);
             if (prod.commercialDiscountPercentageFront == '0%' && prod.comboDiscountPercent == '0%' && comboDiscountPercent != null) {
                 prod.comboId = comboDiscountPercent.comboId;
@@ -1272,6 +1271,7 @@ export default class OrderProductScreen extends LightningElement {
                 this._setcombosSelecteds();
             }
 
+            let margin = this.isFilled(this.addProduct.listCost) ? this.fixDecimalPlaces((1 - (Number(this.addProduct.listCost) / (prod.totalPrice / prod.quantity))) * 100) : 0;
             prod.commercialMarginPercentage = margin;
             prod.costPrice = this.costPrice;
             prod.multiplicity = this.multiplicity > 0 ? this.multiplicity : 1;
@@ -1428,7 +1428,7 @@ export default class OrderProductScreen extends LightningElement {
                         this._setcombosSelecteds();
                     }
 
-                    let margin = this.isFilled(this.addProduct.practicedCost) ? this.fixDecimalPlaces(((1 - (Number(this.addProduct.practicedCost) / (Number(this.addProduct.totalPrice) / Number(this.addProduct.quantity)))) * 100)) : null;
+                    let margin = this.isFilled(this.addProduct.listCost) ? this.fixDecimalPlaces(((1 - (Number(this.addProduct.listCost) / (Number(this.addProduct.totalPrice) / Number(this.addProduct.quantity)))) * 100)) : null;
                     this.addProduct.commercialMarginPercentage = this.headerData.IsOrderChild ? this.addProduct.commercialMarginPercentage : margin;
                     this.addProduct.multiplicity = this.multiplicity > 0 ? this.multiplicity : 1;
                     includedProducts[index] = JSON.parse(JSON.stringify(this.addProduct));
@@ -2034,7 +2034,7 @@ export default class OrderProductScreen extends LightningElement {
 
             for (let index = 0; index < this.products.length; index++) {
                 totalProducts += Number(this.products[index].totalPrice);
-                orderTotalCost += Number(this.products[index].practicedCost) * Number(this.products[index].quantity);
+                orderTotalCost += Number(this.products[index].listCost) * Number(this.products[index].quantity);
                 productsQuantity += Number(this.products[index].quantity);
                 totalDiscount += Number(this.products[index].commercialDiscountValue);
             }
