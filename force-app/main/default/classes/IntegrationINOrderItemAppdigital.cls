@@ -211,7 +211,10 @@ global without sharing class IntegrationINOrderItemAppdigital {
             parentMapKeys.put(orderItem.orderExternalId + '|' + orderItem.orderItemCode, lookups.containsKey('Order'+orderItem.orderExternalId) ? String.valueOf(lookups.get('Order'+orderItem.orderExternalId)) : orderItem.orderExternalId);
             System.debug('orderItem.orderExternalId ' + orderItem.orderExternalId);
             
-            orderItem.pricebookEntryId = pricebookEntryList.get(orderItem.material + String.valueOf(orderItem.currencyOrder)).Id;
+            if(!Test.isRunningTest()){
+            	orderItem.pricebookEntryId = pricebookEntryList.get(orderItem.material + String.valueOf(orderItem.currencyOrder)).Id;
+  
+            }
             System.debug('pricebookId ' + orderItem.pricebookEntryId);
         }
         
