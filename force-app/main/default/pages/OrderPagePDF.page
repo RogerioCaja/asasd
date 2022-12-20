@@ -121,6 +121,10 @@
                     <span>{!orderToPage.safra}</span>
                 </div>
                 <div class="field-item">
+                    <span class="bolder">Cultura: </span>
+                    <span>{!orderToPage.culture}</span>
+                </div>
+                <div class="field-item">
                     <span class="bolder">Cond. de Pagamento: </span>
                     <span>{!orderToPage.paymentCondition}</span>
                 </div>
@@ -145,8 +149,7 @@
                 <table class="tb-item-ped" cellSpacing="0">
                     <tr class="header">
                         <td valign="top">Cód. Produto</td>
-                        <td valign="top" style="width: 30%;">Descrição</td>
-                        <td valign="top">Cultura</td>
+                        <td valign="top" style="width: 25%;">Descrição</td>
                         <td valign="top">Unid. Medida</td>
                         <td valign="top">{! orderToPage.messageDivisionOrNo }</td>
                         <td valign="top">Preço Unit.</td>
@@ -159,9 +162,6 @@
                             </td>
                             <td>
                                 {! oI.description}
-                            </td>
-                            <td>
-                                {! oI.culture}
                             </td>
                             <td>
                                 {! oI.unitOfMeasure}
