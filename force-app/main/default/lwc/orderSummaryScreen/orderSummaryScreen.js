@@ -227,6 +227,7 @@ export default class OrderSummaryScreen extends LightningElement {
                         summary.freightValue = summary.freightValue === undefined ? 0 : summary.freightValue;
                         summary.freightValueFront = this.fixDecimalPlacesFront(summary.freightValue);
                         this.summaryDataLocale = JSON.parse(JSON.stringify(summary));
+                        this.showFreightScreen = this.showFreightScreen && !this.headerData.IsOrderChild ? true : false;
 
                         if (this.showFreightScreen && this.headerData.frete == 'FOB') {
                             this.allowCloseFreightScreen = true;
