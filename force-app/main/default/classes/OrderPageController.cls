@@ -265,7 +265,7 @@ public with sharing class OrderPageController {
         public List<DivisonDAO> divisonList {get; set;}
 
         public OrderItemDAO(OrderItem orderItem, String culture, String currencyCode, List<DivisonDAO> divisonList, OrderCommodity__c commodity){
-            this.productCode = orderItem.Product2.ProductCode;
+            this.productCode = orderItem.Product2.ProductCode.replaceFirst('^0+','');
             this.brokerage = orderItem.Brokerage__c != null ? (orderItem.Brokerage__c / orderItem.Quantity) : 0;
             this.description = orderItem.Product2.Name;
             this.unitOfMeasure = orderItem.Product2.GrossWeightUnitOfMeasure__c;
@@ -281,10 +281,12 @@ public with sharing class OrderPageController {
             String valueToFormat = String.valueOf((value).setScale(2));
             if(currencyCode == 'BRL'){
                 valueToFormat = valueToFormat.replace('.', ',');
-                valueToFormat = ('R$ ' + String.format(value.format(), args)).contains(',') == true ? 'R$ ' + String.format(value.format(), args): 'R$ ' + String.format(value.format(), args) + ',00';
+                valueToFormat = ('R$ ' + String.format(value.format(), args)).contains(',') == true ? 'R$ ' + String.format(value.setScale(2).format(), args): 'R$ ' + String.format(value.format(), args) + ',00';
             }
             else if(currencyCode == 'USD'){
                 valueToFormat = '$ ' + valueToFormat;
+            }else{
+                valueToFormat = valueToFormat.replace('.', ','); 
             }
     
             return valueToFormat;
