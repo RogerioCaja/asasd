@@ -356,7 +356,6 @@
         <excludeButtons>MultiAdd</excludeButtons>
         <excludeButtons>MultiEdit</excludeButtons>
         <fields>Product2</fields>
-        <fields>ProductCode</fields>
         <fields>Quantity</fields>
         <fields>PracticedPrice__c</fields>
         <fields>ListPrice__c</fields>
@@ -365,6 +364,7 @@
         <fields>DiscountValue__c</fields>
         <fields>FinalTotalValue__c</fields>
         <fields>CommitteeTrigger__c</fields>
+        <fields>ComboPromotion__c</fields>
         <relatedList>RelatedOrderItemList</relatedList>
     </relatedLists>
     <relatedLists>
@@ -419,7 +419,7 @@
     <showRunAssignmentRulesCheckbox>false</showRunAssignmentRulesCheckbox>
     <showSubmitAndAttachButton>false</showSubmitAndAttachButton>
     <summaryLayout>
-        <masterLabel>00h8N000000ZNlH</masterLabel>
+        <masterLabel>00h8K000000g42Q</masterLabel>
         <sizeX>4</sizeX>
         <sizeY>0</sizeY>
         <summaryLayoutStyle>Default</summaryLayoutStyle>
