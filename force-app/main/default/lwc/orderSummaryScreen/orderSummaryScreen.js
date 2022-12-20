@@ -253,6 +253,7 @@ export default class OrderSummaryScreen extends LightningElement {
             this.formattedDeliveryDate = this.headerData.data_entrega.split('-')[2] + '/' + this.headerData.data_entrega.split('-')[1] + '/' + this.headerData.data_entrega.split('-')[0];
             
             let orderTotalPrice = 0;
+            let orderTotalPriceToCalcMargin = 0;
             let orderTotalCost = 0;
             let royaltiesTotalPrice = 0;
             let tsiTotalPrice = 0;
