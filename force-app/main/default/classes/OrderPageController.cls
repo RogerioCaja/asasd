@@ -27,7 +27,7 @@ public with sharing class OrderPageController {
         if(!this.orderToPage.isNormalSales){
             List<FormPayment__c> paymentFormList = getFormPaymentByOrderId(orderId);
             for(FormPayment__c form : paymentFormList){
-                this.orderToPage.paymentFormList.add(new PaymentFormDAO(form));
+                this.orderToPage.paymentFormList.add(new PaymentFormDAO(form,  this.orderToPage.currencyOrder));
             }
         }
         
@@ -345,10 +345,26 @@ public with sharing class OrderPageController {
         public String price {get; set;}
         public String type  {get; set;}
 
-        public PaymentFormDAO(FormPayment__c form){
+        public PaymentFormDAO(FormPayment__c form, String currencyCode){
             this.paymentDate = form.PaymentDate__c.format();
-            this.price = String.valueOf(form.Amount__c).contains('.') ? String.valueOf(form.Amount__c).replace('.', ',') : String.valueOf(form.Amount__c) + ',00';
+            this.price = formatCurrency(form.Amount__c, currencyCode);
             this.type = form.PaymentType__c;
+        }
+
+        public String formatCurrency(Decimal value, String currencyCode){
+            List<String> args = new String[]{'0','number','###,###,##0.00'};
+            String valueToFormat = String.valueOf((value).setScale(2));
+            if(currencyCode == 'BRL'){
+                valueToFormat = valueToFormat.replace('.', ',');
+                valueToFormat = ('R$ ' + String.format(value.format(), args)).contains(',') == true ? 'R$ ' + String.format(value.setScale(2).format(), args): 'R$ ' + String.format(value.format(), args) + ',00';
+            }
+            else if(currencyCode == 'USD'){
+                valueToFormat = '$ ' + valueToFormat;
+            }else{
+                valueToFormat = valueToFormat.replace('.', ','); 
+            }
+    
+            return valueToFormat;
         }
     }
     
