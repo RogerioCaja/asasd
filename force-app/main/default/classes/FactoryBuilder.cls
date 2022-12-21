@@ -959,39 +959,44 @@ public without sharing class FactoryBuilder {
 
     private static Map<Id, Decimal> generateOrderItemComboMap(Map<Id,OrderItem> orderItemMap){
         Map<Id, Decimal> orderItemDiscountMap = new Map<Id, Decimal>();
-        Map<Id, OrderItem> orderItemHasComboAndValueMap = orderItemMap.deepClone();
-        Map<String, Id> orderItemProductAndComboKey = new Map<String, Id>();
-        Set<Id> comboIds = new Set<Id>();
-        Set<Id> orderItemIds = orderItemMap.keySet();
-        
-        for(Id orderItemId : orderItemIds){
-            OrderItem orderItem = orderItemMap.get(orderItemId);
-            if(orderItem.ComboPromotion__c == null && orderItem.AgrogalaxyComboDiscount__c == null && orderItem.IndustryComboDiscount__c == null){
-                orderItemHasComboAndValueMap.remove(orderItemId);
-            }
-        }
-
-        if(orderItemHasComboAndValueMap.size() > 0){
-            for(OrderItem ordIt : orderItemHasComboAndValueMap.values()){
-                if(ordIt.ComboPromotion__r.DiscountPercentage__c != null){
-                    orderItemDiscountMap.put(ordIt.Id, ordIt.ComboPromotion__r.DiscountPercentage__c);
-                }else{
-                    orderItemProductAndComboKey.put(String.valueOf(ordIt.Product2.Id) +'|'+ String.valueOf(ordIt.ComboPromotion__c), ordIt.Id);
-                    comboIds.add(ordIt.ComboPromotion__c);
+        try{
+            Map<Id, OrderItem> orderItemHasComboAndValueMap = orderItemMap.deepClone();
+            Map<String, Id> orderItemProductAndComboKey = new Map<String, Id>();
+            Set<Id> comboIds = new Set<Id>();
+            Set<Id> orderItemIds = orderItemMap.keySet();
+            
+            for(Id orderItemId : orderItemIds){
+                OrderItem orderItem = orderItemMap.get(orderItemId);
+                if(orderItem.ComboPromotion__c == null && orderItem.AgrogalaxyComboDiscount__c == null && orderItem.IndustryComboDiscount__c == null){
+                    orderItemHasComboAndValueMap.remove(orderItemId);
                 }
             }
-        }
 
-        if(comboIds.size() > 0){
-            List<BenefitProduct__c> benefitProductsList = [SELECT Product__c, DiscountPercentage__c, ComboPromotion__c FROM BenefitProduct__c WHERE ComboPromotion__c IN: comboIds];
-            for(BenefitProduct__c product : benefitProductsList){
-                String key = String.valueOf(product.Product__c) +'|'+ String.valueOf(product.ComboPromotion__c);
-                if(orderItemProductAndComboKey.containsKey(key)){
-                    orderItemDiscountMap.put(orderItemProductAndComboKey.get(key), product.DiscountPercentage__c);
+            if(orderItemHasComboAndValueMap.size() > 0){
+                for(OrderItem ordIt : orderItemHasComboAndValueMap.values()){
+                    if(ordIt.ComboPromotion__r.DiscountPercentage__c != null){
+                        orderItemDiscountMap.put(ordIt.Id, ordIt.ComboPromotion__r.DiscountPercentage__c);
+                    }else{
+                        orderItemProductAndComboKey.put(String.valueOf(ordIt.Product2.Id) +'|'+ String.valueOf(ordIt.ComboPromotion__c), ordIt.Id);
+                        comboIds.add(ordIt.ComboPromotion__c);
+                    }
                 }
             }
-        }
 
+            if(comboIds.size() > 0){
+                List<BenefitProduct__c> benefitProductsList = [SELECT Product__c, DiscountPercentage__c, ComboPromotion__c FROM BenefitProduct__c WHERE ComboPromotion__c IN: comboIds];
+                for(BenefitProduct__c product : benefitProductsList){
+                    String key = String.valueOf(product.Product__c) +'|'+ String.valueOf(product.ComboPromotion__c);
+                    if(orderItemProductAndComboKey.containsKey(key)){
+                        orderItemDiscountMap.put(orderItemProductAndComboKey.get(key), product.DiscountPercentage__c);
+                    }
+                }
+            }
+
+        }catch(Exception err){
+            System.debug(err.getMessage());
+            System.debug(err.getStackTraceString());
+        }
         return orderItemDiscountMap;
     }
 
