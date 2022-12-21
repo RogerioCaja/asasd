@@ -316,6 +316,8 @@ export default class OrderSummaryScreen extends LightningElement {
                 this.summaryDataLocale.orderMargin = this.orderMargin;
             }
 
+            this.summaryDataLocale.totalValue = orderTotalPrice + royaltiesTotalPrice + tsiTotalPrice;
+
             this.defineOrderMargin();
         }
     }
