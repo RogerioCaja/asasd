@@ -78,6 +78,7 @@ public without sharing class FactoryBuilder {
         private Order order;
         private Map<String, String> referenceItemMotherMap;
         private Map<Id, OrderItem> orderItemMap;
+        private Map<Id, Decimal> orderItemComboDiscountMap;
 
         public void setOrder(Order order){
             this.order = order;
@@ -89,6 +90,7 @@ public without sharing class FactoryBuilder {
 
         public void setOrderItemMap(){
             this.orderItemMap = generateOrderItemMap(this.order);
+            this.orderItemComboDiscountMap = generateOrderItemComboMap(this.orderItemMap);
         }
 
         public void setType(){
@@ -108,7 +110,7 @@ public without sharing class FactoryBuilder {
         }
 
         public void setConditions(){
-            this.IT_CONDITIONS_IN = generateConditionParametersList(this.orderItemMap, this.order);
+            this.IT_CONDITIONS_IN = generateConditionParametersList(this.orderItemMap, this.orderItemComboDiscountMap, this.order);
         }
 
         public void setShippingDivision(){
@@ -133,6 +135,7 @@ public without sharing class FactoryBuilder {
         private Order order;
         private Map<String, String> referenceItemMotherMap;
         private Map<Id, OrderItem> orderItemMap;
+        private Map<Id, Decimal> orderItemComboDiscountMap;
         private Boolean hasSeed;
 
         public void setOrder(Order order){
@@ -146,6 +149,7 @@ public without sharing class FactoryBuilder {
         public void setOrderItemMap(){
             this.orderItemMap = generateOrderItemMap(this.order);
             this.hasSeed = hasSeedGroup(this.orderItemMap);
+            this.orderItemComboDiscountMap = generateOrderItemComboMap(this.orderItemMap);
         }
 
         public void setType(){
@@ -165,7 +169,7 @@ public without sharing class FactoryBuilder {
         }
 
         public void setConditions(){
-            this.IT_CONDITIONS_IN = generateConditionParametersSeedList(this.orderItemMap, this.order);
+            this.IT_CONDITIONS_IN = generateConditionParametersSeedList(this.orderItemMap, this.orderItemComboDiscountMap, this.order);
         }
 
         public void setShippingDivision(){
@@ -948,12 +952,56 @@ public without sharing class FactoryBuilder {
 
         Map<Id, OrderItem> orderItemMap = new Map<Id, OrderItem>([
             SELECT Id, NumeroSap__c, Product2.ExternalId__c, Product2.DistributionCenter__r.Code__c, Quantity, UnitPrice, ListCost__c, DiscountValue__c, FinancialAdditionValue__c, FinancialDiscountValue__c, CommercialAdditionValue__c,
-            FinancialAdditionPercent__c, FinancialDiscountPercent__c, CommercialMargin__c, DiscountPercent__c, CommercialAdditionPercent__c, ListPrice__c, Class__c, Sieve__c, Product2.ProductGroup__r.ExternalId__c, Brokerage__c
+            FinancialAdditionPercent__c, FinancialDiscountPercent__c, CommercialMargin__c, DiscountPercent__c, CommercialAdditionPercent__c, ListPrice__c, Class__c, Sieve__c, Product2.ProductGroup__r.ExternalId__c, Brokerage__c, ComboPromotion__c, 
+            ComboPromotion__r.RecordType.Name, ComboPromotion__r.DiscountPercentage__c, AgrogalaxyComboDiscount__c, IndustryComboDiscount__c, Product2.Id
             FROM OrderItem
             WHERE Id IN: orderItemSetIds
         ]);
 
         return orderItemMap;
+    }
+
+    private static Map<Id, Decimal> generateOrderItemComboMap(Map<Id,OrderItem> orderItemMap){
+        Map<Id, Decimal> orderItemDiscountMap = new Map<Id, Decimal>();
+        try{
+            Map<Id, OrderItem> orderItemHasComboAndValueMap = orderItemMap.deepClone();
+            Map<String, Id> orderItemProductAndComboKey = new Map<String, Id>();
+            Set<Id> comboIds = new Set<Id>();
+            Set<Id> orderItemIds = orderItemMap.keySet();
+            
+            for(Id orderItemId : orderItemIds){
+                OrderItem orderItem = orderItemMap.get(orderItemId);
+                if(orderItem.ComboPromotion__c == null && orderItem.AgrogalaxyComboDiscount__c == null && orderItem.IndustryComboDiscount__c == null){
+                    orderItemHasComboAndValueMap.remove(orderItemId);
+                }
+            }
+
+            if(orderItemHasComboAndValueMap.size() > 0){
+                for(OrderItem ordIt : orderItemHasComboAndValueMap.values()){
+                    if(ordIt.ComboPromotion__r.DiscountPercentage__c != null){
+                        orderItemDiscountMap.put(ordIt.Id, ordIt.ComboPromotion__r.DiscountPercentage__c);
+                    }else{
+                        orderItemProductAndComboKey.put(String.valueOf(ordIt.Product2.Id) +'|'+ String.valueOf(ordIt.ComboPromotion__c), ordIt.Id);
+                        comboIds.add(ordIt.ComboPromotion__c);
+                    }
+                }
+            }
+
+            if(comboIds.size() > 0){
+                List<BenefitProduct__c> benefitProductsList = [SELECT Product__c, DiscountPercentage__c, ComboPromotion__c FROM BenefitProduct__c WHERE ComboPromotion__c IN: comboIds];
+                for(BenefitProduct__c product : benefitProductsList){
+                    String key = String.valueOf(product.Product__c) +'|'+ String.valueOf(product.ComboPromotion__c);
+                    if(orderItemProductAndComboKey.containsKey(key)){
+                        orderItemDiscountMap.put(orderItemProductAndComboKey.get(key), product.DiscountPercentage__c);
+                    }
+                }
+            }
+
+        }catch(Exception err){
+            System.debug(err.getMessage());
+            System.debug(err.getStackTraceString());
+        }
+        return orderItemDiscountMap;
     }
 
     private static Boolean hasSeedGroup(Map<Id, OrderItem> orderItemMap){
@@ -998,7 +1046,7 @@ public without sharing class FactoryBuilder {
         return orderItemParametersList;
      }
 
-    private static List<ConditionParameters> generateConditionParametersList(Map<Id, OrderItem> orderItemMap, Order order){
+    private static List<ConditionParameters> generateConditionParametersList(Map<Id, OrderItem> orderItemMap, Map<Id, Decimal> orderItemComboMap, Order order){
         List<ConditionParameters> conditionParametersList = new List<ConditionParameters>();
         String salesCondition = String.valueOf(order.SalesCondition__r.ExternalId__c).leftPad(2, '0');
         for(OrderItem ordIt : orderItemMap.values()){
@@ -1009,6 +1057,14 @@ public without sharing class FactoryBuilder {
             }
             conditionParametersList.add(new ConditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZMAR', String.valueOf(isNotation(ordIt.CommercialMargin__c)), ''));
 
+            if(orderItemComboMap.containsKey(ordIt.Id)){
+                if(ordIt.AgrogalaxyComboDiscount__c > 0){
+                    conditionParametersList.add(new ConditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZCBA', (isNotation(orderItemComboMap.get(ordIt.Id))).toPlainString(), ''));
+                }else{
+                    conditionParametersList.add(new ConditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZCBI', (isNotation(orderItemComboMap.get(ordIt.Id))).toPlainString(), ''));
+                }
+            }
+
             if(salesCondition == '99'){
                 conditionParametersList.add(new ConditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZPR0', String.valueOf(isNotation(ordIt.ListPrice__c)), ''));
             }
@@ -1017,7 +1073,7 @@ public without sharing class FactoryBuilder {
         return conditionParametersList;
     }
 
-    private static List<ConditionParameters> generateConditionParametersSeedList(Map<Id, OrderItem> orderItemMap, Order order){
+    private static List<ConditionParameters> generateConditionParametersSeedList(Map<Id, OrderItem> orderItemMap, Map<Id, Decimal> orderItemComboMap, Order order){
         List<ConditionParameters> conditionParametersList = new List<ConditionParameters>();
         String salesCondition = String.valueOf(order.SalesCondition__r.ExternalId__c).leftPad(2, '0');
         for(OrderItem ordIt : orderItemMap.values()){
@@ -1028,6 +1084,15 @@ public without sharing class FactoryBuilder {
             }
             conditionParametersList.add(new ConditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZMAR', String.valueOf(isNotation(ordIt.CommercialMargin__c)), ''));
             conditionParametersList.add(new conditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZCOR', String.valueOf(isNotation(ordIt.Brokerage__c)), ''));
+            
+            if(orderItemComboMap.containsKey(ordIt.Id)){
+                if(ordIt.AgrogalaxyComboDiscount__c > 0){
+                    conditionParametersList.add(new ConditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZCBA', (isNotation(orderItemComboMap.get(ordIt.Id))).toPlainString(), ''));
+                }else{
+                    conditionParametersList.add(new ConditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZCBI', (isNotation(orderItemComboMap.get(ordIt.Id))).toPlainString(), ''));
+                }
+            }
+
             if(salesCondition == '99'){
                 conditionParametersList.add(new ConditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZPR0', String.valueOf(isNotation(ordIt.ListPrice__c)), ''));
             }
