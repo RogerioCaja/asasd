@@ -189,6 +189,32 @@
 
         <apex:outputText rendered="{!orderToPage.isNormalSales == false}">
             <tr>
+                <td colspan="2" class="padd-b">
+                    <table class="tb-item-ped" cellSpacing="0">
+                        <tr class="header">
+                            <td valign="top" style="width: 33.3%;">Tipo de Pagamento</td>
+                            <td valign="top" style="width: 33.3%;">Data de Vencimento</td>
+                            <td valign="top" style="width: 33.3%;">Valor</td>
+                        </tr>
+                        <apex:repeat value="{! orderToPage.paymentFormList }" var='pF'>
+                            <tr>
+                                <td>
+                                    {! pF.type}
+                                </td>
+                                <td>
+                                    {! pF.paymentDate}
+                                </td>
+                                <td>
+                                    {! pF.price}
+                                </td>
+                            </tr>
+                        </apex:repeat>
+                    </table>
+                </td>
+            </tr>
+
+        
+            <tr>
                 <td class="title divider-top divider-bottom" >
                     Frete
                 </td>

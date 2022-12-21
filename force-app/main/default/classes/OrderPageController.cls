@@ -10,6 +10,7 @@ public with sharing class OrderPageController {
         }
         catch(Exception e){
             System.debug(e);
+            System.debug(e.getStackTraceString());
             System.debug('Sem ID encontrado');
         }
     }
@@ -22,19 +23,28 @@ public with sharing class OrderPageController {
         if(this.orderToPage.currencyOrder == 'Barter'){
             commodity = getCommodityByOrderId(orderId)[0];
         }
+
+        if(!this.orderToPage.isNormalSales){
+            List<FormPayment__c> paymentFormList = getFormPaymentByOrderId(orderId);
+            for(FormPayment__c form : paymentFormList){
+                this.orderToPage.paymentFormList.add(new PaymentFormDAO(form,  this.orderToPage.currencyOrder));
+            }
+        }
         
         Map<Id, List<DivisonDAO>> divisonMap = getDivisonByList(orderItemList);
 
         for(OrderItem orderItem : orderItemList){
             this.orderToPage.orderItemList.add(new OrderItemDAO(orderItem, this.orderToPage.culture, this.orderToPage.currencyOrder, divisonMap.get(orderItem.Id), commodity));
         }
+        
+        
+        List<String> args = new String[]{'0','number','###,###,##0.00'};
+
         Decimal totalValue = 0;
         for(OrderItemDAO orderItem : this.orderToPage.orderItemList){
             totalValue += Decimal.valueOf(orderItem.totalAmount.replace(' sacas', '').replace('R$', '').replace(',00', '').replace('.', '').replace(',', '.').trim());
             
         }
-        
-        List<String> args = new String[]{'0','number','###,###,##0.00'};
         
         if(!this.orderToPage.isNormalSales){
 			totalValue += Decimal.valueOf(this.orderToPage.freightValue.replace('R$', '').replace(',00', '').replace('.', '').replace(',', '.').trim());
@@ -91,6 +101,19 @@ public with sharing class OrderPageController {
         };
 
         String query = new Q(OrderCommodity__c.SObjectType)
+                            .selectFields(fieldSet)
+                            .add(Q.condition('Order__c').equalsTo(orderId)).build();
+
+        return Database.query(query);
+    }
+
+    public static List<FormPayment__c> getFormPaymentByOrderId(Id orderId){
+        Set<String> fieldSet = new Set<String>{
+            'PaymentDate__c','Amount__c', 'toLabel(PaymentType__c)'
+            
+        };
+
+        String query = new Q(FormPayment__c.SObjectType)
                             .selectFields(fieldSet)
                             .add(Q.condition('Order__c').equalsTo(orderId)).build();
 
@@ -180,6 +203,7 @@ public with sharing class OrderPageController {
         public String totalRoyalties        	{get; set;}
 
         public List<OrderItemDAO> orderItemList {get; set;}
+        public List<PaymentFormDAO> paymentFormList {get; set;}
 
         public OrderDAO(Order order){
             this.codeSap = order.Account.ExternalId__c;
@@ -219,6 +243,7 @@ public with sharing class OrderPageController {
             this.totalTSI = String.valueOf(order.TotalTSIAmount__c);
             this.totalRoyalties = String.valueOf(order.TotalRoyaltiesAmount__c);
             this.orderItemList = new List<OrderItemDAO>();
+            this.paymentFormList = new List<PaymentFormDAO>();
         }
 
         public String currencyLogic(Order order){
@@ -313,6 +338,34 @@ public with sharing class OrderPageController {
             this.price = String.valueOf(commodity.CommodityPrice__c) + ' por saca';
             this.product = commodity.Product__c;
         } 
+    }
+
+    public class PaymentFormDAO{
+        public String paymentDate    {get; set;}
+        public String price {get; set;}
+        public String type  {get; set;}
+
+        public PaymentFormDAO(FormPayment__c form, String currencyCode){
+            this.paymentDate = form.PaymentDate__c.format();
+            this.price = formatCurrency(form.Amount__c, currencyCode);
+            this.type = form.PaymentType__c;
+        }
+
+        public String formatCurrency(Decimal value, String currencyCode){
+            List<String> args = new String[]{'0','number','###,###,##0.00'};
+            String valueToFormat = String.valueOf((value).setScale(2));
+            if(currencyCode == 'BRL'){
+                valueToFormat = valueToFormat.replace('.', ',');
+                valueToFormat = ('R$ ' + String.format(value.format(), args)).contains(',') == true ? 'R$ ' + String.format(value.setScale(2).format(), args): 'R$ ' + String.format(value.format(), args) + ',00';
+            }
+            else if(currencyCode == 'USD'){
+                valueToFormat = '$ ' + valueToFormat;
+            }else{
+                valueToFormat = valueToFormat.replace('.', ','); 
+            }
+    
+            return valueToFormat;
+        }
     }
     
 }
