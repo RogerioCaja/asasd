@@ -6,8 +6,13 @@ public with sharing class RecordTypeAvailableToUser {
     @AuraEnabled(cacheable=true)
     public static String getRecordTypeData(){
         try {
-            return [SELECT Id, Name FROM RecordType WHERE SobjectType = 'Order' LIMIT 1]?.Name;
+            for(RecordTypeInfo info: Order.SObjectType.getDescribe().getRecordTypeInfos()){
+                if (info.isAvailable()) {
+                    return info.getName();
+                }
             
+            }
+            return '';
         } catch (Exception e) {
             throw new AuraHandledException(e.getMessage());
         }
