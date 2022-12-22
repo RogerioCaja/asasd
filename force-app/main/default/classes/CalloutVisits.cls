@@ -150,13 +150,15 @@ public without sharing class CalloutVisits {
             header.ReasonCancellation = visit.CancellationReason__c;
 
 
-            List<CalloutVisits.TechnicalReportsParameters> newtechnicalReportList= new List<CalloutVisits.TechnicalReportsParameters>();
-            
-            for(TechnicalReport__c technical : technicalReportList){
-                newtechnicalReportList.add(new CalloutVisits.TechnicalReportsParameters(technical, fotoMap, photoBase64Map));
-                System.debug('technicalReportList'+ technicalReportList);
+            List<CalloutVisits.TechnicalReportsParameters> newtechnicalReportList = new List<CalloutVisits.TechnicalReportsParameters>();
+            if(technicalReportList != null){
+                for(TechnicalReport__c technical : technicalReportList){
+                    newtechnicalReportList.add(new CalloutVisits.TechnicalReportsParameters(technical, fotoMap, photoBase64Map));
+                    System.debug('technicalReportList'+ technicalReportList);
+                }
+            }else{
+                newtechnicalReportList.add(new CalloutVisits.TechnicalReportsParameters(null, fotoMap, photoBase64Map));
             }
-
             header.TechnicalReports = newtechnicalReportList;
             this.header = header;
         }
@@ -208,10 +210,10 @@ public without sharing class CalloutVisits {
         public String CancellationReason;
         public String RtrLine;
         public String ExternalCodeTechnical;
-        
+
         public List<CalloutVisits.PhotosParameters> Photos;
         public TechnicalReportsParameters(TechnicalReport__c technicalReport,  Map<String, List<Fotos__c>> fotoMap, Map<String, String> photoBase64Map){
-
+            if(technicalReport != null){
             this.Observation = technicalReport.Note__c;
             this.EndTime = technicalReport.EndTime__c;
             this.EndDate = technicalReport.EndDate__c;
@@ -227,6 +229,16 @@ public without sharing class CalloutVisits {
                     newPhotoList.add(new CalloutVisits.PhotosParameters(photo, photoBase64Map));
                 }
                 this.Photos = newPhotoList;
+            }
+            }else{
+                this.Observation = null;
+                this.EndTime = null;
+                this.EndDate = null;
+                this.Status = null;
+                this.CancellationReason = null;
+                this.RtrLine = null;
+                this.ExternalCodeTechnical = null;
+                this.Photos = null;
             }
         }
     }

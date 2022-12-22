@@ -1,4 +1,4 @@
-public with sharing class Product2Helper {
+public without sharing class Product2Helper {
     public Product2Helper() {
 
     }
