@@ -244,6 +244,7 @@ export default class OrderSummaryScreen extends LightningElement {
             this.formattedDeliveryDate = this.headerData.data_entrega.split('-')[2] + '/' + this.headerData.data_entrega.split('-')[1] + '/' + this.headerData.data_entrega.split('-')[0];
             
             let orderTotalPrice = 0;
+            let orderTotalPriceToCalcMargin = 0;
             let orderTotalCost = 0;
             let royaltiesTotalPrice = 0;
             let tsiTotalPrice = 0;
@@ -273,7 +274,8 @@ export default class OrderSummaryScreen extends LightningElement {
                 for(var i= 0; i< this.productDataLocale.length; i++){
                     console.log(this.seedSale)
                     orderTotalPrice += Number(this.productDataLocale[i].unitPrice) * Number(this.productDataLocale[i].quantity) + (this.seedSale ? Number(this.productDataLocale[i].brokerage) : 0);
-                    orderTotalCost += Number(this.productDataLocale[i].practicedCost) * Number(this.productDataLocale[i].quantity);
+                    orderTotalPriceToCalcMargin += Number(this.productDataLocale[i].unitPrice) * Number(this.productDataLocale[i].quantity);
+                    orderTotalCost += Number(this.productDataLocale[i].listCost) * Number(this.productDataLocale[i].quantity);
                     tsiTotalPrice += Number(this.productDataLocale[i].tsiTotalPrice);
                     royaltiesTotalPrice += Number(this.productDataLocale[i].royaltyTotalPrice);
                     
@@ -305,7 +307,7 @@ export default class OrderSummaryScreen extends LightningElement {
             this.tsiTotalToDistribution = tsiTotalPrice;
             
             if (this.headerData.tipo_venda != 'Venda Barter') {
-                let margin = (1 - (orderTotalCost / orderTotalPrice)) * 100;
+                let margin = (1 - (orderTotalCost / orderTotalPriceToCalcMargin)) * 100;
                 this.orderMargin = this.fixDecimalPlacesFront(margin) + '%';
                 this.summaryDataLocale.orderMargin = (+(Math.trunc(+(margin + 'e' + 6)) + 'e' + -6)).toFixed(6);
             } else {

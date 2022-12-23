@@ -20,6 +20,7 @@ import checkQuotaQuantity from '@salesforce/apex/OrderScreenController.checkQuot
 import getOrderByOrderItem from '@salesforce/apex/OrderScreenController.getOrderByOrderItem';
 import checkMotherQuantities from '@salesforce/apex/OrderScreenController.checkMotherQuantities';
 import getOrderByFormOfPayment from '@salesforce/apex/OrderScreenController.getOrderByFormOfPayment';
+import getRecordTypeData from '@salesforce/apex/RecordTypeAvailableToUser.getRecordTypeData';
 import isSeedSale from '@salesforce/apex/OrderScreenController.isSeedSale';
 import { NavigationMixin } from 'lightning/navigation';
 
@@ -39,6 +40,13 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             if(this.recordTypeId != undefined && this.recordTypeId != ''){
                 var arrayType = data.recordTypeInfos[this.recordTypeId]
                 this.headerData.tipo_venda = arrayType.name;
+            }else{
+                getRecordTypeData().then((result) => {
+                    this.headerData.tipo_venda = result
+                }).catch((err) =>{
+                    console.log(err)
+                })
+                
             }
         }
     }
