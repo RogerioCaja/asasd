@@ -466,8 +466,11 @@ global with sharing class TemplateDataIntegrationFields {
         public Decimal valorTotalZroy;
         public Decimal valorZtra;
         public Decimal valorTotalZtra;
+        public Decimal valorZCBI;
+        public Decimal valorZCBA;
         public String currencyOrder;
         public String pricebookEntryId; // Passar do Order para o OrderItem.
+        public Decimal quantidadeUtilizada;
         public OrderItem serialize(Map<String, Id> lookups){
 
             
@@ -508,7 +511,11 @@ global with sharing class TemplateDataIntegrationFields {
                 RoyaltyAmount__c = this.valorZroy,
                 TSIValue__c = this.valorZtra,
                 TotalRoyaltyAmount__c = this.valorTotalZroy,
-                TotalTSIAmount__c = this.valorTotalZtra
+                TotalTSIAmount__c = this.valorTotalZtra,
+                AmountUsed__c = this.quantidadeUtilizada,
+                AgrogalaxyComboDiscount__c = this.valorZCBA,
+                IndustryComboDiscount__c = this.valorZCBI
+
             );
         }
         public List<String> getRequiredFields(){
