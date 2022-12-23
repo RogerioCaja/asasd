@@ -118,6 +118,7 @@ global without sharing class IntegrationINOrder {
             idOrders.add(order.CodigoSap);
             for (TemplateDataIntegrationFields.OrderItemINData orderItem : order.orderItems) {
                 orderItem.orderExternalId = order.CodigoSap;
+                orderItem.currencyOrder = order.CurrencyOrder;
                 orderItem.orderItemCode = orderItem.orderItemCode.replaceFirst('^0+','');
                 
                 System.debug('order.CodigoSap ' + order.CodigoSap);
