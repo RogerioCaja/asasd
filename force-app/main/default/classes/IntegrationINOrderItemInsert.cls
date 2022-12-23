@@ -17,7 +17,8 @@ global without sharing class IntegrationINOrderItemInsert {
 
         List<String> idsOrderItem = new List<String>();
         //Application of business rules
-        
+        Decimal porcentagemZCBI = 0;
+        Decimal porcentagemZCBA = 0;
         for(TemplateDataIntegrationFields.OrderItemINData OrderItemINData : request){
             idsOrderItem.add(OrderItemINData.orderExternalId + '|' + OrderItemINData.orderItemCode);
             productLookups.add(OrderItemINData.material);
@@ -115,6 +116,18 @@ global without sharing class IntegrationINOrderItemInsert {
                         Decimal custoPraticado = Decimal.valueOf(conditions.KBETR) / OrderItemINData.quantidade;
                         OrderItemINData.custoPreco = custoPraticado;
                     }
+                    if(conditions.KSCHL == 'ZCBI'){
+                        
+                        porcentagemZCBI = Decimal.valueOf(conditions.KBETR);
+                        //OrderItemINData.valorZCBI = Decimal.valueOf(conditions.KBETR);
+                        
+                    }
+
+                    if(conditions.KSCHL == 'ZCBA'){
+                        
+                        porcentagemZCBA = Decimal.valueOf(conditions.KBETR);
+                        //OrderItemINData.valorZCBA = Decimal.valueOf(conditions.KBETR);
+                    }
                     
                     if(conditions.KSCHL == 'ZDEC'){
                         
@@ -149,6 +162,9 @@ global without sharing class IntegrationINOrderItemInsert {
         //Decimal porcentagemAcrescimoComercial = 0;
         Decimal valorAcrescimoComercial = 0;
         
+        Decimal valorDescontoComboZCBI = 0;
+
+        Decimal valorDescontoComboZCBA = 0;
         Decimal valorFinal = OrderItemINData.precoUnitario * OrderItemINData.quantidade;
         OrderItemINData.valorTotal = valorFinal;
         
@@ -173,6 +189,24 @@ global without sharing class IntegrationINOrderItemInsert {
             System.debug('valorFinal ' + valorFinal);
             System.debug('valorAcrescimoFinanceiro ' + valorAcrescimoFinanceiro);
         }
+
+        if(porcentagemZCBI > 0){
+
+            valorDescontoComboZCBI = valorFinal * (porcentagemZCBI / 100);
+            OrderItemINData.valorZCBI = valorDescontoComboZCBI;
+            valorFinal = valorFinal - valorDescontoComboZCBI;
+            OrderItemINData.precoPraticado = (valorFinal) / OrderItemINData.quantidade;
+            OrderItemINData.valorTotal = valorFinal;
+        }
+
+        if(porcentagemZCBA > 0){
+            valorDescontoComboZCBA = valorFinal * (porcentagemZCBA / 100);
+            OrderItemINData.valorZCBA = valorDescontoComboZCBA;
+            valorFinal = valorFinal - valorDescontoComboZCBA;
+            OrderItemINData.precoPraticado = (valorFinal) / OrderItemINData.quantidade;
+            OrderItemINData.valorTotal = valorFinal;
+        }
+
         if (OrderItemINData.porcentagemDesconto != 0 && OrderItemINData.porcentagemDesconto != null){ 
             //porcentagemDescontoComercial = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemDesconto / 100);
             valorDescontoComercial = valorFinal  * (OrderItemINData.porcentagemDesconto / 100);
