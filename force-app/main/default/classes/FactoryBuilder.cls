@@ -1055,9 +1055,9 @@ public without sharing class FactoryBuilder {
 
             if(orderItemComboMap.containsKey(ordIt.Id)){
                 if(ordIt.AgrogalaxyComboDiscount__c > 0){
-                    conditionParametersList.add(new ConditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZCBA', (isNotation(orderItemComboMap.get(ordIt.Id))).toPlainString(), ''));
+                    conditionParametersList.add(new ConditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZCBA', (isNotation(orderItemComboMap.get(ordIt.Id)*-1)).toPlainString(), ''));
                 }else{
-                    conditionParametersList.add(new ConditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZCBI', (isNotation(orderItemComboMap.get(ordIt.Id))).toPlainString(), ''));
+                    conditionParametersList.add(new ConditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZCBI', (isNotation(orderItemComboMap.get(ordIt.Id)*-1)).toPlainString(), ''));
                 }
             }
 
@@ -1083,9 +1083,9 @@ public without sharing class FactoryBuilder {
             
             if(orderItemComboMap.containsKey(ordIt.Id)){
                 if(ordIt.AgrogalaxyComboDiscount__c > 0){
-                    conditionParametersList.add(new ConditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZCBA', (isNotation(orderItemComboMap.get(ordIt.Id))).toPlainString(), ''));
+                    conditionParametersList.add(new ConditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZCBA', (isNotation(orderItemComboMap.get(ordIt.Id)*-1)).toPlainString(), ''));
                 }else{
-                    conditionParametersList.add(new ConditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZCBI', (isNotation(orderItemComboMap.get(ordIt.Id))).toPlainString(), ''));
+                    conditionParametersList.add(new ConditionParameters(ordIt.NumeroSap__c.leftPad(6, '0'), 'ZCBI', (isNotation(orderItemComboMap.get(ordIt.Id)*-1)).toPlainString(), ''));
                 }
             }
 
