@@ -1620,6 +1620,7 @@ public without sharing class OrderScreenController {
                    RecordType.DeveloperName
               FROM ComboPromotion__c
              WHERE RecordTypeId =: specificItemsRecordType
+               AND Status__c = 'Ativo'
                AND 
                (
                     (Id IN: existingCombosIds)
@@ -1765,6 +1766,7 @@ public without sharing class OrderScreenController {
                    AND SalesCondition__c =: comboData.salesConditionId
                    AND CombosQuantity__c > 0
                    AND RecordTypeId IN: recTypes
+                   AND Status__c = 'Ativo'
             ]) {
                 ComboPromotionData comboPromotionData = new ComboPromotionData();
                 comboPromotionData.comboQuantity = 0;
