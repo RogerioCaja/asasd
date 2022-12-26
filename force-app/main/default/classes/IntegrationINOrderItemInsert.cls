@@ -250,6 +250,9 @@ global without sharing class IntegrationINOrderItemInsert {
         
         System.debug('Desconto Valor ' + OrderItemINData.descontoValor);
         System.debug('Preço Praticado ' + OrderItemINData.precoPraticado);
+
+            porcentagemZCBA = 0;
+            porcentagemZCBI = 0;
         }
 
 
