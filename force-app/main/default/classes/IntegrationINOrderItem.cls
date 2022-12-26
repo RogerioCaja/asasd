@@ -82,16 +82,24 @@ global without sharing class IntegrationINOrderItem {
                     }
 
                     if(conditions.KSCHL == 'ZCBI'){
-                        
-                        porcentagemZCBI = Decimal.valueOf(conditions.KBETR);
+                        if(Decimal.valueOf(conditions.KBETR) > 0){
+                            porcentagemZCBI = Decimal.valueOf(conditions.KBETR);
+                        }
+                        else {
+                            porcentagemZCBI = Decimal.valueOf(conditions.KBETR) * (-1);
+                        }
                         //OrderItemINData.valorZCBI = Decimal.valueOf(conditions.KBETR);
                         
                     }
 
                     if(conditions.KSCHL == 'ZCBA'){
+                        if(Decimal.valueOf(conditions.KBETR) > 0){
+                            porcentagemZCBA = Decimal.valueOf(conditions.KBETR); 
+                        }
+                        else {
+                            porcentagemZCBA = Decimal.valueOf(conditions.KBETR) * (-1);
+                        }
                         
-                        porcentagemZCBA = Decimal.valueOf(conditions.KBETR);
-                        //OrderItemINData.valorZCBA = Decimal.valueOf(conditions.KBETR);
                     }
                     
                     if(conditions.KSCHL == 'ZDEC'){
