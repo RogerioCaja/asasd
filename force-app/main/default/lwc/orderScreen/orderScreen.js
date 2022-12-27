@@ -875,8 +875,12 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     }
 
     handleNextCombo() {
-        const objChild = this.template.querySelector('c-order-product-screen');
-        objChild.handleNext();
+        if(this.currentTab === 2){
+            const objChild = this.template.querySelector('c-order-product-screen');
+            objChild.handleNext();
+        }else{
+            this.handleNext()
+        }
     }
 
     handleNext() {
