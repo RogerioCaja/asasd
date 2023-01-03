@@ -24,8 +24,8 @@ class ProcessAutomation:
             "title": "Automated PR",
             "description": "PR generated from Nathan ## New Version of Bitbucket.",
             "state": "OPEN",
-            "open": true,
-            "closed": false,
+            "open": True,
+            "closed": False,
             "fromRef": {
                 "id": "",
                 "repository": {
