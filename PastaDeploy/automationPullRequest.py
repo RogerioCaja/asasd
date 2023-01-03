@@ -27,7 +27,7 @@ class ProcessAutomation:
             "open": True,
             "closed": False,
             "fromRef": {
-                "id": "",
+                "id": "refs/heads/",
                 "repository": {
                     "slug": "nescara",
                     "project": {
@@ -36,7 +36,7 @@ class ProcessAutomation:
                 }
             },
             "toRef": {
-                "id": "develop",
+                "id": "refs/heads/develop",
                 "repository": {
                     "slug": "nescara",
                     "project": {
@@ -96,9 +96,9 @@ class ProcessAutomation:
         run(command_push)
 
     def prepare_pull_request(self) -> None:
-        self.dict_payload["fromRef"]["id"] = self.branch_merge_develop
-        self.dict_payload["title"] = self.branch_merge_develop.capitalize()
-        payload = json.dumps(self.dict_payload)
+        self.dict_payload_2["fromRef"]["id"] = 'refs/heads/' + self.branch_merge_develop
+        self.dict_payload_2["title"] = self.branch_merge_develop.capitalize()
+        payload = json.dumps(self.dict_payload_2)
 
         # self.dict_payload["destination"]["branch"]["name"] = "qa2"
         # self.dict_payload["source"]["branch"]["name"] = self.branch_merge_qa2
