@@ -469,6 +469,7 @@ public without sharing class OrderScreenController {
                        SalesOrg__c,
                        ClientGroup__c,
                        ActivitySector__c,
+                       ActivitySector__r.Name,
                        DistributionChannel__c
                   FROM Company__c
                  WHERE Id =: orderData.headerData.companyId
@@ -558,7 +559,7 @@ public without sharing class OrderScreenController {
             }
 
             QuantitiesResult quantitiesResult;
-            if (seedSale) {
+            if (seedSale && (company.ActivitySector__r.Name.toUpperCase() == 'SEMENTE' || company.ActivitySector__r.Name.toUpperCase() == 'SEMENTES')) {
                 QuotaData quotaData = new QuotaData();
                 quotaData.cropId = orderData.headerData.safra.Id;
                 quotaData.sellerId = orderData.headerData.ctv_venda.Id;
