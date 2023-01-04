@@ -406,7 +406,8 @@ export default class OrderProductScreen extends LightningElement {
                 salesOfficeId: this.selectedCompany.salesOfficeId != null ? this.selectedCompany.salesOfficeId : '',
                 salesTeamId: this.selectedCompany.salesTeamId != null ? this.selectedCompany.salesTeamId : '',
                 numberOfRowsToSkip: this.numberOfRowsToSkip,
-                dontGetSeeds: this.isFilled(this.dontGetSeeds) ? this.dontGetSeeds : false
+                dontGetSeeds: this.isFilled(this.dontGetSeeds) ? this.dontGetSeeds : false,
+                paymentDate: this.headerData.data_pagamento
             };
 
             let prodsIds = [];
@@ -2137,7 +2138,8 @@ export default class OrderProductScreen extends LightningElement {
             culture: this.headerData.cultura.Id,
             orderType: this.headerData.tipo_venda,
             numberOfRowsToSkip: 0,
-            dontGetSeeds: this.isFilled(this.dontGetSeeds) ? this.dontGetSeeds : false
+            dontGetSeeds: this.isFilled(this.dontGetSeeds) ? this.dontGetSeeds : false,
+            paymentDate: this.headerData.data_pagamento
         };
         getSpecificCombos({data: JSON.stringify(headerValues), companyData: JSON.stringify(getCompanyData), productData: JSON.stringify(productParams), childOrder: this.childOrder, existingCombosIds: this.combosIds})
         .then((result) => {
