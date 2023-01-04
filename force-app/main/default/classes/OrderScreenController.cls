@@ -1701,7 +1701,8 @@ public without sharing class OrderScreenController {
         try {
             HeaderValues comboData = (HeaderValues) JSON.deserialize(data, HeaderValues.class);
             Map<Id, ComboPromotionData> result = new Map<Id, ComboPromotionData>();
-            Set<Id> combosIds = new Set<Id>();
+            Set<Id> mixCombosIds = new Set<Id>();
+            Set<Id> conditionCombosIds = new Set<Id>();
             
             Set<Id> recTypes = new Set<Id>();
             recTypes.add(Schema.SObjectType.ComboPromotion__c.getRecordTypeInfosByDeveloperName().get('ProductMix').getRecordTypeId());
@@ -1729,14 +1730,31 @@ public without sharing class OrderScreenController {
                 comboPromotionData.comboAvailableQuantity = promotion.CombosQuantity__c;
                 comboPromotionData.comboDiscountPercentage = promotion.DiscountPercentage__c;
                 comboPromotionData.specificItemCombo = false;
-                combosIds.add(promotion.Id);
                 comboPromotionData.groupQuantities = new List<GroupData>();
                 
-                if (promotion.RecordType.DeveloperName != 'ProductMix') {
+                if (promotion.RecordType.DeveloperName == 'ProductMix') {
+                    mixCombosIds.add(promotion.Id);
+                } else {
+                    conditionCombosIds.add(promotion.Id);
                     comboPromotionData.paymentConditionId = promotion.PaymentCondition__c;
                 }
 
                 result.put(promotion.Id, comboPromotionData);
+            }
+
+            for (FormerProduct__c formerProd : [
+                SELECT Id,
+                       Product__c,
+                       MinQuantity__c,
+                       ComboPromotion__c
+                  FROM FormerProduct__c
+                 WHERE ComboPromotion__c IN: mixCombosIds
+            ]) {
+                ComboPromotionData comboPromotionData = result.get(formerProd.ComboPromotion__c);
+                GroupData groupData = new GroupData();
+                groupData.productId = formerProd.Product__c;
+                groupData.quantity = formerProd.MinQuantity__c;
+                comboPromotionData.groupQuantities.add(groupData);
             }
 
             for (ProductMix__c prodMix : [
@@ -1745,7 +1763,7 @@ public without sharing class OrderScreenController {
                        ProductGroup__c,
                        ComboPromotion__c
                   FROM ProductMix__c
-                 WHERE ComboPromotion__c IN: combosIds
+                 WHERE ComboPromotion__c IN: conditionCombosIds
             ]) {
                 ComboPromotionData comboPromotionData = result.get(prodMix.ComboPromotion__c);
                 GroupData groupData = new GroupData();
@@ -2656,6 +2674,7 @@ public without sharing class OrderScreenController {
     }
 
     public class GroupData {
+        public String  productId;
         public String  productGroupId;
         public Decimal quantity;
     }
