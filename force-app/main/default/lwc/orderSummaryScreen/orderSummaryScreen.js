@@ -287,8 +287,10 @@ export default class OrderSummaryScreen extends LightningElement {
                     tsiTotalPrice += Number(this.productDataLocale[i].tsiTotalPrice);
                     royaltiesTotalPrice += Number(this.productDataLocale[i].royaltyTotalPrice);
                     
+                    let currentTotalPrice = this.seedSale && this.isFilled(this.productDataLocale[i].brokerage) && this.productDataLocale[i].brokerage > 0 ? this.productDataLocale[i].totalPriceWithBrokerage : this.productDataLocale[i].totalPrice;
+                    currentTotalPrice = Number(currentTotalPrice) + (this.seedSale ? Number(this.productDataLocale[i].tsiTotalPrice) + Number(this.productDataLocale[i].royaltyTotalPrice) : 0);
                     this.productDataLocale[i]['unitPrice'] = 'R$ ' + this.fixDecimalPlacesFront(this.productDataLocale[i].unitPrice);
-                    this.productDataLocale[i]['totalPrice']  = 'R$ ' + this.fixDecimalPlacesFront(this.seedSale && this.isFilled(this.productDataLocale[i].brokerage) && this.productDataLocale[i].brokerage > 0 ? this.productDataLocale[i].totalPriceWithBrokerage : this.productDataLocale[i].totalPrice);
+                    this.productDataLocale[i]['totalPrice']  = 'R$ ' + this.fixDecimalPlacesFront(currentTotalPrice);
                     this.productDataLocale[i]['commercialDiscountValue']  = 'R$ ' +  this.fixDecimalPlacesFront(this.productDataLocale[i].commercialDiscountValue);
                     this.productDataLocale[i]['commercialDiscountPercentage']  =  this.fixDecimalPlacesPercentage(this.productDataLocale[i].commercialDiscountPercentage);
                     this.productDataLocale[i]['commercialMarginPercentage']  = this.fixDecimalPlacesFront(this.productDataLocale[i].commercialMarginPercentage) + '%';
@@ -321,6 +323,8 @@ export default class OrderSummaryScreen extends LightningElement {
             } else {
                 this.summaryDataLocale.orderMargin = this.orderMargin;
             }
+
+            this.summaryDataLocale.totalValue = orderTotalPrice + royaltiesTotalPrice + tsiTotalPrice;
 
             this.defineOrderMargin();
         }
