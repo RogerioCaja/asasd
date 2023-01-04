@@ -441,7 +441,7 @@ export default class OrderProductScreen extends LightningElement {
                 this.verifyQuota = true;
                 if (prodsIds.length > 0) {
                     let quoteData = {cropId:this.headerData.safra.Id,sellerId:this.headerData.ctv_venda.Id,productsIds:prodsIds};
-                    if (this.verifyQuota) {
+                    if (this.verifyQuota && this.showRoyaltyTsi) {
                         checkQuotaQuantity({data: JSON.stringify(quoteData)})
                         .then((result) => {
                             this.allProductQuotas = JSON.parse(result);
@@ -462,9 +462,7 @@ export default class OrderProductScreen extends LightningElement {
                     let safraResult = JSON.parse(result);
                     this.safraData = {initialDate:safraResult.initialDate,endDate:safraResult.endDateBilling};
                     let orderData = {paymentDate:this.headerData.data_pagamento != null ? this.headerData.data_pagamento : '',salesOrg:this.selectedCompany.salesOrgId != null ? this.selectedCompany.salesOrgId : '',salesOffice:this.selectedCompany.salesOfficeId != null ? this.selectedCompany.salesOfficeId : '',salesTeam:this.selectedCompany.salesTeamId != null ? this.selectedCompany.salesTeamId : '',salesCondition:this.salesConditionId != null ? this.salesConditionId : '',safra:this.headerData.safra.Id != null ? this.headerData.safra.Id : '',culture:this.headerData.cultura.Id != null ? this.headerData.cultura.Id : ''};
-                    let allowChange = (this.headerData.tipo_pedido != 'Pedido Filho' && !this.headerData.IsOrderChild && this.isFilled(this.headerData.codigo_sap)) ||
-                                    (this.headerData.tipo_pedido == 'Pedido Filho' && this.isFilled(this.headerData.codigo_sap)) ? false : true;
-                            
+                    let allowChange = (this.headerData.tipo_pedido != 'Pedido Filho' && !this.headerData.IsOrderChild && this.isFilled(this.headerData.codigo_sap)) || (this.headerData.tipo_pedido == 'Pedido Filho' && this.isFilled(this.headerData.codigo_sap)) ? false : true;
                     let checkFinancialInfos = true;
                     if (this.headerData.pre_pedido && (allowChange || this.checkCombo)) {
                         this.financialInfoLogic(orderData);
@@ -736,13 +734,9 @@ export default class OrderProductScreen extends LightningElement {
     showProductModal(event) {
         let productId = event.target.dataset.targetId;
         let productValidation = this.baseProducts.find(e => e.Id == productId);
-        let quoteData = {
-            cropId: this.headerData.safra.Id,
-            sellerId: this.headerData.ctv_venda.Id,
-            productsIds: [productValidation.Id]
-        };
+        let quoteData = {cropId:this.headerData.safra.Id,sellerId:this.headerData.ctv_venda.Id,productsIds:[productValidation.Id]};
 
-        if (this.verifyQuota) {
+        if (this.verifyQuota && this.showRoyaltyTsi) {
             this.showLoading = true;
             checkQuotaQuantity({data: JSON.stringify(quoteData)})
             .then((result) => {
@@ -897,10 +891,7 @@ export default class OrderProductScreen extends LightningElement {
         if (selectedColumns.length >= 2) {
             selectedColumns.push({
                 type: 'action',
-                typeAttributes: {
-                    rowActions: actions,
-                    menuAlignment: 'auto'
-                }
+                typeAttributes: {rowActions:actions,menuAlignment:'auto'}
             });
             this.columns = selectedColumns;
             this.changeColumns = false;
@@ -1251,14 +1242,17 @@ export default class OrderProductScreen extends LightningElement {
     includeProduct() {
         console.log('this.addProduct: ' + JSON.stringify(this.addProduct));
         let prod = this.addProduct;
-        if (this.verifyQuota) {
+        if (this.verifyQuota && this.showRoyaltyTsi) {
             let availableQuota = this.verifyProductQuota(prod);
             if (!availableQuota) return;
         }
 
         if (this.checkRequiredFields(prod)) {
             let allProducts = JSON.parse(JSON.stringify(this.products));
+console.log('x');
             let comboDiscountPercent = this.verifyComboAndPromotion(prod.quantity);
+console.log('y'+JSON.stringify(comboDiscountPercent));
+console.log('z'+JSON.stringify(prod));
             if (prod.commercialDiscountPercentageFront == '0%' && prod.comboDiscountPercent == '0%' && comboDiscountPercent != null) {
                 prod.comboId = comboDiscountPercent.comboId;
                 prod.comboDiscountPercent = comboDiscountPercent.discount + '%';
@@ -1276,13 +1270,7 @@ export default class OrderProductScreen extends LightningElement {
                 if (this.isFilled(currentCombo)) {
                     currentCombo.productQuantity = prod.quantity;
                 } else {
-                    allCombos.push({
-                        comboId: comboDiscountPercent.comboId,
-                        comboQuantity: comboDiscountPercent.comboQuantity,
-                        productQuantity: prod.quantity,
-                        productId: prod.productId,
-                        specificItemCombo: false
-                    })
+                    allCombos.push({comboId:comboDiscountPercent.comboId,comboQuantity:comboDiscountPercent.comboQuantity,productQuantity:prod.quantity,productId:prod.productId,specificItemCombo:false});
                 }
                 this.combosSelecteds = JSON.parse(JSON.stringify(allCombos));
                 this._setcombosSelecteds();
@@ -1390,7 +1378,7 @@ export default class OrderProductScreen extends LightningElement {
                 if (allCombosSelecteds[i].comboId == combo.comboId) {
                     allCombosSelecteds[i].comboQuantity = combo.comboQuantity;
                 }
-            }                
+            }
         } else {
             allCombosSelecteds.push(combo);
         }
@@ -1414,7 +1402,7 @@ export default class OrderProductScreen extends LightningElement {
         for (let index = 0; index < includedProducts.length; index++) {
             if (includedProducts[index].position == this.productPosition) {
                 if (this.checkRequiredFields(this.addProduct)) {
-                    if (this.verifyQuota) {
+                    if (this.verifyQuota && this.showRoyaltyTsi) {
                         let availableQuota = this.verifyProductQuota(this.addProduct);
                         if (!availableQuota) return;
                     }
@@ -1435,13 +1423,7 @@ export default class OrderProductScreen extends LightningElement {
                         if (this.isFilled(currentCombo)) {
                             currentCombo.productQuantity = this.addProduct.quantity;
                         } else {
-                            allCombos.push({
-                                comboId: comboDiscountPercent.comboId,
-                                comboQuantity: 1,
-                                productQuantity: this.addProduct.quantity,
-                                productId: this.addProduct.productId,
-                                specificItemCombo: false
-                            })
+                            allCombos.push({comboId:comboDiscountPercent.comboId,comboQuantity:1,productQuantity:this.addProduct.quantity,productId:this.addProduct.productId,specificItemCombo:false});
                         }
                         this.combosSelecteds = JSON.parse(JSON.stringify(allCombos));
                         this._setcombosSelecteds();
@@ -1510,11 +1492,8 @@ export default class OrderProductScreen extends LightningElement {
                     allDivisionQuantitys += Number(existingProductDivision.quantity);
                 }
             }
-            if (allDivisionQuantitys > Number(this.currentDivisionProduct.quantity)) {
-                return true;
-            } else {
-                return false;
-            }
+            if (allDivisionQuantitys > Number(this.currentDivisionProduct.quantity)) return true;
+            else return false;
         }
     }
 
@@ -1539,9 +1518,7 @@ export default class OrderProductScreen extends LightningElement {
             }
 
             for (let index = 0; index < filledDivisions.length; index++) {
-                if (filledDivisions[index].productPosition == this.productPosition) {
-                    filledDivisions[index].orderItemKey = this.currentDivisionProduct.productId;
-                }
+                if (filledDivisions[index].productPosition == this.productPosition) filledDivisions[index].orderItemKey = this.currentDivisionProduct.productId;
             }
 
             this.allDivisionProducts = JSON.parse(JSON.stringify(filledDivisions));
@@ -1607,16 +1584,7 @@ export default class OrderProductScreen extends LightningElement {
         this.multiplicity = this.isFilled(currentProduct.multiplicity) && currentProduct.multiplicity > 0 ? currentProduct.multiplicity : 1;
         let allowChange = (this.headerData.tipo_pedido != 'Pedido Filho' && !this.headerData.IsOrderChild && this.isFilled(this.headerData.codigo_sap)) ||
                           (this.headerData.tipo_pedido == 'Pedido Filho' && this.isFilled(this.headerData.codigo_sap)) ? true : false;
-        this.currentDivisionProduct = {
-            productId: currentProduct.productId,
-            unitPrice: currentProduct.unitPrice,
-            position: position,
-            name: currentProduct.name,
-            quantity: currentProduct.quantity,
-            availableQuantity: availableQuantity,
-            showRed : availableQuantity < 0 ? true : false,
-            dontAllowChange : allowChange
-        };
+        this.currentDivisionProduct = {productId:currentProduct.productId,unitPrice:currentProduct.unitPrice,position:position,name:currentProduct.name,quantity:currentProduct.quantity,availableQuantity:availableQuantity,showRed:availableQuantity < 0 ? true : false,dontAllowChange:allowChange};
         this.showProductDivision = !this.showProductDivision;
         if (!this.currentDivisionProduct.dontAllowChange) {
             this.newFields();
