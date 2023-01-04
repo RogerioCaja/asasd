@@ -512,7 +512,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         }
 
         console.log('this.template.querySelector(this.tabs[3].component).allowFormOfPayment: ' + this.template.querySelector(this.tabs[3].component).allowFormOfPayment);
-        if (this.template.querySelector(this.tabs[3].component).allowFormOfPayment) {
+        if (this.template.querySelector(this.tabs[3].component).allowFormOfPayment && this.headerData.tipo_venda != 'Venda Barter') {
             let orderTotalPrice = 0;
             let orderTotalPaymentTsi = 0;
             let orderTotalPaymentRoyalties = 0;
@@ -592,7 +592,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             isSeedSale({salesOrgId: this.headerData.organizacao_vendas.Id, productGroupName: null})
             .then((result) => {
                 let seedType = result;
-                if (seedType && this.headerData.tipo_pedido != 'Pedido Filho' && !this.headerData.IsOrderChild) {
+                if (seedType && this.headerData.tipo_pedido != 'Pedido Filho' && !this.headerData.IsOrderChild && this.headerData.tipo_venda != 'Venda Barter') {
                     verifyQuota = true;
                 }
 
