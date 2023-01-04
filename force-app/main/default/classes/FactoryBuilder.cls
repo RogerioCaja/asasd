@@ -76,12 +76,14 @@ public without sharing class FactoryBuilder {
 
         //parameters to aux builder
         private Order order;
+        private Delimitadores__c delimiter;
         private Map<String, String> referenceItemMotherMap;
         private Map<Id, OrderItem> orderItemMap;
         private Map<Id, Decimal> orderItemComboDiscountMap;
 
         public void setOrder(Order order){
             this.order = order;
+            this.delimiter = getDelimiterByKey(this.order);
         }
 
         public void setRefMap(){
@@ -98,7 +100,7 @@ public without sharing class FactoryBuilder {
         }
 
         public void setHeader(){
-            this.IS_HEADER_IN = new Header(this.order);
+            this.IS_HEADER_IN = new Header(this.order, this.delimiter);
         }
 
         public void setPartners(){
@@ -133,6 +135,7 @@ public without sharing class FactoryBuilder {
 
         //parameters to aux builder
         private Order order;
+        private Delimitadores__c delimiter;
         private Map<String, String> referenceItemMotherMap;
         private Map<Id, OrderItem> orderItemMap;
         private Map<Id, Decimal> orderItemComboDiscountMap;
@@ -140,6 +143,7 @@ public without sharing class FactoryBuilder {
 
         public void setOrder(Order order){
             this.order = order;
+            this.delimiter = getDelimiterByKey(this.order);
         }
 
         public void setRefMap(){
@@ -157,7 +161,7 @@ public without sharing class FactoryBuilder {
         }
 
         public void setHeader(){
-            this.IS_HEADER_IN = new HeaderSeeds(this.order, this.hasSeed);
+            this.IS_HEADER_IN = new HeaderSeeds(this.order, this.hasSeed, this.delimiter);
         }
 
         public void setPartners(){
@@ -197,11 +201,13 @@ public without sharing class FactoryBuilder {
 
         //parameters to aux builder
         private Order order;
+        private Delimitadores__c delimiter;
         private Map<String, String> referenceItemMotherMap;
         private Map<Id, OrderItem> orderItemMap;
 
         public void setOrder(Order order){
             this.order = order;
+            this.delimiter = getDelimiterByKey(this.order);
         }
 
         public void setRefMap(){
@@ -217,7 +223,7 @@ public without sharing class FactoryBuilder {
         }
 
         public void setHeader(){
-            this.IS_HEADER_IN = new HeaderBarter(this.order);
+            this.IS_HEADER_IN = new HeaderBarter(this.order, this.delimiter);
         }
 
         public void setPartners(){
@@ -252,12 +258,14 @@ public without sharing class FactoryBuilder {
 
         //parameters to aux builder
         private Order order;
+        private Delimitadores__c delimiter;
         private Map<String, String> referenceItemMotherMap;
         private Map<Id, OrderItem> orderItemMap;
         private Boolean hasSeed;
 
         public void setOrder(Order order){
             this.order = order;
+            this.delimiter = getDelimiterByKey(this.order);
         }
 
         public void setRefMap(){
@@ -274,7 +282,7 @@ public without sharing class FactoryBuilder {
         }
 
         public void setHeader(){
-            this.IS_HEADER_IN = new HeaderBarterSeeds(this.order, this.hasSeed);
+            this.IS_HEADER_IN = new HeaderBarterSeeds(this.order, this.hasSeed, this.delimiter);
         }
 
         public void setPartners(){
@@ -408,17 +416,17 @@ public without sharing class FactoryBuilder {
         public String TEXT_ADICIONAL;
         public String TEXT_DANFE;
 
-        public Header(Order order){
+        public Header(Order order, Delimitadores__c delimiter){
             Map<String, String> statusSeller = new Map<String, String>();
             statusSeller.put('CTV', 'CT');
             statusSeller.put('Franqueado', 'FR');
 
             String dateF;
-            if(order.Crop__r.StartDateOrderInsertion__c < System.today() && order.IsOrderMother__c){
+            if(delimiter.StartDateOV__c < System.today() && order.IsOrderMother__c){
                 dateF = String.valueOf(order.EffectiveDate).replace('-', '');
             }
             else{
-                dateF = String.valueOf(order.Crop__r.StartDateOrderInsertion__c).replace('-', '');
+                dateF = String.valueOf(delimiter.StartDateOV__c).replace('-', '');
             }
             
             this.DOC_TYPE = getCodeTypeOrder(String.valueOf(order.RecordType.DeveloperName), order.IsOrderMother__c); 
@@ -432,14 +440,14 @@ public without sharing class FactoryBuilder {
             this.PYMT_METH = order.PaymentForm__c;
             
             this.CT_VALID_F = order.IsOrderMother__c ? dateF :  '';
-            this.CT_VALID_T = order.IsOrderMother__c ? String.valueOf(order.Crop__r.EndDateInsertionOrders__c).replace('-', '') : '';
+            this.CT_VALID_T = order.IsOrderMother__c ? String.valueOf(delimiter.EndDateOV__c).replace('-', '') : '';
 
             this.PURCH_NO_C = order.CustomerOrderNumber__c;
             this.ORD_REASON = order.OrderReason__c;
             this.ZZSAFRA = order.Crop__r.Code__c;
             this.ZZCOD_CULTURA = order.Culture__r.Codigo__c;
             this.ZZPED_CRM = order.OrderNumber;
-            this.ZZDATA_CARENCIA = String.valueOf(order.Crop__r.PaymentBaseDate__c).replace('-', '');
+            this.ZZDATA_CARENCIA = String.valueOf(delimiter.FinancialBaseDate__c).replace('-', '');
             this.ZZDATA_VENCTO = String.valueOf(order.PaymentDate__c).replace('-', '');
             this.PRICE_LIST = String.valueOf(order.SalesCondition__r.ExternalId__c).leftPad(2, '0');
             if(order.OrderReference__c != null){
@@ -520,17 +528,17 @@ public without sharing class FactoryBuilder {
         public String ZZVLRPAG9;
         public String ZZITMPAG9;
 
-        public HeaderSeeds(Order order, Boolean hasSeed){
+        public HeaderSeeds(Order order, Boolean hasSeed, Delimitadores__c delimiter){
             Map<String, String> statusSeller = new Map<String, String>();
             statusSeller.put('CTV', 'CT');
             statusSeller.put('Franqueado', 'FR');
 
             String dateF;
-            if(order.Crop__r.StartDateOrderInsertion__c < System.today() && order.IsOrderMother__c){
+            if(delimiter.StartDateOV__c < System.today() && order.IsOrderMother__c){
                 dateF = String.valueOf(order.EffectiveDate).replace('-', '');
             }
             else{
-                dateF = String.valueOf(order.Crop__r.StartDateOrderInsertion__c).replace('-', '');
+                dateF = String.valueOf(delimiter.StartDateOV__c).replace('-', '');
             }
             
             this.DOC_TYPE = getCodeTypeOrder(String.valueOf(order.RecordType.DeveloperName), order.IsOrderMother__c); 
@@ -544,14 +552,14 @@ public without sharing class FactoryBuilder {
             this.PYMT_METH = order.PaymentForm__c;
             
             this.CT_VALID_F = order.IsOrderMother__c ? dateF :  '';
-            this.CT_VALID_T = order.IsOrderMother__c ? String.valueOf(order.Crop__r.EndDateInsertionOrders__c).replace('-', '') : '';
+            this.CT_VALID_T = order.IsOrderMother__c ? String.valueOf(delimiter.EndDateOV__c).replace('-', '') : '';
 
             this.PURCH_NO_C = order.CustomerOrderNumber__c;
             this.ORD_REASON = order.OrderReason__c;
             this.ZZSAFRA = order.Crop__r.Code__c;
             this.ZZCOD_CULTURA = order.Culture__r.Codigo__c;
             this.ZZPED_CRM = order.OrderNumber;
-            this.ZZDATA_CARENCIA = String.valueOf(order.Crop__r.PaymentBaseDate__c).replace('-', '');
+            this.ZZDATA_CARENCIA = String.valueOf(delimiter.FinancialBaseDate__c).replace('-', '');
             this.ZZDATA_VENCTO = String.valueOf(order.PaymentDate__c).replace('-', '');
             this.PRICE_LIST = String.valueOf(order.SalesCondition__r.ExternalId__c).leftPad(2, '0');
             if(order.OrderReference__c != null){
@@ -611,17 +619,17 @@ public without sharing class FactoryBuilder {
         public String EKORG;
         public String EKGRP;
 
-        public HeaderBarter(Order order){
+        public HeaderBarter(Order order, Delimitadores__c delimiter){
             Map<String, String> statusSeller = new Map<String, String>();
             statusSeller.put('CTV', 'CT');
             statusSeller.put('Franqueado', 'FR');
 
             String dateF;
-            if(order.Crop__r.StartDateOrderInsertion__c < System.today() && order.IsOrderMother__c){
+            if(delimiter.StartDateOV__c < System.today() && order.IsOrderMother__c){
                 dateF = String.valueOf(order.EffectiveDate).replace('-', '');
             }
             else{
-                dateF = String.valueOf(order.Crop__r.StartDateOrderInsertion__c).replace('-', '');
+                dateF = String.valueOf(delimiter.StartDateOV__c).replace('-', '');
             }
             
             this.DOC_TYPE = getCodeTypeOrder(String.valueOf(order.RecordType.DeveloperName), order.IsOrderMother__c); 
@@ -635,14 +643,14 @@ public without sharing class FactoryBuilder {
             this.PYMT_METH = order.PaymentForm__c;
             
             this.CT_VALID_F = order.IsOrderMother__c ? dateF :  '';
-            this.CT_VALID_T = order.IsOrderMother__c ? String.valueOf(order.Crop__r.EndDateInsertionOrders__c).replace('-', '') : '';
+            this.CT_VALID_T = order.IsOrderMother__c ? String.valueOf(delimiter.EndDateOV__c).replace('-', '') : '';
 
             this.PURCH_NO_C = order.CustomerOrderNumber__c;
             this.ORD_REASON = order.OrderReason__c;
             this.ZZSAFRA = order.Crop__r.Code__c;
             this.ZZCOD_CULTURA = order.Culture__r.Codigo__c;
             this.ZZPED_CRM = order.OrderNumber;
-            this.ZZDATA_CARENCIA = String.valueOf(order.Crop__r.PaymentBaseDate__c).replace('-', '');
+            this.ZZDATA_CARENCIA = String.valueOf(delimiter.FinancialBaseDate__c).replace('-', '');
             this.ZZDATA_VENCTO = String.valueOf(order.PaymentDate__c).replace('-', '');
             this.PRICE_LIST = String.valueOf(order.SalesCondition__r.ExternalId__c).leftPad(2, '0');
             if(order.OrderReference__c != null){
@@ -735,17 +743,17 @@ public without sharing class FactoryBuilder {
         public String ZZVLRPAG9;
         public String ZZITMPAG9;
 
-        public HeaderBarterSeeds(Order order, Boolean hasSeed){
+        public HeaderBarterSeeds(Order order, Boolean hasSeed, Delimitadores__c delimiter){
             Map<String, String> statusSeller = new Map<String, String>();
             statusSeller.put('CTV', 'CT');
             statusSeller.put('Franqueado', 'FR');
 
             String dateF;
-            if(order.Crop__r.StartDateOrderInsertion__c < System.today() && order.IsOrderMother__c){
+            if(delimiter.StartDateOV__c < System.today() && order.IsOrderMother__c){
                 dateF = String.valueOf(order.EffectiveDate).replace('-', '');
             }
             else{
-                dateF = String.valueOf(order.Crop__r.StartDateOrderInsertion__c).replace('-', '');
+                dateF = String.valueOf(delimiter.StartDateOV__c).replace('-', '');
             }
             
             this.DOC_TYPE = getCodeTypeOrder(String.valueOf(order.RecordType.DeveloperName), order.IsOrderMother__c); 
@@ -759,14 +767,14 @@ public without sharing class FactoryBuilder {
             this.PYMT_METH = order.PaymentForm__c;
             
             this.CT_VALID_F = order.IsOrderMother__c ? dateF :  '';
-            this.CT_VALID_T = order.IsOrderMother__c ? String.valueOf(order.Crop__r.EndDateInsertionOrders__c).replace('-', '') : '';
+            this.CT_VALID_T = order.IsOrderMother__c ? String.valueOf(delimiter.EndDateOV__c).replace('-', '') : '';
 
             this.PURCH_NO_C = order.CustomerOrderNumber__c;
             this.ORD_REASON = order.OrderReason__c;
             this.ZZSAFRA = order.Crop__r.Code__c;
             this.ZZCOD_CULTURA = order.Culture__r.Codigo__c;
             this.ZZPED_CRM = order.OrderNumber;
-            this.ZZDATA_CARENCIA = String.valueOf(order.Crop__r.PaymentBaseDate__c).replace('-', '');
+            this.ZZDATA_CARENCIA = String.valueOf(delimiter.FinancialBaseDate__c).replace('-', '');
             this.ZZDATA_VENCTO = String.valueOf(order.PaymentDate__c).replace('-', '');
             this.PRICE_LIST = String.valueOf(order.SalesCondition__r.ExternalId__c).leftPad(2, '0');
             if(order.OrderReference__c != null){
@@ -879,6 +887,7 @@ public without sharing class FactoryBuilder {
         }
     }
     
+
     private static String getCodeTypeOrder(String typeOrder, Boolean isOrderMother){
 
         String orderType = typeOrder + (isOrderMother ? 'PedidoMae' : '');
@@ -1153,6 +1162,24 @@ public without sharing class FactoryBuilder {
             typeContract = 'B';
         }
         return typeContract;
+    }
+
+    private static Delimitadores__c getDelimiterByKey(Order order){
+        String keyDelimiter = order.Crop__r.Name + order.SalesCondition__r.Name +  SalesOrg__r.Name;
+        
+        Delimitadores__c delimiter = [
+            SELECT Id,
+                StartDateBilling__c,
+                StartDateOV__c,
+                EndDateOV__c,
+                LimitDateAfterPayment__c,
+                EndDateBilling__c,
+                FinancialBaseDate__c
+            FROM Delimitadores__c
+            WHERE Name =: keyDelimiter
+        ];
+
+        return delimiter;
     }
 
      
