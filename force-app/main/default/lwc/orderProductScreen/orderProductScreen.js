@@ -246,6 +246,7 @@ export default class OrderProductScreen extends LightningElement {
                 } else if (this.companyResult.length == 1) {
                     this.selectedCompany = this.companyResult[0];
                     this.headerData.companyId = this.selectedCompany.companyId;
+                    this.headerData.companySector = this.selectedCompany.activitySectorName;
                     this.onSelectCompany();
                 } else if (this.companyResult.length > 1) {
                     this.selectCompany = true;
@@ -378,6 +379,7 @@ export default class OrderProductScreen extends LightningElement {
         if (!this.isFilled(this.headerData.companyId)) {
             this.selectCompany = !this.selectCompany;
             this.headerData.companyId = this.selectedCompany.companyId;
+            this.headerData.companySector = this.selectedCompany.activitySectorName;
         }
         this._setHeaderValues();
         
@@ -592,7 +594,6 @@ export default class OrderProductScreen extends LightningElement {
                         getMixAndConditionCombos({data: JSON.stringify(headerValues)})
                         .then((result) => {
                             let combosAndPromotions = JSON.parse(result);
-                            console.log('combosAndPromotions: ' + JSON.stringify(combosAndPromotions));
                             if (combosAndPromotions.length > 0) this.combosData = combosAndPromotions;
                         });
                     }
@@ -1242,10 +1243,7 @@ export default class OrderProductScreen extends LightningElement {
 
         if (this.checkRequiredFields(prod)) {
             let allProducts = JSON.parse(JSON.stringify(this.products));
-console.log('x');
             let comboDiscountPercent = this.verifyComboAndPromotion(prod.quantity);
-console.log('y'+JSON.stringify(comboDiscountPercent));
-console.log('z'+JSON.stringify(prod));
             if (prod.commercialDiscountPercentageFront == '0%' && prod.comboDiscountPercent == '0%' && comboDiscountPercent != null) {
                 prod.comboId = comboDiscountPercent.comboId;
                 prod.comboDiscountPercent = comboDiscountPercent.discount + '%';
@@ -1628,7 +1626,6 @@ console.log('z'+JSON.stringify(prod));
                     if (allCombos[index].comboId == comboId) allCombos[index].comboQuantity = 0;
                 }
 
-                console.log('JSON.stringify(allCombos): ' + JSON.stringify(allCombos));
                 this.combosData = JSON.parse(JSON.stringify(allCombos));
                 this._setcombosSelecteds();
             }

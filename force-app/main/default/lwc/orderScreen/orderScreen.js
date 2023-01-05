@@ -94,6 +94,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         org: {Name: " "},
         aprovation: " ",
         companyId: null,
+        companySector: null,
         centerId: null,
         hectares: '',
         firstTime: true
@@ -276,6 +277,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             if(this.cloneData.cloneOrder){
                 this.headerData.ctv_venda.Id = null;
                 this.headerData.companyId = null;
+                this.headerData.companySector = null;
                 this.headerData.status_pedido = 'Em digitação';
                 this.headerData.cliente_entrega.Id = null;
                 this.headerData.orderNumber = null;
@@ -373,6 +375,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             if(this.cloneData.cloneOrder){
                 this.headerData.ctv_venda.Id = null;
                 this.headerData.companyId = null;
+                this.headerData.companySector = null;
                 this.headerData.status_pedido = 'Em digitação';
                 this.headerData.cliente_entrega.Id = null;
                 this.headerData.orderNumber = null;
@@ -597,7 +600,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
                 }
 
                 console.log('verifyQuota: ' + verifyQuota);
-                if (verifyQuota) {
+                if (verifyQuota && (this.headerData.companySector.toUpperCase() == 'SEMENTES' || this.headerData.companySector.toUpperCase() == 'SEMENTE')) {
                     let quoteData = {
                         cropId: this.headerData.safra.Id,
                         sellerId: this.headerData.ctv_venda.Id,
