@@ -891,7 +891,7 @@ global with sharing class TemplateDataIntegrationFields {
             return new NotaFiscal__c(
                
                 Name = this.invoiceName,
-                ExternalID__c = this.invoiceName + '|' + this.numeroNotaFiscal,
+                ExternalID__c = this.chaveAcesso,
                 AccountCode__c = lookups.containsKey('Account'+this.cliente) ? lookups.get('Account' + this.cliente) : null,
                 OrderCode__c = lookups.containsKey('Order'+this.numeroPedido) ? lookups.get('Order'+ this.numeroPedido) : null, //
                 Company__c = lookups.containsKey('SalesOrg__c'+this.codigoEmpresa) ? lookups.get('SalesOrg__c'+this.codigoEmpresa) : null,
