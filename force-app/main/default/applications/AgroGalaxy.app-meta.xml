@@ -12,14 +12,6 @@
     <isNavPersonalizationDisabled>false</isNavPersonalizationDisabled>
     <label>AgroGalaxy</label>
     <navType>Standard</navType>
-  <profileActionOverrides>
-        <actionName>Tab</actionName>
-        <content>Home_Page_Default</content>
-        <formFactor>Large</formFactor>
-        <pageOrSobjectType>standard-home</pageOrSobjectType>
-        <type>Flexipage</type>
-        <profile>Admin</profile>
-    </profileActionOverrides>
     <profileActionOverrides>
         <actionName>View</actionName>
         <content>Relatorio_Tecnico</content>
@@ -65,6 +57,54 @@
         <content>Planejamento_da_Visita</content>
         <formFactor>Large</formFactor>
         <pageOrSobjectType>VisitPlanning__c</pageOrSobjectType>
+        <type>Flexipage</type>
+        <profile>Admin</profile>
+    </profileActionOverrides>
+    <profileActionOverrides>
+        <actionName>View</actionName>
+        <content>Impostos_da_Commodity</content>
+        <formFactor>Small</formFactor>
+        <pageOrSobjectType>CommodityTaxes__c</pageOrSobjectType>
+        <type>Flexipage</type>
+        <profile>Admin</profile>
+    </profileActionOverrides>
+    <profileActionOverrides>
+        <actionName>View</actionName>
+        <content>Impostos_da_Commodity</content>
+        <formFactor>Large</formFactor>
+        <pageOrSobjectType>CommodityTaxes__c</pageOrSobjectType>
+        <type>Flexipage</type>
+        <profile>Admin</profile>
+    </profileActionOverrides>
+    <profileActionOverrides>
+        <actionName>View</actionName>
+        <content>Impostos_do_Cliente</content>
+        <formFactor>Small</formFactor>
+        <pageOrSobjectType>CustomerTaxes__c</pageOrSobjectType>
+        <type>Flexipage</type>
+        <profile>Admin</profile>
+    </profileActionOverrides>
+    <profileActionOverrides>
+        <actionName>View</actionName>
+        <content>Impostos_do_Cliente</content>
+        <formFactor>Large</formFactor>
+        <pageOrSobjectType>CustomerTaxes__c</pageOrSobjectType>
+        <type>Flexipage</type>
+        <profile>Admin</profile>
+    </profileActionOverrides>
+    <profileActionOverrides>
+        <actionName>View</actionName>
+        <content>Impostos_Barter</content>
+        <formFactor>Small</formFactor>
+        <pageOrSobjectType>BarterTaxes__c</pageOrSobjectType>
+        <type>Flexipage</type>
+        <profile>Admin</profile>
+    </profileActionOverrides>
+    <profileActionOverrides>
+        <actionName>View</actionName>
+        <content>Impostos_Barter</content>
+        <formFactor>Large</formFactor>
+        <pageOrSobjectType>BarterTaxes__c</pageOrSobjectType>
         <type>Flexipage</type>
         <profile>Admin</profile>
     </profileActionOverrides>
@@ -91,6 +131,9 @@
     <tabs>TechnicalReport__c</tabs>
     <tabs>VisitPlanning__c</tabs>
     <tabs>GeneralQuotas__c</tabs>
+    <tabs>BarterTaxes__c</tabs>
+    <tabs>CustomerTaxes__c</tabs>
+    <tabs>CommodityTaxes__c</tabs>
     <uiType>Lightning</uiType>
     <utilityBar>AgroGalaxy_UtilityBar</utilityBar>
 </CustomApplication>
