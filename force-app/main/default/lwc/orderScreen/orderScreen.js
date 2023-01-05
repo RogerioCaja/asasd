@@ -123,7 +123,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             current: true,
             enable: true,
             completed:false,
-            message: 'Necessário selecionar pelo menos uma conta',
+            message: 'Necessário selecionar pelo menos uma conta ou BP não é fornecedor',
             component: 'c-order-account-screen'
         },
         {
@@ -646,6 +646,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     }
 
     _setAccountData(event) {
+        let enableScreen = true
         try {
             if(event.data !== undefined && this.accountData != undefined && event.data.Id != this.accountData.id){
                 this.headerData.cliente_entrega = " "
@@ -654,12 +655,22 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             }
             this.accountData = event.data;
 
+            if(!this.accountData?.Supplier__c && this.headerData.tipo_venda == 'Venda Barter'){
+                enableScreen = false
+                this.showNotification('BP não é um fornecedor', 'Atenção!', 'warning');
+            }
+
             console.log('account data setted:', this.accountData);
         } catch (e) {
             console.log(e);
         }
-        this.enableNextScreen();
-        this.completeCurrentScreen();
+
+        if (enableScreen) {
+            this.enableNextScreen();
+            this.completeCurrentScreen();
+        } else {
+            this.disableNextScreen();
+        }
     }
 
     _setHeaderData(event) {
