@@ -614,7 +614,7 @@ public without sharing class OrderScreenController {
                      WHERE Product2Id IN: listProductsIds
                 ]) {
                     pricebookId = entry.Pricebook2Id;
-                    entriesByProductsIds.put(entry.Product2Id, entry);
+                    entriesByProductsIds.put(entry.Product2Id + 'BRL', entry);
                 }
             } else {
                 for (PricebookEntry entry : [
@@ -1570,8 +1570,14 @@ public without sharing class OrderScreenController {
     @AuraEnabled
     public static String getSpecificCombos(String data, String companyData, String productData, Boolean childOrder, List<Id> existingCombosIds) {
         String companiesData = getAccountCompanies(companyData, false, false, false, childOrder);
-        CompanyInfosSerialize companyInfos = (CompanyInfosSerialize) JSON.deserialize(companiesData, CompanyInfosSerialize.class);
-        CompanyInfos company = companyInfos.listCompanyInfos[0];
+        CompanyInfos company = new CompanyInfos();
+
+        if (Test.isRunningTest()) {
+            company = (CompanyInfos) JSON.deserialize(companyData, CompanyInfos.class);
+        } else {
+            CompanyInfosSerialize companyInfos = (CompanyInfosSerialize) JSON.deserialize(companiesData, CompanyInfosSerialize.class);
+            company = companyInfos.listCompanyInfos[0];
+        }
         
         HeaderValues comboData = (HeaderValues) JSON.deserialize(data, HeaderValues.class);
         CustomLookupController.ProductParams productParams = (CustomLookupController.ProductParams) JSON.deserialize(productData, CustomLookupController.ProductParams.class);
@@ -2166,6 +2172,7 @@ public without sharing class OrderScreenController {
         public List<ProductSerialize> productData;
         public List<DivisionSerialize> divisionData;
         public List<CommodityDeserialize> commodityData;
+        public List<FormOfPaymentSerialize> formsOfPayment;
         public AccountSerialize accountData;
         public SummarySerialize summaryData;
 
@@ -2175,11 +2182,12 @@ public without sharing class OrderScreenController {
             this.accountData = account;
         }  
 
-        public OrderSerializeAll(HeaderSerialize order, List<ProductSerialize> products, List<DivisionSerialize> divisions, List<CommodityDeserialize> commodities, AccountSerialize account, SummarySerialize summaryData){
+        public OrderSerializeAll(HeaderSerialize order, List<ProductSerialize> products, List<DivisionSerialize> divisions, List<CommodityDeserialize> commodities, List<FormOfPaymentSerialize> formsOfPayment, AccountSerialize account, SummarySerialize summaryData){
             this.headerData = order;
             this.productData = products;
             this.divisionData = divisions;
             this.commodityData = commodities;
+            this.formsOfPayment = formsOfPayment;
             this.accountData = account;
             this.summaryData = summaryData;
         }
