@@ -1165,7 +1165,7 @@ public without sharing class FactoryBuilder {
     }
 
     private static Delimitadores__c getDelimiterByKey(Order order){
-        String keyDelimiter = order.Crop__r.Name + order.SalesCondition__r.Name +  order.SalesOrg__r.Name;
+        String keyDelimiter = order.Crop__r.Name +' '+ order.SalesCondition__r.ExternalId__c +' '+  order.SalesOrg__r.Name;
         
         Delimitadores__c delimiter = [
             SELECT Id,
