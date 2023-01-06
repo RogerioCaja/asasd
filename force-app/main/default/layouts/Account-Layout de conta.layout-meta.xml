@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Layout xmlns="http://soap.sforce.com/2006/04/metadata">
-    <excludeButtons>DataDotComAccountInsights</excludeButtons>
-    <excludeButtons>DataDotComClean</excludeButtons>
-    <excludeButtons>DataDotComCompanyHierarchy</excludeButtons>
     <excludeButtons>Submit</excludeButtons>
     <layoutSections>
         <customLabel>false</customLabel>
@@ -244,18 +241,7 @@
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
-        <fields>harvest__c</fields>
-        <fields>SalesOrganization__c</fields>
-        <fields>TotalSaleValue__c</fields>
-        <fields>TotalSalesVolume__c</fields>
-        <relatedList>PlanejamentoVendas__c.Client__c</relatedList>
-    </relatedLists>
-    <relatedLists>
-        <fields>NAME</fields>
-        <fields>ProductsGroup__c</fields>
-        <fields>harvest__c</fields>
-        <fields>PotentialPurchaseValue__c</fields>
-        <relatedList>PotencialCompra__c.Client__c</relatedList>
+        <relatedList>CustomerTaxes__c.Account__c</relatedList>
     </relatedLists>
     <relatedLists>
         <fields>TERRITORY.NAME</fields>
@@ -300,17 +286,6 @@
         <fields>BP_Property__c</fields>
         <fields>InitialDate__c</fields>
         <relatedList>VisitPlanning__c.MainBP__c</relatedList>
-    </relatedLists>
-    <relatedLists>
-        <excludeButtons>MassChangeOwner</excludeButtons>
-        <fields>NAME</fields>
-        <fields>MainBP__c</fields>
-        <fields>InitialDate__c</fields>
-        <relatedList>VisitPlanning__c.BP_Property__c</relatedList>
-    </relatedLists>
-    <relatedLists>
-        <fields>NAME</fields>
-        <relatedList>CustomerTaxes__c.Account__c</relatedList>
     </relatedLists>
     <relatedObjects>ParentId</relatedObjects>
     <showEmailCheckbox>false</showEmailCheckbox>
