@@ -46,6 +46,10 @@
                 <behavior>Edit</behavior>
                 <field>BpType__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Supplier__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>
@@ -405,6 +409,10 @@
         <fields>MainBP__c</fields>
         <fields>InitialDate__c</fields>
         <relatedList>VisitPlanning__c.BP_Property__c</relatedList>
+    </relatedLists>
+    <relatedLists>
+        <fields>NAME</fields>
+        <relatedList>CustomerTaxes__c.Account__c</relatedList>
     </relatedLists>
     <relatedObjects>ParentId</relatedObjects>
     <showEmailCheckbox>false</showEmailCheckbox>
