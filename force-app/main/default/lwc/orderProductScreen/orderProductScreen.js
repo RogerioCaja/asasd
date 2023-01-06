@@ -241,6 +241,7 @@ export default class OrderProductScreen extends LightningElement {
                 } else if (this.companyResult.length == 1) {
                     this.selectedCompany = this.companyResult[0];
                     this.headerData.companyId = this.selectedCompany.companyId;
+                    this.headerData.companySector = this.selectedCompany.activitySectorName;
                     this.onSelectCompany();
                 } else if (this.companyResult.length > 1) {
                     this.selectCompany = true;
@@ -371,6 +372,7 @@ export default class OrderProductScreen extends LightningElement {
         if (!this.isFilled(this.headerData.companyId)) {
             this.selectCompany = !this.selectCompany;
             this.headerData.companyId = this.selectedCompany.companyId;
+            this.headerData.companySector = this.selectedCompany.activitySectorName;
         }
         this._setHeaderValues();
         
