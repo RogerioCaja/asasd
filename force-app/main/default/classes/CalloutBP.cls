@@ -62,12 +62,20 @@ public without sharing class CalloutBP {
                 }else{
                     email = valor.Email;
                 }
+                Boolean blocked = false;
+                if(valor.Fornecedor == null){
+                    blocked = false;
+                }
+                if(valor.Fornecedor == 'true'){
+                    blocked = true;
+                }
                 Account ac = new Account(
                 Name = valor.Nome,
                 Company__c = valor.Nome,    
                 ExternalId__c = valor.CodigoExterno,
                 CNPJ__c = valor.CNPJ,
                 CPF__c = valor.CPF,
+                Supplier__c = blocked,
                 MunicipalRegistration__c = valor.InscricaoMunicipal,
                 StateRegistration__c = valor.InscricaoEstadual,
                 Email__c = email,
@@ -224,12 +232,20 @@ public without sharing class CalloutBP {
                 }else{
                     email = valor.Email;
                 }
+                Boolean blocked = false;
+                if(valor.Fornecedor == null){
+                    blocked = false;
+                }
+                if(valor.Fornecedor == 'true'){
+                    blocked = true;
+                }
                 Account ac = new Account(
                 Name = valor.Nome,
                 Company__c = valor.Nome,    
                 ExternalId__c = valor.CodigoExterno,
                 CNPJ__c = valor.CNPJ,
                 CPF__c = valor.CPF,
+                Supplier__c = blocked,
                 MunicipalRegistration__c = valor.InscricaoMunicipal,
                 StateRegistration__c = valor.InscricaoEstadual,
                 Email__c = email,
@@ -625,7 +641,7 @@ public without sharing class CalloutBP {
             	BlockedCredit__c = blocked,
             	LimitBalance__c = valor.Saldo,
             	Safra__c = lookups.containsKey('Safra__c'+valor.Safra) ? lookups.get('Safra__c'+valor.Safra) : null,
-            	ExternalId__c = valor.CodigoExternoAccount + valor.Safra + valor.Cultura);
+            	ExternalId__c = valor.CodigoExternoAccount + '-' + valor.Safra + valor.Cultura);
             	creditListToUpsert.add(credit);
             }
         }
@@ -811,6 +827,7 @@ public without sharing class CalloutBP {
         public String PaisEntrega;
         public String CEPEntrega;
         public String RuaCobranca;
+        public String Fornecedor;
         public String CidadeCobranca;
         public String EstadoCobranca;
         public String PaisCobranca;
