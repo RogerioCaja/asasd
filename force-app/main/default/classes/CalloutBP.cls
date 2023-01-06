@@ -680,7 +680,7 @@ public without sharing class CalloutBP {
             	BlockedCredit__c = blocked,
             	LimitBalance__c = valor.Saldo,
             	Safra__c = lookups.containsKey('Safra__c'+valor.Safra) ? lookups.get('Safra__c'+valor.Safra) : null,
-            	ExternalId__c = valor.CodigoExternoAccount + '-' + valor.Safra + valor.Cultura);
+            	ExternalId__c = valor.CodigoExternoAccount + valor.Safra + valor.Cultura);
             	creditListToUpsert.add(credit);
             }
         }
@@ -700,7 +700,7 @@ public without sharing class CalloutBP {
             	Account__c = lookups.containsKey('Account__c'+valor.CodigoExternoAccount) ? lookups.get('Account__c'+valor.CodigoExternoAccount) : null,
             	Tax__c = lookups.containsKey('BarterTaxes__c'+valor.CodigoImposto) ? lookups.get('BarterTaxes__c'+valor.CodigoImposto) : null,
                 Status__c = valor.Status,
-                ExternalId__c = valor.CodigoExternoAccount + valor.CodigoImposto
+                ExternalId__c = valor.CodigoExternoAccount + '-' + valor.CodigoImposto
                 );
             	clientTaxListToUpsert.add(impost);
             }                                                                                                                                                                             
