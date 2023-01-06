@@ -155,9 +155,10 @@
     <externalSharingModel>Private</externalSharingModel>
     <label>Impostos Barter</label>
     <nameField>
+        <displayFormat>IB-{0000}</displayFormat>
         <label>Impostos Barter Name</label>
         <trackHistory>false</trackHistory>
-        <type>Text</type>
+        <type>AutoNumber</type>
     </nameField>
     <pluralLabel>Impostos Barter</pluralLabel>
     <searchLayouts></searchLayouts>
