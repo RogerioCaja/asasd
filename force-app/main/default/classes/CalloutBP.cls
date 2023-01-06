@@ -948,6 +948,7 @@ public without sharing class CalloutBP {
     }
 
     public class TaxINData{
+        public String CodigoExternoAccount;
         public String CodigoImposto;
         public String Status; 
     }
