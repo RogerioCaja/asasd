@@ -310,10 +310,10 @@
         </template>
     </template>
 
-    <div if:true={allowFormOfPayment} class="openPaymentScreen">
-        <div onclick={openFormOfPayment} class="confirm-button" style=" width: 200px; text-align:center;">Adicionar Formas de Pagamento</div>
+    <div class="openPaymentScreen">
+        <div if:true={allowFreight} onclick={openFreight} class="confirm-button" style="width: 200px; text-align:center; margin: 10px;">Alterar Frete</div>
+        <div if:true={allowFormOfPayment} onclick={openFormOfPayment} class="confirm-button" style="width: 200px; text-align:center; margin: 10px;">Adicionar Formas de Pagamento</div>
     </div>
-    
 
     <template if:true={showFormOfPayment}>
         <div class="modal">
@@ -450,8 +450,8 @@
                 </div>
 
                 <div class="row">
-                    <div>
-                        <a class="close-modal-button" onclick={closeFreightScreen}>Fechar</a>
+                    <div class="column">
+                        <button class="confirm-button" style="float: left;" onclick={closeFreightScreen}>Fechar</button>
                     </div>
                     <div class="column">
                         <button class="confirm-button" onclick={confirmFreight}>Confirmar</button>
