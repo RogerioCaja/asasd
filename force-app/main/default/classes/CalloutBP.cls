@@ -127,7 +127,7 @@ public without sharing class CalloutBP {
             System.debug('newLookups: '+ newLookups);
             Database.UpsertResult[] resultsCredit = creatyCredit(creditoList, newLookups);
             Database.UpsertResult[] resultsCompany = creatyCompany(companyList, newLookups, nameLookups);
-            Database.UpsertResult[] resultsImposto = clientTax(tabelaImpostosList, newLookups);
+            //Database.UpsertResult[] resultsImposto = clientTax(tabelaImpostosList, newLookups);
             String resultsError = '';
 
             if(resultsImposto != null){
@@ -303,7 +303,7 @@ public without sharing class CalloutBP {
             System.debug('tabelaImpostosList: '+ tabelaImpostosList);
             Database.UpsertResult[] resultsCredit = creatyCredit(creditoList, newLookups);
             Database.UpsertResult[] resultsCompany = creatyCompany(companyList, newLookups, nameLookups);
-            Database.UpsertResult[] resultsImposto = clientTax(tabelaImpostosList, newLookups);
+            //Database.UpsertResult[] resultsImposto = clientTax(tabelaImpostosList, newLookups);
             String resultsError = '';
 
             if(resultsImposto != null){
@@ -922,6 +922,7 @@ public without sharing class CalloutBP {
     }
 
     public class TaxINData{
+        public String CodigoExternoAccount;
         public String CodigoImposto;
         public String Status; 
     }
