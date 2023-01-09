@@ -12,6 +12,8 @@ export default class OrderSummaryScreen extends LightningElement {
     showLoading = false;
     staticValue = 'hidden';
     showFreightScreen=false;
+    allowFreight=false;
+    currentFreight;
     allowCloseFreightScreen=false;
     hasData = true;
     disabled=false;
@@ -123,13 +125,9 @@ export default class OrderSummaryScreen extends LightningElement {
         isSeedSale({salesOrgId: this.headerData.organizacao_vendas.Id, productGroupName: null})
             .then((result) => {
                 this.seedSale = result;
-                console.log('this.seedSale: ' + this.seedSale);
-                console.log('!this.childOrder: ' + !this.childOrder);
-                console.log('this.headerData.pedido_mae: ' + JSON.stringify(this.headerData.pedido_mae));
                 if (this.seedSale && !this.headerData.IsOrderChild) {
                     this.allowFormOfPayment = true;
                 }
-                console.log('this.allowFormOfPayment: ' + this.allowFormOfPayment);
                 this.loadData();
         });
         
@@ -138,7 +136,6 @@ export default class OrderSummaryScreen extends LightningElement {
             isSeedSale({salesOrgId: this.headerData.organizacao_vendas.Id, productGroupName: null})
             .then((result) => {
                 this.seedSale = result
-                console.log('result: ' + result);
                 if (result) {
                     this.getDistributionCenters();
                 } else {
@@ -230,10 +227,12 @@ export default class OrderSummaryScreen extends LightningElement {
                if(this.headerData.frete == 'CIF'){
                     checkSalesOrgFreight({salesOrgId: this.salesOrgId})
                     .then((result) => {
+                        this.allowFreight = result;
                         this.showFreightScreen = result;
                         let summary = JSON.parse(JSON.stringify(this.summaryDataLocale));
                         summary.freightValue = summary.freightValue === undefined ? 0 : summary.freightValue;
                         summary.freightValueFront = this.fixDecimalPlacesFront(summary.freightValue);
+                        this.currentFreight = summary.freightValue;
                         this.summaryDataLocale = JSON.parse(JSON.stringify(summary));
                         this.showFreightScreen = this.showFreightScreen && !this.headerData.IsOrderChild ? true : false;
 
@@ -331,6 +330,10 @@ export default class OrderSummaryScreen extends LightningElement {
         }
     }
 
+    openFreight(event) {
+        this.showFreightScreen = true;
+    }
+
     chooseDistributionCenter(event){
         let oldDC = this.isFilled(this.selectedDistributionCenter) ? this.selectedDistributionCenter : null;
         let DCs = this.distrCenterResult;
@@ -426,13 +429,12 @@ export default class OrderSummaryScreen extends LightningElement {
     closeFreightScreen() {
         this.showFreightScreen = false;
         let summary = JSON.parse(JSON.stringify(this.summaryDataLocale));
-        summary.freightValue = 0;
-        summary.freightValueFront = 0;
+        summary.freightValue = this.isFilled(this.currentFreight) ? this.currentFreight : 0;
+        summary.freightValueFront = this.fixDecimalPlacesFront(summary.freightValue);
         this.summaryDataLocale = JSON.parse(JSON.stringify(summary));
     }
 
     confirmFreight() {
-        
         let variable = 'freight-value';
         if(!this.template.querySelector(`[data-target-id="${variable}"]`).checkValidity()){
             this.showToast('warning', 'Atenção', 'Valor de frete inválido');
@@ -440,6 +442,8 @@ export default class OrderSummaryScreen extends LightningElement {
          }
 
         this.showFreightScreen = false;
+        let summary = JSON.parse(JSON.stringify(this.summaryDataLocale));
+        this.currentFreight = this.fixFreightDecimalPlaces(summary.freightValue);
 
         this.changeFreight();
     }
