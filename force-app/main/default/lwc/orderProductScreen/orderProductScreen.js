@@ -7,6 +7,7 @@ import getSpecificCombos from '@salesforce/apex/OrderScreenController.getSpecifi
 import checkQuotaQuantity from '@salesforce/apex/OrderScreenController.checkQuotaQuantity';
 import getAccountCompanies from '@salesforce/apex/OrderScreenController.getAccountCompanies';
 import getMixAndConditionCombos from '@salesforce/apex/OrderScreenController.getMixAndConditionCombos';
+import getTaxes from '@salesforce/apex/OrderScreenController.getTaxes';
 import fetchOrderRecords from '@salesforce/apex/CustomLookupController.fetchProductsRecords';
 
 let actions = [];
@@ -115,8 +116,10 @@ export default class OrderProductScreen extends LightningElement {
     @api excludedItems;
     @api formsOfPayment;
     @api combosSelecteds;
+    @api taxData;
 
     connectedCallback(event) {
+        if (!this.isFilled(this.taxData)) this.taxData=[];
         if (!this.isFilled(this.combosSelecteds)) this.combosSelecteds=[];
 
         let today = new Date();
@@ -185,6 +188,10 @@ export default class OrderProductScreen extends LightningElement {
 
         this.showIncludedProducts = this.products.length > 0;
         if (this.headerData.tipo_venda == 'Venda Barter') {
+            getTaxes({accountId: this.accountData.Id})
+            .then((result) => {
+                this.taxData = JSON.parse(result);
+            });
             this.hideChooseColumns = true;
             let barterColumns = [
                 {label: 'Produto', fieldName: 'name'},
@@ -1618,7 +1625,9 @@ export default class OrderProductScreen extends LightningElement {
                 this.commodities = [];
                 this.barterSale = true;
                 this.showCommodityData = false;
+                this.taxData = [];
                 this._setCommodityData();
+                this._setTaxData();
                 this.showToast('warning', 'As commodities foram removidas por conta da falta de produtos!', '');
             }
         } else {
@@ -1739,6 +1748,12 @@ export default class OrderProductScreen extends LightningElement {
         this.dispatchEvent(setItems);
     }
 
+    _setTaxData() {
+        const setItems = new CustomEvent('settaxdata');
+        setItems.data = this.taxData;
+        this.dispatchEvent(setItems);
+    }
+
     _setHideFooterButtons(hideButton) {
         const setItems = new CustomEvent('sethidefooterbuttons');
         setItems.data = hideButton;
@@ -1814,6 +1829,17 @@ export default class OrderProductScreen extends LightningElement {
         this.commodities = event.results.recordsDataList;
     }
 
+    calculateTaxes(totalValue) {
+        let totalTaxes = 0;
+        let taxes = this.parseObject(this.taxData);
+        for (let i = 0; i < taxes.length; i++) {
+            taxes[i].taxValue = totalValue * (taxes[i].taxPercentage / 100);
+            totalTaxes += taxes[i].taxValue;
+        }
+        this.taxData = this.parseObject(taxes);
+        return totalTaxes;
+    }
+
     selectCommodity(event) {
         this.nextScreen();
         let totalProducts = 0;
@@ -1827,6 +1853,7 @@ export default class OrderProductScreen extends LightningElement {
             totalDiscount += Number(this.products[index].commercialDiscountValue);
         }
 
+        totalProducts = totalProducts - this.calculateTaxes(totalProducts);
         let chooseCommodity = this.commodities.find(e => e.Id == event.target.dataset.targetId);
         let marginPercent = ((1 - (orderTotalCost / totalProducts)) * 100);
         this.selectedCommodity = {
@@ -1886,6 +1913,7 @@ export default class OrderProductScreen extends LightningElement {
                 this.showCommodityData = true;
                 this.barterSale = false;
                 this._setCommodityData();
+                this._setTaxData();
             } else if (this.commoditiesData[index].saved == false) {
                 this.commoditiesData.splice(index, 1);
             }
@@ -1966,7 +1994,9 @@ export default class OrderProductScreen extends LightningElement {
                 totalDiscount += Number(this.products[index].commercialDiscountValue);
             }
 
+            totalProducts = totalProducts - this.calculateTaxes(totalProducts);
             let marginPercent = ((1 - (orderTotalCost / totalProducts)) * 100);
+
             let currentCommodityValues = this.parseObject(this.commoditiesData[0]);
             currentCommodityValues.area = this.headerData.hectares;
             currentCommodityValues.quantity = productsQuantity;
@@ -1981,6 +2011,7 @@ export default class OrderProductScreen extends LightningElement {
             this.commoditiesData = [];
             this.commoditiesData.push(currentCommodityValues);
             this._setCommodityData();
+            this._setTaxData();
             this.showToast('warning', 'Atenção!', 'Os valores da commodity foram alterados de acordo com a alteração/inclusão de um produto.');
         }
     }
@@ -1994,6 +2025,7 @@ export default class OrderProductScreen extends LightningElement {
                 this.barterSale = true;
                 this.showCommodityData = false;
                 this._setCommodityData();
+                this._setTaxData();
                 this.openCommodityData();
                 this.showToast('success', 'Sucesso!', 'Commodity removida.');
             break;
