@@ -1869,6 +1869,7 @@ export default class OrderProductScreen extends LightningElement {
             totalDiscountValue: this.fixDecimalPlaces(totalDiscount / chooseCommodity.listPrice) + ' sacas',
             totalDiscountValueFront: this.fixDecimalPlacesFront(totalDiscount / chooseCommodity.listPrice) + ' sacas'
         };
+        this._setTaxData();
     }
 
     fillCommodity(event) {
