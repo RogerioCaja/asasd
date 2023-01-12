@@ -108,6 +108,7 @@ export default class OrderHeaderScreen extends LightningElement {
     @api cloneData;
     @api excludedItems;
     @api combosSelecteds;
+    @api taxData;
     @api formsOfPayment
 
     @track pass = false;
