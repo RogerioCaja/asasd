@@ -1129,8 +1129,8 @@ public without sharing class OrderScreenController {
                     }
                 }
 
+                List<OrderCommodity__c> upsCommodities = new List<OrderCommodity__c>();
                 if (orderData.commodityData != null && orderData.commodityData.size() > 0) {
-                    List<OrderCommodity__c> upsCommodities = new List<OrderCommodity__c>();
                     Set<Id> setCommodityIds = new Set<Id>();
                     for (CommodityDeserialize commodity : orderData.commodityData) {
                         setCommodityIds.add(commodity.commodityId);
