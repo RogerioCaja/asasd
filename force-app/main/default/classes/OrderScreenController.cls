@@ -27,7 +27,7 @@ public without sharing class OrderScreenController {
         account = getOrderAccountData(order.AccountId);
         formsOfPayment = getFormsOfPayment(order.Id);
 
-        return JSON.serialize(new OrderSerialize(order, ordItemList, divisionList, account, commodityList, formsOfPayment));
+        return JSON.serialize(new OrderSerialize(order, ordItemList, divisionList, account, commodityList, formsOfPayment, commodityTax));
     }
 
     @AuraEnabled
@@ -1124,8 +1124,8 @@ public without sharing class OrderScreenController {
                     }
                 }
 
+                List<OrderCommodity__c> upsCommodities = new List<OrderCommodity__c>();
                 if (orderData.commodityData != null && orderData.commodityData.size() > 0) {
-                    List<OrderCommodity__c> upsCommodities = new List<OrderCommodity__c>();
                     Set<Id> setCommodityIds = new Set<Id>();
                     for (CommodityDeserialize commodity : orderData.commodityData) {
                         setCommodityIds.add(commodity.commodityId);
@@ -1963,7 +1963,7 @@ public without sharing class OrderScreenController {
     @AuraEnabled
     public static String getTaxes(String accountId) {
         try {
-            TaxData taxValues = new TaxData();
+            List<TaxData> taxValues = new List<TaxData>();
             for (CustomerTaxes__c tax : [
                 SELECT Id,
                        Tax__c,
@@ -1972,9 +1972,11 @@ public without sharing class OrderScreenController {
                  WHERE Account__c =: accountId
                    AND Status__c = 'Ativo'
             ]) {
-                taxValues.taxId = tax.Tax__c;
-                taxValues.taxValue = 0;
-                taxValues.taxPercentage = tax.Tax__r.TaxPercentage__c;
+                TaxData currentTax = new TaxData();
+                currentTax.taxId = tax.Tax__c;
+                currentTax.taxValue = 0;
+                currentTax.taxPercentage = tax.Tax__r.TaxPercentage__c;
+                taxValues.add(currentTax);
             }
 
             return JSON.serialize(taxValues);
