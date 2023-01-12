@@ -27,7 +27,7 @@ public without sharing class OrderScreenController {
         account = getOrderAccountData(order.AccountId);
         formsOfPayment = getFormsOfPayment(order.Id);
 
-        return JSON.serialize(new OrderSerialize(order, ordItemList, divisionList, account, commodityList, formsOfPayment));
+        return JSON.serialize(new OrderSerialize(order, ordItemList, divisionList, account, commodityList, formsOfPayment, commodityTax));
     }
 
     @AuraEnabled
