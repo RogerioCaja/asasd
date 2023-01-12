@@ -21,6 +21,21 @@ public without sharing class OrderHelper {
         return isEnabled = true;
     }
 
+    public class calloutsQueueBarter implements Queueable, Database.AllowsCallouts{
+        private Id orderId;
+
+        public calloutsQueueBarter(Id orderIdParameter){
+            this.orderId = orderIdParameter;
+        }
+
+        public void execute(QueueableContext context) {
+            CalloutOrder.processIntegration(orderId);
+            if(!Test.isRunningTest()){
+                System.enqueueJob(new calloutsQueue(orderId));
+            }
+        }
+    }
+
     public class calloutsQueue implements Queueable, Database.AllowsCallouts{ 
         private Id orderId;
 
@@ -50,6 +65,7 @@ public without sharing class OrderHelper {
     
     public static void calloutOrderToSAP(List<Order> newRecords){
         Set<Id> orderIds = new Set<Id>();
+        String orderTypeName = '';
         for(Order order : newRecords){
             orderIds.add(order.Id);
         }
@@ -61,24 +77,25 @@ public without sharing class OrderHelper {
 
         Orderhelper.disableTrigger();
         for(Order order : newRecords){ 
-            
-            
+            orderTypeName = Schema.getGlobalDescribe().get('Order').getDescribe().getRecordTypeInfosById().get(order.RecordTypeId).getName();
             if(order.StatusSF__c == 'Aprovado' && order.Status != 'X'){
-                calloutsQueue job = new calloutsQueue(order.Id);
-                System.enqueueJob(job);
+                if(orderTypeName == 'Venda Barter'){
+                    System.enqueueJob(new calloutsQueueBarter(order.Id));
+                }else{
+                    System.enqueueJob(new calloutsQueue(order.Id));
+                }
+                
             }
             else{
                 if(!Test.isRunningTest()) CalloutOrderDatalake.callIntegration(order.Id);
             }
-            System.debug('System' + System.URL.getCurrentRequestUrl().GetPath());
-            // System.URL.getCurrentRequestUrl().GetPath().contains('/upsertOrderAppdigital/');
+
             if(order.CodigoSap__c != null && order.StatusSF__c == 'Integrado' && orderMap != null){
                 if(System.URL.getCurrentRequestUrl() != null && System.URL.getCurrentRequestUrl().GetPath() != null && System.URL.getCurrentRequestUrl().GetPath().contains('/upsertOrderAppdigital')){
                     String rmCode = orderMap.get(order.Id).ShippingAccount__r.ExternalId__c;
                     String agCode = orderMap.get(order.Id).Account.ExternalId__c;
                     String zcCode = orderMap.get(order.Id).SalesCTV__r.CodigoSap__c;
                     CalloutOrderUpdate.callIntegration(order.Id, rmCode , agCode , zcCode);
-                    // CalloutOrderDatalake.callIntegration(order.Id);
                 }
                 
             }  
@@ -113,6 +130,87 @@ public without sharing class OrderHelper {
             }  
         }
         Orderhelper.enableTrigger(); 
+    }
+
+    public static void checkOrderStatus(List<Order> newRecords, Map<Id, Order> oldMap) {
+        Set<Id> salesOrgsIds = new Set<Id>();
+        for (Order order : newRecords) {
+            salesOrgsIds.add(order.SalesOrg__c);
+        }
+
+        Map<Id, String> salesCodeById = new Map<Id, String>();
+        for (SalesOrg__c salesOrg : [
+            SELECT Id,
+                   SalesOrganizationCode__c
+              FROM SalesOrg__c
+             WHERE Id IN: salesOrgsIds
+        ]) {
+            System.debug('salesOrg.SalesOrganizationCode__c: ' + salesOrg.SalesOrganizationCode__c);
+            salesCodeById.put(salesOrg.Id, salesOrg.SalesOrganizationCode__c);
+        }
+
+        Set<String> seedsCodes = new Set<String>();
+        for (SalesOrgSeeds__c seed : [
+            SELECT Id,
+                   SeedCode__c
+              FROM SalesOrgSeeds__c
+             WHERE SeedCode__c IN: salesCodeById.values()
+        ]) {
+            System.debug('seed.SeedCode__c: ' + seed.SeedCode__c);
+            seedsCodes.add(seed.SeedCode__c);
+        }
+
+        Set<Id> ordersToRemoveQuotas = new Set<Id>();
+        for (Order order : newRecords) {
+            String salesCodeOfOrder = salesCodeById.get(order.SalesOrg__c);
+            System.debug('salesCodeOfOrder: ' + salesCodeOfOrder);
+            if (seedsCodes.contains(salesCodeOfOrder)) {
+                Order oldValues = oldMap.get(order.Id);
+                System.debug('oldValues.Status: ' + oldValues.Status);
+                System.debug('order.Status: ' + order.Status);
+                if (oldValues.Status != 'X' && oldValues.Status != '0' && order.Status == 'X') {
+                    ordersToRemoveQuotas.add(order.Id);
+                }
+            }
+        }
+
+        if (ordersToRemoveQuotas.size() > 0) {
+            Map<Id, Decimal> quantitiesToRemove = new Map<Id, Decimal>();
+            for (OrderItem item : [
+                SELECT Id,
+                       Quantity,
+                       IndividualQuotas__c
+                  FROM OrderItem
+                 WHERE OrderId IN: ordersToRemoveQuotas
+            ]) {
+                if (!quantitiesToRemove.containsKey(item.IndividualQuotas__c)) {
+                    quantitiesToRemove.put(item.IndividualQuotas__c, item.Quantity);
+                } else {
+                    Decimal quantity = quantitiesToRemove.get(item.IndividualQuotas__c);
+                    quantity += item.Quantity;
+                    quantitiesToRemove.put(item.IndividualQuotas__c, quantity);
+                }
+            }
+            System.debug('quantitiesToRemove: ' + quantitiesToRemove);
+
+            List<IndividualQuotas__c> individualsQuotasToUpdate = new List<IndividualQuotas__c>();
+            for (IndividualQuotas__c individualQuota : [
+                SELECT Id,
+                       Balance__c,
+                       Consumed__c
+                  FROM IndividualQuotas__c
+                 WHERE Id IN: quantitiesToRemove.keySet()
+            ]) {
+                Decimal quatityToRemove = quantitiesToRemove.get(individualQuota.Id);
+                System.debug('quatityToRemove: ' + quatityToRemove);
+                System.debug('individualQuota: ' + individualQuota);
+                individualQuota.Balance__c = individualQuota.Balance__c + quatityToRemove;
+                individualQuota.Consumed__c = individualQuota.Consumed__c - quatityToRemove;
+                individualsQuotasToUpdate.add(individualQuota);
+                System.debug('individualQuota: ' + individualQuota);
+            }
+            update individualsQuotasToUpdate;
+        }
     }
 
     public static void sendApprovalProccess(List<Order> newRecords){
@@ -196,8 +294,6 @@ public without sharing class OrderHelper {
                     }
                     else{
                        orderToUpdate.add(id);
-                        
-                        
                     }
                 }
             }
@@ -234,6 +330,8 @@ public without sharing class OrderHelper {
                 update orderToUpdateList;
                 OrderHelper.enableTrigger();
             }
+
+            
 
         
         }
@@ -296,6 +394,45 @@ public without sharing class OrderHelper {
         }
     }
 
+    public static void verifyStatusAndCombos(Map<Id, Order> oldMap, Map<Id, Order> newMap){
+        Set<Id> orderIdSet = oldMap.keySet();
+        Set<Id> orderCanceledIdSet = new Set<Id>();
+        Map<Id, Decimal> comboQuantityShouldRefundMap = new Map<Id, Decimal>();
+        Map<Id, Decimal> comboQuantityRemainingMap = new Map<Id, Decimal>();
+        List<ComboPromotion__c> comboPromotionToUpdateList = new List<ComboPromotion__c>();
+
+        for(Id  id : orderIdSet){
+            if(oldMap.get(id).Status != 'X' && newMap.get(id).Status == 'X'){
+                orderCanceledIdSet.add(id);
+            }
+        }
+
+        List<AggregateResult> countComboPerOrderCanceledList = [SELECT ComboPromotion__r.Id, COUNT(ComboPromotion__c) FROM OrderItem WHERE OrderId IN: orderCanceledIdSet GROUP BY ComboPromotion__r.Id];
+
+        for(AggregateResult aggResult : countComboPerOrderCanceledList){
+            comboQuantityShouldRefundMap.put((Id)aggResult.get('Id'), (Decimal)aggResult.get('expr0'));
+        }
+
+        for(ComboPromotion__c comboPromotion : [SELECT Id, CombosQuantity__c FROM ComboPromotion__c WHERE Id IN: comboQuantityShouldRefundMap.keySet()]){
+            comboQuantityRemainingMap.put(comboPromotion.Id, comboPromotion.CombosQuantity__c);
+        }
+
+        for(Id id : comboQuantityShouldRefundMap.keySet()){
+            if(comboQuantityRemainingMap.containsKey(id) && comboQuantityShouldRefundMap.containsKey(id)){
+                comboPromotionToUpdateList.add(
+                    new ComboPromotion__c(
+                        Id = id,
+                        CombosQuantity__c = (comboQuantityRemainingMap.get(id) + comboQuantityShouldRefundMap.get(id))
+                    )
+                );
+            }
+        }
+
+        if(comboPromotionToUpdateList.size() != 0){
+            Database.update(comboPromotionToUpdateList);
+        }
+    }
+    
     public static void verifyOrderCanceling(Map<Id, Order> oldMap, Map<Id, Order> newMap){
         Set<Id> orderIds = oldMap.keySet();
         Set<Id> orderReferenceWhereItemsHavingRefundIds = new Set<Id>();

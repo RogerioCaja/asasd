@@ -37,6 +37,8 @@ import getDateLimit from '@salesforce/apex/OrderScreenController.getSafraInfos';
 
 import getAccountCompanies from '@salesforce/apex/OrderScreenController.getAccountCompanies';
 
+import isSeedSale from '@salesforce/apex/OrderScreenController.isSeedSale';
+
 //import FILIAL_OBJECT from '@salesforce/schema/';
 //import FILIAL_NAME from '@salesforce/schema/';
 
@@ -48,8 +50,10 @@ export default class OrderHeaderScreen extends LightningElement {
     paymentDisabled = false;
     blockPaymentForm = false;
     barterSale = false;
+    seedSale = false;
     safraName = null;
     currencyOption = null;
+    hasDelimiter = true;
     currentDate;
     dateLimit;
     dateStartBilling;
@@ -91,7 +95,10 @@ export default class OrderHeaderScreen extends LightningElement {
         IsOrderChild : false,
         isCompleted : false,
         companyId: null,
-        firstTime: true
+        companySector: null,
+        hectares: '',
+        firstTime: true,
+        centerId: null
     };
 
     @api salesOrgId;
@@ -100,6 +107,9 @@ export default class OrderHeaderScreen extends LightningElement {
     @api commodityData;
     @api cloneData;
     @api excludedItems;
+    @api combosSelecteds;
+    @api taxData;
+    @api formsOfPayment
 
     @track pass = false;
 
@@ -416,7 +426,7 @@ export default class OrderHeaderScreen extends LightningElement {
             return;
         }else if(this.headerDictLocale[this.sequentialDict[index]] != ' ' && this.headerDictLocale[this.sequentialDict[index]] != null){
             let name = this.sequentialDict[index];
-            if(name == 'condicao_venda'  && this.headerData['moeda'] != ' ' && this.headerDictLocale['safra'].hasOwnProperty("Id")){
+            if(name == 'condicao_venda'  && this.headerDictLocale['moeda'] != ' ' && this.headerDictLocale['safra'].hasOwnProperty("Id")){
                 let condition = "condicao_venda";
                 setTimeout(()=>this.template.querySelector(`[data-name="${condition}"]`).disabled = false);
             }
@@ -448,6 +458,9 @@ export default class OrderHeaderScreen extends LightningElement {
             if(this.headerData){
                 this.fieldKey = true;
                 this.headerDictLocale = JSON.parse(JSON.stringify(this.headerData));
+                if(this.childOrder || this.headerData.IsOrderChild){
+                    this.salesOrgId = this.headerData.organizacao_vendas.Id;
+                }
                 if (this.headerDictLocale.tipo_venda == 'Venda Conta e Ordem' || this.headerDictLocale.tipo_venda == 'Venda Entrega Futura' || this.headerDictLocale.tipo_venda == 'Venda Normal') {
                     this.allowMotherOrder = true;
                 } else {
@@ -552,8 +565,11 @@ export default class OrderHeaderScreen extends LightningElement {
                     }
 
                     if(field == 'safra'){
-                        this.setDateLimit(record.Id);
                         this.safraName = record.Name;
+                    }
+
+                    if(field == 'condicao_venda'){
+                        this.setDateLimit();
                     }
 
                    
@@ -565,11 +581,22 @@ export default class OrderHeaderScreen extends LightningElement {
                             orderType: this.headerData.tipo_venda,
                             approvalNumber: 1
                         }
-                        
                         console.log('this.childOrder: ' + this.childOrder);
                         getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: true, verifyUserType: false, priceScreen: false, childOrder: this.childOrder})
                         .then((result) => {
                            this.salesOrgId = result;
+                           this.headerDictLocale.organizacao_vendas = {Id: result};
+                           isSeedSale({salesOrgId: result, productGroupName: null})
+                           .then((result1) => {
+                                this.seedSale = result1;
+                                if(this.seedSale == true){
+                                    setTimeout(()=>this.template.querySelector('lightning-input[data-name="hectares"]').style.display = 'none');
+                                    this.headerDictLocale.hectares = 1
+                                }else{
+                                    setTimeout(()=>this.template.querySelector('lightning-input[data-name="hectares"]').style.display = '');
+                                }
+                                
+                           });
                         });
                     }
                 }
@@ -611,6 +638,7 @@ export default class OrderHeaderScreen extends LightningElement {
                 this._verifyFieldsToSave();
             }else if (field == 'safra'){
                 this.safraName = null;
+            }else if (field == 'condicao_venda'){
                 this.clearDates()
             }
             if(this.fieldKeyList.includes(field) && !this.headerData.IsOrderChild){
@@ -633,8 +661,9 @@ export default class OrderHeaderScreen extends LightningElement {
         });
         setTimeout(()=>this.template.querySelector('[data-target-id="data_pagamento"]').value =  " ");
         this.headerData = JSON.parse(JSON.stringify(this.headerDictLocale));
+
     }
-    
+
     removeItemRegisterByField(field){
         this.headerDictLocale[field] = {};
         this.headerDictLocale.isCompleted = false;
@@ -643,18 +672,30 @@ export default class OrderHeaderScreen extends LightningElement {
     }
 
     setDateLimit(){
-        if(this.isFilled(this.headerDictLocale['safra'])){
-            getDateLimit({safraId: this.headerDictLocale['safra'].Id})
+       
+        if(this.isFilled(this.headerDictLocale['safra']) && this.isFilled(this.salesOrgId) && this.isFilled(this.headerDictLocale['condicao_venda'])){
+            getDateLimit({
+                safraId: this.headerDictLocale['safra'].Id,
+                salesConditionId: this.headerDictLocale['condicao_venda'].Id,
+                salesOrgId: this.salesOrgId
+            })
             .then((result) =>{
-                const data = JSON.parse(result);
-                this.dateLimit = data.paymentDate;
-                this.dateLimitBilling = data.endDateBilling;
-                this.dateStartBilling = data.startDateBilling;
+                if(result != 'Não foi possível encontrar as datas da Safra selecionada, contate o time de Pricing AgroGalaxy.'){
+                    const data = JSON.parse(result);
+                    this.dateLimit = data.paymentDate;
+                    this.dateLimitBilling = data.endDateBilling;
+                    this.dateStartBilling = data.startDateBilling;
+                    this.hasDelimiter = true;
 
-                if (this.barterSale) {
-                    this.headerDictLocale.data_pagamento = data.paymentBaseDate;
-                    this.headerData = JSON.parse(JSON.stringify(this.headerDictLocale));
-                    this.paymentDisabled = true;
+                    if (this.barterSale) {
+                        this.headerDictLocale.data_pagamento = data.paymentBaseDate;
+                        this.headerData = JSON.parse(JSON.stringify(this.headerDictLocale));
+                        this.paymentDisabled = true;
+                    }
+                    this._verifyFieldsToSave();
+                }else{
+                    this.hasDelimiter = false;
+                    this.showToast('warning', 'Atenção', result);
                     this._verifyFieldsToSave();
                 }
             })
@@ -692,7 +733,11 @@ export default class OrderHeaderScreen extends LightningElement {
                 this.headerDictLocale.numero_pedido_cliente !== undefined &&
                 this.headerDictLocale.ctv_venda.Id !==undefined &&
                 this.headerDictLocale.forma_pagamento !== undefined &&
-                this.headerDictLocale.cliente_entrega.Id !== undefined) || this.pass
+                this.headerDictLocale.cliente_entrega.Id !== undefined) &&
+                this.headerDictLocale.hectares !== 0 &&
+                this.headerDictLocale.hectares !== undefined &&
+                this.headerDictLocale.hectares !== '' && 
+                this.hasDelimiter || this.pass 
             ) {
                 return true;
             }

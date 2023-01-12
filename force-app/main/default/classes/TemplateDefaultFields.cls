@@ -1,3 +1,4 @@
+
 public  class TemplateDefaultFields {
 	public TemplateDefaultFields(){
 
@@ -196,6 +197,7 @@ public  class TemplateDefaultFields {
         Account account = new Account(
             Name = 'Teste 1',
             BillingStreet = ' ',
+            BpType__c = 'Proprietario',
             BillingState = '' ,
             Phone= '', 
             BillingCity = ' ', 
@@ -205,6 +207,7 @@ public  class TemplateDefaultFields {
             ExternalId__c = '11111',
             Company__c = 'Empresa 01'
         );
+        
 
         Safra__c safra = new Safra__c(
             Code__c = '1223',
@@ -238,6 +241,11 @@ public  class TemplateDefaultFields {
             SalesOrganizationCode__c = '1111'
         );
 
+        SalesOrg__c so1 = new SalesOrg__c(
+            Name = 'Sementes',
+            SalesOrganizationCode__c = '1700'
+        );
+
         DistributionChannel__c distributionChannel = new DistributionChannel__c(
             Name = 'Teste',
             Codigo__c = '0001'
@@ -254,13 +262,76 @@ public  class TemplateDefaultFields {
         );
 
         INSERT sales;
+        INSERT so1;
         INSERT account;
         INSERT safra;
         INSERT cultura;
         INSERT so;
         INSERT distributionChannel;
         INSERT u;
+        
+
+        Account account3 = new Account(
+            Name = 'Teste 3',
+            BillingStreet = ' ',
+            BillingState = '' ,
+            BpType__c = 'Propriedade',
+            Phone= '', 
+            BillingCity = ' ', 
+            BillingLongitude = 000000,
+            BillingLatitude = 00000,
+            BillingPostalCode = '',
+            ExternalId__c = '113123',
+            Company__c = 'Empresa 02'
+        );
+        INSERT account3;
+
+        Account account2 = new Account(
+            Name = 'Teste 2',
+            BillingStreet = ' ',
+            ParentId = account.Id,
+            BillingState = '' ,
+            BpType__c = 'Propriedade',
+            Phone= '', 
+            BillingCity = ' ', 
+            BillingLongitude = 000000,
+            BillingLatitude = 00000,
+            BillingPostalCode = '',
+            ExternalId__c = '11122',
+            Company__c = 'Empresa 02'
+        );
+        INSERT account2;
         Map <String,Schema.RecordTypeInfo> recordTypeMap = Order.sObjectType.getDescribe().getRecordTypeInfosByName();
+
+        Delimitadores__c delimiter = new Delimitadores__c(
+            Name = '',
+            EndDateBilling__c = System.today().addDays(30),
+            EndDateOV__c = System.today().addDays(30),
+            ExternalId__c = '' ,
+            FinancialBaseDate__c = System.today().addDays(15),
+            Safra__c= safra.Id, 
+            SalesCondition__c = sales.Id, 
+            SalesOrg__c = so.Id,
+            StartDateBilling__c = System.today(),
+            StartDateOV__c = System.today()
+        );
+
+        INSERT delimiter;
+
+        Delimitadores__c delimiter2 = new Delimitadores__c(
+            Name = '',
+            EndDateBilling__c = System.today().addDays(30),
+            EndDateOV__c = System.today().addDays(30),
+            ExternalId__c = '' ,
+            FinancialBaseDate__c = System.today().addDays(15),
+            Safra__c= safra.Id, 
+            SalesCondition__c = sales.Id, 
+            SalesOrg__c = so1.Id,
+            StartDateBilling__c = System.today(),
+            StartDateOV__c = System.today()
+        );
+
+        INSERT delimiter2;
 
         Order order = new Order(
             AccountId =  account.Id,
@@ -288,7 +359,97 @@ public  class TemplateDefaultFields {
             Incoterms__c = 'CIF'
         );
 
+        Order order1 = new Order(
+            AccountId =  account.Id,
+            CodigoSap__c = '002',
+            Status = 'Draft',
+            PriceBook2Id = Test.getStandardPricebookId(),
+            Type =  'Venda Normal',
+            RecordTypeId = recordTypeMap.get('Venda Normal').getRecordTypeId(),
+            ShippingAccount__c =   account.Id,
+            ShippingDate__c =  Date.today(),
+            PaymentDate__c =  Date.today(),
+            CustomerOrderNumber__c = '0001',
+            EffectiveDate = Date.today(),
+            Crop__c =  safra.Id,
+            Culture__c = cultura.Id,
+            PaymentForm__c =  'B',
+            SalesOrg__c =  so1.Id,
+            FinalTotalValue__c = 1000.00,
+            SalesCondition__c = sales.Id,
+            DistributionChannel__c =  distributionChannel.Id,
+            Currency__c =  'BRL',
+            SalesCTV__c =  u.Id,
+            StatusSF__c = 'Em digitação',
+            EndDate = Date.today(),
+            Incoterms__c = 'CIF'
+        );
+        
+        Order order2 = new Order(
+            AccountId =  account.Id,
+            CodigoSap__c = '003',
+            Status = 'Draft',
+            PriceBook2Id = Test.getStandardPricebookId(),
+            Type =  'Venda Barter',
+            RecordTypeId = recordTypeMap.get('Venda Barter').getRecordTypeId(),
+            ShippingAccount__c =   account.Id,
+            ShippingDate__c =  Date.today(),
+            PaymentDate__c =  Date.today(),
+            CustomerOrderNumber__c = '0001',
+            EffectiveDate = Date.today(),
+            Crop__c =  safra.Id,
+            Culture__c = cultura.Id,
+            PaymentForm__c =  'B',
+            SalesOrg__c =  so.Id,
+            FinalTotalValue__c = 1000.00,
+            SalesCondition__c = sales.Id,
+            DistributionChannel__c =  distributionChannel.Id,
+            Currency__c =  'BRL',
+            SalesCTV__c =  u.Id,
+            StatusSF__c = 'Em digitação',
+            EndDate = Date.today(),
+            Incoterms__c = 'CIF'
+        );
+
+        Order order3 = new Order(
+            AccountId =  account.Id,
+            CodigoSap__c = '004',
+            Status = 'Draft',
+            PriceBook2Id = Test.getStandardPricebookId(),
+            Type =  'Venda Barter',
+            RecordTypeId = recordTypeMap.get('Venda Barter').getRecordTypeId(),
+            ShippingAccount__c =   account.Id,
+            ShippingDate__c =  Date.today(),
+            PaymentDate__c =  Date.today(),
+            CustomerOrderNumber__c = '0001',
+            EffectiveDate = Date.today(),
+            Crop__c =  safra.Id,
+            Culture__c = cultura.Id,
+            PaymentForm__c =  'B',
+            SalesOrg__c =  so1.Id,
+            FinalTotalValue__c = 1000.00,
+            SalesCondition__c = sales.Id,
+            DistributionChannel__c =  distributionChannel.Id,
+            Currency__c =  'BRL',
+            SalesCTV__c =  u.Id,
+            StatusSF__c = 'Em digitação',
+            EndDate = Date.today(),
+            Incoterms__c = 'CIF'
+        );
+
         INSERT order;
+        INSERT order1;
+        INSERT order2;
+        INSERT order3;
+
+        FormPayment__c pF = new FormPayment__c(
+            Amount__c = 5.00,
+            PaymentDate__c = System.today(),
+            PaymentType__c = 'Germoplasma',
+            Order__c = order.Id
+        );
+
+        INSERT pF;
 
         Product2 prod = new Product2(
             Name = 'Laptop X200', 
@@ -308,7 +469,7 @@ public  class TemplateDefaultFields {
         OrderItem orderItem = new OrderItem(
             OrderId = order.Id,
             Product2Id = prod.Id,
-            PricebookEntryId = [SELECT Id FROM PricebookEntry WHERE Product2Id =: prod.Id LIMIT 1][0].Id,
+            PricebookEntryId = [SELECT Id FROM PricebookEntry WHERE Product2Id =: prod.Id AND CurrencyIsoCode =: 'BRL' LIMIT 1][0].Id,
             ListPrice__c = 150,
             ServiceDate = System.today(),
             Quantity = 10,
@@ -346,7 +507,15 @@ public  class TemplateDefaultFields {
         insert shipping;
 
         VisitPlanning__c vp = new VisitPlanning__c(
+            Name = 'test Visit',
+            MainBP__c = account.Id,
+            BP_Property__c = account2.Id,
             CTVvisit__c = 'Teste',
+            VisitSeller__c = UserInfo.getUserId(),
+            Status__c = 'Agendado',
+            Objetivo__c = 'Evento',
+            EndTime__c  = Time.newInstance(1, 2, 3, 6),  
+			StartTime__c = Time.newInstance(1, 2, 3, 1),
             Culture__c = cultura.Id,
             EndDate__c = System.today(),
             InitialDate__c = System.today(),
@@ -366,38 +535,22 @@ public  class TemplateDefaultFields {
         );
 
         insert ccv;
-
+        TechnicalReport__c technicalReport = new TechnicalReport__c(
+            EndDate__c  = System.today(),
+            EndTime__c = Time.newInstance(1, 2, 3, 1),
+            CancellationReason__c = '',
+            Note__c = 'test',
+            Status__c = 'Gerado',
+            VisitPlanning__c = vp.Id
+        );
+        insert technicalReport;
         List<Cadastro_ClientedaVisita__c> cvList = [SELECT Id FROM Cadastro_ClientedaVisita__c LIMIT 1];
         Fotos__c photo = new Fotos__c(
             ClienteVisita__c = ccv.Id,
-            Observation__c = 'Teste'
+            Observation__c = 'Teste',
+            RTR__c = technicalReport.Id
         );
         insert photo;
         
     }
-    
-
-       
-       
-
-        
-
-        
-
-        
-    
-
-        
-
-       
-
-        
-
-    
-
-   
-
-  
-
-   
 }

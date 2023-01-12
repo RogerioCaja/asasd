@@ -1,4 +1,4 @@
-global with sharing class IntegrationINOrderItemInsert {
+global without sharing class IntegrationINOrderItemInsert {
     public IntegrationINOrderItemInsert() {
 
     }
@@ -8,6 +8,8 @@ global with sharing class IntegrationINOrderItemInsert {
 
         Set<String> orderLookups = new Set<String>();
         Set<String> productLookups = new Set<String>();
+
+        List<String> product2Ids = new List<String>();
         // Guarda um mapa com uma lista de respostas
         Map<String, List<TemplateDataIntegrationFields.Response>> responseMap = new Map<String, List<TemplateDataIntegrationFields.Response>>();
         // Guarda uma lista com os OrderItem para fazer o upsert
@@ -15,11 +17,31 @@ global with sharing class IntegrationINOrderItemInsert {
 
         List<String> idsOrderItem = new List<String>();
         //Application of business rules
-        
+        Decimal porcentagemZCBI = 0;
+        Decimal porcentagemZCBA = 0;
         for(TemplateDataIntegrationFields.OrderItemINData OrderItemINData : request){
             idsOrderItem.add(OrderItemINData.orderExternalId + '|' + OrderItemINData.orderItemCode);
             productLookups.add(OrderItemINData.material);
+
+            if(OrderItemINData.material !=null){
+                product2Ids.add(OrderItemINData.material);
+            }
         }
+
+        Map<String, PricebookEntry> pricebookEntryList = new Map<String, PricebookEntry>();
+
+        for(PricebookEntry priceEntry : [SELECT 
+        Product2Id, 
+        Pricebook2Id,
+        UnitPrice, 
+        CurrencyIsoCode,
+        Product2.ProductCode 
+        FROM PricebookEntry 
+        WHERE Pricebook2.IsStandard = true 
+        AND Product2.ProductCode IN: product2Ids]){
+            pricebookEntryList.put(priceEntry.Product2.ProductCode + String.valueOf(priceEntry.CurrencyIsoCode), priceEntry);
+        }
+
 
         Map<String, Product2> prdtMap = new Map<String, Product2>();
         List<Product2> prdList = new List<Product2>([SELECT ProductCode__c, UnidadeMedida__c FROM Product2  WHERE ProductCode__c IN: productLookups]);
@@ -38,6 +60,11 @@ global with sharing class IntegrationINOrderItemInsert {
             //Getting product parameters to search
             productLookups.add(OrderItemINData.material);
             OrderItemINData.dosagem = OrderItemINData.quantidade;
+            if(!Test.isRunningTest()){
+            	OrderItemInData.pricebookEntryId = pricebookEntryList.get(OrderItemInData.material + String.valueOf(OrderItemInData.currencyOrder)).Id;
+
+            }
+            System.debug('pricebookId ' + OrderItemInData.pricebookEntryId);
             idsOrderItem.add(OrderItemINData.orderExternalId + '|' + OrderItemINData.orderItemCode);
 
             
@@ -71,10 +98,43 @@ global with sharing class IntegrationINOrderItemInsert {
                     if(conditions.KSCHL == 'ZMAR'){
                         OrderItemINData.margemComercial = Decimal.valueOf(conditions.KBETR);
                     }
+                    if(conditions.KSCHL == 'ZFRE'){
+                        OrderItemINData.freteItem = Decimal.valueOf(conditions.KBETR);
+                    }
 
+                    if(conditions.KSCHL == 'ZROY'){
+                        OrderItemInData.valorZroy = Decimal.valueOf(conditions.KBETR);
+                        OrderItemInData.valorTotalZroy = Decimal.valueOf(conditions.KBETR) * OrderItemInData.quantidade;
+                    }
+
+                    if(conditions.KSCHL == 'ZTRA'){
+                        OrderItemInData.valorZtra = Decimal.valueOf(conditions.KBETR);
+                        OrderItemINData.valorTotalZtra = Decimal.valueOf(conditions.KBETR) * OrderItemINData.quantidade;
+                    }
+                    
                     if(conditions.KSCHL == 'ZCP0'){
                         Decimal custoPraticado = Decimal.valueOf(conditions.KBETR) / OrderItemINData.quantidade;
                         OrderItemINData.custoPreco = custoPraticado;
+                    }
+                    if(conditions.KSCHL == 'ZCBI'){
+                        if(Decimal.valueOf(conditions.KBETR) > 0){
+                            porcentagemZCBI = Decimal.valueOf(conditions.KBETR);
+                        }
+                        else {
+                            porcentagemZCBI = Decimal.valueOf(conditions.KBETR) * (-1);
+                        }
+                        //OrderItemINData.valorZCBI = Decimal.valueOf(conditions.KBETR);
+                        
+                    }
+
+                    if(conditions.KSCHL == 'ZCBA'){
+                        if(Decimal.valueOf(conditions.KBETR) > 0){
+                            porcentagemZCBA = Decimal.valueOf(conditions.KBETR); 
+                        }
+                        else {
+                            porcentagemZCBA = Decimal.valueOf(conditions.KBETR) * (-1);
+                        }
+                       
                     }
                     
                     if(conditions.KSCHL == 'ZDEC'){
@@ -110,6 +170,9 @@ global with sharing class IntegrationINOrderItemInsert {
         //Decimal porcentagemAcrescimoComercial = 0;
         Decimal valorAcrescimoComercial = 0;
         
+        Decimal valorDescontoComboZCBI = 0;
+
+        Decimal valorDescontoComboZCBA = 0;
         Decimal valorFinal = OrderItemINData.precoUnitario * OrderItemINData.quantidade;
         OrderItemINData.valorTotal = valorFinal;
         
@@ -134,6 +197,24 @@ global with sharing class IntegrationINOrderItemInsert {
             System.debug('valorFinal ' + valorFinal);
             System.debug('valorAcrescimoFinanceiro ' + valorAcrescimoFinanceiro);
         }
+
+        if(porcentagemZCBI > 0){
+
+            valorDescontoComboZCBI = valorFinal * (porcentagemZCBI / 100);
+            OrderItemINData.valorZCBI = valorDescontoComboZCBI;
+            valorFinal = valorFinal - valorDescontoComboZCBI;
+            OrderItemINData.precoPraticado = (valorFinal) / OrderItemINData.quantidade;
+            OrderItemINData.valorTotal = valorFinal;
+        }
+
+        if(porcentagemZCBA > 0){
+            valorDescontoComboZCBA = valorFinal * (porcentagemZCBA / 100);
+            OrderItemINData.valorZCBA = valorDescontoComboZCBA;
+            valorFinal = valorFinal - valorDescontoComboZCBA;
+            OrderItemINData.precoPraticado = (valorFinal) / OrderItemINData.quantidade;
+            OrderItemINData.valorTotal = valorFinal;
+        }
+
         if (OrderItemINData.porcentagemDesconto != 0 && OrderItemINData.porcentagemDesconto != null){ 
             //porcentagemDescontoComercial = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemDesconto / 100);
             valorDescontoComercial = valorFinal  * (OrderItemINData.porcentagemDesconto / 100);
@@ -169,6 +250,9 @@ global with sharing class IntegrationINOrderItemInsert {
         
         System.debug('Desconto Valor ' + OrderItemINData.descontoValor);
         System.debug('Preço Praticado ' + OrderItemINData.precoPraticado);
+
+            porcentagemZCBA = 0;
+            porcentagemZCBI = 0;
         }
 
 
