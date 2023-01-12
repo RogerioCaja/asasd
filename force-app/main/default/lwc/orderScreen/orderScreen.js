@@ -103,6 +103,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     @track commodityData;
     @track excludedItems;
     @track combosSelecteds;
+    @track taxData;
     @track formsOfPayment;
     @track summaryData = {
         'observation' : "",
@@ -542,7 +543,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         if (quotaResponse) {
             const mode = event.detail;
             await this.recordId;
-            const data = {accountData: this.accountData, headerData: this.headerData, productData: this.productData, divisionData: this.divisionData, commodityData: this.commodityData, summaryData: this.summaryData, formsOfPayment: this.formsOfPayment, comboData: this.combosSelecteds};
+            const data = {accountData: this.accountData, headerData: this.headerData, productData: this.productData, divisionData: this.divisionData, commodityData: this.commodityData, summaryData: this.summaryData, formsOfPayment: this.formsOfPayment, comboData: this.combosSelecteds, taxData: this.taxData};
             console.log(JSON.stringify(data));
             this.isLoading = true;
             //console.log(data);
@@ -796,6 +797,10 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
     _setcombosSelecteds(event) {
         this.combosSelecteds = event.data;
+    }
+
+    _setTaxData(event) {
+        this.taxData = event.data;
     }
     
     _setHideFooterButtons(event) {
