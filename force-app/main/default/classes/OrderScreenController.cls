@@ -2016,7 +2016,7 @@ public without sharing class OrderScreenController {
     @AuraEnabled
     public static String getTaxes(String accountId) {
         try {
-            TaxData taxValues = new TaxData();
+            List<TaxData> taxValues = new List<TaxData>();
             for (CustomerTaxes__c tax : [
                 SELECT Id,
                        Tax__c,
@@ -2025,9 +2025,11 @@ public without sharing class OrderScreenController {
                  WHERE Account__c =: accountId
                    AND Status__c = 'Ativo'
             ]) {
-                taxValues.taxId = tax.Tax__c;
-                taxValues.taxValue = 0;
-                taxValues.taxPercentage = tax.Tax__r.TaxPercentage__c;
+                TaxData currentTax = new TaxData();
+                currentTax.taxId = tax.Tax__c;
+                currentTax.taxValue = 0;
+                currentTax.taxPercentage = tax.Tax__r.TaxPercentage__c;
+                taxValues.add(currentTax);
             }
 
             return JSON.serialize(taxValues);
