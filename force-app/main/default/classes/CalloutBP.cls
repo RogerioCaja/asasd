@@ -135,9 +135,9 @@ public without sharing class CalloutBP {
             System.debug('newLookups: '+ newLookups);
             Database.UpsertResult[] resultsCredit = creatyCredit(creditoList, newLookups);
             Database.UpsertResult[] resultsCompany = creatyCompany(companyList, newLookups, nameLookups);
-            Database.UpsertResult[] resultsImposto = clientTax(tabelaImpostosList, newLookups);
+            //Database.UpsertResult[] resultsImposto = clientTax(tabelaImpostosList, newLookups);
             String resultsError = '';
-
+            /*
             if(resultsImposto != null){
                 for(Database.UpsertResult results : resultsImposto){
                     System.debug('Database.UpsertResult: ' + results);
@@ -146,7 +146,7 @@ public without sharing class CalloutBP {
                     }
                 }
             }
-
+            */    
             if(resultsCompany != null){
                 for(Database.UpsertResult results : resultsCompany){
                     System.debug('Database.UpsertResult: ' + results);
@@ -319,9 +319,9 @@ public without sharing class CalloutBP {
             System.debug('tabelaImpostosList: '+ tabelaImpostosList);
             Database.UpsertResult[] resultsCredit = creatyCredit(creditoList, newLookups);
             Database.UpsertResult[] resultsCompany = creatyCompany(companyList, newLookups, nameLookups);
-            Database.UpsertResult[] resultsImposto = clientTax(tabelaImpostosList, newLookups);
+            //Database.UpsertResult[] resultsImposto = clientTax(tabelaImpostosList, newLookups);
             String resultsError = '';
-
+            /*
             if(resultsImposto != null){
                 for(Database.UpsertResult results : resultsImposto){
                     System.debug('Database.UpsertResult: ' + results);
@@ -329,7 +329,7 @@ public without sharing class CalloutBP {
                         resultsError += 'Imposto Error: ' + results.getErrors() + '/ ';
                     }
                 }
-            }
+            }*/
 
             if(resultsCompany != null){
                 for(Database.UpsertResult results : resultsCompany){
@@ -699,7 +699,7 @@ public without sharing class CalloutBP {
             return resultCreditList;
         }
         return null;
-    } 
+    } /*
     public static Database.UpsertResult[] clientTax(List<TaxINData> tabelaImpostosList, Map<String, Id> lookups){
 
         List<CustomerTaxes__c> clientTaxListToUpsert = new List<CustomerTaxes__c>(); 
@@ -720,7 +720,7 @@ public without sharing class CalloutBP {
             return resultImpostList;
         }
         return null;
-    } 
+    } */
 
     public static IntegrationUtils.CalloutBpResponse sendOrder() {
 
