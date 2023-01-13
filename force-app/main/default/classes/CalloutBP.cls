@@ -129,7 +129,7 @@ public without sharing class CalloutBP {
             Database.UpsertResult[] resultsCompany = creatyCompany(companyList, newLookups, nameLookups);
             //Database.UpsertResult[] resultsImposto = clientTax(tabelaImpostosList, newLookups);
             String resultsError = '';
-
+            /*
             if(resultsImposto != null){
                 for(Database.UpsertResult results : resultsImposto){
                     System.debug('Database.UpsertResult: ' + results);
@@ -138,7 +138,7 @@ public without sharing class CalloutBP {
                     }
                 }
             }
-
+            */    
             if(resultsCompany != null){
                 for(Database.UpsertResult results : resultsCompany){
                     System.debug('Database.UpsertResult: ' + results);
@@ -305,7 +305,7 @@ public without sharing class CalloutBP {
             Database.UpsertResult[] resultsCompany = creatyCompany(companyList, newLookups, nameLookups);
             //Database.UpsertResult[] resultsImposto = clientTax(tabelaImpostosList, newLookups);
             String resultsError = '';
-
+            /*
             if(resultsImposto != null){
                 for(Database.UpsertResult results : resultsImposto){
                     System.debug('Database.UpsertResult: ' + results);
@@ -313,7 +313,7 @@ public without sharing class CalloutBP {
                         resultsError += 'Imposto Error: ' + results.getErrors() + '/ ';
                     }
                 }
-            }
+            }*/
 
             if(resultsCompany != null){
                 for(Database.UpsertResult results : resultsCompany){
