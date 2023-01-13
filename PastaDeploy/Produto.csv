@@ -1,0 +1,5 @@
+Name,ProductCode__c,ProductGroup__r.ExternalId__c,Multiplicity__c,ActivitySection__c,UnidadeMedida__c,GrossWeightUnitOfMeasure__c,SalesOrg__r.SalesOrganizationCode__c,IsActive,ProductType__c
+Alface,001,001,1,Agricultura,KG,KG,001,true,FERT
+Alface,002,001,1,Agricultura,KG,KG,001,true,HAWA
+Alface,003,001,1,Agricultura,KG,KG,001,true,ZCOM
+Alface,004,001,1,Agricultura,KG,KG,001,true,DIEN

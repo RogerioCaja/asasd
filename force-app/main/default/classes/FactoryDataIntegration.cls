@@ -108,7 +108,7 @@ public with sharing class FactoryDataIntegration {
         String sObjectName = String.valueOf(sObj.getSObjectType());
 
         Type t = Type.forName('TemplateDataIntegrationFields.' + sObjectName.replaceAll('__c|__mdt|__|_', '') +service+ 'Data');
-
+        
         if (t == null) {
             throw new FactoryDataIntegrationException('Invalid defaults class.');
         }

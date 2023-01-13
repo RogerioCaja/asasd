@@ -10,6 +10,8 @@ global without sharing class IntegrationINOrderItemAppdigital {
 
         Set<String> orderLookups = new Set<String>();
         Set<String> productLookups = new Set<String>();
+
+        List<String> product2ids = new List<String>();
         // Guarda um mapa com uma lista de respostas
         Map<String, List<TemplateDataIntegrationFields.Response>> responseMap = new Map<String, List<TemplateDataIntegrationFields.Response>>();
         // Guarda uma lista com os OrderItem para fazer o upsert
@@ -28,6 +30,25 @@ global without sharing class IntegrationINOrderItemAppdigital {
             productLookups.add(OrderItemINData.material);
             
             idsOrderItem.add(OrderItemINData.orderExternalId + '|' + OrderItemINData.orderItemCode);
+
+            
+            if(OrderItemINData.material != null){
+                product2ids.add(OrderItemINData.material);
+            }
+        }
+
+        Map<String, PricebookEntry> pricebookEntryList = new Map<String, PricebookEntry>();
+
+        for(PricebookEntry priceEntry : [SELECT 
+        Product2Id, 
+        Pricebook2Id,
+        UnitPrice, 
+        CurrencyIsoCode,
+        Product2.ProductCode 
+        FROM PricebookEntry 
+        WHERE Pricebook2.IsStandard = true 
+        AND Product2.ProductCode IN: product2Ids]){
+            pricebookEntryList.put(priceEntry.Product2.ProductCode + String.valueOf(priceEntry.CurrencyIsoCode), priceEntry);
         }
         // Pega o produto com base no ExternalID recebido
         //Product2 search based on ExternalId__c field sent
@@ -38,18 +59,19 @@ global without sharing class IntegrationINOrderItemAppdigital {
         CommercialMargin__c, DiscountValue__c, ExternalId__c, FinalTotalValue__c, FinancialDiscountPercent__c,
         FinancialDiscountValue__c, FinancialAdditionPercent__c, FinancialAdditionValue__c,
         CommercialAdditionPercent__c, CommercialAdditionValue__c, Dosage__c, ListCost__c, NumeroSap__c,
-        PracticedCost__c, PracticedPrice__c, UnitPrice FROM OrderItem WHERE ExternalId__c IN: idsOrderItem]);
+        PracticedCost__c, PracticedPrice__c, UnitPrice, Class__c, Sieve__c FROM OrderItem WHERE ExternalId__c IN: idsOrderItem]);
         
         for(OrderItem ordItem : orderItemSelectList){
             orderItemsIdsMap.put(ordItem.ExternalId__c, ordItem);
-            
+            System.debug('orderItemsIdsMap ' + orderItemsIdsMap);
         }
+        System.debug('orderItemsIdsMap ' + orderItemsIdsMap);
         for (TemplateDataIntegrationFields.OrderItemINData orderItem : request){
             if(orderItem.orderItemECalendariazacao == true){
             OrderItem ordItem = orderItemsIdsMap.get(orderItem.orderExternalId + '|' + orderItem.orderItemCode);
   
            if(orderItem.orderExternalId == null){
-                
+                System.debug('OrderId ' + ordItem.OrderId);
                if(ordItem.OrderId != null){
                     orderItem.orderExternalId = ordItem.OrderId; 
                     lookups.put('Order' + ordItem.Order.CodigoSap__c, ordItem.OrderId);
@@ -150,6 +172,13 @@ global without sharing class IntegrationINOrderItemAppdigital {
             if(orderItem.precoUnitario == null || orderItem.orderItemECalendariazacao == true){
                 orderItem.precoUnitario = ordItem.UnitPrice;
             }
+
+            if(orderItem.classeCategoria == null || orderItem.classeCategoria == '' || orderItem.orderItemECalendariazacao == true){
+                orderItem.classeCategoria = ordItem.Class__c;
+            }
+            if(orderItem.peneira == null || orderItem.peneira == '' || orderItem.orderItemECalendariazacao == true){
+                orderItem.peneira = ordItem.Sieve__c;
+            }
         }
 
         }
@@ -181,6 +210,12 @@ global without sharing class IntegrationINOrderItemAppdigital {
             // como estava = parentMapKeys.put(ORDEREXTERNALID + '|' + ORDERITEMEXTERNALID, lookups.containsKey('Order'+ORDEREXTERNALID) ? lookups.get('Order'+ORDEREXTERNALID) : ORDEREXTERNALID);
             parentMapKeys.put(orderItem.orderExternalId + '|' + orderItem.orderItemCode, lookups.containsKey('Order'+orderItem.orderExternalId) ? String.valueOf(lookups.get('Order'+orderItem.orderExternalId)) : orderItem.orderExternalId);
             System.debug('orderItem.orderExternalId ' + orderItem.orderExternalId);
+            
+            if(!Test.isRunningTest()){
+            	orderItem.pricebookEntryId = pricebookEntryList.get(orderItem.material + String.valueOf(orderItem.currencyOrder)).Id;
+  
+            }
+            System.debug('pricebookId ' + orderItem.pricebookEntryId);
         }
         
         // Valida e adiciona os OrderItem na lista para o upsert

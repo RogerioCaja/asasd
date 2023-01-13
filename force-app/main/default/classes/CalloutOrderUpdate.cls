@@ -85,7 +85,7 @@ public without sharing class CalloutOrderUpdate {
 		String accessToken = !Test.isRunningTest() ? getAccessToken() : 'testeToken';
 
 		//Path geralmente cadastrado dentro de ua customSettings
-		String endpoint = (!Test.isRunningTest() ? 'https://agrogalaxy-prd-01.it-cpi008-rt.cfapps.br10.hana.ondemand.com/http/SI_ALTERA_OV_OUT' : 'http://callout.My_Named_Credential.com/some/path');
+		String endpoint = (!Test.isRunningTest() ? 'https://agrogalaxy-qas-01.it-cpi008-rt.cfapps.br10.hana.ondemand.com/http/SI_ALTERA_OV_OUT' : 'http://callout.My_Named_Credential.com/some/path');
 		Map<String, String> headersMap = new Map<String, String>();
 		headersMap.put('Content-type', 'application/json');
 		headersMap.put('Authorization', 'Bearer '+ accessToken);
@@ -158,7 +158,6 @@ public without sharing class CalloutOrderUpdate {
 
             Set<Id> orderItemIds = new Set<Id>();
             String IV_TYPE = order.IsOrderMother__c != false ? 'G' : 'C';
-
             String dateF;
 
             if(order.Crop__r.StartDateOrderInsertion__c < System.today() && IV_TYPE == 'G' ){
@@ -190,8 +189,6 @@ public without sharing class CalloutOrderUpdate {
             IS_HEADER_IN.ZZDATA_CARENCIA = String.valueOf(order.Crop__r.PaymentBaseDate__c).replace('-', '');
             IS_HEADER_IN.ZZDATA_VENCTO = String.valueOf(order.PaymentDate__c).replace('-', '');
            
-          
-
             for(OrderItem orderItem : order.OrderItems){
                 orderItemIds.add(orderItem.Id);
             }

@@ -8,6 +8,10 @@
         <layoutColumns>
             <layoutItems>
                 <behavior>Required</behavior>
+                <field>ExternalId__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Required</behavior>
                 <field>OrderId</field>
             </layoutItems>
             <layoutItems>
@@ -74,6 +78,50 @@
                 <behavior>Edit</behavior>
                 <field>PriceListCode__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Sieve__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Class__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>IndividualQuotas__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>ComboPromotion__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Brokerage__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>AgrogalaxyComboDiscount__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>IndustryComboDiscount__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>RoyaltyAmount__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>TotalRoyaltyAmount__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>TSIValue__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>TotalTSIAmount__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>
@@ -124,12 +172,16 @@
         <layoutColumns/>
         <style>TwoColumnsLeftToRight</style>
     </layoutSections>
+    <miniLayout>
+        <fields>ExternalId__c</fields>
+    </miniLayout>
     <multilineLayoutFields>Product2Id</multilineLayoutFields>
     <multilineLayoutFields>Quantity</multilineLayoutFields>
     <multilineLayoutFields>ListPrice</multilineLayoutFields>
     <multilineLayoutFields>UnitPrice</multilineLayoutFields>
     <multilineLayoutFields>Description</multilineLayoutFields>
     <multilineLayoutFields>OrderId</multilineLayoutFields>
+    <multilineLayoutFields>ExternalId__c</multilineLayoutFields>
     <relatedLists>
         <relatedList>RelatedEntityHistoryList</relatedList>
     </relatedLists>

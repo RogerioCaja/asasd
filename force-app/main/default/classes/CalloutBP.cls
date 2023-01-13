@@ -22,6 +22,10 @@ public without sharing class CalloutBP {
                     accountIdsList.add(valor.ContaPai);
                     accountFatherIdsList.add(valor.ContaPai);
                 }
+                if(valor.ZZCRED != null){
+                    accountIdsList.add(valor.ZZCRED);
+                    accountFatherIdsList.add(valor.ZZCRED);
+                }
             }
             System.debug('accountIdsList: '+ accountIdsList);
             List<Account> accountListExternalId = new List<Account>([SELECT Id, ExternalId__c FROM Account WHERE ExternalId__c =: accountIdsList]);
@@ -36,7 +40,12 @@ public without sharing class CalloutBP {
                 }
                 for(CompanyINData company : valor.EstruturaOrganizacional){
                     company.CodigoExternoAccount = valor.CodigoExterno;
-                    company.CodigoExternoFatherAccount = valor.ContaPai;
+                    if(valor.ContaPai != null && valor.ContaPai != ''){
+                        company.CodigoExternoFatherAccount = valor.ContaPai;
+                    }else{
+                        company.CodigoExternoFatherAccount = valor.ZZCRED;
+                    }
+                    
                     companyList.add(company);
                 }
                 String statusType;
@@ -57,7 +66,6 @@ public without sharing class CalloutBP {
                 Name = valor.Nome,
                 Company__c = valor.Nome,    
                 ExternalId__c = valor.CodigoExterno,
-                ParentId = lookups.containsKey('Account'+valor.ContaPai) ? lookups.get('Account'+valor.ContaPai) : null,
                 CNPJ__c = valor.CNPJ,
                 CPF__c = valor.CPF,
                 MunicipalRegistration__c = valor.InscricaoMunicipal,
@@ -65,6 +73,17 @@ public without sharing class CalloutBP {
                 Email__c = email,
                 Phone = valor.Telefone,
                 Status__c = statusType);
+                if(valor.ContaPai != null){
+                    ac.ParentId = lookups.containsKey('Account'+valor.ContaPai) ? lookups.get('Account'+valor.ContaPai) : null;
+                }else{
+                    ac.ParentId = lookups.containsKey('Account'+valor.ZZCRED) ? lookups.get('Account'+valor.ZZCRED) : null;
+                }
+                ac.RegisterTipe__c = valor.TipoRegistro;
+                if(valor.TipoBp == 'Cliente'){
+                    ac.BpType__c = 'Proprietario';
+                }else{
+                    ac.BpType__c = valor.TipoBp;
+                }
                 
                 ac.ShippingStreet = valor.RuaEntrega;
                 ac.ShippingCity = valor.CidadeEntrega;
@@ -166,6 +185,10 @@ public without sharing class CalloutBP {
                     accountIdsList.add(valor.ContaPai);
                     accountFatherIdsList.add(valor.ContaPai);
                 }
+                if(valor.ZZCRED != null){
+                    accountIdsList.add(valor.ZZCRED);
+                    accountFatherIdsList.add(valor.ZZCRED);
+                }
             }
             System.debug('accountIdsList: '+ accountIdsList);
             List<Account> accountListExternalId = new List<Account>([SELECT Id, ExternalId__c FROM Account WHERE ExternalId__c =: accountIdsList]);
@@ -180,7 +203,11 @@ public without sharing class CalloutBP {
                 }
                 for(CompanyINData company : valor.EstruturaOrganizacional){
                     company.CodigoExternoAccount = valor.CodigoExterno;
-                    company.CodigoExternoFatherAccount = valor.ContaPai;
+                    if(valor.ContaPai != null && valor.ContaPai != ''){
+                        company.CodigoExternoFatherAccount = valor.ContaPai;
+                    }else{
+                        company.CodigoExternoFatherAccount = valor.ZZCRED;
+                    }
                     companyList.add(company);
                 }
                 String statusType;
@@ -201,7 +228,6 @@ public without sharing class CalloutBP {
                 Name = valor.Nome,
                 Company__c = valor.Nome,    
                 ExternalId__c = valor.CodigoExterno,
-                ParentId = lookups.containsKey('Account'+valor.ContaPai) ? lookups.get('Account'+valor.ContaPai) : null,
                 CNPJ__c = valor.CNPJ,
                 CPF__c = valor.CPF,
                 MunicipalRegistration__c = valor.InscricaoMunicipal,
@@ -209,7 +235,17 @@ public without sharing class CalloutBP {
                 Email__c = email,
                 Phone = valor.Telefone,
                 Status__c = statusType);
-                
+                if(valor.ContaPai != null){
+                    ac.ParentId = lookups.containsKey('Account'+valor.ContaPai) ? lookups.get('Account'+valor.ContaPai) : null;
+                }else{
+                    ac.ParentId = lookups.containsKey('Account'+valor.ZZCRED) ? lookups.get('Account'+valor.ZZCRED) : null;
+                }
+                ac.RegisterTipe__c = valor.TipoRegistro;
+                if(valor.TipoBp == 'Cliente'){
+                    ac.BpType__c = 'Proprietario';
+                }else{
+                    ac.BpType__c = valor.TipoBp;
+                }
                 ac.ShippingStreet = valor.RuaEntrega;
                 ac.ShippingCity = valor.CidadeEntrega;
                 ac.ShippingState = valor.Estado;
@@ -419,12 +455,17 @@ public without sharing class CalloutBP {
         for(User user : userList){
             userIdsList.add(user.Id);
         }
-        List<UserTerritory2Association> userTerrytoryList = new List<UserTerritory2Association>([SELECT Id, UserId, User.CodigoSap__c, Territory2Id  FROM UserTerritory2Association WHERE UserId =: userIdsList]);
+        List<UserTerritory2Association> userTerrytoryList = new List<UserTerritory2Association>([SELECT Id, UserId, User.CodigoSap__c, Territory2Id, Territory2.DeveloperName, Territory2.ParentTerritory2.DeveloperName, Territory2.ParentTerritory2.ParentTerritory2.DeveloperName FROM UserTerritory2Association WHERE UserId =: userIdsList]);
         Map<String, UserTerritory2Association> userTerrytoryMap = new Map<String, UserTerritory2Association>();
         
         
         for(UserTerritory2Association userTerrytory : userTerrytoryList){
-            userTerrytoryMap.put(userTerrytory.User.CodigoSap__c, userTerrytory);
+            String salesTeam = userTerrytory.Territory2.ParentTerritory2.DeveloperName.replace('X', '');
+            salesTeam = salesTeam.replace('Z', '');
+            String salesOffice = userTerrytory.Territory2.ParentTerritory2.ParentTerritory2.DeveloperName.replace('X', '');
+            salesOffice = salesOffice.replace('Z', '');
+            System.debug('check: '+userTerrytory.User.CodigoSap__c + salesTeam + salesOffice);
+            userTerrytoryMap.put(userTerrytory.User.CodigoSap__c + salesTeam + salesOffice, userTerrytory);
         }
         System.debug('userTerrytoryMap: '+userTerrytoryMap);
         List<ObjectTerritory2Association> objectTerritoryList = new List<ObjectTerritory2Association>();
@@ -432,7 +473,10 @@ public without sharing class CalloutBP {
         List<String> objectTerritoryObjectToDeleteList = new List<String>();
         List<String> objectTerritoryTerritory2IdList = new List<String>();
         for(CompanyINData company : companyList){
-            UserTerritory2Association userTerrytory = userTerrytoryMap.get(company.Partner);
+            String compUser = company.Partner + company.EquipeVendas + company.EscritorioVendas;
+            System.debug('compUser: '+compUser);
+            UserTerritory2Association userTerrytory = userTerrytoryMap.get(compUser);
+            System.debug('userTerrytory: '+userTerrytory);
             String accountId = accountExternalIdMap.get(company.CodigoExternoAccount);
             String accountFatherId = accountFatherExternalIdMap.get(company.CodigoExternoFatherAccount);
             if(userTerrytory != null){
@@ -451,6 +495,7 @@ public without sharing class CalloutBP {
                 }
             }
         }
+        System.debug('objectTerritoryList: '+objectTerritoryList);
         Set<ObjectTerritory2Association> removeDuplicates = new Set<ObjectTerritory2Association>();
         List<ObjectTerritory2Association> resultList = new List<ObjectTerritory2Association>();
         List<String> resultWithoutFatherIdList = new List<String>();
@@ -678,7 +723,8 @@ public without sharing class CalloutBP {
         String accessToken = code;//! FALTA SABER A RESPOSTA DO SAP QUANTO A AUTENTICAÇÃO! F
         //Url mock: https://aabb2740-69b0-4737-925c-2c40367a3737.mock.pstmn.io//CalloutBP
         //Path geralmente cadastrado dentro de ua customSettings 
-        String endpoint = (!Test.isRunningTest() ? 'https://apim.agrogalaxy.com.br/gtw/sf-bp-out/v1/sf-bp-out' : 'http://callout.My_Named_Credential.com/some/path');
+        Integration__c data = Integration__c.getInstance('BP OUT');
+        String endpoint = (!Test.isRunningTest() ? data.Url__c : 'http://callout.My_Named_Credential.com/some/path');
         Map<String, String> headersMap = new Map<String, String>();
         headersMap.put('Content-type', 'application/json');
         headersMap.put('Authorization', 'Bearer '+ accessToken);
@@ -717,11 +763,12 @@ public without sharing class CalloutBP {
         }
     }
     public static String getAcessCode(){
+        Integration__c data = Integration__c.getInstance('BP OUT');
         String payloadToken = 'grant_type=client_credentials';
-        String endpointToken = (!Test.isRunningTest() ? 'https://apim.agrogalaxy.com.br/identityserver/oauth2/token' : 'http://callout.My_Named_Credential.com/some/path');
+        String endpointToken = (!Test.isRunningTest() ? data.UrlToken__c : 'http://callout.My_Named_Credential.com/some/path');
         Map<String, String> headersMapToken = new Map<String, String>();
         headersMapToken.put('Content-type', 'application/x-www-form-urlencoded');
-        headersMapToken.put('Authorization', 'Basic ZVBwb0ZlUm1XZGtUNk9tRnlMQl9Ma2pBUUVrYTpsV3diUVBpa2dNeTRyTnQ5UkNSWmRpS3luMmdh');
+        headersMapToken.put('Authorization', data.Token__c);
         IntegrationUtils.RequestResponseObject responseObject2 = IntegrationUtils.executeCallout(endpointToken, payloadToken, headersMapToken);
         System.debug('responseObject2: '+ responseObject2);
         if (responseObject2.success) {
@@ -765,6 +812,9 @@ public without sharing class CalloutBP {
         public String Nome;
         public String CodigoExterno;
         public String RuaEntrega;
+        public String TipoRegistro;
+        public String TipoBp;
+        public String ZZCRED;
         public String CidadeEntrega;
         public String Estado;
         public String PaisEntrega;
