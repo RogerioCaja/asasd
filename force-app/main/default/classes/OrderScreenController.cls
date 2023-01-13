@@ -1207,6 +1207,7 @@ public without sharing class OrderScreenController {
                             commodityTax = new CommodityTaxes__c();
                         }
 
+                        commodityTax.Tax__c = taxData.taxId;
                         commodityTax.Commodity__c = upsCommodities[0].Id;
                         commodityTax.DeductionAmount__c = taxData.taxValue;
                         commodityTax.PercentageDeducted__c = taxData.taxPercentage;
