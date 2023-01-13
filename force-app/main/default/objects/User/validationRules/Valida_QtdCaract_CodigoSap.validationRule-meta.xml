@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Valida_QtdCaract_CodigoSap</fullName>
+    <active>true</active>
+    <description>Valida que o campo código SAP contém 10 caracteres</description>
+    <errorConditionFormula>LEN( CodigoSap__c ) != 10 &amp;&amp;
+OR (Profile.Name = &apos;Vendedor&apos;,
+Profile.Name = &apos;Balcão&apos;)</errorConditionFormula>
+    <errorMessage>O Código SAP do usuário deve conter 10 caracteres.</errorMessage>
+</ValidationRule>
