@@ -674,7 +674,7 @@ public without sharing class CalloutBP {
             return resultCreditList;
         }
         return null;
-    } 
+    } /*
     public static Database.UpsertResult[] clientTax(List<TaxINData> tabelaImpostosList, Map<String, Id> lookups){
 
         List<CustomerTaxes__c> clientTaxListToUpsert = new List<CustomerTaxes__c>(); 
@@ -695,7 +695,7 @@ public without sharing class CalloutBP {
             return resultImpostList;
         }
         return null;
-    } 
+    } */
 
     public static IntegrationUtils.CalloutBpResponse sendOrder() {
 
