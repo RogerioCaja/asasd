@@ -155,7 +155,7 @@
                         <td valign="top">Preço Unit.</td>
                         <td valign="top">Valor Total</td>
                     </tr>
-                    <apex:repeat value="{! orderToPage.orderItemList }" var='oI'>
+                    <apex:repeat value="{! orderToPage.orderItemList }" var="oI">
                         <tr>
                             <td>
                                 {! oI.productCode}
@@ -168,7 +168,7 @@
                             </td>
                             
                             <td>
-                                <apex:repeat rendered="{!orderToPage.isMother == false}" value="{! oI.divisonList }" var='dV'>
+                                <apex:repeat rendered="{!orderToPage.isMother == false}" value="{! oI.divisonList }" var="dV">
                                     {! dV.deliveryDate} - {! dV.quantity} <br/>
                                 </apex:repeat>
                                 <apex:outputText rendered="{!orderToPage.isMother == true}">
@@ -196,7 +196,7 @@
                             <td valign="top" style="width: 33.3%;">Data de Vencimento</td>
                             <td valign="top" style="width: 33.3%;">Valor</td>
                         </tr>
-                        <apex:repeat value="{! orderToPage.paymentFormList }" var='pF'>
+                        <apex:repeat value="{! orderToPage.paymentFormList }" var="pF">
                             <tr>
                                 <td>
                                     {! pF.type}
@@ -210,18 +210,6 @@
                             </tr>
                         </apex:repeat>
                     </table>
-                </td>
-            </tr>
-
-        
-            <tr>
-                <td class="title divider-top divider-bottom" >
-                    Frete
-                </td>
-                <td class="divider-top divider-bottom">
-                    <div class="container-total-value">
-                        <span class="highlight">{!orderToPage.freightValue}</span>
-                    </div>
                 </td>
             </tr>
         </apex:outputText>
