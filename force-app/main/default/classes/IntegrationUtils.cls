@@ -376,7 +376,10 @@ public class IntegrationUtils {
         // Timeout reduced in 10000 miliseconds in order to avoid timeouts in invoke actions through javascript.
         request.setTimeout(110000);
         request.setEndpoint(namedCredential);
-        request.setBody(payload);
+        if(payload != null){
+            request.setBody(payload);
+        }
+        
 
         
         if (requestHeaders != null && requestHeaders.size() > 0){
