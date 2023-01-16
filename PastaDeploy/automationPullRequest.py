@@ -69,18 +69,18 @@ class ProcessAutomation:
 
     def prepare_pull_request(self) -> None:
         self.dict_payload["source"]["branch"]["name"] = self.branch_merge_develop
-        self.dict_payload["title"] = self.branch_merge_develop.capitalize()
+        self.dict_payload["title"] = "Mergedevelop/" + self.branch_merge_develop.split('/')[1]
         payload = json.dumps(self.dict_payload)
 
         self.dict_payload["destination"]["branch"]["name"] = "qa2"
         self.dict_payload["source"]["branch"]["name"] = self.branch_merge_qa2
-        self.dict_payload["title"] = self.branch_merge_qa2.capitalize()
+        self.dict_payload["title"] = "Mergeqa2/" + self.branch_merge_qa2.split('/')[1]
 
         payload2 = json.dumps(self.dict_payload)
 
         self.dict_payload["destination"]["branch"]["name"] = "qa"
         self.dict_payload["source"]["branch"]["name"] = self.branch_merge_qa
-        self.dict_payload["title"] = self.branch_merge_qa.capitalize()
+        self.dict_payload["title"] = "Mergeqa/" + self.branch_merge_qa.split('/')[1]
 
         payload3 = json.dumps(self.dict_payload)
 
