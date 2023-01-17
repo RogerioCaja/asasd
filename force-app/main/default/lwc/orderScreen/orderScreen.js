@@ -94,6 +94,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         org: {Name: " "},
         aprovation: " ",
         companyId: null,
+        companySector: null,
         centerId: null,
         hectares: '',
         firstTime: true
@@ -103,6 +104,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     @track commodityData;
     @track excludedItems;
     @track combosSelecteds;
+    @track taxData;
     @track formsOfPayment;
     @track summaryData = {
         'observation' : "",
@@ -123,7 +125,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             current: true,
             enable: true,
             completed:false,
-            message: 'Necessário selecionar pelo menos uma conta',
+            message: 'Necessário selecionar pelo menos uma conta ou BP não é fornecedor',
             component: 'c-order-account-screen'
         },
         {
@@ -276,6 +278,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             if(this.cloneData.cloneOrder){
                 this.headerData.ctv_venda.Id = null;
                 this.headerData.companyId = null;
+                this.headerData.companySector = null;
                 this.headerData.status_pedido = 'Em digitação';
                 this.headerData.cliente_entrega.Id = null;
                 this.headerData.orderNumber = null;
@@ -373,6 +376,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             if(this.cloneData.cloneOrder){
                 this.headerData.ctv_venda.Id = null;
                 this.headerData.companyId = null;
+                this.headerData.companySector = null;
                 this.headerData.status_pedido = 'Em digitação';
                 this.headerData.cliente_entrega.Id = null;
                 this.headerData.orderNumber = null;
@@ -512,7 +516,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         }
 
         console.log('this.template.querySelector(this.tabs[3].component).allowFormOfPayment: ' + this.template.querySelector(this.tabs[3].component).allowFormOfPayment);
-        if (this.template.querySelector(this.tabs[3].component).allowFormOfPayment) {
+        if (this.template.querySelector(this.tabs[3].component).allowFormOfPayment && this.headerData.tipo_venda != 'Venda Barter') {
             let orderTotalPrice = 0;
             let orderTotalPaymentTsi = 0;
             let orderTotalPaymentRoyalties = 0;
@@ -542,7 +546,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         if (quotaResponse) {
             const mode = event.detail;
             await this.recordId;
-            const data = {accountData: this.accountData, headerData: this.headerData, productData: this.productData, divisionData: this.divisionData, commodityData: this.commodityData, summaryData: this.summaryData, formsOfPayment: this.formsOfPayment, comboData: this.combosSelecteds};
+            const data = {accountData: this.accountData, headerData: this.headerData, productData: this.productData, divisionData: this.divisionData, commodityData: this.commodityData, summaryData: this.summaryData, formsOfPayment: this.formsOfPayment, comboData: this.combosSelecteds, taxData: this.taxData};
             console.log(JSON.stringify(data));
             this.isLoading = true;
             //console.log(data);
@@ -592,12 +596,12 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             isSeedSale({salesOrgId: this.headerData.organizacao_vendas.Id, productGroupName: null})
             .then((result) => {
                 let seedType = result;
-                if (seedType && this.headerData.tipo_pedido != 'Pedido Filho' && !this.headerData.IsOrderChild) {
+                if (seedType && this.headerData.tipo_pedido != 'Pedido Filho' && !this.headerData.IsOrderChild && this.headerData.tipo_venda != 'Venda Barter') {
                     verifyQuota = true;
                 }
 
                 console.log('verifyQuota: ' + verifyQuota);
-                if (verifyQuota) {
+                if (verifyQuota && (this.headerData.companySector.toUpperCase() == 'SEMENTES' || this.headerData.companySector.toUpperCase() == 'SEMENTE')) {
                     let quoteData = {
                         cropId: this.headerData.safra.Id,
                         sellerId: this.headerData.ctv_venda.Id,
@@ -646,6 +650,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     }
 
     _setAccountData(event) {
+        let enableScreen = true
         try {
             if(event.data !== undefined && this.accountData != undefined && event.data.Id != this.accountData.id){
                 this.headerData.cliente_entrega = " "
@@ -654,12 +659,22 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             }
             this.accountData = event.data;
 
+            if(!this.accountData?.Supplier__c && this.headerData.tipo_venda == 'Venda Barter'){
+                enableScreen = false
+                this.showNotification('BP não é um fornecedor', 'Atenção!', 'warning');
+            }
+
             console.log('account data setted:', this.accountData);
         } catch (e) {
             console.log(e);
         }
-        this.enableNextScreen();
-        this.completeCurrentScreen();
+
+        if (enableScreen) {
+            this.enableNextScreen();
+            this.completeCurrentScreen();
+        } else {
+            this.disableNextScreen();
+        }
     }
 
     _setHeaderData(event) {
@@ -711,6 +726,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.handlePrevious();
             this.disableNextScreen();
             this.showNotification('Necessário incluir ao menos um produto', 'Atenção!', 'warning');
+            return;
         }
         
         if (!this.checkProductDivisionAndCommodities()) {
@@ -742,6 +758,9 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
                     break;
                 }
             }
+        }else{
+            enableScreen = false;
+            this.customErrorMessage = 'É preciso criar remessa para todos os produtos selecionados';
         }
         
         if (this.headerData.tipo_venda == 'Venda Barter' && (this.commodityData == undefined || this.commodityData == null || this.commodityData.length == 0)) {
@@ -796,6 +815,10 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
     _setcombosSelecteds(event) {
         this.combosSelecteds = event.data;
+    }
+
+    _setTaxData(event) {
+        this.taxData = event.data;
     }
     
     _setHideFooterButtons(event) {
