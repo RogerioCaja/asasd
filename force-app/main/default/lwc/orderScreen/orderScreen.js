@@ -57,6 +57,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     allProductQuotas = [];
     quotaProducts = [];
     @track summary = false;
+    seedSale = false;
 
     customErrorMessage = '';
     hideFooterButtons=false;
@@ -194,6 +195,11 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         else if(this.originScreen.includes('FormPayment__c')){
             this.getFormOfPayment();
         }
+
+        isSeedSale({salesOrgId: this.headerData.organizacao_vendas.Id, productGroupName: null})
+        .then((result) => {
+            this.seedSale = result;
+        });
 
         //console.log(this.recordId, this.originScreen);
 
