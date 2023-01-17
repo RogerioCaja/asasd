@@ -25,6 +25,7 @@ export default class OrderSummaryScreen extends LightningElement {
     @api seedSale = false;
     clientProperty = '';
 
+    germoTotalValue = 0;
     orderTotalPrice = 0;
     orderTotalPriceFront = 0;
     orderTotalToDistribution = 0;
@@ -305,9 +306,11 @@ export default class OrderSummaryScreen extends LightningElement {
                 }
             }
             
-            this.orderTotalPrice = orderTotalPrice;
-            this.orderTotalPriceFront = this.fixDecimalPlacesFront(orderTotalPrice);
-            this.orderTotalToDistribution = orderTotalPrice;
+            let summary = JSON.parse(JSON.stringify(this.summaryDataLocale));
+            this.germoTotalValue = orderTotalPrice;
+            this.orderTotalPrice = this.germoTotalValue + Number(this.headerData.frete == 'CIF' && this.seedSale ? summary.freightValue : 0);
+            this.orderTotalPriceFront = this.fixDecimalPlacesFront(this.orderTotalPrice);
+            this.orderTotalToDistribution = this.orderTotalPrice;
 
             this.royaltiesTotalPrice = royaltiesTotalPrice;
             this.royaltiesTotalPriceFront = this.fixDecimalPlacesFront(royaltiesTotalPrice);
@@ -458,12 +461,21 @@ export default class OrderSummaryScreen extends LightningElement {
         if(!this.template.querySelector(`[data-target-id="${variable}"]`).checkValidity()){
             this.showToast('warning', 'Atenção', 'Valor de frete inválido');
             return;
-         }
+        }
 
         this.showFreightScreen = false;
         let summary = JSON.parse(JSON.stringify(this.summaryDataLocale));
         this.currentFreight = this.fixFreightDecimalPlaces(summary.freightValue);
 
+        let allPayments = JSON.parse(JSON.stringify(this.formsOfPayment));
+        let germoplasmaValue = 0;
+        for (let index = 0; index < allPayments.length; index++) {
+            if (allPayments[index].paymentType == 'Germoplasma') germoplasmaValue += Number(allPayments[index].value);
+        }
+
+        this.orderTotalPrice = Number(this.germoTotalValue) + Number(this.headerData.frete == 'CIF' && this.seedSale ? summary.freightValue : 0);
+        this.orderTotalPriceFront = this.fixDecimalPlacesFront(this.orderTotalPrice);
+        this.orderTotalToDistribution = this.orderTotalPrice - Number(this.headerData.frete == 'CIF' && this.seedSale ? germoplasmaValue : 0);
         this.changeFreight();
     }
 
