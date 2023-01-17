@@ -531,6 +531,11 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
                 return;
             }
 
+            if (this.headerData.frete == 'CIF' && this.seedSale) {
+                let summary = JSON.parse(JSON.stringify(this.summaryData));
+                totalPayment = Number(totalPayment) + Number(summary.freightValue);
+            }
+
             if (this.fixDecimalPlacesFront(totalPayment) != this.fixDecimalPlacesFront(orderTotalPrice) ||
                 this.fixDecimalPlacesFront(totalPaymentTsi) != this.fixDecimalPlacesFront(orderTotalPaymentTsi) ||
                 this.fixDecimalPlacesFront(totalPaymentRoyalties) != this.fixDecimalPlacesFront(orderTotalPaymentRoyalties)) {
