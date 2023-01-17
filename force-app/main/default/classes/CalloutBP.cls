@@ -74,6 +74,13 @@ public without sharing class CalloutBP {
                 if(valor.Fornecedor == 'true'){
                     blocked = true;
                 }
+                Boolean storageBp = false;
+                if(valor.Armazenagem == null){
+                    storageBp = false;
+                }
+                if(valor.Armazenagem == 'true'){
+                    storageBp = true;
+                }
                 Account ac = new Account(
                 Name = valor.Nome,
                 Company__c = valor.Nome,    
@@ -81,6 +88,7 @@ public without sharing class CalloutBP {
                 CNPJ__c = valor.CNPJ,
                 CPF__c = valor.CPF,
                 Supplier__c = blocked,
+                StorageBp__c = storageBp,
                 MunicipalRegistration__c = valor.InscricaoMunicipal,
                 StateRegistration__c = valor.InscricaoEstadual,
                 Email__c = email,
@@ -259,6 +267,13 @@ public without sharing class CalloutBP {
                 if(valor.Fornecedor == 'true'){
                     blocked = true;
                 }
+                Boolean storageBp = false;
+                if(valor.Armazenagem == null){
+                    storageBp = false;
+                }
+                if(valor.Armazenagem == 'true'){
+                    storageBp = true;
+                }
                 Account ac = new Account(
                 Name = valor.Nome,
                 Company__c = valor.Nome,    
@@ -266,6 +281,7 @@ public without sharing class CalloutBP {
                 CNPJ__c = valor.CNPJ,
                 CPF__c = valor.CPF,
                 Supplier__c = blocked,
+                StorageBp__c = storageBp,
                 MunicipalRegistration__c = valor.InscricaoMunicipal,
                 StateRegistration__c = valor.InscricaoEstadual,
                 Email__c = email,
@@ -897,6 +913,7 @@ public without sharing class CalloutBP {
         public String CEPEntrega;
         public String RuaCobranca;
         public String Fornecedor;
+        public String Armazenagem;
         public String CidadeCobranca;
         public String EstadoCobranca;
         public String PaisCobranca;
