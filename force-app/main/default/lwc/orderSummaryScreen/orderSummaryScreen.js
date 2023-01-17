@@ -308,7 +308,7 @@ export default class OrderSummaryScreen extends LightningElement {
             
             let summary = JSON.parse(JSON.stringify(this.summaryDataLocale));
             this.germoTotalValue = orderTotalPrice;
-            this.orderTotalPrice = this.germoTotalValue + Number(this.headerData.frete == 'CIF' ? summary.freightValue : 0);
+            this.orderTotalPrice = this.germoTotalValue + Number(this.headerData.frete == 'CIF' && this.seedSale ? summary.freightValue : 0);
             this.orderTotalPriceFront = this.fixDecimalPlacesFront(this.orderTotalPrice);
             this.orderTotalToDistribution = this.orderTotalPrice;
 
@@ -473,9 +473,9 @@ export default class OrderSummaryScreen extends LightningElement {
             if (allPayments[index].paymentType == 'Germoplasma') germoplasmaValue += Number(allPayments[index].value);
         }
 
-        this.orderTotalPrice = Number(this.germoTotalValue) + Number(this.headerData.frete == 'CIF' ? summary.freightValue : 0);
+        this.orderTotalPrice = Number(this.germoTotalValue) + Number(this.headerData.frete == 'CIF' && this.seedSale ? summary.freightValue : 0);
         this.orderTotalPriceFront = this.fixDecimalPlacesFront(this.orderTotalPrice);
-        this.orderTotalToDistribution = this.orderTotalPrice - Number(this.headerData.frete == 'CIF' ? germoplasmaValue : 0);
+        this.orderTotalToDistribution = this.orderTotalPrice - Number(this.headerData.frete == 'CIF' && this.seedSale ? germoplasmaValue : 0);
         this.changeFreight();
     }
 
