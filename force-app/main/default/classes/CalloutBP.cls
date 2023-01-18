@@ -711,11 +711,11 @@ public without sharing class CalloutBP {
 
         List<CustomerTaxes__c> clientTaxListToUpsert = new List<CustomerTaxes__c>(); 
         for(TaxINData valor : tabelaImpostosList){
-            if(valor.CodigoImposto != null && valor.Status != null){
+            if(valor.CodigoImposto != null){
             	CustomerTaxes__c impost = new CustomerTaxes__c(
             	Account__c = lookups.containsKey('Account__c'+valor.CodigoExternoAccount) ? lookups.get('Account__c'+valor.CodigoExternoAccount) : null,
             	Tax__c = lookups.containsKey('BarterTaxes__c'+valor.CodigoImposto) ? lookups.get('BarterTaxes__c'+valor.CodigoImposto) : null,
-                Status__c = valor.Status,
+                Status__c = 'Ativo',
                 ExternalId__c = valor.CodigoExternoAccount + '-' + valor.CodigoImposto
                 );
             	clientTaxListToUpsert.add(impost);
@@ -724,6 +724,17 @@ public without sharing class CalloutBP {
         System.debug('clientTaxListToUpsert: '+ clientTaxListToUpsert);
         if (!clientTaxListToUpsert.isEmpty()) {
             Database.UpsertResult[] resultImpostList = Database.upsert(clientTaxListToUpsert, CustomerTaxes__c.ExternalId__c, false);
+            List<String> taxExternalIdList = new List<String>(); 
+            List<String> codigoExternoAccountList = new List<String>(); 
+            for(CustomerTaxes__c clientTax : clientTaxListToUpsert){
+                taxExternalIdList.add(clientTax.ExternalId__c);
+                accountIdList.add(clientTax.Account__c);
+            }
+            List<CustomerTaxes__c> clientTaxOldList = new List<CustomerTaxes__c>([SELECT Id, Account__c, ExternalId__c, Status__c FROM CustomerTaxes__c WHERE  Account__c =: accountIdList AND ExternalId__c !=: taxExternalIdList]); 
+            for(CustomerTaxes__c clientTax : clientTaxOldList){
+                clientTax.Status__c = 'Inativo';
+            }
+            update clientTaxOldList;
             return resultImpostList;
         }
         return null;
@@ -958,6 +969,5 @@ public without sharing class CalloutBP {
     public class TaxINData{
         public String CodigoExternoAccount;
         public String CodigoImposto;
-        public String Status; 
     }
 }
