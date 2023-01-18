@@ -35,10 +35,10 @@ global class BatchImplementationCTV  implements Database.Batchable<sObject>, Dat
                 territoryToSendList.add(territory);
             }
         }
-
+        System.debug('territoryList: '+territoryList);
         if(!territoryToSendList.isEmpty()){
             if(!Test.isRunningTest()){
-                System.debug('territoryList: '+territoryList);
+                System.debug('territoryToSendList: '+territoryToSendList);
                 CalloutCTVCarteira.sendOrder(territoryToSendList);
             }
         }
