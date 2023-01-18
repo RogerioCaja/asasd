@@ -1,4 +1,4 @@
-trigger CalendarTrigger on VisitPlanning__c (before insert, before update) {
+trigger CalendarTrigger on VisitPlanning__c (before insert, before update, after insert, after update) {
 
 
     CalendarTriggerHandler handler = new CalendarTriggerHandler(
@@ -8,7 +8,7 @@ trigger CalendarTrigger on VisitPlanning__c (before insert, before update) {
     if (CalendarHelper.isTriggerEnabled()) {
         switch on Trigger.operationType {
             when AFTER_INSERT {
-                
+                handler.OnAfterInsert();
             }
             when BEFORE_INSERT{
                 handler.OnBeforeInsert();

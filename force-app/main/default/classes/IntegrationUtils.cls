@@ -164,6 +164,16 @@ public class IntegrationUtils {
                 }
             }
 
+            if(objResult.getSObjectType() == globalDescribe.get('FormPayment__c')){
+                FormPayment__c aux = (FormPayment__c)objResult;
+                if(responseMap.KeySet().contains(aux.Order__c)){
+                    responseMap.get(aux.Order__c).add(responseData);
+                }
+                else {
+                    responseMap.put(aux.Order__c, new List<TemplateDataINtegrationFields.Response>{responseData});
+                }
+            }
+
         }
     }
     
@@ -366,7 +376,10 @@ public class IntegrationUtils {
         // Timeout reduced in 10000 miliseconds in order to avoid timeouts in invoke actions through javascript.
         request.setTimeout(110000);
         request.setEndpoint(namedCredential);
-        request.setBody(payload);
+        if(payload != null){
+            request.setBody(payload);
+        }
+        
 
         
         if (requestHeaders != null && requestHeaders.size() > 0){
