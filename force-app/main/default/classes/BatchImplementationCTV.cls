@@ -34,7 +34,6 @@ global class BatchImplementationCTV  implements Database.Batchable<sObject>, Dat
             if(objectTerritoryMap.containsKey(territory.Id) || userTerritoryMap.containsKey(territory.Id) || territory.LastModifiedDate >= System.now().addMinutes(-30)){
                 territoryToSendList.add(territory);
             }
-
         }
 
         if(!territoryToSendList.isEmpty()){
