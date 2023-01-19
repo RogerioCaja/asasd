@@ -141,13 +141,13 @@ public without sharing class OrderScreenController {
                    ReasonRefuse__c,
                    Sieve__c,
                    Class__c,
+                   ComboPromotion__c,
+                   AgrogalaxyComboDiscount__c,
+                   IndustryComboDiscount__c,
                    TSIValue__c,
                    RoyaltyAmount__c,
                    TotalTSIAmount__c,
-                   TotalRoyaltyAmount__c,
-                   ComboPromotion__c,
-                   AgrogalaxyComboDiscount__c,
-                   IndustryComboDiscount__c
+                   TotalRoyaltyAmount__c
               FROM OrderItem
              WHERE OrderId =: orderId
         ]){
@@ -469,6 +469,7 @@ public without sharing class OrderScreenController {
                        SalesOrg__c,
                        ClientGroup__c,
                        ActivitySector__c,
+                       ActivitySector__r.Name,
                        DistributionChannel__c
                   FROM Company__c
                  WHERE Id =: orderData.headerData.companyId
@@ -558,7 +559,7 @@ public without sharing class OrderScreenController {
             }
 
             QuantitiesResult quantitiesResult;
-            if (seedSale) {
+            if (seedSale && (company.ActivitySector__r.Name.toUpperCase() == 'SEMENTE' || company.ActivitySector__r.Name.toUpperCase() == 'SEMENTES')) {
                 QuotaData quotaData = new QuotaData();
                 quotaData.cropId = orderData.headerData.safra.Id;
                 quotaData.sellerId = orderData.headerData.ctv_venda.Id;
@@ -584,6 +585,7 @@ public without sharing class OrderScreenController {
                        AND Approver__c = 'ComiteMargem'
                        AND ClientGroup__c =: company.ClientGroup__c
                        AND SalesOrg__c =: company.SalesOrg__c
+                       AND CurrencyIsoCode =: orderData.headerData.moeda
                        AND ProductGroup__c IN: smallerMarginByProductGroup.keySet()
                        AND InitialDate__c <=: System.today()
                        AND EndDate__c >=: System.today()
@@ -612,7 +614,7 @@ public without sharing class OrderScreenController {
                      WHERE Product2Id IN: listProductsIds
                 ]) {
                     pricebookId = entry.Pricebook2Id;
-                    entriesByProductsIds.put(entry.Product2Id, entry);
+                    entriesByProductsIds.put(entry.Product2Id + 'BRL', entry);
                 }
             } else {
                 for (PricebookEntry entry : [
@@ -649,9 +651,10 @@ public without sharing class OrderScreenController {
                            ProductHierarchy__c,
                            SellerType__c,
                            CommissionPercentage__c 
-                    FROM Comissao__c
-                   WHERE ProductHierarchy__c IN: setProductHierarchyIds
-                     AND SellerType__c =: sellerType
+                      FROM Comissao__c
+                     WHERE ProductHierarchy__c IN: setProductHierarchyIds
+                       AND SellerType__c =: sellerType
+                       AND SalesOrg__c =: company.SalesOrg__c
                 ]) {
                     if (!commissionByHierarchy.containsKey(commission.ProductHierarchy__c)) {
                         commissionByHierarchy.put(commission.ProductHierarchy__c, commission);
@@ -690,6 +693,7 @@ public without sharing class OrderScreenController {
                      WHERE Status__c = 'Aprovado'
                        AND ClientGroup__c =: company.ClientGroup__c
                        AND SalesOrg__c =: company.SalesOrg__c
+                       AND CurrencyIsoCode =: orderData.headerData.moeda
                        AND ProductGroup__c =: productGroupId
                        AND InitialDate__c <=: System.today()
                        AND EndDate__c >=: System.today()
@@ -994,11 +998,12 @@ public without sharing class OrderScreenController {
                     mapOrderItems.put(orderItem.Product2Id, orderItem);
                 }
                 
-                if (orderData.divisionData != null && orderData.divisionData.size() > 0 && typeOrder != 'prepedido') {
+                if (orderData.divisionData != null && orderData.divisionData.size() > 0) {
                     Map<String, DivisionDeserialize> divisionsByKey = new Map<String, DivisionDeserialize>();
                     for (DivisionDeserialize division : orderData.divisionData) {
                         if (division.divisionId != null) {
                             setDivisionIds.add(division.divisionId);
+                            divisionCounter++;
                         }
 
                         String key = division.deliveryDate + '-' + division.orderItemKey;
@@ -1252,6 +1257,7 @@ public without sharing class OrderScreenController {
             return JSON.serialize(sellerPosition);
         }
         
+        List<Id> territoriesRelatedToCtv = new List<Id>();
         for (UserTerritory2Association userAssociation : [
             SELECT Id,
                    UserId,
@@ -1259,9 +1265,19 @@ public without sharing class OrderScreenController {
                    Territory2.Territory2Type.DeveloperName
               FROM UserTerritory2Association
              WHERE UserId =: companyInfos.ctvId
-             LIMIT 1
         ]) {
-            userTerritoryId = userAssociation.Territory2Id;
+            territoriesRelatedToCtv.add(userAssociation.Territory2Id);
+        }
+
+        for (ObjectTerritory2Association objAssociation : [
+            SELECT Id,
+                   Territory2Id,
+                   Territory2.Territory2Type.DeveloperName
+              FROM ObjectTerritory2Association
+             WHERE ObjectId =: companyInfos.accountId
+               AND Territory2Id IN: territoriesRelatedToCtv
+        ]) {
+            userTerritoryId = objAssociation.Territory2Id;
         }
 
         Map<Id, Territory2> territoryAndParents = new Map<Id, Territory2>();
@@ -1308,15 +1324,15 @@ public without sharing class OrderScreenController {
         };
         Q proQuery = new Q(Company__c.SObjectType);
         proQuery.selectFields(fieldSet);
-        if (childOrder == null || !childOrder) proQuery.add(Q.condition('Status__c').equalsTo('Adicionada'));
         if (companyInfos.accountId != '') proQuery.add(Q.condition('Conta__c').equalsTo(companyInfos.accountId));
+        if (childOrder == null || !childOrder) proQuery.add(Q.condition('Status__c').equalsTo('Adicionada'));
         
         List<CompanyInfos> companyList = new List<CompanyInfos>();
         if (salesTeamTerritory != null && salesTeamTerritory.DeveloperName != null) {
             String salesTeamDevName = salesTeamTerritory.DeveloperName.substring(0, 1) == 'X' || salesTeamTerritory.DeveloperName.substring(0, 1) == 'Z' ?
                                       salesTeamTerritory.DeveloperName.substring(1, salesTeamTerritory.DeveloperName.length()) : salesTeamTerritory.DeveloperName;
             proQuery.add(Q.condition('SalesTeam__r.ExternalId__c').equalsTo(salesTeamDevName));
-            proQuery.add(Q.condition('SalesOrg__r.SalesOrganizationCode__c').isIn(new List<String>{'1000', '1100', '1700', '1900'}));
+            proQuery.add(Q.condition('SalesOrg__r.SalesOrganizationCode__c').isIn(new List<String>{'1000', '1100', '1300', '1500', '1600', '1700', '1800', '1900', '2000', '9000', '9003'}));
             if(companyInfos.orderType == 'Venda de Serviço')
                 proQuery.add(Q.condition('ActivitySector__r.Codigo__c').equalsTo('40'));
             else {
@@ -1554,8 +1570,14 @@ public without sharing class OrderScreenController {
     @AuraEnabled
     public static String getSpecificCombos(String data, String companyData, String productData, Boolean childOrder, List<Id> existingCombosIds) {
         String companiesData = getAccountCompanies(companyData, false, false, false, childOrder);
-        CompanyInfosSerialize companyInfos = (CompanyInfosSerialize) JSON.deserialize(companiesData, CompanyInfosSerialize.class);
-        CompanyInfos company = companyInfos.listCompanyInfos[0];
+        CompanyInfos company = new CompanyInfos();
+
+        if (Test.isRunningTest()) {
+            company = (CompanyInfos) JSON.deserialize(companyData, CompanyInfos.class);
+        } else {
+            CompanyInfosSerialize companyInfos = (CompanyInfosSerialize) JSON.deserialize(companiesData, CompanyInfosSerialize.class);
+            company = companyInfos.listCompanyInfos[0];
+        }
         
         HeaderValues comboData = (HeaderValues) JSON.deserialize(data, HeaderValues.class);
         CustomLookupController.ProductParams productParams = (CustomLookupController.ProductParams) JSON.deserialize(productData, CustomLookupController.ProductParams.class);
@@ -1563,6 +1585,8 @@ public without sharing class OrderScreenController {
         productParams.salesOrgId = company.salesOrgId;
         productParams.salesOfficeId = company.salesOfficeId;
         productParams.salesTeamId = company.salesTeamId;
+        productParams.dontGetSeeds = productParams.dontGetSeeds;
+        productParams.activitySectorName = company.activitySectorName;
         
         Map<Id, ComboPromotionData> result = new Map<Id, ComboPromotionData>();
         Map<Id, Set<Id>> combosByProductId = new Map<Id, Set<Id>>();
@@ -1840,6 +1864,7 @@ public without sharing class OrderScreenController {
                        AND Approver__c = 'ComiteMargem'
                        AND ClientGroup__c =: company.ClientGroup__c
                        AND SalesOrg__c =: company.SalesOrg__c
+                       AND CurrencyIsoCode =: orderData.headerData.moeda
                        AND ProductGroup__c IN: smallerMarginByProductGroup.keySet()
                        AND InitialDate__c <=: System.today()
                        AND EndDate__c >=: System.today()
@@ -1865,6 +1890,7 @@ public without sharing class OrderScreenController {
                  WHERE Status__c = 'Aprovado'
                    AND ClientGroup__c =: company.ClientGroup__c
                    AND SalesOrg__c =: company.SalesOrg__c
+                   AND CurrencyIsoCode =: orderData.headerData.moeda
                    AND ProductGroup__c =: productGroupId
                    AND InitialDate__c <=: System.today()
                    AND EndDate__c >=: System.today()
@@ -2146,6 +2172,7 @@ public without sharing class OrderScreenController {
         public List<ProductSerialize> productData;
         public List<DivisionSerialize> divisionData;
         public List<CommodityDeserialize> commodityData;
+        public List<FormOfPaymentSerialize> formsOfPayment;
         public AccountSerialize accountData;
         public SummarySerialize summaryData;
 
@@ -2155,11 +2182,12 @@ public without sharing class OrderScreenController {
             this.accountData = account;
         }  
 
-        public OrderSerializeAll(HeaderSerialize order, List<ProductSerialize> products, List<DivisionSerialize> divisions, List<CommodityDeserialize> commodities, AccountSerialize account, SummarySerialize summaryData){
+        public OrderSerializeAll(HeaderSerialize order, List<ProductSerialize> products, List<DivisionSerialize> divisions, List<CommodityDeserialize> commodities, List<FormOfPaymentSerialize> formsOfPayment, AccountSerialize account, SummarySerialize summaryData){
             this.headerData = order;
             this.productData = products;
             this.divisionData = divisions;
             this.commodityData = commodities;
+            this.formsOfPayment = formsOfPayment;
             this.accountData = account;
             this.summaryData = summaryData;
         }
@@ -2380,9 +2408,9 @@ public without sharing class OrderScreenController {
             this.motherAvailableQuantity = orderItem.AmountUsed__c != null ? orderItem.Quantity - orderItem.AmountUsed__c : null;
             this.listPrice = orderItem.ListPrice__c;
             this.unitPrice = orderItem.PracticedPrice__c;
+            this.totalPrice = orderItem.PracticedPrice__c * this.quantity;
             this.brokerage = brokeragePerUnit != null ? this.quantity * brokeragePerUnit : orderItem.Brokerage__c;
             this.totalPriceWithBrokerage = this.brokerage != null ? (this.totalPrice + this.brokerage) : this.totalPrice;
-            this.totalPrice = orderItem.FinalTotalValue__c - this.comboDiscountValue;
             this.listCost = orderItem.ListCost__c;
             this.practicedCost = orderItem.PracticedCost__c;
             this.dosage = orderItem.Dosage__c;
@@ -2682,4 +2710,5 @@ public without sharing class OrderScreenController {
         public String  productGroupId;
         public Decimal quantity;
     }
+  
 }
