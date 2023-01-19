@@ -681,7 +681,7 @@ public without sharing class FactoryBuilder {
             this.STWAE = order.Currency__c;
             this.VKGRP = order.Company__r.salesOffice__r.Codigo__c;
             this.VKBUR = order.Company__r.salesTeam__r.ExternalId__c;
-            this.OPTN_VAL = order.BPStorage__r.ExternalId__c;
+            this.OPTN_VAL = order.BPStorage__r.ExternalId__c != null ? order.BPStorage__r.ExternalId__c : '';
         }
     }
 
@@ -810,7 +810,7 @@ public without sharing class FactoryBuilder {
             this.STWAE = order.Currency__c;
             this.VKGRP = order.Company__r.salesOffice__r.Codigo__c;
             this.VKBUR = order.Company__r.salesTeam__r.ExternalId__c;
-            this.OPTN_VAL = order.BPStorage__r.ExternalId__c;
+            this.OPTN_VAL = order.BPStorage__r.ExternalId__c != null ? order.BPStorage__r.ExternalId__c : '';
         }
     }
 
