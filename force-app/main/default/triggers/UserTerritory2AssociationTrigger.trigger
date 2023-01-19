@@ -12,7 +12,7 @@ trigger UserTerritory2AssociationTrigger on UserTerritory2Association (after del
             when BEFORE_DELETE {
             }
             when AFTER_DELETE {
-                UserTerritory2AssociationHelper.sendTerritoryCTV(Trigger.new);
+                UserTerritory2AssociationHelper.sendTerritoryCTV(Trigger.old);
             }
         }
 }
