@@ -23,7 +23,7 @@ global class BatchImplementationCTV  implements Database.Batchable<sObject>, Dat
             }
         }
         Map<String,ObjectTerritory2Association> objectTerritoryMap = new Map<String,ObjectTerritory2Association>(); 
-        List<ObjectTerritory2Association> terrytoryObjectList = new List<ObjectTerritory2Association>([SELECT Id, Territory2Id, ObjectId, LastModifiedDate  FROM ObjectTerritory2Association WHERE Territory2Id =: territoryIdList]);
+        List<ObjectTerritory2Association> terrytoryObjectList = new List<ObjectTerritory2Association>([SELECT Id, Territory2Id, ObjectId, LastModifiedDate  FROM ObjectTerritory2Association WHERE Territory2Id =: territoryIdList All ROWS]);
         for(ObjectTerritory2Association territory : terrytoryObjectList){
             if(territory.LastModifiedDate >= System.now().addMinutes(-30)){
                 objectTerritoryMap.put(territory.Territory2Id,territory);
