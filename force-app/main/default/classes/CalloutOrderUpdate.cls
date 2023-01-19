@@ -10,10 +10,10 @@ public without sharing class CalloutOrderUpdate {
 
     public static IntegrationUtils.CalloutUpdateResponse processIntegration(Id orderId, String rmCode, String agCode, String zcCode){
 
-		Order parentOrder = [SELECT Id, CodigoSap__c,ShippingDate__c,  ShippingAccount__r.ExternalId__c, Company__r.SupplierCenter__c, Account.ExternalId__c, Type, SalesOrg__r.SalesOrganizationCode__c, DistributionChannel__c, DistributionChannel__r.Codigo__c, SalesCondition__r.ExternalId__c, Company__r.salesOffice__r.Codigo__c,
-                            ActivitySector__c, ActivitySector__r.Codigo__c, PaymentCondition__r.CashPayment__c, Incoterms__c, Incoterms2__c, PaymentCondition__r.Code__c, OrderReason__c , SalesCTV__r.CodigoSap__c, PaymentDate__c,EffectiveDate, OrderReference__r.CodigoSap__c, Company__r.salesTeam__r.ExternalId__c,
-                            OrderNumber, Crop__r.Code__c, Crop__r.StartDateOrderInsertion__c, Crop__r.EndDateInsertionOrders__c ,Culture__r.Codigo__c, EndDate, TotalAmount, PaymentForm__c, OrderReference__c, CustomerOrderNumber__c, SalesCTV__r.SellerType__c, EffectiveOrderDate__c, NumeroPedidoApp__c,
-                            Currency__c, Crop__r.PaymentBaseDate__c,IsOrderMother__c, RecordTypeId,Description,DescriptionBillingSale__c, DistributionCenter__r.Code__c, RecordType.DeveloperName, (SELECT Id FROM OrderItems) 
+		Order parentOrder = [SELECT Id, CodigoSap__c, ShippingAccount__r.ExternalId__c, Account.ExternalId__c, Type, SalesOrg__r.SalesOrganizationCode__c, DistributionChannel__c, DistributionChannel__r.Codigo__c,
+                            ActivitySector__c, ActivitySector__r.Codigo__c, Incoterms__c,ShippingDate__c, Incoterms2__c, PaymentCondition__r.Code__c, OrderReason__c , SalesCTV__r.CodigoSap__c, PaymentDate__c,EffectiveDate, OrderReference__r.CodigoSap__c,
+                            OrderNumber, Crop__r.Code__c, Crop__r.StartDateOrderInsertion__c, Crop__r.EndDateInsertionOrders__c ,Culture__r.Codigo__c, EndDate, TotalAmount, PaymentForm__c, OrderReference__c, CustomerOrderNumber__c, Company__r.SupplierCenter__c,
+                            Currency__c, Crop__r.PaymentBaseDate__c,IsOrderMother__c, RecordTypeId, (SELECT Id FROM OrderItems) 
                             FROM Order WHERE Id = :orderId];
 		
 		List<Order> allOrders = new List<Order>{parentOrder};
@@ -35,19 +35,12 @@ public without sharing class CalloutOrderUpdate {
             for(Messages message : resp.responses.ET_RETURN.item){
                 if(message.TYPE != 'S' && message.TYPE != 'W'){
                     calloutResponse.success = false;
-                    calloutResponse.errorMessage = (calloutResponse.errorMessage != null ? calloutResponse.errorMessage : '') + message.MESSAGE + '\n';
+                    calloutResponse.errorMessage = message.MESSAGE;
                 }
             }
-
-            if(!calloutResponse.success || resp.responses.ET_RETURN.item == null){
-                allOrders[0].ErrorIntegrationSAP__c = calloutResponse.errorMessage;
-                orderList.add(allOrders[0]);
-            }
-
             if(calloutResponse.success){
                 allOrders[0].CodigoSap__c = resp.responses.EV_SALES_DOC;
                 allOrders[0].StatusSF__c = 'Integrado';
-                allOrders[0].ErrorIntegrationSAP__c = '';
                 orderList.add(allOrders[0]);
             }
             
@@ -81,7 +74,12 @@ public without sharing class CalloutOrderUpdate {
 			
 		RequestParameters request = new RequestParameters(orders[0], rmCode, agCode, zcCode);
 
+		// for (Order ord : orders) {
+		// 	request.add(new RequestParameters(ord));
+		// }
+
 		String payload = JSON.serialize(request);
+        System.debug(JSON.serializePretty(request));
 
 		//Metodo para busca de Access Token, depende de cada projeto, podendo estar presente dentro de uma custom settings ou relacionado com outra requisição.
 		String accessToken = !Test.isRunningTest() ? getAccessToken() : 'testeToken';
@@ -98,11 +96,8 @@ public without sharing class CalloutOrderUpdate {
 
 			HttpResponse response = responseObject.response;
 
-            if(response.getBody().contains('"TYPE":"E"') || response.getBody().contains('"An internal server error occured')){
-                IntegrationLog.createLog('Pedido OUT - SAP - Atualização', 'OUT', response.getBody(), payload, true);
-            }else{
-                IntegrationLog.createLog('Pedido OUT - SAP - Atualização', 'OUT', response.getBody(), payload, false);
-            }
+            IntegrationLog.createLog('Pedido OUT - SAP - Atualização', 'OUT', response.getBody(), payload, false);
+			// .WSLog('Pedido', 'OUTBOUND', response.getBody(), payload, false);
 			try {
 
 				ResponseParametersWrapper responses = (ResponseParametersWrapper) JSON.deserialize(response.getBody(), ResponseParametersWrapper.class);
@@ -134,6 +129,10 @@ public without sharing class CalloutOrderUpdate {
         public List<CalloutOrderUpdate.OrderItemParameters> IT_ITEMS_IN;
 
         public RequestParameters(Order order, String rmCode, String agCode, String zcCode){
+
+            Decimal valueAmount = 0;
+            Decimal valueDiscount = 0;
+            Decimal valueInterest = 0;
 
             IT_PARTNERS = new List<CalloutOrderUpdate.PartnerParameters>();
             IT_ORDER_SCHEDULES_IN = new List<CalloutOrderUpdate.ScheduleParameters>();
@@ -189,10 +188,6 @@ public without sharing class CalloutOrderUpdate {
             IS_HEADER_IN.ZZPED_CRM = order.OrderNumber;
             IS_HEADER_IN.ZZDATA_CARENCIA = String.valueOf(order.Crop__r.PaymentBaseDate__c).replace('-', '');
             IS_HEADER_IN.ZZDATA_VENCTO = String.valueOf(order.PaymentDate__c).replace('-', '');
-
-            if(order.Description != null) order.Description = order.Description.replace('1n73gr4ção N3sc4r4 5F x 4PP', '');
-            IS_HEADER_IN.TEXT_ADICIONAL = order.Description != null ? order.Description : '';
-            IS_HEADER_IN.TEXT_DANFE = order.DescriptionBillingSale__c != null ? order.DescriptionBillingSale__c : '';
            
             for(OrderItem orderItem : order.OrderItems){
                 orderItemIds.add(orderItem.Id);
@@ -250,8 +245,6 @@ public without sharing class CalloutOrderUpdate {
         public String ZZPED_CRM; //orderType;
         public String ZZDATA_CARENCIA;
         public String ZZDATA_VENCTO;
-        public String TEXT_ADICIONAL;
-        public String TEXT_DANFE;
 
     }
 
