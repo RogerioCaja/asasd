@@ -196,11 +196,6 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.getFormOfPayment();
         }
 
-        isSeedSale({salesOrgId: this.headerData.organizacao_vendas.Id, productGroupName: null})
-        .then((result) => {
-            this.seedSale = result;
-        });
-
         //console.log(this.recordId, this.originScreen);
 
     }
@@ -490,6 +485,11 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
     async saveOrder(event){
         this.isLoading = true;
+        isSeedSale({salesOrgId: this.headerData.organizacao_vendas.Id, productGroupName: null})
+        .then((result) => {
+            this.seedSale = result;
+        });
+        
         let today = new Date();
         let dd = String(today.getDate()).padStart(2, '0');
         let mm = String(today.getMonth() + 1).padStart(2, '0');
