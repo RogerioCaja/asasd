@@ -59,7 +59,7 @@ public without sharing class OrderScreenController {
     }
 
     public static HeaderSerialize getOrderData(Id orderId, Boolean cloneOrder){
-        Order order = [SELECT Id, OrderNumber, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c , ShippingAccount__r.Phone,  ShippingAccount__r.Name, 
+        Order order = [SELECT Id, OrderNumber, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c , ShippingAccount__r.Phone,  ShippingAccount__r.Name,
         ShippingAccount__r.BillingCity, ShippingAccount__r.BillingState ,ShippingAccount__r.CPF__c, ShippingAccount__r.CNPJ__c , SalesCondition__c, SalesCondition__r.Name, FreightValue__c,
         Pricebook2.InitialDate__c, Pricebook2.EndDate__c, PaymentDate__c,  CustomerOrderNumber__c, Crop__c , Crop__r.Name, Culture__c , Culture__r.Name, OrderMargin__c, RecordTypeId,
         PaymentForm__c, StatusSF__c, CodigoSAP__c, SalesOrg__c, SalesOrg__r.Name, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, SalesCTV__r.Name, OrderType__c,
@@ -2117,6 +2117,7 @@ public without sharing class OrderScreenController {
         public String  hectares;
         public Decimal freightValue;
         public Boolean emptyHectar;
+        public Boolean orderCanceled;
         public String  centerId;
         public Boolean pedido_mae_check;
         public Boolean pre_pedido;
@@ -2399,6 +2400,7 @@ public without sharing class OrderScreenController {
         public String  hectares;
         public Decimal freightValue;
         public Boolean emptyHectar;
+        public Boolean orderCanceled;
         public String  centerId;
         public Boolean pedido_mae_check;
         public Boolean pre_pedido;
@@ -2441,6 +2443,7 @@ public without sharing class OrderScreenController {
             this.firstTime = true;
             this.tipo_pedido = order.OrderType__c;
             this.codigo_sap = order.CodigoSAP__c;
+            this.orderCanceled = order.Status == 'X' ? true : false;
             this.organizacao_vendas = new InformationFields(order.SalesOrg__c, order.SalesOrg__r.Name);
             this.canal_distribuicao = order.DistributionChannel__c;
             this.setor_atividade = order.ActivitySector__c;
