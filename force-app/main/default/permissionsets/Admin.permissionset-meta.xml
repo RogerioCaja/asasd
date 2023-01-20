@@ -516,6 +516,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>ComboPromotion__c.Status__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Comissao__c.ProductHierarchy__c</field>
         <readable>true</readable>
     </fieldPermissions>
