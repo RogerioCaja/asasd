@@ -1560,6 +1560,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>true</editable>
+        <field>Order.ACMContract__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>false</editable>
         <field>Order.ACMContract__c</field>
         <readable>false</readable>
@@ -3545,7 +3550,7 @@
         <tab>PotencialCompra__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
-    <tabSettings>
+   <tabSettings>
         <tab>PriceSearch</tab>
         <visibility>Visible</visibility>
     </tabSettings>
