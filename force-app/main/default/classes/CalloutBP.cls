@@ -62,12 +62,28 @@ public without sharing class CalloutBP {
                 }else{
                     email = valor.Email;
                 }
+                Boolean blocked = false;
+                if(valor.Fornecedor == null){
+                    blocked = false;
+                }
+                if(valor.Fornecedor == 'true'){
+                    blocked = true;
+                }
+                Boolean storageBp = false;
+                if(valor.Armazenagem == null){
+                    storageBp = false;
+                }
+                if(valor.Armazenagem == 'true'){
+                    storageBp = true;
+                }
                 Account ac = new Account(
                 Name = valor.Nome,
                 Company__c = valor.Nome,    
                 ExternalId__c = valor.CodigoExterno,
                 CNPJ__c = valor.CNPJ,
                 CPF__c = valor.CPF,
+                Supplier__c = blocked,
+                StorageBp__c = storageBp,
                 MunicipalRegistration__c = valor.InscricaoMunicipal,
                 StateRegistration__c = valor.InscricaoEstadual,
                 Email__c = email,
@@ -224,12 +240,28 @@ public without sharing class CalloutBP {
                 }else{
                     email = valor.Email;
                 }
+                Boolean blocked = false;
+                if(valor.Fornecedor == null){
+                    blocked = false;
+                }
+                if(valor.Fornecedor == 'true'){
+                    blocked = true;
+                }
+                Boolean storageBp = false;
+                if(valor.Armazenagem == null){
+                    storageBp = false;
+                }
+                if(valor.Armazenagem == 'true'){
+                    storageBp = true;
+                }
                 Account ac = new Account(
                 Name = valor.Nome,
                 Company__c = valor.Nome,    
                 ExternalId__c = valor.CodigoExterno,
                 CNPJ__c = valor.CNPJ,
                 CPF__c = valor.CPF,
+                Supplier__c = blocked,
+                StorageBp__c = storageBp,
                 MunicipalRegistration__c = valor.InscricaoMunicipal,
                 StateRegistration__c = valor.InscricaoEstadual,
                 Email__c = email,
@@ -645,6 +677,39 @@ public without sharing class CalloutBP {
         }
         return null;
     } 
+    public static Database.UpsertResult[] clientTax(List<TaxINData> tabelaImpostosList, Map<String, Id> lookups){
+
+        List<CustomerTaxes__c> clientTaxListToUpsert = new List<CustomerTaxes__c>(); 
+        for(TaxINData valor : tabelaImpostosList){
+            if(valor.CodigoImposto != null){
+            	CustomerTaxes__c impost = new CustomerTaxes__c(
+            	Account__c = lookups.containsKey('Account__c'+valor.CodigoExternoAccount) ? lookups.get('Account__c'+valor.CodigoExternoAccount) : null,
+            	Tax__c = lookups.containsKey('BarterTaxes__c'+valor.CodigoImposto) ? lookups.get('BarterTaxes__c'+valor.CodigoImposto) : null,
+                Status__c = 'Ativo',
+                ExternalId__c = valor.CodigoExternoAccount + '-' + valor.CodigoImposto
+                );
+            	clientTaxListToUpsert.add(impost);
+            }                                                                                                                                                                             
+        }
+        System.debug('clientTaxListToUpsert: '+ clientTaxListToUpsert);
+        if (!clientTaxListToUpsert.isEmpty()) {
+            Database.UpsertResult[] resultImpostList = Database.upsert(clientTaxListToUpsert, CustomerTaxes__c.ExternalId__c, false);
+            List<String> taxExternalIdList = new List<String>(); 
+            List<String> codigoExternoAccountList = new List<String>(); 
+            List<String> accountIdList = new List<String>(); 
+            for(CustomerTaxes__c clientTax : clientTaxListToUpsert){
+                taxExternalIdList.add(clientTax.ExternalId__c);
+                accountIdList.add(clientTax.Account__c);
+            }
+            List<CustomerTaxes__c> clientTaxOldList = new List<CustomerTaxes__c>([SELECT Id, Account__c, ExternalId__c, Status__c FROM CustomerTaxes__c WHERE  Account__c =: accountIdList AND ExternalId__c !=: taxExternalIdList]); 
+            for(CustomerTaxes__c clientTax : clientTaxOldList){
+                clientTax.Status__c = 'Inativo';
+            }
+            update clientTaxOldList;
+            return resultImpostList;
+        }
+        return null;
+    } 
 
     public static IntegrationUtils.CalloutBpResponse sendOrder() {
 
@@ -820,6 +885,8 @@ public without sharing class CalloutBP {
         public String PaisEntrega;
         public String CEPEntrega;
         public String RuaCobranca;
+        public String Fornecedor;
+        public String Armazenagem;
         public String CidadeCobranca;
         public String EstadoCobranca;
         public String PaisCobranca;
@@ -867,5 +934,10 @@ public without sharing class CalloutBP {
     public String GrupoClientes;
     public String Status;
     public String SetorVendas;
+    }
+
+    public class TaxINData{
+        public String CodigoExternoAccount;
+        public String CodigoImposto;
     }
 }
