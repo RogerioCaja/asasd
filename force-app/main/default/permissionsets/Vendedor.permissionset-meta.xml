@@ -1228,7 +1228,7 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Order.ACMContract__c</field>
-        <readable>false</readable>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
@@ -2774,6 +2774,10 @@
     </recordTypeVisibilities>
     <recordTypeVisibilities>
         <recordType>Order.VendaBarter</recordType>
+        <visible>true</visible>
+    </recordTypeVisibilities>
+    <recordTypeVisibilities>
+        <recordType>Order.VendaContaOrdem</recordType>
         <visible>true</visible>
     </recordTypeVisibilities>
     <recordTypeVisibilities>
