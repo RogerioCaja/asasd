@@ -17,7 +17,26 @@ public without sharing class FotosHelper {
     public static Boolean enableTrigger(){
         return isEnabled = true;
     }
-
+    public static void isIntegrated(List<Fotos__c> fotosList, Boolean isToIntegrate){
+        for(Fotos__c foto : fotosList){
+            foto.IsIntegrated__c = isToIntegrate;
+        }
+    }
+    public static void callVisitsIntegration(List<Fotos__c> fotosList){
+        List<String> technicalRecordsIdList = new List<String>();
+        List<String> visitIdList = new List<String>();
+        for(Fotos__c foto : fotosList){
+            technicalRecordsIdList.add(foto.RTR__c);
+        }
+        List<TechnicalReport__c> technicalRecordsList = new List<TechnicalReport__c>([SELECT Id, VisitPlanning__c FROM TechnicalReport__c WHERE Id IN: technicalRecordsIdList]);
+        for(TechnicalReport__c technical : technicalRecordsList){
+            visitIdList.add(technical.VisitPlanning__c);
+        }
+        List<VisitPlanning__c> visitList = new List<VisitPlanning__c>([SELECT Id,Name, MainBP__r.ExternalId__c, BP_Property__r.ExternalId__c, InitialDate__c, EndDate__c, StartTime__c, EndTime__c, 
+            Status__c, Objetivo__c, Safra__r.Code__c, Culture__r.Codigo__c, Email__c, Presential__c, Reminder__c, Displacement__c, VisitSeller__r.CodigoSap__c, Note__c, ReschedulingReason__c, 
+            CancellationReason__c, ExternalId__c FROM VisitPlanning__c WHERE Id IN: visitIdList]);
+        CalloutVisits.sendOrder(visitList);    
+    }
     public static void incrementItem(List<Fotos__c> fotosList){
 
         List<string> rtrList = new List<String>();
