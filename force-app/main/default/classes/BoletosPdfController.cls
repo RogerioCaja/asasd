@@ -1,7 +1,7 @@
 public without sharing class boletosPdfController {
 
     public string base64 {get; set;}
-    public string accessKey;
+    public string writableLine;
     public String Data;    
     public static String getAcessCode(){
         Integration__c data = Integration__c.getInstance('NFe GET');
@@ -35,7 +35,7 @@ public without sharing class boletosPdfController {
         Boletos__c boleto = [SELECT Id, WritableLine__c, AccountCode__r.Name, Name FROM Boletos__c WHERE Id =: boletosIdPgReference LIMIT 1];
         
         this.writableLine = boleto.WritableLine__c;
-        System.debug('accessKey ' + writableLine);
+        System.debug('writableLine ' + writableLine);
         String code = (!Test.isRunningTest() ? getAcessCode() : 'acessToken');
         String accessToken = code;
         
