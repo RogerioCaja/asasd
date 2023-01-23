@@ -1,4 +1,4 @@
-public without sharing class boletosPdfController {
+public without sharing class BoletosPdfController {
 
     public string base64 {get; set;}
     public string writableLine;
