@@ -67,12 +67,28 @@ public without sharing class CalloutBP {
                 }else{
                     email = valor.Email;
                 }
+                Boolean blocked = false;
+                if(valor.Fornecedor == null){
+                    blocked = false;
+                }
+                if(valor.Fornecedor == 'true'){
+                    blocked = true;
+                }
+                Boolean storageBp = false;
+                if(valor.Armazenagem == null){
+                    storageBp = false;
+                }
+                if(valor.Armazenagem == 'true'){
+                    storageBp = true;
+                }
                 Account ac = new Account(
                 Name = valor.Nome,
                 Company__c = valor.Nome,    
                 ExternalId__c = valor.CodigoExterno,
                 CNPJ__c = valor.CNPJ,
                 CPF__c = valor.CPF,
+                Supplier__c = blocked,
+                StorageBp__c = storageBp,
                 MunicipalRegistration__c = valor.InscricaoMunicipal,
                 StateRegistration__c = valor.InscricaoEstadual,
                 Email__c = email,
@@ -127,9 +143,9 @@ public without sharing class CalloutBP {
             System.debug('newLookups: '+ newLookups);
             Database.UpsertResult[] resultsCredit = creatyCredit(creditoList, newLookups);
             Database.UpsertResult[] resultsCompany = creatyCompany(companyList, newLookups, nameLookups);
-            //Database.UpsertResult[] resultsImposto = clientTax(tabelaImpostosList, newLookups);
+            Database.UpsertResult[] resultsImposto = clientTax(tabelaImpostosList, newLookups);
             String resultsError = '';
-            /*
+            
             if(resultsImposto != null){
                 for(Database.UpsertResult results : resultsImposto){
                     System.debug('Database.UpsertResult: ' + results);
@@ -138,7 +154,7 @@ public without sharing class CalloutBP {
                     }
                 }
             }
-            */    
+                
             if(resultsCompany != null){
                 for(Database.UpsertResult results : resultsCompany){
                     System.debug('Database.UpsertResult: ' + results);
@@ -244,12 +260,28 @@ public without sharing class CalloutBP {
                 }else{
                     email = valor.Email;
                 }
+                Boolean blocked = false;
+                if(valor.Fornecedor == null){
+                    blocked = false;
+                }
+                if(valor.Fornecedor == 'true'){
+                    blocked = true;
+                }
+                Boolean storageBp = false;
+                if(valor.Armazenagem == null){
+                    storageBp = false;
+                }
+                if(valor.Armazenagem == 'true'){
+                    storageBp = true;
+                }
                 Account ac = new Account(
                 Name = valor.Nome,
                 Company__c = valor.Nome,    
                 ExternalId__c = valor.CodigoExterno,
                 CNPJ__c = valor.CNPJ,
                 CPF__c = valor.CPF,
+                Supplier__c = blocked,
+                StorageBp__c = storageBp,
                 MunicipalRegistration__c = valor.InscricaoMunicipal,
                 StateRegistration__c = valor.InscricaoEstadual,
                 Email__c = email,
@@ -303,9 +335,9 @@ public without sharing class CalloutBP {
             System.debug('tabelaImpostosList: '+ tabelaImpostosList);
             Database.UpsertResult[] resultsCredit = creatyCredit(creditoList, newLookups);
             Database.UpsertResult[] resultsCompany = creatyCompany(companyList, newLookups, nameLookups);
-            //Database.UpsertResult[] resultsImposto = clientTax(tabelaImpostosList, newLookups);
+            Database.UpsertResult[] resultsImposto = clientTax(tabelaImpostosList, newLookups);
             String resultsError = '';
-            /*
+            
             if(resultsImposto != null){
                 for(Database.UpsertResult results : resultsImposto){
                     System.debug('Database.UpsertResult: ' + results);
@@ -313,7 +345,7 @@ public without sharing class CalloutBP {
                         resultsError += 'Imposto Error: ' + results.getErrors() + '/ ';
                     }
                 }
-            }*/
+            }
 
             if(resultsCompany != null){
                 for(Database.UpsertResult results : resultsCompany){
@@ -494,12 +526,17 @@ public without sharing class CalloutBP {
         for(User user : userList){
             userIdsList.add(user.Id);
         }
-        List<UserTerritory2Association> userTerrytoryList = new List<UserTerritory2Association>([SELECT Id, UserId, User.CodigoSap__c, Territory2Id  FROM UserTerritory2Association WHERE UserId =: userIdsList]);
+        List<UserTerritory2Association> userTerrytoryList = new List<UserTerritory2Association>([SELECT Id, UserId, User.CodigoSap__c, Territory2Id, Territory2.DeveloperName, Territory2.ParentTerritory2.DeveloperName, Territory2.ParentTerritory2.ParentTerritory2.DeveloperName FROM UserTerritory2Association WHERE UserId =: userIdsList]);
         Map<String, UserTerritory2Association> userTerrytoryMap = new Map<String, UserTerritory2Association>();
         
         
         for(UserTerritory2Association userTerrytory : userTerrytoryList){
-            userTerrytoryMap.put(userTerrytory.User.CodigoSap__c, userTerrytory);
+            String salesTeam = userTerrytory.Territory2.ParentTerritory2.DeveloperName.replace('X', '');
+            salesTeam = salesTeam.replace('Z', '');
+            String salesOffice = userTerrytory.Territory2.ParentTerritory2.ParentTerritory2.DeveloperName.replace('X', '');
+            salesOffice = salesOffice.replace('Z', '');
+            System.debug('check: '+userTerrytory.User.CodigoSap__c + salesTeam + salesOffice);
+            userTerrytoryMap.put(userTerrytory.User.CodigoSap__c + salesTeam + salesOffice, userTerrytory);
         }
         System.debug('userTerrytoryMap: '+userTerrytoryMap);
         List<ObjectTerritory2Association> objectTerritoryList = new List<ObjectTerritory2Association>();
@@ -507,7 +544,10 @@ public without sharing class CalloutBP {
         List<String> objectTerritoryObjectToDeleteList = new List<String>();
         List<String> objectTerritoryTerritory2IdList = new List<String>();
         for(CompanyINData company : companyList){
-            UserTerritory2Association userTerrytory = userTerrytoryMap.get(company.Partner);
+            String compUser = company.Partner + company.EquipeVendas + company.EscritorioVendas;
+            System.debug('compUser: '+compUser);
+            UserTerritory2Association userTerrytory = userTerrytoryMap.get(compUser);
+            System.debug('userTerrytory: '+userTerrytory);
             String accountId = accountExternalIdMap.get(company.CodigoExternoAccount);
             String accountFatherId = accountFatherExternalIdMap.get(company.CodigoExternoFatherAccount);
             if(userTerrytory != null){
@@ -526,6 +566,7 @@ public without sharing class CalloutBP {
                 }
             }
         }
+        System.debug('objectTerritoryList: '+objectTerritoryList);
         Set<ObjectTerritory2Association> removeDuplicates = new Set<ObjectTerritory2Association>();
         List<ObjectTerritory2Association> resultList = new List<ObjectTerritory2Association>();
         List<String> resultWithoutFatherIdList = new List<String>();
@@ -674,17 +715,17 @@ public without sharing class CalloutBP {
             return resultCreditList;
         }
         return null;
-    } /*
+    } 
     public static Database.UpsertResult[] clientTax(List<TaxINData> tabelaImpostosList, Map<String, Id> lookups){
 
         List<CustomerTaxes__c> clientTaxListToUpsert = new List<CustomerTaxes__c>(); 
         for(TaxINData valor : tabelaImpostosList){
-            if(valor.CodigoImposto != null && valor.Status != null){
+            if(valor.CodigoImposto != null){
             	CustomerTaxes__c impost = new CustomerTaxes__c(
             	Account__c = lookups.containsKey('Account__c'+valor.CodigoExternoAccount) ? lookups.get('Account__c'+valor.CodigoExternoAccount) : null,
             	Tax__c = lookups.containsKey('BarterTaxes__c'+valor.CodigoImposto) ? lookups.get('BarterTaxes__c'+valor.CodigoImposto) : null,
-                Status__c = valor.Status,
-                ExternalId__c = valor.CodigoExternoAccount + valor.CodigoImposto
+                Status__c = 'Ativo',
+                ExternalId__c = valor.CodigoExternoAccount + '-' + valor.CodigoImposto
                 );
             	clientTaxListToUpsert.add(impost);
             }                                                                                                                                                                             
@@ -692,10 +733,22 @@ public without sharing class CalloutBP {
         System.debug('clientTaxListToUpsert: '+ clientTaxListToUpsert);
         if (!clientTaxListToUpsert.isEmpty()) {
             Database.UpsertResult[] resultImpostList = Database.upsert(clientTaxListToUpsert, CustomerTaxes__c.ExternalId__c, false);
+            List<String> taxExternalIdList = new List<String>(); 
+            List<String> codigoExternoAccountList = new List<String>(); 
+            List<String> accountIdList = new List<String>(); 
+            for(CustomerTaxes__c clientTax : clientTaxListToUpsert){
+                taxExternalIdList.add(clientTax.ExternalId__c);
+                accountIdList.add(clientTax.Account__c);
+            }
+            List<CustomerTaxes__c> clientTaxOldList = new List<CustomerTaxes__c>([SELECT Id, Account__c, ExternalId__c, Status__c FROM CustomerTaxes__c WHERE  Account__c =: accountIdList AND ExternalId__c !=: taxExternalIdList]); 
+            for(CustomerTaxes__c clientTax : clientTaxOldList){
+                clientTax.Status__c = 'Inativo';
+            }
+            update clientTaxOldList;
             return resultImpostList;
         }
         return null;
-    } */
+    } 
 
     public static IntegrationUtils.CalloutBpResponse sendOrder() {
 
@@ -871,6 +924,8 @@ public without sharing class CalloutBP {
         public String PaisEntrega;
         public String CEPEntrega;
         public String RuaCobranca;
+        public String Fornecedor;
+        public String Armazenagem;
         public String CidadeCobranca;
         public String EstadoCobranca;
         public String PaisCobranca;
@@ -924,6 +979,5 @@ public without sharing class CalloutBP {
     public class TaxINData{
         public String CodigoExternoAccount;
         public String CodigoImposto;
-        public String Status; 
     }
 }
