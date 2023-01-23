@@ -338,8 +338,8 @@ global without sharing class IntegrationINOrderAppdigital {
             lookups.put('Pricebook2Id' + pricebook2Id.Name, pricebook2Id.Id);
         }
 
-        for (Order orderReference: [SELECT Id, CodigoSap__c FROM Order WHERE CodigoSap__c IN : orderReferenceLookups]){
-            lookups.put('Order' + orderReference.CodigoSap__c, orderReference.Id);
+        for (Order orderReference: [SELECT Id, NumeroPedidoApp__c FROM Order WHERE NumeroPedidoApp__c IN : orderReferenceLookups]){
+            lookups.put('Order' + orderReference.NumeroPedidoApp__c, orderReference.Id);
         }
 
         for (Company__c companyOrd: [SELECT Id, ExternalID__c FROM Company__c WHERE ExternalID__c IN : companyLookups]){
