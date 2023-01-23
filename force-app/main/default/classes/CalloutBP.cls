@@ -726,6 +726,7 @@ public without sharing class CalloutBP {
             Database.UpsertResult[] resultImpostList = Database.upsert(clientTaxListToUpsert, CustomerTaxes__c.ExternalId__c, false);
             List<String> taxExternalIdList = new List<String>(); 
             List<String> codigoExternoAccountList = new List<String>(); 
+            List<String> accountIdList = new List<String>(); 
             for(CustomerTaxes__c clientTax : clientTaxListToUpsert){
                 taxExternalIdList.add(clientTax.ExternalId__c);
                 accountIdList.add(clientTax.Account__c);
