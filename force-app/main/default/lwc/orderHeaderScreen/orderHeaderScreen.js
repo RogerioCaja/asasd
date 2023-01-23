@@ -547,6 +547,7 @@ export default class OrderHeaderScreen extends LightningElement {
                                     this.headerDictLocale.firstTime = false;
                                 } else {
                                     this.headerDictLocale.data_pagamento = this.currentDate;
+                                    setTimeout(()=>this.template.querySelector('[data-target-id="data_pagamento"]').value =  this.headerDictLocale.data_pagamento);
                                 }
 
                                 this.headerData = JSON.parse(JSON.stringify(this.headerDictLocale));
