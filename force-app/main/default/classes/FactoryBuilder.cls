@@ -202,7 +202,7 @@ public without sharing class FactoryBuilder {
         //parameters to aux builder
         private Order order;
         private Delimitadores__c delimiter;
-        private CommodityPrice__c commodity;
+        private OrderCommodity__c commodity;
         private Map<String, String> referenceItemMotherMap;
         private Map<Id, OrderItem> orderItemMap;
 
