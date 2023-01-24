@@ -488,7 +488,7 @@ public class OrderScreenControllerTest {
         commodity.endDate = '2099-01-01';
         commodity.saved = true;
 
-        String data = JSON.serialize(new OrderScreenController.OrderSerializeAll(order, ordItemList, divisionList, new List<OrderScreenController.CommodityDeserialize>{commodity}, formsOfPayment, account, summary));
+        String data = JSON.serialize(new OrderScreenController.OrderSerializeAll(order, ordItemList, divisionList, new List<OrderScreenController.CommodityDeserialize>{commodity}, formsOfPayment, account, summary, null));
         OrderScreenController.saveOrder(null, false, data, '', null);
         OrderScreenController.approvals(data);
     }
