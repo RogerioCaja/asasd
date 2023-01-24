@@ -4,7 +4,8 @@ public without sharing class BoletosPdfController {
     public string writableLine;
     public String Data;    
     public static String getAcessCode(){
-        Integration__c data = Integration__c.getInstance('NFe GET');
+        Integration__c data = Integration__c.getInstance('Boletos Get');
+        System.debug('Data ' + data);
         String payloadToken = 'grant_type=client_credentials';
         String endpointToken = (!Test.isRunningTest() ? data.UrlToken__c : 'http://callout.My_Named_Credential.com/some/path');
         Map<String, String> headersMapToken = new Map<String, String>();
@@ -29,10 +30,10 @@ public without sharing class BoletosPdfController {
         public Decimal expires_in;
     }
 
-    public boletosPdfController(ApexPages.StandardController stdController) {
+    public BoletosPdfController(ApexPages.StandardController stdController) {
         
         Id boletosIdPgReference = Id.valueOf(String.escapeSingleQuotes(ApexPages.currentPage().getParameters().get('Id').escapeHtml4()));
-        Boletos__c boleto = [SELECT Id, WritableLine__c, AccountCode__r.Name, Name FROM Boletos__c WHERE Id =: boletosIdPgReference LIMIT 1];
+        Boletos__c boleto = [SELECT Id, WritableLine__c FROM Boletos__c WHERE Id =: boletosIdPgReference LIMIT 1];
         
         this.writableLine = boleto.WritableLine__c;
         System.debug('writableLine ' + writableLine);
@@ -41,21 +42,22 @@ public without sharing class BoletosPdfController {
         
         System.debug('code' + code);
         Http http = new Http();
-        HttpRequest request = new HttpRequest();
-        Integration__c integrationOUT = Integration__c.getInstance('Boletos GET');
+        //HttpRequest request = new HttpRequest();
+        Integration__c integrationOUT = Integration__c.getInstance('Boletos Get');
         String endpoint = (!Test.isRunningTest() ? integrationOUT.Url__c+writableLine : 'http://callout.My_Named_Credential.com/some/path');
+        //String endpoint = 'https://apim.agrogalaxy.com.br/gtw/bank-slip/v1/billing-pdf?linha_digitavel=74891.10234 00002.808046 10927.251008 7 92710000737104';
+       
+        endpoint = endpoint.replace(' ','%20');
         System.debug('endpoint ' + endpoint);
-        //request.setEndpoint('https://apim.agrogalaxy.com.br/gtw/app-invoice/v1/invoices-xml?chave_acesso='+accessKey);
-        //request.setMethod('GET');
+        
         
         Map<String, String> headersMap = new Map<String, String>();
         //headersMap.put('Content-type', 'application/json');
         headersMap.put('Authorization', 'Bearer '+ accessToken);
+        System.debug('accessToken ' + accessToken);
         
         IntegrationUtils.RequestResponseObject responseCallout = IntegrationUtils.executeCalloutGet(endpoint,null,headersMap);
-        System.debug('setEndpoint ' + request);
-        System.debug('setEndpoint ' + responseCallout);
-        System.debug('responseCallout' + responseCallout);
+       	System.debug('responseCallout ' + responseCallout);
         // If the request is successful, parse the JSON response.
         if(responseCallout.response.getStatusCode() == 200) {
         // Deserialize the JSON string into collections of primitive data types.
@@ -65,22 +67,10 @@ public without sharing class BoletosPdfController {
         Data = (String)results.get('data');
         base64 = Data;
         System.debug('Data ' + Data);
-        //Map<String, ResponseParameters> results = (Map<String, ResponseParameters>) JSON.deserialize(response.getBody(), Map<String, ResponseParameters>.class);
-        // Cast the values in the 'animals' key as a list
+      
         System.debug('results' + results);
         
-            /*
-        for(ResponseParameters base: results.values()) {
-                base64 = base.data;
-                System.debug('base 64 ' + base64);
-            }
-            */
+    
         }
     } 
-    
-    public class ResponseParameters {
-        
-        public String data;
-
-    }
 }
