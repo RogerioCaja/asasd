@@ -340,6 +340,10 @@ global with sharing class TemplateDataIntegrationFields {
                     pedidoMae = false;
 
                 }
+
+                when 'ZVAB'{
+                    pedidoMae = false;
+                }
             }
 
             
@@ -354,6 +358,7 @@ global with sharing class TemplateDataIntegrationFields {
                         codTypeOrder.put('ZVEF', 'Venda Entrega Futura');
                         codTypeOrder.put('ZVNO', 'Venda Normal');
                         codTypeOrder.put('ZVVO', 'Venda Ordem Simples Faturamento');
+                        codTypeOrder.put('ZVAB', 'Venda Normal');
                     }
                     else{
                         codTypeOrder.put('ZCCO', 'Venda Conta e Ordem');
