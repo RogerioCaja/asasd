@@ -197,7 +197,7 @@ public without sharing class FactoryBuilder {
         private List<PartnerParameters> IT_PARTNERS;
         private List<ScheduleParameters> IT_ORDER_SCHEDULES_IN;
         private List<ConditionParameters> IT_CONDITIONS_IN;
-        private List<OrderItemParameters> IT_ITEMS_IN;
+        private List<OrderItemParametersBarter> IT_ITEMS_IN;
 
         //parameters to aux builder
         private Order order;
@@ -233,7 +233,7 @@ public without sharing class FactoryBuilder {
         }
 
         public void setOrderItems(){
-            this.IT_ITEMS_IN = generateOrderItemParameterBarterList(this.order);
+            this.IT_ITEMS_IN = generateOrderItemParameterBarterList(this.orderItemMap, this.referenceItemMotherMap, this.order);
         }
 
         public void setConditions(){
@@ -256,7 +256,7 @@ public without sharing class FactoryBuilder {
         private List<PartnerParameters> IT_PARTNERS;
         private List<ScheduleParameters> IT_ORDER_SCHEDULES_IN;
         private List<ConditionParameters> IT_CONDITIONS_IN;
-        private List<OrderItemParameters> IT_ITEMS_IN;
+        private List<OrderItemParametersBarter> IT_ITEMS_IN;
 
         //parameters to aux builder
         private Order order;
@@ -294,7 +294,7 @@ public without sharing class FactoryBuilder {
         }
 
         public void setOrderItems(){
-            this.IT_ITEMS_IN = generateOrderItemParameterBarterList(this.order);
+            this.IT_ITEMS_IN = generateOrderItemParameterBarterList(this.orderItemMap, this.referenceItemMotherMap, this.order);
         }
 
         public void setConditions(){
@@ -360,10 +360,10 @@ public without sharing class FactoryBuilder {
         private final List<PartnerParameters> IT_PARTNERS;
         private final List<ScheduleParameters> IT_ORDER_SCHEDULES_IN;
         private final List<ConditionParameters> IT_CONDITIONS_IN;
-        private final List<OrderItemParameters> IT_ITEMS_IN;
+        private final List<OrderItemParametersBarter> IT_ITEMS_IN;
 
         public RequestBarter(HeaderBarter IS_HEADER_IN, List<PartnerParameters> IT_PARTNERS, List<ScheduleParameters> IT_ORDER_SCHEDULES_IN,
-                        List<ConditionParameters> IT_CONDITIONS_IN, List<OrderItemParameters> IT_ITEMS_IN, String IV_TYPE){
+                        List<ConditionParameters> IT_CONDITIONS_IN, List<OrderItemParametersBarter> IT_ITEMS_IN, String IV_TYPE){
             this.IV_TYPE = IV_TYPE;
             this.IS_HEADER_IN = IS_HEADER_IN;
             this.IT_PARTNERS = IT_PARTNERS;
@@ -379,10 +379,10 @@ public without sharing class FactoryBuilder {
         private final List<PartnerParameters> IT_PARTNERS;
         private final List<ScheduleParameters> IT_ORDER_SCHEDULES_IN;
         private final List<ConditionParameters> IT_CONDITIONS_IN;
-        private final List<OrderItemParameters> IT_ITEMS_IN;
+        private final List<OrderItemParametersBarter> IT_ITEMS_IN;
 
         public RequestBarterSeeds(HeaderBarterSeeds IS_HEADER_IN, List<PartnerParameters> IT_PARTNERS, List<ScheduleParameters> IT_ORDER_SCHEDULES_IN,
-                        List<ConditionParameters> IT_CONDITIONS_IN, List<OrderItemParameters> IT_ITEMS_IN, String IV_TYPE){
+                        List<ConditionParameters> IT_CONDITIONS_IN, List<OrderItemParametersBarter> IT_ITEMS_IN, String IV_TYPE){
             this.IV_TYPE = IV_TYPE;
             this.IS_HEADER_IN = IS_HEADER_IN;
             this.IT_PARTNERS = IT_PARTNERS;
@@ -865,13 +865,6 @@ public without sharing class FactoryBuilder {
             this.TARGET_QTY =  String.valueOf(orderItem.Quantity);
             this.REF_DOC_IT = numReference != '' ? numReference.leftPad(6, '0') : '';
         }
-
-        public OrderItemParameters(OrderCommodity__c orderCommodity, String plant){
-            this.ITM_NUMBER = '10';
-            this.MATERIAL = orderCommodity.Product__r.ExternalId__c;
-            this.PLANT = plant;
-            this.TARGET_QTY =  String.valueOf(orderCommodity.BagQuantity__c);
-        }
     }
 
     private class OrderItemParametersSeeds{
@@ -894,6 +887,38 @@ public without sharing class FactoryBuilder {
             this.ZZCLAS_CAT = orderItem.Class__c;
         }
     }
+
+    private class OrderItemParametersBarter{
+      public String ITM_NUMBER;
+      public String MATERIAL;
+      public String PLANT;
+      public String TARGET_QTY;
+      public String REF_DOC_IT;
+      public String VALOR_MAT;
+      public String ZZPENEIRA;
+      public String ZZCLAS_CAT;
+
+
+      public OrderItemParametersBarter(OrderItem orderItem, String numReference, String plant){
+          this.ITM_NUMBER = String.valueOf(orderItem.NumeroSap__c).leftPad(6, '0');
+          this.MATERIAL = orderItem.Product2.ExternalId__c;
+          this.PLANT = plant;
+          this.TARGET_QTY =  String.valueOf(orderItem.Quantity);
+          this.REF_DOC_IT = numReference != '' ? numReference.leftPad(6, '0') : '';
+          this.VALOR_MAT = String.valueOf(orderItem.ListPrice__c);
+          this.ZZPENEIRA = orderItem.Sieve__c != null ? orderItem.Sieve__c : '' ;
+          this.ZZCLAS_CAT = orderItem.Class__c != null ? orderItem.Class__c : '' ;
+      }
+
+      public OrderItemParametersBarter(OrderCommodity__c orderCommodity, String plant){
+        this.ITM_NUMBER = '10';
+        this.MATERIAL = orderCommodity.Product__r.ExternalId__c;
+        this.PLANT = plant;
+        this.TARGET_QTY =  String.valueOf(orderCommodity.BagQuantity__c);
+        this.VALOR_MAT = String.valueOf(orderCommodity.CommodityPrice__c);
+        
+    }
+  }
     
 
     private static String getCodeTypeOrder(String typeOrder, Boolean isOrderMother){
@@ -1051,11 +1076,16 @@ public without sharing class FactoryBuilder {
         return orderItemParametersList;
      }
 
-     private static List<OrderItemParameters> generateOrderItemParameterBarterList(Order order){
-        List<OrderItemParameters> orderItemParametersList = new List<OrderItemParameters>();
+     private static List<OrderItemParametersBarter> generateOrderItemParameterBarterList(Map<Id, OrderItem> orderItemMap, Map<String, String> referenceItemMotherMap, Order order){
+        List<OrderItemParametersBarter> orderItemParametersList = new List<OrderItemParametersBarter>();
+        for(OrderItem ordIt : orderItemMap.values()){
+          String refItem = referenceItemMotherMap.containsKey(ordIt.Product2.ExternalId__c) ?  referenceItemMotherMap.get(ordIt.Product2.ExternalId__c) : '';
+          String plant = order.DistributionCenter__r.Code__c == null ? order.Company__r.SupplierCenter__c : order.DistributionCenter__r.Code__c;
+          orderItemParametersList.add(new OrderItemParametersBarter(ordIt, refItem, plant));
+        }
         OrderCommodity__c orderCommodity = [SELECT CommodityPrice__c, Product__r.ExternalId__c, BagQuantity__c FROM OrderCommodity__c WHERE Order__c =: order.Id LIMIT 1];
         String plant = order.DistributionCenter__r.Code__c == null ? order.Company__r.SupplierCenter__c : order.DistributionCenter__r.Code__c;
-        orderItemParametersList.add(new OrderItemParameters(orderCommodity, plant));
+        orderItemParametersList.add(new OrderItemParametersBarter(orderCommodity ,plant));
         return orderItemParametersList;
      }
 
