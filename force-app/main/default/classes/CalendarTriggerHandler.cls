@@ -1,4 +1,4 @@
-public with sharing class CalendarTriggerHandler {
+public without sharing class CalendarTriggerHandler {
     List<VisitPlanning__c> oldRecords {get; set;} // Trigger.old 
         List<VisitPlanning__c> newRecords {get; set;} // Trigger.new
         Map<Id, VisitPlanning__c> oldMap {get; set;} // Trigger.oldMap
@@ -13,11 +13,13 @@ public with sharing class CalendarTriggerHandler {
 
     public void OnBeforeInsert(){
         CalendarHelper.createCalendarEvent(this.newRecords);
-
+        CalendarHelper.updateExternalId(this.newRecords);
     }
     
     public void OnAfterInsert(){
-        
+        if (CalendarHelper.enableTriggerForIntegration()) {
+            CalendarHelper.callVisitsIntegration(this.newRecords);
+        }
     }
     
     public void OnBeforeUpdate(){
@@ -25,6 +27,9 @@ public with sharing class CalendarTriggerHandler {
     
     public void OnAfterUpdate(){
         calendarHelper.updateCalendarEvent(this.newMap);
+        if (CalendarHelper.enableTriggerForIntegration()) {
+            CalendarHelper.callVisitsIntegration(this.newRecords);
+        }
     }
     
     public void OnBeforeDelete(){}

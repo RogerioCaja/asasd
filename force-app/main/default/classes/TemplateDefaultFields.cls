@@ -469,7 +469,7 @@ public  class TemplateDefaultFields {
         OrderItem orderItem = new OrderItem(
             OrderId = order.Id,
             Product2Id = prod.Id,
-            PricebookEntryId = [SELECT Id FROM PricebookEntry WHERE Product2Id =: prod.Id LIMIT 1][0].Id,
+            PricebookEntryId = [SELECT Id FROM PricebookEntry WHERE Product2Id =: prod.Id AND CurrencyIsoCode =: 'BRL' LIMIT 1][0].Id,
             ListPrice__c = 150,
             ServiceDate = System.today(),
             Quantity = 10,
