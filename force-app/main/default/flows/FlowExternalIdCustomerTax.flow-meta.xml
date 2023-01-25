@@ -18,7 +18,7 @@
     <formulas>
         <name>MakeField</name>
         <dataType>String</dataType>
-        <expression>{!$Record.Account__r.ExternalId__c} &amp; &apos;-&apos; &amp; {!$Record.Tax__r.ExternalId__c}</expression>
+        <expression>{!$Record.Account__r.ExternalId__c} &amp; &apos;-&apos; &amp; {!$Record.Tax__r.ExternalId__c}   &amp; &apos;-&apos; &amp; {!$Record.SalesOrg__r.SalesOrganizationCode__c} &amp; &apos;-&apos; &amp; {!$Record.Name} </expression>
     </formulas>
     <interviewLabel>Flow External Id Customer Tax {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Flow External Id Customer Tax</label>
