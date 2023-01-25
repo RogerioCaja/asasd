@@ -1198,14 +1198,17 @@ public without sharing class OrderScreenController {
 
                     Map<Id, CommodityTaxes__c> taxesById = new Map<Id, CommodityTaxes__c>();
                     for (CommodityTaxes__c commodityTax : [
-                        SELECT Id
+                        SELECT Id, Tax__c
                           FROM CommodityTaxes__c
-                         WHERE Id IN: setCommodityTaxIds
+                         WHERE Tax__c IN: setCommodityTaxIds
+                           AND Commodity__c =: upsCommodities[0].Id
                     ]) {
-                        taxesById.put(commodityTax.Id, commodityTax);
+                        System.debug('commodityTax: ' + commodityTax);
+                        taxesById.put(commodityTax.Tax__c, commodityTax);
                     }
 
                     for (TaxData taxData : orderData.taxData) {
+                        System.debug('orderData.taxData: ' + orderData.taxData);
                         CommodityTaxes__c commodityTax;
                         if (!newOrder && !cloneOrder && taxesById.containsKey(taxData.taxId)) {
                             commodityTax = taxesById.get(taxData.taxId);
