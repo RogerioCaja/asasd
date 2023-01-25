@@ -188,10 +188,6 @@ export default class OrderProductScreen extends LightningElement {
 
         this.showIncludedProducts = this.products.length > 0;
         if (this.headerData.tipo_venda == 'Venda Barter') {
-            getTaxes({accountId: this.accountData.Id})
-            .then((result) => {
-                this.taxData = JSON.parse(result);
-            });
             this.hideChooseColumns = true;
             let barterColumns = [
                 {label: 'Produto', fieldName: 'name'},
@@ -380,6 +376,14 @@ export default class OrderProductScreen extends LightningElement {
             this.headerData.companyId = this.selectedCompany.companyId;
         }
         this._setHeaderValues();
+
+        if (this.headerData.tipo_venda == 'Venda Barter') {
+            getTaxes({accountId: this.accountData.Id, salesOrgId: this.selectedCompany.salesOrgId})
+            .then((result) => {
+                this.taxData = JSON.parse(result);
+                console.log('this.taxData: ' + JSON.stringify(this.taxData));
+            });
+        }
         
         isSeedSale({salesOrgId: this.selectedCompany.salesOrgId, productGroupName: null})
         .then((result) => {

@@ -1962,7 +1962,7 @@ public without sharing class OrderScreenController {
     }
 
     @AuraEnabled
-    public static String getTaxes(String accountId) {
+    public static String getTaxes(String accountId, String salesOrgId) {
         try {
             List<TaxData> taxValues = new List<TaxData>();
             for (CustomerTaxes__c tax : [
@@ -1971,6 +1971,7 @@ public without sharing class OrderScreenController {
                        Tax__r.TaxPercentage__c
                   FROM CustomerTaxes__c
                  WHERE Account__c =: accountId
+                   AND SalesOrg__c =: salesOrgId
                    AND Status__c = 'Ativo'
             ]) {
                 TaxData currentTax = new TaxData();
@@ -2223,7 +2224,7 @@ public without sharing class OrderScreenController {
 
         public TaxDataSerialize(){}
         public TaxDataSerialize(CommodityTaxes__c tax){
-            this.taxId = tax.Tax__r.Id;
+            this.taxId = tax.Tax__c;
             this.commodityId = tax.Commodity__c;
             this.taxValue = tax.DeductionAmount__c;
             this.taxPercentage = tax.PercentageDeducted__c;
