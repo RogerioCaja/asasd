@@ -1080,7 +1080,7 @@ public without sharing class FactoryBuilder {
         return orderItemParametersList;
      }
 
-     private static List<OrderItemParameters> generateOrderItemParameterBarterList(Map<Id, OrderItem> orderItemMap, Map<String, String> referenceItemMotherMap, Order order){
+     private static List<OrderItemParametersBarter> generateOrderItemParameterBarterList(Map<Id, OrderItem> orderItemMap, Map<String, String> referenceItemMotherMap, Order order){
         List<OrderItemParametersBarter> orderItemParametersList = new List<OrderItemParametersBarter>();
         for(OrderItem ordIt : orderItemMap.values()){
           String refItem = referenceItemMotherMap.containsKey(ordIt.Product2.ExternalId__c) ?  referenceItemMotherMap.get(ordIt.Product2.ExternalId__c) : '';
