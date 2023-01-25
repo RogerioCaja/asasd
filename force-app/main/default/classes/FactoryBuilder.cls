@@ -919,7 +919,7 @@ public without sharing class FactoryBuilder {
         this.MATERIAL = orderCommodity.Product__r.ExternalId__c;
         this.PLANT = plant;
         this.TARGET_QTY =  String.valueOf(orderCommodity.BagQuantity__c);
-        this.VALOR_MAT = orderCommodity.CommodityPrice__c;
+        this.VALOR_MAT = String.valueOf(orderCommodity.CommodityPrice__c);
         
     }
   }
