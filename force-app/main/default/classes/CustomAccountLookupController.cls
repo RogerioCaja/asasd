@@ -12,14 +12,14 @@ public with sharing class CustomAccountLookupController {
 			String profileName = [SELECT Name FROM Profile WHERE Id =: UserInfo.getProfileId()].Name;
 			Boolean bpAccount = salesOrg != null;
 			if (profileName == 'Balcão' || bpAccount) {
-				query = 'SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState, Parent.Name, StateRegistration__c FROM Account WHERE Status__c = \'' + 'Ativo' + '\' AND ExternalId__c LIKE \'' + '0001' + '%\' AND (Name LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' OR Name LIKE \'' + String.escapeSingleQuotes(removeAccents(searchString.trim())) + '%\' OR CPF__c LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' OR Company__c LIKE \'' + String.escapeSingleQuotes(removeAccents(searchString.trim())) + '%\' OR Company__c LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\')' +
+				query = 'SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Supplier__c, Phone, BillingCity, BillingState, Parent.Name, StateRegistration__c FROM Account WHERE Status__c = \'' + 'Ativo' + '\' AND ExternalId__c LIKE \'' + '0001' + '%\' AND (Name LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' OR Name LIKE \'' + String.escapeSingleQuotes(removeAccents(searchString.trim())) + '%\' OR CPF__c LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' OR Company__c LIKE \'' + String.escapeSingleQuotes(removeAccents(searchString.trim())) + '%\' OR Company__c LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\')' +
 				(bpAccount ? ' AND Supplier__c =: bpAccount' : '') +
 				' ORDER BY Name' +
 				(bpAccount ? ' LIMIT 50' : ' LIMIT 100') + 
 				' OFFSET :offSet';
 			} else {
 				Set<Id> relatedAccounts = OrderScreenController.getTerritoryAccounts();
-				query = 'SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState, Parent.Name, StateRegistration__c FROM Account WHERE Status__c = \'' + 'Ativo' + '\' AND Id IN: relatedAccounts AND ExternalId__c LIKE \'' + '0001' + '%\' AND (Name LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' OR Name LIKE \'' + String.escapeSingleQuotes(removeAccents(searchString.trim())) + '%\' OR CPF__c LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' OR Company__c LIKE \'' + String.escapeSingleQuotes(removeAccents(searchString.trim())) + '%\' OR Company__c LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\')' +
+				query = 'SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Supplier__c, Phone, BillingCity, BillingState, Parent.Name, StateRegistration__c FROM Account WHERE Status__c = \'' + 'Ativo' + '\' AND Id IN: relatedAccounts AND ExternalId__c LIKE \'' + '0001' + '%\' AND (Name LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' OR Name LIKE \'' + String.escapeSingleQuotes(removeAccents(searchString.trim())) + '%\' OR CPF__c LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' OR Company__c LIKE \'' + String.escapeSingleQuotes(removeAccents(searchString.trim())) + '%\' OR Company__c LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\')' +
 				' ORDER BY Name' +
 				' LIMIT 100' + 
 				' OFFSET :offSet';
