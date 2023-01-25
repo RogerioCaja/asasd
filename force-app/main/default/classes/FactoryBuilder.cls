@@ -909,7 +909,7 @@ public without sharing class FactoryBuilder {
           this.PLANT = plant;
           this.TARGET_QTY =  String.valueOf(orderItem.Quantity);
           this.REF_DOC_IT = numReference != '' ? numReference.leftPad(6, '0') : '';
-          this.VALOR_MAT = orderItem.ListPrice__c;
+          this.VALOR_MAT = String.valueOf(orderItem.ListPrice__c);
           this.ZZPENEIRA = orderItem.Sieve__c != null ? orderItem.Sieve__c : '' ;
           this.ZZCLAS_CAT = orderItem.Class__c != null ? orderItem.Class__c : '' ;
       }
