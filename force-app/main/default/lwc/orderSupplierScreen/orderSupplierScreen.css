@@ -1,0 +1,154 @@
+:host {
+    width: 100%;
+}
+  
+.account-results {
+    width: 100%;
+    top: 50%;
+    left: 50%;
+    margin-top: 10px;
+}
+  
+.item {
+    border: #DDD solid 1px;
+    border-radius: 5px;
+    background-color: #F2F2F2;
+    width: 100%;
+    margin: 32px 0px;
+    display: grid;
+    grid-template-columns: 1fr;
+    padding: 10px;
+}
+  
+.account-selected {
+    border: #2a9676 solid 2px;
+}
+
+.item-title {
+    padding: 12px;
+    grid-area: 1 / 1 / 1 / 4;
+}
+
+.account-data {
+    grid-area: 2 / 1 / 2 / 4;
+    display: grid;
+    grid-template-columns: auto auto auto;
+}
+
+.account-button {
+    grid-area: 1 / 4 / 2 / 5;
+    top: 50%;
+} 
+  
+.account-data div {
+    padding: 12px;
+}
+  
+.dados {
+    padding: 12px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    grid-column-gap: 0px;
+    grid-row-gap: 0px; 
+}
+  
+.item-title {
+    width: 100%;
+    font-weight: bold;
+    font-size: 18px;
+    color: #121212;
+    display: flex;
+    align-items: center;
+}
+  
+.item-title span {
+    margin-left: 5px;
+}
+
+.account-results h2 {
+    color: #2A9676;
+    font-size: 18px;
+}
+
+.account-info {
+    font-weight: bold;
+}
+
+.account-info span {
+    color: #999999;
+    font-weight: normal;
+}
+  
+.account-results button {
+    background: #B9B9B9;
+    color: white;
+    padding: 12px;
+    font-size: 14px;
+    border: 0;
+    border-left: none;
+    cursor: pointer;
+    border-radius: 4px 4px 4px 4px;
+}
+
+.account-results button:hover {
+    background: #2a9676;
+}
+
+.account-results button.selected {
+    background: #2a9676;
+}
+
+.search-title {
+    align-self: center;
+    width: 100%;
+    color: #666666 !important;
+    font-size: 16px !important;
+    font-weight: bold;
+    margin: 35px 0px 10px 0;
+    text-align: center;
+}
+  
+.search-title b {
+    color: #000;
+}
+
+.footer-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.footer-pagination > div {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    height: 25px;
+    margin: 5px;
+    color: #2a9676;
+    font-weight: bold;
+    background-color: #ccffe6;
+    border-radius: 5px;
+}
+
+.button-up {
+    cursor:pointer; 
+    border: solid 1px #2a9676; 
+    border-radius: 50%; 
+    position: fixed; 
+    right: 2%; 
+    top:61%;
+}
+
+.selected-index {
+    color: white !important;
+    background-color: #2a9676 !important;
+}
+
+.description {
+    color: #2A9676;
+    font-size: 18px;
+    text-align: left;
+    margin-top: 25px;
+}
