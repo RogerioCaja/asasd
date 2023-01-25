@@ -27,11 +27,15 @@
                     <input type="checkbox" name="" disabled>
                     Detalhes da Venda
                 </a>
-                <a class="" data-tab-name="product" data-tab="2">
+                <a if:true={barterSale} class="" data-tab-name="bp" data-tab="2">
+                    <input type="checkbox" name="" disabled>
+                    BP Fornecedor
+                </a>
+                <a class="" data-tab-name="product" data-tab="3">
                     <input type="checkbox" name="" disabled>
                     Seleção de Produtos
                 </a>
-                <a class="" data-tab-name="summary" data-tab="3">
+                <a class="" data-tab-name="summary" data-tab="4">
                     <input type="checkbox" name="" disabled>
                     Resumo da Venda
                 </a>
@@ -57,13 +61,16 @@
             <c-order-account-screen if:true={account} message={message} onsetaccountdata={_setAccountData} selected-account={accountData} clone-data={cloneData} child-order={childOrder}>
             </c-order-account-screen>
 
-            <c-order-header-screen if:true={header} tab="header" onsetheaderdata={_setHeaderData} account-data={accountData} header-data={headerData} header-data-title={headerDataTitle} product-data={productData} division-data={divisionData} clone-data={cloneData} commodity-data={commodityData} excluded-items={excludedItems} forms-of-payment={formsOfPayment} child-order={childOrder} combos-selecteds={combosSelecteds}>
+            <c-order-header-screen if:true={header} tab="header" onsetheaderdata={_setHeaderData} account-data={accountData} header-data={headerData} header-data-title={headerDataTitle} product-data={productData} division-data={divisionData} clone-data={cloneData} commodity-data={commodityData} excluded-items={excludedItems} forms-of-payment={formsOfPayment} child-order={childOrder} combos-selecteds={combosSelecteds} bp-data={bpData}>
             </c-order-header-screen>
 
-            <c-order-product-screen if:true={product} tab="product" onsetproductdata={_setProductData} onsetheadervalues={_setHeaderValues} onsetdivisiondata={_setDivisionData} onsetcommoditydata={_setCommodityData} onsetexcludedesitems={_setExcludedesItems} onsetcombosselecteds={_setcombosSelecteds} onsethidefooterbuttons={_setHideFooterButtons} onsethandleprevious={_setHandlePrevious} onsethandlenext={_setHandleNext} account-data={accountData} header-data={headerData} product-data={productData} division-data={divisionData} clone-data={cloneData} commodity-data={commodityData} excluded-items={excludedItems} forms-of-payment={formsOfPayment} child-order={childOrder} combos-selecteds={combosSelecteds}>
+            <c-order-supplier-screen if:true={bp} onsetbpdata={_setBpData} account-data={accountData} header-data={headerData} product-data={productData} division-data={divisionData} clone-data={cloneData} commodity-data={commodityData} excluded-items={excludedItems} forms-of-payment={formsOfPayment} child-order={childOrder} combos-selecteds={combosSelecteds} bp-data={bpData}>
+            </c-order-supplier-screen>
+
+            <c-order-product-screen if:true={product} tab="product" onsetproductdata={_setProductData} onsetheadervalues={_setHeaderValues} onsetdivisiondata={_setDivisionData} onsetcommoditydata={_setCommodityData} onsetexcludedesitems={_setExcludedesItems} onsetcombosselecteds={_setcombosSelecteds} onsettaxdata={_setTaxData} onsethidefooterbuttons={_setHideFooterButtons} onsethandleprevious={_setHandlePrevious} onsethandlenext={_setHandleNext} account-data={accountData} header-data={headerData} product-data={productData} division-data={divisionData} clone-data={cloneData} commodity-data={commodityData} excluded-items={excludedItems} forms-of-payment={formsOfPayment} child-order={childOrder} combos-selecteds={combosSelecteds} bp-data={bpData}>
             </c-order-product-screen>
 
-            <c-order-summary-screen if:true={summary} tab="summary" onsetproductdata={_setProductData} onsetsummarydata={_setSummaryData} onsetformsofpayment={_setformsofpayment} product-data={productData} division-data={divisionData} header-data={headerData} account-data={accountData} summary-data={summaryData} clone-data={cloneData} commodity-data={commodityData} excluded-items={excludedItems} forms-of-payment={formsOfPayment} child-order={childOrder} combos-selecteds={combosSelecteds}>
+            <c-order-summary-screen if:true={summary} tab="summary" onsetproductdata={_setProductData} onsetdivisiondata={_setDivisionData} onsetsummarydata={_setSummaryData} onsetformsofpayment={_setformsofpayment} product-data={productData} division-data={divisionData} header-data={headerData} account-data={accountData} summary-data={summaryData} clone-data={cloneData} commodity-data={commodityData} excluded-items={excludedItems} forms-of-payment={formsOfPayment} child-order={childOrder} combos-selecteds={combosSelecteds} bp-data={bpData}>
             </c-order-summary-screen>
 
             <template if:true={changeProductInfos}>

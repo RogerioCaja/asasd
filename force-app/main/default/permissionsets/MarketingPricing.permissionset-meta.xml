@@ -21,10 +21,6 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
-        <apexClass>CallExcludePageController</apexClass>
-        <enabled>true</enabled>
-    </classAccesses>
-    <classAccesses>
         <apexClass>CalloutBP</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -1539,6 +1535,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>true</editable>
+        <field>Order.ACMContract__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>false</editable>
         <field>Order.ACMContract__c</field>
         <readable>false</readable>
@@ -1940,7 +1941,17 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>OrderCommodity__c.EndDate__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>OrderCommodity__c.Product__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>OrderCommodity__c.StartDate__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -3283,10 +3294,6 @@
         <viewAllRecords>false</viewAllRecords>
     </objectPermissions>
     <pageAccesses>
-        <apexPage>CallExcludePage</apexPage>
-        <enabled>true</enabled>
-    </pageAccesses>
-    <pageAccesses>
         <apexPage>OrderPagePDF</apexPage>
         <enabled>true</enabled>
     </pageAccesses>
@@ -3488,10 +3495,6 @@
     </tabSettings>
     <tabSettings>
         <tab>PotencialCompra__c</tab>
-        <visibility>Visible</visibility>
-    </tabSettings>
-    <tabSettings>
-        <tab>PriceSearch</tab>
         <visibility>Visible</visibility>
     </tabSettings>
     <tabSettings>
