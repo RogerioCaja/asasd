@@ -1,4 +1,4 @@
-public with sharing class CustomAccountLookupController {
+public without sharing class CustomAccountLookupController {
     @AuraEnabled
     public static List<SObject> fetchAccountRecords(String searchString, Integer offSet, String salesOrg) {
         try {
@@ -25,13 +25,14 @@ public with sharing class CustomAccountLookupController {
 				' OFFSET :offSet';
 			}
             
-			Set<String> accountIds = new Set<String>();
-			List<SObject> accountResult = Database.query(query);
-	        for (SObject s : accountResult) {
-				accountIds.add((String) s.get('Id'));
+			// Set<String> accountIds = new Set<String>();
+	        for (SObject s : Database.query(query)) {
+				// accountIds.add((String) s.get('Id'));
+				System.debug('s: ' + s);
+				recordsData.add(s);
 	        }
 
-			Set<String> salesOrgAccounts = new Set<String>();
+			/* Set<String> salesOrgAccounts = new Set<String>();
 			if (bpAccount) {
 				for (Company__c accountCompany : [
 					SELECT Id, Conta__c
@@ -51,7 +52,7 @@ public with sharing class CustomAccountLookupController {
 				} else {
 					recordsData.add(s);
 				}
-			}
+			} */
 
             return recordsData;
 
