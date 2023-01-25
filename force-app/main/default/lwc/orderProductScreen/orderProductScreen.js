@@ -654,7 +654,7 @@ export default class OrderProductScreen extends LightningElement {
                     this.showToast('warning', 'Alteração nos preços!', priceChangeMessage);
                 }
                 if (showQuantityChange) this.showToast('warning', 'Alteração nas quantidades!', 'As quantidades foram recalculados devido a alteração no hectar. Verifique-os.');
-                if ((showPriceChange || showQuantityChange) && this.headerData.tipo_venda == 'Venda Barter') this.recalculateCommodities();
+                if (this.headerData.tipo_venda == 'Venda Barter') this.recalculateCommodities();
                 this.showLoading = false;
             } else {
                 this.showLoading = false;
