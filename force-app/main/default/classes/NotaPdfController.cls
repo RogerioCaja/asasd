@@ -63,7 +63,7 @@ public without sharing class NotaPdfController {
         System.debug('getBody' + response.getBody());
         Map<String, Object> results = (Map<String, Object>) JSON.deserializeUntyped(response.getBody());
         Data = (String)results.get('data');
-        
+        base64 = Data;
         System.debug('Data ' + Data);
         //Map<String, ResponseParameters> results = (Map<String, ResponseParameters>) JSON.deserialize(response.getBody(), Map<String, ResponseParameters>.class);
         // Cast the values in the 'animals' key as a list

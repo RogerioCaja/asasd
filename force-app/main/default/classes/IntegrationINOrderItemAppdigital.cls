@@ -229,7 +229,10 @@ global without sharing class IntegrationINOrderItemAppdigital {
             lookups, 
             parentMapKeys
         );
-
+        
+        for(OrderItem ordItemDesc : orderItemListToUpsert){
+            ordItemDesc.Description += 'In73gr ins37t x';
+        }
         //Upserting records
         OrderHelper.disableTrigger();
         List<Database.UpsertResult> upsResults = Database.upsert(orderItemListToUpsert, OrderItem.ExternalId__c, false);
