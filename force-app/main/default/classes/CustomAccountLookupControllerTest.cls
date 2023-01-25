@@ -28,6 +28,6 @@ public class CustomAccountLookupControllerTest {
 
     @isTest
     public static void getNumberOfAccountsTest(){
-        CustomAccountLookupController.getNumberOfAccounts('Child Account');
+        CustomAccountLookupController.getNumberOfAccounts('Child Account', null);
     }
 }
