@@ -8,6 +8,7 @@ public without sharing class OrderScreenController {
     public static String getOrder(String recordId, Boolean cloneOrder, Boolean checkQuantities) {
         HeaderSerialize order;
         AccountSerialize account;
+        AccountSerialize bpAccount;
         List<ProductSerialize> ordItemList = new List<ProductSerialize>();
         List<DivisionSerialize> divisionList = new List<DivisionSerialize>();
         List<CommoditySerialize> commodityList = new List<CommoditySerialize>();
@@ -20,6 +21,10 @@ public without sharing class OrderScreenController {
             divisionList = getShippingDivison();
         }
 
+        if (order.bpStorage != null) {
+            bpAccount = getOrderAccountData(order.bpStorage);
+        }
+
         if (order.recTypeId == Schema.SObjectType.Order.getRecordTypeInfosByDeveloperName().get('VendaBarter').getRecordTypeId()) {
             commodityList = getCommodityData(order.Id);
             commodityTax = getcommodityTax(commodityList[0].commodityId);
@@ -27,7 +32,7 @@ public without sharing class OrderScreenController {
         account = getOrderAccountData(order.AccountId);
         formsOfPayment = getFormsOfPayment(order.Id);
 
-        return JSON.serialize(new OrderSerialize(order, ordItemList, divisionList, account, commodityList, formsOfPayment, commodityTax));
+        return JSON.serialize(new OrderSerialize(order, ordItemList, divisionList, account, commodityList, formsOfPayment, commodityTax, bpAccount));
     }
 
     @AuraEnabled
@@ -62,7 +67,7 @@ public without sharing class OrderScreenController {
         Order order = [SELECT Id, OrderNumber, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c , ShippingAccount__r.Phone,  ShippingAccount__r.Name,
         ShippingAccount__r.BillingCity, ShippingAccount__r.BillingState ,ShippingAccount__r.CPF__c, ShippingAccount__r.CNPJ__c , SalesCondition__c, SalesCondition__r.Name, FreightValue__c,
         Pricebook2.InitialDate__c, Pricebook2.EndDate__c, PaymentDate__c,  CustomerOrderNumber__c, Crop__c , Crop__r.Name, Culture__c , Culture__r.Name, OrderMargin__c, RecordTypeId,
-        PaymentForm__c, StatusSF__c, CodigoSAP__c, SalesOrg__c, SalesOrg__r.Name, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, SalesCTV__r.Name, OrderType__c,
+        PaymentForm__c, StatusSF__c, CodigoSAP__c, SalesOrg__c, SalesOrg__r.Name, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, SalesCTV__r.Name, OrderType__c, BPStorage__c,
         PaymentCondition__c, PaymentCondition__r.Name, ShippingDate__c, Incoterms__c, OrderReference__c, OrderReference__r.Name, IsOrderMother__c, Company__c, Hectare__c, Status, DistributionCenter__c
         FROM Order 
         WHERE Id = :orderId LIMIT 1];
@@ -471,7 +476,7 @@ public without sharing class OrderScreenController {
             if (orderId != null && !cloneOrder) {
                 newOrder = false;
                 order = [SELECT Id, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c, SalesCondition__c, PaymentDate__c, ShippingDate__c, PaymentCondition__c, CustomerOrderNumber__c, OrderType__c, OrderReference__c,
-                                Crop__c, Culture__c, PaymentForm__c, StatusSF__c, SalesOrg__c, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, EffectiveDate, Company__c, Hectare__c, OrderMargin__c, Status, FreightValue__c
+                                Crop__c, Culture__c, PaymentForm__c, StatusSF__c, SalesOrg__c, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, EffectiveDate, Company__c, Hectare__c, OrderMargin__c, Status, FreightValue__c, BPStorage__c
                 FROM Order WHERE Id =: orderId LIMIT 1];
             } else {
                 order = new Order();
@@ -810,6 +815,7 @@ public without sharing class OrderScreenController {
             order.OrderMargin__c = orderData.summaryData.orderMargin != null ? (orderData.summaryData.orderMargin.contains(' sacas') ?
                                    stringToDecimal(orderData.summaryData.orderMargin.replace(' sacas', '')) : stringToDecimal((orderData.summaryData.orderMargin))) : 0;
             order.ApprovalJustification__c = orderData.summaryData.justification;
+            order.BPStorage__c = orderData.bpAccount != null ? orderData.bpAccount.Id : null;
 
             if (order.OrderType__c == 'Pedido Filho') {
                 order.AccountId = [SELECT Id, ParentId FROM Account WHERE Id =: order.ShippingAccount__c].ParentId;
@@ -2054,6 +2060,7 @@ public without sharing class OrderScreenController {
     //Classe para deserialização
     public class OrderDeserialize{
         public AccountDeserialize accountData;
+        public AccountDeserialize bpAccount;
         public HeaderDeserialize headerData;
         public List<ProductDeserialize> productData;
         public List<DivisionDeserialize> divisionData;
@@ -2263,6 +2270,7 @@ public without sharing class OrderScreenController {
     public class OrderSerialize{
         public HeaderSerialize headerData;
         public AccountSerialize accountData;
+        public AccountSerialize bpAccount;
         public List<ProductSerialize> productData;
         public List<DivisionSerialize> divisionData;
         public List<CommoditySerialize> commodityData;
@@ -2275,7 +2283,7 @@ public without sharing class OrderScreenController {
             this.accountData = account;
         }  
 
-        OrderSerialize(HeaderSerialize order, List<ProductSerialize> products, List<DivisionSerialize> divisions, AccountSerialize account, List<CommoditySerialize> commodities, List<FormOfPaymentSerialize> formsOfPayment, List<TaxDataSerialize> taxData){
+        OrderSerialize(HeaderSerialize order, List<ProductSerialize> products, List<DivisionSerialize> divisions, AccountSerialize account, List<CommoditySerialize> commodities, List<FormOfPaymentSerialize> formsOfPayment, List<TaxDataSerialize> taxData, AccountSerialize bpAccount) {
             this.headerData = order;
             this.productData = products;
             this.divisionData = divisions;
@@ -2283,6 +2291,7 @@ public without sharing class OrderScreenController {
             this.commodityData = commodities;
             this.taxData = taxData;
             this.formsOfPayment = formsOfPayment;
+            this.bpAccount = bpAccount;
         }
     }
 
@@ -2294,6 +2303,7 @@ public without sharing class OrderScreenController {
         public List<FormOfPaymentSerialize> formsOfPayment;
         public List<TaxData> taxData;
         public AccountSerialize accountData;
+        public AccountSerialize bpAccount;
         public SummarySerialize summaryData;
 
         OrderSerializeAll(){}       
@@ -2302,7 +2312,7 @@ public without sharing class OrderScreenController {
             this.accountData = account;
         }  
 
-        public OrderSerializeAll(HeaderSerialize order, List<ProductSerialize> products, List<DivisionSerialize> divisions, List<CommodityDeserialize> commodities, List<FormOfPaymentSerialize> formsOfPayment, AccountSerialize account, SummarySerialize summaryData, List<TaxData> taxData){
+        public OrderSerializeAll(HeaderSerialize order, List<ProductSerialize> products, List<DivisionSerialize> divisions, List<CommodityDeserialize> commodities, List<FormOfPaymentSerialize> formsOfPayment, AccountSerialize account, SummarySerialize summaryData, List<TaxData> taxData, AccountSerialize bpAccount){
             this.headerData = order;
             this.productData = products;
             this.divisionData = divisions;
@@ -2311,6 +2321,7 @@ public without sharing class OrderScreenController {
             this.taxData = taxData;
             this.accountData = account;
             this.summaryData = summaryData;
+            this.bpAccount = bpAccount;
         }
     }
     
@@ -2372,6 +2383,7 @@ public without sharing class OrderScreenController {
         public String  companyId;
         public String  recTypeId;
         public String  hectares;
+        public String  bpStorage;
         public Decimal freightValue;
         public Boolean emptyHectar;
         public Boolean orderCanceled;
@@ -2395,6 +2407,7 @@ public without sharing class OrderScreenController {
             this.orderNumber = order.OrderNumber;
             this.AccountId = order.AccountId;
             this.tipo_venda = order.Type;
+            this.bpStorage = order.BPStorage__c;
 
             this.cliente_entrega = new AccountSerialize();
             this.cliente_entrega.Id = order.ShippingAccount__c;
