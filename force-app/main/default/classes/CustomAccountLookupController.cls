@@ -13,7 +13,7 @@ public without sharing class CustomAccountLookupController {
 			Boolean bpAccount = salesOrg != null;
 			if (profileName == 'Balcão' || bpAccount) {
 				query = 'SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Supplier__c, Phone, BillingCity, BillingState, Parent.Name, StateRegistration__c FROM Account WHERE Status__c = \'' + 'Ativo' + '\' AND ExternalId__c LIKE \'' + '0001' + '%\' AND (Name LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' OR Name LIKE \'' + String.escapeSingleQuotes(removeAccents(searchString.trim())) + '%\' OR CPF__c LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' OR Company__c LIKE \'' + String.escapeSingleQuotes(removeAccents(searchString.trim())) + '%\' OR Company__c LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\')' +
-				(bpAccount ? ' AND Supplier__c =: bpAccount' : '') +
+				(bpAccount ? ' AND StorageBp__c =: bpAccount' : '') +
 				' ORDER BY Name' +
 				(bpAccount ? ' LIMIT 50' : ' LIMIT 100') + 
 				' OFFSET :offSet';
@@ -73,7 +73,7 @@ public without sharing class CustomAccountLookupController {
 		Boolean bpAccount = salesOrg != null;
 		
 		if (bpAccount) {
-			query = 'SELECT Id FROM Account WHERE ' + (bpAccount ? ' Supplier__c =: bpAccount' : '') + ' AND Status__c = \'' + 'Ativo' + '\' AND ExternalId__c LIKE \'' + '0001' + '%\' AND (Name LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' OR Name LIKE \'' + String.escapeSingleQuotes(removeAccents(searchString.trim())) + '%\' OR CPF__c LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' OR Company__c LIKE \'' + String.escapeSingleQuotes(removeAccents(searchString.trim())) + '%\' OR Company__c LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\')';
+			query = 'SELECT Id FROM Account WHERE ' + (bpAccount ? ' StorageBp__c =: bpAccount' : '') + ' AND Status__c = \'' + 'Ativo' + '\' AND ExternalId__c LIKE \'' + '0001' + '%\' AND (Name LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' OR Name LIKE \'' + String.escapeSingleQuotes(removeAccents(searchString.trim())) + '%\' OR CPF__c LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\' OR Company__c LIKE \'' + String.escapeSingleQuotes(removeAccents(searchString.trim())) + '%\' OR Company__c LIKE \'' + String.escapeSingleQuotes(searchString.trim()) + '%\')';
 
 			Set<String> accountIds = new Set<String>();
 			List<SObject> accountResult = Database.query(query);
