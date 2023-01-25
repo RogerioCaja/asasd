@@ -12,6 +12,8 @@ export default class OrderSummaryScreen extends LightningElement {
     showLoading = false;
     staticValue = 'hidden';
     showFreightScreen=false;
+    allowFreight=false;
+    currentFreight;
     allowCloseFreightScreen=false;
     hasData = true;
     disabled=false;
@@ -23,6 +25,7 @@ export default class OrderSummaryScreen extends LightningElement {
     @api seedSale = false;
     clientProperty = '';
 
+    germoTotalValue = 0;
     orderTotalPrice = 0;
     orderTotalPriceFront = 0;
     orderTotalToDistribution = 0;
@@ -75,6 +78,7 @@ export default class OrderSummaryScreen extends LightningElement {
     @api childOrder;
     @api excludedItems;
     @api combosSelecteds;
+    @api taxData;
 
     connectedCallback(){
         if (this.formsOfPayment === undefined) {
@@ -123,13 +127,9 @@ export default class OrderSummaryScreen extends LightningElement {
         isSeedSale({salesOrgId: this.headerData.organizacao_vendas.Id, productGroupName: null})
             .then((result) => {
                 this.seedSale = result;
-                console.log('this.seedSale: ' + this.seedSale);
-                console.log('!this.childOrder: ' + !this.childOrder);
-                console.log('this.headerData.pedido_mae: ' + JSON.stringify(this.headerData.pedido_mae));
-                if (this.seedSale && !this.headerData.IsOrderChild) {
+                if (this.seedSale && !this.headerData.IsOrderChild && this.headerData.tipo_venda != 'Venda Barter') {
                     this.allowFormOfPayment = true;
                 }
-                console.log('this.allowFormOfPayment: ' + this.allowFormOfPayment);
                 this.loadData();
         });
         
@@ -138,7 +138,6 @@ export default class OrderSummaryScreen extends LightningElement {
             isSeedSale({salesOrgId: this.headerData.organizacao_vendas.Id, productGroupName: null})
             .then((result) => {
                 this.seedSale = result
-                console.log('result: ' + result);
                 if (result) {
                     this.getDistributionCenters();
                 } else {
@@ -230,10 +229,12 @@ export default class OrderSummaryScreen extends LightningElement {
                if(this.headerData.frete == 'CIF'){
                     checkSalesOrgFreight({salesOrgId: this.salesOrgId})
                     .then((result) => {
+                        this.allowFreight = result;
                         this.showFreightScreen = result;
                         let summary = JSON.parse(JSON.stringify(this.summaryDataLocale));
                         summary.freightValue = summary.freightValue === undefined ? 0 : summary.freightValue;
                         summary.freightValueFront = this.fixDecimalPlacesFront(summary.freightValue);
+                        this.currentFreight = summary.freightValue;
                         this.summaryDataLocale = JSON.parse(JSON.stringify(summary));
                         this.showFreightScreen = this.showFreightScreen && !this.headerData.IsOrderChild ? true : false;
 
@@ -284,7 +285,7 @@ export default class OrderSummaryScreen extends LightningElement {
                     console.log(this.seedSale)
                     orderTotalPrice += Number(this.productDataLocale[i].unitPrice) * Number(this.productDataLocale[i].quantity) + (this.seedSale ? Number(this.productDataLocale[i].brokerage) : 0);
                     orderTotalPriceToCalcMargin += Number(this.productDataLocale[i].unitPrice) * Number(this.productDataLocale[i].quantity);
-                    orderTotalCost += Number(this.productDataLocale[i].listCost) * Number(this.productDataLocale[i].quantity);
+                    orderTotalCost += Number(this.productDataLocale[i].practicedCost) * Number(this.productDataLocale[i].quantity);
                     tsiTotalPrice += Number(this.productDataLocale[i].tsiTotalPrice);
                     royaltiesTotalPrice += Number(this.productDataLocale[i].royaltyTotalPrice);
                     
@@ -305,9 +306,11 @@ export default class OrderSummaryScreen extends LightningElement {
                 }
             }
             
-            this.orderTotalPrice = orderTotalPrice;
-            this.orderTotalPriceFront = this.fixDecimalPlacesFront(orderTotalPrice);
-            this.orderTotalToDistribution = orderTotalPrice;
+            let summary = JSON.parse(JSON.stringify(this.summaryDataLocale));
+            this.germoTotalValue = orderTotalPrice;
+            this.orderTotalPrice = this.germoTotalValue + Number(this.headerData.frete == 'CIF' && this.seedSale ? summary.freightValue : 0);
+            this.orderTotalPriceFront = this.fixDecimalPlacesFront(this.orderTotalPrice);
+            this.orderTotalToDistribution = this.orderTotalPrice;
 
             this.royaltiesTotalPrice = royaltiesTotalPrice;
             this.royaltiesTotalPriceFront = this.fixDecimalPlacesFront(royaltiesTotalPrice);
@@ -329,6 +332,10 @@ export default class OrderSummaryScreen extends LightningElement {
 
             this.defineOrderMargin();
         }
+    }
+
+    openFreight(event) {
+        this.showFreightScreen = true;
     }
 
     chooseDistributionCenter(event){
@@ -405,13 +412,31 @@ export default class OrderSummaryScreen extends LightningElement {
             }
         }
 
+        let availableDivisions = [];
+        let divisions = JSON.parse(JSON.stringify(this.divisionData));
+        console.log('divisions: ' + JSON.stringify(divisions));
+        for (let index = 0; index < divisions.length; index++) {
+            console.log('divisions[index].productId: ' + divisions[index].productId);
+            let deletedProduct = this.unavailableProducts.find(e => e.productId == divisions[index].productId);
+            if (!this.isFilled(deletedProduct)) {
+                console.log('add - divisions[index].productId: ' + divisions[index].productId);
+                availableDivisions.push(divisions[index]);
+            }
+        }
+
+        console.log('availableDivisions: ' + JSON.stringify(availableDivisions));
+
         this.showUnavailableProducts = false;
         this.productData = JSON.parse(JSON.stringify(availableProducts));
         this._setProductData();
+
+        this.divisionData = JSON.parse(JSON.stringify(availableDivisions));
+        this._setDivisionData();
         if (availableProducts.length > 0) {
             this.loadData();
         }
     }
+    
     changeFreightValue(event) {
         let fieldValue = event.target.value;
         fieldValue = fieldValue.toString().includes('.') ? fieldValue.toString().replace('.', '') : fieldValue;
@@ -426,21 +451,31 @@ export default class OrderSummaryScreen extends LightningElement {
     closeFreightScreen() {
         this.showFreightScreen = false;
         let summary = JSON.parse(JSON.stringify(this.summaryDataLocale));
-        summary.freightValue = 0;
-        summary.freightValueFront = 0;
+        summary.freightValue = this.isFilled(this.currentFreight) ? this.currentFreight : 0;
+        summary.freightValueFront = this.fixDecimalPlacesFront(summary.freightValue);
         this.summaryDataLocale = JSON.parse(JSON.stringify(summary));
     }
 
     confirmFreight() {
-        
         let variable = 'freight-value';
         if(!this.template.querySelector(`[data-target-id="${variable}"]`).checkValidity()){
             this.showToast('warning', 'Atenção', 'Valor de frete inválido');
             return;
-         }
+        }
 
         this.showFreightScreen = false;
+        let summary = JSON.parse(JSON.stringify(this.summaryDataLocale));
+        this.currentFreight = this.fixFreightDecimalPlaces(summary.freightValue);
 
+        let allPayments = JSON.parse(JSON.stringify(this.formsOfPayment));
+        let germoplasmaValue = 0;
+        for (let index = 0; index < allPayments.length; index++) {
+            if (allPayments[index].paymentType == 'Germoplasma') germoplasmaValue += Number(allPayments[index].value);
+        }
+
+        this.orderTotalPrice = Number(this.germoTotalValue) + Number(this.headerData.frete == 'CIF' && this.seedSale ? summary.freightValue : 0);
+        this.orderTotalPriceFront = this.fixDecimalPlacesFront(this.orderTotalPrice);
+        this.orderTotalToDistribution = this.orderTotalPrice - Number(this.headerData.frete == 'CIF' && this.seedSale ? germoplasmaValue : 0);
         this.changeFreight();
     }
 
@@ -710,6 +745,7 @@ export default class OrderSummaryScreen extends LightningElement {
         setformsofpayment.data = this.formsOfPayment;
         this.dispatchEvent(setformsofpayment);
     }
+    
     changeFreight(){
         const setSummaryData = new CustomEvent('setsummarydata');
         setSummaryData.data = this.summaryDataLocale;
@@ -750,6 +786,12 @@ export default class OrderSummaryScreen extends LightningElement {
         const setProductData = new CustomEvent('setproductdata');
         setProductData.data = this.productData;
         this.dispatchEvent(setProductData);
+    }
+
+    _setDivisionData() {
+        const setdivisiondata = new CustomEvent('setdivisiondata');
+        setdivisiondata.data = this.divisionData;
+        this.dispatchEvent(setdivisiondata);
     }
    
     isFilled(field) {
