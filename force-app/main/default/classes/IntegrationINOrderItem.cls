@@ -391,6 +391,10 @@ global without sharing class IntegrationINOrderItem {
                 if(OrderItem.valorZCBA == null){
                     OrderItem.valorZCBA = ordItem.AgrogalaxyComboDiscount__c;
                 }
+
+                if(OrderItem.saldoItem == null){
+                    OrderItem.saldoItem = ordItem.ItemBalance__c;
+                }
             }
         }
         // Pega o produto com base no ExternalID recebido

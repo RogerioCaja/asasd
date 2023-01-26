@@ -441,7 +441,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String orderItemCode;
         public String orderExternalId;
         public String material;
-        public String productCode;
+        //public String productCode;
         public Decimal quantidade;
         public Boolean orderItemECalendariazacao;
         //public String centro;
@@ -476,6 +476,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String currencyOrder;
         public String pricebookEntryId; // Passar do Order para o OrderItem.
         public Decimal quantidadeUtilizada;
+        public Decimal saldoItem;
         public OrderItem serialize(Map<String, Id> lookups){
 
             
@@ -485,7 +486,7 @@ global with sharing class TemplateDataIntegrationFields {
                 Product2Id = lookups.containsKey('Product2'+this.material) ? lookups.get('Product2'+this.material) : null,
                 //PricebookEntryId = lookups.containsKey('PricebookEntry'+ this.material) ? lookups.get('PricebookEntry' + this.material) : null,
                 PricebookEntryId = this.pricebookEntryId,
-                //ProductCode = this.material,
+                
                 ExternalId__c = this.orderExternalId + '|' + this.orderItemCode,
                 Quantity = this.quantidade,
                 UnitMeasure__c = this.unidadeMedida,
@@ -519,8 +520,8 @@ global with sharing class TemplateDataIntegrationFields {
                 TotalTSIAmount__c = this.valorTotalZtra,
                 AmountUsed__c = this.quantidadeUtilizada,
                 AgrogalaxyComboDiscount__c = this.valorZCBA,
-                IndustryComboDiscount__c = this.valorZCBI
-
+                IndustryComboDiscount__c = this.valorZCBI,
+                ItemBalance__c = this.saldoItem
             );
         }
         public List<String> getRequiredFields(){
