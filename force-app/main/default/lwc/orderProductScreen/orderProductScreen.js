@@ -465,8 +465,8 @@ export default class OrderProductScreen extends LightningElement {
                 getSafraInfos({safraId: this.headerData.safra.Id, salesConditionId: this.salesConditionId, salesOrgId: this.headerData.organizacao_vendas.Id})
                 .then((result) => {
                     let safraResult = JSON.parse(result);
-                    this.safraData = {initialDate: safraResult.initialDate, endDate: safraResult.endDateBilling};
-                    let orderData = {paymentDate: this.headerData.data_pagamento != null ? this.headerData.data_pagamento : '', salesOrg: this.selectedCompany.salesOrgId != null ? this.selectedCompany.salesOrgId : '', salesOffice: this.selectedCompany.salesOfficeId != null ? this.selectedCompany.salesOfficeId : '', salesTeam: this.selectedCompany.salesTeamId != null ? this.selectedCompany.salesTeamId : '', salesCondition: this.salesConditionId != null ? this.salesConditionId : '', safra: this.headerData.safra.Id != null ? this.headerData.safra.Id : '', culture: this.headerData.cultura.Id != null ? this.headerData.cultura.Id : ''};
+                    this.safraData = {initialDate:safraResult.initialDate,endDate:safraResult.endDateBilling};
+                    let orderData = {paymentDate:this.headerData.data_pagamento != null ? this.headerData.data_pagamento : '',salesOrg:this.selectedCompany.salesOrgId != null ? this.selectedCompany.salesOrgId : '',salesOffice:this.selectedCompany.salesOfficeId != null ? this.selectedCompany.salesOfficeId : '',salesTeam:this.selectedCompany.salesTeamId != null ? this.selectedCompany.salesTeamId : '',salesCondition:this.salesConditionId != null ? this.salesConditionId : '',safra:this.headerData.safra.Id != null ? this.headerData.safra.Id : '',culture:this.headerData.cultura.Id != null ? this.headerData.cultura.Id : ''};
                     let allowChange = (this.headerData.tipo_pedido != 'Pedido Filho' && !this.headerData.IsOrderChild && this.isFilled(this.headerData.codigo_sap)) || (this.headerData.tipo_pedido == 'Pedido Filho' && this.isFilled(this.headerData.codigo_sap)) ? false : true;
                     let checkFinancialInfos = true;
 
@@ -724,7 +724,7 @@ export default class OrderProductScreen extends LightningElement {
     showProductModal(event) {
         let productId = event.target.dataset.targetId;
         let productValidation = this.baseProducts.find(e => e.Id == productId);
-        let quoteData = {cropId: this.headerData.safra.Id, sellerId: this.headerData.ctv_venda.Id, productsIds: [productValidation.Id]};
+        let quoteData = {cropId:this.headerData.safra.Id,sellerId:this.headerData.ctv_venda.Id,productsIds:[productValidation.Id]};
 
         if (this.verifyQuota && this.showRoyaltyTsi) {
             this.showLoading = true;
@@ -883,7 +883,7 @@ export default class OrderProductScreen extends LightningElement {
         if (newColumns.length >= 2) {
             newColumns.push({
                 type: 'action',
-                typeAttributes: {rowActions: actions, menuAlignment: 'auto'}
+                typeAttributes: {rowActions:actions,menuAlignment:'auto'}
             });
             this.columns = newColumns;
             this.changeColumns = false;
@@ -1243,7 +1243,7 @@ export default class OrderProductScreen extends LightningElement {
                 if (this.isFilled(currentCombo)) {
                     currentCombo.productQuantity = prod.quantity;
                 } else {
-                    allCombos.push({comboId: comboDiscountPercent.comboId, comboQuantity: comboDiscountPercent.comboQuantity, productQuantity: prod.quantity, productId: prod.productId, specificItemCombo: false})
+                    allCombos.push({comboId:comboDiscountPercent.comboId,comboQuantity:comboDiscountPercent.comboQuantity,productQuantity:prod.quantity,productId:prod.productId,specificItemCombo:false});
                 }
 
                 this.combosSelecteds = this.parseObject(allCombos);
@@ -1549,18 +1549,9 @@ export default class OrderProductScreen extends LightningElement {
         let availableQuantity = Number(currentProduct.quantity) - Number(distributedQuantity);
         this.productPosition = position;
         this.multiplicity = this.isFilled(currentProduct.multiplicity) && currentProduct.multiplicity > 0 ? currentProduct.multiplicity : 1;
-        let allowChange = (this.headerData.tipo_pedido != 'Pedido Filho' && !this.headerData.IsOrderChild && this.isFilled(this.headerData.codigo_sap)) || (this.headerData.tipo_pedido == 'Pedido Filho' && this.isFilled(this.headerData.codigo_sap)) ? true : false;
-
-        this.currentDivisionProduct = {
-            productId: currentProduct.productId,
-            unitPrice: currentProduct.unitPrice,
-            position: position,
-            name: currentProduct.name,
-            quantity: currentProduct.quantity,
-            availableQuantity: availableQuantity,
-            showRed : availableQuantity < 0 ? true : false,
-            dontAllowChange : allowChange
-        };
+        let allowChange = (this.headerData.tipo_pedido != 'Pedido Filho' && !this.headerData.IsOrderChild && this.isFilled(this.headerData.codigo_sap)) ||
+                          (this.headerData.tipo_pedido == 'Pedido Filho' && this.isFilled(this.headerData.codigo_sap)) ? true : false;
+        this.currentDivisionProduct = {productId:currentProduct.productId,unitPrice:currentProduct.unitPrice,position:position,name:currentProduct.name,quantity:currentProduct.quantity,availableQuantity:availableQuantity,showRed:availableQuantity < 0 ? true : false,dontAllowChange:allowChange};
         this.showProductDivision = !this.showProductDivision;
         if (!this.currentDivisionProduct.dontAllowChange) this.newFields();
     }
@@ -2047,6 +2038,10 @@ export default class OrderProductScreen extends LightningElement {
             this.productParams.numberOfRowsToSkip += 9;
             this.getProducts();
         }
+    }
+
+    resetData(){
+        this.productParams.numberOfRowsToSkip = 0;
     }
 
     getProducts() {
