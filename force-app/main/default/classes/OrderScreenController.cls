@@ -17,6 +17,12 @@ public without sharing class OrderScreenController {
         if (order.condicao_venda != null) {
             ordItemList = getOrderItemData(order.Id, cloneOrder);
             divisionList = getShippingDivison();
+            
+            Decimal productQuantity = 0;
+            for (ProductSerialize item : ordItemList) {
+                productQuantity += item.quantity + item.amountUsed;
+            }
+            order.freightPerUnit = order.freightValue / productQuantity;
         }
 
         if (order.recTypeId == Schema.SObjectType.Order.getRecordTypeInfosByDeveloperName().get('VendaBarter').getRecordTypeId()) {
@@ -796,7 +802,6 @@ public without sharing class OrderScreenController {
 
             Decimal currentFreight = orderData.summaryData.freightValue;
             if (order.OrderType__c == 'Pedido Filho') {
-                currentFreight = (currentFreight / motherQuantity) * productQuantities;
                 Account currentAccount = [SELECT Id, ParentId FROM Account WHERE Id =: order.ShippingAccount__c];
                 order.AccountId = currentAccount.ParentId != null ? currentAccount.ParentId : currentAccount.Id;
             }
@@ -2018,6 +2023,7 @@ public without sharing class OrderScreenController {
         public String  hectares;
         public String  centerId;
         public Decimal freightValue;
+        public Decimal freightPerUnit;
         public Boolean emptyHectar;
         public Boolean pedido_mae_check;
         public Boolean pre_pedido;
@@ -2057,6 +2063,7 @@ public without sharing class OrderScreenController {
         public String  sieve;
         public String  productClass;
         public String  comboId;
+        public String  brokeragePerUnit;
         public Integer position;
         public Boolean ptaProduct;
         public Boolean industryCombo;
@@ -2083,7 +2090,6 @@ public without sharing class OrderScreenController {
         public Decimal rListPrice;
         public Decimal tsiTotalPrice;
         public Decimal royaltyTotalPrice;
-        public String brokeragePerUnit;
     }
 
     public class DivisionDeserialize{
@@ -2271,6 +2277,7 @@ public without sharing class OrderScreenController {
         public String  recTypeId;
         public String  hectares;
         public Decimal freightValue;
+        public Decimal freightPerUnit;
         public Boolean emptyHectar;
         public String  centerId;
         public Boolean pedido_mae_check;
@@ -2370,6 +2377,7 @@ public without sharing class OrderScreenController {
         public String  productClass;
         public String  comboId;
         public String  comboDiscountPercent;
+        public String  brokeragePerUnit;
         public Integer position;
         public Boolean ptaProduct;
         public Boolean industryCombo;
@@ -2397,7 +2405,7 @@ public without sharing class OrderScreenController {
         public Decimal rListPrice;
         public Decimal tsiTotalPrice;
         public Decimal royaltyTotalPrice;
-        public String brokeragePerUnit;
+        public Decimal amountUsed;
 
         ProductSerialize(){}
 
@@ -2423,6 +2431,7 @@ public without sharing class OrderScreenController {
             this.orderId = OrderId;
             this.serviceDate = orderItem.ServiceDate;
             this.quantity = !cloneOrder ? (orderItem.AmountUsed__c != 0 && orderItem.AmountUsed__c != null ? orderItem.Quantity - orderItem.AmountUsed__c : orderItem.Quantity) : orderItem.Quantity;
+            this.amountUsed = orderItem.AmountUsed__c;
             this.invoicedQuantity = orderItem.InvoicedQuantity__c;
             this.motherAvailableQuantity = orderItem.AmountUsed__c != null ? orderItem.Quantity - orderItem.AmountUsed__c : null;
             this.listPrice = orderItem.ListPrice__c;

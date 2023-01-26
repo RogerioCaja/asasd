@@ -228,10 +228,16 @@ export default class OrderSummaryScreen extends LightningElement {
                if(this.headerData.frete == 'CIF'){
                     checkSalesOrgFreight({salesOrgId: this.salesOrgId})
                     .then((result) => {
+                        let summary = JSON.parse(JSON.stringify(this.summaryDataLocale));
+                        let numberOfProducts = 0;
+                        for (let i = 0; i < this.productDataLocale.length; i++) {
+                            numberOfProducts += Number(this.productDataLocale[i].quantity);
+                        }
+                        let currentFreight = this.isFilled(this.headerData.freightPerUnit) ? (this.headerData.freightPerUnit * numberOfProducts) : summary.freightValue;
+
                         this.allowFreight = this.headerData.IsOrderChild || this.childOrder ? false : result;
                         this.showFreightScreen = result;
-                        let summary = JSON.parse(JSON.stringify(this.summaryDataLocale));
-                        summary.freightValue = summary.freightValue === undefined ? 0 : summary.freightValue;
+                        summary.freightValue = summary.freightValue === undefined ? 0 : (this.headerData.IsOrderChild || this.childOrder ? currentFreight : summary.freightValue);
                         summary.freightValueFront = this.fixDecimalPlacesFront(summary.freightValue);
                         this.currentFreight = summary.freightValue;
                         this.summaryDataLocale = JSON.parse(JSON.stringify(summary));

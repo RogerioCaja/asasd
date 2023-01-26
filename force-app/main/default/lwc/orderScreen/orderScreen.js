@@ -98,6 +98,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         companySector: null,
         centerId: null,
         hectares: '',
+        freightPerUnit: null,
         firstTime: true
     };
     @track productData;
@@ -351,14 +352,23 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.valorTotal = 0;
             try
             {
+                let numberOfProducts = 0;
                 this.productData.forEach(product =>{
+                    numberOfProducts += Number(product.quantity);
                     let useBrookerage = this.isFilled(product.brokerage) && product.brokerage > 0 ? true : false;
                     let totalPrice = this.isFilled(product.totalPriceWithBrokerage) && useBrookerage ? Number(product.totalPriceWithBrokerage) : Number(product.totalPrice);
                     totalPrice = Number(totalPrice) + Number(product.tsiTotalPrice) + Number(product.royaltyTotalPrice);
                     this.valorTotal += parseFloat(totalPrice);
                 })
-                let frete = (this.summaryData.freightValue != undefined && this.summaryData.freightValue != null ? Number(this.summaryData.freightValue) : 0);
+
+                let frete = 0;
+                if (this.isFilled(this.headerData.freightPerUnit)) {
+                    frete = Number(this.headerData.freightPerUnit) * Number(numberOfProducts);
+                } else {
+                    frete = (this.summaryData.freightValue != undefined && this.summaryData.freightValue != null ? Number(this.summaryData.freightValue) : 0);
+                }
                 this.valorTotal = parseFloat(Number(this.valorTotal) + Number(frete)).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
+                this.frete = parseFloat(frete).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
 
             }
             catch(e)
@@ -370,7 +380,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.summaryData['observation'] = this.headerData.observation;
             this.summaryData['billing_sale_observation'] = this.headerData.billing_sale_observation;
             this.summaryData['freightValue'] = this.headerData.freightValue === undefined || this.headerData.freightValue == null ? 0 : this.headerData.freightValue;
-            this.frete = this.summaryData.freightValue != undefined && this.summaryData.freightValue != null ? parseFloat(this.summaryData.freightValue).toLocaleString("pt-BR", {style:"currency", currency:"BRL"}) : (0).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
+            this.frete = this.isFilled(this.headerData.freightPerUnit) ? this.frete : (this.summaryData.freightValue != undefined && this.summaryData.freightValue != null ? parseFloat(this.summaryData.freightValue).toLocaleString("pt-BR", {style:"currency", currency:"BRL"}) : (0).toLocaleString("pt-BR", {style:"currency", currency:"BRL"}));
             this.isLoading = false;
             this.cloneData.cloneOrder = this.clone.cloneOrder;
             if(this.cloneData.cloneOrder){
@@ -705,22 +715,32 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         this.valorTotal = 0;
         try
         {
+            let numberOfProducts = 0;
             if(this.template.querySelector(this.tabs[2].component).seedSale){
                 this.productData.forEach(product =>{
+                    numberOfProducts += Number(product.quantity);
                     let totalPrice = this.isFilled(product.totalPriceWithBrokerage) ? Number(product.totalPriceWithBrokerage) : Number(product.totalPrice);
                     totalPrice = Number(totalPrice) + Number(product.tsiTotalPrice) + Number(product.royaltyTotalPrice);
                     this.valorTotal  += parseFloat(totalPrice);
                 })
             }else{
                 this.productData.forEach(product =>{
+                    numberOfProducts += Number(product.quantity);
                     let useBrookerage = this.isFilled(product.brokerage) && product.brokerage > 0 ? true : false;
                     let totalPrice = this.isFilled(product.totalPriceWithBrokerage) && useBrookerage ? Number(product.totalPriceWithBrokerage) : Number(product.totalPrice);
                     totalPrice = Number(totalPrice) + Number(product.tsiTotalPrice) + Number(product.royaltyTotalPrice);
                     this.valorTotal  += parseFloat(totalPrice);
                 })
             }
-            let frete = (this.summaryData.freightValue != undefined && this.summaryData.freightValue != null ? Number(this.summaryData.freightValue) : 0);
+
+            let frete = 0;
+            if (this.isFilled(this.headerData.freightPerUnit)) {
+                frete = Number(this.headerData.freightPerUnit) * Number(numberOfProducts);
+            } else {
+                frete = (this.summaryData.freightValue != undefined && this.summaryData.freightValue != null ? Number(this.summaryData.freightValue) : 0);
+            }
             this.valorTotal = parseFloat(Number(this.valorTotal) + Number(frete)).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
+            this.frete = parseFloat(frete).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
 
             isSeedSale({salesOrgId: this.headerData.organizacao_vendas.Id, productGroupName: null})
             .then((result) => {
