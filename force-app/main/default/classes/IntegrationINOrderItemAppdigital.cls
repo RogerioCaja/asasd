@@ -179,6 +179,13 @@ global without sharing class IntegrationINOrderItemAppdigital {
             if(orderItem.peneira == null || orderItem.peneira == '' || orderItem.orderItemECalendariazacao == true){
                 orderItem.peneira = ordItem.Sieve__c;
             }
+            if(orderItem.quantidadeUtilizada == null || orderItem.orderItemECalendariazacao == true){
+                orderItem.quantidadeUtilizada = OrdItem.AmountUsed__c;
+            }
+
+            if(orderItem.saldoItem == null || orderItem.orderItemECalendariazacao == true){
+                orderItem.saldoItem = OrdItem.ItemBalance__c;
+            }
         }
 
         }
