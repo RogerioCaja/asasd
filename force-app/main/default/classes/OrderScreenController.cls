@@ -824,7 +824,8 @@ public without sharing class OrderScreenController {
             Decimal currentFreight = orderData.summaryData.freightValue;
             if (order.OrderType__c == 'Pedido Filho') {
                 currentFreight = (currentFreight / motherQuantity) * productQuantities;
-                order.AccountId = [SELECT Id, ParentId FROM Account WHERE Id =: order.ShippingAccount__c].ParentId;
+                Account currentAccount = [SELECT Id, ParentId FROM Account WHERE Id =: order.ShippingAccount__c];
+                order.AccountId = currentAccount.ParentId != null ? currentAccount.ParentId : currentAccount.Id;
             }
 
             if (order.Incoterms__c == 'CIF') {
