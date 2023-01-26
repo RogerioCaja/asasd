@@ -57,6 +57,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     allProductQuotas = [];
     quotaProducts = [];
     @track summary = false;
+    seedSale = false;
 
     customErrorMessage = '';
     hideFooterButtons=false;
@@ -480,6 +481,11 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
     async saveOrder(event){
         this.isLoading = true;
+        isSeedSale({salesOrgId: this.headerData.organizacao_vendas.Id, productGroupName: null})
+        .then((result) => {
+            this.seedSale = result;
+        });
+        
         let today = new Date();
         let dd = String(today.getDate()).padStart(2, '0');
         let mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -529,6 +535,11 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
                 this.showNotification('O valor total do pagamento deve ser igual ao do pedido', 'Atenção', 'warning');
                 this.isLoading = false;
                 return;
+            }
+
+            if (this.headerData.frete == 'CIF' && this.seedSale) {
+                let summary = JSON.parse(JSON.stringify(this.summaryData));
+                totalPayment = Number(totalPayment) + Number(summary.freightValue);
             }
 
             if (this.fixDecimalPlacesFront(totalPayment) != this.fixDecimalPlacesFront(orderTotalPrice) ||
