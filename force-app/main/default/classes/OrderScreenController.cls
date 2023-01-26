@@ -1316,7 +1316,6 @@ public without sharing class OrderScreenController {
         GetCompanyInfos companyInfos = (GetCompanyInfos) JSON.deserialize(data, GetCompanyInfos.class);
         Set<Id> userTerritoriesIds = new Set<Id>();
         Boolean sellerPosition = false;
-
         for (UserTerritory2Association userAssociation : [
             SELECT Id,
                    Territory2.Territory2Type.DeveloperName
@@ -1326,12 +1325,10 @@ public without sharing class OrderScreenController {
         ]) {
             sellerPosition = userAssociation.Territory2.Territory2Type.DeveloperName == 'SellerPosition' ? true : false;
         }
-        
         if (verifyUserType) {
             sellerPosition = true;
             return JSON.serialize(sellerPosition);
         }
-        
         List<Id> territoriesRelatedToCtv = new List<Id>();
         for (UserTerritory2Association userAssociation : [
             SELECT Id,
@@ -1343,7 +1340,6 @@ public without sharing class OrderScreenController {
         ]) {
             territoriesRelatedToCtv.add(userAssociation.Territory2Id);
         }
-
         if (companyInfos.accountId != null && companyInfos.accountId != '') {
             for (ObjectTerritory2Association objAssociation : [
                 SELECT Id,
@@ -1366,7 +1362,6 @@ public without sharing class OrderScreenController {
                 userTerritoriesIds.add(objAssociation.Territory2Id);
             }
         }
-        
         Map<Id, Territory2> territoryAndParents = new Map<Id, Territory2>();
         for(Territory2 territory : [
             SELECT Id,
@@ -1376,31 +1371,26 @@ public without sharing class OrderScreenController {
         ]){
             territoryAndParents.put(territory.Id, territory);
         }
-
         Map<String, Integer> approvalLevels = new Map<String, Integer>{
             'GerenteFilial' => 1,
             'GerenteRegional' => 2,
             'Diretor' => 3
         };
-
         Integer counter = 0;
         List<Territory2> salesTeamTerritories;
         Set<Id> territoriesIds = new Set<Id>();
         while (counter < companyInfos.approvalNumber) {
             for (Id userTerritoryId : userTerritoriesIds) {
                 Territory2 territory = territoryAndParents.containsKey(userTerritoryId) ? territoryAndParents.get(userTerritoryId) : new Territory2();
-    
                 if (territory != null && territory.ParentTerritory2Id != null) {
                     territoriesIds.add(territory.Id);
                 }
-    
                 if (counter == 1) {
                     salesTeamTerritories.add(territory);
                 }
             }
             counter++;
         }
-
         if (salesTeamTerritories == null && territoriesIds.size() > 0) {
             salesTeamTerritories = new List<Territory2>();
             for (Id userTerritoryId : territoriesIds) {
@@ -1409,7 +1399,6 @@ public without sharing class OrderScreenController {
                 }
             }
         }
-        
         Set<String> fieldSet = new Set<String>{
             'Id','SalesOrg__c', 'SalesTeam__r.Name', 'SalesOffice__c',
             'SupplierCenter__c','ActivitySector__c','ActivitySector__r.Name',
@@ -1419,19 +1408,16 @@ public without sharing class OrderScreenController {
         proQuery.selectFields(fieldSet);
         if (companyInfos.accountId != '') proQuery.add(Q.condition('Conta__c').equalsTo(companyInfos.accountId));
         if (childOrder == null || !childOrder) proQuery.add(Q.condition('Status__c').equalsTo('Adicionada'));
-        
         List<CompanyInfos> companyList = new List<CompanyInfos>();
-        if (salesTeamTerritory != null && salesTeamTerritory.DeveloperName != null) {
-            String salesTeamDevName = salesTeamTerritory.DeveloperName.substring(0, 1) == 'X' || salesTeamTerritory.DeveloperName.substring(0, 1) == 'Z' ?
-                                      salesTeamTerritory.DeveloperName.substring(1, salesTeamTerritory.DeveloperName.length()) : salesTeamTerritory.DeveloperName;
-            proQuery.add(Q.condition('SalesTeam__r.ExternalId__c').equalsTo(salesTeamDevName));
-            proQuery.add(Q.condition('SalesOrg__r.SalesOrganizationCode__c').isIn(new List<String>{'1000', '1100', '1300', '1500', '1600', '1700', '1800', '1900', '2000', '9000', '9003'}));
-            if(companyInfos.orderType == 'Venda de Serviço')
-                proQuery.add(Q.condition('ActivitySector__r.Codigo__c').equalsTo('40'));
-            else {
-                proQuery.add(Q.condition('ActivitySector__r.Codigo__c').isIn(new List<String>{'10', '30'}));
+        if (salesTeamTerritories != null && salesTeamTerritories.size() > 0) {
+            List<String> salesTeamsDevNames = new List<String>();
+            for (Territory2 salesTeamTerritory : salesTeamTerritories) {
+                if (salesTeamTerritory.DeveloperName != null) {
+                    String salesTeamDevName = salesTeamTerritory.DeveloperName.substring(0, 1) == 'X' || salesTeamTerritory.DeveloperName.substring(0, 1) == 'Z' ?
+                                              salesTeamTerritory.DeveloperName.substring(1, salesTeamTerritory.DeveloperName.length()) : salesTeamTerritory.DeveloperName;
+                    salesTeamsDevNames.add(salesTeamDevName);
+                }
             }
-            
             if (salesTeamsDevNames.size() > 0) {
                 proQuery.add(Q.condition('SalesTeam__r.ExternalId__c').isIn(salesTeamsDevNames));
                 proQuery.add(Q.condition('SalesOrg__r.SalesOrganizationCode__c').isIn(new List<String>{'1000', '1100', '1300', '1500', '1600', '1700', '1800', '1900', '2000', '9000', '9003'}));
@@ -1440,7 +1426,6 @@ public without sharing class OrderScreenController {
                 else {
                     proQuery.add(Q.condition('ActivitySector__r.Codigo__c').isIn(new List<String>{'10', '30'}));
                 }
-
                 if (companyInfos.accountId == '') proQuery.addLimit(1);
                 for (Company__c salesTeamCompany : Database.query(proQuery.build())) {
                     CompanyInfos company = new CompanyInfos();
