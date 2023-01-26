@@ -481,11 +481,6 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
     async saveOrder(event){
         this.isLoading = true;
-        isSeedSale({salesOrgId: this.headerData.organizacao_vendas.Id, productGroupName: null})
-        .then((result) => {
-            this.seedSale = result;
-        });
-        
         let today = new Date();
         let dd = String(today.getDate()).padStart(2, '0');
         let mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -726,6 +721,11 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             }
             let frete = (this.summaryData.freightValue != undefined && this.summaryData.freightValue != null ? Number(this.summaryData.freightValue) : 0);
             this.valorTotal = parseFloat(Number(this.valorTotal) + Number(frete)).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
+
+            isSeedSale({salesOrgId: this.headerData.organizacao_vendas.Id, productGroupName: null})
+            .then((result) => {
+                this.seedSale = result;
+            });
         }
         catch(e)
         {
