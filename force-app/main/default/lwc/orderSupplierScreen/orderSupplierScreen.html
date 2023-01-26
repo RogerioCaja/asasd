@@ -1,8 +1,8 @@
 <template>
     <div class="search-title">
-      	<span>Pesquisar <b>BP Fornecedor</b>: Nome, CNPJ ou CPF, Razão Social:</span>
+      	<span>Pesquisar <b>LOCAL DE ENTREGA</b>: Nome, CNPJ ou CPF, Razão Social:</span>
     </div>
-    <c-custom-order-search style="margin: auto;" object-name="BPAccount" sales-org={headerData.organizacao_vendas.Id} field-name="Name" onshowcount={showCount} onshowresults={showResults} label="Pesquisar BP Fornecedor: Nome, CNPJ ou CPF, Razão Social:" placeholder="Digite o nome do BP" required="true" onchild={getFieldsValueAccount}></c-custom-order-search>
+    <c-custom-order-search style="margin: auto;" object-name="BPAccount" sales-org={headerData.organizacao_vendas.Id} field-name="Name" onshowcount={showCount} onshowresults={showResults} label="Pesquisar LOCAL DE ENTREGA: Nome, CNPJ ou CPF, Razão Social:" placeholder="Digite o nome do BP" required="true" onchild={getFieldsValueAccount}></c-custom-order-search>
 
     <div if:true={bpData} class="account-results">
         <div class="item account-selected">
@@ -85,7 +85,7 @@
     
     <div class="account-results" if:true={showList}>
         <template if:false={message}>
-            <h2 class="description">Resultados de <b>Conta</b>:</h2>
+            <h2 class="description">Resultados de <b>LOCAL DE ENTREGA</b>:</h2>
             <div if:true={showIcon} onclick={scrollTopPage} data-target-id="button-top" class="button-up"><lightning-icon icon-name="utility:arrowup"></lightning-icon></div>
             <div class="footer-pagination">
                 <div onclick={previousSection} if:true={showPreviousSection}>
