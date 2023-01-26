@@ -737,7 +737,9 @@ public without sharing class CalloutBP {
         }
         System.debug('clientTaxListToUpsert: '+ clientTaxListToUpsert);
         if (!clientTaxListToUpsert.isEmpty()) {
+            CustomerTaxesHelper.disableTrigger();
             Database.UpsertResult[] resultImpostList = Database.upsert(clientTaxListToUpsert, CustomerTaxes__c.ExternalId__c, false);
+            CustomerTaxesHelper.enableTrigger();
             List<String> taxExternalIdList = new List<String>(); 
             List<String> codigoExternoAccountList = new List<String>(); 
             List<String> accountIdList = new List<String>(); 

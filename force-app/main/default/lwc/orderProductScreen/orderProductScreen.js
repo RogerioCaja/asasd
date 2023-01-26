@@ -884,7 +884,7 @@ export default class OrderProductScreen extends LightningElement {
         if (newColumns.length >= 2) {
             newColumns.push({
                 type: 'action',
-                typeAttributes: {rowActions:actions,menuAlignment:'auto'}
+                typeAttributes: {rowActions: actions, menuAlignment: 'auto'}
             });
             this.columns = newColumns;
             this.changeColumns = false;
