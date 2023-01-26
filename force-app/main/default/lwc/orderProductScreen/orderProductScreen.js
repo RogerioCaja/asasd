@@ -2000,6 +2000,10 @@ export default class OrderProductScreen extends LightningElement {
         }
     }
 
+    resetData(){
+        this.productParams.numberOfRowsToSkip = 0;
+    }
+
     getProducts() {
         fetchOrderRecords({
             searchString: this.salesInfos.searchString,
