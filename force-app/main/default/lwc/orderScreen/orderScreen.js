@@ -185,7 +185,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         ];
         
         if (this.barterSale) {
-            currentTabs.push({name: 'bp', current: false, enable: false, completed: false, message: 'Necessário selecionar um BP fornecedor antes de seguir', component: 'c-order-supplier-screen'});
+            currentTabs.push({name: 'bp', current: false, enable: false, completed: false, message: 'Necessário selecionar um Local de Entrega antes de seguir', component: 'c-order-supplier-screen'});
             this.productTab = 3;
             this.summaryTab = 4;
         }
