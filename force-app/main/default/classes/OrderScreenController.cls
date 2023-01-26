@@ -502,6 +502,7 @@ public without sharing class OrderScreenController {
 
             Map<Id, OrderItem> motherItems = new Map<Id, OrderItem>();
             Boolean newDivision = false;
+            Decimal motherQuantity = 0;
             if (orderData.headerData.pedido_mae.Id != null || order.OrderReference__c != null) {
                 for (OrderItem item : [
                     SELECT Id,
@@ -513,6 +514,7 @@ public without sharing class OrderScreenController {
                      WHERE OrderId =: orderData.headerData.pedido_mae.Id
                         OR OrderId =: order.OrderReference__c
                 ]) {
+                    motherQuantity += item.Quantity;
                     motherItems.put(item.Product2Id, item);
                 }
                 newDivision = newOrder ? true : false;
@@ -531,6 +533,7 @@ public without sharing class OrderScreenController {
             Map<String, Decimal> quantitiesById = new Map<String, Decimal>();
             Map<String, Decimal> smallerMarginByProductGroup = new Map<String, Decimal>();
             
+            Decimal productQuantities = 0;
             for (ProductDeserialize orderProduct : orderData.productData) {
                 if (seedSale && orderProduct.brokerage != null && orderProduct.brokerage > 0) {
                     orderTotalValue += orderProduct.totalPriceWithBrokerage;
@@ -578,6 +581,7 @@ public without sharing class OrderScreenController {
                     royaltyTotalValue += orderProduct.royaltyTotalPrice;
                 }
 
+                productQuantities += orderProduct.quantity;
                 quantitiesById.put(orderProduct.productId, orderProduct.quantity);
             }
 
@@ -817,14 +821,16 @@ public without sharing class OrderScreenController {
             order.ApprovalJustification__c = orderData.summaryData.justification;
             order.BPStorage__c = orderData.bpAccount != null ? orderData.bpAccount.Id : null;
 
+            Decimal currentFreight = orderData.summaryData.freightValue;
             if (order.OrderType__c == 'Pedido Filho') {
+                currentFreight = (currentFreight / motherQuantity) * productQuantities;
                 order.AccountId = [SELECT Id, ParentId FROM Account WHERE Id =: order.ShippingAccount__c].ParentId;
             }
 
             if (order.Incoterms__c == 'CIF') {
-                order.FinalTotalValue__c = order.FinalTotalValue__c + orderData.summaryData.freightValue;
+                order.FinalTotalValue__c = order.FinalTotalValue__c + currentFreight;
             }
-            order.FreightValue__c = (orderData.summaryData.freightValue != null) ? orderData.summaryData.freightValue : 0;
+            order.FreightValue__c = (currentFreight != null) ? currentFreight : 0;
 
             if (seedSale) {
                 order.FinalTotalValue__c = order.FinalTotalValue__c + tsiTotalValue + royaltyTotalValue;
@@ -1316,7 +1322,6 @@ public without sharing class OrderScreenController {
         GetCompanyInfos companyInfos = (GetCompanyInfos) JSON.deserialize(data, GetCompanyInfos.class);
         Set<Id> userTerritoriesIds = new Set<Id>();
         Boolean sellerPosition = false;
-
         for (UserTerritory2Association userAssociation : [
             SELECT Id,
                    Territory2.Territory2Type.DeveloperName
@@ -1326,12 +1331,10 @@ public without sharing class OrderScreenController {
         ]) {
             sellerPosition = userAssociation.Territory2.Territory2Type.DeveloperName == 'SellerPosition' ? true : false;
         }
-        
         if (verifyUserType) {
             sellerPosition = true;
             return JSON.serialize(sellerPosition);
         }
-        
         List<Id> territoriesRelatedToCtv = new List<Id>();
         for (UserTerritory2Association userAssociation : [
             SELECT Id,
@@ -1343,7 +1346,6 @@ public without sharing class OrderScreenController {
         ]) {
             territoriesRelatedToCtv.add(userAssociation.Territory2Id);
         }
-
         if (companyInfos.accountId != null && companyInfos.accountId != '') {
             for (ObjectTerritory2Association objAssociation : [
                 SELECT Id,
@@ -1366,7 +1368,6 @@ public without sharing class OrderScreenController {
                 userTerritoriesIds.add(objAssociation.Territory2Id);
             }
         }
-        
         Map<Id, Territory2> territoryAndParents = new Map<Id, Territory2>();
         for(Territory2 territory : [
             SELECT Id,
@@ -1376,31 +1377,26 @@ public without sharing class OrderScreenController {
         ]){
             territoryAndParents.put(territory.Id, territory);
         }
-
         Map<String, Integer> approvalLevels = new Map<String, Integer>{
             'GerenteFilial' => 1,
             'GerenteRegional' => 2,
             'Diretor' => 3
         };
-
         Integer counter = 0;
         List<Territory2> salesTeamTerritories;
         Set<Id> territoriesIds = new Set<Id>();
         while (counter < companyInfos.approvalNumber) {
             for (Id userTerritoryId : userTerritoriesIds) {
                 Territory2 territory = territoryAndParents.containsKey(userTerritoryId) ? territoryAndParents.get(userTerritoryId) : new Territory2();
-    
                 if (territory != null && territory.ParentTerritory2Id != null) {
                     territoriesIds.add(territory.Id);
                 }
-    
                 if (counter == 1) {
                     salesTeamTerritories.add(territory);
                 }
             }
             counter++;
         }
-
         if (salesTeamTerritories == null && territoriesIds.size() > 0) {
             salesTeamTerritories = new List<Territory2>();
             for (Id userTerritoryId : territoriesIds) {
@@ -1409,7 +1405,6 @@ public without sharing class OrderScreenController {
                 }
             }
         }
-        
         Set<String> fieldSet = new Set<String>{
             'Id','SalesOrg__c', 'SalesTeam__r.Name', 'SalesOffice__c',
             'SupplierCenter__c','ActivitySector__c','ActivitySector__r.Name',
@@ -1419,7 +1414,6 @@ public without sharing class OrderScreenController {
         proQuery.selectFields(fieldSet);
         if (companyInfos.accountId != '') proQuery.add(Q.condition('Conta__c').equalsTo(companyInfos.accountId));
         if (childOrder == null || !childOrder) proQuery.add(Q.condition('Status__c').equalsTo('Adicionada'));
-        
         List<CompanyInfos> companyList = new List<CompanyInfos>();
         if (salesTeamTerritories != null && salesTeamTerritories.size() > 0) {
             List<String> salesTeamsDevNames = new List<String>();
@@ -1430,7 +1424,6 @@ public without sharing class OrderScreenController {
                     salesTeamsDevNames.add(salesTeamDevName);
                 }
             }
-            
             if (salesTeamsDevNames.size() > 0) {
                 proQuery.add(Q.condition('SalesTeam__r.ExternalId__c').isIn(salesTeamsDevNames));
                 proQuery.add(Q.condition('SalesOrg__r.SalesOrganizationCode__c').isIn(new List<String>{'1000', '1100', '1300', '1500', '1600', '1700', '1800', '1900', '2000', '9000', '9003'}));
@@ -1439,7 +1432,6 @@ public without sharing class OrderScreenController {
                 else {
                     proQuery.add(Q.condition('ActivitySector__r.Codigo__c').isIn(new List<String>{'10', '30'}));
                 }
-
                 if (companyInfos.accountId == '') proQuery.addLimit(1);
                 for (Company__c salesTeamCompany : Database.query(proQuery.build())) {
                     CompanyInfos company = new CompanyInfos();
@@ -2126,10 +2118,10 @@ public without sharing class OrderScreenController {
         public String  orderMargin;
         public String  companyId;
         public String  hectares;
+        public String  centerId;
         public Decimal freightValue;
         public Boolean emptyHectar;
         public Boolean orderCanceled;
-        public String  centerId;
         public Boolean pedido_mae_check;
         public Boolean pre_pedido;
         public Boolean firstTime;
