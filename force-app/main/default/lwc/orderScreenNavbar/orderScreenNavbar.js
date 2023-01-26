@@ -26,7 +26,7 @@ export default class OrderScreenNavbar extends LightningElement {
             name: 'bp',
             current: false,
             enable: false,
-            message: 'Necessário selecionar um BP fornecedor antes de seguir'
+            message: 'Necessário selecionar um LOCAL DE ENTREGA antes de seguir'
         },
         {
             name: 'product',
