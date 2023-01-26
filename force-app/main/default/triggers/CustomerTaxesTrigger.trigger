@@ -1,4 +1,4 @@
-trigger CustomerTaxesTrigger on CustomerTaxes__c (before insert) {
+trigger CustomerTaxesTrigger on CustomerTaxes__c (before insert, before update) {
 
     
     if (CustomerTaxesHelper.isTriggerEnabled()){
@@ -12,9 +12,9 @@ trigger CustomerTaxesTrigger on CustomerTaxes__c (before insert) {
             // when AFTER_UPDATE{
             //     //handler.OnAfterUpdate();
             // }
-            // when BEFORE_UPDATE{
-            //     //handler.OnBeforeUpdate();
-            // }
+             when BEFORE_UPDATE{
+                CustomerTaxesHelper.setExternalId(Trigger.new);
+             }
             // when AFTER_DELETE{
             //     //BEFORE DELETE Method
             // }
