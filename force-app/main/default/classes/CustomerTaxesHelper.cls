@@ -21,8 +21,8 @@ public with sharing class CustomerTaxesHelper {
         for(CustomerTaxes__c customerTaxes : customerTaxesList){
             String impostBarter;
             String salesOrg;
-            if(customerTaxes.Tax__c) impostBarter = customerTaxes.Tax__r.ExternalId__c;
-            if(customerTaxes.SalesOrg__c) salesOrg = customerTaxes.SalesOrg__r.SalesOrganizationCode__c;
+            if(customerTaxes.Tax__c != null) impostBarter = customerTaxes.Tax__r.ExternalId__c;
+            if(customerTaxes.SalesOrg__c != null) salesOrg = customerTaxes.SalesOrg__r.SalesOrganizationCode__c;
             customerTaxes.ExternalId__c = customerTaxes.Account__r.ExternalId__c + '-' + impostBarter + '-' + salesOrg + '-' + customerTaxes.Name__c;
         }
     }
