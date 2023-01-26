@@ -479,6 +479,7 @@ public without sharing class OrderScreenController {
 
             Map<Id, OrderItem> motherItems = new Map<Id, OrderItem>();
             Boolean newDivision = false;
+            Decimal motherQuantity = 0;
             if (orderData.headerData.pedido_mae.Id != null || order.OrderReference__c != null) {
                 for (OrderItem item : [
                     SELECT Id,
@@ -490,6 +491,7 @@ public without sharing class OrderScreenController {
                      WHERE OrderId =: orderData.headerData.pedido_mae.Id
                         OR OrderId =: order.OrderReference__c
                 ]) {
+                    motherQuantity += item.Quantity;
                     motherItems.put(item.Product2Id, item);
                 }
                 newDivision = newOrder ? true : false;
@@ -508,6 +510,7 @@ public without sharing class OrderScreenController {
             Map<String, Decimal> quantitiesById = new Map<String, Decimal>();
             Map<String, Decimal> smallerMarginByProductGroup = new Map<String, Decimal>();
             
+            Decimal productQuantities = 0;
             for (ProductDeserialize orderProduct : orderData.productData) {
                 if (seedSale && orderProduct.brokerage != null && orderProduct.brokerage > 0) {
                     orderTotalValue += orderProduct.totalPriceWithBrokerage;
@@ -555,6 +558,7 @@ public without sharing class OrderScreenController {
                     royaltyTotalValue += orderProduct.royaltyTotalPrice;
                 }
 
+                productQuantities += orderProduct.quantity;
                 quantitiesById.put(orderProduct.productId, orderProduct.quantity);
             }
 
@@ -790,14 +794,16 @@ public without sharing class OrderScreenController {
                                    stringToDecimal(orderData.summaryData.orderMargin.replace(' sacas', '')) : stringToDecimal((orderData.summaryData.orderMargin))) : 0;
             order.ApprovalJustification__c = orderData.summaryData.justification;
 
+            Decimal currentFreight = orderData.summaryData.freightValue;
             if (order.OrderType__c == 'Pedido Filho') {
+                currentFreight = (currentFreight / motherQuantity) * productQuantities;
                 order.AccountId = [SELECT Id, ParentId FROM Account WHERE Id =: order.ShippingAccount__c].ParentId;
             }
 
             if (order.Incoterms__c == 'CIF') {
-                order.FinalTotalValue__c = order.FinalTotalValue__c + orderData.summaryData.freightValue;
+                order.FinalTotalValue__c = order.FinalTotalValue__c + currentFreight;
             }
-            order.FreightValue__c = (orderData.summaryData.freightValue != null) ? orderData.summaryData.freightValue : 0;
+            order.FreightValue__c = (currentFreight != null) ? currentFreight : 0;
 
             if (seedSale) {
                 order.FinalTotalValue__c = order.FinalTotalValue__c + tsiTotalValue + royaltyTotalValue;
@@ -2009,9 +2015,9 @@ public without sharing class OrderScreenController {
         public String  orderMargin;
         public String  companyId;
         public String  hectares;
+        public String  centerId;
         public Decimal freightValue;
         public Boolean emptyHectar;
-        public String  centerId;
         public Boolean pedido_mae_check;
         public Boolean pre_pedido;
         public Boolean firstTime;
