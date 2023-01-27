@@ -909,39 +909,6 @@ public without sharing class FactoryBuilder {
         }
     }
 
-    private class OrderItemParametersBarter{
-      public String ITM_NUMBER;
-      public String MATERIAL;
-      public String PLANT;
-      public String TARGET_QTY;
-      public String REF_DOC_IT;
-      public String VALOR_MAT;
-      public String ZZPENEIRA;
-      public String ZZCLAS_CAT;
-
-
-      public OrderItemParametersBarter(OrderItem orderItem, String numReference, String plant){
-          this.ITM_NUMBER = String.valueOf(orderItem.NumeroSap__c).leftPad(6, '0');
-          this.MATERIAL = orderItem.Product2.ExternalId__c;
-          this.PLANT = plant;
-          this.TARGET_QTY =  String.valueOf(orderItem.Quantity);
-          this.REF_DOC_IT = numReference != '' ? numReference.leftPad(6, '0') : '';
-          this.VALOR_MAT = String.valueOf(orderItem.ListPrice__c);
-          this.ZZPENEIRA = orderItem.Sieve__c != null ? orderItem.Sieve__c : '' ;
-          this.ZZCLAS_CAT = orderItem.Class__c != null ? orderItem.Class__c : '' ;
-      }
-
-      public OrderItemParametersBarter(OrderCommodity__c orderCommodity, String plant){
-        this.ITM_NUMBER = '10';
-        this.MATERIAL = orderCommodity.Product__r.ExternalId__c;
-        this.PLANT = plant;
-        this.TARGET_QTY =  String.valueOf(orderCommodity.BagQuantity__c);
-        this.VALOR_MAT = String.valueOf(orderCommodity.CommodityPrice__c);
-        
-    }
-  }
-    
-
     private static String getCodeTypeOrder(String typeOrder, Boolean isOrderMother){
 
         String orderType = typeOrder + (isOrderMother ? 'PedidoMae' : '');
