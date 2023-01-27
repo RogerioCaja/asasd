@@ -871,6 +871,23 @@ public without sharing class FactoryBuilder {
         }
     }
 
+     private class OrderItemParametersBarter{
+        public String ITM_NUMBER;
+        public String MATERIAL;
+        public String PLANT;
+        public String TARGET_QTY;
+        public String REF_DOC_IT;
+        public String VALOR_MAT;
+
+        public OrderItemParametersBarter(OrderCommodity__c orderCommodity, String plant){
+            this.ITM_NUMBER = '000010';
+            this.MATERIAL = orderCommodity.Product__r.ExternalId__c;
+            this.PLANT = plant;
+            this.TARGET_QTY =  String.valueOf(orderCommodity.BagQuantity__c);
+            this.VALOR_MAT = String.valueOf(orderCommodity.CommodityPrice__c.setScale(2));
+        }
+    }
+
     private class OrderItemParametersSeeds{
         public String ITM_NUMBER;
         public String MATERIAL;
@@ -1080,16 +1097,11 @@ public without sharing class FactoryBuilder {
         return orderItemParametersList;
      }
 
-     private static List<OrderItemParametersBarter> generateOrderItemParameterBarterList(Map<Id, OrderItem> orderItemMap, Map<String, String> referenceItemMotherMap, Order order){
+     private static List<OrderItemParametersBarter> generateOrderItemParameterBarterList(Order order){
         List<OrderItemParametersBarter> orderItemParametersList = new List<OrderItemParametersBarter>();
-        for(OrderItem ordIt : orderItemMap.values()){
-          String refItem = referenceItemMotherMap.containsKey(ordIt.Product2.ExternalId__c) ?  referenceItemMotherMap.get(ordIt.Product2.ExternalId__c) : '';
-          String plant = order.DistributionCenter__r.Code__c == null ? order.Company__r.SupplierCenter__c : order.DistributionCenter__r.Code__c;
-          orderItemParametersList.add(new OrderItemParametersBarter(ordIt, refItem, plant));
-        }
         OrderCommodity__c orderCommodity = [SELECT CommodityPrice__c, Product__r.ExternalId__c, BagQuantity__c FROM OrderCommodity__c WHERE Order__c =: order.Id LIMIT 1];
         String plant = order.DistributionCenter__r.Code__c == null ? order.Company__r.SupplierCenter__c : order.DistributionCenter__r.Code__c;
-        orderItemParametersList.add(new OrderItemParametersBarter(orderCommodity ,plant));
+        orderItemParametersList.add(new OrderItemParametersBarter(orderCommodity, plant));
         return orderItemParametersList;
      }
 
@@ -1150,7 +1162,7 @@ public without sharing class FactoryBuilder {
 
     private static List<ConditionParameters> generateConditionParametersBarterList(OrderCommodity__c orderCommodity, Order order){
         List<ConditionParameters> conditionParametersList = new List<ConditionParameters>();
-        conditionParametersList.add(new ConditionParameters('10', 'ACBS', String.valueOf(isNotation(orderCommodity.CommodityPrice__c)), String.valueOf(order.Currency__c)));
+        conditionParametersList.add(new ConditionParameters('000010', 'ACBS', String.valueOf(isNotation(orderCommodity.CommodityPrice__c)), String.valueOf(order.Currency__c)));
         return conditionParametersList;
     }
 
