@@ -233,7 +233,7 @@ public without sharing class FactoryBuilder {
         }
 
         public void setOrderItems(){
-            this.IT_ITEMS_IN = generateOrderItemParameterBarterList(this.orderItemMap, this.referenceItemMotherMap, this.order);
+            this.IT_ITEMS_IN = generateOrderItemParameterBarterList(this.order);
         }
 
         public void setConditions(){
@@ -294,7 +294,7 @@ public without sharing class FactoryBuilder {
         }
 
         public void setOrderItems(){
-            this.IT_ITEMS_IN = generateOrderItemParameterBarterList(this.orderItemMap, this.referenceItemMotherMap, this.order);
+            this.IT_ITEMS_IN = generateOrderItemParameterBarterList(this.order);
         }
 
         public void setConditions(){
@@ -869,6 +869,13 @@ public without sharing class FactoryBuilder {
             this.TARGET_QTY =  String.valueOf(orderItem.Quantity);
             this.REF_DOC_IT = numReference != '' ? numReference.leftPad(6, '0') : '';
         }
+
+        public OrderItemParameters(OrderCommodity__c orderCommodity, String plant){
+            this.ITM_NUMBER = '10';
+            this.MATERIAL = orderCommodity.Product__r.ExternalId__c;
+            this.PLANT = plant;
+            this.TARGET_QTY =  String.valueOf(orderCommodity.BagQuantity__c);
+        }
     }
 
      private class OrderItemParametersBarter{
@@ -908,6 +915,7 @@ public without sharing class FactoryBuilder {
             this.ZZCLAS_CAT = orderItem.Class__c;
         }
     }
+    
 
     private static String getCodeTypeOrder(String typeOrder, Boolean isOrderMother){
 
