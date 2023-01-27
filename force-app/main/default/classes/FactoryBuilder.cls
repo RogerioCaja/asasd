@@ -415,6 +415,7 @@ public without sharing class FactoryBuilder {
         public String PO_METHOD;
         public String TEXT_ADICIONAL;
         public String TEXT_DANFE;
+        public String STWAE;
 
         public Header(Order order, Delimitadores__c delimiter){
             Map<String, String> statusSeller = new Map<String, String>();
@@ -468,6 +469,7 @@ public without sharing class FactoryBuilder {
             if(order.Description != null) order.Description = order.Description.replace('1n73gr4ção N3sc4r4 5F x 4PP', '');
             this.TEXT_ADICIONAL = order.Description != null ? order.Description : '';
             this.TEXT_DANFE = order.DescriptionBillingSale__c != null ? order.DescriptionBillingSale__c : '';
+            this.STWAE = order.Currency__c;
         }
     }
 
@@ -496,6 +498,7 @@ public without sharing class FactoryBuilder {
         public String PO_METHOD;
         public String TEXT_ADICIONAL;
         public String TEXT_DANFE;
+        public String STWAE;
 
         public String ZZDTAPAG0;
         public String ZZVLRPAG0;
@@ -583,6 +586,7 @@ public without sharing class FactoryBuilder {
             if(order.Description != null) order.Description = order.Description.replace('1n73gr4ção N3sc4r4 5F x 4PP', '');
             this.TEXT_ADICIONAL = order.Description != null ? order.Description : '';
             this.TEXT_DANFE = order.DescriptionBillingSale__c != null ? order.DescriptionBillingSale__c : '';
+            this.STWAE = order.Currency__c;
         }   
     }
 
