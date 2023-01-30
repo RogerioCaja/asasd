@@ -1265,14 +1265,17 @@ public without sharing class OrderScreenController {
                 List<FormPayment__c> upsFormsOfPayment = new List<FormPayment__c>();
                 Map<Id, FormPayment__c> paymentFormsById = new Map<Id, FormPayment__c>();
                 for (FormPayment__c formOfPayment : [
-                    SELECT Id
+                    SELECT Id,
+                           ExternalId__c
                       FROM FormPayment__c
                      WHERE Id IN: setPaymentIds
+                       AND Order__c =: order.Id
                 ]) {
                     paymentFormsById.put(formOfPayment.Id, formOfPayment);
                 }
 
-                if(orderData.formsOfPayment != null){
+                if(orderData.formsOfPayment != null) {
+                    Integer counter = paymentFormsById != null ? paymentFormsById.size() + 1 : 1;
                     for (FormOfPaymentDeserialize payment : orderData.formsOfPayment) {
                         FormPayment__c formOfPayment;
                         if (payment.paymentId != null && payment.paymentId != '' && !newOrder && !cloneOrder && paymentFormsById.containsKey(payment.paymentId)) {
@@ -1280,6 +1283,8 @@ public without sharing class OrderScreenController {
                         } else {
                             formOfPayment = new FormPayment__c();
                             formOfPayment.Order__c = order.Id;
+                            formOfPayment.ExternalId__c = order.Id + '|' + counter;
+                            counter++;
                         }
 
                         formOfPayment.PaymentType__c = payment.paymentType;
