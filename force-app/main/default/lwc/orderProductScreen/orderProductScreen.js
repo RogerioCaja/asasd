@@ -233,6 +233,7 @@ export default class OrderProductScreen extends LightningElement {
                 for (let index = 0; index < this.companyResult.length; index++) {
                     if (this.companyResult[index].companyId == this.headerData.companyId) {
                         this.selectedCompany = this.companyResult[index];
+                        this.headerData.companySector = this.selectedCompany.activitySectorName;
                         this.onSelectCompany();
                         break;
                     }
