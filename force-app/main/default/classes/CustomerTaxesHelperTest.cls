@@ -45,7 +45,7 @@
             customerList.add(customerTax);
             Test.startTest();
                 upsert customerList;
-            Test.endTest();
+            Test.stopTest();
         }
         @isTest
         public 	static void createsExternalIdError(){
@@ -60,6 +60,6 @@
             customerList.add(customerTax);
             Test.startTest();
                 insert customerList;
-            Test.endTest();
+            Test.stopTest();
         }
     }
