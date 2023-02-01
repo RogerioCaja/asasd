@@ -77,7 +77,7 @@ public without sharing class CalloutVisits {
         System.debug('AcessCode: '+ code);
         String payload = JSON.serialize(request);
         System.debug('PayloadCheck: '+ payload);
-        /*
+        
         //Metodo para busca de Access Token, depende de cada projeto, podendo estar presente dentro de uma custom settings ou relacionado com outra requisição.
         String accessToken = code;
         //Url mock: https://aabb2740-69b0-4737-925c-2c40367a3737.mock.pstmn.io//CalloutCTVCarteira
@@ -98,10 +98,10 @@ public without sharing class CalloutVisits {
             System.debug('response.getBody(): '+ response.getBody());
         } else {
             IntegrationLog.createLog('Visits OUT', 'OUT', responseObject.exceptionObject.getMessage(), payload, true);
-        } */
+        } 
     }
     public static String getAcessCode(){
-        /*
+        
         Integration__c data = Integration__c.getInstance('Visits OUT');
         String payloadToken = 'grant_type=client_credentials';
         String endpointToken = (!Test.isRunningTest() ? data.UrlToken__c : 'http://callout.My_Named_Credential.com/some/path');
@@ -117,7 +117,6 @@ public without sharing class CalloutVisits {
         } else {
             return null;
         }
-        */
         return null;
     }
 
