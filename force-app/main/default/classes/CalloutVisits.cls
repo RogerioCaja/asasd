@@ -1,5 +1,5 @@
 public without sharing class CalloutVisits {
-    
+
     public static void sendOrder(List<VisitPlanning__c> planningVisitsList) {
 
         List<RequestParameters> request = new List<RequestParameters>();
@@ -77,11 +77,7 @@ public without sharing class CalloutVisits {
         System.debug('AcessCode: '+ code);
         String payload = JSON.serialize(request);
         System.debug('PayloadCheck: '+ payload);
-        callIntegration(code, payload);
-
-    }
-    @future(callout = true)
-    public static void callIntegration(String code,String payload){
+        
         //Metodo para busca de Access Token, depende de cada projeto, podendo estar presente dentro de uma custom settings ou relacionado com outra requisição.
         String accessToken = code;
         //Url mock: https://aabb2740-69b0-4737-925c-2c40367a3737.mock.pstmn.io//CalloutCTVCarteira
