@@ -1,11 +1,9 @@
 public without sharing class OrderItemHelper {
     
     private static Boolean isEnabled;
-
     static{
         isEnabled = true;
     }
-
     public static Boolean isTriggerEnabled(){
         return isEnabled;
     }
@@ -13,16 +11,13 @@ public without sharing class OrderItemHelper {
     public static Boolean disableTrigger(){
         return isEnabled = false;
     }
-
     public static Boolean enableTrigger(){
         return isEnabled = true;
     }
-
     public static void updateOrderItem (List<OrderItem> orderItemList, Map<Id, OrderItem> oldRequest){
         List<String> ordList = new List<String>();
         List<String> orderList = new List<String>();
         List<OrderItem> orderItemListM = new List<OrderItem>();
-
         for(OrderItem ord : orderItemList){
             orderList.add(ord.OrderId);
         }
@@ -52,7 +47,6 @@ public without sharing class OrderItemHelper {
         for(AggregateResult aggResult : sumQuantityPerOrderItem){
             orderItemAmountedUsedPerOrderReference.put((String)aggResult.get('Id') + (String)aggResult.get('OrderReference__c'), (Decimal)aggResult.get('expr0') );
         }
-
         List<OrderItem> ordItemList = ([SELECT Id, OrderId, Order.IsOrderMother__c, Product2Id, AmountUsed__c, Quantity  FROM OrderItem WHERE OrderId =: ordList]);
         Map<String, OrderItem> ordMap = new Map<String, OrderItem>();
         for(OrderItem ordItem : ordItemList){
@@ -72,7 +66,7 @@ public without sharing class OrderItemHelper {
             if(ordMap.containsKey(concProductOrderRef)){
                 System.debug('ordMap Dentro' + ordMap);
                 OrderItem ordrItem = ordMap.get(concProductOrderRef);
-				System.debug('ordrItem ' + ordrItem);
+                System.debug('ordrItem ' + ordrItem);
                 if(ordemItem.Product2Id == ordrItem.Product2Id){
                     System.debug('orderItemListM ' + orderItemListM);
                     OrderItem orddItem = New OrderItem();
@@ -92,26 +86,21 @@ public without sharing class OrderItemHelper {
         update orderItemListM;
         OrderItemHelper.enableTrigger();
     }
-
     public static void updateQuotes(List<OrderItem> orderItemList){
         Set<Id> generalQuotasId = new Set<Id>();
         Set<Id> individualQuotasId = new Set<Id>();
         Set<Id> orderId = new Set<Id>();
-
         for(OrderItem ordItemForOrder : orderItemList){
             orderId.add(ordItemForOrder.OrderId);
         }
         Map<Id, Order> orderList = new Map<Id, Order>([SELECT id, SalesOrg__c, SalesOrg__r.SalesOrganizationCode__c FROM Order WHERE Id =: orderId]);
     
-
         for(OrderItem ordItem : orderItemList){
             Order order = orderList.get(ordItem.OrderId);
-
             if(ordItem.Description != null && ordItem.ReasonRefuse__c != null && ordItem.Description.contains('In73gr ins37t x') && order.SalesOrg__c != null && order.SalesOrg__r.SalesOrganizationCode__c == '1700'){
                 individualQuotasId.add(ordItem.IndividualQuotas__c); 
             } 
         }
-
         
         List<IndividualQuotas__c> individualQuotasList = new List<IndividualQuotas__c>([SELECT id, Quantity__c, Balance__c, Consumed__c, GeneralQuotas__c FROM IndividualQuotas__c WHERE id  =: individualQuotasId]);
         
@@ -139,13 +128,9 @@ public without sharing class OrderItemHelper {
         OrderItemHelper.enableTrigger();
         
         List<IndividualQuotas__c> sumIndividualQuotasList = new List<IndividualQuotas__c>([SELECT id, Quantity__c, Balance__c, Consumed__c, GeneralQuotas__c FROM IndividualQuotas__c WHERE  GeneralQuotas__c =: generalQuotasId]);
-
         Map<Id, IndividualQuotas__c> individualQuotasMap = new Map<Id, IndividualQuotas__c>();
-
         Map<Id, Decimal> sumIndividualQuotasMap = new Map<Id, Decimal>();
-
         
-
         
         System.debug('sumIndividualQuotasList ' + sumIndividualQuotasList);
         for(IndividualQuotas__c indQuotas : sumIndividualQuotasList){
@@ -162,7 +147,6 @@ public without sharing class OrderItemHelper {
                 individualQuotasMap.put(indQuotas.GeneralQuotas__c, indQuotas);
             }
         }
-
         List<GeneralQuotas__c> generalQuotasListUpdate = new List<GeneralQuotas__c>();
         System.debug('generalQuotasList ' + generalQuotasList);
         for(GeneralQuotas__c generalQuotas: generalQuotasList){
@@ -170,9 +154,9 @@ public without sharing class OrderItemHelper {
             
                 IndividualQuotas__c individualQuotas = individualQuotasMap.get(generalQuotas.Id);
                 System.debug('individualQuotas ' + individualQuotas);
-            	generalQuotas.Consumed__c = individualQuotas.Consumed__c;
-            	generalQuotas.Balance__c = generalQuotas.Quantity__c - individualQuotas.Consumed__c;
-            	generalQuotasListUpdate.add(generalQuotas);
+                generalQuotas.Consumed__c = individualQuotas.Consumed__c;
+                generalQuotas.Balance__c = generalQuotas.Quantity__c - individualQuotas.Consumed__c;
+                generalQuotasListUpdate.add(generalQuotas);
                
         }
         
@@ -183,8 +167,6 @@ public without sharing class OrderItemHelper {
         // upsert generalQuotasListUpdate;
         // OrderItemHelper.enableTrigger();
     }
-
-
     public static void insertOrderItem (List<OrderItem> orderItemList){
         List<String> ordList = new List<String>();
         List<String> orderList = new List<String>();
@@ -212,7 +194,6 @@ public without sharing class OrderItemHelper {
                 //ordIt.Quantity =  ordIt.Quantity - ordIt.AmountUsed__c; 
             }
         }
-
         List<OrderItem> ordItemList = ([SELECT Id, OrderId, Order.IsOrderMother__c, Product2Id, AmountUsed__c, Quantity  FROM OrderItem WHERE OrderId =: ordList]);
         Map<String, OrderItem> ordMap = new Map<String, OrderItem>();
         for(OrderItem ordItem : ordItemList){
@@ -225,7 +206,7 @@ public without sharing class OrderItemHelper {
         }
         for(OrderItem ordemItem : orderItemList){
             Order ord = ordIdMap.get(ordemItem.OrderId);
-            
+            Decimal calcAmountUsed;
             string concProductOrderRef = String.valueOf(ordemItem.Product2Id) + String.valueOf(ord.OrderReference__c);
             System.debug('ordMap Fora ' + ordMap);
             System.debug('concProductOrderRef ' + concProductOrderRef);
@@ -237,7 +218,16 @@ public without sharing class OrderItemHelper {
                     System.debug('orderItemListM ' + orderItemListM);
                     OrderItem orddItem = New OrderItem();
                     orddItem.Id = ordrItem.Id;
-                    orddItem.AmountUsed__c =  ordemItem.Quantity + ordrItem.AmountUsed__c; 
+                    System.debug('ordemItem.Quantity ' + ordemItem.Quantity);
+                    System.debug('ordrItem.AmountUsed__c ' + ordrItem.AmountUsed__c);
+                    if(ordrItem.AmountUsed__c != null){
+                        calcAmountUsed = ordemItem.Quantity + ordrItem.AmountUsed__c;
+                    }
+                    else {
+                        calcAmountUsed = ordemItem.Quantity;
+                    }
+                   
+                    orddItem.AmountUsed__c =  calcAmountUsed; 
                     orderItemListM.add(orddItem);
                 }
             }
@@ -245,9 +235,8 @@ public without sharing class OrderItemHelper {
         
         OrderItemHelper.disableTrigger();
         upsert orderItemListM;
-		OrderItemHelper.enableTrigger();
+        OrderItemHelper.enableTrigger();
     }
-
     public static void cleanDescriptionOrderItem (List<OrderItem> orderItemList){
         List<OrderItem> cleanOrdItemDesc = new List<OrderItem>();
         
