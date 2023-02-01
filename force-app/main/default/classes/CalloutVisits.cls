@@ -117,7 +117,6 @@ public without sharing class CalloutVisits {
         } else {
             return null;
         }
-        return null;
     }
 
     //! Preparing data to Callout
