@@ -42,7 +42,11 @@ public static void updateExternalId(List<VisitPlanning__c> visitPlanningList) {
     }
 }
 public static void callVisitsIntegration(List<VisitPlanning__c> visitPlanningList) {
-    CalloutVisits.sendOrder(visitPlanningList);
+    List<String> visitIdList = new List<String>();
+    for(VisitPlanning__c visit : visitPlanningList){
+        visitIdList.add(visit.Id);
+    }
+    CalloutVisits.sendOrder(visitIdList);
 }
 
 public static void createCalendarEvent(List<VisitPlanning__c> visitPlanningList) {

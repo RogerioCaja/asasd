@@ -1,15 +1,18 @@
 public without sharing class CalloutVisits {
 
-    public static void sendOrder(List<VisitPlanning__c> planningVisitsList) {
+    @future(callout = true)
+    public static void callIntegration(List<String> visitPlanningIdList){
+        sendOrder(visitPlanningIdList);
+    }
+
+    public static void sendOrder(List<String> visitIdList) {
 
         List<RequestParameters> request = new List<RequestParameters>();
-        List<String> visitIdList = new List<String>();
+
         List<String> technicalReportIdList = new List<String>();
         List<String> photoIdList = new List<String>();
         List<String> contentDocumentIdList = new List<String>();
-        for (VisitPlanning__c visit : planningVisitsList) {
-            visitIdList.add(visit.Id); 
-        }
+
         List<VisitPlanning__c> visitUpdatedList = new List<VisitPlanning__c>([SELECT Id,Name, MainBP__r.ExternalId__c, BP_Property__r.ExternalId__c, InitialDate__c, EndDate__c, StartTime__c, EndTime__c, 
             Status__c, Objetivo__c, Safra__r.Code__c, Culture__r.Codigo__c, Email__c, Presential__c, Reminder__c, Displacement__c, VisitSeller__r.CodigoSap__c, Note__c, ReschedulingReason__c, 
             CancellationReason__c, ExternalId__c FROM VisitPlanning__c WHERE id IN: visitIdList]);
