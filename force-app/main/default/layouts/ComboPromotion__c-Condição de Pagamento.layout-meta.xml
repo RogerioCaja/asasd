@@ -47,6 +47,10 @@
                 <behavior>Edit</behavior>
                 <field>CombosQuantity__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Required</behavior>
+                <field>Status__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>

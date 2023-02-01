@@ -121,6 +121,10 @@
                     <span>{!orderToPage.safra}</span>
                 </div>
                 <div class="field-item">
+                    <span class="bolder">Cultura: </span>
+                    <span>{!orderToPage.culture}</span>
+                </div>
+                <div class="field-item">
                     <span class="bolder">Cond. de Pagamento: </span>
                     <span>{!orderToPage.paymentCondition}</span>
                 </div>
@@ -145,14 +149,13 @@
                 <table class="tb-item-ped" cellSpacing="0">
                     <tr class="header">
                         <td valign="top">Cód. Produto</td>
-                        <td valign="top" style="width: 30%;">Descrição</td>
-                        <td valign="top">Cultura</td>
+                        <td valign="top" style="width: 25%;">Descrição</td>
                         <td valign="top">Unid. Medida</td>
                         <td valign="top">{! orderToPage.messageDivisionOrNo }</td>
                         <td valign="top">Preço Unit.</td>
                         <td valign="top">Valor Total</td>
                     </tr>
-                    <apex:repeat value="{! orderToPage.orderItemList }" var='oI'>
+                    <apex:repeat value="{! orderToPage.orderItemList }" var="oI">
                         <tr>
                             <td>
                                 {! oI.productCode}
@@ -161,14 +164,11 @@
                                 {! oI.description}
                             </td>
                             <td>
-                                {! oI.culture}
-                            </td>
-                            <td>
                                 {! oI.unitOfMeasure}
                             </td>
                             
                             <td>
-                                <apex:repeat rendered="{!orderToPage.isMother == false}" value="{! oI.divisonList }" var='dV'>
+                                <apex:repeat rendered="{!orderToPage.isMother == false}" value="{! oI.divisonList }" var="dV">
                                     {! dV.deliveryDate} - {! dV.quantity} <br/>
                                 </apex:repeat>
                                 <apex:outputText rendered="{!orderToPage.isMother == true}">
@@ -189,13 +189,27 @@
 
         <apex:outputText rendered="{!orderToPage.isNormalSales == false}">
             <tr>
-                <td class="title divider-top divider-bottom" >
-                    Frete
-                </td>
-                <td class="divider-top divider-bottom">
-                    <div class="container-total-value">
-                        <span class="highlight">{!orderToPage.freightValue}</span>
-                    </div>
+                <td colspan="2" class="padd-b">
+                    <table class="tb-item-ped" cellSpacing="0">
+                        <tr class="header">
+                            <td valign="top" style="width: 33.3%;">Tipo de Pagamento</td>
+                            <td valign="top" style="width: 33.3%;">Data de Vencimento</td>
+                            <td valign="top" style="width: 33.3%;">Valor</td>
+                        </tr>
+                        <apex:repeat value="{! orderToPage.paymentFormList }" var="pF">
+                            <tr>
+                                <td>
+                                    {! pF.type}
+                                </td>
+                                <td>
+                                    {! pF.paymentDate}
+                                </td>
+                                <td>
+                                    {! pF.price}
+                                </td>
+                            </tr>
+                        </apex:repeat>
+                    </table>
                 </td>
             </tr>
         </apex:outputText>

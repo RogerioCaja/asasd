@@ -81,7 +81,9 @@ global without sharing class IntegrationINOrder {
         Set<String> paymentConditionLookups = new Set<String>();
         Set<String> salesConditionLookups = new Set<String>(); 
         Set<String> activitySectorLookups = new Set<String>();
-
+        
+        
+        
         // Guarda uma lista de respostas
         List<TemplateDataIntegrationFields.ResponseParent> responseList = new List<TemplateDataIntegrationFields.ResponseParent>();
         // Guarda uma lista de orderItem para fazer o upsert
@@ -111,12 +113,12 @@ global without sharing class IntegrationINOrder {
             pricebook2IdLookups.add(order.pricebook2Id);
             paymentConditionLookups.add(order.paymentCondition);
             activitySectorLookups.add(order.ActivitySector);
-            salesConditionLookups.add(order.condicaoVenda);
             orderLookups.add(order.orderReference);
+            salesConditionLookups.add(order.condicaoVenda);
             idOrders.add(order.CodigoSap);
-            
             for (TemplateDataIntegrationFields.OrderItemINData orderItem : order.orderItems) {
                 orderItem.orderExternalId = order.CodigoSap;
+                orderItem.currencyOrder = order.CurrencyOrder;
                 orderItem.orderItemCode = orderItem.orderItemCode.replaceFirst('^0+','');
                 
                 System.debug('order.CodigoSap ' + order.CodigoSap);
@@ -206,7 +208,7 @@ global without sharing class IntegrationINOrder {
                     }
             }
 
-                
+                //order.company = order.PaymentAccount + order.CentroFornecedor + order.salesOrg + order.activitySector + order.distributionChannel + order.EscritorioVendas + order.EquipeVendas;
                 conditionList.addAll(order.conditions);
                 
             

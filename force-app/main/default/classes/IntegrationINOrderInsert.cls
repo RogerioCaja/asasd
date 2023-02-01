@@ -61,7 +61,6 @@ global without sharing class IntegrationINOrderInsert {
             
             order.hectare = order.hectare == null ? 1 : order.hectare;
             order.company = order.PaymentAccount + order.CentroFornecedor + order.salesOrg + order.activitySector + order.distributionChannel + order.EscritorioVendas + order.EquipeVendas;
-
             companyLookups.add(order.company);
 
             
@@ -129,7 +128,6 @@ global without sharing class IntegrationINOrderInsert {
                 }
                 shippingDivisonListToUpsert.addAll(order.shippingDivison);
             }
-
             if(order.formPayment.size() > 0){
                 for(TemplateDataIntegrationFields.FormPaymentINData paymentFormItem : order.formPayment){
                     paymentFormItem.orderExternalId = order.CodigoSap;

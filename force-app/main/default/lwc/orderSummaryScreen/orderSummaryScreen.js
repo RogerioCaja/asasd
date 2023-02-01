@@ -12,6 +12,8 @@ export default class OrderSummaryScreen extends LightningElement {
     showLoading = false;
     staticValue = 'hidden';
     showFreightScreen=false;
+    allowFreight=false;
+    currentFreight;
     allowCloseFreightScreen=false;
     hasData = true;
     disabled=false;
@@ -23,6 +25,7 @@ export default class OrderSummaryScreen extends LightningElement {
     @api seedSale = false;
     clientProperty = '';
 
+    germoTotalValue = 0;
     orderTotalPrice = 0;
     orderTotalPriceFront = 0;
     orderTotalToDistribution = 0;
@@ -34,6 +37,7 @@ export default class OrderSummaryScreen extends LightningElement {
     showRed;
     showTsiRed;
     showRoyaltiesRed;
+    @api allowFormOfPayment = false;
 
     showFormOfPayment = false;
     blockPaymentFields = false;
@@ -122,6 +126,9 @@ export default class OrderSummaryScreen extends LightningElement {
         isSeedSale({salesOrgId: this.headerData.organizacao_vendas.Id, productGroupName: null})
             .then((result) => {
                 this.seedSale = result;
+                if (this.seedSale && !this.headerData.IsOrderChild && this.headerData.tipo_venda != 'Venda Barter') {
+                    this.allowFormOfPayment = true;
+                }
                 this.loadData();
         });
         
@@ -130,7 +137,6 @@ export default class OrderSummaryScreen extends LightningElement {
             isSeedSale({salesOrgId: this.headerData.organizacao_vendas.Id, productGroupName: null})
             .then((result) => {
                 this.seedSale = result
-                console.log('result: ' + result);
                 if (result) {
                     this.getDistributionCenters();
                 } else {
@@ -222,11 +228,14 @@ export default class OrderSummaryScreen extends LightningElement {
                if(this.headerData.frete == 'CIF'){
                     checkSalesOrgFreight({salesOrgId: this.salesOrgId})
                     .then((result) => {
+                        this.allowFreight = result;
                         this.showFreightScreen = result;
                         let summary = JSON.parse(JSON.stringify(this.summaryDataLocale));
                         summary.freightValue = summary.freightValue === undefined ? 0 : summary.freightValue;
                         summary.freightValueFront = this.fixDecimalPlacesFront(summary.freightValue);
+                        this.currentFreight = summary.freightValue;
                         this.summaryDataLocale = JSON.parse(JSON.stringify(summary));
+                        this.showFreightScreen = this.showFreightScreen && !this.headerData.IsOrderChild ? true : false;
 
                         if (this.showFreightScreen && this.headerData.frete == 'FOB') {
                             this.allowCloseFreightScreen = true;
@@ -244,6 +253,7 @@ export default class OrderSummaryScreen extends LightningElement {
             this.formattedDeliveryDate = this.headerData.data_entrega.split('-')[2] + '/' + this.headerData.data_entrega.split('-')[1] + '/' + this.headerData.data_entrega.split('-')[0];
             
             let orderTotalPrice = 0;
+            let orderTotalPriceToCalcMargin = 0;
             let orderTotalCost = 0;
             let royaltiesTotalPrice = 0;
             let tsiTotalPrice = 0;
@@ -273,12 +283,15 @@ export default class OrderSummaryScreen extends LightningElement {
                 for(var i= 0; i< this.productDataLocale.length; i++){
                     console.log(this.seedSale)
                     orderTotalPrice += Number(this.productDataLocale[i].unitPrice) * Number(this.productDataLocale[i].quantity) + (this.seedSale ? Number(this.productDataLocale[i].brokerage) : 0);
-                    orderTotalCost += Number(this.productDataLocale[i].practicedCost) * Number(this.productDataLocale[i].quantity);
+                    orderTotalPriceToCalcMargin += Number(this.productDataLocale[i].unitPrice) * Number(this.productDataLocale[i].quantity);
+                    orderTotalCost += Number(this.productDataLocale[i].listCost) * Number(this.productDataLocale[i].quantity);
                     tsiTotalPrice += Number(this.productDataLocale[i].tsiTotalPrice);
                     royaltiesTotalPrice += Number(this.productDataLocale[i].royaltyTotalPrice);
                     
+                    let currentTotalPrice = this.seedSale && this.isFilled(this.productDataLocale[i].brokerage) && this.productDataLocale[i].brokerage > 0 ? this.productDataLocale[i].totalPriceWithBrokerage : this.productDataLocale[i].totalPrice;
+                    currentTotalPrice = Number(currentTotalPrice) + (this.seedSale ? Number(this.productDataLocale[i].tsiTotalPrice) + Number(this.productDataLocale[i].royaltyTotalPrice) : 0);
                     this.productDataLocale[i]['unitPrice'] = 'R$ ' + this.fixDecimalPlacesFront(this.productDataLocale[i].unitPrice);
-                    this.productDataLocale[i]['totalPrice']  = 'R$ ' + this.fixDecimalPlacesFront(this.seedSale && this.isFilled(this.productDataLocale[i].brokerage) && this.productDataLocale[i].brokerage > 0 ? this.productDataLocale[i].totalPriceWithBrokerage : this.productDataLocale[i].totalPrice);
+                    this.productDataLocale[i]['totalPrice']  = 'R$ ' + this.fixDecimalPlacesFront(currentTotalPrice);
                     this.productDataLocale[i]['commercialDiscountValue']  = 'R$ ' +  this.fixDecimalPlacesFront(this.productDataLocale[i].commercialDiscountValue);
                     this.productDataLocale[i]['commercialDiscountPercentage']  =  this.fixDecimalPlacesPercentage(this.productDataLocale[i].commercialDiscountPercentage);
                     this.productDataLocale[i]['commercialMarginPercentage']  = this.fixDecimalPlacesFront(this.productDataLocale[i].commercialMarginPercentage) + '%';
@@ -292,9 +305,11 @@ export default class OrderSummaryScreen extends LightningElement {
                 }
             }
             
-            this.orderTotalPrice = orderTotalPrice;
-            this.orderTotalPriceFront = this.fixDecimalPlacesFront(orderTotalPrice);
-            this.orderTotalToDistribution = orderTotalPrice;
+            let summary = JSON.parse(JSON.stringify(this.summaryDataLocale));
+            this.germoTotalValue = orderTotalPrice;
+            this.orderTotalPrice = this.germoTotalValue + Number(this.headerData.frete == 'CIF' && this.seedSale ? summary.freightValue : 0);
+            this.orderTotalPriceFront = this.fixDecimalPlacesFront(this.orderTotalPrice);
+            this.orderTotalToDistribution = this.orderTotalPrice;
 
             this.royaltiesTotalPrice = royaltiesTotalPrice;
             this.royaltiesTotalPriceFront = this.fixDecimalPlacesFront(royaltiesTotalPrice);
@@ -305,15 +320,21 @@ export default class OrderSummaryScreen extends LightningElement {
             this.tsiTotalToDistribution = tsiTotalPrice;
             
             if (this.headerData.tipo_venda != 'Venda Barter') {
-                let margin = (1 - (orderTotalCost / orderTotalPrice)) * 100;
+                let margin = (1 - (orderTotalCost / orderTotalPriceToCalcMargin)) * 100;
                 this.orderMargin = this.fixDecimalPlacesFront(margin) + '%';
                 this.summaryDataLocale.orderMargin = (+(Math.trunc(+(margin + 'e' + 6)) + 'e' + -6)).toFixed(6);
             } else {
                 this.summaryDataLocale.orderMargin = this.orderMargin;
             }
 
+            this.summaryDataLocale.totalValue = orderTotalPrice + royaltiesTotalPrice + tsiTotalPrice;
+
             this.defineOrderMargin();
         }
+    }
+
+    openFreight(event) {
+        this.showFreightScreen = true;
     }
 
     chooseDistributionCenter(event){
@@ -411,21 +432,31 @@ export default class OrderSummaryScreen extends LightningElement {
     closeFreightScreen() {
         this.showFreightScreen = false;
         let summary = JSON.parse(JSON.stringify(this.summaryDataLocale));
-        summary.freightValue = 0;
-        summary.freightValueFront = 0;
+        summary.freightValue = this.isFilled(this.currentFreight) ? this.currentFreight : 0;
+        summary.freightValueFront = this.fixDecimalPlacesFront(summary.freightValue);
         this.summaryDataLocale = JSON.parse(JSON.stringify(summary));
     }
 
     confirmFreight() {
-        
         let variable = 'freight-value';
         if(!this.template.querySelector(`[data-target-id="${variable}"]`).checkValidity()){
             this.showToast('warning', 'Atenção', 'Valor de frete inválido');
             return;
-         }
+        }
 
         this.showFreightScreen = false;
+        let summary = JSON.parse(JSON.stringify(this.summaryDataLocale));
+        this.currentFreight = this.fixFreightDecimalPlaces(summary.freightValue);
 
+        let allPayments = JSON.parse(JSON.stringify(this.formsOfPayment));
+        let germoplasmaValue = 0;
+        for (let index = 0; index < allPayments.length; index++) {
+            if (allPayments[index].paymentType == 'Germoplasma') germoplasmaValue += Number(allPayments[index].value);
+        }
+
+        this.orderTotalPrice = Number(this.germoTotalValue) + Number(this.headerData.frete == 'CIF' && this.seedSale ? summary.freightValue : 0);
+        this.orderTotalPriceFront = this.fixDecimalPlacesFront(this.orderTotalPrice);
+        this.orderTotalToDistribution = this.orderTotalPrice - Number(this.headerData.frete == 'CIF' && this.seedSale ? germoplasmaValue : 0);
         this.changeFreight();
     }
 
@@ -528,13 +559,13 @@ export default class OrderSummaryScreen extends LightningElement {
             value = 0.01;
             allPayments.push(this.createDefaultValues('Germoplasma'));
 
-            if (this.tsiTotalPrice > 0) {
-                tsiValue = 0.01;
-                allPayments.push(this.createDefaultValues('TSI'));
-            }
             if (this.royaltiesTotalPrice > 0) {
                 royaltiesValue = 0.01;
                 allPayments.push(this.createDefaultValues('Royalties'));
+            }
+            if (this.tsiTotalPrice > 0) {
+                tsiValue = 0.01;
+                allPayments.push(this.createDefaultValues('TSI'));
             }
             this.formsOfPayment = JSON.parse(JSON.stringify(allPayments));
 
@@ -626,7 +657,7 @@ export default class OrderSummaryScreen extends LightningElement {
         for (let index = 0; index < allPayments.length; index++) {
             let checkFields = allPayments[index];
             let pushValue = true;
-            if (allPayments[index].paymentType != '' && allPayments[index].paymentDay != '' && allPayments[index].value != '') {
+            if (this.isFilled(allPayments[index].paymentType) && this.isFilled(allPayments[index].paymentDay) && this.isFilled(allPayments[index].value)) {
                 if (checkFields.paymentKey != '') {
                     for (let i = 0; i < groupedFormsOfPayment.length; i++) {
                         if (groupedFormsOfPayment[i].paymentKey == checkFields.paymentKey) {

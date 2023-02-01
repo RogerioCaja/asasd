@@ -469,6 +469,7 @@ public without sharing class OrderScreenController {
                        SalesOrg__c,
                        ClientGroup__c,
                        ActivitySector__c,
+                       ActivitySector__r.Name,
                        DistributionChannel__c
                   FROM Company__c
                  WHERE Id =: orderData.headerData.companyId
@@ -558,7 +559,7 @@ public without sharing class OrderScreenController {
             }
 
             QuantitiesResult quantitiesResult;
-            if (seedSale) {
+            if (seedSale && (company.ActivitySector__r.Name.toUpperCase() == 'SEMENTE' || company.ActivitySector__r.Name.toUpperCase() == 'SEMENTES')) {
                 QuotaData quotaData = new QuotaData();
                 quotaData.cropId = orderData.headerData.safra.Id;
                 quotaData.sellerId = orderData.headerData.ctv_venda.Id;
@@ -885,7 +886,7 @@ public without sharing class OrderScreenController {
                     orderItem.Dosage__c = orderProduct.dosage != null ? orderProduct.dosage.setScale(6) : 0;
                     orderItem.Status__c = orderProduct.sapStatus != null ? statusValueByLabel.get(orderProduct.sapStatus) : null;
                     orderItem.UnitMeasure__c = orderProduct.unity;
-                    orderItem.FinalTotalValue__c = !(seedSale) ? orderProduct.totalPrice : (orderProduct.totalPriceWithBrokerage + orderProduct.royaltyTotalPrice + orderProduct.tsiTotalPrice);
+                    orderItem.FinalTotalValue__c = !(seedSale) ? orderProduct.totalPrice : orderProduct.totalPriceWithBrokerage;
                     orderItem.Brokerage__c = orderProduct.brokerage;
                     orderItem.ListCost__c = orderProduct.listCost != null ? orderProduct.listCost : 0;
                     orderItem.PracticedCost__c = orderProduct.practicedCost != null ? orderProduct.practicedCost : 0;
@@ -1234,7 +1235,7 @@ public without sharing class OrderScreenController {
     @AuraEnabled
     public static String getAccountCompanies(String data, Boolean isHeader, Boolean verifyUserType, Boolean priceScreen, Boolean childOrder) {
         GetCompanyInfos companyInfos = (GetCompanyInfos) JSON.deserialize(data, GetCompanyInfos.class);
-        Id userTerritoryId;
+        Set<Id> userTerritoriesIds = new Set<Id>();
         Boolean sellerPosition = false;
 
         for (UserTerritory2Association userAssociation : [
@@ -1252,6 +1253,7 @@ public without sharing class OrderScreenController {
             return JSON.serialize(sellerPosition);
         }
         
+        List<Id> territoriesRelatedToCtv = new List<Id>();
         for (UserTerritory2Association userAssociation : [
             SELECT Id,
                    UserId,
@@ -1259,11 +1261,33 @@ public without sharing class OrderScreenController {
                    Territory2.Territory2Type.DeveloperName
               FROM UserTerritory2Association
              WHERE UserId =: companyInfos.ctvId
-             LIMIT 1
         ]) {
-            userTerritoryId = userAssociation.Territory2Id;
+            territoriesRelatedToCtv.add(userAssociation.Territory2Id);
         }
 
+        if (companyInfos.accountId != null && companyInfos.accountId != '') {
+            for (ObjectTerritory2Association objAssociation : [
+                SELECT Id,
+                       Territory2Id,
+                       Territory2.Territory2Type.DeveloperName
+                  FROM ObjectTerritory2Association
+                 WHERE ObjectId =: companyInfos.accountId
+                   AND Territory2Id IN: territoriesRelatedToCtv
+            ]) {
+                userTerritoriesIds.add(objAssociation.Territory2Id);
+            }
+        } else {
+            for (ObjectTerritory2Association objAssociation : [
+                SELECT Id,
+                       Territory2Id,
+                       Territory2.Territory2Type.DeveloperName
+                  FROM ObjectTerritory2Association
+                 WHERE Territory2Id IN: territoriesRelatedToCtv
+            ]) {
+                userTerritoriesIds.add(objAssociation.Territory2Id);
+            }
+        }
+        
         Map<Id, Territory2> territoryAndParents = new Map<Id, Territory2>();
         for(Territory2 territory : [
             SELECT Id,
@@ -1281,24 +1305,30 @@ public without sharing class OrderScreenController {
         };
 
         Integer counter = 0;
-        Territory2 salesTeamTerritory;
-        Map<Integer, Id> approvalByCounter = new Map<Integer, Id>();
+        List<Territory2> salesTeamTerritories;
+        Set<Id> territoriesIds = new Set<Id>();
         while (counter < companyInfos.approvalNumber) {
-            Territory2 territory = territoryAndParents.containsKey(userTerritoryId) ? territoryAndParents.get(userTerritoryId) : new Territory2();
-
-            if (territory != null && territory.ParentTerritory2Id != null) {
-                userTerritoryId = territory.Id;
-                approvalByCounter.put(counter, userTerritoryId);
-            }
-
-            if (counter == 1) {
-                salesTeamTerritory = territory;
+            for (Id userTerritoryId : userTerritoriesIds) {
+                Territory2 territory = territoryAndParents.containsKey(userTerritoryId) ? territoryAndParents.get(userTerritoryId) : new Territory2();
+    
+                if (territory != null && territory.ParentTerritory2Id != null) {
+                    territoriesIds.add(territory.Id);
+                }
+    
+                if (counter == 1) {
+                    salesTeamTerritories.add(territory);
+                }
             }
             counter++;
         }
 
-        if (salesTeamTerritory == null && territoryAndParents.get(userTerritoryId) != null && territoryAndParents.get(territoryAndParents.get(userTerritoryId).ParentTerritory2Id) != null) {
-            salesTeamTerritory = territoryAndParents.get(territoryAndParents.get(userTerritoryId).ParentTerritory2Id);
+        if (salesTeamTerritories == null && territoriesIds.size() > 0) {
+            salesTeamTerritories = new List<Territory2>();
+            for (Id userTerritoryId : territoriesIds) {
+                if (territoryAndParents.get(userTerritoryId) != null && territoryAndParents.get(territoryAndParents.get(userTerritoryId).ParentTerritory2Id) != null) {
+                    salesTeamTerritories.add(territoryAndParents.get(territoryAndParents.get(userTerritoryId).ParentTerritory2Id));
+                }
+            }
         }
         
         Set<String> fieldSet = new Set<String>{
@@ -1308,36 +1338,46 @@ public without sharing class OrderScreenController {
         };
         Q proQuery = new Q(Company__c.SObjectType);
         proQuery.selectFields(fieldSet);
-        if (childOrder == null || !childOrder) proQuery.add(Q.condition('Status__c').equalsTo('Adicionada'));
         if (companyInfos.accountId != '') proQuery.add(Q.condition('Conta__c').equalsTo(companyInfos.accountId));
+        if (childOrder == null || !childOrder) proQuery.add(Q.condition('Status__c').equalsTo('Adicionada'));
         
         List<CompanyInfos> companyList = new List<CompanyInfos>();
         if (salesTeamTerritory != null && salesTeamTerritory.DeveloperName != null) {
             String salesTeamDevName = salesTeamTerritory.DeveloperName.substring(0, 1) == 'X' || salesTeamTerritory.DeveloperName.substring(0, 1) == 'Z' ?
                                       salesTeamTerritory.DeveloperName.substring(1, salesTeamTerritory.DeveloperName.length()) : salesTeamTerritory.DeveloperName;
             proQuery.add(Q.condition('SalesTeam__r.ExternalId__c').equalsTo(salesTeamDevName));
-            proQuery.add(Q.condition('SalesOrg__r.SalesOrganizationCode__c').isIn(new List<String>{'1000', '1700'}));
+            proQuery.add(Q.condition('SalesOrg__r.SalesOrganizationCode__c').isIn(new List<String>{'1000', '1100', '1300', '1500', '1600', '1700', '1800', '1900', '2000', '9000', '9003'}));
             if(companyInfos.orderType == 'Venda de Serviço')
                 proQuery.add(Q.condition('ActivitySector__r.Codigo__c').equalsTo('40'));
             else {
                 proQuery.add(Q.condition('ActivitySector__r.Codigo__c').isIn(new List<String>{'10', '30'}));
             }
+            
+            if (salesTeamsDevNames.size() > 0) {
+                proQuery.add(Q.condition('SalesTeam__r.ExternalId__c').isIn(salesTeamsDevNames));
+                proQuery.add(Q.condition('SalesOrg__r.SalesOrganizationCode__c').equalsTo('1000'));
+                if(companyInfos.orderType == 'Venda de Serviço')
+                    proQuery.add(Q.condition('ActivitySector__r.Codigo__c').equalsTo('40'));
+                else {
+                proQuery.add(Q.condition('ActivitySector__r.Codigo__c').equalsTo('10'));
+                }
 
-            if (companyInfos.accountId == '') proQuery.addLimit(1);
-            for (Company__c salesTeamCompany : Database.query(proQuery.build())) {
-                CompanyInfos company = new CompanyInfos();
-                company.companyId = salesTeamCompany.Id;
-                company.salesOrgId = salesTeamCompany.SalesOrg__c;
-                company.salesTeamId = salesTeamCompany.SalesTeam__c;
-                company.salesOfficeId = salesTeamCompany.SalesOffice__c;
-                company.salesTeamName = salesTeamCompany.SalesTeam__r.Name;
-                company.supplierCenter = salesTeamCompany.SupplierCenter__c;
-                company.activitySectorId = salesTeamCompany.ActivitySector__c;
-                company.activitySectorName = salesTeamCompany.ActivitySector__r.Name;
-                company.distributionChannelId = salesTeamCompany.DistributionChannel__c;
-                company.distributionChannelName = salesTeamCompany.DistributionChannel__r.Name;
-                company.selected = false;
-                companyList.add(company);
+                if (companyInfos.accountId == '') proQuery.addLimit(1);
+                for (Company__c salesTeamCompany : Database.query(proQuery.build())) {
+                    CompanyInfos company = new CompanyInfos();
+                    company.companyId = salesTeamCompany.Id;
+                    company.salesOrgId = salesTeamCompany.SalesOrg__c;
+                    company.salesTeamId = salesTeamCompany.SalesTeam__c;
+                    company.salesOfficeId = salesTeamCompany.SalesOffice__c;
+                    company.salesTeamName = salesTeamCompany.SalesTeam__r.Name;
+                    company.supplierCenter = salesTeamCompany.SupplierCenter__c;
+                    company.activitySectorId = salesTeamCompany.ActivitySector__c;
+                    company.activitySectorName = salesTeamCompany.ActivitySector__r.Name;
+                    company.distributionChannelId = salesTeamCompany.DistributionChannel__c;
+                    company.distributionChannelName = salesTeamCompany.DistributionChannel__r.Name;
+                    company.selected = false;
+                    companyList.add(company);
+                }
             }
         }
         if(isHeader)
@@ -1360,6 +1400,7 @@ public without sharing class OrderScreenController {
         ]) {
             DistrCenterData distrData = new DistrCenterData();
             distrData.centerId = distrCenter.Id;
+            distrData.centerName = distrCenter.Name;
             distrData.code = distrCenter.Code__c;
             distrData.salesOrgName = distrCenter.SalesOrg__r.Name;
             distrData.selected = false;
@@ -1371,6 +1412,7 @@ public without sharing class OrderScreenController {
 
     public class DistrCenterData {
         public String centerId;
+        public String centerName;
         public String code;
         public String salesOrgName;
         public Boolean selected;
@@ -1576,6 +1618,7 @@ public without sharing class OrderScreenController {
                    RecordType.DeveloperName
               FROM ComboPromotion__c
              WHERE RecordTypeId =: specificItemsRecordType
+               AND Status__c = 'Ativo'
                AND 
                (
                     (Id IN: existingCombosIds)
@@ -1701,7 +1744,8 @@ public without sharing class OrderScreenController {
         try {
             HeaderValues comboData = (HeaderValues) JSON.deserialize(data, HeaderValues.class);
             Map<Id, ComboPromotionData> result = new Map<Id, ComboPromotionData>();
-            Set<Id> combosIds = new Set<Id>();
+            Set<Id> mixCombosIds = new Set<Id>();
+            Set<Id> conditionCombosIds = new Set<Id>();
             
             Set<Id> recTypes = new Set<Id>();
             recTypes.add(Schema.SObjectType.ComboPromotion__c.getRecordTypeInfosByDeveloperName().get('ProductMix').getRecordTypeId());
@@ -1720,6 +1764,7 @@ public without sharing class OrderScreenController {
                    AND SalesCondition__c =: comboData.salesConditionId
                    AND CombosQuantity__c > 0
                    AND RecordTypeId IN: recTypes
+                   AND Status__c = 'Ativo'
             ]) {
                 ComboPromotionData comboPromotionData = new ComboPromotionData();
                 comboPromotionData.comboQuantity = 0;
@@ -1729,14 +1774,31 @@ public without sharing class OrderScreenController {
                 comboPromotionData.comboAvailableQuantity = promotion.CombosQuantity__c;
                 comboPromotionData.comboDiscountPercentage = promotion.DiscountPercentage__c;
                 comboPromotionData.specificItemCombo = false;
-                combosIds.add(promotion.Id);
                 comboPromotionData.groupQuantities = new List<GroupData>();
                 
-                if (promotion.RecordType.DeveloperName != 'ProductMix') {
+                if (promotion.RecordType.DeveloperName == 'ProductMix') {
+                    mixCombosIds.add(promotion.Id);
+                } else {
+                    conditionCombosIds.add(promotion.Id);
                     comboPromotionData.paymentConditionId = promotion.PaymentCondition__c;
                 }
 
                 result.put(promotion.Id, comboPromotionData);
+            }
+
+            for (FormerProduct__c formerProd : [
+                SELECT Id,
+                       Product__c,
+                       MinQuantity__c,
+                       ComboPromotion__c
+                  FROM FormerProduct__c
+                 WHERE ComboPromotion__c IN: mixCombosIds
+            ]) {
+                ComboPromotionData comboPromotionData = result.get(formerProd.ComboPromotion__c);
+                GroupData groupData = new GroupData();
+                groupData.productId = formerProd.Product__c;
+                groupData.quantity = formerProd.MinQuantity__c;
+                comboPromotionData.groupQuantities.add(groupData);
             }
 
             for (ProductMix__c prodMix : [
@@ -1745,7 +1807,7 @@ public without sharing class OrderScreenController {
                        ProductGroup__c,
                        ComboPromotion__c
                   FROM ProductMix__c
-                 WHERE ComboPromotion__c IN: combosIds
+                 WHERE ComboPromotion__c IN: conditionCombosIds
             ]) {
                 ComboPromotionData comboPromotionData = result.get(prodMix.ComboPromotion__c);
                 GroupData groupData = new GroupData();
@@ -2656,6 +2718,7 @@ public without sharing class OrderScreenController {
     }
 
     public class GroupData {
+        public String  productId;
         public String  productGroupId;
         public Decimal quantity;
     }

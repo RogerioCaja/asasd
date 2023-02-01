@@ -20,6 +20,7 @@ import checkQuotaQuantity from '@salesforce/apex/OrderScreenController.checkQuot
 import getOrderByOrderItem from '@salesforce/apex/OrderScreenController.getOrderByOrderItem';
 import checkMotherQuantities from '@salesforce/apex/OrderScreenController.checkMotherQuantities';
 import getOrderByFormOfPayment from '@salesforce/apex/OrderScreenController.getOrderByFormOfPayment';
+import getRecordTypeData from '@salesforce/apex/RecordTypeAvailableToUser.getRecordTypeData';
 import isSeedSale from '@salesforce/apex/OrderScreenController.isSeedSale';
 import { NavigationMixin } from 'lightning/navigation';
 
@@ -39,6 +40,13 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             if(this.recordTypeId != undefined && this.recordTypeId != ''){
                 var arrayType = data.recordTypeInfos[this.recordTypeId]
                 this.headerData.tipo_venda = arrayType.name;
+            }else{
+                getRecordTypeData().then((result) => {
+                    this.headerData.tipo_venda = result
+                }).catch((err) =>{
+                    console.log(err)
+                })
+                
             }
         }
     }
@@ -49,6 +57,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     allProductQuotas = [];
     quotaProducts = [];
     @track summary = false;
+    seedSale = false;
 
     customErrorMessage = '';
     hideFooterButtons=false;
@@ -86,6 +95,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         org: {Name: " "},
         aprovation: " ",
         companyId: null,
+        companySector: null,
         centerId: null,
         hectares: '',
         firstTime: true
@@ -115,7 +125,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             current: true,
             enable: true,
             completed:false,
-            message: 'Necessário selecionar pelo menos uma conta',
+            message: 'Necessário selecionar pelo menos uma conta ou BP não é fornecedor',
             component: 'c-order-account-screen'
         },
         {
@@ -249,7 +259,8 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
                     totalPrice = Number(totalPrice) + Number(product.tsiTotalPrice) + Number(product.royaltyTotalPrice);
                     this.valorTotal += parseFloat(totalPrice);
                 })
-                this.valorTotal = parseFloat(this.valorTotal).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
+                let frete = (this.summaryData.freightValue != undefined && this.summaryData.freightValue != null ? Number(this.summaryData.freightValue) : 0);
+                this.valorTotal = parseFloat(Number(this.valorTotal) + Number(frete)).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
 
             }
             catch(e)
@@ -267,6 +278,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             if(this.cloneData.cloneOrder){
                 this.headerData.ctv_venda.Id = null;
                 this.headerData.companyId = null;
+                this.headerData.companySector = null;
                 this.headerData.status_pedido = 'Em digitação';
                 this.headerData.cliente_entrega.Id = null;
                 this.headerData.orderNumber = null;
@@ -345,7 +357,8 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
                     totalPrice = Number(totalPrice) + Number(product.tsiTotalPrice) + Number(product.royaltyTotalPrice);
                     this.valorTotal += parseFloat(totalPrice);
                 })
-                this.valorTotal = parseFloat(this.valorTotal).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
+                let frete = (this.summaryData.freightValue != undefined && this.summaryData.freightValue != null ? Number(this.summaryData.freightValue) : 0);
+                this.valorTotal = parseFloat(Number(this.valorTotal) + Number(frete)).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
 
             }
             catch(e)
@@ -363,6 +376,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             if(this.cloneData.cloneOrder){
                 this.headerData.ctv_venda.Id = null;
                 this.headerData.companyId = null;
+                this.headerData.companySector = null;
                 this.headerData.status_pedido = 'Em digitação';
                 this.headerData.cliente_entrega.Id = null;
                 this.headerData.orderNumber = null;
@@ -467,6 +481,11 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
     async saveOrder(event){
         this.isLoading = true;
+        isSeedSale({salesOrgId: this.headerData.organizacao_vendas.Id, productGroupName: null})
+        .then((result) => {
+            this.seedSale = result;
+        });
+        
         let today = new Date();
         let dd = String(today.getDate()).padStart(2, '0');
         let mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -501,7 +520,8 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             prodsIds.push(this.productData[index].productId);
         }
 
-        if (this.template.querySelector(this.tabs[3].component).seedSale) {
+        console.log('this.template.querySelector(this.tabs[3].component).allowFormOfPayment: ' + this.template.querySelector(this.tabs[3].component).allowFormOfPayment);
+        if (this.template.querySelector(this.tabs[3].component).allowFormOfPayment && this.headerData.tipo_venda != 'Venda Barter') {
             let orderTotalPrice = 0;
             let orderTotalPaymentTsi = 0;
             let orderTotalPaymentRoyalties = 0;
@@ -515,6 +535,11 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
                 this.showNotification('O valor total do pagamento deve ser igual ao do pedido', 'Atenção', 'warning');
                 this.isLoading = false;
                 return;
+            }
+
+            if (this.headerData.frete == 'CIF' && this.seedSale) {
+                let summary = JSON.parse(JSON.stringify(this.summaryData));
+                totalPayment = Number(totalPayment) + Number(summary.freightValue);
             }
 
             if (this.fixDecimalPlacesFront(totalPayment) != this.fixDecimalPlacesFront(orderTotalPrice) ||
@@ -581,12 +606,12 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             isSeedSale({salesOrgId: this.headerData.organizacao_vendas.Id, productGroupName: null})
             .then((result) => {
                 let seedType = result;
-                if (seedType && this.headerData.tipo_pedido != 'Pedido Filho' && !this.headerData.IsOrderChild) {
+                if (seedType && this.headerData.tipo_pedido != 'Pedido Filho' && !this.headerData.IsOrderChild && this.headerData.tipo_venda != 'Venda Barter') {
                     verifyQuota = true;
                 }
 
                 console.log('verifyQuota: ' + verifyQuota);
-                if (verifyQuota) {
+                if (verifyQuota && (this.headerData.companySector.toUpperCase() == 'SEMENTES' || this.headerData.companySector.toUpperCase() == 'SEMENTE')) {
                     let quoteData = {
                         cropId: this.headerData.safra.Id,
                         sellerId: this.headerData.ctv_venda.Id,
@@ -635,6 +660,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     }
 
     _setAccountData(event) {
+        let enableScreen = true
         try {
             if(event.data !== undefined && this.accountData != undefined && event.data.Id != this.accountData.id){
                 this.headerData.cliente_entrega = " "
@@ -643,12 +669,22 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             }
             this.accountData = event.data;
 
+            if(!this.accountData?.Supplier__c && this.headerData.tipo_venda == 'Venda Barter'){
+                enableScreen = false
+                this.showNotification('BP não é um fornecedor', 'Atenção!', 'warning');
+            }
+
             console.log('account data setted:', this.accountData);
         } catch (e) {
             console.log(e);
         }
-        this.enableNextScreen();
-        this.completeCurrentScreen();
+
+        if (enableScreen) {
+            this.enableNextScreen();
+            this.completeCurrentScreen();
+        } else {
+            this.disableNextScreen();
+        }
     }
 
     _setHeaderData(event) {
@@ -688,7 +724,8 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
                     this.valorTotal  += parseFloat(totalPrice);
                 })
             }
-            this.valorTotal = parseFloat(this.valorTotal).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
+            let frete = (this.summaryData.freightValue != undefined && this.summaryData.freightValue != null ? Number(this.summaryData.freightValue) : 0);
+            this.valorTotal = parseFloat(Number(this.valorTotal) + Number(frete)).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
         }
         catch(e)
         {
@@ -767,7 +804,10 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     _setSummaryData(event) {
         this.summaryData = event.data;
         console.log('summary data setted:', JSON.stringify(this.summaryData));
-        this.frete = this.summaryData.freightValue != undefined && this.summaryData.freightValue != null ? parseFloat(this.summaryData.freightValue).toLocaleString("pt-BR", {style:"currency", currency:"BRL"}) : (0).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
+        let frete = this.summaryData.freightValue != undefined && this.summaryData.freightValue != null ? Number(this.summaryData.freightValue) : 0
+        let valorTotal = this.summaryData.totalValue != undefined && this.summaryData.totalValue != null ? Number(this.summaryData.totalValue) : 0
+        this.frete = parseFloat(frete).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
+        this.valorTotal = parseFloat(Number(valorTotal) + Number(frete)).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
         this.enableNextScreen();
     }
 
@@ -856,8 +896,12 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     }
 
     handleNextCombo() {
-        const objChild = this.template.querySelector('c-order-product-screen');
-        objChild.handleNext();
+        if(this.currentTab === 2){
+            const objChild = this.template.querySelector('c-order-product-screen');
+            objChild.handleNext();
+        }else{
+            this.handleNext()
+        }
     }
 
     handleNext() {

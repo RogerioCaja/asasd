@@ -72,6 +72,7 @@ public without sharing class CustomLookupController {
             salesResult.searchString = searchString;
             result.salesResult = salesResult;
 
+            Date dayToConsider = getSeedPrices ? Date.valueOf(productParams.paymentDate) : System.today();
             Set<String> priceFields = new Set<String>{'Id', 'UnitPrice__c', 'Cost__c', 'Product__c', 'ProductGroup__c', 'Currency__c', 'SalesOrg__c', 'SalesTeam__c', 'SalesOffice__c', 'Account__c', 'Culture__c', 'ProductMultiplier__c', 'ExternalId__c', 'SalesCondition__r.Name', 'RecordType.DeveloperName'};
             Q priceQuery = new Q(JurosDescontoAntecipao__c.SObjectType)
                                 .selectFields(priceFields)
@@ -79,8 +80,8 @@ public without sharing class CustomLookupController {
                                 .add(Q.condition('harvest__c').equalsTo(productParams.safra))
                                 .add(Q.condition('SalesOrg__c').equalsTo(salesResult.salesOrgId))
                                 .add(Q.condition('IsActive__c').equalsTo(true))
-                                .add(Q.condition('StartDate__c').isLessOrEquals(System.today()))
-                                .add(Q.condition('EndDate__c').isGreaterOrEquals(System.today()));
+                                .add(Q.condition('StartDate__c').isLessOrEquals(dayToConsider))
+                                .add(Q.condition('EndDate__c').isGreaterOrEquals(dayToConsider));
 
             if (!priceScreen) {
                 priceQuery.add(Q.condition('SalesCondition__c').equalsTo(productParams.salesConditionId))
@@ -93,7 +94,6 @@ public without sharing class CustomLookupController {
             Map<Id, List<JurosDescontoAntecipao__c>> productsPriceById = new Map<Id, List<JurosDescontoAntecipao__c>>();
             Set<Id> accountIds = new Set<Id>();
             for(SObject jda : Database.query(priceQuery.build())) {
-                System.debug('jda: ' + jda);
                 if (!productsPriceById.containsKey((Id)jda.get('Product__c'))) {
                     productsPriceById.put((Id)jda.get('Product__c'), new List<JurosDescontoAntecipao__c>{(JurosDescontoAntecipao__c)jda});
                 } else {
@@ -166,8 +166,12 @@ public without sharing class CustomLookupController {
                                   '         OR PrincipleActive__c LIKE \'%' + String.escapeSingleQuotes(searchString.trim()) + '%\'' +
                                   '       )' +
                                   ' ORDER BY Name' +
-                                  ' LIMIT 9' +
-                                  ' OFFSET :numberOfRowsToSkip';
+                                  (
+                                    !priceScreen && !isCommodity ? 
+                                        ' LIMIT 9' +
+                                        ' OFFSET :numberOfRowsToSkip' : 
+                                        ''
+                                  );
             
             List<SObject> queryResult = Database.query(productQuery);
             Set<Id> prodGroupIds = new Set<Id>();
@@ -293,7 +297,7 @@ public without sharing class CustomLookupController {
                         
                         Boolean priceIncluded = false;
                         String key = prefix + jda.Account__c + '-' + (String)s.get('Id');
-                        if (((productParams.accountId == '' && jda.Account__c == null) || (productParams.accountId != '')) && ((seedSale == true && !prodIdsWithoutQuota.contains((String)s.get('Id'))) || !seedSale)) {
+                        if (((productParams.accountId == '' && jda.Account__c == null) || (productParams.accountId != '')) && ((!productParams.dontGetSeeds && !prodIdsWithoutQuota.contains((String)s.get('Id'))) || productParams.dontGetSeeds)) {
                             if (jda.Account__c != null && !result.recordsDataMap.containsKey(key)) {
                                 result.recordsDataMap.put(key, productData);
                                 priceIncluded = true;
@@ -607,6 +611,7 @@ public without sharing class CustomLookupController {
         public String  salesOfficeId;
         public String  salesTeamId;
         public String  activitySectorName;
+        public String  paymentDate;
         public Boolean dontGetSeeds;
         public Integer numberOfRowsToSkip;
     }
