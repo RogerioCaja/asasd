@@ -46,7 +46,7 @@ public static void callVisitsIntegration(List<VisitPlanning__c> visitPlanningLis
     for(VisitPlanning__c visit : visitPlanningList){
         visitIdList.add(visit.Id);
     }
-    CalloutVisits.sendOrder(visitIdList);
+    CalloutVisits.callIntegration(visitIdList);
 }
 
 public static void createCalendarEvent(List<VisitPlanning__c> visitPlanningList) {
