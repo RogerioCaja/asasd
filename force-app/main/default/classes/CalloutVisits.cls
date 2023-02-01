@@ -8,7 +8,7 @@ public without sharing class CalloutVisits {
     public static void sendOrder(List<String> visitIdList) {
 
         List<RequestParameters> request = new List<RequestParameters>();
-        List<String> visitIdList = new List<String>();
+
         List<String> technicalReportIdList = new List<String>();
         List<String> photoIdList = new List<String>();
         List<String> contentDocumentIdList = new List<String>();
