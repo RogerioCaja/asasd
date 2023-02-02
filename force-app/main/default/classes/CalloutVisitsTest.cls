@@ -111,7 +111,7 @@
                 visitIdList.add(visit.Id);
             }
             Test.startTest();
-            CalloutVisits.sendOrder(visitIdList);
+            CalloutVisits.callIntegration(visitIdList);
             Test.stopTest();
             
         }
