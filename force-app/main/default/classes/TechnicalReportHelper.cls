@@ -22,7 +22,7 @@ public without sharing class TechnicalReportHelper {
         for(TechnicalReport__c technical : tech){
             visitIdList.add(technical.VisitPlanning__c);
         }
-        CalloutVisits.sendOrder(visitIdList);    
+        CalloutVisits.callIntegration(visitIdList);    
     }
 
     public static void incrementLineItem(List<TechnicalReport__c> tech){

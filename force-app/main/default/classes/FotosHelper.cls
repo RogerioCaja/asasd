@@ -32,7 +32,7 @@ public without sharing class FotosHelper {
         for(TechnicalReport__c technical : technicalRecordsList){
             visitIdList.add(technical.VisitPlanning__c);
         }
-        CalloutVisits.sendOrder(visitIdList);    
+        CalloutVisits.callIntegration(visitIdList);    
     }
     public static void incrementItem(List<Fotos__c> fotosList){
 
