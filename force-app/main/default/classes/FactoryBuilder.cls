@@ -197,17 +197,19 @@ public without sharing class FactoryBuilder {
         private List<PartnerParameters> IT_PARTNERS;
         private List<ScheduleParameters> IT_ORDER_SCHEDULES_IN;
         private List<ConditionParameters> IT_CONDITIONS_IN;
-        private List<OrderItemParameters> IT_ITEMS_IN;
+        private List<OrderItemParametersBarter> IT_ITEMS_IN;
 
         //parameters to aux builder
         private Order order;
         private Delimitadores__c delimiter;
+        private OrderCommodity__c commodity;
         private Map<String, String> referenceItemMotherMap;
         private Map<Id, OrderItem> orderItemMap;
 
         public void setOrder(Order order){
             this.order = order;
             this.delimiter = getDelimiterByKey(this.order);
+            this.commodity = getCommodityPriceByOrder(this.order);
         }
 
         public void setRefMap(){
@@ -223,7 +225,7 @@ public without sharing class FactoryBuilder {
         }
 
         public void setHeader(){
-            this.IS_HEADER_IN = new HeaderBarter(this.order, this.delimiter);
+            this.IS_HEADER_IN = new HeaderBarter(this.order, this.delimiter, this.commodity);
         }
 
         public void setPartners(){
@@ -235,7 +237,7 @@ public without sharing class FactoryBuilder {
         }
 
         public void setConditions(){
-            this.IT_CONDITIONS_IN = generateConditionParametersBarterList(this.orderItemMap, this.order);
+            this.IT_CONDITIONS_IN = generateConditionParametersBarterList(this.commodity, this.order);
         }
 
         public void setShippingDivision(){
@@ -254,11 +256,12 @@ public without sharing class FactoryBuilder {
         private List<PartnerParameters> IT_PARTNERS;
         private List<ScheduleParameters> IT_ORDER_SCHEDULES_IN;
         private List<ConditionParameters> IT_CONDITIONS_IN;
-        private List<OrderItemParameters> IT_ITEMS_IN;
+        private List<OrderItemParametersBarter> IT_ITEMS_IN;
 
         //parameters to aux builder
         private Order order;
         private Delimitadores__c delimiter;
+        private OrderCommodity__c commodity;
         private Map<String, String> referenceItemMotherMap;
         private Map<Id, OrderItem> orderItemMap;
         private Boolean hasSeed;
@@ -266,6 +269,7 @@ public without sharing class FactoryBuilder {
         public void setOrder(Order order){
             this.order = order;
             this.delimiter = getDelimiterByKey(this.order);
+            this.commodity = getCommodityPriceByOrder(this.order);
         }
 
         public void setRefMap(){
@@ -282,7 +286,7 @@ public without sharing class FactoryBuilder {
         }
 
         public void setHeader(){
-            this.IS_HEADER_IN = new HeaderBarterSeeds(this.order, this.hasSeed, this.delimiter);
+            this.IS_HEADER_IN = new HeaderBarterSeeds(this.order, this.hasSeed, this.delimiter, this.commodity);
         }
 
         public void setPartners(){
@@ -294,7 +298,7 @@ public without sharing class FactoryBuilder {
         }
 
         public void setConditions(){
-            this.IT_CONDITIONS_IN = generateConditionParametersBarterList(this.orderItemMap, this.order);
+            this.IT_CONDITIONS_IN = generateConditionParametersBarterList(this.commodity, this.order);
         }
 
         public void setShippingDivision(){
@@ -356,10 +360,10 @@ public without sharing class FactoryBuilder {
         private final List<PartnerParameters> IT_PARTNERS;
         private final List<ScheduleParameters> IT_ORDER_SCHEDULES_IN;
         private final List<ConditionParameters> IT_CONDITIONS_IN;
-        private final List<OrderItemParameters> IT_ITEMS_IN;
+        private final List<OrderItemParametersBarter> IT_ITEMS_IN;
 
         public RequestBarter(HeaderBarter IS_HEADER_IN, List<PartnerParameters> IT_PARTNERS, List<ScheduleParameters> IT_ORDER_SCHEDULES_IN,
-                        List<ConditionParameters> IT_CONDITIONS_IN, List<OrderItemParameters> IT_ITEMS_IN, String IV_TYPE){
+                        List<ConditionParameters> IT_CONDITIONS_IN, List<OrderItemParametersBarter> IT_ITEMS_IN, String IV_TYPE){
             this.IV_TYPE = IV_TYPE;
             this.IS_HEADER_IN = IS_HEADER_IN;
             this.IT_PARTNERS = IT_PARTNERS;
@@ -375,10 +379,10 @@ public without sharing class FactoryBuilder {
         private final List<PartnerParameters> IT_PARTNERS;
         private final List<ScheduleParameters> IT_ORDER_SCHEDULES_IN;
         private final List<ConditionParameters> IT_CONDITIONS_IN;
-        private final List<OrderItemParameters> IT_ITEMS_IN;
+        private final List<OrderItemParametersBarter> IT_ITEMS_IN;
 
         public RequestBarterSeeds(HeaderBarterSeeds IS_HEADER_IN, List<PartnerParameters> IT_PARTNERS, List<ScheduleParameters> IT_ORDER_SCHEDULES_IN,
-                        List<ConditionParameters> IT_CONDITIONS_IN, List<OrderItemParameters> IT_ITEMS_IN, String IV_TYPE){
+                        List<ConditionParameters> IT_CONDITIONS_IN, List<OrderItemParametersBarter> IT_ITEMS_IN, String IV_TYPE){
             this.IV_TYPE = IV_TYPE;
             this.IS_HEADER_IN = IS_HEADER_IN;
             this.IT_PARTNERS = IT_PARTNERS;
@@ -415,6 +419,7 @@ public without sharing class FactoryBuilder {
         public String PO_METHOD;
         public String TEXT_ADICIONAL;
         public String TEXT_DANFE;
+        public String STWAE;
 
         public Header(Order order, Delimitadores__c delimiter){
             Map<String, String> statusSeller = new Map<String, String>();
@@ -468,6 +473,7 @@ public without sharing class FactoryBuilder {
             if(order.Description != null) order.Description = order.Description.replace('1n73gr4ção N3sc4r4 5F x 4PP', '');
             this.TEXT_ADICIONAL = order.Description != null ? order.Description : '';
             this.TEXT_DANFE = order.DescriptionBillingSale__c != null ? order.DescriptionBillingSale__c : '';
+            this.STWAE = order.Currency__c;
         }
     }
 
@@ -496,6 +502,7 @@ public without sharing class FactoryBuilder {
         public String PO_METHOD;
         public String TEXT_ADICIONAL;
         public String TEXT_DANFE;
+        public String STWAE;
 
         public String ZZDTAPAG0;
         public String ZZVLRPAG0;
@@ -583,6 +590,7 @@ public without sharing class FactoryBuilder {
             if(order.Description != null) order.Description = order.Description.replace('1n73gr4ção N3sc4r4 5F x 4PP', '');
             this.TEXT_ADICIONAL = order.Description != null ? order.Description : '';
             this.TEXT_DANFE = order.DescriptionBillingSale__c != null ? order.DescriptionBillingSale__c : '';
+            this.STWAE = order.Currency__c;
         }   
     }
 
@@ -620,7 +628,7 @@ public without sharing class FactoryBuilder {
         public String EKGRP;
         public String OPTN_VAL;
 
-        public HeaderBarter(Order order, Delimitadores__c delimiter){
+        public HeaderBarter(Order order, Delimitadores__c delimiter, OrderCommodity__c commodity){
             Map<String, String> statusSeller = new Map<String, String>();
             statusSeller.put('CTV', 'CT');
             statusSeller.put('Franqueado', 'FR');
@@ -643,8 +651,8 @@ public without sharing class FactoryBuilder {
             this.PMNTTRMS = order.PaymentCondition__r.Code__c;
             this.PYMT_METH = order.PaymentForm__c;
             
-            this.CT_VALID_F = order.IsOrderMother__c ? dateF :  '';
-            this.CT_VALID_T = order.IsOrderMother__c ? String.valueOf(delimiter.EndDateOV__c).replace('-', '') : '';
+            this.CT_VALID_F = String.valueOf(commodity.StartDate__c).replace('-', '');
+            this.CT_VALID_T = String.valueOf(commodity.EndDate__c).replace('-', '');
 
             this.PURCH_NO_C = order.CustomerOrderNumber__c;
             this.ORD_REASON = order.OrderReason__c;
@@ -746,7 +754,7 @@ public without sharing class FactoryBuilder {
         public String ZZVLRPAG9;
         public String ZZITMPAG9;
 
-        public HeaderBarterSeeds(Order order, Boolean hasSeed, Delimitadores__c delimiter){
+        public HeaderBarterSeeds(Order order, Boolean hasSeed, Delimitadores__c delimiter, OrderCommodity__c commodity){
             Map<String, String> statusSeller = new Map<String, String>();
             statusSeller.put('CTV', 'CT');
             statusSeller.put('Franqueado', 'FR');
@@ -769,8 +777,8 @@ public without sharing class FactoryBuilder {
             this.PMNTTRMS = order.PaymentCondition__r.Code__c;
             this.PYMT_METH = order.PaymentForm__c;
             
-            this.CT_VALID_F = order.IsOrderMother__c ? dateF :  '';
-            this.CT_VALID_T = order.IsOrderMother__c ? String.valueOf(delimiter.EndDateOV__c).replace('-', '') : '';
+            this.CT_VALID_F = String.valueOf(commodity.StartDate__c).replace('-', '');
+            this.CT_VALID_T = String.valueOf(commodity.EndDate__c).replace('-', '');
 
             this.PURCH_NO_C = order.CustomerOrderNumber__c;
             this.ORD_REASON = order.OrderReason__c;
@@ -867,6 +875,23 @@ public without sharing class FactoryBuilder {
             this.MATERIAL = orderCommodity.Product__r.ExternalId__c;
             this.PLANT = plant;
             this.TARGET_QTY =  String.valueOf(orderCommodity.BagQuantity__c);
+        }
+    }
+
+     private class OrderItemParametersBarter{
+        public String ITM_NUMBER;
+        public String MATERIAL;
+        public String PLANT;
+        public String TARGET_QTY;
+        public String REF_DOC_IT;
+        public String VALOR_MAT;
+
+        public OrderItemParametersBarter(OrderCommodity__c orderCommodity, String plant){
+            this.ITM_NUMBER = '000010';
+            this.MATERIAL = orderCommodity.Product__r.ExternalId__c;
+            this.PLANT = plant;
+            this.TARGET_QTY =  String.valueOf(orderCommodity.BagQuantity__c);
+            this.VALOR_MAT = String.valueOf(orderCommodity.CommodityPrice__c.setScale(2));
         }
     }
 
@@ -1047,11 +1072,11 @@ public without sharing class FactoryBuilder {
         return orderItemParametersList;
      }
 
-     private static List<OrderItemParameters> generateOrderItemParameterBarterList(Order order){
-        List<OrderItemParameters> orderItemParametersList = new List<OrderItemParameters>();
+     private static List<OrderItemParametersBarter> generateOrderItemParameterBarterList(Order order){
+        List<OrderItemParametersBarter> orderItemParametersList = new List<OrderItemParametersBarter>();
         OrderCommodity__c orderCommodity = [SELECT CommodityPrice__c, Product__r.ExternalId__c, BagQuantity__c FROM OrderCommodity__c WHERE Order__c =: order.Id LIMIT 1];
         String plant = order.DistributionCenter__r.Code__c == null ? order.Company__r.SupplierCenter__c : order.DistributionCenter__r.Code__c;
-        orderItemParametersList.add(new OrderItemParameters(orderCommodity, plant));
+        orderItemParametersList.add(new OrderItemParametersBarter(orderCommodity, plant));
         return orderItemParametersList;
      }
 
@@ -1110,11 +1135,14 @@ public without sharing class FactoryBuilder {
         return conditionParametersList;
     }
 
-    private static List<ConditionParameters> generateConditionParametersBarterList(Map<Id, OrderItem> orderItemMap, Order order){
+    private static List<ConditionParameters> generateConditionParametersBarterList(OrderCommodity__c orderCommodity, Order order){
         List<ConditionParameters> conditionParametersList = new List<ConditionParameters>();
-        // OrderCommodity__c orderCommodity = [SELECT CommodityPrice__c FROM OrderCommodity__c WHERE Order__c =: order.Id LIMIT 1];
-        // conditionParametersList.add(new ConditionParameters('10', 'ACBS', String.valueOf(isNotation(orderCommodity.CommodityPrice__c)), 'BRL'));
+        conditionParametersList.add(new ConditionParameters('000010', 'ACBS', String.valueOf(isNotation(orderCommodity.CommodityPrice__c)), String.valueOf(order.Currency__c)));
         return conditionParametersList;
+    }
+
+    private static OrderCommodity__c getCommodityPriceByOrder(Order order){
+        return [SELECT CommodityPrice__c, StartDate__c, EndDate__c FROM OrderCommodity__c WHERE Order__c =: order.Id LIMIT 1];
     }
 
 
