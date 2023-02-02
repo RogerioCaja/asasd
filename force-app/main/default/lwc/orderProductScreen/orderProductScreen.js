@@ -7,6 +7,7 @@ import getSpecificCombos from '@salesforce/apex/OrderScreenController.getSpecifi
 import checkQuotaQuantity from '@salesforce/apex/OrderScreenController.checkQuotaQuantity';
 import getAccountCompanies from '@salesforce/apex/OrderScreenController.getAccountCompanies';
 import getMixAndConditionCombos from '@salesforce/apex/OrderScreenController.getMixAndConditionCombos';
+import getTaxes from '@salesforce/apex/OrderScreenController.getTaxes';
 import fetchOrderRecords from '@salesforce/apex/CustomLookupController.fetchProductsRecords';
 
 let actions = [];
@@ -115,8 +116,11 @@ export default class OrderProductScreen extends LightningElement {
     @api excludedItems;
     @api formsOfPayment;
     @api combosSelecteds;
+    @api taxData;
+    @api bpData;
 
     connectedCallback(event) {
+        if (!this.isFilled(this.taxData)) this.taxData=[];
         if (!this.isFilled(this.combosSelecteds)) this.combosSelecteds=[];
 
         let today = new Date();
@@ -230,6 +234,7 @@ export default class OrderProductScreen extends LightningElement {
                 for (let index = 0; index < this.companyResult.length; index++) {
                     if (this.companyResult[index].companyId == this.headerData.companyId) {
                         this.selectedCompany = this.companyResult[index];
+                        this.headerData.companySector = this.selectedCompany.activitySectorName;
                         this.onSelectCompany();
                         break;
                     }
@@ -375,6 +380,14 @@ export default class OrderProductScreen extends LightningElement {
             this.headerData.companySector = this.selectedCompany.activitySectorName;
         }
         this._setHeaderValues();
+
+        if (this.headerData.tipo_venda == 'Venda Barter') {
+            getTaxes({accountId: this.accountData.Id, salesOrgId: this.selectedCompany.salesOrgId})
+            .then((result) => {
+                this.taxData = JSON.parse(result);
+                console.log('this.taxData: ' + JSON.stringify(this.taxData));
+            });
+        }
         
         isSeedSale({salesOrgId: this.selectedCompany.salesOrgId, productGroupName: null})
         .then((result) => {
@@ -548,6 +561,7 @@ export default class OrderProductScreen extends LightningElement {
 
                                         this.addProduct.tListPrice = this.isFilled(priorityInfos.tListPrice) ? priorityInfos.tListPrice : 0;
                                         this.addProduct.tListPriceFront = this.isFilled(priorityInfos.tListPrice) ? 'R$' + this.fixDecimalPlacesFront(priorityInfos.tListPrice) : 'R$0';
+                                        
                                         this.addProduct.rListPrice = this.isFilled(priorityInfos.rListPrice) ? priorityInfos.rListPrice : 0;
                                         this.addProduct.rListPriceFront = this.isFilled(priorityInfos.rListPrice) ? 'R$' + this.fixDecimalPlacesFront(priorityInfos.rListPrice) : 'R$0';
 
@@ -572,7 +586,7 @@ export default class OrderProductScreen extends LightningElement {
                             this.showIncludedProducts = this.products.length > 0;
                             this.excludedItems = this.isFilled(this.excludedItems) ? this.excludedItems : this.parseObject(itemToExclude);
                             this._setExcludedesItems();
-                            this._setData();
+                            if (this.products.length > 0) this._setData();
                             if (listPriceChange && !this.checkCombo) this.showToast('warning', 'Alteração na lista de preço!', 'Os preços foram ajustados de acordo com os valores da lista de preço. Verifique-os.');
                             if (productsWithoutPrice != '') this.showToast('warning', 'Produtos sem preço!', 'Os produtos ' + productsWithoutPrice + ' foram removidos do pedido.');
                         });
@@ -645,12 +659,12 @@ export default class OrderProductScreen extends LightningElement {
                     this.showToast('warning', 'Alteração nos preços!', priceChangeMessage);
                 }
                 if (showQuantityChange) this.showToast('warning', 'Alteração nas quantidades!', 'As quantidades foram recalculados devido a alteração no hectar. Verifique-os.');
-                if ((showPriceChange || showQuantityChange) && this.headerData.tipo_venda == 'Venda Barter') this.recalculateCommodities();
+                if (this.headerData.tipo_venda == 'Venda Barter') this.recalculateCommodities();
                 this.showLoading = false;
+                this._setData();
             } else {
                 this.showLoading = false;
             }
-            this._setData();
         })
     }
 
@@ -704,6 +718,7 @@ export default class OrderProductScreen extends LightningElement {
             currentinfos = currentPrice;
             counter++;
         }
+
         return {productInfos: currentinfos, priorityPrice: priorityPrice};
     }
 
@@ -750,6 +765,7 @@ export default class OrderProductScreen extends LightningElement {
                 this.createNewProduct = false;
                 this.editProduct(existProduct.position, false);
             } else {
+                console.log('this.baseProducts: ' + JSON.stringify(this.baseProducts));
                 let currentProduct = this.baseProducts.find(e => e.Id == productId);
                 let priorityInfos = this.getProductByPriority(currentProduct);
                 this.updateProduct = false;
@@ -1054,10 +1070,10 @@ export default class OrderProductScreen extends LightningElement {
                 this.addProduct.totalPrice = this.isFilled(this.addProduct.commercialAdditionValue) ? (this.addProduct.totalPrice + Number(this.addProduct.commercialAdditionValue)) : this.addProduct.totalPrice;
                 this.addProduct.totalPrice = this.isFilled(this.addProduct.commercialDiscountValue) ? this.fixDecimalPlaces((this.addProduct.totalPrice - Number(this.addProduct.commercialDiscountValue))) : this.fixDecimalPlaces(this.addProduct.totalPrice);
             }
-
             this.addProduct.totalPriceFront = this.fixDecimalPlacesFront(this.addProduct.totalPrice);
             this.addProduct.totalPriceWithBrokerage = Number(this.addProduct.totalPrice) + Number(this.addProduct.brokerage);
             this.addProduct.totalPriceWithBrokerageFront = this.fixDecimalPlacesFront(this.addProduct.totalPriceWithBrokerage);
+            
             if (recalculateUnitPrice) {
                 this.addProduct.unitPrice = this.fixDecimalPlaces((this.addProduct.totalPrice / this.addProduct.quantity));
                 this.addProduct.unitPriceFront = this.fixDecimalPlacesFront((this.addProduct.totalPrice / this.addProduct.quantity));
@@ -1336,10 +1352,8 @@ export default class OrderProductScreen extends LightningElement {
         let constainsCombo = allCombosSelecteds.find(e => e.comboId == combo.comboId);
         if (this.isFilled(constainsCombo)) {
             for (let i = 0; i < allCombosSelecteds.length; i++) {
-                if (allCombosSelecteds[i].comboId == combo.comboId) {
-                    allCombosSelecteds[i].comboQuantity = combo.comboQuantity;
-                }
-            }
+                if (allCombosSelecteds[i].comboId == combo.comboId) allCombosSelecteds[i].comboQuantity = combo.comboQuantity;
+            }                
         } else {
             allCombosSelecteds.push(combo);
         }
@@ -1509,6 +1523,7 @@ export default class OrderProductScreen extends LightningElement {
         });
 
         this.multiplicity = this.isFilled(currentProduct.multiplicity) && currentProduct.multiplicity > 0 ? currentProduct.multiplicity : 1;
+
         this.addProduct = this.newProduct(currentProduct);
         console.log('this.addProduct: ' + JSON.stringify(this.addProduct));
         if (recalculateFinancialValues) {
@@ -1606,7 +1621,9 @@ export default class OrderProductScreen extends LightningElement {
                 this.commodities = [];
                 this.barterSale = true;
                 this.showCommodityData = false;
+                this.taxData = [];
                 this._setCommodityData();
+                this._setTaxData();
                 this.showToast('warning', 'As commodities foram removidas por conta da falta de produtos!', '');
             }
         } else {
@@ -1727,6 +1744,12 @@ export default class OrderProductScreen extends LightningElement {
         this.dispatchEvent(setItems);
     }
 
+    _setTaxData() {
+        const setItems = new CustomEvent('settaxdata');
+        setItems.data = this.taxData;
+        this.dispatchEvent(setItems);
+    }
+
     _setHideFooterButtons(hideButton) {
         const setItems = new CustomEvent('sethidefooterbuttons');
         setItems.data = hideButton;
@@ -1802,6 +1825,17 @@ export default class OrderProductScreen extends LightningElement {
         this.commodities = event.results.recordsDataList;
     }
 
+    calculateTaxes(totalValue) {
+        let totalTaxes = 0;
+        let taxes = this.parseObject(this.taxData);
+        for (let i = 0; i < taxes.length; i++) {
+            taxes[i].taxValue = totalValue * (taxes[i].taxPercentage / 100);
+            totalTaxes += taxes[i].taxValue;
+        }
+        this.taxData = this.parseObject(taxes);
+        return totalTaxes;
+    }
+
     selectCommodity(event) {
         this.nextScreen();
         let totalProducts = 0;
@@ -1815,6 +1849,7 @@ export default class OrderProductScreen extends LightningElement {
             totalDiscount += Number(this.products[index].commercialDiscountValue);
         }
 
+        totalProducts = totalProducts - this.calculateTaxes(totalProducts);
         let chooseCommodity = this.commodities.find(e => e.Id == event.target.dataset.targetId);
         let marginPercent = ((1 - (orderTotalCost / totalProducts)) * 100);
         this.selectedCommodity = {
@@ -1837,6 +1872,7 @@ export default class OrderProductScreen extends LightningElement {
             totalDiscountValue: this.fixDecimalPlaces(totalDiscount / chooseCommodity.listPrice) + ' sacas',
             totalDiscountValueFront: this.fixDecimalPlacesFront(totalDiscount / chooseCommodity.listPrice) + ' sacas'
         };
+        this._setTaxData();
     }
 
     fillCommodity(event) {
@@ -1874,6 +1910,7 @@ export default class OrderProductScreen extends LightningElement {
                 this.showCommodityData = true;
                 this.barterSale = false;
                 this._setCommodityData();
+                this._setTaxData();
             } else if (this.commoditiesData[index].saved == false) {
                 this.commoditiesData.splice(index, 1);
             }
@@ -1954,7 +1991,9 @@ export default class OrderProductScreen extends LightningElement {
                 totalDiscount += Number(this.products[index].commercialDiscountValue);
             }
 
+            totalProducts = totalProducts - this.calculateTaxes(totalProducts);
             let marginPercent = ((1 - (orderTotalCost / totalProducts)) * 100);
+
             let currentCommodityValues = this.parseObject(this.commoditiesData[0]);
             currentCommodityValues.area = this.headerData.hectares;
             currentCommodityValues.quantity = productsQuantity;
@@ -1969,6 +2008,7 @@ export default class OrderProductScreen extends LightningElement {
             this.commoditiesData = [];
             this.commoditiesData.push(currentCommodityValues);
             this._setCommodityData();
+            this._setTaxData();
             this.showToast('warning', 'Atenção!', 'Os valores da commodity foram alterados de acordo com a alteração/inclusão de um produto.');
         }
     }
@@ -1982,6 +2022,7 @@ export default class OrderProductScreen extends LightningElement {
                 this.barterSale = true;
                 this.showCommodityData = false;
                 this._setCommodityData();
+                this._setTaxData();
                 this.openCommodityData();
                 this.showToast('success', 'Sucesso!', 'Commodity removida.');
             break;
