@@ -59,7 +59,7 @@
             );
             customerList.add(customerTax);
             Test.startTest();
-            List<Database.SaveResult> customerListResult = Database.insert(customerList, false);
+                List<Database.SaveResult> customerListResult = Database.insert(customerList, false);
             Test.stopTest();
             System.assert(customerListResult[0].isSuccess() == false, 'Resultado não deve ter sucesso');
         }
