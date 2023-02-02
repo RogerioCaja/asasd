@@ -1,5 +1,6 @@
 public without sharing class TechnicalReportHelper {
-    
+    public TechnicalReportHelper() {
+    }
     private static Boolean isEnabled;
 
     static{
