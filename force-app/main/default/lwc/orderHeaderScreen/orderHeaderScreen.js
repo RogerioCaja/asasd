@@ -463,7 +463,7 @@ export default class OrderHeaderScreen extends LightningElement {
                 if(this.childOrder || this.headerData.IsOrderChild){
                     this.salesOrgId = this.headerData.organizacao_vendas.Id;
                 }
-                if (this.headerDictLocale.tipo_venda == 'Venda Conta e Ordem' || this.headerDictLocale.tipo_venda == 'Venda Entrega Futura' || this.headerDictLocale.tipo_venda == 'Venda Normal') {
+                if (this.headerDictLocale.tipo_venda == 'Venda Conta e Ordem' || this.headerDictLocale.tipo_venda == 'Venda Entrega Futura' || this.headerDictLocale.tipo_venda == 'Venda Normal' || this.headerDictLocale.tipo_venda == 'Venda Barter') {
                     this.allowMotherOrder = true;
                 } else {
                     this.headerDictLocale.pedido_mae_check = false;
