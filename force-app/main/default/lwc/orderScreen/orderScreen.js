@@ -552,7 +552,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
         let quotaResponse;
         quotaResponse = await this.verifyQuotas(prodsIds);
-        this.commodityData[0].marginValue = this.headerData.IsOrderChild ? (this.headerData.orderMargin.includes('%') ? this.headerData.orderMargin.replace('%', ' sacas') : this.headerData.orderMargin) : this.commodityData[0].marginValue;
+        if (this.headerData.tipo_venda == 'Venda Barter') this.commodityData[0].marginValue = this.headerData.IsOrderChild ? (this.headerData.orderMargin.includes('%') ? this.headerData.orderMargin.replace('%', ' sacas') : this.headerData.orderMargin) : this.commodityData[0].marginValue;
         if (quotaResponse) {
             const mode = event.detail;
             await this.recordId;
