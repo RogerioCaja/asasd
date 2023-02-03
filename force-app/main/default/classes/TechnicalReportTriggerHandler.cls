@@ -17,7 +17,7 @@ public without sharing class TechnicalReportTriggerHandler {
         }
         
         public void OnAfterInsert(){
-        
+            TechnicalReportHelper.callVisitsIntegration(this.newRecords);
         }
         
         public void OnBeforeUpdate(){
@@ -25,12 +25,11 @@ public without sharing class TechnicalReportTriggerHandler {
         }
         
         public void OnAfterUpdate(){
+            TechnicalReportHelper.callVisitsIntegration(this.newRecords);
         }
-        
-        public void OnBeforeDelete(){}
-        
-        public void OnAfterDelete(){}
-        
-        public void OnUndelete(){}
+}       
 
-}
+
+
+
+

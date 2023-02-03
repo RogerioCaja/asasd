@@ -13,11 +13,13 @@ public without sharing class CalendarTriggerHandler {
 
     public void OnBeforeInsert(){
         CalendarHelper.createCalendarEvent(this.newRecords);
-
+        CalendarHelper.updateExternalId(this.newRecords);
     }
     
     public void OnAfterInsert(){
-        
+        if (CalendarHelper.enableTriggerForIntegration()) {
+            CalendarHelper.callVisitsIntegration(this.newRecords);
+        }
     }
     
     public void OnBeforeUpdate(){
@@ -25,6 +27,9 @@ public without sharing class CalendarTriggerHandler {
     
     public void OnAfterUpdate(){
         calendarHelper.updateCalendarEvent(this.newMap);
+        if (CalendarHelper.enableTriggerForIntegration()) {
+            CalendarHelper.callVisitsIntegration(this.newRecords);
+        }
     }
     
     public void OnBeforeDelete(){}

@@ -17,7 +17,23 @@ public without sharing class FotosHelper {
     public static Boolean enableTrigger(){
         return isEnabled = true;
     }
-
+    public static void isIntegrated(List<Fotos__c> fotosList, Boolean isToIntegrate){
+        for(Fotos__c foto : fotosList){
+            foto.IsIntegrated__c = isToIntegrate;
+        }
+    }
+    public static void callVisitsIntegration(List<Fotos__c> fotosList){
+        List<String> technicalRecordsIdList = new List<String>();
+        List<String> visitIdList = new List<String>();
+        for(Fotos__c foto : fotosList){
+            technicalRecordsIdList.add(foto.RTR__c);
+        }
+        List<TechnicalReport__c> technicalRecordsList = new List<TechnicalReport__c>([SELECT Id, VisitPlanning__c FROM TechnicalReport__c WHERE Id IN: technicalRecordsIdList]);
+        for(TechnicalReport__c technical : technicalRecordsList){
+            visitIdList.add(technical.VisitPlanning__c);
+        }
+        CalloutVisits.callIntegration(visitIdList);    
+    }
     public static void incrementItem(List<Fotos__c> fotosList){
 
         List<string> rtrList = new List<String>();
