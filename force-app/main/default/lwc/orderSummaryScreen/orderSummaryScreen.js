@@ -22,6 +22,7 @@ export default class OrderSummaryScreen extends LightningElement {
     formattedDeliveryDate;
     totalDelivery;
     hideMargin = false;
+    hideBagQuantity = false;
     @api seedSale = false;
     clientProperty = '';
 
@@ -269,8 +270,9 @@ export default class OrderSummaryScreen extends LightningElement {
                 for(var i= 0; i< this.productDataLocale.length; i++){
                     this.isBarter = true;
                     this.hideMargin = true;
+                    this.hideBagQuantity = this.headerData.IsOrderChild ? true : false;
                     this.orderMargin = this.commodityDataLocale[0].marginValue;
-                    this.totalDelivery = this.commodityDataLocale[0].totalDeliveryFront.replace(' sacas', '');
+                    this.totalDelivery = this.isFilled(this.commodityDataLocale[0].totalDeliveryFront) ? this.commodityDataLocale[0].totalDeliveryFront.replace(' sacas', '') : this.commodityDataLocale[0].totalDelivery.replace(' sacas', '');
                     let unitPrice = Number(this.productDataLocale[i].unitPrice) / Number(this.commodityDataLocale[0].commodityPrice);
                     this.productDataLocale[i]['unitPrice'] = this.fixDecimalPlacesFront(unitPrice).toString() + ' por saca';
                     this.productDataLocale[i]['totalPrice']  = this.fixDecimalPlacesFront(Number(unitPrice * Number(this.productDataLocale[i].quantity))).toString() + ' sacas';
@@ -332,7 +334,7 @@ export default class OrderSummaryScreen extends LightningElement {
                 this.orderMargin = this.fixDecimalPlacesFront(margin) + '%';
                 this.summaryDataLocale.orderMargin = (+(Math.trunc(+(margin + 'e' + 6)) + 'e' + -6)).toFixed(6);
             } else {
-                this.summaryDataLocale.orderMargin = this.orderMargin;
+                this.summaryDataLocale.orderMargin = this.headerData.IsOrderChild ? this.headerData.orderMargin : this.orderMargin;
             }
 
             this.summaryDataLocale.totalValue = orderTotalPrice + royaltiesTotalPrice + tsiTotalPrice;
