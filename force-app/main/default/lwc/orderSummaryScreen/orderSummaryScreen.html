@@ -95,7 +95,7 @@
                             <span>Safra: </span>
                             <span if:true={hasData}>{headerData.safra.Name}</span>
                         </section>
-                        <section if:true={isBarter}>
+                        <section if:false={hideBagQuantity}>
                             <span>Total de sacas: </span>
                             <span if:true={hasData}>{totalDelivery}</span>
                         </section>
