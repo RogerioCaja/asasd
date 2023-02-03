@@ -14,17 +14,19 @@ public without sharing class FotosTriggerHandler {
     
         public void OnBeforeInsert(){
             FotosHelper.incrementItem(this.newRecords);
+            FotosHelper.isIntegrated(this.newRecords, false);
         }
         
         public void OnAfterInsert(){
-        
+            FotosHelper.callVisitsIntegration(this.newRecords);
         }
         
         public void OnBeforeUpdate(){
-    
+           FotosHelper.isIntegrated(this.newRecords, false);
         }
         
         public void OnAfterUpdate(){
+           FotosHelper.callVisitsIntegration(this.newRecords);
         }
         
         public void OnBeforeDelete(){}
