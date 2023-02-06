@@ -20,7 +20,7 @@ public without sharing class OrderScreenController {
             
             Decimal productQuantity = 0;
             for (ProductSerialize item : ordItemList) {
-                productQuantity += item.quantity + item.amountUsed;
+                productQuantity += item.quantity + (item.amountUsed != null ? item.amountUsed : 0);
             }
             order.freightPerUnit = order.freightValue != null ? order.freightValue / productQuantity : 0;
         }
