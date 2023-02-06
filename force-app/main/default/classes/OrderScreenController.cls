@@ -22,7 +22,7 @@ public without sharing class OrderScreenController {
             for (ProductSerialize item : ordItemList) {
                 productQuantity += item.quantity + item.amountUsed;
             }
-            order.freightPerUnit = order.freightValue / productQuantity;
+            order.freightPerUnit = order.freightValue != null ? order.freightValue / productQuantity : 0;
         }
 
         if (order.recTypeId == Schema.SObjectType.Order.getRecordTypeInfosByDeveloperName().get('VendaBarter').getRecordTypeId()) {
