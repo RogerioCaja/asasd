@@ -47,12 +47,15 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
                 var arrayType = data.recordTypeInfos[this.recordTypeId]
                 this.headerData.tipo_venda = arrayType.name;
             }else{
-                getRecordTypeData().then((result) => {
-                    this.headerData.tipo_venda = result
-                }).catch((err) =>{
-                    console.log(err)
-                })
-                
+                if (this.headerData.IsOrderChild || this.childOrder) {
+                    this.recordTypeId = this.headerData.recTypeId;
+                } else {
+                    getRecordTypeData().then((result) => {
+                        this.headerData.tipo_venda = result
+                    }).catch((err) =>{
+                        console.log(err)
+                    })
+                }
             }
             
             this.barterSale = this.headerData.tipo_venda == 'Venda Barter';
