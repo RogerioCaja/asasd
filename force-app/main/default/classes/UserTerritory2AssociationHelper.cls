@@ -23,10 +23,9 @@ public with sharing class UserTerritory2AssociationHelper {
         for(UserTerritory2Association territory : newRecords){
             territoryIdList.add(territory.Territory2Id);
         }
-        List<Territory2> territoryUserList  = new List<Territory2>([SELECT id, DeveloperName, LastModifiedDate, ParentTerritory2.DeveloperName, name, Territory2Type.DeveloperName FROM territory2 WHERE Id =: territoryIdList]);
         
         if(!Test.isRunningTest() ){
-            CalloutCTVCarteira.sendOrder(territoryUserList);
+            CalloutCTVCarteira.sendOrderFuture(territoryIdList);
         }
     }
 }

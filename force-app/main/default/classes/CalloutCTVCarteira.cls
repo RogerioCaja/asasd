@@ -1,6 +1,9 @@
 public without sharing class CalloutCTVCarteira {
-
-    
+    @future(callout = true)
+    public static void sendOrderFuture(List<String> territoryListId) {
+        List<Territory2> territoryUserList  = new List<Territory2>([SELECT id, DeveloperName, LastModifiedDate, ParentTerritory2.DeveloperName, name, Territory2Type.DeveloperName FROM territory2 WHERE Id =: territoryListId]);
+        CalloutCTVCarteira.sendOrder(territoryUserList);
+    }
     public static void sendOrder(List<Territory2> territoryList) {
 
         List<RequestParameters> request = new List<RequestParameters>();
