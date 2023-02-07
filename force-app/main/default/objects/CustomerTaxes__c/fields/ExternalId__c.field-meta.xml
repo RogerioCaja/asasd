@@ -3,8 +3,8 @@
     <fullName>ExternalId__c</fullName>
     <caseSensitive>false</caseSensitive>
     <externalId>true</externalId>
-    <label>ExternalId</label>
-    <length>100</length>
+    <label>Código Imposto Cliente</label>
+    <length>150</length>
     <required>false</required>
     <trackFeedHistory>false</trackFeedHistory>
     <type>Text</type>

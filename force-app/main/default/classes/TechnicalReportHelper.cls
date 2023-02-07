@@ -17,6 +17,14 @@ public without sharing class TechnicalReportHelper {
     public static Boolean enableTrigger(){
         return isEnabled = true;
     }
+    public static void callVisitsIntegration(List<TechnicalReport__c> tech){
+        List<String> visitIdList = new List<String>();
+        for(TechnicalReport__c technical : tech){
+            visitIdList.add(technical.VisitPlanning__c);
+        }
+        CalloutVisits.callIntegration(visitIdList);    
+    }
+
     public static void incrementLineItem(List<TechnicalReport__c> tech){
         List<String> visitIds = new List<String>();
         for(TechnicalReport__c techRep : tech){

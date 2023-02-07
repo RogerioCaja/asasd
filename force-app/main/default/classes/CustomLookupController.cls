@@ -166,8 +166,12 @@ public without sharing class CustomLookupController {
                                   '         OR PrincipleActive__c LIKE \'%' + String.escapeSingleQuotes(searchString.trim()) + '%\'' +
                                   '       )' +
                                   ' ORDER BY Name' +
-                                  ' LIMIT 9' +
-                                  ' OFFSET :numberOfRowsToSkip';
+                                  (
+                                    !priceScreen && !isCommodity ? 
+                                        ' LIMIT 9' +
+                                        ' OFFSET :numberOfRowsToSkip' : 
+                                        ''
+                                  );
             
             List<SObject> queryResult = Database.query(productQuery);
             Set<Id> prodGroupIds = new Set<Id>();
@@ -293,7 +297,7 @@ public without sharing class CustomLookupController {
                         
                         Boolean priceIncluded = false;
                         String key = prefix + jda.Account__c + '-' + (String)s.get('Id');
-                        if (((productParams.accountId == '' && jda.Account__c == null) || (productParams.accountId != '')) && ((seedSale == true && !prodIdsWithoutQuota.contains((String)s.get('Id'))) || !seedSale)) {
+                        if (((productParams.accountId == '' && jda.Account__c == null) || (productParams.accountId != '')) && ((!productParams.dontGetSeeds && !prodIdsWithoutQuota.contains((String)s.get('Id'))) || productParams.dontGetSeeds)) {
                             if (jda.Account__c != null && !result.recordsDataMap.containsKey(key)) {
                                 result.recordsDataMap.put(key, productData);
                                 priceIncluded = true;
