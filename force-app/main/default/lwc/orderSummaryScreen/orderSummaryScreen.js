@@ -93,6 +93,8 @@ export default class OrderSummaryScreen extends LightningElement {
             let orderTotalCost = 0;
             if(this.headerData.tipo_venda == 'Venda Barter'){
                 for(var i= 0; i< this.productDataLocale.length; i++){
+                    orderTotalPrice += Number(this.productDataLocale[i].unitPrice) * Number(this.productDataLocale[i].quantity);
+                    orderTotalCost += Number(this.productDataLocale[i].practicedCost) * Number(this.productDataLocale[i].quantity);
                     this.isBarter = true;
                     this.hideMargin = true;
                     this.orderMargin = this.commodityDataLocale[0].marginValue;
@@ -132,14 +134,9 @@ export default class OrderSummaryScreen extends LightningElement {
                 }
             }
             
-            if (this.headerData.tipo_venda != 'Venda Barter') {
-                let margin = (1 - (orderTotalCost / orderTotalPrice)) * 100;
-                this.orderMargin = this.fixDecimalPlacesFront(margin) + '%';
-                this.summaryDataLocale.orderMargin = (+(Math.trunc(+(margin + 'e' + 6)) + 'e' + -6)).toFixed(6);
-            } else {
-                this.summaryDataLocale.orderMargin = this.orderMargin;
-            }
-
+            let margin = (1 - (orderTotalCost / orderTotalPrice)) * 100;
+            this.orderMargin = this.fixDecimalPlacesFront(margin) + '%';
+            this.summaryDataLocale.orderMargin = (+(Math.trunc(+(margin + 'e' + 6)) + 'e' + -6)).toFixed(6);
             this.defineOrderMargin();
         }
     }
