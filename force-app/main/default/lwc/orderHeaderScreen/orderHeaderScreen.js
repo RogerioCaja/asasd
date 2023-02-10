@@ -328,6 +328,7 @@ export default class OrderHeaderScreen extends LightningElement {
     //Status Pedido
     status_pedido = "Em digitação";
     frete = "CIF";
+    deliveryId='';
 
     //Condicao Pagamento
     @track redispatchCondicaoPagamentoObject = COND_PAGAMENTO_OBJECT;
@@ -556,7 +557,7 @@ export default class OrderHeaderScreen extends LightningElement {
                         this.safraName = record.Name;
                     }
 
-                   
+                    if (field == 'cliente_entrega') this.deliveryId = this.headerDictLocale.cliente_entrega.Id;
 
                     if(field == 'ctv_venda'){
                         let getCompanyData = {

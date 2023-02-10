@@ -35,6 +35,7 @@ public without sharing class Lookup {
         }
 
         if (requestData.targetObject == 'User') {
+            String profileName = [SELECT Name FROM Profile WHERE Id =: UserInfo.getProfileId()].Name;
             Boolean userRelatedToTerritory = false;
             Boolean hasRelatedTerritory = false;
             String userTerritoryType = '';
@@ -44,7 +45,6 @@ public without sharing class Lookup {
             Set<Id> relatedTerritories = new Set<Id>();
             
             List<String> territoryTypes = new List<String>{'Torre', 'SalesOrg', 'SalesOffice', 'SalesTeam', 'SellerPosition'};
-            String profileName = [SELECT Name FROM Profile WHERE Id =: UserInfo.getProfileId()].Name;
             for (UserTerritory2Association userAssociation : [
                 SELECT Id,
                        Territory2Id,
@@ -200,7 +200,7 @@ public without sharing class Lookup {
                     }
                 }
             }
-
+            if (profileName == 'Balcão') relatedUsers.add(UserInfo.getUserId());
             query += ' AND Id IN: relatedUsers';
         } else if (requestData.targetObject == 'CondicaoPagamento__c') {
             query += ' AND BarterCondition__c =: barterSale';
@@ -296,6 +296,7 @@ public without sharing class Lookup {
     public class RequestDTO {
         public String targetObject;
         public String accountId;
+        public String deliveryId;
         public List<String> searchFields;
         public List<String> moreFields;
 
