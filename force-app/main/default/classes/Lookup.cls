@@ -36,6 +36,7 @@ public without sharing class Lookup {
 
         if (requestData.targetObject == 'User') {
             String profileName = [SELECT Name FROM Profile WHERE Id =: UserInfo.getProfileId()].Name;
+            String idToUse = profileName == 'Balcão' ? requestData.deliveryId : requestData.accountId;
             Boolean userRelatedToTerritory = false;
             Boolean hasRelatedTerritory = false;
             String userTerritoryType = '';
@@ -64,13 +65,13 @@ public without sharing class Lookup {
 
             if (priceScreen && !userRelatedToTerritory) {
                 if (!hasRelatedTerritory) {
-                    if (requestData.accountId != '' && requestData.accountId != null) {
+                    if (idToUse != '' && idToUse != null) {
                         for (ObjectTerritory2Association objAssociation : [
                             SELECT Id,
                                    Territory2Id,
                                    Territory2.Territory2Type.DeveloperName
                               FROM ObjectTerritory2Association
-                             WHERE ObjectId =: requestData.accountId
+                             WHERE ObjectId =: idToUse
                         ]) {
                             relatedTerritories.add(objAssociation.Territory2Id);
         
@@ -112,13 +113,13 @@ public without sharing class Lookup {
                     }
                 } else {
                     Boolean addCondition = false;
-                    if (requestData.accountId != '' && requestData.accountId != null) {
+                    if (idToUse != '' && idToUse != null) {
                         for (ObjectTerritory2Association objAssociation : [
                             SELECT Id,
                                    Territory2Id,
                                    Territory2.Territory2Type.DeveloperName
                               FROM ObjectTerritory2Association
-                             WHERE ObjectId =: requestData.accountId
+                             WHERE ObjectId =: idToUse
                         ]) {
                             relatedTerritories.add(objAssociation.Territory2Id);
                             addCondition = true;
@@ -164,7 +165,7 @@ public without sharing class Lookup {
                                Territory2Id,
                                Territory2.Territory2Type.DeveloperName
                           FROM ObjectTerritory2Association
-                         WHERE ObjectId =: requestData.accountId
+                         WHERE ObjectId =: idToUse
                     ]) {
                         relatedTerritories.add(objAssociation.Territory2Id);
     
