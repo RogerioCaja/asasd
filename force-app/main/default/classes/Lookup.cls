@@ -58,7 +58,6 @@ public without sharing class Lookup {
                 Set<Id> relatedTerritories = new Set<Id>();
                 
                 List<String> territoryTypes = new List<String>{'Torre', 'SalesOrg', 'SalesOffice', 'SalesTeam', 'SellerPosition'};
-                String profileName = [SELECT Name FROM Profile WHERE Id =: UserInfo.getProfileId()].Name;
                 for (UserTerritory2Association userAssociation : [
                     SELECT Id,
                         Territory2Id,
