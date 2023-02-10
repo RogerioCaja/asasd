@@ -152,7 +152,8 @@ export default class PriceSearchScreen extends LightningElement {
                     data: JSON.stringify(productParams),
                     isCommodity: false,
                     productsIds: [],
-                    priceScreen: true
+                    priceScreen: true,
+                    isLimit: false
                 })
                 .then(result => {
                     this.showBaseProducts = result.recordsDataList.length > 0;
