@@ -10,6 +10,7 @@ public without sharing class Lookup {
         String query = getQueryBase(requestData);
         Set<Id> availableSalesCondition = new Set<Id>();
         String position = 'SellerPosition';
+        String active = 'Ativo';
 
         if(requestData.targetObject == 'Territory2'){
             query +=  'AND Territory2Type.DeveloperName =: position';
@@ -39,6 +40,11 @@ public without sharing class Lookup {
             query += ' AND Id IN: availableSalesCondition';
         }
         
+
+        if(requestData.targetObject == 'Safra__c'){
+            query += ' AND ReleaseStatus__c =: active';
+        }
+
         if (requestData.targetObject == 'User' && !clientTerritoriesScreen) {
             if (quoteScreen == null || !quoteScreen) {
                 Boolean userRelatedToTerritory = false;
