@@ -480,6 +480,284 @@ export default class OrderProductScreen extends LightningElement {
         } else {
             this.showLoading = false;
         }
+        
+        isSeedSale({salesOrgId: this.selectedCompany.salesOrgId, productGroupName: null})
+        .then((result) => {
+            this.seedSale = result;
+            
+            if (this.isFilled(this.selectedCompany.activitySectorName) && (this.selectedCompany.activitySectorName.toUpperCase() == 'SEMENTES' || this.selectedCompany.activitySectorName.toUpperCase() == 'SEMENTE')) {
+                this.showRoyaltyTsi = result;
+            }
+
+            if (this.seedSale && this.isFilled(this.selectedCompany.activitySectorName) && (this.selectedCompany.activitySectorName.toUpperCase() == 'INSUMOS' || this.selectedCompany.activitySectorName.toUpperCase() == 'INSUMO')) {
+                this.dontGetSeeds = true;
+            }
+
+            this.productParams = {
+                salesConditionId: this.headerData.condicao_venda.Id,
+                accountId: this.accountData.Id,
+                ctvId: this.headerData.ctv_venda.Id,
+                safra: this.headerData.safra.Id,
+                productCurrency: this.headerData.moeda,
+                culture: this.headerData.cultura.Id,
+                orderType: this.headerData.tipo_venda,
+                supplierCenter: this.selectedCompany.supplierCenter,
+                activitySectorName: this.selectedCompany.activitySectorName,
+                salesOrgId: this.selectedCompany.salesOrgId != null ? this.selectedCompany.salesOrgId : '',
+                salesOfficeId: this.selectedCompany.salesOfficeId != null ? this.selectedCompany.salesOfficeId : '',
+                salesTeamId: this.selectedCompany.salesTeamId != null ? this.selectedCompany.salesTeamId : '',
+                numberOfRowsToSkip: this.numberOfRowsToSkip,
+                dontGetSeeds: this.isFilled(this.dontGetSeeds) ? this.dontGetSeeds : false,
+                paymentDate: this.headerData.data_pagamento
+            };
+
+            let prodsIds = [];
+            for (let index = 0; index < this.products.length; index++) {
+                prodsIds.push(this.products[index].productId);
+            }
+
+            let formerItens = [];
+            let benefitItens = [];
+            for (let index = 0; index < this.combosSelecteds.length; index++) {
+                let currentCombo = this.combosSelecteds[index];
+                if (this.isFilled(currentCombo) && currentCombo.comboQuantity > 0 && currentCombo.specificItemCombo) {
+                    if (this.isFilled(currentCombo.formerItems) && currentCombo.formerItems.length > 0) {
+                        for (let i = 0; i < currentCombo.formerItems.length; i++) {
+                            let former = currentCombo.formerItems[i];
+                            formerItens.push({productName: former.productName, productId: former.productId, productCode: former.productCode, minQUantity: former.minQUantity, discountPercentage: former.discountPercentage, comboId: former.comboId, comboQuantity: currentCombo.comboQuantity, industryCombo: currentCombo.comboType == 'Indústria'});
+                            prodsIds.push(former.productId);
+                        }
+                    }
+
+                    if (this.isFilled(currentCombo.benefitItems) && currentCombo.benefitItems.length > 0) {
+                        for (let i = 0; i < currentCombo.benefitItems.length; i++) {
+                            let benefit = currentCombo.benefitItems[i];
+                            benefitItens.push({productName: benefit.productName, productId: benefit.productId, productCode: benefit.productCode, minQUantity: benefit.minQUantity, discountPercentage: benefit.discountPercentage, comboId: benefit.comboId, comboQuantity:currentCombo.comboQuantity, industryCombo: currentCombo.comboType == 'Indústria'});
+                            prodsIds.push(benefit.productId);
+                        }
+                    }
+                }
+            }
+
+            if (this.seedSale && this.headerData.tipo_pedido != 'Pedido Filho' && !this.headerData.IsOrderChild) {
+                this.verifyQuota = true;
+                if (prodsIds.length > 0) {
+                    let quoteData = {cropId:this.headerData.safra.Id,sellerId:this.headerData.ctv_venda.Id,productsIds:prodsIds};
+                    if (this.verifyQuota && this.showRoyaltyTsi) {
+                        checkQuotaQuantity({data: JSON.stringify(quoteData)})
+                        .then((result) => {
+                            this.allProductQuotas = JSON.parse(result);
+                        });
+                    }
+                }
+            } else {
+                this.verifyQuota = false;
+            }
+
+            if (this.isFilled(this.headerData.safra.Id)) {
+                getSafraInfos({safraId: this.headerData.safra.Id, salesConditionId: this.salesConditionId, salesOrgId: this.headerData.organizacao_vendas.Id})
+                .then((result) => {
+                    let safraResult = JSON.parse(result);
+                    this.safraData = {initialDate:safraResult.initialDate,endDate:safraResult.endDateBilling};
+                    let orderData = {paymentDate:this.headerData.data_pagamento != null ? this.headerData.data_pagamento : '',salesOrg:this.selectedCompany.salesOrgId != null ? this.selectedCompany.salesOrgId : '',salesOffice:this.selectedCompany.salesOfficeId != null ? this.selectedCompany.salesOfficeId : '',salesTeam:this.selectedCompany.salesTeamId != null ? this.selectedCompany.salesTeamId : '',salesCondition:this.salesConditionId != null ? this.salesConditionId : '',safra:this.headerData.safra.Id != null ? this.headerData.safra.Id : '',culture:this.headerData.cultura.Id != null ? this.headerData.cultura.Id : ''};
+                    let allowChange = (this.headerData.tipo_pedido != 'Pedido Filho' && !this.headerData.IsOrderChild && this.isFilled(this.headerData.codigo_sap)) || (this.headerData.tipo_pedido == 'Pedido Filho' && this.isFilled(this.headerData.codigo_sap)) ? false : true;
+                    let checkFinancialInfos = true;
+
+                    if (this.headerData.pre_pedido && (allowChange || this.checkCombo)) {
+                        this.financialInfoLogic(orderData);
+                        checkFinancialInfos = false;
+
+                        fetchOrderRecords({searchString: '', data: JSON.stringify(this.productParams), isCommodity: false, productsIds: prodsIds, priceScreen: false, getSeedPrices: this.showRoyaltyTsi, isLimit: true})
+                        .then(result => {
+                            this.productsPriceMap = result.recordsDataMap;
+                            this.salesInfos = result.salesResult;
+                            let productsWithoutPrice = '';
+                            let listPriceChange = false;
+                            let orderProducts = [];
+                            let itemToExclude = [];
+                            let idsToRemove = [];
+                            let comboItens = [];
+                            let counter = 1;
+                            
+                            for (let index = 0; index < formerItens.length; index++) {
+                                let formerProductQuantity = formerItens[index].minQUantity * formerItens[index].comboQuantity;
+                                let currentItem = this.products.find(e => e.productId == formerItens[index].productId);
+                                if (this.isFilled(currentItem)) {
+                                    currentItem.quantity = formerProductQuantity;
+                                    currentItem.dosage = formerProductQuantity / this.hectares;
+                                    currentItem.dosageFront = this.fixDecimalPlacesFront(currentItem.dosage);
+                                    currentItem.comboId = formerItens[index].comboId;
+                                    currentItem.industryCombo = formerItens[index].industryCombo;
+                                    currentItem.containsCombo = true;
+                                    currentItem.containsComboString = 'Sim';
+                                    currentItem.formerItem = true;
+                                    currentItem = this.emptyDiscounFields(currentItem);
+                                    comboItens.push(currentItem);
+
+                                    for (let i = 0; i < this.products.length; i++) {
+                                        if (currentItem.productId == formerItens[index].productId) idsToRemove.push(currentItem.productId);
+                                    }
+                                } else {
+                                    let comboValues = {dosage: formerProductQuantity / this.hectares, quantity: formerProductQuantity, comboDiscount: 0, comboId: formerItens[index].comboId, industryCombo: formerItens[index].industryCombo, containsCombo: true, formerItem: true, benefitItem: false};
+                                    let productInfos = this.getProductByPriority({Id: formerItens[index].productId});
+                                    let priorityPrice = {listPrice: productInfos.priorityPrice.listPrice, costPrice: productInfos.priorityPrice.costPrice, priceListCode: productInfos.priorityPrice.priceListCode};
+                                    comboItens.push(this.createProduct(productInfos.productInfos, priorityPrice, comboValues, this.getCurrentProductPosition() + counter));
+                                    counter++;
+                                }
+                            }
+
+                            for (let index = 0; index < benefitItens.length; index++) {
+                                let benefitProductQuantity = benefitItens[index].minQUantity * benefitItens[index].comboQuantity;
+                                let currentItem = this.products.find(e => e.productId == benefitItens[index].productId)
+                                if (this.isFilled(currentItem)) {
+                                    currentItem.quantity = benefitProductQuantity;
+                                    currentItem.dosage = benefitProductQuantity / this.hectares;
+                                    currentItem.dosageFront = this.fixDecimalPlacesFront(currentItem.dosage);
+                                    currentItem.comboId = formerItens[index].comboId;
+                                    currentItem.industryCombo = formerItens[index].industryCombo;
+                                    currentItem.containsCombo = true;
+                                    currentItem.containsComboString = 'Sim';
+                                    currentItem.benefitItem = true;
+                                    currentItem = this.emptyDiscounFields(currentItem);
+                                    currentItem.comboDiscountPercent = benefitItens[index].discountPercentage + '%';
+                                    comboItens.push(currentItem);
+                                    for (let i = 0; i < this.products.length; i++) {
+                                        if (currentItem.productId == benefitItens[index].productId) idsToRemove.push(currentItem.productId);
+                                    }
+                                } else {
+                                    let comboValues = {dosage: benefitProductQuantity / this.hectares, quantity: benefitProductQuantity, comboDiscount: benefitItens[index].discountPercentage, comboId: benefitItens[index].comboId, industryCombo: benefitItens[index].industryCombo, containsCombo: true, formerItem: false, benefitItem: true};
+                                    let productInfos = this.getProductByPriority({Id: benefitItens[index].productId});
+                                    let priorityPrice = {listPrice: productInfos.priorityPrice.listPrice, costPrice: productInfos.priorityPrice.costPrice, priceListCode: productInfos.priorityPrice.priceListCode};
+                                    comboItens.push(this.createProduct(productInfos.productInfos, priorityPrice, comboValues, this.getCurrentProductPosition() + counter));
+                                    counter++;
+                                }
+                            }
+
+                            let allProducts = [];
+                            for (let index = 0; index < this.products.length; index++) {
+                                if (!idsToRemove.includes(this.products[index].productId)) allProducts.push(this.products[index]);
+                            }
+                            comboItens.push.apply(comboItens, allProducts);
+                            this.products = this.parseObject(comboItens);
+                            
+                            for (let index = 0; index < this.products.length; index++) {
+                                this.addProduct = this.products[index];
+                                let priorityInfos = this.getProductByPriority({Id: this.addProduct.productId}).priorityPrice;
+                                if (this.isFilled(priorityInfos)) {
+                                    if (priorityInfos.listPrice != this.addProduct.listPrice || priorityInfos.costPrice != this.addProduct.listCost || this.checkCombo) {
+                                        this.addProduct.listPrice = this.isFilled(priorityInfos.listPrice) ? this.fixDecimalPlaces(priorityInfos.listPrice) : 0;
+                                        this.addProduct.listPriceFront = this.isFilled(priorityInfos.listPrice) ? this.fixDecimalPlacesFront(priorityInfos.listPrice) : 0;
+                                        this.addProduct.listCost = this.isFilled(priorityInfos.costPrice) ? this.fixDecimalPlaces(priorityInfos.costPrice) : 0;
+                                        this.addProduct.practicedCost = this.isFilled(priorityInfos.costPrice) ? this.fixDecimalPlaces(priorityInfos.costPrice) : 0;
+                                        this.addProduct.priceListCode = priorityInfos.priceListCode;
+
+                                        this.addProduct.tListPrice = this.isFilled(priorityInfos.tListPrice) ? priorityInfos.tListPrice : 0;
+                                        this.addProduct.tListPriceFront = this.isFilled(priorityInfos.tListPrice) ? 'R$' + this.fixDecimalPlacesFront(priorityInfos.tListPrice) : 'R$0';
+                                        
+                                        this.addProduct.rListPrice = this.isFilled(priorityInfos.rListPrice) ? priorityInfos.rListPrice : 0;
+                                        this.addProduct.rListPriceFront = this.isFilled(priorityInfos.rListPrice) ? 'R$' + this.fixDecimalPlacesFront(priorityInfos.rListPrice) : 'R$0';
+
+                                        if (this.addProduct.commercialAdditionPercentage != '0%') this.addProduct.unitPrice = this.addProduct.listPrice + this.calculateValue(this.addProduct.commercialAdditionPercentage, this.addProduct.listPrice);
+                                        else if (this.addProduct.commercialDiscountPercentage != '0%') this.addProduct.unitPrice = this.addProduct.listPrice - this.calculateValue(this.addProduct.commercialDiscountPercentage, this.addProduct.listPrice);
+
+                                        this.addProduct.unitPriceFront = this.fixDecimalPlacesFront(this.addProduct.unitPrice);
+                                        this.calculateDiscountOrAddition();
+                                        this.calculateTotalPrice(true, this.addProduct.commercialDiscountValue > 0);
+                                        let margin = this.isFilled(this.addProduct.practicedCost) ? this.fixDecimalPlaces((1 - (Number(this.addProduct.practicedCost) / (this.addProduct.totalPrice / this.addProduct.quantity))) * 100) : 0;
+                                        this.addProduct.commercialMarginPercentage = margin;
+                                        listPriceChange = true;
+                                    }
+                                    orderProducts.push(this.addProduct);
+                                } else {
+                                    productsWithoutPrice = productsWithoutPrice != '' ? productsWithoutPrice + ', ' + this.addProduct.name : this.addProduct.name;
+                                    itemToExclude.push(this.addProduct.orderItemId)
+                                }
+                            }
+
+                            this.products = this.parseObject(orderProducts);
+                            this.showIncludedProducts = this.products.length > 0;
+                            this.excludedItems = this.isFilled(this.excludedItems) ? this.excludedItems : this.parseObject(itemToExclude);
+                            this._setExcludedesItems();
+                            if (this.products.length > 0) this._setData();
+                            if (listPriceChange && !this.checkCombo) this.showToast('warning', 'Alteração na lista de preço!', 'Os preços foram ajustados de acordo com os valores da lista de preço. Verifique-os.');
+                            if (productsWithoutPrice != '') this.showToast('warning', 'Produtos sem preço!', 'Os produtos ' + productsWithoutPrice + ' foram removidos do pedido.');
+                        });
+                    }
+
+                    if (!this.headerData.IsOrderChild && allowChange && checkFinancialInfos) this.financialInfoLogic(orderData);
+                    else this.showLoading = false;
+
+                    if (!this.headerData.IsOrderChild && !this.isFilled(this.headerData.codigo_sap)) {
+                        let headerValues = {cropId:this.headerData.safra.Id,salesOrgId:this.selectedCompany.salesOrgId,salesTeamId:this.selectedCompany.salesTeamId,salesOfficeId:this.selectedCompany.salesOfficeId,salesConditionId:this.headerData.condicao_venda.Id};
+                        getMixAndConditionCombos({data: JSON.stringify(headerValues)})
+                        .then((result) => {
+                            let combosAndPromotions = JSON.parse(result);
+                            if (combosAndPromotions.length > 0) this.combosData = combosAndPromotions;
+                        });
+                    }
+                })
+            } else {
+                this.showLoading = false;
+            }
+        });
+    }
+
+    emptyDiscounFields(item) {
+        item.commercialDiscountPercentage = '0%';
+        item.commercialDiscountPercentageFront = '0%';
+        item.commercialDiscountValue = 0;
+        item.commercialDiscountValueFront = 0;
+        item.commercialAdditionPercentage = '0%';
+        item.commercialAdditionPercentageFront = '0%';
+        item.commercialAdditionValue = 0;
+        item.commercialAdditionValueFront = 0;
+        item.comboDiscountPercent = '0%';
+        item.comboDiscountValue = 0;
+        item.initialTotalValue = null;
+        return item;
+    }
+
+    financialInfoLogic(orderData) {
+        getFinancialInfos({data: JSON.stringify(orderData)})
+        .then((result) => {
+            this.financialInfos = JSON.parse(result);
+
+            if (this.products.length > 0) {
+                let showPriceChange = false;
+                let showQuantityChange = false;
+                let priceChangeMessage = '';
+                let currentProducts = this.products;
+
+                for (let index = 0; index < currentProducts.length; index++) {
+                    this.recalculatePrice = true;
+                    this.editProduct(currentProducts[index].position, true);
+                    let oldQUantity = currentProducts[index].quantity;
+                    this.addProduct.quantity = this.calculateMultiplicity(this.addProduct.dosage * this.hectares, false);
+                    if (this.addProduct.quantity != oldQUantity) showQuantityChange = true;
+
+                    let oldPrice = currentProducts[index].unitPrice;
+                    this.calculateTotalPrice(true);
+                    let newPrice = this.changeProduct(this.addProduct);
+
+                    if (oldPrice != newPrice) {
+                        showPriceChange = true;
+                        priceChangeMessage += 'O preço do ' + currentProducts[index].name + ' foi alterado de ' + oldPrice + ' para ' + newPrice + '.\n';
+                    }
+                }
+
+                this.recalculatePrice = false;
+                if (showPriceChange) {
+                    if (currentProducts.length > 1) priceChangeMessage = 'Os preços foram recalculados devido a alteração de data de pagamento. Verifique-os.';
+                    this.showToast('warning', 'Alteração nos preços!', priceChangeMessage);
+                }
+                if (showQuantityChange) this.showToast('warning', 'Alteração nas quantidades!', 'As quantidades foram recalculados devido a alteração no hectar. Verifique-os.');
+                if (this.headerData.tipo_venda == 'Venda Barter') this.recalculateCommodities();
+                this.showLoading = false;
+                this._setData();
+            } else {
+                this.showLoading = false;
+            }
+        })
     }
 
     getProductByPriority(selectedProduct) {
@@ -576,6 +854,82 @@ export default class OrderProductScreen extends LightningElement {
                 };
             }
         }
+    }
+
+    createProduct(prod, prices, combos, counter) {
+        console.log('counter ==>' + counter);
+        let newProductData = {
+            entryId: prod.entryId,
+            productId: prod.Id,
+            name: prod.Name,
+            unity: prod.unity,
+            listPrice: this.isFilled(prices.listPrice) ? this.fixDecimalPlaces(prices.listPrice) : 0,
+            listPriceFront: this.isFilled(prices.listPrice) ? this.fixDecimalPlacesFront(prices.listPrice) : 0,
+            listCost: this.isFilled(prices.costPrice) ? this.fixDecimalPlaces(prices.costPrice) : 0,
+            practicedCost: this.isFilled(prices.costPrice) ? this.fixDecimalPlaces(prices.costPrice) : 0,
+            dosage: this.isFilled(combos) ? combos.dosage : (this.isFilled(prod.dosage) ? prod.dosage : ''),
+            dosageFront: this.isFilled(combos) ? combos.dosage : (this.isFilled(prod.dosage) ? this.fixDecimalPlacesFront(prod.dosage) : ''),
+            brokerage: 0,
+            brokerageFront: 0,
+            quantity: this.isFilled(combos) ? combos.quantity : null,
+            unitPrice: this.isFilled(prices.listPrice) ? this.fixDecimalPlaces(prices.listPrice) : 0,
+            unitPriceFront: this.isFilled(prices.listPrice) ? this.fixDecimalPlacesFront(prices.listPrice) : 0,
+            totalPrice: null,
+            totalPriceFront: null,
+            totalPriceWithBrokerage: null,
+            totalPriceWithBrokerageFront: null,
+            initialTotalValue: null,
+            commercialDiscountPercentage: this.isFilled(combos) ? '0%' : null,
+            commercialDiscountPercentageFront: this.isFilled(combos) ? '0%' : null,
+            commercialDiscountValue: this.isFilled(combos) ? 0 : null,
+            commercialDiscountValueFront: this.isFilled(combos) ? 0 : null,
+            commercialAdditionPercentage: this.isFilled(combos) ? '0%' : null,
+            commercialAdditionPercentageFront: this.isFilled(combos) ? '0%' : null,
+            commercialAdditionValue: this.isFilled(combos) ? 0 : null,
+            commercialAdditionValueFront: this.isFilled(combos) ? 0 : null,
+            financialAdditionPercentage: this.isFilled(combos) ? '0%' : null,
+            financialAdditionPercentageFront: this.isFilled(combos) ? '0%' : null,
+            financialAdditionValue: this.isFilled(combos) ? 0 : null,
+            financialAdditionValueFront: this.isFilled(combos) ? 0 : null,
+            financialDecreasePercentage: this.isFilled(combos) ? '0%' : null,
+            financialDecreasePercentageFront: this.isFilled(combos) ? '0%' : null,
+            financialDecreaseValue: this.isFilled(combos) ? 0 : null,
+            financialDecreaseValueFront: this.isFilled(combos) ? 0 : null,
+            invoicedQuantity: this.isFilled(prod.invoicedQuantity) ? prod.invoicedQuantity : 0,
+            motherAvailableQuantity: prod.motherAvailableQuantity,
+            activePrinciple: prod.activePrinciple != null ? prod.activePrinciple : '',
+            productGroupId: prod.productGroupId != null ? prod.productGroupId : '',
+            productGroupName: prod.productGroupName != null ? prod.productGroupName : '',
+            productSubgroupName: prod.productSubgroupName != null ? prod.productSubgroupName : '',
+            productHierarchyId: prod.productHierarchyId != null ? prod.productHierarchyId : '',
+            sapStatus: prod.sapStatus != null ? prod.sapStatus : '',
+            sapProductCode: prod.sapProductCode != null ? prod.sapProductCode : '',
+            ptaProduct: prod.ptaProduct,
+            priceListCode: prices.priceListCode,
+            sieve: this.isFilled(prod.sieve) ? prod.sieve : '',
+            productClass: this.isFilled(prod.productClass) ? prod.productClass : '',
+            comboDiscountPercent: this.isFilled(combos) ? combos.comboDiscount + '%' : '0%',
+            comboDiscountValue: 0,
+            comboId: this.isFilled(combos) ? combos.comboId : null,
+            industryCombo: this.isFilled(combos) ? combos.industryCombo : false,
+            position: this.isFilled(counter) ? counter : null,
+            containsCombo: this.isFilled(combos) ? combos.containsCombo : (this.isFilled(prod.containsCombo) ? prod.containsCombo : false),
+            formerItem: this.isFilled(combos) ? combos.formerItem : false,
+            benefitItem: this.isFilled(combos) ? combos.benefitItem : false,
+            tListPrice: this.isFilled(prices.tListPrice) ? prices.tListPrice : 0,
+            tListPriceFront: this.isFilled(prices.tListPrice) ? 'R$' + this.fixDecimalPlacesFront(prices.tListPrice) : 'R$0',
+            tsiTotalPrice: 0,
+            tsiTotalPriceFront: 0,
+            rListPrice: this.isFilled(prices.rListPrice) ? prices.rListPrice : 0,
+            rListPriceFront: this.isFilled(prices.rListPrice) ? 'R$' + this.fixDecimalPlacesFront(prices.rListPrice) : 'R$0',
+            royaltyTotalPrice: 0,
+            royaltyTotalPriceFront: 0,
+            brokeragePerUnit: this.isFilled(prod.brokeragePerUnit) ? prod.brokeragePerUnit : '',
+            containsComboString: 'Não'
+        };
+
+        newProductData.containsComboString = newProductData.containsCombo ? 'Sim' : 'Não';
+        return newProductData;
     }
 
     changeTableColumns(event) {
@@ -1305,6 +1659,74 @@ export default class OrderProductScreen extends LightningElement {
         this.dispatchEvent(setItems);
     }
 
+    _setcombosSelecteds() {
+        const setItems = new CustomEvent('setcombosselecteds');
+        setItems.data = this.combosSelecteds;
+        this.dispatchEvent(setItems);
+    }
+
+    _setTaxData() {
+        const setItems = new CustomEvent('settaxdata');
+        setItems.data = this.taxData;
+        this.dispatchEvent(setItems);
+    }
+
+    _setHideFooterButtons(hideButton) {
+        const setItems = new CustomEvent('sethidefooterbuttons');
+        setItems.data = hideButton;
+        this.dispatchEvent(setItems);
+    }
+
+    handlePrevious(event) {
+        const setItems = new CustomEvent('sethandleprevious');
+        setItems.data = false;
+        this.dispatchEvent(setItems);
+    }
+
+    @api
+    handleNext(event) {
+        this.showCombos = false;
+        const setItems = new CustomEvent('sethandlenext');
+        setItems.data = false;
+        this.dispatchEvent(setItems);
+
+        let allCombos = this.parseObject(this.combosSelecteds);
+        this.itensToRemove = [];
+        this.comboProducts.formerIds = [];
+        this.comboProducts.benefitsIds = [];
+
+        for (let index = 0; index < allCombos.length; index++) {
+            let currentCombo = allCombos[index];
+            if (currentCombo.specificItemCombo) {
+                for (let i = 0; i < currentCombo.formerItems.length; i++) {
+                    if (currentCombo.comboQuantity > 0) this.comboProducts.formerIds.push(currentCombo.formerItems[i].productId);
+                    else this.itensToRemove.push(currentCombo.formerItems[i]);
+                }
+
+                for (let i = 0; i < currentCombo.benefitItems.length; i++) {
+                    if (currentCombo.comboQuantity > 0) this.comboProducts.benefitsIds.push(currentCombo.benefitItems[i].productId);
+                    else this.itensToRemove.push(currentCombo.benefitItems[i]);
+                }
+            }
+        }
+
+        let getCompanyData = {ctvId: this.headerData.ctv_venda.Id != null ? this.headerData.ctv_venda.Id : '',accountId: this.accountData.Id != null ? this.accountData.Id : '',orderType: this.headerData.tipo_venda,approvalNumber: 1};
+        if ((this.isFilled(this.comboProducts.formerIds) && this.comboProducts.formerIds.length > 0) || (this.isFilled(this.comboProducts.benefitsIds) && this.comboProducts.benefitsIds.length > 0)) {
+            this.checkCombo = true;
+        }
+
+        let currentProducts = [];
+        console.log('this.products.length ==>' + this.products.length);
+        for (let index = 0; index < this.products.length; index++) {
+            let itemToExclude = this.itensToRemove.find(e => e.productId == this.products[index].productId);
+            if (!this.isFilled(itemToExclude)) currentProducts.push(this.products[index]);
+        }
+
+        this.products = this.parseObject(currentProducts);
+        this._setData();
+        this.getCompanies(getCompanyData);
+    }
+
     showResults(event){
         this.showBaseProducts = event.showResults;
         this.baseProducts = event.results.recordsDataList;
@@ -1560,7 +1982,9 @@ export default class OrderProductScreen extends LightningElement {
             data: JSON.stringify(this.productParams),
             isCommodity: false,
             productsIds: [],
-            priceScreen: false
+            priceScreen: false,
+            getSeedPrices: this.showRoyaltyTsi,
+            isLimit: false
         })
         .then(result => {
             this.showBaseProducts = result.recordsDataList.length > 0;

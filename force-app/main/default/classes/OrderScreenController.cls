@@ -1172,7 +1172,178 @@ public without sharing class OrderScreenController {
              WHERE Id =: safraId
         ];
 
-        return JSON.serialize(new SafraDataSerialize(safra));
+        List<String> prodsIds = new List<String>();
+        for (FormerProduct__c formerProd : [
+            SELECT Id,
+                   Product__c,
+                   Product__r.Name,
+                   Product__r.ExternalId__c,
+                   MinQuantity__c,
+                   ComboPromotion__c
+              FROM FormerProduct__c
+             WHERE ComboPromotion__c IN: combosIds
+        ]) {
+            ComboPromotionData comboPromotionData = result.get(formerProd.ComboPromotion__c);
+            String productCode = formerProd.Product__r.ExternalId__c != null ? String.valueOf(Integer.valueOf(formerProd.Product__r.ExternalId__c) * 1) : '';
+            ComboItems formerItem = new ComboItems();
+            formerItem.comboId = formerProd.ComboPromotion__c;
+            formerItem.productId = formerProd.Product__c;
+            formerItem.productName = formerProd.Product__r.Name;
+            formerItem.productCode = productCode;
+            formerItem.minQUantity = formerProd.MinQuantity__c;
+            
+            prodsIds.add(formerProd.Product__c);
+            comboPromotionData.formerItems.add(formerItem);
+            result.put(formerProd.ComboPromotion__c, comboPromotionData);
+
+            if (!combosByProductId.containsKey(formerProd.Product__c)) {
+                combosByProductId.put(formerProd.Product__c, new Set<Id>{formerProd.ComboPromotion__c});
+            } else {
+                Set<Id> productCombos = combosByProductId.get(formerProd.Product__c);
+                productCombos.add(formerProd.ComboPromotion__c);
+                combosByProductId.put(formerProd.Product__c, productCombos);
+            }
+        }
+
+        for (BenefitProduct__c benefitProd : [
+            SELECT Id,
+                   Product__c,
+                   Product__r.Name,
+                   Product__r.ExternalId__c,
+                   MinQuantity__c,
+                   ComboPromotion__c,
+                   DiscountPercentage__c
+              FROM BenefitProduct__c
+             WHERE ComboPromotion__c IN: combosIds
+        ]) {
+            ComboPromotionData comboPromotionData = result.get(benefitProd.ComboPromotion__c);
+            String productCode = benefitProd.Product__r.ExternalId__c != null ? String.valueOf(Integer.valueOf(benefitProd.Product__r.ExternalId__c) * 1) : '';
+            ComboItems benefitItem = new ComboItems();
+            benefitItem.comboId = benefitProd.ComboPromotion__c;
+            benefitItem.productId = benefitProd.Product__c;
+            benefitItem.productName = benefitProd.Product__r.Name;
+            benefitItem.productCode = productCode;
+            benefitItem.minQUantity = benefitProd.MinQuantity__c;
+            benefitItem.discountPercentage = benefitProd.DiscountPercentage__c;
+            
+            prodsIds.add(benefitProd.Product__c);
+            comboPromotionData.benefitItems.add(benefitItem);
+            result.put(benefitProd.ComboPromotion__c, comboPromotionData);
+
+            if (!combosByProductId.containsKey(benefitProd.Product__c)) {
+                combosByProductId.put(benefitProd.Product__c, new Set<Id>{benefitProd.ComboPromotion__c});
+            } else {
+                Set<Id> productCombos = combosByProductId.get(benefitProd.Product__c);
+                productCombos.add(benefitProd.ComboPromotion__c);
+                combosByProductId.put(benefitProd.Product__c, productCombos);
+            }
+        }
+
+        Set<Id> existingPrices = new Set<Id>();
+        CustomLookupController.ProductDataResult productPrices = CustomLookupController.fetchProductsRecords('', JSON.serialize(productParams), false, prodsIds, false, false, false);
+        for (CustomLookupController.ProductData products : productPrices.recordsDataList) {
+            existingPrices.add(products.Id);
+        }
+
+        Set<Id> combosToRemove = new Set<Id>();
+        for (Id idProduct : combosByProductId.keySet()) {
+            if (!existingPrices.contains(idProduct)) {
+                combosToRemove.addAll(combosByProductId.get(idProduct));
+            }
+        }
+
+        List<ComboPromotionData> availableCombos = new List<ComboPromotionData>();
+        for (Id idCombo : result.keySet()) {
+            if (!combosToRemove.contains(idCombo)) {
+                availableCombos.add(result.get(idCombo));
+            }
+        }
+
+        return JSON.serialize(availableCombos);
+    }
+
+    @AuraEnabled
+    public static String getMixAndConditionCombos(String data) {
+        try {
+            HeaderValues comboData = (HeaderValues) JSON.deserialize(data, HeaderValues.class);
+            Map<Id, ComboPromotionData> result = new Map<Id, ComboPromotionData>();
+            Set<Id> mixCombosIds = new Set<Id>();
+            Set<Id> conditionCombosIds = new Set<Id>();
+            
+            Set<Id> recTypes = new Set<Id>();
+            recTypes.add(Schema.SObjectType.ComboPromotion__c.getRecordTypeInfosByDeveloperName().get('ProductMix').getRecordTypeId());
+            recTypes.add(Schema.SObjectType.ComboPromotion__c.getRecordTypeInfosByDeveloperName().get('PaymentCondition').getRecordTypeId());
+    
+            for (ComboPromotion__c promotion : [
+                SELECT Id,
+                       ComboType__c,
+                       CombosQuantity__c,
+                       PaymentCondition__c,
+                       DiscountPercentage__c,
+                       RecordType.DeveloperName
+                  FROM ComboPromotion__c
+                 WHERE Safra__c =: comboData.cropId
+                   AND SalesOrg__c =: comboData.salesOrgId
+                   AND SalesCondition__c =: comboData.salesConditionId
+                   AND CombosQuantity__c > 0
+                   AND RecordTypeId IN: recTypes
+                   AND Status__c = 'Ativo'
+            ]) {
+                ComboPromotionData comboPromotionData = new ComboPromotionData();
+                comboPromotionData.comboQuantity = 0;
+                comboPromotionData.comboId = promotion.Id;
+                comboPromotionData.comboType = promotion.ComboType__c;
+                comboPromotionData.recTypeDevName = promotion.RecordType.DeveloperName;
+                comboPromotionData.comboAvailableQuantity = promotion.CombosQuantity__c;
+                comboPromotionData.comboDiscountPercentage = promotion.DiscountPercentage__c;
+                comboPromotionData.specificItemCombo = false;
+                comboPromotionData.groupQuantities = new List<GroupData>();
+                
+                if (promotion.RecordType.DeveloperName == 'ProductMix') {
+                    mixCombosIds.add(promotion.Id);
+                } else {
+                    conditionCombosIds.add(promotion.Id);
+                    comboPromotionData.paymentConditionId = promotion.PaymentCondition__c;
+                }
+
+                result.put(promotion.Id, comboPromotionData);
+            }
+
+            for (FormerProduct__c formerProd : [
+                SELECT Id,
+                       Product__c,
+                       MinQuantity__c,
+                       ComboPromotion__c
+                  FROM FormerProduct__c
+                 WHERE ComboPromotion__c IN: mixCombosIds
+            ]) {
+                ComboPromotionData comboPromotionData = result.get(formerProd.ComboPromotion__c);
+                GroupData groupData = new GroupData();
+                groupData.productId = formerProd.Product__c;
+                groupData.quantity = formerProd.MinQuantity__c;
+                comboPromotionData.groupQuantities.add(groupData);
+            }
+
+            for (ProductMix__c prodMix : [
+                SELECT Id,
+                       Quantity__c,
+                       ProductGroup__c,
+                       ComboPromotion__c
+                  FROM ProductMix__c
+                 WHERE ComboPromotion__c IN: conditionCombosIds
+            ]) {
+                ComboPromotionData comboPromotionData = result.get(prodMix.ComboPromotion__c);
+                GroupData groupData = new GroupData();
+                groupData.productGroupId = prodMix.ProductGroup__c;
+                groupData.quantity = prodMix.Quantity__c;
+                comboPromotionData.groupQuantities.add(groupData);
+            }
+
+            return JSON.serialize(result.values());
+        } catch (Exception ex) {
+            System.debug('Erro: ' + ex.getMessage() + '   -   ' + ex.getStackTraceString());
+            return 'Error';
+        }
     }
 
     @AuraEnabled

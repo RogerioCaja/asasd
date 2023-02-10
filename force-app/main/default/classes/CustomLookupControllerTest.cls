@@ -257,11 +257,51 @@ public class CustomLookupControllerTest {
         Id salesOfficeId = [SELECT Id FROM SalesOffice__c LIMIT 1].Id;
         Id salesTeamId = [SELECT Id FROM SalesTeam__c LIMIT 1].Id;
 
-        CustomLookupController.fetchProductsRecords('Milho', '{"salesConditionId":"' + scId + '","accountId":"' + accountId + '","ctvId":"' + UserInfo.getUserId() + '","safra":"' + cropId +'","productCurrency":"BRL","culture":"' + cultureId + '","orderType":"Venda Normal","supplierCenter":"1010","salesOrgId":"' + salesOrgId + '","salesOfficeId":"' + salesOfficeId + '","salesTeamId":"' + salesTeamId + '","numberOfRowsToSkip":0}', false, new List<String>{}, false);
+        CustomLookupController.fetchProductsRecords('Milho', JSON.serialize(params), false, new List<String>{}, false, false, false);
     }
 
     @isTest
     public static void fetchCommodityRecordsTest(){
+        CustomLookupController.ProductParams params = new CustomLookupController.ProductParams();
+        params.accountId = [SELECT Id FROM Account WHERE Name = 'Parent Account' LIMIT 1].Id;
+        params.salesConditionId = [SELECT Id FROM SalesCondition__c LIMIT 1].Id;
+        params.safra = [SELECT Id FROM Safra__c LIMIT 1].Id;
+        params.culture = [SELECT Id FROM Cultura__c LIMIT 1].Id;
+        params.salesOrgId = [SELECT Id FROM SalesOrg__c LIMIT 1].Id;
+        params.salesOfficeId = [SELECT Id FROM SalesOffice__c LIMIT 1].Id;
+        params.salesTeamId = [SELECT Id FROM SalesTeam__c LIMIT 1].Id;
+        params.ctvId = UserInfo.getUserId();
+        params.productCurrency = 'BRL';
+        params.orderType = 'Venda Normal';
+        params.numberOfRowsToSkip = 0;
+        params.dontGetSeeds = false;
+        params.paymentDate = String.valueOf(System.today());
+        params.activitySectorName = 'INSUMOS';
+        params.supplierCenter = '1010';
+
+        CustomLookupController.fetchProductsRecords('Soja', JSON.serialize(params), true, new List<String>{}, false, false, false);
+    }
+
+    @isTest
+    public static void fetchAccountsWithTerritoriesTest(){
+        Id terr;
+        Id objAss;
+        Id userAss;
+        System.runAs(new User(Id = UserInfo.getUserId())){
+            terr = createTerritory();
+            objAss = createObjectAss(terr);
+            userAss = createUserAss(terr);
+
+            
+        CustomLookupController.fetchAccountsWithTerritories('A','{"territory":"","ctv":"'+ UserInfo.getUserId()+ '","offSet":0,"option":"addRemove"}');
+        CustomLookupController.fetchAccountsWithTerritories('A','{"territory":"'+ terr + '","ctv":"","offSet":0,"option":"addRemove"}');
+        CustomLookupController.fetchAccountsWithTerritories('A','{"territory":"'+ terr + '","ctv":"'+ UserInfo.getUserId()+ '","offSet":0,"option":"addRemove"}');
+        CustomLookupController.fetchAccountsWithTerritories('A','{"territory":"","ctv":"","offSet":0,"option":"add"}');
+        }
+
+    }
+
+    public static Id createObjectAss(Id terr){
         Id accountId = [SELECT Id FROM Account WHERE Name = 'Parent Account' LIMIT 1].Id;
         Id scId = [SELECT Id FROM SalesCondition__c LIMIT 1].Id;
         Id cropId = [SELECT Id FROM Safra__c LIMIT 1].Id;
