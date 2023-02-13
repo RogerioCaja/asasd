@@ -475,7 +475,7 @@ export default class OrderProductScreen extends LightningElement {
                         this.financialInfoLogic(orderData);
                         checkFinancialInfos = false;
 
-                        fetchOrderRecords({searchString: '', data: JSON.stringify(this.productParams), isCommodity: false, productsIds: prodsIds, priceScreen: false, getSeedPrices: this.showRoyaltyTsi})
+                        fetchOrderRecords({searchString: '', data: JSON.stringify(this.productParams), isCommodity: false, productsIds: prodsIds, priceScreen: false, getSeedPrices: this.showRoyaltyTsi, isLimit: true})
                         .then(result => {
                             this.productsPriceMap = result.recordsDataMap;
                             this.salesInfos = result.salesResult;
@@ -2052,7 +2052,8 @@ export default class OrderProductScreen extends LightningElement {
             isCommodity: false,
             productsIds: [],
             priceScreen: false,
-            getSeedPrices: this.showRoyaltyTsi
+            getSeedPrices: this.showRoyaltyTsi,
+            isLimit: false
         })
         .then(result => {
             this.showBaseProducts = result.recordsDataList.length > 0;
