@@ -1599,6 +1599,16 @@ export default class OrderProductScreen extends LightningElement {
         }
         this.products = this.parseObject(excludeProduct);
 
+        let allDivisions = this.parseObject(this.allDivisionProducts);
+        let currentDivisions = [];
+        allDivisions.forEach((division) => {
+            if (division.productPosition != position) {
+                if (division.productPosition > position) division.productPosition -= 1
+                currentDivisions.push(division);
+            }
+        })
+        this.allDivisionProducts = this.parseObject(currentDivisions);
+
         if (this.products.length == 0) {
             this.showIncludedProducts = false;
             if (this.commoditiesData.length > 0) {
@@ -1616,6 +1626,7 @@ export default class OrderProductScreen extends LightningElement {
         this.excludedItems = this.isFilled(excludedProducts) ? excludedProducts : [];
         this._setExcludedesItems();
         this._setData();
+        this._setDivisionData();
         this.showToast('success', 'Produto removido!', '');
     }
 
