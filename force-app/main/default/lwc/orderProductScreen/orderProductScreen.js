@@ -857,7 +857,6 @@ export default class OrderProductScreen extends LightningElement {
     }
 
     createProduct(prod, prices, combos, counter) {
-        console.log('counter ==>' + counter);
         let newProductData = {
             entryId: prod.entryId,
             productId: prod.Id,
@@ -1716,7 +1715,6 @@ export default class OrderProductScreen extends LightningElement {
         }
 
         let currentProducts = [];
-        console.log('this.products.length ==>' + this.products.length);
         for (let index = 0; index < this.products.length; index++) {
             let itemToExclude = this.itensToRemove.find(e => e.productId == this.products[index].productId);
             if (!this.isFilled(itemToExclude)) currentProducts.push(this.products[index]);
