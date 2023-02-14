@@ -5,4 +5,5 @@
     <mayForecastManagerShare>false</mayForecastManagerShare>
     <name>Unidade Sul Sudeste</name>
     <opportunityAccessLevel>Edit</opportunityAccessLevel>
+    <parentRole>Operacoes_Global</parentRole>
 </Role>
