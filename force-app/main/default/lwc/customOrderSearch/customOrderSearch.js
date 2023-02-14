@@ -23,6 +23,7 @@ export default class CustomOrderSearch extends LightningElement {
     @api placeholder;
     @api className;
     @api productParams;
+    @api salesOrg;
     @api territoryParams;
     @api seedPrice;
     @api required = false;
@@ -92,10 +93,11 @@ export default class CustomOrderSearch extends LightningElement {
         this.message = '';
         this.recordsList = [];
         console.log('this.objectName: ' + this.objectName);
-        if (this.objectName == 'Account') {
+        if (this.objectName == 'Account' || this.objectName == 'BPAccount') {
             fetchAccountRecords({
                     searchString: this.searchString,
-                    offSet: this.offSet
+                    offSet: this.offSet,
+                    salesOrg: this.objectName == 'BPAccount' ? this.salesOrg : null
                 })
                 .then(result => {
                     const tabEvent = new CustomEvent("showresults");
@@ -112,7 +114,8 @@ export default class CustomOrderSearch extends LightningElement {
 
                         if(this.offSet == 0){
                             getNumberOfAccounts({
-                                searchString: this.searchString
+                                searchString: this.searchString,
+                                salesOrg: this.objectName == 'BPAccount' ? this.salesOrg : null
                             }).then(resultCount => {
                                 const tabEvent = new CustomEvent("showcount");
                                 tabEvent.numberOfAccounts = resultCount;
@@ -140,7 +143,8 @@ export default class CustomOrderSearch extends LightningElement {
                     isCommodity: this.objectName == 'Commodity' ? true : false,
                     productsIds: [],
                     priceScreen: false,
-                    getSeedPrices: this.seedPrice
+                    getSeedPrices: this.seedPrice,
+                    isLimit: false
                 })
                 .then(result => {
                     const tabEvent = new CustomEvent("showresults");
