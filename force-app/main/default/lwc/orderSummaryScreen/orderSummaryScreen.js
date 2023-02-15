@@ -268,6 +268,9 @@ export default class OrderSummaryScreen extends LightningElement {
             let tsiTotalPrice = 0;
             if(this.headerData.tipo_venda == 'Venda Barter'){
                 for(var i= 0; i< this.productDataLocale.length; i++){
+                    orderTotalPrice += Number(this.productDataLocale[i].unitPrice) * Number(this.productDataLocale[i].quantity);
+                    orderTotalCost += Number(this.productDataLocale[i].practicedCost) * Number(this.productDataLocale[i].quantity);
+                    orderTotalPriceToCalcMargin += Number(this.productDataLocale[i].unitPrice) * Number(this.productDataLocale[i].quantity);
                     this.isBarter = true;
                     this.hideMargin = true;
                     this.hideBagQuantity = this.headerData.IsOrderChild ? true : false;
@@ -283,7 +286,7 @@ export default class OrderSummaryScreen extends LightningElement {
                     this.productDataLocale[i]['divisionData'] = [];
                     if(this.divisionData){
                         for(var j=0; j< this.divisionData.length; j++){
-                            if(this.divisionData[j].productPosition == i+1)
+                            if(this.divisionData[j].productPosition == i)
                                 this.productDataLocale[i]['divisionData'].push(this.divisionData[j])
                         }
                     }
@@ -308,7 +311,7 @@ export default class OrderSummaryScreen extends LightningElement {
                     this.productDataLocale[i]['divisionData'] = [];
                     if(this.divisionData){
                         for(var j=0; j< this.divisionData.length; j++){
-                            if(this.divisionData[j].productPosition == i+1)
+                            if(this.divisionData[j].productPosition == i)
                                 this.productDataLocale[i]['divisionData'].push(this.divisionData[j])
                         }
                     }
@@ -329,12 +332,12 @@ export default class OrderSummaryScreen extends LightningElement {
             this.tsiTotalPriceFront = this.fixDecimalPlacesFront(tsiTotalPrice);
             this.tsiTotalToDistribution = tsiTotalPrice;
             
-            if (this.headerData.tipo_venda != 'Venda Barter') {
+            if (this.headerData.tipo_venda == 'Venda Barter' && this.headerData.IsOrderChild) {
+                this.summaryDataLocale.orderMargin = this.headerData.orderMargin;
+            } else {
                 let margin = (1 - (orderTotalCost / orderTotalPriceToCalcMargin)) * 100;
                 this.orderMargin = this.fixDecimalPlacesFront(margin) + '%';
                 this.summaryDataLocale.orderMargin = (+(Math.trunc(+(margin + 'e' + 6)) + 'e' + -6)).toFixed(6);
-            } else {
-                this.summaryDataLocale.orderMargin = this.headerData.IsOrderChild ? this.headerData.orderMargin : this.orderMargin;
             }
 
             this.summaryDataLocale.totalValue = orderTotalPrice + royaltiesTotalPrice + tsiTotalPrice;

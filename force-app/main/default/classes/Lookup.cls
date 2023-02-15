@@ -10,6 +10,7 @@ public without sharing class Lookup {
         String query = getQueryBase(requestData);
         Set<Id> availableSalesCondition = new Set<Id>();
         String position = 'SellerPosition';
+        String active = 'Ativo';
 
         if(requestData.targetObject == 'Territory2'){
             query +=  'AND Territory2Type.DeveloperName =: position';
@@ -39,7 +40,14 @@ public without sharing class Lookup {
             query += ' AND Id IN: availableSalesCondition';
         }
         
+
+        if(requestData.targetObject == 'Safra__c'){
+            query += ' AND ReleaseStatus__c =: active';
+        }
+
         if (requestData.targetObject == 'User' && !clientTerritoriesScreen) {
+            String profileName = [SELECT Name FROM Profile WHERE Id =: UserInfo.getProfileId()].Name;
+            String idToUse = profileName == 'Balcão' ? requestData.deliveryId : requestData.accountId;
             if (quoteScreen == null || !quoteScreen) {
                 Boolean userRelatedToTerritory = false;
                 Boolean hasRelatedTerritory = false;
@@ -50,7 +58,6 @@ public without sharing class Lookup {
                 Set<Id> relatedTerritories = new Set<Id>();
                 
                 List<String> territoryTypes = new List<String>{'Torre', 'SalesOrg', 'SalesOffice', 'SalesTeam', 'SellerPosition'};
-                String profileName = [SELECT Name FROM Profile WHERE Id =: UserInfo.getProfileId()].Name;
                 for (UserTerritory2Association userAssociation : [
                     SELECT Id,
                         Territory2Id,
@@ -70,13 +77,13 @@ public without sharing class Lookup {
 
                 if (priceScreen && !userRelatedToTerritory) {
                     if (!hasRelatedTerritory) {
-                        if (requestData.accountId != '' && requestData.accountId != null) {
+                        if (idToUse != '' && idToUse != null) {
                             for (ObjectTerritory2Association objAssociation : [
                                 SELECT Id,
                                     Territory2Id,
                                     Territory2.Territory2Type.DeveloperName
                                 FROM ObjectTerritory2Association
-                                WHERE ObjectId =: requestData.accountId
+                                WHERE ObjectId =: idToUse
                             ]) {
                                 relatedTerritories.add(objAssociation.Territory2Id);
             
@@ -118,13 +125,13 @@ public without sharing class Lookup {
                         }
                     } else {
                         Boolean addCondition = false;
-                        if (requestData.accountId != '' && requestData.accountId != null) {
+                        if (idToUse != '' && idToUse != null) {
                             for (ObjectTerritory2Association objAssociation : [
                                 SELECT Id,
                                     Territory2Id,
                                     Territory2.Territory2Type.DeveloperName
                                 FROM ObjectTerritory2Association
-                                WHERE ObjectId =: requestData.accountId
+                                WHERE ObjectId =: idToUse
                             ]) {
                                 relatedTerritories.add(objAssociation.Territory2Id);
                                 addCondition = true;
@@ -166,7 +173,7 @@ public without sharing class Lookup {
                                 Territory2Id,
                                 Territory2.Territory2Type.DeveloperName
                             FROM ObjectTerritory2Association
-                            WHERE ObjectId =: requestData.accountId
+                            WHERE ObjectId =: idToUse
                         ]) {
                             relatedTerritories.add(objAssociation.Territory2Id);
         
@@ -203,6 +210,7 @@ public without sharing class Lookup {
                     }
                 }
 
+                if (profileName == 'Balcão') relatedUsers.add(UserInfo.getUserId());
                 query += ' AND Id IN: relatedUsers';
             } else {
                 String sellerType = 'CTV';
@@ -302,6 +310,7 @@ public without sharing class Lookup {
     public class RequestDTO {
         public String targetObject;
         public String accountId;
+        public String deliveryId;
         public List<String> searchFields;
         public List<String> moreFields;
 
