@@ -1039,7 +1039,6 @@ public without sharing class OrderScreenController {
                     for (DivisionDeserialize division : orderData.divisionData) {
                         if (division.divisionId != null) {
                             setDivisionIds.add(division.divisionId);
-                            divisionCounter++;
                         }
 
                         String key = division.deliveryDate + '-' + division.orderItemKey;
