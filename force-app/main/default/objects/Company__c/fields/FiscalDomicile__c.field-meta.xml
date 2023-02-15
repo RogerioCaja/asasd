@@ -3,7 +3,7 @@
     <fullName>FiscalDomicile__c</fullName>
     <externalId>false</externalId>
     <label>Domicilio Fiscal</label>
-    <length>100</length>
+    <length>200</length>
     <required>false</required>
     <trackHistory>true</trackHistory>
     <trackTrending>false</trackTrending>
