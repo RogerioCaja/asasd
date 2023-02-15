@@ -122,7 +122,6 @@ export default class OrderProductScreen extends LightningElement {
     connectedCallback(event) {
         if (!this.isFilled(this.taxData)) this.taxData=[];
         if (!this.isFilled(this.combosSelecteds)) this.combosSelecteds=[];
-
         let today = new Date();
         let dd = String(today.getDate()).padStart(2, '0');
         let mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -254,6 +253,9 @@ export default class OrderProductScreen extends LightningElement {
                 }
             }
         });
+    
+
+        
     }
 
     newProduct(prod) {
@@ -567,7 +569,8 @@ export default class OrderProductScreen extends LightningElement {
 
                                         if (this.addProduct.commercialAdditionPercentage != '0%') this.addProduct.unitPrice = this.addProduct.listPrice + this.calculateValue(this.addProduct.commercialAdditionPercentage, this.addProduct.listPrice);
                                         else if (this.addProduct.commercialDiscountPercentage != '0%') this.addProduct.unitPrice = this.addProduct.listPrice - this.calculateValue(this.addProduct.commercialDiscountPercentage, this.addProduct.listPrice);
-
+                                        
+                                        this.addProduct.unitPriceFront = this.fixDecimalPlacesFront(this.addProduct.unitPrice);
                                         this.addProduct.unitPriceFront = this.fixDecimalPlacesFront(this.addProduct.unitPrice);
                                         this.calculateDiscountOrAddition();
                                         this.calculateTotalPrice(true, this.addProduct.commercialDiscountValue > 0);
@@ -715,6 +718,7 @@ export default class OrderProductScreen extends LightningElement {
                     priorityPrice.tPriceListCode = currentPrice.priceListCode;
                 }
             }
+            
             currentinfos = currentPrice;
             counter++;
         }
@@ -1101,6 +1105,11 @@ export default class OrderProductScreen extends LightningElement {
             } else if (this.isFilled(currentPrice) && this.addProduct.unitPrice < this.addProduct.listPrice) {
                 this.addProduct.commercialDiscountValue = this.calculateValue(this.addProduct.commercialDiscountPercentage, this.listTotalPrice);
                 this.addProduct.commercialDiscountValueFront = this.fixDecimalPlacesFront(this.addProduct.commercialDiscountValue);
+            } else if (this.addProduct.commercialDiscountValue == '0.000000' && this.addProduct.commercialDiscountPercentage != '0%'){
+                let priceWithFinancialValue = (this.addProduct.listPrice * this.addProduct.quantity) + Number(this.addProduct.financialAdditionValue) - Number(this.addProduct.financialDecreaseValue);
+                
+                this.addProduct.commercialDiscountValue = this.isFilled(priceWithFinancialValue) ? this.calculateValue(this.addProduct.commercialDiscountPercentage, priceWithFinancialValue) : this.addProduct.commercialDiscountValue;
+                this.addProduct.commercialDiscountValueFront = this.addProduct.commercialDiscountValue == '' ? 0 : this.fixDecimalPlacesFront(Number(this.addProduct.commercialDiscountValue));
             }
         }
     }
@@ -1614,6 +1623,16 @@ export default class OrderProductScreen extends LightningElement {
         }
         this.products = this.parseObject(excludeProduct);
 
+        let allDivisions = this.parseObject(this.allDivisionProducts);
+        let currentDivisions = [];
+        allDivisions.forEach((division) => {
+            if (division.productPosition != position) {
+                if (division.productPosition > position) division.productPosition -= 1
+                currentDivisions.push(division);
+            }
+        })
+        this.allDivisionProducts = this.parseObject(currentDivisions);
+
         if (this.products.length == 0) {
             this.showIncludedProducts = false;
             if (this.commoditiesData.length > 0) {
@@ -1633,6 +1652,7 @@ export default class OrderProductScreen extends LightningElement {
         this.excludedItems = this.isFilled(excludedProducts) ? excludedProducts : [];
         this._setExcludedesItems();
         this._setData();
+        this._setDivisionData();
         this.showToast('success', 'Produto removido!', '');
     }
 
@@ -2039,10 +2059,6 @@ export default class OrderProductScreen extends LightningElement {
             this.productParams.numberOfRowsToSkip += 9;
             this.getProducts();
         }
-    }
-
-    resetData(){
-        this.productParams.numberOfRowsToSkip = 0;
     }
 
     getProducts() {
