@@ -1124,6 +1124,7 @@ public without sharing class OrderScreenController {
                     }
                 }
 
+                Decimal toatlCommodityValue = 0;
                 List<OrderCommodity__c> upsCommodities = new List<OrderCommodity__c>();
                 if (orderData.commodityData != null && orderData.commodityData.size() > 0) {
                     Set<Id> setCommodityIds = new Set<Id>();
@@ -1159,6 +1160,8 @@ public without sharing class OrderScreenController {
                         orderCommodity.EndDate__c = Date.valueOf(commodity.endDate);
                         orderCommodity.DeliveryAddress__c = commodity.deliveryAddress;
                         upsCommodities.add(orderCommodity);
+
+                        toatlCommodityValue = commodity.commodityPrice * orderCommodity.BagQuantity__c;
                     }
                     
                     if (upsCommodities.size() > 0) {
@@ -1207,7 +1210,7 @@ public without sharing class OrderScreenController {
 
                         commodityTax.Tax__c = taxData.taxId;
                         commodityTax.Commodity__c = upsCommodities[0].Id;
-                        commodityTax.DeductionAmount__c = taxData.taxValue;
+                        commodityTax.DeductionAmount__c = toatlCommodityValue * (taxData.taxPercentage / 100);
                         commodityTax.PercentageDeducted__c = taxData.taxPercentage;
                         upsCommoditiesTaxes.add(commodityTax);
                     }
