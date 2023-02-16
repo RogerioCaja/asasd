@@ -1237,7 +1237,6 @@ public without sharing class OrderScreenController {
         GetCompanyInfos companyInfos = (GetCompanyInfos) JSON.deserialize(data, GetCompanyInfos.class);
         Set<Id> userTerritoriesIds = new Set<Id>();
         Boolean sellerPosition = false;
-
         for (UserTerritory2Association userAssociation : [
             SELECT Id,
                    Territory2.Territory2Type.DeveloperName
@@ -1247,12 +1246,10 @@ public without sharing class OrderScreenController {
         ]) {
             sellerPosition = userAssociation.Territory2.Territory2Type.DeveloperName == 'SellerPosition' ? true : false;
         }
-        
         if (verifyUserType) {
             sellerPosition = true;
             return JSON.serialize(sellerPosition);
         }
-        
         List<Id> territoriesRelatedToCtv = new List<Id>();
         for (UserTerritory2Association userAssociation : [
             SELECT Id,
@@ -1264,7 +1261,6 @@ public without sharing class OrderScreenController {
         ]) {
             territoriesRelatedToCtv.add(userAssociation.Territory2Id);
         }
-
         if (companyInfos.accountId != null && companyInfos.accountId != '') {
             for (ObjectTerritory2Association objAssociation : [
                 SELECT Id,
@@ -1287,7 +1283,6 @@ public without sharing class OrderScreenController {
                 userTerritoriesIds.add(objAssociation.Territory2Id);
             }
         }
-        
         Map<Id, Territory2> territoryAndParents = new Map<Id, Territory2>();
         for(Territory2 territory : [
             SELECT Id,
@@ -1297,31 +1292,26 @@ public without sharing class OrderScreenController {
         ]){
             territoryAndParents.put(territory.Id, territory);
         }
-
         Map<String, Integer> approvalLevels = new Map<String, Integer>{
             'GerenteFilial' => 1,
             'GerenteRegional' => 2,
             'Diretor' => 3
         };
-
         Integer counter = 0;
         List<Territory2> salesTeamTerritories;
         Set<Id> territoriesIds = new Set<Id>();
         while (counter < companyInfos.approvalNumber) {
             for (Id userTerritoryId : userTerritoriesIds) {
                 Territory2 territory = territoryAndParents.containsKey(userTerritoryId) ? territoryAndParents.get(userTerritoryId) : new Territory2();
-    
                 if (territory != null && territory.ParentTerritory2Id != null) {
                     territoriesIds.add(territory.Id);
                 }
-    
                 if (counter == 1) {
                     salesTeamTerritories.add(territory);
                 }
             }
             counter++;
         }
-
         if (salesTeamTerritories == null && territoriesIds.size() > 0) {
             salesTeamTerritories = new List<Territory2>();
             for (Id userTerritoryId : territoriesIds) {
@@ -1330,7 +1320,6 @@ public without sharing class OrderScreenController {
                 }
             }
         }
-        
         Set<String> fieldSet = new Set<String>{
             'Id','SalesOrg__c', 'SalesTeam__r.Name', 'SalesOffice__c',
             'SupplierCenter__c','ActivitySector__c','ActivitySector__r.Name',
@@ -1340,28 +1329,24 @@ public without sharing class OrderScreenController {
         proQuery.selectFields(fieldSet);
         if (companyInfos.accountId != '') proQuery.add(Q.condition('Conta__c').equalsTo(companyInfos.accountId));
         if (childOrder == null || !childOrder) proQuery.add(Q.condition('Status__c').equalsTo('Adicionada'));
-        
         List<CompanyInfos> companyList = new List<CompanyInfos>();
-        if (salesTeamTerritory != null && salesTeamTerritory.DeveloperName != null) {
-            String salesTeamDevName = salesTeamTerritory.DeveloperName.substring(0, 1) == 'X' || salesTeamTerritory.DeveloperName.substring(0, 1) == 'Z' ?
-                                      salesTeamTerritory.DeveloperName.substring(1, salesTeamTerritory.DeveloperName.length()) : salesTeamTerritory.DeveloperName;
-            proQuery.add(Q.condition('SalesTeam__r.ExternalId__c').equalsTo(salesTeamDevName));
-            proQuery.add(Q.condition('SalesOrg__r.SalesOrganizationCode__c').isIn(new List<String>{'1000', '1100', '1300', '1500', '1600', '1700', '1800', '1900', '2000', '9000', '9003'}));
-            if(companyInfos.orderType == 'Venda de Serviço')
-                proQuery.add(Q.condition('ActivitySector__r.Codigo__c').equalsTo('40'));
-            else {
-                proQuery.add(Q.condition('ActivitySector__r.Codigo__c').isIn(new List<String>{'10', '30'}));
+        if (salesTeamTerritories != null && salesTeamTerritories.size() > 0) {
+            List<String> salesTeamsDevNames = new List<String>();
+            for (Territory2 salesTeamTerritory : salesTeamTerritories) {
+                if (salesTeamTerritory.DeveloperName != null) {
+                    String salesTeamDevName = salesTeamTerritory.DeveloperName.substring(0, 1) == 'X' || salesTeamTerritory.DeveloperName.substring(0, 1) == 'Z' ?
+                                              salesTeamTerritory.DeveloperName.substring(1, salesTeamTerritory.DeveloperName.length()) : salesTeamTerritory.DeveloperName;
+                    salesTeamsDevNames.add(salesTeamDevName);
+                }
             }
-            
             if (salesTeamsDevNames.size() > 0) {
                 proQuery.add(Q.condition('SalesTeam__r.ExternalId__c').isIn(salesTeamsDevNames));
-                proQuery.add(Q.condition('SalesOrg__r.SalesOrganizationCode__c').equalsTo('1000'));
+                proQuery.add(Q.condition('SalesOrg__r.SalesOrganizationCode__c').isIn(new List<String>{'1000', '1100', '1300', '1500', '1600', '1700', '1800', '1900', '2000', '9000', '9003'}));
                 if(companyInfos.orderType == 'Venda de Serviço')
                     proQuery.add(Q.condition('ActivitySector__r.Codigo__c').equalsTo('40'));
                 else {
-                proQuery.add(Q.condition('ActivitySector__r.Codigo__c').equalsTo('10'));
+                    proQuery.add(Q.condition('ActivitySector__r.Codigo__c').isIn(new List<String>{'10', '30'}));
                 }
-
                 if (companyInfos.accountId == '') proQuery.addLimit(1);
                 for (Company__c salesTeamCompany : Database.query(proQuery.build())) {
                     CompanyInfos company = new CompanyInfos();
@@ -1589,145 +1574,6 @@ public without sharing class OrderScreenController {
     public class PaymentType {
         public String label;
         public String value;
-    }
-
-    @AuraEnabled
-    public static String getAccountCompanies(String data, Boolean isHeader, Boolean verifyUserType, Boolean priceScreen, Boolean childOrder) {
-        GetCompanyInfos companyInfos = (GetCompanyInfos) JSON.deserialize(data, GetCompanyInfos.class);
-        Set<Id> userTerritoriesIds = new Set<Id>();
-        Boolean sellerPosition = false;
-        for (UserTerritory2Association userAssociation : [
-            SELECT Id,
-                   Territory2.Territory2Type.DeveloperName
-              FROM UserTerritory2Association
-             WHERE UserId =: UserInfo.getUserId()
-             LIMIT 1
-        ]) {
-            sellerPosition = userAssociation.Territory2.Territory2Type.DeveloperName == 'SellerPosition' ? true : false;
-        }
-        if (verifyUserType) {
-            sellerPosition = true;
-            return JSON.serialize(sellerPosition);
-        }
-        List<Id> territoriesRelatedToCtv = new List<Id>();
-        for (UserTerritory2Association userAssociation : [
-            SELECT Id,
-                   UserId,
-                   Territory2Id,
-                   Territory2.Territory2Type.DeveloperName
-              FROM UserTerritory2Association
-             WHERE UserId =: companyInfos.ctvId
-        ]) {
-            territoriesRelatedToCtv.add(userAssociation.Territory2Id);
-        }
-        if (companyInfos.accountId != null && companyInfos.accountId != '') {
-            for (ObjectTerritory2Association objAssociation : [
-                SELECT Id,
-                       Territory2Id,
-                       Territory2.Territory2Type.DeveloperName
-                  FROM ObjectTerritory2Association
-                 WHERE ObjectId =: companyInfos.accountId
-                   AND Territory2Id IN: territoriesRelatedToCtv
-            ]) {
-                userTerritoriesIds.add(objAssociation.Territory2Id);
-            }
-        } else {
-            for (ObjectTerritory2Association objAssociation : [
-                SELECT Id,
-                       Territory2Id,
-                       Territory2.Territory2Type.DeveloperName
-                  FROM ObjectTerritory2Association
-                 WHERE Territory2Id IN: territoriesRelatedToCtv
-            ]) {
-                userTerritoriesIds.add(objAssociation.Territory2Id);
-            }
-        }
-        Map<Id, Territory2> territoryAndParents = new Map<Id, Territory2>();
-        for(Territory2 territory : [
-            SELECT Id,
-                   DeveloperName,
-                   ParentTerritory2Id
-              FROM Territory2
-        ]){
-            territoryAndParents.put(territory.Id, territory);
-        }
-        Map<String, Integer> approvalLevels = new Map<String, Integer>{
-            'GerenteFilial' => 1,
-            'GerenteRegional' => 2,
-            'Diretor' => 3
-        };
-        Integer counter = 0;
-        List<Territory2> salesTeamTerritories;
-        Set<Id> territoriesIds = new Set<Id>();
-        while (counter < companyInfos.approvalNumber) {
-            for (Id userTerritoryId : userTerritoriesIds) {
-                Territory2 territory = territoryAndParents.containsKey(userTerritoryId) ? territoryAndParents.get(userTerritoryId) : new Territory2();
-                if (territory != null && territory.ParentTerritory2Id != null) {
-                    territoriesIds.add(territory.Id);
-                }
-                if (counter == 1) {
-                    salesTeamTerritories.add(territory);
-                }
-            }
-            counter++;
-        }
-        if (salesTeamTerritories == null && territoriesIds.size() > 0) {
-            salesTeamTerritories = new List<Territory2>();
-            for (Id userTerritoryId : territoriesIds) {
-                if (territoryAndParents.get(userTerritoryId) != null && territoryAndParents.get(territoryAndParents.get(userTerritoryId).ParentTerritory2Id) != null) {
-                    salesTeamTerritories.add(territoryAndParents.get(territoryAndParents.get(userTerritoryId).ParentTerritory2Id));
-                }
-            }
-        }
-        Set<String> fieldSet = new Set<String>{
-            'Id','SalesOrg__c', 'SalesTeam__r.Name', 'SalesOffice__c',
-            'SupplierCenter__c','ActivitySector__c','ActivitySector__r.Name',
-             'DistributionChannel__c','DistributionChannel__r.Name', 'Status__c'
-        };
-        Q proQuery = new Q(Company__c.SObjectType);
-        proQuery.selectFields(fieldSet);
-        if (companyInfos.accountId != '') proQuery.add(Q.condition('Conta__c').equalsTo(companyInfos.accountId));
-        if (childOrder == null || !childOrder) proQuery.add(Q.condition('Status__c').equalsTo('Adicionada'));
-        List<CompanyInfos> companyList = new List<CompanyInfos>();
-        if (salesTeamTerritories != null && salesTeamTerritories.size() > 0) {
-            List<String> salesTeamsDevNames = new List<String>();
-            for (Territory2 salesTeamTerritory : salesTeamTerritories) {
-                if (salesTeamTerritory.DeveloperName != null) {
-                    String salesTeamDevName = salesTeamTerritory.DeveloperName.substring(0, 1) == 'X' || salesTeamTerritory.DeveloperName.substring(0, 1) == 'Z' ?
-                                              salesTeamTerritory.DeveloperName.substring(1, salesTeamTerritory.DeveloperName.length()) : salesTeamTerritory.DeveloperName;
-                    salesTeamsDevNames.add(salesTeamDevName);
-                }
-            }
-            if (salesTeamsDevNames.size() > 0) {
-                proQuery.add(Q.condition('SalesTeam__r.ExternalId__c').isIn(salesTeamsDevNames));
-                proQuery.add(Q.condition('SalesOrg__r.SalesOrganizationCode__c').isIn(new List<String>{'1000', '1100', '1300', '1500', '1600', '1700', '1800', '1900', '2000', '9000', '9003'}));
-                if(companyInfos.orderType == 'Venda de Serviço')
-                    proQuery.add(Q.condition('ActivitySector__r.Codigo__c').equalsTo('40'));
-                else {
-                    proQuery.add(Q.condition('ActivitySector__r.Codigo__c').isIn(new List<String>{'10', '30'}));
-                }
-                if (companyInfos.accountId == '') proQuery.addLimit(1);
-                for (Company__c salesTeamCompany : Database.query(proQuery.build())) {
-                    CompanyInfos company = new CompanyInfos();
-                    company.companyId = salesTeamCompany.Id;
-                    company.salesOrgId = salesTeamCompany.SalesOrg__c;
-                    company.salesTeamId = salesTeamCompany.SalesTeam__c;
-                    company.salesOfficeId = salesTeamCompany.SalesOffice__c;
-                    company.salesTeamName = salesTeamCompany.SalesTeam__r.Name;
-                    company.supplierCenter = salesTeamCompany.SupplierCenter__c;
-                    company.activitySectorId = salesTeamCompany.ActivitySector__c;
-                    company.activitySectorName = salesTeamCompany.ActivitySector__r.Name;
-                    company.distributionChannelId = salesTeamCompany.DistributionChannel__c;
-                    company.distributionChannelName = salesTeamCompany.DistributionChannel__r.Name;
-                    company.selected = false;
-                    companyList.add(company);
-                }
-            }
-        }
-        if(isHeader)
-            return companyList[0].salesOrgId;
-        else
-            return JSON.serialize(new CompanyInfosSerialize(companyList));
     }
 
     @AuraEnabled
