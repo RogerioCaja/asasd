@@ -1866,28 +1866,29 @@ export default class OrderProductScreen extends LightningElement {
             totalDiscount += Number(this.products[index].commercialDiscountValue);
         }
 
-        totalProducts = totalProducts - this.calculateTaxes(totalProducts);
-        let chooseCommodity = this.commodities.find(e => e.Id == event.target.dataset.targetId);
         let marginPercent = ((1 - (orderTotalCost / totalProducts)) * 100);
+        let chooseCommodity = this.commodities.find(e => e.Id == event.target.dataset.targetId);
+        let commodityPrice = chooseCommodity.listPrice - this.calculateTaxes(chooseCommodity.listPrice);
+
         this.selectedCommodity = {
             id: chooseCommodity.Id,
             name: chooseCommodity.Name,
             cotation: chooseCommodity.listPrice,
             startDate: null,
             endDate: null,
-            deliveryQuantity: Math.ceil((totalProducts / chooseCommodity.listPrice)) + ' sacas',
-            deliveryQuantityFront: Math.ceil((totalProducts / chooseCommodity.listPrice)) + ' sacas',
+            deliveryQuantity: Math.ceil((totalProducts / commodityPrice)) + ' sacas',
+            deliveryQuantityFront: Math.ceil((totalProducts / commodityPrice)) + ' sacas',
             ptax: chooseCommodity.productCurrency + chooseCommodity.listPrice,
             commodityPrice: chooseCommodity.listPrice,
             deliveryAddress: '',
             commission: 'R$' + ((chooseCommodity.commissionPercentage * totalProducts) / 100),
             totalMarginPercent: this.fixDecimalPlaces(marginPercent) + '%',
             totalMarginPercentFront: this.fixDecimalPlacesFront(marginPercent) + '%',
-            totalMarginValue: this.fixDecimalPlaces(((totalProducts * marginPercent) / 100) / chooseCommodity.listPrice) + ' sacas',
-            totalMarginValueFront: this.fixDecimalPlacesFront(((totalProducts * marginPercent) / 100) / chooseCommodity.listPrice) + ' sacas',
+            totalMarginValue: this.fixDecimalPlaces(((totalProducts * marginPercent) / 100) / commodityPrice) + ' sacas',
+            totalMarginValueFront: this.fixDecimalPlacesFront(((totalProducts * marginPercent) / 100) / commodityPrice) + ' sacas',
             quantity: productsQuantity,
-            totalDiscountValue: this.fixDecimalPlaces(totalDiscount / chooseCommodity.listPrice) + ' sacas',
-            totalDiscountValueFront: this.fixDecimalPlacesFront(totalDiscount / chooseCommodity.listPrice) + ' sacas'
+            totalDiscountValue: this.fixDecimalPlaces(totalDiscount / commodityPrice) + ' sacas',
+            totalDiscountValueFront: this.fixDecimalPlacesFront(totalDiscount / commodityPrice) + ' sacas'
         };
         this._setTaxData();
     }
@@ -2007,21 +2008,21 @@ export default class OrderProductScreen extends LightningElement {
                 productsQuantity += Number(this.products[index].quantity);
                 totalDiscount += Number(this.products[index].commercialDiscountValue);
             }
-
-            totalProducts = totalProducts - this.calculateTaxes(totalProducts);
             let marginPercent = ((1 - (orderTotalCost / totalProducts)) * 100);
 
             let currentCommodityValues = this.parseObject(this.commoditiesData[0]);
+            let commodityPrice = currentCommodityValues.cotation - this.calculateTaxes(currentCommodityValues.cotation);
+
             currentCommodityValues.area = this.headerData.hectares;
             currentCommodityValues.quantity = productsQuantity;
-            currentCommodityValues.discount = this.fixDecimalPlaces(totalDiscount / Number(currentCommodityValues.cotation)) + ' sacas';
-            currentCommodityValues.discountFront = this.fixDecimalPlacesFront(totalDiscount / Number(currentCommodityValues.cotation)) + ' sacas';
+            currentCommodityValues.discount = this.fixDecimalPlaces(totalDiscount / Number(commodityPrice)) + ' sacas';
+            currentCommodityValues.discountFront = this.fixDecimalPlacesFront(totalDiscount / Number(commodityPrice)) + ' sacas';
             currentCommodityValues.margin = this.fixDecimalPlaces(marginPercent) + '%';
             currentCommodityValues.marginFront = this.fixDecimalPlacesFront(marginPercent) + '%';
-            currentCommodityValues.marginValue = this.fixDecimalPlaces(((totalProducts * marginPercent) / 100) / Number(currentCommodityValues.cotation)) + ' sacas';
-            currentCommodityValues.marginValueFront = this.fixDecimalPlacesFront(((totalProducts * marginPercent) / 100) / Number(currentCommodityValues.cotation)) + ' sacas';
-            currentCommodityValues.totalDelivery = Math.ceil((totalProducts / currentCommodityValues.cotation)) + ' sacas';
-            currentCommodityValues.totalDeliveryFront = Math.ceil((totalProducts / currentCommodityValues.cotation)) + ' sacas';
+            currentCommodityValues.marginValue = this.fixDecimalPlaces(((totalProducts * marginPercent) / 100) / Number(commodityPrice)) + ' sacas';
+            currentCommodityValues.marginValueFront = this.fixDecimalPlacesFront(((totalProducts * marginPercent) / 100) / Number(commodityPrice)) + ' sacas';
+            currentCommodityValues.totalDelivery = Math.ceil((totalProducts / commodityPrice)) + ' sacas';
+            currentCommodityValues.totalDeliveryFront = Math.ceil((totalProducts / commodityPrice)) + ' sacas';
             this.commoditiesData = [];
             this.commoditiesData.push(currentCommodityValues);
             this._setCommodityData();
