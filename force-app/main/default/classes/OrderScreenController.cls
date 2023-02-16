@@ -1592,151 +1592,142 @@ public without sharing class OrderScreenController {
     }
 
     @AuraEnabled
-    public static String getSpecificCombos(String data, String companyData, String productData, Boolean childOrder, List<Id> existingCombosIds) {
-        String companiesData = getAccountCompanies(companyData, false, false, false, childOrder);
-        CompanyInfosSerialize companyInfos = (CompanyInfosSerialize) JSON.deserialize(companiesData, CompanyInfosSerialize.class);
-        CompanyInfos company = companyInfos.listCompanyInfos[0];
-        
-        HeaderValues comboData = (HeaderValues) JSON.deserialize(data, HeaderValues.class);
-        CustomLookupController.ProductParams productParams = (CustomLookupController.ProductParams) JSON.deserialize(productData, CustomLookupController.ProductParams.class);
-        productParams.supplierCenter = company.supplierCenter;
-        productParams.salesOrgId = company.salesOrgId;
-        productParams.salesOfficeId = company.salesOfficeId;
-        productParams.salesTeamId = company.salesTeamId;
-        
-        Map<Id, ComboPromotionData> result = new Map<Id, ComboPromotionData>();
-        Map<Id, Set<Id>> combosByProductId = new Map<Id, Set<Id>>();
-        Set<Id> combosIds = new Set<Id>();
-        Id specificItemsRecordType = Schema.SObjectType.ComboPromotion__c.getRecordTypeInfosByDeveloperName().get('Specific_Items').getRecordTypeId();
-        
-        for (ComboPromotion__c promotion : [
+    public static String getAccountCompanies(String data, Boolean isHeader, Boolean verifyUserType, Boolean priceScreen, Boolean childOrder) {
+        GetCompanyInfos companyInfos = (GetCompanyInfos) JSON.deserialize(data, GetCompanyInfos.class);
+        Set<Id> userTerritoriesIds = new Set<Id>();
+        Boolean sellerPosition = false;
+        for (UserTerritory2Association userAssociation : [
             SELECT Id,
-                   ComboType__c,
-                   CombosQuantity__c,
-                   PaymentCondition__c,
-                   DiscountPercentage__c,
-                   RecordType.DeveloperName
-              FROM ComboPromotion__c
-             WHERE RecordTypeId =: specificItemsRecordType
-               AND Status__c = 'Ativo'
-               AND 
-               (
-                    (Id IN: existingCombosIds)
-                    OR
-                    (
-                        Safra__c =: comboData.cropId
-                    AND SalesOrg__c =: company.salesOrgId
-                    AND SalesCondition__c =: comboData.salesConditionId
-                    AND CombosQuantity__c > 0
-                    )
-               )
-             LIMIT 4
-            OFFSET :comboData.rowsToSkip
+                   Territory2.Territory2Type.DeveloperName
+              FROM UserTerritory2Association
+             WHERE UserId =: UserInfo.getUserId()
+             LIMIT 1
         ]) {
-            ComboPromotionData comboPromotionData = new ComboPromotionData();
-            comboPromotionData.comboQuantity = 0;
-            comboPromotionData.comboId = promotion.Id;
-            comboPromotionData.comboType = promotion.ComboType__c;
-            comboPromotionData.paymentConditionId = promotion.PaymentCondition__c;
-            comboPromotionData.comboAvailableQuantity = promotion.CombosQuantity__c;
-            comboPromotionData.comboDiscountPercentage = promotion.DiscountPercentage__c;
-            comboPromotionData.specificItemCombo = true;
-            comboPromotionData.recTypeDevName = promotion.RecordType.DeveloperName;
-            comboPromotionData.formerItems = new List<ComboItems>();
-            comboPromotionData.benefitItems = new List<ComboItems>();
-            
-            combosIds.add(promotion.Id);
-            result.put(promotion.Id, comboPromotionData);
+            sellerPosition = userAssociation.Territory2.Territory2Type.DeveloperName == 'SellerPosition' ? true : false;
         }
-
-        List<String> prodsIds = new List<String>();
-        for (FormerProduct__c formerProd : [
+        if (verifyUserType) {
+            sellerPosition = true;
+            return JSON.serialize(sellerPosition);
+        }
+        List<Id> territoriesRelatedToCtv = new List<Id>();
+        for (UserTerritory2Association userAssociation : [
             SELECT Id,
-                   Product__c,
-                   Product__r.Name,
-                   Product__r.ExternalId__c,
-                   MinQuantity__c,
-                   ComboPromotion__c
-              FROM FormerProduct__c
-             WHERE ComboPromotion__c IN: combosIds
+                   UserId,
+                   Territory2Id,
+                   Territory2.Territory2Type.DeveloperName
+              FROM UserTerritory2Association
+             WHERE UserId =: companyInfos.ctvId
         ]) {
-            ComboPromotionData comboPromotionData = result.get(formerProd.ComboPromotion__c);
-            String productCode = formerProd.Product__r.ExternalId__c != null ? String.valueOf(Integer.valueOf(formerProd.Product__r.ExternalId__c) * 1) : '';
-            ComboItems formerItem = new ComboItems();
-            formerItem.comboId = formerProd.ComboPromotion__c;
-            formerItem.productId = formerProd.Product__c;
-            formerItem.productName = formerProd.Product__r.Name;
-            formerItem.productCode = productCode;
-            formerItem.minQUantity = formerProd.MinQuantity__c;
-            
-            prodsIds.add(formerProd.Product__c);
-            comboPromotionData.formerItems.add(formerItem);
-            result.put(formerProd.ComboPromotion__c, comboPromotionData);
-
-            if (!combosByProductId.containsKey(formerProd.Product__c)) {
-                combosByProductId.put(formerProd.Product__c, new Set<Id>{formerProd.ComboPromotion__c});
-            } else {
-                Set<Id> productCombos = combosByProductId.get(formerProd.Product__c);
-                productCombos.add(formerProd.ComboPromotion__c);
-                combosByProductId.put(formerProd.Product__c, productCombos);
+            territoriesRelatedToCtv.add(userAssociation.Territory2Id);
+        }
+        if (companyInfos.accountId != null && companyInfos.accountId != '') {
+            for (ObjectTerritory2Association objAssociation : [
+                SELECT Id,
+                       Territory2Id,
+                       Territory2.Territory2Type.DeveloperName
+                  FROM ObjectTerritory2Association
+                 WHERE ObjectId =: companyInfos.accountId
+                   AND Territory2Id IN: territoriesRelatedToCtv
+            ]) {
+                userTerritoriesIds.add(objAssociation.Territory2Id);
+            }
+        } else {
+            for (ObjectTerritory2Association objAssociation : [
+                SELECT Id,
+                       Territory2Id,
+                       Territory2.Territory2Type.DeveloperName
+                  FROM ObjectTerritory2Association
+                 WHERE Territory2Id IN: territoriesRelatedToCtv
+            ]) {
+                userTerritoriesIds.add(objAssociation.Territory2Id);
             }
         }
-
-        for (BenefitProduct__c benefitProd : [
+        Map<Id, Territory2> territoryAndParents = new Map<Id, Territory2>();
+        for(Territory2 territory : [
             SELECT Id,
-                   Product__c,
-                   Product__r.Name,
-                   Product__r.ExternalId__c,
-                   MinQuantity__c,
-                   ComboPromotion__c,
-                   DiscountPercentage__c
-              FROM BenefitProduct__c
-             WHERE ComboPromotion__c IN: combosIds
-        ]) {
-            ComboPromotionData comboPromotionData = result.get(benefitProd.ComboPromotion__c);
-            String productCode = benefitProd.Product__r.ExternalId__c != null ? String.valueOf(Integer.valueOf(benefitProd.Product__r.ExternalId__c) * 1) : '';
-            ComboItems benefitItem = new ComboItems();
-            benefitItem.comboId = benefitProd.ComboPromotion__c;
-            benefitItem.productId = benefitProd.Product__c;
-            benefitItem.productName = benefitProd.Product__r.Name;
-            benefitItem.productCode = productCode;
-            benefitItem.minQUantity = benefitProd.MinQuantity__c;
-            benefitItem.discountPercentage = benefitProd.DiscountPercentage__c;
-            
-            prodsIds.add(benefitProd.Product__c);
-            comboPromotionData.benefitItems.add(benefitItem);
-            result.put(benefitProd.ComboPromotion__c, comboPromotionData);
-
-            if (!combosByProductId.containsKey(benefitProd.Product__c)) {
-                combosByProductId.put(benefitProd.Product__c, new Set<Id>{benefitProd.ComboPromotion__c});
-            } else {
-                Set<Id> productCombos = combosByProductId.get(benefitProd.Product__c);
-                productCombos.add(benefitProd.ComboPromotion__c);
-                combosByProductId.put(benefitProd.Product__c, productCombos);
+                   DeveloperName,
+                   ParentTerritory2Id
+              FROM Territory2
+        ]){
+            territoryAndParents.put(territory.Id, territory);
+        }
+        Map<String, Integer> approvalLevels = new Map<String, Integer>{
+            'GerenteFilial' => 1,
+            'GerenteRegional' => 2,
+            'Diretor' => 3
+        };
+        Integer counter = 0;
+        List<Territory2> salesTeamTerritories;
+        Set<Id> territoriesIds = new Set<Id>();
+        while (counter < companyInfos.approvalNumber) {
+            for (Id userTerritoryId : userTerritoriesIds) {
+                Territory2 territory = territoryAndParents.containsKey(userTerritoryId) ? territoryAndParents.get(userTerritoryId) : new Territory2();
+                if (territory != null && territory.ParentTerritory2Id != null) {
+                    territoriesIds.add(territory.Id);
+                }
+                if (counter == 1) {
+                    salesTeamTerritories.add(territory);
+                }
+            }
+            counter++;
+        }
+        if (salesTeamTerritories == null && territoriesIds.size() > 0) {
+            salesTeamTerritories = new List<Territory2>();
+            for (Id userTerritoryId : territoriesIds) {
+                if (territoryAndParents.get(userTerritoryId) != null && territoryAndParents.get(territoryAndParents.get(userTerritoryId).ParentTerritory2Id) != null) {
+                    salesTeamTerritories.add(territoryAndParents.get(territoryAndParents.get(userTerritoryId).ParentTerritory2Id));
+                }
             }
         }
-
-        Set<Id> existingPrices = new Set<Id>();
-        CustomLookupController.ProductDataResult productPrices = CustomLookupController.fetchProductsRecords('', JSON.serialize(productParams), false, prodsIds, false, false);
-        for (CustomLookupController.ProductData products : productPrices.recordsDataList) {
-            existingPrices.add(products.Id);
-        }
-
-        Set<Id> combosToRemove = new Set<Id>();
-        for (Id idProduct : combosByProductId.keySet()) {
-            if (!existingPrices.contains(idProduct)) {
-                combosToRemove.addAll(combosByProductId.get(idProduct));
+        Set<String> fieldSet = new Set<String>{
+            'Id','SalesOrg__c', 'SalesTeam__r.Name', 'SalesOffice__c',
+            'SupplierCenter__c','ActivitySector__c','ActivitySector__r.Name',
+             'DistributionChannel__c','DistributionChannel__r.Name', 'Status__c'
+        };
+        Q proQuery = new Q(Company__c.SObjectType);
+        proQuery.selectFields(fieldSet);
+        if (companyInfos.accountId != '') proQuery.add(Q.condition('Conta__c').equalsTo(companyInfos.accountId));
+        if (childOrder == null || !childOrder) proQuery.add(Q.condition('Status__c').equalsTo('Adicionada'));
+        List<CompanyInfos> companyList = new List<CompanyInfos>();
+        if (salesTeamTerritories != null && salesTeamTerritories.size() > 0) {
+            List<String> salesTeamsDevNames = new List<String>();
+            for (Territory2 salesTeamTerritory : salesTeamTerritories) {
+                if (salesTeamTerritory.DeveloperName != null) {
+                    String salesTeamDevName = salesTeamTerritory.DeveloperName.substring(0, 1) == 'X' || salesTeamTerritory.DeveloperName.substring(0, 1) == 'Z' ?
+                                              salesTeamTerritory.DeveloperName.substring(1, salesTeamTerritory.DeveloperName.length()) : salesTeamTerritory.DeveloperName;
+                    salesTeamsDevNames.add(salesTeamDevName);
+                }
+            }
+            if (salesTeamsDevNames.size() > 0) {
+                proQuery.add(Q.condition('SalesTeam__r.ExternalId__c').isIn(salesTeamsDevNames));
+                proQuery.add(Q.condition('SalesOrg__r.SalesOrganizationCode__c').isIn(new List<String>{'1000', '1100', '1300', '1500', '1600', '1700', '1800', '1900', '2000', '9000', '9003'}));
+                if(companyInfos.orderType == 'Venda de Serviço')
+                    proQuery.add(Q.condition('ActivitySector__r.Codigo__c').equalsTo('40'));
+                else {
+                    proQuery.add(Q.condition('ActivitySector__r.Codigo__c').isIn(new List<String>{'10', '30'}));
+                }
+                if (companyInfos.accountId == '') proQuery.addLimit(1);
+                for (Company__c salesTeamCompany : Database.query(proQuery.build())) {
+                    CompanyInfos company = new CompanyInfos();
+                    company.companyId = salesTeamCompany.Id;
+                    company.salesOrgId = salesTeamCompany.SalesOrg__c;
+                    company.salesTeamId = salesTeamCompany.SalesTeam__c;
+                    company.salesOfficeId = salesTeamCompany.SalesOffice__c;
+                    company.salesTeamName = salesTeamCompany.SalesTeam__r.Name;
+                    company.supplierCenter = salesTeamCompany.SupplierCenter__c;
+                    company.activitySectorId = salesTeamCompany.ActivitySector__c;
+                    company.activitySectorName = salesTeamCompany.ActivitySector__r.Name;
+                    company.distributionChannelId = salesTeamCompany.DistributionChannel__c;
+                    company.distributionChannelName = salesTeamCompany.DistributionChannel__r.Name;
+                    company.selected = false;
+                    companyList.add(company);
+                }
             }
         }
-
-        List<ComboPromotionData> availableCombos = new List<ComboPromotionData>();
-        for (Id idCombo : result.keySet()) {
-            if (!combosToRemove.contains(idCombo)) {
-                availableCombos.add(result.get(idCombo));
-            }
-        }
-
-        return JSON.serialize(availableCombos);
+        if(isHeader)
+            return companyList[0].salesOrgId;
+        else
+            return JSON.serialize(new CompanyInfosSerialize(companyList));
     }
 
     @AuraEnabled
