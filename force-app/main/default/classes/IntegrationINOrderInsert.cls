@@ -160,6 +160,9 @@ global without sharing class IntegrationINOrderInsert {
                     order.salesCTV = partnerList.KUNNR;
                 }
         }
+
+            order.company = order.PaymentAccount + order.CentroFornecedor + order.salesOrg + order.activitySector + order.distributionChannel + order.EscritorioVendas + order.EquipeVendas;
+
             conditionList.addAll(order.conditions);
              
             System.debug('shippingDivisonListToUpsert' + shippingDivisonListToUpsert);

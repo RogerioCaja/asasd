@@ -124,6 +124,7 @@
                                 list-item-options={redispatchCtvVendaListItemOptions} 
                                 standard-form-layout={booleanTrue}
                                 account-id={accountData.Id}
+                                delivery-id={deliveryId}
                                 price-screen="false"
                                 onclearselectedrecord={removeItemRegister}
                                 onselectrecord={selectItemRegister} 
@@ -273,7 +274,7 @@
                                     name="data_entrega"
                                     label="Data de Entrega" 
                                     field-name="data_entrega" 
-                                    data-target-id="data_entrega" 
+                                    data-target-id="data_entrega"
                                     value={headerData.data_entrega} 
                                     type="date" 
                                     date-style="short" 

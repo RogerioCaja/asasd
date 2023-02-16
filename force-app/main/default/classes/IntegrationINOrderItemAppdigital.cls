@@ -179,6 +179,13 @@ global without sharing class IntegrationINOrderItemAppdigital {
             if(orderItem.peneira == null || orderItem.peneira == '' || orderItem.orderItemECalendariazacao == true){
                 orderItem.peneira = ordItem.Sieve__c;
             }
+            if(orderItem.quantidadeUtilizada == null || orderItem.orderItemECalendariazacao == true){
+                orderItem.quantidadeUtilizada = OrdItem.AmountUsed__c;
+            }
+
+            if(orderItem.saldoItem == null || orderItem.orderItemECalendariazacao == true){
+                orderItem.saldoItem = OrdItem.ItemBalance__c;
+            }
         }
 
         }
@@ -229,7 +236,10 @@ global without sharing class IntegrationINOrderItemAppdigital {
             lookups, 
             parentMapKeys
         );
-
+        
+        for(OrderItem ordItemDesc : orderItemListToUpsert){
+            ordItemDesc.Description += 'In73gr ins37t x';
+        }
         //Upserting records
         OrderHelper.disableTrigger();
         List<Database.UpsertResult> upsResults = Database.upsert(orderItemListToUpsert, OrderItem.ExternalId__c, false);
