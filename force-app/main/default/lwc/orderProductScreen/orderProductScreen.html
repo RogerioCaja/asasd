@@ -43,8 +43,10 @@
 
 			<div class="products-result" if:true={showIncludedProducts}>
 				<template if:false={message}>
-					<button if:true={barterSale} class="barter-sale" onclick={openCommodities}>Escolher commodities</button>
-					<button if:true={showCommodityData} class="barter-sale" onclick={openCommodityData}>Visualizar commodities</button>
+					<template if:false={headerData.IsOrderChild}>
+						<button if:true={barterSale} class="barter-sale" onclick={openCommodities}>Escolher commodities</button>
+						<button if:true={showCommodityData} class="barter-sale" onclick={openCommodityData}>Visualizar commodities</button>
+					</template>
 					<button if:false={hideChooseColumns} class="change-columns" onclick={showTableColumns}>Alterar colunas</button>
 					<h2>Resultados de <b>PRODUTOS</b>:</h2>
 
