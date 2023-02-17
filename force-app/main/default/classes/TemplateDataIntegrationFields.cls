@@ -913,8 +913,8 @@ global with sharing class TemplateDataIntegrationFields {
                 Invoice_CreationDate__c = this.dataCriacao,
                 HoraCriacao__c = this.horaCriacao,
                 Invoice_TotalAmount__c = this.valorTotalNf,
-                CFOP__c = this.naturezaOperacao,
-                Base64__c = this.nfBasePdf
+                CFOP__c = this.naturezaOperacao
+                //Base64__c = this.nfBasePdf
             );
         }
         
@@ -965,8 +965,8 @@ global with sharing class TemplateDataIntegrationFields {
                 BankName__c = this.bancoEmpresa,
                 OurNumber__c = this.numeroBoleto,
                 BusinessLocation__c = this.localNegocio, 
-                Instructions__c = this.instrucoes,
-                Base64__c = this.boletoBasePdf
+                Instructions__c = this.instrucoes
+                //Base64__c = this.boletoBasePdf
             );
         }
 
