@@ -37,6 +37,21 @@
         </values>
     </picklistValues>
     <picklistValues>
+        <picklist>MTO__c</picklist>
+        <values>
+            <fullName>Venda Conta e Ordem</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Venda Normal</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Venda a Ordem</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
         <picklist>OrderReason__c</picklist>
         <values>
             <fullName>001</fullName>
