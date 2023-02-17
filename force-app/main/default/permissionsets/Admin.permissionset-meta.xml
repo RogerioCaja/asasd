@@ -910,7 +910,7 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>CustomerTaxes__c.SalesOrg__c</field>
+        <field>CustomerTaxes__c.ExternalId__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -920,7 +920,7 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>CustomerTaxes__c.ExternalId__c</field>
+        <field>CustomerTaxes__c.SalesOrg__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -1580,11 +1580,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Order.ACMContract__c</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
         <field>Order.ActivatedById</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1607,11 +1602,6 @@
         <editable>true</editable>
         <field>Order.ApprovalDirector__c</field>
         <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Order.ApprovalJustification__c</field>
-        <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
@@ -1735,11 +1725,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Order.EffectiveOrderDate__c</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
         <field>Order.ErrorIntegrationSAP__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1781,6 +1766,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Order.IsOrderMother__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Order.MTO__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
