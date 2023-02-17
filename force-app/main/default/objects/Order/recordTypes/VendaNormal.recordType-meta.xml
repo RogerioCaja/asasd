@@ -40,15 +40,15 @@
     <picklistValues>
         <picklist>MTO__c</picklist>
         <values>
-            <fullName>Venda Conta e Ordem</fullName>
+            <fullName>ZRCO</fullName>
             <default>false</default>
         </values>
         <values>
-            <fullName>Venda Normal</fullName>
+            <fullName>ZVNO</fullName>
             <default>false</default>
         </values>
         <values>
-            <fullName>Venda a Ordem</fullName>
+            <fullName>ZVVO</fullName>
             <default>false</default>
         </values>
     </picklistValues>
