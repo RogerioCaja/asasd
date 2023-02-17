@@ -361,7 +361,8 @@ export default class OrderProductScreen extends LightningElement {
                         data: JSON.stringify(this.productParams),
                         isCommodity: false,
                         productsIds: prodsIds,
-                        priceScreen: false
+                        priceScreen: false,
+                        isLimit: true
                     })
                     .then(result => {
                         this.productsPriceMap = result.recordsDataMap;
@@ -1560,7 +1561,8 @@ export default class OrderProductScreen extends LightningElement {
             data: JSON.stringify(this.productParams),
             isCommodity: false,
             productsIds: [],
-            priceScreen: false
+            priceScreen: false,
+            isLimit: false
         })
         .then(result => {
             this.showBaseProducts = result.recordsDataList.length > 0;
