@@ -748,10 +748,8 @@ public without sharing class CalloutBP {
                 accountIdList.add(clientTax.Account__c);
             }
             List<CustomerTaxes__c> clientTaxOldList = new List<CustomerTaxes__c>([SELECT Id, Account__c, ExternalId__c, Status__c FROM CustomerTaxes__c WHERE  Account__c =: accountIdList AND ExternalId__c !=: taxExternalIdList]); 
-            for(CustomerTaxes__c clientTax : clientTaxOldList){
-                clientTax.Status__c = 'Inativo';
-            }
-            update clientTaxOldList;
+
+            delete clientTaxOldList;
             return resultImpostList;
         }
         return null;
@@ -990,5 +988,4 @@ public without sharing class CalloutBP {
         public String OrganizacaoVendas;
         public String Name;
     }
-
 }
