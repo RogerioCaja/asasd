@@ -1366,7 +1366,7 @@ public without sharing class OrderScreenController {
         }
 
         Set<Id> existingPrices = new Set<Id>();
-        CustomLookupController.ProductDataResult productPrices = CustomLookupController.fetchProductsRecords('', JSON.serialize(productParams), false, prodsIds, false, false);
+        CustomLookupController.ProductDataResult productPrices = CustomLookupController.fetchProductsRecords('', JSON.serialize(productParams), false, prodsIds, false, false, false);
         for (CustomLookupController.ProductData products : productPrices.recordsDataList) {
             existingPrices.add(products.Id);
         }
