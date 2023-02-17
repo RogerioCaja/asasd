@@ -434,7 +434,7 @@ public without sharing class FactoryBuilder {
                 dateF = String.valueOf(delimiter.StartDateOV__c).replace('-', '');
             }
             
-            this.DOC_TYPE = getCodeTypeOrder(String.valueOf(order.RecordType.DeveloperName), order.IsOrderMother__c); 
+            this.DOC_TYPE = getCodeTypeOrder(String.valueOf(order.RecordType.DeveloperName), order.IsOrderMother__c, order.MTO__c); 
             if(this.DOC_TYPE == 'ZVNO' && order.PaymentCondition__r.CashPayment__c) this.DOC_TYPE = 'ZVAB';
             this.SALES_ORG = order.SalesOrg__r.SalesOrganizationCode__c;
             this.DISTR_CHAN =order.DistributionChannel__r.Codigo__c;
@@ -548,7 +548,7 @@ public without sharing class FactoryBuilder {
                 dateF = String.valueOf(delimiter.StartDateOV__c).replace('-', '');
             }
             
-            this.DOC_TYPE = getCodeTypeOrder(String.valueOf(order.RecordType.DeveloperName), order.IsOrderMother__c); 
+            this.DOC_TYPE = getCodeTypeOrder(String.valueOf(order.RecordType.DeveloperName), order.IsOrderMother__c, order.MTO__c); 
             if(this.DOC_TYPE == 'ZVNO' && order.PaymentCondition__r.CashPayment__c) this.DOC_TYPE = 'ZVAB';
             this.SALES_ORG = order.SalesOrg__r.SalesOrganizationCode__c;
             this.DISTR_CHAN =order.DistributionChannel__r.Codigo__c;
@@ -641,7 +641,7 @@ public without sharing class FactoryBuilder {
                 dateF = String.valueOf(delimiter.StartDateOV__c).replace('-', '');
             }
             
-            this.DOC_TYPE = getCodeTypeOrder(String.valueOf(order.RecordType.DeveloperName), order.IsOrderMother__c); 
+            this.DOC_TYPE = getCodeTypeOrder(String.valueOf(order.RecordType.DeveloperName), order.IsOrderMother__c, order.MTO__c); 
             if(this.DOC_TYPE == 'ZVNO' && order.PaymentCondition__r.CashPayment__c) this.DOC_TYPE = 'ZVAB';
             this.SALES_ORG = order.SalesOrg__r.SalesOrganizationCode__c;
             this.DISTR_CHAN =order.DistributionChannel__r.Codigo__c;
@@ -767,7 +767,7 @@ public without sharing class FactoryBuilder {
                 dateF = String.valueOf(delimiter.StartDateOV__c).replace('-', '');
             }
             
-            this.DOC_TYPE = getCodeTypeOrder(String.valueOf(order.RecordType.DeveloperName), order.IsOrderMother__c); 
+            this.DOC_TYPE = getCodeTypeOrder(String.valueOf(order.RecordType.DeveloperName), order.IsOrderMother__c, order.MTO__c); 
             if(this.DOC_TYPE == 'ZVNO' && order.PaymentCondition__r.CashPayment__c) this.DOC_TYPE = 'ZVAB';
             this.SALES_ORG = order.SalesOrg__r.SalesOrganizationCode__c;
             this.DISTR_CHAN =order.DistributionChannel__r.Codigo__c;
@@ -917,8 +917,10 @@ public without sharing class FactoryBuilder {
     }
     
 
-    private static String getCodeTypeOrder(String typeOrder, Boolean isOrderMother){
+    private static String getCodeTypeOrder(String typeOrder, Boolean isOrderMother, String apiNameMTO){
 
+        if(apiNameMTO != null) return apiNameMTO;
+        
         String orderType = typeOrder + (isOrderMother ? 'PedidoMae' : '');
 
         RecordTypes__mdt recordType = RecordTypes__mdt.getInstance(orderType);
