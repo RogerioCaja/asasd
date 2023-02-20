@@ -270,7 +270,7 @@ public class CustomLookupControllerTest {
         params.activitySectorName = 'INSUMOS';
         params.supplierCenter = '1010';
 
-        CustomLookupController.fetchProductsRecords('Milho', JSON.serialize(params), false, new List<String>{}, false, false);
+        CustomLookupController.fetchProductsRecords('Milho', JSON.serialize(params), false, new List<String>{}, false, false, false);
     }
 
     @isTest
@@ -292,7 +292,7 @@ public class CustomLookupControllerTest {
         params.activitySectorName = 'INSUMOS';
         params.supplierCenter = '1010';
 
-        CustomLookupController.fetchProductsRecords('Soja', JSON.serialize(params), true, new List<String>{}, false, false);
+        CustomLookupController.fetchProductsRecords('Soja', JSON.serialize(params), true, new List<String>{}, false, false, false);
     }
 
     @isTest
