@@ -571,6 +571,7 @@ export default class OrderHeaderScreen extends LightningElement {
                     if(field == 'safra'){
                         this.safraName = record.Name;
                     }
+
                     if(field == 'condicao_venda'){
                         this.setDateLimit();
                     }
