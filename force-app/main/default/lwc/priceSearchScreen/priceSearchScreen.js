@@ -206,8 +206,7 @@ export default class PriceSearchScreen extends LightningElement {
                 isCommodity: false,
                 productsIds: [],
                 priceScreen: true,
-                getSeedPrices: false,
-                isLimit: false
+                getSeedPrices: false
             })
             .then(result => {
                 this.showBaseProducts = result.recordsDataList.length > 0;

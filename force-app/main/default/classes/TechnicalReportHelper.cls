@@ -10,7 +10,7 @@ public without sharing class TechnicalReportHelper {
     public static Boolean isTriggerEnabled(){
         return isEnabled;
     }
-    
+
     public static Boolean disableTrigger(){
         return isEnabled = false;
     }

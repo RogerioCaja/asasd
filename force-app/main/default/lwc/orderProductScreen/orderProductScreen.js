@@ -477,7 +477,7 @@ export default class OrderProductScreen extends LightningElement {
                         this.financialInfoLogic(orderData);
                         checkFinancialInfos = false;
 
-                        fetchOrderRecords({searchString: '', data: JSON.stringify(this.productParams), isCommodity: false, productsIds: prodsIds, priceScreen: false, getSeedPrices: this.showRoyaltyTsi, isLimit: true})
+                        fetchOrderRecords({searchString: '', data: JSON.stringify(this.productParams), isCommodity: false, productsIds: prodsIds, priceScreen: false, getSeedPrices: this.showRoyaltyTsi})
                         .then(result => {
                             this.productsPriceMap = result.recordsDataMap;
                             this.salesInfos = result.salesResult;
@@ -782,7 +782,6 @@ export default class OrderProductScreen extends LightningElement {
     }
 
     createProduct(prod, prices, combos, counter) {
-        console.log('counter ==>' + counter);
         let newProductData = {
             entryId: prod.entryId,
             productId: prod.Id,
@@ -1816,7 +1815,6 @@ export default class OrderProductScreen extends LightningElement {
         }
 
         let currentProducts = [];
-        console.log('this.products.length ==>' + this.products.length);
         for (let index = 0; index < this.products.length; index++) {
             let itemToExclude = this.itensToRemove.find(e => e.productId == this.products[index].productId);
             if (!this.isFilled(itemToExclude)) currentProducts.push(this.products[index]);
@@ -2071,8 +2069,7 @@ export default class OrderProductScreen extends LightningElement {
             isCommodity: false,
             productsIds: [],
             priceScreen: false,
-            getSeedPrices: this.showRoyaltyTsi,
-            isLimit: false
+            getSeedPrices: this.showRoyaltyTsi
         })
         .then(result => {
             this.showBaseProducts = result.recordsDataList.length > 0;
