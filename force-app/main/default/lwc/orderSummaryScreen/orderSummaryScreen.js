@@ -96,8 +96,8 @@ export default class OrderSummaryScreen extends LightningElement {
         
         getPaymentTypes()
         .then((result) => {
-            let teste = JSON.parse(result);
-            this.paymentsTypes = JSON.parse(JSON.stringify(teste));
+            let payments = JSON.parse(result);
+            this.paymentsTypes = JSON.parse(JSON.stringify(payments));
         });
 
         this.summaryDataLocale = {... this.summaryData};

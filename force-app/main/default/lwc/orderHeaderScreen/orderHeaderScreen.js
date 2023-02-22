@@ -39,6 +39,8 @@ import getAccountCompanies from '@salesforce/apex/OrderScreenController.getAccou
 
 import isSeedSale from '@salesforce/apex/OrderScreenController.isSeedSale';
 
+
+import getMTOTypes from '@salesforce/apex/OrderScreenController.getMTOTypes';
 //import FILIAL_OBJECT from '@salesforce/schema/';
 //import FILIAL_NAME from '@salesforce/schema/';
 
@@ -58,6 +60,7 @@ export default class OrderHeaderScreen extends LightningElement {
     dateLimit;
     dateStartBilling;
     dateLimitBilling;
+    showMto = false;
 
     @api accountData;
     @api accountChildData;
@@ -98,7 +101,8 @@ export default class OrderHeaderScreen extends LightningElement {
         companySector: null,
         hectares: '',
         firstTime: true,
-        centerId: null
+        centerId: null,
+        mto: null
     };
 
     @api salesOrgId;
@@ -290,6 +294,7 @@ export default class OrderHeaderScreen extends LightningElement {
         description: 'Venda Direta'
         },
     ];
+    mtoOpitions = [];
 
 
     //Lista de Preço
@@ -457,6 +462,18 @@ export default class OrderHeaderScreen extends LightningElement {
             if(this.headerData){
                 this.fieldKey = true;
                 this.headerDictLocale = JSON.parse(JSON.stringify(this.headerData));
+                if(this.childOrder || this.headerData.IsOrderChild){
+                    console.log('this.headerData.codigo_sap: ' + this.headerData.codigo_sap);
+                    if (this.isFilled(this.headerData.codigo_sap) && this.headerData.codigo_sap.startsWith('003')) {
+                        this.showMto = true;
+                        console.log('this.showMto: ' + this.showMto);
+                        getMTOTypes().then((result) => {
+                            let mtoValues = JSON.parse(result);
+                            this.mtoOpitions = JSON.parse(JSON.stringify(mtoValues));
+                            console.log('this.mtoOpitions: ' + this.mtoOpitions);
+                        });
+                    }
+                }
                 if (this.headerDictLocale.tipo_venda == 'Venda Conta e Ordem' || this.headerDictLocale.tipo_venda == 'Venda Entrega Futura' || this.headerDictLocale.tipo_venda == 'Venda Normal') {
                     this.allowMotherOrder = true;
                 } else {
@@ -731,6 +748,8 @@ export default class OrderHeaderScreen extends LightningElement {
                 this.headerDictLocale.hectares !== 0 &&
                 this.headerDictLocale.hectares !== undefined &&
                 this.headerDictLocale.hectares !== '' && 
+                this.headerDictLocale.mto !== undefined &&
+                this.headerDictLocale.mto !== '' && 
                 this.hasDelimiter || this.pass 
             ) {
                 return true;
