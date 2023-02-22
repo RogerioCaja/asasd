@@ -72,7 +72,7 @@ public without sharing class OrderScreenController {
     public static HeaderSerialize getOrderData(Id orderId, Boolean cloneOrder){
         Order order = [SELECT Id, OrderNumber, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c , ShippingAccount__r.Phone,  ShippingAccount__r.Name,
         ShippingAccount__r.BillingCity, ShippingAccount__r.BillingState ,ShippingAccount__r.CPF__c, ShippingAccount__r.CNPJ__c , SalesCondition__c, SalesCondition__r.Name, FreightValue__c,
-        Pricebook2.InitialDate__c, Pricebook2.EndDate__c, PaymentDate__c,  CustomerOrderNumber__c, Crop__c , Crop__r.Name, Culture__c , Culture__r.Name, OrderMargin__c, RecordTypeId,
+        Pricebook2.InitialDate__c, Pricebook2.EndDate__c, PaymentDate__c,  CustomerOrderNumber__c, Crop__c , Crop__r.Name, Culture__c , Culture__r.Name, OrderMargin__c, RecordTypeId, MTO__c,
         PaymentForm__c, StatusSF__c, CodigoSAP__c, SalesOrg__c, SalesOrg__r.Name, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, SalesCTV__r.Name, OrderType__c, BPStorage__c,
         PaymentCondition__c, PaymentCondition__r.Name, ShippingDate__c, Incoterms__c, OrderReference__c, OrderReference__r.Name, IsOrderMother__c, Company__c, Hectare__c, Status, DistributionCenter__c
         FROM Order 
@@ -818,6 +818,7 @@ public without sharing class OrderScreenController {
             order.OrderReference__c = order.OrderReference__c != null ? order.OrderReference__c : orderData.headerData.pedido_mae.Id;
             order.IsOrderMother__c = orderData.headerData.pedido_mae.Id != null ? false : Boolean.valueOf(orderData.headerData.pedido_mae_check);
             order.Hectare__c = orderData.headerData.hectares.contains(',') ? Decimal.valueOf(orderData.headerData.hectares.replace(',', '.').trim()) : Decimal.valueOf(orderData.headerData.hectares.trim());
+            order.MTO__c = orderData.headerData.mto;
             order.FinalTotalValue__c = orderTotalValue;
             order.Company__c = company.Id;
             order.DistributionCenter__c = orderData.summaryData.centerId != null ? orderData.summaryData.centerId : orderData.headerData.centerId;
@@ -1832,10 +1833,10 @@ public without sharing class OrderScreenController {
 
     @AuraEnabled
     public static String getPaymentTypes() {
-        List<PaymentType> listPaymentType = new List<PaymentType>();
+        List<ComboboxValues> listPaymentType = new List<ComboboxValues>();
         List<Schema.PicklistEntry> paymentTypes = FormPayment__c.PaymentType__c.getDescribe().getPicklistValues();
         for (Schema.PicklistEntry sp : paymentTypes) {
-            PaymentType paymentForm = new PaymentType();
+            ComboboxValues paymentForm = new ComboboxValues();
             paymentForm.label = sp.getLabel();
             paymentForm.value = sp.getValue();
             listPaymentType.add(paymentForm);
@@ -1843,7 +1844,20 @@ public without sharing class OrderScreenController {
         return JSON.serialize(listPaymentType);
     }
 
-    public class PaymentType {
+    @AuraEnabled
+    public static String getMTOTypes() {
+        List<ComboboxValues> listPaymentType = new List<ComboboxValues>();
+        List<Schema.PicklistEntry> mtoTypes = Order.MTO__c.getDescribe().getPicklistValues();
+        for (Schema.PicklistEntry sp : mtoTypes) {
+            ComboboxValues paymentForm = new ComboboxValues();
+            paymentForm.label = sp.getLabel();
+            paymentForm.value = sp.getValue();
+            listPaymentType.add(paymentForm);
+        }
+        return JSON.serialize(listPaymentType);
+    }
+
+    public class ComboboxValues {
         public String label;
         public String value;
     }
@@ -2149,6 +2163,7 @@ public without sharing class OrderScreenController {
         public String  orderMargin;
         public String  companyId;
         public String  hectares;
+        public String  mto;
         public String  centerId;
         public Decimal freightValue;
         public Decimal freightPerUnit;
@@ -2438,6 +2453,7 @@ public without sharing class OrderScreenController {
         public String  recTypeId;
         public String  hectares;
         public String  bpStorage;
+        public String  mto;
         public Decimal freightValue;
         public Decimal freightPerUnit;
         public Boolean emptyHectar;
@@ -2495,6 +2511,7 @@ public without sharing class OrderScreenController {
             this.pedido_mae_check = order.IsOrderMother__c;
             this.emptyHectar = order.Hectare__c == null;
             this.hectares = order.Hectare__c == null ? '1,00' : String.valueOf(order.Hectare__c).contains('.') ? String.valueOf(order.Hectare__c).replace('.', ',') : String.valueOf(order.Hectare__c);
+            this.mto = order.MTO__c;
             this.condicao_pagamento = new InformationFields(order.PaymentCondition__c, order.PaymentCondition__r.Name);
             this.frete = order.Incoterms__c;
             this.observation = order.Description;
