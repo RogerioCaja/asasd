@@ -748,8 +748,8 @@ export default class OrderHeaderScreen extends LightningElement {
                 this.headerDictLocale.hectares !== 0 &&
                 this.headerDictLocale.hectares !== undefined &&
                 this.headerDictLocale.hectares !== '' && 
-                this.headerDictLocale.mto !== undefined &&
-                this.headerDictLocale.mto !== '' && 
+                ((this.showMto && this.headerDictLocale.mto !== undefined &&
+                this.headerDictLocale.mto !== '') || !this.showMto) && 
                 this.hasDelimiter || this.pass 
             ) {
                 return true;
