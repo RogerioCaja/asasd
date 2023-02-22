@@ -16,12 +16,12 @@
                 <label>Venda Normal</label>
             </value>
             <value>
-                <fullName>ZVVO</fullName>
+                <fullName>ZRCO</fullName>
                 <default>false</default>
                 <label>Venda a Ordem</label>
             </value>
             <value>
-                <fullName>ZRCO</fullName>
+                <fullName>ZVVO</fullName>
                 <default>false</default>
                 <label>Venda Conta e Ordem</label>
             </value>
