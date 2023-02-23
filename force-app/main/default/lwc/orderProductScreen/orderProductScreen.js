@@ -1978,7 +1978,7 @@ export default class OrderProductScreen extends LightningElement {
     }
 
     recalculateCommodities() {
-        if (this.isFilled(this.commoditiesData) && this.commoditiesData.length > 0) {
+        if (this.isFilled(this.commoditiesData) && this.commoditiesData.length > 0 && !this.headerData.IsOrderChild) {
             let totalProducts = 0;
             let orderTotalCost = 0;
             let productsQuantity = 0;

@@ -460,7 +460,7 @@ export default class OrderHeaderScreen extends LightningElement {
             if(this.headerData){
                 this.fieldKey = true;
                 this.headerDictLocale = JSON.parse(JSON.stringify(this.headerData));
-                if (this.headerDictLocale.tipo_venda == 'Venda Conta e Ordem' || this.headerDictLocale.tipo_venda == 'Venda Entrega Futura' || this.headerDictLocale.tipo_venda == 'Venda Normal') {
+                if (this.headerDictLocale.tipo_venda == 'Venda Conta e Ordem' || this.headerDictLocale.tipo_venda == 'Venda Entrega Futura' || this.headerDictLocale.tipo_venda == 'Venda Normal' || this.headerDictLocale.tipo_venda == 'Venda Barter') {
                     this.allowMotherOrder = true;
                 } else {
                     this.headerDictLocale.pedido_mae_check = false;

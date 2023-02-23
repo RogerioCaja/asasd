@@ -351,11 +351,10 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.tabsToUse();
 
             if (this.childOrder) {
-                this.headerData.status_pedido = 'Em digitação'
+                this.headerData.status_pedido = 'Em digitação';
             }
 
             this.productData = data.productData;
-            this.commodityData = data.commodityData;
             this.commodityData = data.commodityData;
             this.formsOfPayment = data.formsOfPayment;
             this.valorTotal = 0;
@@ -571,6 +570,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
         let quotaResponse;
         quotaResponse = await this.verifyQuotas(prodsIds);
+        if (this.headerData.tipo_venda == 'Venda Barter') this.commodityData[0].marginValue = this.headerData.IsOrderChild ? (this.headerData.orderMargin.includes('%') ? this.headerData.orderMargin.replace('%', ' sacas') : this.headerData.orderMargin) : this.commodityData[0].marginValue;
         if (quotaResponse) {
             const mode = event.detail;
             await this.recordId;
