@@ -101,6 +101,7 @@ export default class OrderHeaderScreen extends LightningElement {
         companySector: null,
         hectares: '',
         freightPerUnit: null,
+        motherTotalQuantity: null,
         firstTime: true,
         centerId: null,
         mto: null
