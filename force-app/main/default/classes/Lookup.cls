@@ -67,7 +67,7 @@ public without sharing class Lookup {
                 ]) {
                     hasRelatedTerritory = true;
                     userTerritories.add(userAssociation.Territory2Id);
-                    if (userAssociation.Territory2.Territory2Type.DeveloperName == 'SellerPosition' && profileName != 'Balcão') {
+                    if (userAssociation.Territory2.Territory2Type.DeveloperName == 'SellerPosition' && ((profileName != 'Balcão' && !priceScreen) || priceScreen)) {
                         userRelatedToTerritory = true;
                     }
 
@@ -144,8 +144,12 @@ public without sharing class Lookup {
                             }
                         }
                         
-                        String territoryQuery = 'SELECT Id, Territory2Type.DeveloperName FROM Territory2 WHERE';
-                        if (addCondition) territoryQuery += ' Id IN: relatedTerritories AND ';
+                        String territoryQuery = 'SELECT Id, Territory2Type.DeveloperName FROM Territory2 ';
+                        if (addCondition) {
+                            territoryQuery += 'WHERE Id IN: relatedTerritories AND';
+                        } else {
+                            territoryQuery += 'WHERE ';
+                        }
 
                         if (userTerritoryType == 'Torre') territoryQuery += ' ParentTerritory2.ParentTerritory2.ParentTerritory2.ParentTerritory2Id IN: userTerritories';
                         else if (userTerritoryType == 'SalesOrg') territoryQuery += ' ParentTerritory2.ParentTerritory2.ParentTerritory2Id IN: userTerritories';
@@ -209,7 +213,6 @@ public without sharing class Lookup {
                         }
                     }
                 }
-
                 if (profileName == 'Balcão') relatedUsers.add(UserInfo.getUserId());
                 query += ' AND Id IN: relatedUsers';
             } else {
