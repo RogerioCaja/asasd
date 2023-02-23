@@ -286,7 +286,7 @@ export default class OrderSummaryScreen extends LightningElement {
                     this.productDataLocale[i]['divisionData'] = [];
                     if(this.divisionData){
                         for(var j=0; j< this.divisionData.length; j++){
-                            if(this.divisionData[j].productPosition == i+1)
+                            if(this.divisionData[j].productPosition == i)
                                 this.productDataLocale[i]['divisionData'].push(this.divisionData[j])
                         }
                     }
@@ -311,7 +311,7 @@ export default class OrderSummaryScreen extends LightningElement {
                     this.productDataLocale[i]['divisionData'] = [];
                     if(this.divisionData){
                         for(var j=0; j< this.divisionData.length; j++){
-                            if(this.divisionData[j].productPosition == i+1)
+                            if(this.divisionData[j].productPosition == i)
                                 this.productDataLocale[i]['divisionData'].push(this.divisionData[j])
                         }
                     }
