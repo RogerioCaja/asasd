@@ -332,12 +332,12 @@ export default class OrderSummaryScreen extends LightningElement {
             this.tsiTotalPriceFront = this.fixDecimalPlacesFront(tsiTotalPrice);
             this.tsiTotalToDistribution = tsiTotalPrice;
             
-            if (this.headerData.tipo_venda != 'Venda Barter') {
+            if (this.headerData.tipo_venda == 'Venda Barter' && this.headerData.IsOrderChild) {
+                this.summaryDataLocale.orderMargin = this.headerData.orderMargin;
+            } else {
                 let margin = (1 - (orderTotalCost / orderTotalPriceToCalcMargin)) * 100;
                 this.orderMargin = this.fixDecimalPlacesFront(margin) + '%';
                 this.summaryDataLocale.orderMargin = (+(Math.trunc(+(margin + 'e' + 6)) + 'e' + -6)).toFixed(6);
-            } else {
-                this.summaryDataLocale.orderMargin = this.headerData.IsOrderChild ? this.headerData.orderMargin : this.orderMargin;
             }
 
             this.summaryDataLocale.totalValue = orderTotalPrice + royaltiesTotalPrice + tsiTotalPrice;
