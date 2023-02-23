@@ -79,6 +79,7 @@ export default class OrderSummaryScreen extends LightningElement {
     @api excludedItems;
     @api combosSelecteds;
     @api taxData;
+    @api bpData;
 
     connectedCallback(){
         if (this.formsOfPayment === undefined) {

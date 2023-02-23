@@ -33,6 +33,12 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     @track cloneData = {
         cloneOrder: false
     };
+    barterSale = false;
+    productTab = 2;
+    summaryTab = 3;
+
+    
+    tabs = [];
 
     @wire(getObjectInfo, {objectApiName: Order})
     getObjectData({data, error}){
@@ -48,10 +54,14 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
                 })
                 
             }
+            
+            this.barterSale = this.headerData.tipo_venda == 'Venda Barter';
+            this.tabsToUse();
         }
     }
     account = true;
     header = false;
+    bp = false;
     product = false;
     changeProductInfos = false;
     allProductQuotas = [];
@@ -64,6 +74,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
     @api accountData;
     @api headerDataTitle = {};
+    @api bpData;
     @api headerData = {
         Id: " ",
         orderNumber: null,
@@ -106,6 +117,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     @track excludedItems;
     @track combosSelecteds;
     @track taxData;
+    @track bpData;
     @track formsOfPayment;
     @track summaryData = {
         'observation' : "",
@@ -120,40 +132,6 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     currentTab = 0;
 
     isLoading = false;
-
-    tabs = [{
-            name: 'account',
-            current: true,
-            enable: true,
-            completed:false,
-            message: 'Necessário selecionar pelo menos uma conta ou BP não é fornecedor',
-            component: 'c-order-account-screen'
-        },
-        {
-            name: 'header',
-            current: false,
-            enable: false,
-            completed:false,
-            message: 'Necessário preencher todos os dados obrigatórios antes de seguir',
-            component: 'c-order-header-screen'
-        },
-        {
-            name: 'product',
-            current: false,
-            enable: false,
-            completed:false,
-            message: 'Necessário selecionar pelo menos 1 produto',
-            component: 'c-order-product-screen'
-        },
-        {
-            name: 'summary',
-            current: false,
-            enable: false,
-            completed:false,
-            message: '',
-            component: 'c-order-summary-screen'
-        }
-    ];
 
     //Variaveis para mensagem
     _title = 'Operação inválida';
@@ -200,6 +178,25 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
     }
 
+    tabsToUse() {
+        let currentTabs = [
+            {name: 'account', current: true, enable: true, completed:false, message: 'Necessário selecionar pelo menos uma conta', component: 'c-order-account-screen'},
+            {name: 'header', current: false, enable: false, completed:false, message: 'Necessário preencher todos os dados obrigatórios antes de seguir', component: 'c-order-header-screen'}
+        ];
+        
+        if (this.barterSale) {
+            currentTabs.push({name: 'bp', current: false, enable: false, completed: false, message: 'Necessário selecionar um Local de Entrega antes de seguir', component: 'c-order-supplier-screen'});
+            this.productTab = 3;
+            this.summaryTab = 4;
+        }
+
+        currentTabs.push(
+            {name: 'product', current: false, enable: false, completed: false, message: 'Necessário selecionar pelo menos 1 produto', component: 'c-order-product-screen'},
+            {name: 'summary', current: false, enable: false, completed:false, message: '', component: 'c-order-summary-screen'}
+        );
+        this.tabs = JSON.parse(JSON.stringify(currentTabs));
+    }
+
     getAccount(){
         console.log('getAccount');
         if(this.accountData)
@@ -244,6 +241,9 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             const data = JSON.parse(result);
             this.accountData = data.accountData;
             this.headerData = data.headerData;
+            this.bpData = data.bpAccount;
+            this.barterSale = this.headerData.tipo_venda == 'Venda Barter';
+            this.tabsToUse();
 
             if (this.childOrder) {
                 this.headerData.status_pedido = 'Em digitação'
@@ -289,8 +289,13 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
                 this.enableScreens([0, 1]);
                 this.completeScreens([0]);
             }else{
-                this.enableScreens([0, 1, 2, 3]);
-                this.completeScreens([0, 1, 2, 3]);
+                if (this.barterSale) {
+                    this.enableScreens([0, 1, 2, 3, 4]);
+                    this.completeScreens([0, 1, 2, 3, 4]);
+                } else {
+                    this.enableScreens([0, 1, 2, 3]);
+                    this.completeScreens([0, 1, 2, 3]);
+                }
             }
             this.headerData.condicao_venda = this.headerData.condicao_venda != null ? this.headerData.condicao_venda : ' ';
             
@@ -340,6 +345,9 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             const data = JSON.parse(result);
             this.accountData = data.accountData;
             this.headerData = data.headerData;
+            this.bpData = data.bpAccount;
+            this.barterSale = this.headerData.tipo_venda == 'Venda Barter';
+            this.tabsToUse();
 
             if (this.childOrder) {
                 this.headerData.status_pedido = 'Em digitação'
@@ -388,8 +396,13 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
                 this.enableScreens([0, 1]);
                 this.completeScreens([0]);
             }else{
-                this.enableScreens([0, 1, 2, 3]);
-                this.completeScreens([0, 1, 2, 3]);
+                if (this.barterSale) {
+                    this.enableScreens([0, 1, 2, 3, 4]);
+                    this.completeScreens([0, 1, 2, 3, 4]);
+                } else {
+                    this.enableScreens([0, 1, 2, 3]);
+                    this.completeScreens([0, 1, 2, 3]);
+                }
             }
             this.headerData.condicao_venda = this.headerData.condicao_venda != null ? this.headerData.condicao_venda : ' ';
             
@@ -521,8 +534,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             prodsIds.push(this.productData[index].productId);
         }
 
-        console.log('this.template.querySelector(this.tabs[3].component).allowFormOfPayment: ' + this.template.querySelector(this.tabs[3].component).allowFormOfPayment);
-        if (this.template.querySelector(this.tabs[3].component).allowFormOfPayment && this.headerData.tipo_venda != 'Venda Barter') {
+        if (this.template.querySelector(this.tabs[this.summaryTab].component).allowFormOfPayment) {
             let orderTotalPrice = 0;
             let orderTotalPaymentTsi = 0;
             let orderTotalPaymentRoyalties = 0;
@@ -557,7 +569,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         if (quotaResponse) {
             const mode = event.detail;
             await this.recordId;
-            const data = {accountData: this.accountData, headerData: this.headerData, productData: this.productData, divisionData: this.divisionData, commodityData: this.commodityData, summaryData: this.summaryData, formsOfPayment: this.formsOfPayment, comboData: this.combosSelecteds, taxData: this.taxData};
+            const data = {accountData: this.accountData, headerData: this.headerData, productData: this.productData, divisionData: this.divisionData, commodityData: this.commodityData, summaryData: this.summaryData, formsOfPayment: this.formsOfPayment, comboData: this.combosSelecteds, taxData: this.taxData, bpAccount: this.bpData};
             console.log(JSON.stringify(data));
             this.isLoading = true;
             //console.log(data);
@@ -711,7 +723,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         this.valorTotal = 0;
         try
         {
-            if(this.template.querySelector(this.tabs[2].component).seedSale){
+            if(this.template.querySelector(this.tabs[this.productTab].component).seedSale){
                 this.productData.forEach(product =>{
                     let totalPrice = this.isFilled(product.totalPriceWithBrokerage) ? Number(product.totalPriceWithBrokerage) : Number(product.totalPrice);
                     totalPrice = Number(totalPrice) + Number(product.tsiTotalPrice) + Number(product.royaltyTotalPrice);
@@ -733,7 +745,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             console.log(e);
         }
 
-        if (this.qtdItens == 0 && this.currentTab == 3) {
+        if (this.qtdItens == 0 && this.currentTab == this.summaryTab) {
             this.handlePrevious();
             this.disableNextScreen();
             this.showNotification('Necessário incluir ao menos um produto', 'Atenção!', 'warning');
@@ -745,6 +757,12 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.enableNextScreen();
             this.completeCurrentScreen();
         }
+    }
+
+    _setBpData(event) {
+        this.bpData = event.data;
+        this.completeCurrentScreen();
+        this.enableNextScreen();
     }
 
     checkProductDivisionAndCommodities() {
@@ -873,7 +891,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             if (this.currentTab == 0) {
                 nextTab.className = 'next';
                 previousTab.className = 'previous disabled';
-            } else if (this.currentTab == 3) {
+            } else if (this.currentTab == this.summaryTab) {
                 nextTab.className = 'next disabled';
                 previousTab.className = 'previous';
             } else {
@@ -887,7 +905,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         if (this.currentTab !== 0) {
             if (this.tabs[this.currentTab - 1].enable == true) {
                 this.tabs[this.currentTab].current = false;
-                if(this.currentTab == 2)
+                if(this.currentTab == this.productTab)
                     this.tabs[this.currentTab].enable = false;
                 this.currentTab = this.currentTab - 1;
                 this.tabs[this.currentTab].current = true;
@@ -901,7 +919,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     }
 
     handleNextCombo() {
-        if(this.currentTab === 2){
+        if(this.currentTab === this.productTab){
             const objChild = this.template.querySelector('c-order-product-screen');
             objChild.handleNext();
         }else{
@@ -910,7 +928,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     }
 
     handleNext() {
-        if (this.currentTab !== 3) {
+        if (this.currentTab !== this.summaryTab) {
             let errorMessage = this.customErrorMessage != '' ? this.customErrorMessage : this.tabs[this.currentTab].message;
             if(this.template.querySelector(this.tabs[this.currentTab].component).verifyMandatoryFields()){
                 if (this.tabs[this.currentTab + 1].enable == true) {
@@ -972,6 +990,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         this.checkPreviousNextBtn();
         this.account = false;
         this.header = false;
+        this.bp = false;
         this.product = false;
         this.summary = false;
 
@@ -983,9 +1002,14 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
                 this.header = true;
                 break;
             case 2:
-                this.product = true;
+                if (this.barterSale) this.bp = true;
+                else this.product = true;
                 break;
             case 3:
+                if (this.barterSale) this.product = true;
+                else this.summary = true;
+                break;
+            case 4:
                 this.summary = true;
                 break;
         }
@@ -1007,7 +1031,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
     enableNextScreen() {
         console.log('enableNextScreen');
-        if ((this.currentTab + 1) <= 3) {
+        if ((this.currentTab + 1) <= this.summaryTab) {
             if (this.tabs[this.currentTab + 1].enable == false) {
                 this.tabs[this.currentTab + 1].enable = true;
             }
@@ -1016,7 +1040,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
     disableNextScreen() {
         console.log('disableNextScreen');
-        if ((this.currentTab + 1) <= 3) {
+        if ((this.currentTab + 1) <= this.summaryTab) {
             if (this.tabs[this.currentTab + 1].enable == true) {
                 this.tabs[this.currentTab + 1].enable = false;
             }

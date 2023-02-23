@@ -110,6 +110,7 @@ export default class OrderHeaderScreen extends LightningElement {
     @api combosSelecteds;
     @api taxData;
     @api formsOfPayment
+    @api bpData;
 
     @track pass = false;
 

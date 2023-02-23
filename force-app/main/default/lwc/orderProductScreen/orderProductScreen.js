@@ -117,6 +117,7 @@ export default class OrderProductScreen extends LightningElement {
     @api formsOfPayment;
     @api combosSelecteds;
     @api taxData;
+    @api bpData;
 
     connectedCallback(event) {
         if (!this.isFilled(this.taxData)) this.taxData=[];
@@ -583,7 +584,7 @@ export default class OrderProductScreen extends LightningElement {
                             this.showIncludedProducts = this.products.length > 0;
                             this.excludedItems = this.isFilled(this.excludedItems) ? this.excludedItems : this.parseObject(itemToExclude);
                             this._setExcludedesItems();
-                            this._setData();
+                            if (this.products.length > 0) this._setData();
                             if (listPriceChange && !this.checkCombo) this.showToast('warning', 'Alteração na lista de preço!', 'Os preços foram ajustados de acordo com os valores da lista de preço. Verifique-os.');
                             if (productsWithoutPrice != '') this.showToast('warning', 'Produtos sem preço!', 'Os produtos ' + productsWithoutPrice + ' foram removidos do pedido.');
                         });
@@ -658,10 +659,10 @@ export default class OrderProductScreen extends LightningElement {
                 if (showQuantityChange) this.showToast('warning', 'Alteração nas quantidades!', 'As quantidades foram recalculados devido a alteração no hectar. Verifique-os.');
                 if (this.headerData.tipo_venda == 'Venda Barter') this.recalculateCommodities();
                 this.showLoading = false;
+                this._setData();
             } else {
                 this.showLoading = false;
             }
-            this._setData();
         })
     }
 
