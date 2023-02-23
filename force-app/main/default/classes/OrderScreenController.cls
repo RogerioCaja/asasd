@@ -25,6 +25,7 @@ public without sharing class OrderScreenController {
                 productQuantity += item.quantity + (item.amountUsed != null ? item.amountUsed : 0);
             }
             order.freightPerUnit = order.freightValue != null ? order.freightValue / productQuantity : 0;
+            order.motherTotalQuantity = productQuantity;
         }
 
         if (order.bpStorage != null) {
@@ -1298,7 +1299,7 @@ public without sharing class OrderScreenController {
 
                         formOfPayment.PaymentType__c = payment.paymentType;
                         formOfPayment.PaymentDate__c = Date.valueOf(payment.paymentDay);
-                        formOfPayment.Amount__c = Decimal.valueOf(payment.value);
+                        formOfPayment.Amount__c = childOrder ? (Decimal.valueOf(payment.value) / orderData.headerData.motherTotalQuantity) * productQuantities : Decimal.valueOf(payment.value);
                         upsFormsOfPayment.add(formOfPayment);
                     }
                 }
@@ -2166,6 +2167,7 @@ public without sharing class OrderScreenController {
         public String  companyId;
         public String  hectares;
         public String  mto;
+        public Decimal motherTotalQuantity;
         public String  centerId;
         public Decimal freightValue;
         public Decimal freightPerUnit;
@@ -2458,6 +2460,7 @@ public without sharing class OrderScreenController {
         public String  mto;
         public Decimal freightValue;
         public Decimal freightPerUnit;
+        public Decimal motherTotalQuantity;
         public Boolean emptyHectar;
         public Boolean orderCanceled;
         public String  centerId;
