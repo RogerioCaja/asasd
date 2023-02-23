@@ -1979,6 +1979,8 @@ public without sharing class OrderScreenController {
                  WHERE Account__c =: accountId
                    AND SalesOrg__c =: salesOrgId
                    AND Status__c = 'Ativo'
+                   AND Tax__c != null
+                   AND Tax__r.TaxPercentage__c != null
             ]) {
                 TaxData currentTax = new TaxData();
                 currentTax.taxId = tax.Tax__c;
