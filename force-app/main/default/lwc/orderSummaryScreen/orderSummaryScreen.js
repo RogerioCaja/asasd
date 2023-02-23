@@ -78,6 +78,7 @@ export default class OrderSummaryScreen extends LightningElement {
     @api childOrder;
     @api excludedItems;
     @api combosSelecteds;
+    @api taxData;
 
     connectedCallback(){
         if (this.formsOfPayment === undefined) {
@@ -259,6 +260,9 @@ export default class OrderSummaryScreen extends LightningElement {
             let tsiTotalPrice = 0;
             if(this.headerData.tipo_venda == 'Venda Barter'){
                 for(var i= 0; i< this.productDataLocale.length; i++){
+                    orderTotalPrice += Number(this.productDataLocale[i].unitPrice) * Number(this.productDataLocale[i].quantity);
+                    orderTotalCost += Number(this.productDataLocale[i].practicedCost) * Number(this.productDataLocale[i].quantity);
+                    orderTotalPriceToCalcMargin += Number(this.productDataLocale[i].unitPrice) * Number(this.productDataLocale[i].quantity);
                     this.isBarter = true;
                     this.hideMargin = true;
                     this.orderMargin = this.commodityDataLocale[0].marginValue;
