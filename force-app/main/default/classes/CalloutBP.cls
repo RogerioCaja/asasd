@@ -748,10 +748,8 @@ public without sharing class CalloutBP {
                 accountIdList.add(clientTax.Account__c);
             }
             List<CustomerTaxes__c> clientTaxOldList = new List<CustomerTaxes__c>([SELECT Id, Account__c, ExternalId__c, Status__c FROM CustomerTaxes__c WHERE  Account__c =: accountIdList AND ExternalId__c !=: taxExternalIdList]); 
-            for(CustomerTaxes__c clientTax : clientTaxOldList){
-                clientTax.Status__c = 'Inativo';
-            }
-            update clientTaxOldList;
+
+            delete clientTaxOldList;
             return resultImpostList;
         }
         return null;
@@ -776,7 +774,8 @@ public without sharing class CalloutBP {
         String accessToken = code;//! FALTA SABER A RESPOSTA DO SAP QUANTO A AUTENTICAÇÃO! F
         //Url mock: https://aabb2740-69b0-4737-925c-2c40367a3737.mock.pstmn.io//CalloutBP
         //Path geralmente cadastrado dentro de ua customSettings 
-        String endpoint = (!Test.isRunningTest() ? 'https://apim.agrogalaxy.com.br/gtw/sf-bp-out/v1/sf-bp-out' : 'http://callout.My_Named_Credential.com/some/path');
+        Integration__c data = Integration__c.getInstance('BP OUT');
+        String endpoint = (!Test.isRunningTest() ? data.Url__c : 'http://callout.My_Named_Credential.com/some/path');
         Map<String, String> headersMap = new Map<String, String>();
         headersMap.put('Content-type', 'application/json');
         headersMap.put('Authorization', 'Bearer '+ accessToken);
@@ -989,5 +988,4 @@ public without sharing class CalloutBP {
         public String OrganizacaoVendas;
         public String Name;
     }
-
 }

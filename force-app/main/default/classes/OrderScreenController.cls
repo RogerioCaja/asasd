@@ -1233,11 +1233,166 @@ public without sharing class OrderScreenController {
     }
 
     @AuraEnabled
+    public static String getSpecificCombos(String data, String companyData, String productData, Boolean childOrder, List<Id> existingCombosIds) {
+        String companiesData = getAccountCompanies(companyData, false, false, false, childOrder);
+        CompanyInfos company = new CompanyInfos();
+
+        if (Test.isRunningTest()) {
+            company = (CompanyInfos) JSON.deserialize(companyData, CompanyInfos.class);
+        } else {
+            CompanyInfosSerialize companyInfos = (CompanyInfosSerialize) JSON.deserialize(companiesData, CompanyInfosSerialize.class);
+            company = companyInfos.listCompanyInfos[0];
+        }
+        
+        HeaderValues comboData = (HeaderValues) JSON.deserialize(data, HeaderValues.class);
+        CustomLookupController.ProductParams productParams = (CustomLookupController.ProductParams) JSON.deserialize(productData, CustomLookupController.ProductParams.class);
+        productParams.supplierCenter = company.supplierCenter;
+        productParams.salesOrgId = company.salesOrgId;
+        productParams.salesOfficeId = company.salesOfficeId;
+        productParams.salesTeamId = company.salesTeamId;
+        productParams.dontGetSeeds = productParams.dontGetSeeds;
+        productParams.activitySectorName = company.activitySectorName;
+        
+        Map<Id, ComboPromotionData> result = new Map<Id, ComboPromotionData>();
+        Map<Id, Set<Id>> combosByProductId = new Map<Id, Set<Id>>();
+        Set<Id> combosIds = new Set<Id>();
+        Id specificItemsRecordType = Schema.SObjectType.ComboPromotion__c.getRecordTypeInfosByDeveloperName().get('Specific_Items').getRecordTypeId();
+        
+        for (ComboPromotion__c promotion : [
+            SELECT Id,
+                   ComboType__c,
+                   CombosQuantity__c,
+                   PaymentCondition__c,
+                   DiscountPercentage__c,
+                   RecordType.DeveloperName
+              FROM ComboPromotion__c
+             WHERE RecordTypeId =: specificItemsRecordType
+               AND Status__c = 'Ativo'
+               AND 
+               (
+                    (Id IN: existingCombosIds)
+                    OR
+                    (
+                        Safra__c =: comboData.cropId
+                    AND SalesOrg__c =: company.salesOrgId
+                    AND SalesCondition__c =: comboData.salesConditionId
+                    AND CombosQuantity__c > 0
+                    )
+               )
+             LIMIT 4
+            OFFSET :comboData.rowsToSkip
+        ]) {
+            ComboPromotionData comboPromotionData = new ComboPromotionData();
+            comboPromotionData.comboQuantity = 0;
+            comboPromotionData.comboId = promotion.Id;
+            comboPromotionData.comboType = promotion.ComboType__c;
+            comboPromotionData.paymentConditionId = promotion.PaymentCondition__c;
+            comboPromotionData.comboAvailableQuantity = promotion.CombosQuantity__c;
+            comboPromotionData.comboDiscountPercentage = promotion.DiscountPercentage__c;
+            comboPromotionData.specificItemCombo = true;
+            comboPromotionData.recTypeDevName = promotion.RecordType.DeveloperName;
+            comboPromotionData.formerItems = new List<ComboItems>();
+            comboPromotionData.benefitItems = new List<ComboItems>();
+            
+            combosIds.add(promotion.Id);
+            result.put(promotion.Id, comboPromotionData);
+        }
+
+        List<String> prodsIds = new List<String>();
+        for (FormerProduct__c formerProd : [
+            SELECT Id,
+                   Product__c,
+                   Product__r.Name,
+                   Product__r.ExternalId__c,
+                   MinQuantity__c,
+                   ComboPromotion__c
+              FROM FormerProduct__c
+             WHERE ComboPromotion__c IN: combosIds
+        ]) {
+            ComboPromotionData comboPromotionData = result.get(formerProd.ComboPromotion__c);
+            String productCode = formerProd.Product__r.ExternalId__c != null ? String.valueOf(Integer.valueOf(formerProd.Product__r.ExternalId__c) * 1) : '';
+            ComboItems formerItem = new ComboItems();
+            formerItem.comboId = formerProd.ComboPromotion__c;
+            formerItem.productId = formerProd.Product__c;
+            formerItem.productName = formerProd.Product__r.Name;
+            formerItem.productCode = productCode;
+            formerItem.minQUantity = formerProd.MinQuantity__c;
+            
+            prodsIds.add(formerProd.Product__c);
+            comboPromotionData.formerItems.add(formerItem);
+            result.put(formerProd.ComboPromotion__c, comboPromotionData);
+
+            if (!combosByProductId.containsKey(formerProd.Product__c)) {
+                combosByProductId.put(formerProd.Product__c, new Set<Id>{formerProd.ComboPromotion__c});
+            } else {
+                Set<Id> productCombos = combosByProductId.get(formerProd.Product__c);
+                productCombos.add(formerProd.ComboPromotion__c);
+                combosByProductId.put(formerProd.Product__c, productCombos);
+            }
+        }
+
+        for (BenefitProduct__c benefitProd : [
+            SELECT Id,
+                   Product__c,
+                   Product__r.Name,
+                   Product__r.ExternalId__c,
+                   MinQuantity__c,
+                   ComboPromotion__c,
+                   DiscountPercentage__c
+              FROM BenefitProduct__c
+             WHERE ComboPromotion__c IN: combosIds
+        ]) {
+            ComboPromotionData comboPromotionData = result.get(benefitProd.ComboPromotion__c);
+            String productCode = benefitProd.Product__r.ExternalId__c != null ? String.valueOf(Integer.valueOf(benefitProd.Product__r.ExternalId__c) * 1) : '';
+            ComboItems benefitItem = new ComboItems();
+            benefitItem.comboId = benefitProd.ComboPromotion__c;
+            benefitItem.productId = benefitProd.Product__c;
+            benefitItem.productName = benefitProd.Product__r.Name;
+            benefitItem.productCode = productCode;
+            benefitItem.minQUantity = benefitProd.MinQuantity__c;
+            benefitItem.discountPercentage = benefitProd.DiscountPercentage__c;
+            
+            prodsIds.add(benefitProd.Product__c);
+            comboPromotionData.benefitItems.add(benefitItem);
+            result.put(benefitProd.ComboPromotion__c, comboPromotionData);
+
+            if (!combosByProductId.containsKey(benefitProd.Product__c)) {
+                combosByProductId.put(benefitProd.Product__c, new Set<Id>{benefitProd.ComboPromotion__c});
+            } else {
+                Set<Id> productCombos = combosByProductId.get(benefitProd.Product__c);
+                productCombos.add(benefitProd.ComboPromotion__c);
+                combosByProductId.put(benefitProd.Product__c, productCombos);
+            }
+        }
+
+        Set<Id> existingPrices = new Set<Id>();
+        CustomLookupController.ProductDataResult productPrices = CustomLookupController.fetchProductsRecords('', JSON.serialize(productParams), false, prodsIds, false, false);
+        for (CustomLookupController.ProductData products : productPrices.recordsDataList) {
+            existingPrices.add(products.Id);
+        }
+
+        Set<Id> combosToRemove = new Set<Id>();
+        for (Id idProduct : combosByProductId.keySet()) {
+            if (!existingPrices.contains(idProduct)) {
+                combosToRemove.addAll(combosByProductId.get(idProduct));
+            }
+        }
+
+        List<ComboPromotionData> availableCombos = new List<ComboPromotionData>();
+        for (Id idCombo : result.keySet()) {
+            if (!combosToRemove.contains(idCombo)) {
+                availableCombos.add(result.get(idCombo));
+            }
+        }
+
+        return JSON.serialize(availableCombos);
+    }
+
+    @AuraEnabled
     public static String getAccountCompanies(String data, Boolean isHeader, Boolean verifyUserType, Boolean priceScreen, Boolean childOrder) {
         GetCompanyInfos companyInfos = (GetCompanyInfos) JSON.deserialize(data, GetCompanyInfos.class);
         Set<Id> userTerritoriesIds = new Set<Id>();
         Boolean sellerPosition = false;
-
         for (UserTerritory2Association userAssociation : [
             SELECT Id,
                    Territory2.Territory2Type.DeveloperName
@@ -1247,12 +1402,10 @@ public without sharing class OrderScreenController {
         ]) {
             sellerPosition = userAssociation.Territory2.Territory2Type.DeveloperName == 'SellerPosition' ? true : false;
         }
-        
         if (verifyUserType) {
             sellerPosition = true;
             return JSON.serialize(sellerPosition);
         }
-        
         List<Id> territoriesRelatedToCtv = new List<Id>();
         for (UserTerritory2Association userAssociation : [
             SELECT Id,
@@ -1264,7 +1417,6 @@ public without sharing class OrderScreenController {
         ]) {
             territoriesRelatedToCtv.add(userAssociation.Territory2Id);
         }
-
         if (companyInfos.accountId != null && companyInfos.accountId != '') {
             for (ObjectTerritory2Association objAssociation : [
                 SELECT Id,
@@ -1287,7 +1439,6 @@ public without sharing class OrderScreenController {
                 userTerritoriesIds.add(objAssociation.Territory2Id);
             }
         }
-        
         Map<Id, Territory2> territoryAndParents = new Map<Id, Territory2>();
         for(Territory2 territory : [
             SELECT Id,
@@ -1297,31 +1448,26 @@ public without sharing class OrderScreenController {
         ]){
             territoryAndParents.put(territory.Id, territory);
         }
-
         Map<String, Integer> approvalLevels = new Map<String, Integer>{
             'GerenteFilial' => 1,
             'GerenteRegional' => 2,
             'Diretor' => 3
         };
-
         Integer counter = 0;
         List<Territory2> salesTeamTerritories;
         Set<Id> territoriesIds = new Set<Id>();
         while (counter < companyInfos.approvalNumber) {
             for (Id userTerritoryId : userTerritoriesIds) {
                 Territory2 territory = territoryAndParents.containsKey(userTerritoryId) ? territoryAndParents.get(userTerritoryId) : new Territory2();
-    
                 if (territory != null && territory.ParentTerritory2Id != null) {
                     territoriesIds.add(territory.Id);
                 }
-    
                 if (counter == 1) {
                     salesTeamTerritories.add(territory);
                 }
             }
             counter++;
         }
-
         if (salesTeamTerritories == null && territoriesIds.size() > 0) {
             salesTeamTerritories = new List<Territory2>();
             for (Id userTerritoryId : territoriesIds) {
@@ -1330,7 +1476,6 @@ public without sharing class OrderScreenController {
                 }
             }
         }
-        
         Set<String> fieldSet = new Set<String>{
             'Id','SalesOrg__c', 'SalesTeam__r.Name', 'SalesOffice__c',
             'SupplierCenter__c','ActivitySector__c','ActivitySector__r.Name',
@@ -1340,28 +1485,24 @@ public without sharing class OrderScreenController {
         proQuery.selectFields(fieldSet);
         if (companyInfos.accountId != '') proQuery.add(Q.condition('Conta__c').equalsTo(companyInfos.accountId));
         if (childOrder == null || !childOrder) proQuery.add(Q.condition('Status__c').equalsTo('Adicionada'));
-        
         List<CompanyInfos> companyList = new List<CompanyInfos>();
-        if (salesTeamTerritory != null && salesTeamTerritory.DeveloperName != null) {
-            String salesTeamDevName = salesTeamTerritory.DeveloperName.substring(0, 1) == 'X' || salesTeamTerritory.DeveloperName.substring(0, 1) == 'Z' ?
-                                      salesTeamTerritory.DeveloperName.substring(1, salesTeamTerritory.DeveloperName.length()) : salesTeamTerritory.DeveloperName;
-            proQuery.add(Q.condition('SalesTeam__r.ExternalId__c').equalsTo(salesTeamDevName));
-            proQuery.add(Q.condition('SalesOrg__r.SalesOrganizationCode__c').isIn(new List<String>{'1000', '1100', '1300', '1500', '1600', '1700', '1800', '1900', '2000', '9000', '9003'}));
-            if(companyInfos.orderType == 'Venda de Serviço')
-                proQuery.add(Q.condition('ActivitySector__r.Codigo__c').equalsTo('40'));
-            else {
-                proQuery.add(Q.condition('ActivitySector__r.Codigo__c').isIn(new List<String>{'10', '30'}));
+        if (salesTeamTerritories != null && salesTeamTerritories.size() > 0) {
+            List<String> salesTeamsDevNames = new List<String>();
+            for (Territory2 salesTeamTerritory : salesTeamTerritories) {
+                if (salesTeamTerritory.DeveloperName != null) {
+                    String salesTeamDevName = salesTeamTerritory.DeveloperName.substring(0, 1) == 'X' || salesTeamTerritory.DeveloperName.substring(0, 1) == 'Z' ?
+                                              salesTeamTerritory.DeveloperName.substring(1, salesTeamTerritory.DeveloperName.length()) : salesTeamTerritory.DeveloperName;
+                    salesTeamsDevNames.add(salesTeamDevName);
+                }
             }
-            
             if (salesTeamsDevNames.size() > 0) {
                 proQuery.add(Q.condition('SalesTeam__r.ExternalId__c').isIn(salesTeamsDevNames));
-                proQuery.add(Q.condition('SalesOrg__r.SalesOrganizationCode__c').equalsTo('1000'));
+                proQuery.add(Q.condition('SalesOrg__r.SalesOrganizationCode__c').isIn(new List<String>{'1000', '1100', '1300', '1500', '1600', '1700', '1800', '1900', '2000', '9000', '9003'}));
                 if(companyInfos.orderType == 'Venda de Serviço')
                     proQuery.add(Q.condition('ActivitySector__r.Codigo__c').equalsTo('40'));
                 else {
-                proQuery.add(Q.condition('ActivitySector__r.Codigo__c').equalsTo('10'));
+                    proQuery.add(Q.condition('ActivitySector__r.Codigo__c').isIn(new List<String>{'10', '30'}));
                 }
-
                 if (companyInfos.accountId == '') proQuery.addLimit(1);
                 for (Company__c salesTeamCompany : Database.query(proQuery.build())) {
                     CompanyInfos company = new CompanyInfos();
@@ -1589,154 +1730,6 @@ public without sharing class OrderScreenController {
     public class PaymentType {
         public String label;
         public String value;
-    }
-
-    @AuraEnabled
-    public static String getSpecificCombos(String data, String companyData, String productData, Boolean childOrder, List<Id> existingCombosIds) {
-        String companiesData = getAccountCompanies(companyData, false, false, false, childOrder);
-        CompanyInfosSerialize companyInfos = (CompanyInfosSerialize) JSON.deserialize(companiesData, CompanyInfosSerialize.class);
-        CompanyInfos company = companyInfos.listCompanyInfos[0];
-        
-        HeaderValues comboData = (HeaderValues) JSON.deserialize(data, HeaderValues.class);
-        CustomLookupController.ProductParams productParams = (CustomLookupController.ProductParams) JSON.deserialize(productData, CustomLookupController.ProductParams.class);
-        productParams.supplierCenter = company.supplierCenter;
-        productParams.salesOrgId = company.salesOrgId;
-        productParams.salesOfficeId = company.salesOfficeId;
-        productParams.salesTeamId = company.salesTeamId;
-        
-        Map<Id, ComboPromotionData> result = new Map<Id, ComboPromotionData>();
-        Map<Id, Set<Id>> combosByProductId = new Map<Id, Set<Id>>();
-        Set<Id> combosIds = new Set<Id>();
-        Id specificItemsRecordType = Schema.SObjectType.ComboPromotion__c.getRecordTypeInfosByDeveloperName().get('Specific_Items').getRecordTypeId();
-        
-        for (ComboPromotion__c promotion : [
-            SELECT Id,
-                   ComboType__c,
-                   CombosQuantity__c,
-                   PaymentCondition__c,
-                   DiscountPercentage__c,
-                   RecordType.DeveloperName
-              FROM ComboPromotion__c
-             WHERE RecordTypeId =: specificItemsRecordType
-               AND Status__c = 'Ativo'
-               AND 
-               (
-                    (Id IN: existingCombosIds)
-                    OR
-                    (
-                        Safra__c =: comboData.cropId
-                    AND SalesOrg__c =: company.salesOrgId
-                    AND SalesCondition__c =: comboData.salesConditionId
-                    AND CombosQuantity__c > 0
-                    )
-               )
-             LIMIT 4
-            OFFSET :comboData.rowsToSkip
-        ]) {
-            ComboPromotionData comboPromotionData = new ComboPromotionData();
-            comboPromotionData.comboQuantity = 0;
-            comboPromotionData.comboId = promotion.Id;
-            comboPromotionData.comboType = promotion.ComboType__c;
-            comboPromotionData.paymentConditionId = promotion.PaymentCondition__c;
-            comboPromotionData.comboAvailableQuantity = promotion.CombosQuantity__c;
-            comboPromotionData.comboDiscountPercentage = promotion.DiscountPercentage__c;
-            comboPromotionData.specificItemCombo = true;
-            comboPromotionData.recTypeDevName = promotion.RecordType.DeveloperName;
-            comboPromotionData.formerItems = new List<ComboItems>();
-            comboPromotionData.benefitItems = new List<ComboItems>();
-            
-            combosIds.add(promotion.Id);
-            result.put(promotion.Id, comboPromotionData);
-        }
-
-        List<String> prodsIds = new List<String>();
-        for (FormerProduct__c formerProd : [
-            SELECT Id,
-                   Product__c,
-                   Product__r.Name,
-                   Product__r.ExternalId__c,
-                   MinQuantity__c,
-                   ComboPromotion__c
-              FROM FormerProduct__c
-             WHERE ComboPromotion__c IN: combosIds
-        ]) {
-            ComboPromotionData comboPromotionData = result.get(formerProd.ComboPromotion__c);
-            String productCode = formerProd.Product__r.ExternalId__c != null ? String.valueOf(Integer.valueOf(formerProd.Product__r.ExternalId__c) * 1) : '';
-            ComboItems formerItem = new ComboItems();
-            formerItem.comboId = formerProd.ComboPromotion__c;
-            formerItem.productId = formerProd.Product__c;
-            formerItem.productName = formerProd.Product__r.Name;
-            formerItem.productCode = productCode;
-            formerItem.minQUantity = formerProd.MinQuantity__c;
-            
-            prodsIds.add(formerProd.Product__c);
-            comboPromotionData.formerItems.add(formerItem);
-            result.put(formerProd.ComboPromotion__c, comboPromotionData);
-
-            if (!combosByProductId.containsKey(formerProd.Product__c)) {
-                combosByProductId.put(formerProd.Product__c, new Set<Id>{formerProd.ComboPromotion__c});
-            } else {
-                Set<Id> productCombos = combosByProductId.get(formerProd.Product__c);
-                productCombos.add(formerProd.ComboPromotion__c);
-                combosByProductId.put(formerProd.Product__c, productCombos);
-            }
-        }
-
-        for (BenefitProduct__c benefitProd : [
-            SELECT Id,
-                   Product__c,
-                   Product__r.Name,
-                   Product__r.ExternalId__c,
-                   MinQuantity__c,
-                   ComboPromotion__c,
-                   DiscountPercentage__c
-              FROM BenefitProduct__c
-             WHERE ComboPromotion__c IN: combosIds
-        ]) {
-            ComboPromotionData comboPromotionData = result.get(benefitProd.ComboPromotion__c);
-            String productCode = benefitProd.Product__r.ExternalId__c != null ? String.valueOf(Integer.valueOf(benefitProd.Product__r.ExternalId__c) * 1) : '';
-            ComboItems benefitItem = new ComboItems();
-            benefitItem.comboId = benefitProd.ComboPromotion__c;
-            benefitItem.productId = benefitProd.Product__c;
-            benefitItem.productName = benefitProd.Product__r.Name;
-            benefitItem.productCode = productCode;
-            benefitItem.minQUantity = benefitProd.MinQuantity__c;
-            benefitItem.discountPercentage = benefitProd.DiscountPercentage__c;
-            
-            prodsIds.add(benefitProd.Product__c);
-            comboPromotionData.benefitItems.add(benefitItem);
-            result.put(benefitProd.ComboPromotion__c, comboPromotionData);
-
-            if (!combosByProductId.containsKey(benefitProd.Product__c)) {
-                combosByProductId.put(benefitProd.Product__c, new Set<Id>{benefitProd.ComboPromotion__c});
-            } else {
-                Set<Id> productCombos = combosByProductId.get(benefitProd.Product__c);
-                productCombos.add(benefitProd.ComboPromotion__c);
-                combosByProductId.put(benefitProd.Product__c, productCombos);
-            }
-        }
-
-        Set<Id> existingPrices = new Set<Id>();
-        CustomLookupController.ProductDataResult productPrices = CustomLookupController.fetchProductsRecords('', JSON.serialize(productParams), false, prodsIds, false, false);
-        for (CustomLookupController.ProductData products : productPrices.recordsDataList) {
-            existingPrices.add(products.Id);
-        }
-
-        Set<Id> combosToRemove = new Set<Id>();
-        for (Id idProduct : combosByProductId.keySet()) {
-            if (!existingPrices.contains(idProduct)) {
-                combosToRemove.addAll(combosByProductId.get(idProduct));
-            }
-        }
-
-        List<ComboPromotionData> availableCombos = new List<ComboPromotionData>();
-        for (Id idCombo : result.keySet()) {
-            if (!combosToRemove.contains(idCombo)) {
-                availableCombos.add(result.get(idCombo));
-            }
-        }
-
-        return JSON.serialize(availableCombos);
     }
 
     @AuraEnabled
