@@ -59,7 +59,7 @@ global without sharing class IntegrationINOrderItemAppdigital {
         CommercialMargin__c, DiscountValue__c, ExternalId__c, FinalTotalValue__c, FinancialDiscountPercent__c,
         FinancialDiscountValue__c, FinancialAdditionPercent__c, FinancialAdditionValue__c,
         CommercialAdditionPercent__c, CommercialAdditionValue__c, Dosage__c, ListCost__c, NumeroSap__c,
-        PracticedCost__c, PracticedPrice__c, UnitPrice, Class__c, Sieve__c FROM OrderItem WHERE ExternalId__c IN: idsOrderItem]);
+        PracticedCost__c, PracticedPrice__c, UnitPrice, Class__c, Sieve__c, ItemBalance__c FROM OrderItem WHERE ExternalId__c IN: idsOrderItem]);
         
         for(OrderItem ordItem : orderItemSelectList){
             orderItemsIdsMap.put(ordItem.ExternalId__c, ordItem);
@@ -67,9 +67,17 @@ global without sharing class IntegrationINOrderItemAppdigital {
         }
         System.debug('orderItemsIdsMap ' + orderItemsIdsMap);
         for (TemplateDataIntegrationFields.OrderItemINData orderItem : request){
+
+            //Excluir linha 71 até 77 quando Saldo Item estiver ok - 23.02.23
+            OrderItem ordItemFixApp = orderItemsIdsMap.get(orderItem.orderExternalId + '|' + orderItem.orderItemCode);
+
+            if(orderItem.quantidadeUtilizada == null && !orderItemsIdsMap.containsKey(orderItem.orderExternalId + '|' + orderItem.orderItemCode)){
+                orderItem.quantidadeUtilizada = 0;
+            }
+
             if(orderItem.orderItemECalendariazacao == true){
             OrderItem ordItem = orderItemsIdsMap.get(orderItem.orderExternalId + '|' + orderItem.orderItemCode);
-  
+                
            if(orderItem.orderExternalId == null){
                 System.debug('OrderId ' + ordItem.OrderId);
                if(ordItem.OrderId != null){
@@ -179,12 +187,9 @@ global without sharing class IntegrationINOrderItemAppdigital {
             if(orderItem.peneira == null || orderItem.peneira == '' || orderItem.orderItemECalendariazacao == true){
                 orderItem.peneira = ordItem.Sieve__c;
             }
-            if(orderItem.quantidadeUtilizada == null || orderItem.orderItemECalendariazacao == true){
-                orderItem.quantidadeUtilizada = OrdItem.AmountUsed__c;
-            }
-
+            
             if(orderItem.saldoItem == null || orderItem.orderItemECalendariazacao == true){
-                orderItem.saldoItem = OrdItem.ItemBalance__c;
+                orderItem.saldoItem = ordItem.ItemBalance__c;
             }
         }
 
