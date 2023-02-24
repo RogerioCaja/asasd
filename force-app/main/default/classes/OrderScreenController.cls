@@ -2385,7 +2385,7 @@ public without sharing class OrderScreenController {
             this.accountData = account;
         }  
 
-        public OrderSerializeAll(HeaderSerialize order, List<ProductSerialize> products, List<DivisionSerialize> divisions, List<CommodityDeserialize> commodities, List<FormOfPaymentSerialize> formsOfPayment, AccountSerialize account, SummarySerialize summaryData, List<TaxData> taxData, AccountSerialize bpAccount){
+        public OrderSerializeAll(HeaderSerialize order, List<ProductSerialize> products, List<DivisionSerialize> divisions, List<CommodityDeserialize> commodities, List<FormOfPaymentSerialize> formsOfPayment, AccountSerialize account, SummarySerialize summaryData, List<TaxData> taxData, AccountSerialize bpAccount) {
             this.headerData = order;
             this.productData = products;
             this.divisionData = divisions;
