@@ -62,8 +62,8 @@ global without sharing class IntegrationINOrderItemInsert {
             OrderItemINData.dosagem = OrderItemINData.quantidade;
             if(!Test.isRunningTest()){
             	OrderItemInData.pricebookEntryId = pricebookEntryList.get(OrderItemInData.material + String.valueOf(OrderItemInData.currencyOrder)).Id;
-
             }
+
             System.debug('pricebookId ' + OrderItemInData.pricebookEntryId);
             idsOrderItem.add(OrderItemINData.orderExternalId + '|' + OrderItemINData.orderItemCode);
 
@@ -72,187 +72,10 @@ global without sharing class IntegrationINOrderItemInsert {
                 Product2 prdItem = prdtMap.get(OrderItemINData.material);
                 OrderItemINData.unidadeMedida = prdItem.UnidadeMedida__c;
             }
-            
 
-            for(TemplateDataIntegrationFields.ConditionInsert  conditions : conditionList){
-                conditions.KPOSN = conditions.KPOSN.replaceFirst('^0+','');
-                if(conditions.KPOSN == OrderItemINData.orderItemCode){
-
-                    if(conditions.KSCHL == 'ZPR0'){
-                        OrderItemINData.precoUnitario = (Decimal.valueOf(conditions.KBETR) / Decimal.valueOf(conditions.KPEIN));
-                        System.debug('OrderItemINData.precoUnitario ' + OrderItemINData.precoUnitario);
-                        OrderItemINData.precoPraticado = OrderItemINData.precoUnitario;
-                       //OrderItemINData.multiplicador == conditions.KPEIN;
-                    }
-                    
-                    if(conditions.KSCHL == 'ZDAC'){ //Antigo ZDAN
-                        System.debug('conditions.KSCHL' + conditions.KSCHL);
-                       OrderItemINData.porcentagemDescontoFin = Decimal.valueOf(conditions.KBETR);
-                        System.debug('porcentagemDescontoFin' + OrderItemINData.porcentagemDescontoFin);
-                    }
-                    if(conditions.KSCHL == 'ZJUC'){ //Antigo ZJUR
-                        OrderItemINData.porcentagemAcrescFin = Decimal.valueOf(conditions.KBETR);
-
-                    }
-
-                    if(conditions.KSCHL == 'ZMAR'){
-                        OrderItemINData.margemComercial = Decimal.valueOf(conditions.KBETR);
-                    }
-                    if(conditions.KSCHL == 'ZFRE'){
-                        OrderItemINData.freteItem = Decimal.valueOf(conditions.KBETR);
-                    }
-
-                    if(conditions.KSCHL == 'ZROY'){
-                        OrderItemInData.valorZroy = Decimal.valueOf(conditions.KBETR);
-                        OrderItemInData.valorTotalZroy = Decimal.valueOf(conditions.KBETR) * OrderItemInData.quantidade;
-                    }
-
-                    if(conditions.KSCHL == 'ZTRA'){
-                        OrderItemInData.valorZtra = Decimal.valueOf(conditions.KBETR);
-                        OrderItemINData.valorTotalZtra = Decimal.valueOf(conditions.KBETR) * OrderItemINData.quantidade;
-                    }
-                    
-                    if(conditions.KSCHL == 'ZCP0'){
-                        Decimal custoPraticado = Decimal.valueOf(conditions.KBETR) / OrderItemINData.quantidade;
-                        OrderItemINData.custoPreco = custoPraticado;
-                    }
-                    if(conditions.KSCHL == 'ZCBI'){
-                        if(Decimal.valueOf(conditions.KBETR) > 0){
-                            porcentagemZCBI = Decimal.valueOf(conditions.KBETR);
-                        }
-                        else {
-                            porcentagemZCBI = Decimal.valueOf(conditions.KBETR) * (-1);
-                        }
-                        //OrderItemINData.valorZCBI = Decimal.valueOf(conditions.KBETR);
-                        
-                    }
-
-                    if(conditions.KSCHL == 'ZCBA'){
-                        if(Decimal.valueOf(conditions.KBETR) > 0){
-                            porcentagemZCBA = Decimal.valueOf(conditions.KBETR); 
-                        }
-                        else {
-                            porcentagemZCBA = Decimal.valueOf(conditions.KBETR) * (-1);
-                        }
-                       
-                    }
-                    
-                    if(conditions.KSCHL == 'ZDEC'){
-                        
-                        OrderItemINData.porcentagemAcrescComercial = 0;
-                        OrderItemINData.porcentagemDesconto = 0;
-                        
-                        
-                        System.debug('KBETR ' + Decimal.valueOf(conditions.KBETR));
-                        if(Decimal.valueOf(conditions.KBETR) > 0){
-                            OrderItemINData.porcentagemAcrescComercial = Decimal.valueOf(conditions.KBETR);
-                            System.debug('porcentagemAcrescComercial ' + OrderItemINData.porcentagemAcrescComercial);
-
-                        }
-                        else {
-                            OrderItemINData.porcentagemDesconto = Decimal.valueOf(conditions.KBETR);
-                            OrderItemINData.porcentagemDesconto *= (-1);
-                            System.debug('porcentagemDesconto ' + OrderItemINData.porcentagemDesconto);
-                        }
-                    }   
+            if(conditionList.size() != 0){
+                OrderItemHelper.conditionsCalc(request, conditionList);
             }
-        }
-
-        //Decimal porcentagemDescontoFinanceiro = 0;
-        Decimal valorDescontoFinanceiro = 0;
-            
-        //Decimal porcentagemAcrescimoFinanceiro = 0; 
-        Decimal valorAcrescimoFinanceiro = 0;
-
-        //Decimal porcentagemDescontoComercial = 0;
-        Decimal valorDescontoComercial = 0; 
-        
-        //Decimal porcentagemAcrescimoComercial = 0;
-        Decimal valorAcrescimoComercial = 0;
-        
-        Decimal valorDescontoComboZCBI = 0;
-
-        Decimal valorDescontoComboZCBA = 0;
-        Decimal valorFinal = OrderItemINData.precoUnitario * OrderItemINData.quantidade;
-        OrderItemINData.valorTotal = valorFinal;
-        
-        if(OrderItemINData.porcentagemDescontoFin > 0){
-            //porcentagemDescontoFinanceiro = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemDescontoFin / 100);
-            valorDescontoFinanceiro = valorFinal * (OrderItemINData.porcentagemDescontoFin / 100);
-            OrderItemINData.valorDescontoFin = valorDescontoFinanceiro;
-            valorFinal = valorFinal - valorDescontoFinanceiro; //Bateu
-            OrderItemINData.precoPraticado = (valorFinal) / OrderItemINData.quantidade;
-            OrderItemINData.valorTotal = valorFinal;
-            System.debug('valorFinal ' + valorFinal);
-            System.debug('valorDescontoFinanceiro ' + valorDescontoFinanceiro);
-        }
-        if (OrderItemINData.porcentagemAcrescFin > 0){
-            //porcentagemAcrescimoFinanceiro = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemAcrescFin / 100);
-            
-            valorAcrescimoFinanceiro = valorFinal * (OrderItemINData.porcentagemAcrescFin / 100);     
-            OrderItemINData.valorAcrescFin = valorAcrescimoFinanceiro;
-            valorFinal = valorFinal + valorAcrescimoFinanceiro;
-            OrderItemINData.precoPraticado = (valorFinal) / OrderItemINData.quantidade;
-            OrderItemINData.valorTotal = valorFinal;
-            System.debug('valorFinal ' + valorFinal);
-            System.debug('valorAcrescimoFinanceiro ' + valorAcrescimoFinanceiro);
-        }
-
-        if(porcentagemZCBI > 0){
-
-            valorDescontoComboZCBI = valorFinal * (porcentagemZCBI / 100);
-            OrderItemINData.valorZCBI = valorDescontoComboZCBI;
-            valorFinal = valorFinal - valorDescontoComboZCBI;
-            OrderItemINData.precoPraticado = (valorFinal) / OrderItemINData.quantidade;
-            OrderItemINData.valorTotal = valorFinal;
-        }
-
-        if(porcentagemZCBA > 0){
-            valorDescontoComboZCBA = valorFinal * (porcentagemZCBA / 100);
-            OrderItemINData.valorZCBA = valorDescontoComboZCBA;
-            valorFinal = valorFinal - valorDescontoComboZCBA;
-            OrderItemINData.precoPraticado = (valorFinal) / OrderItemINData.quantidade;
-            OrderItemINData.valorTotal = valorFinal;
-        }
-
-        if (OrderItemINData.porcentagemDesconto != 0 && OrderItemINData.porcentagemDesconto != null){ 
-            //porcentagemDescontoComercial = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemDesconto / 100);
-            valorDescontoComercial = valorFinal  * (OrderItemINData.porcentagemDesconto / 100);
-            System.debug('porcentagemDesconto ' + (OrderItemINData.porcentagemDesconto / 100));
-            System.debug('valorDescontoComercial ' + valorDescontoComercial);
-            OrderItemINData.precoPraticado = (valorFinal - valorDescontoComercial) / OrderItemINData.quantidade;
-            OrderItemINData.valorTotal = (valorFinal - valorDescontoComercial);
-            System.debug('valorFinalFinal  ' + OrderItemINData.valorTotal);
-            OrderItemINData.descontoValor = valorDescontoComercial;
-        }
-        if(OrderItemINData.porcentagemAcrescComercial != 0 && OrderItemINData.porcentagemAcrescComercial != null){
-            //porcentagemAcrescimoComercial = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemAcrescComercial / 100);
-            valorAcrescimoComercial = valorFinal * (OrderItemINData.porcentagemAcrescComercial / 100);
-            System.debug('valorAcrescimoComercial ' + valorAcrescimoComercial);
-            
-            OrderItemINData.precoPraticado = (valorFinal + valorAcrescimoComercial) / OrderItemINData.quantidade;
-            OrderItemINData.valorTotal = (valorFinal + valorAcrescimoComercial);
-            OrderItemINData.valorAcrescComercial = valorAcrescimoComercial;
-            //System.debug('porcentagemDesconto ' + OrderItemINData.porcentagemDesconto);
-        }
-            
-            //Atualização para Insert - 26.07.22
-        	System.debug('OrderItemINData.precoUnitario ' + OrderItemINData.precoUnitario);
-            if(OrderItemINData.precoPraticado == null){
-                OrderItemINData.precoPraticado = OrderItemINData.precoUnitario;
-                System.debug('OrderItemINData.precoPraticado ' + OrderItemINData.precoPraticado);
-            }
-        //OrderItemINData.precoUnitario  += valorAcrescimoFinanceiro - valorDescontoFinanceiro  ;
-        //OrderItemINData.precoUnitario  += valorAcrescimoComercial - valorDescontoComercial  ;
-        
-        
-        System.debug('valorAcrescComercial  ' + OrderItemINData.valorAcrescComercial);
-        
-        System.debug('Desconto Valor ' + OrderItemINData.descontoValor);
-        System.debug('Preço Praticado ' + OrderItemINData.precoPraticado);
-
-            porcentagemZCBA = 0;
-            porcentagemZCBI = 0;
         }
 
 
