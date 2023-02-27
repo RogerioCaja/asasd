@@ -689,7 +689,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
             if(!this.accountData?.Supplier__c && this.headerData.tipo_venda == 'Venda Barter'){
                 enableScreen = false
-                this.showNotification('BP não é um fornecedor', 'Atenção!', 'warning');
+                this.showNotification('Cadastro incompleto para venda Barter', 'Atenção!', 'warning');
             }
 
             console.log('account data setted:', this.accountData);
