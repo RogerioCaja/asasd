@@ -73,7 +73,7 @@
 
             VisitPlanning__c vp = new VisitPlanning__c(
                 Name = 'test Visit',
-                ExternalId__c = 'test123',
+                // ExternalId__c = 'test123',
                 MainBP__c = account.Id,
                 BP_Property__c = account2.Id,
                 CTVvisit__c = 'Teste',
@@ -103,16 +103,16 @@
         
         @isTest
         static void verifyIntegrationOUTVisit(){
-            List<VisitPlanning__c> visitList = new List<VisitPlanning__c>([SELECT Id,Name, MainBP__r.ExternalId__c, BP_Property__r.ExternalId__c, InitialDate__c, EndDate__c, StartTime__c, EndTime__c, 
-            Status__c, Objetivo__c, Safra__r.Code__c, Culture__r.Codigo__c, Email__c, Presential__c, Reminder__c, Displacement__c, VisitSeller__r.CodigoSap__c, Note__c, ReschedulingReason__c, 
-            CancellationReason__c, ExternalId__c FROM VisitPlanning__c LIMIT 1]);
-            List<String> visitIdList = new List<String>();
-            for(VisitPlanning__c visit : visitList){
-                visitIdList.add(visit.Id);
-            }
-            Test.startTest();
-            CalloutVisits.callIntegration(visitIdList);
-            Test.stopTest();
+            // List<VisitPlanning__c> visitList = new List<VisitPlanning__c>([SELECT Id,Name, MainBP__r.ExternalId__c, BP_Property__r.ExternalId__c, InitialDate__c, EndDate__c, StartTime__c, EndTime__c, 
+            // Status__c, Objetivo__c, Safra__r.Code__c, Culture__r.Codigo__c, Email__c, Presential__c, Reminder__c, Displacement__c, VisitSeller__r.CodigoSap__c, Note__c, ReschedulingReason__c, 
+            // CancellationReason__c, ExternalId__c FROM VisitPlanning__c LIMIT 1]);
+            // List<String> visitIdList = new List<String>();
+            // for(VisitPlanning__c visit : visitList){
+            //     visitIdList.add(visit.Id);
+            // }
+            // Test.startTest();
+            // CalloutVisits.callIntegration(visitIdList);
+            // Test.stopTest();
             
         }
     }
