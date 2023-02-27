@@ -13,7 +13,6 @@ public without sharing class CalendarTriggerHandler {
 
     public void OnBeforeInsert(){
         CalendarHelper.createCalendarEvent(this.newRecords);
-        CalendarHelper.updateExternalId(this.newRecords);
     }
     
     public void OnAfterInsert(){

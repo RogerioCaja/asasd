@@ -196,7 +196,8 @@ public without sharing class CalloutVisits {
         public String CtvVisit;
         public String Observation;
         public String ReasonRescheduling;
-        public String ExternalCodeVisits;
+        public String ExternalCodeSalesforce;
+        public String ExternalCodeApp;
         public String ReasonCancellation;
         public List<CalloutVisits.TechnicalReportsParameters> TechnicalReports;
 
@@ -206,13 +207,13 @@ public without sharing class CalloutVisits {
         public String Photo;
         public String Observation;
         public String FileLine;
-        public String ExternalCodePhoto;
+        //public String ExternalCodePhoto;
         public PhotosParameters(Fotos__c photo, Map<String, String> photoBase64Map){
             if(photoBase64Map.containsKey(photo.Id))
                 this.Photo = photoBase64Map.get(photo.Id);
             this.Observation = photo.Observation__c;
             this.FileLine = String.valueOf(photo.FotoControl__c);
-            this.ExternalCodePhoto = photo.ExternalId__c;
+            //this.ExternalCodePhoto = photo.ExternalId__c;
         }
     }
 
@@ -223,7 +224,7 @@ public without sharing class CalloutVisits {
         public String Status;
         public String CancellationReason;
         public String RtrLine;
-        public String ExternalCodeTechnical;
+        //public String ExternalCodeTechnical;
 
         public List<CalloutVisits.PhotosParameters> Photos;
         public TechnicalReportsParameters(TechnicalReport__c technicalReport,  Map<String, List<Fotos__c>> fotoMap, Map<String, String> photoBase64Map){
@@ -234,7 +235,7 @@ public without sharing class CalloutVisits {
             this.Status = technicalReport.Status__c;
             this.CancellationReason = technicalReport.CancellationReason__c;
             this.RtrLine = String.valueOf(technicalReport.rtrControl__c);
-            this.ExternalCodeTechnical = technicalReport.ExternalId__c;
+            //this.ExternalCodeTechnical = technicalReport.ExternalId__c;
 
             if(fotoMap.containsKey(technicalReport.id)){
                 List<CalloutVisits.PhotosParameters> newPhotoList= new List<CalloutVisits.PhotosParameters>();
@@ -251,7 +252,7 @@ public without sharing class CalloutVisits {
                 this.Status = null;
                 this.CancellationReason = null;
                 this.RtrLine = null;
-                this.ExternalCodeTechnical = null;
+                //this.ExternalCodeTechnical = null;
                 this.Photos = null;
             }
         }
