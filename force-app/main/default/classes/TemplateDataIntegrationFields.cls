@@ -726,6 +726,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String Name;
         public String BpCode;
         public String ExternalId;
+        public String ExternalIdApp;
         public String BpPropertyCode;
         public Date PlanStartDate;
         public Date PlanEndDate;
