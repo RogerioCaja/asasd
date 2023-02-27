@@ -10,20 +10,26 @@ global without sharing class IntegrationINVisitsPlanning {
         Set<String> cropLookups = new Set<String>();
         Set<String> cultureLookups = new Set<String>();
         Set<String> userLookups = new Set<String>();
-        Set<String> visitLookups = new Set<String>();
         List<TemplateDataIntegrationFields.ResponseParent> responseList = new List<TemplateDataIntegrationFields.ResponseParent>();
         List<TemplateDataIntegrationFields.TechnicalReportINData> technicalReportList = new List<TemplateDataIntegrationFields.TechnicalReportINData>();
+        List<TemplateDataIntegrationFields.VisitPlanningINData> visitPlanningUpdatesList = new List<TemplateDataIntegrationFields.VisitPlanningINData>();
+        List<TemplateDataIntegrationFields.VisitPlanningINData> visitPlanningInsertList = new List<TemplateDataIntegrationFields.VisitPlanningINData>();
         List<TemplateDataIntegrationFields.FotosINData> photosList = new List<TemplateDataIntegrationFields.FotosINData>();
         List<VisitPlanning__c> visitsListToUpsert = new List<VisitPlanning__c>();
-        
-  
+        for (TemplateDataIntegrationFields.VisitPlanningINData visit : request){
+            if(visit.ExternalId != null){
+                visitPlanningUpdatesList.add(visit);
+            }else{
+                visitPlanningInsertList.add(visit);
+            }
+        }
+        //caso receba deles e tenha o externalId preenchido vai ter que fazer outro insert
         for (TemplateDataIntegrationFields.VisitPlanningINData visit : request){
             accountLookups.add(visit.BpCode);
             accountLookups.add(visit.BpPropertyCode);
             cropLookups.add(visit.Crop);
             cultureLookups.add(visit.Culture);
             userLookups.add(visit.CtvVisit);
-            visitLookups.add(visit.ExternalId);
             String keyForExternal = visit.ExternalIdApp;
             //tera que arrumar usando map
             for (TemplateDataIntegrationFields.TechnicalReportINData report : visit.TechnicalReports){
@@ -32,7 +38,7 @@ global without sharing class IntegrationINVisitsPlanning {
             }
             technicalReportList.addALL(visit.TechnicalReports);
         }
-        
+
         for (Account accoun : [SELECT Id, ExternalId__c FROM Account WHERE ExternalId__c IN : accountLookups]) {
             lookups.put('Account' + accoun.ExternalId__c, accoun.Id);
         }
@@ -48,16 +54,31 @@ global without sharing class IntegrationINVisitsPlanning {
 
         
         
+       
         FactoryDataIntegration.convertSObject(new VisitPlanning__c(), 'IN', request, responseList, visitsListToUpsert, lookups);
-        System.debug('visitListToUpsert First' + visitsListToUpsert);  
-        CalendarHelper.disableTriggerForIntegration();
-		IntegrationUtils.upsertRecords(
-            Database.upsert(visitsListToUpsert, VisitPlanning__c.ExternalIdApp__c, false), 
-            responseList, 
-            visitsListToUpsert, 
-            VisitPlanning__c.ExternalIdApp__c
-        );
-        CalendarHelper.enableTriggerForIntegration();
+        System.debug('visitListToUpsert ' + visitsListToUpsert);
+        System.debug('visitPlanningUpdatesList ' + visitPlanningUpdatesList);  
+        System.debug('visitPlanningInsertList ' + visitPlanningInsertList);
+        if(!visitPlanningInsertList.isEmpty()){
+            CalendarHelper.disableTriggerForIntegration();
+            IntegrationUtils.upsertRecords(
+                Database.upsert(visitsListToUpsert, VisitPlanning__c.ExternalIdApp__c, false), 
+                responseList, 
+                visitsListToUpsert, 
+                VisitPlanning__c.ExternalIdApp__c
+            );
+            CalendarHelper.enableTriggerForIntegration();
+        }
+        if(!visitPlanningUpdatesList.isEmpty()){
+            CalendarHelper.disableTriggerForIntegration();
+            IntegrationUtils.upsertRecords(
+                Database.upsert(visitsListToUpsert, VisitPlanning__c.ExternalId__c, false), 
+                responseList, 
+                visitsListToUpsert, 
+                VisitPlanning__c.ExternalIdApp__c
+            );
+            CalendarHelper.enableTriggerForIntegration();
+        }
         for(VisitPlanning__c visit : visitsListToUpsert){
             visitPlattingMap.put(visit.ExternalIdApp__c, visit.ExternalId__c);
         }
