@@ -39,6 +39,8 @@ import getAccountCompanies from '@salesforce/apex/OrderScreenController.getAccou
 
 import isSeedSale from '@salesforce/apex/OrderScreenController.isSeedSale';
 
+
+import getMTOTypes from '@salesforce/apex/OrderScreenController.getMTOTypes';
 //import FILIAL_OBJECT from '@salesforce/schema/';
 //import FILIAL_NAME from '@salesforce/schema/';
 
@@ -58,6 +60,7 @@ export default class OrderHeaderScreen extends LightningElement {
     dateLimit;
     dateStartBilling;
     dateLimitBilling;
+    showMto = false;
 
     @api accountData;
     @api accountChildData;
@@ -97,8 +100,11 @@ export default class OrderHeaderScreen extends LightningElement {
         companyId: null,
         companySector: null,
         hectares: '',
+        freightPerUnit: null,
+        motherTotalQuantity: null,
         firstTime: true,
-        centerId: null
+        centerId: null,
+        mto: null
     };
 
     @api salesOrgId;
@@ -108,7 +114,9 @@ export default class OrderHeaderScreen extends LightningElement {
     @api cloneData;
     @api excludedItems;
     @api combosSelecteds;
+    @api taxData;
     @api formsOfPayment
+    @api bpData;
 
     @track pass = false;
 
@@ -290,6 +298,7 @@ export default class OrderHeaderScreen extends LightningElement {
         description: 'Venda Direta'
         },
     ];
+    mtoOpitions = [];
 
 
     //Lista de Preço
@@ -337,6 +346,7 @@ export default class OrderHeaderScreen extends LightningElement {
     //Status Pedido
     status_pedido = "Em digitação";
     frete = "CIF";
+    deliveryId='';
 
     //Condicao Pagamento
     @track redispatchCondicaoPagamentoObject = COND_PAGAMENTO_OBJECT;
@@ -425,7 +435,7 @@ export default class OrderHeaderScreen extends LightningElement {
             return;
         }else if(this.headerDictLocale[this.sequentialDict[index]] != ' ' && this.headerDictLocale[this.sequentialDict[index]] != null){
             let name = this.sequentialDict[index];
-            if(name == 'condicao_venda'  && this.headerData['moeda'] != ' ' && this.headerDictLocale['safra'].hasOwnProperty("Id")){
+            if(name == 'condicao_venda'  && this.headerDictLocale['moeda'] != ' ' && this.headerDictLocale['safra'].hasOwnProperty("Id")){
                 let condition = "condicao_venda";
                 setTimeout(()=>this.template.querySelector(`[data-name="${condition}"]`).disabled = false);
             }
@@ -457,7 +467,20 @@ export default class OrderHeaderScreen extends LightningElement {
             if(this.headerData){
                 this.fieldKey = true;
                 this.headerDictLocale = JSON.parse(JSON.stringify(this.headerData));
-                if (this.headerDictLocale.tipo_venda == 'Venda Conta e Ordem' || this.headerDictLocale.tipo_venda == 'Venda Entrega Futura' || this.headerDictLocale.tipo_venda == 'Venda Normal') {
+                if(this.childOrder || this.headerData.IsOrderChild){
+                    this.salesOrgId = this.headerData.organizacao_vendas.Id;
+                    console.log('this.headerData.codigo_sap: ' + this.headerData.codigo_sap);
+                    if (this.isFilled(this.headerData.codigo_sap) && this.headerData.codigo_sap.startsWith('003')) {
+                        this.showMto = true;
+                        console.log('this.showMto: ' + this.showMto);
+                        getMTOTypes().then((result) => {
+                            let mtoValues = JSON.parse(result);
+                            this.mtoOpitions = JSON.parse(JSON.stringify(mtoValues));
+                            console.log('this.mtoOpitions: ' + this.mtoOpitions);
+                        });
+                    }
+                }
+                if (this.headerDictLocale.tipo_venda == 'Venda Conta e Ordem' || this.headerDictLocale.tipo_venda == 'Venda Entrega Futura' || this.headerDictLocale.tipo_venda == 'Venda Normal' || this.headerDictLocale.tipo_venda == 'Venda Barter') {
                     this.allowMotherOrder = true;
                 } else {
                     this.headerDictLocale.pedido_mae_check = false;
@@ -548,6 +571,7 @@ export default class OrderHeaderScreen extends LightningElement {
                                     this.headerDictLocale.firstTime = false;
                                 } else {
                                     this.headerDictLocale.data_pagamento = this.currentDate;
+                                    setTimeout(()=>this.template.querySelector('[data-target-id="data_pagamento"]').value =  this.headerDictLocale.data_pagamento);
                                 }
 
                                 this.headerData = JSON.parse(JSON.stringify(this.headerDictLocale));
@@ -563,11 +587,12 @@ export default class OrderHeaderScreen extends LightningElement {
                     if(field == 'safra'){
                         this.safraName = record.Name;
                     }
+
                     if(field == 'condicao_venda'){
                         this.setDateLimit();
                     }
 
-                   
+                    if (field == 'cliente_entrega') this.deliveryId = this.headerDictLocale.cliente_entrega.Id;
 
                     if(field == 'ctv_venda'){
                         let getCompanyData = {
@@ -656,8 +681,9 @@ export default class OrderHeaderScreen extends LightningElement {
         });
         setTimeout(()=>this.template.querySelector('[data-target-id="data_pagamento"]').value =  " ");
         this.headerData = JSON.parse(JSON.stringify(this.headerDictLocale));
+
     }
-    
+
     removeItemRegisterByField(field){
         this.headerDictLocale[field] = {};
         this.headerDictLocale.isCompleted = false;
@@ -731,6 +757,8 @@ export default class OrderHeaderScreen extends LightningElement {
                 this.headerDictLocale.hectares !== 0 &&
                 this.headerDictLocale.hectares !== undefined &&
                 this.headerDictLocale.hectares !== '' && 
+                ((this.showMto && this.headerDictLocale.mto !== undefined &&
+                this.headerDictLocale.mto !== '') || !this.showMto) && 
                 this.hasDelimiter || this.pass 
             ) {
                 return true;

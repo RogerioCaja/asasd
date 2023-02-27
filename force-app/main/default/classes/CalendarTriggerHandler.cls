@@ -1,4 +1,4 @@
-public with sharing class CalendarTriggerHandler {
+public without sharing class CalendarTriggerHandler {
     List<VisitPlanning__c> oldRecords {get; set;} // Trigger.old 
         List<VisitPlanning__c> newRecords {get; set;} // Trigger.new
         Map<Id, VisitPlanning__c> oldMap {get; set;} // Trigger.oldMap

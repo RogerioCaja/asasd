@@ -48,6 +48,7 @@ export default class Lookup extends LightningElement {
 	@track moreFieldsApiNames = null;
 	@track searchValue = null;
 	@api accountId;
+	@api deliveryId;
 	@track isLoading = true;
 
 	@track records = null;
@@ -199,7 +200,8 @@ export default class Lookup extends LightningElement {
 			searchFields: this.searchFieldsApiNames,
 			searchValue: this.searchValue,
 			moreFields: this.moreFieldsApiNames || null,
-			accountId: this.accountId
+			accountId: this.accountId,
+			deliveryId: this.deliveryId
 		};
 
 		if (this.parentRelationFieldList && this.parentRecordList) {
@@ -253,7 +255,7 @@ export default class Lookup extends LightningElement {
 		try {
 			let data;
 			if (requestData.targetObject == 'Account') {
-				data = await fetchAccountRecords({searchString: requestData.searchValue, offSet: null});
+				data = await fetchAccountRecords({searchString: requestData.searchValue, offSet: null, salesOrg: null});
 			} else {
 				let salesConditionData = {
 					salesOrgId: this.salesOrg  != null ? this.salesOrg  : '',
@@ -261,8 +263,10 @@ export default class Lookup extends LightningElement {
 					currencyGet: this.currencyOption != null ? this.currencyOption : '',
 					typeOrder: this.salesType != null ? this.salesType : ''
 				}
+				console.log('this.quote: '+ this.quote);
 				data = await getRecords({ data: JSON.stringify(requestData), barterSale: this.barterSale, salesConditionData: JSON.stringify(salesConditionData), priceScreen: this.priceScreen, clientTerritoriesScreen: this.clientTerritoriesScreen, quoteScreen: this.quote});
 			}
+			//console.log('data lookup fon =>', JSON.parse(JSON.stringify(data)));
 
 			var dataResult = [];
 			if (data) {

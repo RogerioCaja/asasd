@@ -124,6 +124,7 @@
                                 list-item-options={redispatchCtvVendaListItemOptions} 
                                 standard-form-layout={booleanTrue}
                                 account-id={accountData.Id}
+                                delivery-id={deliveryId}
                                 price-screen="false"
                                 onclearselectedrecord={removeItemRegister}
                                 onselectrecord={selectItemRegister} 
@@ -273,7 +274,7 @@
                                     name="data_entrega"
                                     label="Data de Entrega" 
                                     field-name="data_entrega" 
-                                    data-target-id="data_entrega" 
+                                    data-target-id="data_entrega"
                                     value={headerData.data_entrega} 
                                     type="date" 
                                     date-style="short" 
@@ -386,6 +387,18 @@
                                 </lightning-input>
                             </div>
                         </template>
+
+                        <div if:true={showMto} class="slds-size_1-of-4">
+                            <lightning-combobox
+                                name="mto" 
+                                label="MTO" 
+                                placeholder="MTO"
+                                value={headerData.mto} 
+                                onchange={selectItemRegister} 
+                                options={mtoOpitions} 
+                                required="true">
+                            </lightning-combobox>
+                        </div>
                     </div>
                     
                 </div>

@@ -37,6 +37,21 @@
         </values>
     </picklistValues>
     <picklistValues>
+        <picklist>MTO__c</picklist>
+        <values>
+            <fullName>ZRCO</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>ZVNO</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>ZVVO</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
         <picklist>OrderReason__c</picklist>
         <values>
             <fullName>001</fullName>

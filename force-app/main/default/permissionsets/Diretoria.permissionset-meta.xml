@@ -1238,7 +1238,7 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Order.ACMContract__c</field>
-        <readable>false</readable>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
@@ -1264,11 +1264,6 @@
         <editable>false</editable>
         <field>Order.ApprovalDirector__c</field>
         <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Order.ApprovalJustification__c</field>
-        <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
@@ -1319,11 +1314,6 @@
         <editable>true</editable>
         <field>Order.Company__c</field>
         <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Order.ContagemItens__c</field>
-        <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
@@ -1392,11 +1382,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Order.EffectiveOrderDate__c</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
         <field>Order.ErrorIntegrationSAP__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1438,6 +1423,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Order.IsOrderMother__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Order.MTO__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -1599,11 +1589,6 @@
         <editable>false</editable>
         <field>Order.TotalAmountBrokerage__c</field>
         <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Order.TotalDicountValue__c</field>
-        <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
