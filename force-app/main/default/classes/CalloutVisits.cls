@@ -252,7 +252,7 @@ public without sharing class CalloutVisits {
                 this.Status = null;
                 this.CancellationReason = null;
                 this.RtrLine = null;
-                this.ExternalCodeTechnical = null;
+                //this.ExternalCodeTechnical = null;
                 this.Photos = null;
             }
         }

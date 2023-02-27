@@ -59,7 +59,7 @@ global without sharing class IntegrationINVisitsPlanning {
         );
         CalendarHelper.enableTriggerForIntegration();
         for(VisitPlanning__c visit : visitsListToUpsert){
-            visitPlattingMap.put(visit.ExternalIdApp, visit.ExternalId);
+            visitPlattingMap.put(visit.ExternalIdApp__c, visit.ExternalId__c);
         }
         if(technicalReportList.size() != 0){
             for(TemplateDataIntegrationFields.TechnicalReportINData technical : technicalReportList){
