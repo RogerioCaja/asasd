@@ -91,6 +91,7 @@ public class IntegrationINVisitsPlanningTest {
         TemplateDataIntegrationFields.VisitPlanningINData visit = new TemplateDataIntegrationFields.VisitPlanningINData();
         visit.Name = 'Test';
         visit.BpCode = '11111';
+        visit.ExternalIdApp = 'test';
         visit.BpPropertyCode = '2222';
         visit.PlanStartDate = Date.valueOf('2022-09-21');
         visit.PlanEndDate = Date.valueOf('2022-09-23');

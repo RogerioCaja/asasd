@@ -5,6 +5,7 @@ global without sharing class IntegrationINVisitsPlanning {
     global static ResponseModel upsertVisitsPlanning(List<TemplateDataIntegrationFields.VisitPlanningINData> request) {
 
         Map<String, Id> lookups = new Map<String, Id>();
+        Map<String, String> visitPlattingMap = new Map<String, String>();
         Set<String> accountLookups = new Set<String>();
         Set<String> cropLookups = new Set<String>();
         Set<String> cultureLookups = new Set<String>();
@@ -23,10 +24,11 @@ global without sharing class IntegrationINVisitsPlanning {
             cultureLookups.add(visit.Culture);
             userLookups.add(visit.CtvVisit);
             visitLookups.add(visit.ExternalId);
-            visit.ExternalId = visit.BpCode + visit.BpPropertyCode + visit.PlanStartDate + visit.PlanEndDate + visit.CtvVisit;
+            String keyForExternal = visit.ExternalIdApp;
+            //tera que arrumar usando map
             for (TemplateDataIntegrationFields.TechnicalReportINData report : visit.TechnicalReports){
-                report.ExternalIdVisit = visit.ExternalId;
-                report.ExternalId = visit.ExternalId;
+                report.ExternalIdVisit = keyForExternal;
+                report.ExternalId = keyForExternal;
             }
             technicalReportList.addALL(visit.TechnicalReports);
         }
@@ -50,12 +52,23 @@ global without sharing class IntegrationINVisitsPlanning {
         System.debug('visitListToUpsert First' + visitsListToUpsert);  
         CalendarHelper.disableTriggerForIntegration();
 		IntegrationUtils.upsertRecords(
-            Database.upsert(visitsListToUpsert, VisitPlanning__c.ExternalId__c, false), 
+            Database.upsert(visitsListToUpsert, VisitPlanning__c.ExternalIdApp__c, false), 
             responseList, 
             visitsListToUpsert, 
-            VisitPlanning__c.ExternalId__c
+            VisitPlanning__c.ExternalIdApp__c
         );
         CalendarHelper.enableTriggerForIntegration();
+        for(VisitPlanning__c visit : visitsListToUpsert){
+            visitPlattingMap.put(visit.ExternalIdApp, visit.ExternalId);
+        }
+        if(technicalReportList.size() != 0){
+            for(TemplateDataIntegrationFields.TechnicalReportINData technical : technicalReportList){
+                String externalVisit = visitPlattingMap.get(technical.ExternalIdVisit);
+                technical.ExternalIdVisit = externalVisit;
+                technical.ExternalId = externalVisit;
+            }
+        }
+
         Map<String, List<TemplateDataIntegrationFields.Response>> visitsTechnicalResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
         Map<String, List<TemplateDataIntegrationFields.Response>> photosResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
         if(technicalReportList.size() != 0){
