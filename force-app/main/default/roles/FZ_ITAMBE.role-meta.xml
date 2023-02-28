@@ -5,5 +5,5 @@
     <mayForecastManagerShare>false</mayForecastManagerShare>
     <name>FZ ITAMBE</name>
     <opportunityAccessLevel>Edit</opportunityAccessLevel>
-    <parentRole>FZT_PR_SUL</parentRole>
+    <parentRole>X7511</parentRole>
 </Role>
