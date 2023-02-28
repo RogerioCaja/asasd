@@ -73,7 +73,7 @@
 
             VisitPlanning__c vp = new VisitPlanning__c(
                 Name = 'test Visit',
-                ExternalId__c = 'test123',
+                //ExternalId__c = 'test123',
                 MainBP__c = account.Id,
                 BP_Property__c = account2.Id,
                 CTVvisit__c = 'Teste',
