@@ -5,5 +5,5 @@
     <mayForecastManagerShare>false</mayForecastManagerShare>
     <name>FZ ATALAIA</name>
     <opportunityAccessLevel>Edit</opportunityAccessLevel>
-    <parentRole>FZT_PR_SUL</parentRole>
+    <parentRole>X7510</parentRole>
 </Role>
