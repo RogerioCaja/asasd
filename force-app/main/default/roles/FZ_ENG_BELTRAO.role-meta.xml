@@ -5,5 +5,5 @@
     <mayForecastManagerShare>false</mayForecastManagerShare>
     <name>FZ ENG BELTRAO</name>
     <opportunityAccessLevel>Edit</opportunityAccessLevel>
-    <parentRole>FZT_PR_SUL</parentRole>
+    <parentRole>X7509</parentRole>
 </Role>
