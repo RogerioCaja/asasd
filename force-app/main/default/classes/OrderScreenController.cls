@@ -25,6 +25,7 @@ public without sharing class OrderScreenController {
                 productQuantity += item.quantity + (item.amountUsed != null ? item.amountUsed : 0);
             }
             order.freightPerUnit = order.freightValue != null ? order.freightValue / productQuantity : 0;
+            order.motherTotalQuantity = productQuantity;
         }
 
         if (order.bpStorage != null) {
@@ -70,9 +71,9 @@ public without sharing class OrderScreenController {
     }
 
     public static HeaderSerialize getOrderData(Id orderId, Boolean cloneOrder){
-        Order order = [SELECT Id, OrderNumber, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c , ShippingAccount__r.Phone,  ShippingAccount__r.Name, 
+        Order order = [SELECT Id, OrderNumber, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c , ShippingAccount__r.Phone,  ShippingAccount__r.Name,
         ShippingAccount__r.BillingCity, ShippingAccount__r.BillingState ,ShippingAccount__r.CPF__c, ShippingAccount__r.CNPJ__c , SalesCondition__c, SalesCondition__r.Name, FreightValue__c,
-        Pricebook2.InitialDate__c, Pricebook2.EndDate__c, PaymentDate__c,  CustomerOrderNumber__c, Crop__c , Crop__r.Name, Culture__c , Culture__r.Name, OrderMargin__c, RecordTypeId,
+        Pricebook2.InitialDate__c, Pricebook2.EndDate__c, PaymentDate__c,  CustomerOrderNumber__c, Crop__c , Crop__r.Name, Culture__c , Culture__r.Name, OrderMargin__c, RecordTypeId, MTO__c,
         PaymentForm__c, StatusSF__c, CodigoSAP__c, SalesOrg__c, SalesOrg__r.Name, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, SalesCTV__r.Name, OrderType__c, BPStorage__c,
         PaymentCondition__c, PaymentCondition__r.Name, ShippingDate__c, Incoterms__c, OrderReference__c, OrderReference__r.Name, IsOrderMother__c, Company__c, Hectare__c, Status, DistributionCenter__c
         FROM Order 
@@ -154,13 +155,13 @@ public without sharing class OrderScreenController {
                    ReasonRefuse__c,
                    Sieve__c,
                    Class__c,
+                   ComboPromotion__c,
+                   AgrogalaxyComboDiscount__c,
+                   IndustryComboDiscount__c,
                    TSIValue__c,
                    RoyaltyAmount__c,
                    TotalTSIAmount__c,
-                   TotalRoyaltyAmount__c,
-                   ComboPromotion__c,
-                   AgrogalaxyComboDiscount__c,
-                   IndustryComboDiscount__c
+                   TotalRoyaltyAmount__c
               FROM OrderItem
              WHERE OrderId =: orderId
         ]){
@@ -618,6 +619,7 @@ public without sharing class OrderScreenController {
                        AND Approver__c = 'ComiteMargem'
                        AND ClientGroup__c =: company.ClientGroup__c
                        AND SalesOrg__c =: company.SalesOrg__c
+                       AND CurrencyIsoCode =: orderData.headerData.moeda
                        AND ProductGroup__c IN: smallerMarginByProductGroup.keySet()
                        AND InitialDate__c <=: System.today()
                        AND EndDate__c >=: System.today()
@@ -646,7 +648,7 @@ public without sharing class OrderScreenController {
                      WHERE Product2Id IN: listProductsIds
                 ]) {
                     pricebookId = entry.Pricebook2Id;
-                    entriesByProductsIds.put(entry.Product2Id, entry);
+                    entriesByProductsIds.put(entry.Product2Id + 'BRL', entry);
                 }
             } else {
                 for (PricebookEntry entry : [
@@ -683,9 +685,10 @@ public without sharing class OrderScreenController {
                            ProductHierarchy__c,
                            SellerType__c,
                            CommissionPercentage__c 
-                    FROM Comissao__c
-                   WHERE ProductHierarchy__c IN: setProductHierarchyIds
-                     AND SellerType__c =: sellerType
+                      FROM Comissao__c
+                     WHERE ProductHierarchy__c IN: setProductHierarchyIds
+                       AND SellerType__c =: sellerType
+                       AND SalesOrg__c =: company.SalesOrg__c
                 ]) {
                     if (!commissionByHierarchy.containsKey(commission.ProductHierarchy__c)) {
                         commissionByHierarchy.put(commission.ProductHierarchy__c, commission);
@@ -724,6 +727,7 @@ public without sharing class OrderScreenController {
                      WHERE Status__c = 'Aprovado'
                        AND ClientGroup__c =: company.ClientGroup__c
                        AND SalesOrg__c =: company.SalesOrg__c
+                       AND CurrencyIsoCode =: orderData.headerData.moeda
                        AND ProductGroup__c =: productGroupId
                        AND InitialDate__c <=: System.today()
                        AND EndDate__c >=: System.today()
@@ -815,6 +819,7 @@ public without sharing class OrderScreenController {
             order.OrderReference__c = order.OrderReference__c != null ? order.OrderReference__c : orderData.headerData.pedido_mae.Id;
             order.IsOrderMother__c = orderData.headerData.pedido_mae.Id != null ? false : Boolean.valueOf(orderData.headerData.pedido_mae_check);
             order.Hectare__c = orderData.headerData.hectares.contains(',') ? Decimal.valueOf(orderData.headerData.hectares.replace(',', '.').trim()) : Decimal.valueOf(orderData.headerData.hectares.trim());
+            order.MTO__c = orderData.headerData.mto;
             order.FinalTotalValue__c = orderTotalValue;
             order.Company__c = company.Id;
             order.DistributionCenter__c = orderData.summaryData.centerId != null ? orderData.summaryData.centerId : orderData.headerData.centerId;
@@ -1014,7 +1019,6 @@ public without sharing class OrderScreenController {
 
                 }
 
-                Integer divisionCounter = 1;
                 Set<Id> setDivisionIds = new Set<Id>();
                 List<ShippingDivison__c> listShippingDivision = new List<ShippingDivison__c>();
 
@@ -1032,7 +1036,7 @@ public without sharing class OrderScreenController {
                 }
                 
                 Map<Id, Integer> divisionCounterByItemId = new Map<Id, Integer>();
-                if (orderData.divisionData != null && orderData.divisionData.size() > 0 && typeOrder != 'prepedido') {
+                if (orderData.divisionData != null && orderData.divisionData.size() > 0) {
                     Map<String, DivisionDeserialize> divisionsByKey = new Map<String, DivisionDeserialize>();
                     for (DivisionDeserialize division : orderData.divisionData) {
                         if (division.divisionId != null) {
@@ -1295,7 +1299,7 @@ public without sharing class OrderScreenController {
 
                         formOfPayment.PaymentType__c = payment.paymentType;
                         formOfPayment.PaymentDate__c = Date.valueOf(payment.paymentDay);
-                        formOfPayment.Amount__c = Decimal.valueOf(payment.value);
+                        formOfPayment.Amount__c = childOrder ? (Decimal.valueOf(payment.value) / orderData.headerData.motherTotalQuantity) * productQuantities : Decimal.valueOf(payment.value);
                         upsFormsOfPayment.add(formOfPayment);
                     }
                 }
@@ -1830,10 +1834,10 @@ public without sharing class OrderScreenController {
 
     @AuraEnabled
     public static String getPaymentTypes() {
-        List<PaymentType> listPaymentType = new List<PaymentType>();
+        List<ComboboxValues> listPaymentType = new List<ComboboxValues>();
         List<Schema.PicklistEntry> paymentTypes = FormPayment__c.PaymentType__c.getDescribe().getPicklistValues();
         for (Schema.PicklistEntry sp : paymentTypes) {
-            PaymentType paymentForm = new PaymentType();
+            ComboboxValues paymentForm = new ComboboxValues();
             paymentForm.label = sp.getLabel();
             paymentForm.value = sp.getValue();
             listPaymentType.add(paymentForm);
@@ -1841,7 +1845,20 @@ public without sharing class OrderScreenController {
         return JSON.serialize(listPaymentType);
     }
 
-    public class PaymentType {
+    @AuraEnabled
+    public static String getMTOTypes() {
+        List<ComboboxValues> listPaymentType = new List<ComboboxValues>();
+        List<Schema.PicklistEntry> mtoTypes = Order.MTO__c.getDescribe().getPicklistValues();
+        for (Schema.PicklistEntry sp : mtoTypes) {
+            ComboboxValues paymentForm = new ComboboxValues();
+            paymentForm.label = sp.getLabel();
+            paymentForm.value = sp.getValue();
+            listPaymentType.add(paymentForm);
+        }
+        return JSON.serialize(listPaymentType);
+    }
+
+    public class ComboboxValues {
         public String label;
         public String value;
     }
@@ -1987,6 +2004,7 @@ public without sharing class OrderScreenController {
                        AND Approver__c = 'ComiteMargem'
                        AND ClientGroup__c =: company.ClientGroup__c
                        AND SalesOrg__c =: company.SalesOrg__c
+                       AND CurrencyIsoCode =: orderData.headerData.moeda
                        AND ProductGroup__c IN: smallerMarginByProductGroup.keySet()
                        AND InitialDate__c <=: System.today()
                        AND EndDate__c >=: System.today()
@@ -2012,6 +2030,7 @@ public without sharing class OrderScreenController {
                  WHERE Status__c = 'Aprovado'
                    AND ClientGroup__c =: company.ClientGroup__c
                    AND SalesOrg__c =: company.SalesOrg__c
+                   AND CurrencyIsoCode =: orderData.headerData.moeda
                    AND ProductGroup__c =: productGroupId
                    AND InitialDate__c <=: System.today()
                    AND EndDate__c >=: System.today()
@@ -2148,9 +2167,12 @@ public without sharing class OrderScreenController {
         public String  companyId;
         public String  hectares;
         public String  centerId;
+        public String  mto;
         public Decimal freightValue;
         public Decimal freightPerUnit;
+        public Decimal motherTotalQuantity;
         public Boolean emptyHectar;
+        public Boolean orderCanceled;
         public Boolean pedido_mae_check;
         public Boolean pre_pedido;
         public Boolean firstTime;
@@ -2334,7 +2356,7 @@ public without sharing class OrderScreenController {
             this.accountData = account;
         }  
 
-        OrderSerialize(HeaderSerialize order, List<ProductSerialize> products, List<DivisionSerialize> divisions, AccountSerialize account, List<CommoditySerialize> commodities, List<FormOfPaymentSerialize> formsOfPayment, List<TaxDataSerialize> taxData, AccountSerialize bpAccount){
+        OrderSerialize(HeaderSerialize order, List<ProductSerialize> products, List<DivisionSerialize> divisions, AccountSerialize account, List<CommoditySerialize> commodities, List<FormOfPaymentSerialize> formsOfPayment, List<TaxDataSerialize> taxData, AccountSerialize bpAccount) {
             this.headerData = order;
             this.productData = products;
             this.divisionData = divisions;
@@ -2351,6 +2373,7 @@ public without sharing class OrderScreenController {
         public List<ProductSerialize> productData;
         public List<DivisionSerialize> divisionData;
         public List<CommodityDeserialize> commodityData;
+        public List<FormOfPaymentSerialize> formsOfPayment;
         public List<TaxData> taxData;
         public AccountSerialize accountData;
         public AccountSerialize bpAccount;
@@ -2362,11 +2385,12 @@ public without sharing class OrderScreenController {
             this.accountData = account;
         }  
 
-        public OrderSerializeAll(HeaderSerialize order, List<ProductSerialize> products, List<DivisionSerialize> divisions, List<CommodityDeserialize> commodities, AccountSerialize account, SummarySerialize summaryData, List<TaxData> taxData, AccountSerialize bpAccount){
+        public OrderSerializeAll(HeaderSerialize order, List<ProductSerialize> products, List<DivisionSerialize> divisions, List<CommodityDeserialize> commodities, List<FormOfPaymentSerialize> formsOfPayment, AccountSerialize account, SummarySerialize summaryData, List<TaxData> taxData, AccountSerialize bpAccount) {
             this.headerData = order;
             this.productData = products;
             this.divisionData = divisions;
             this.commodityData = commodities;
+            this.formsOfPayment = formsOfPayment;
             this.taxData = taxData;
             this.accountData = account;
             this.summaryData = summaryData;
@@ -2433,9 +2457,12 @@ public without sharing class OrderScreenController {
         public String  recTypeId;
         public String  hectares;
         public String  bpStorage;
+        public String  mto;
         public Decimal freightValue;
         public Decimal freightPerUnit;
+        public Decimal motherTotalQuantity;
         public Boolean emptyHectar;
+        public Boolean orderCanceled;
         public String  centerId;
         public Boolean pedido_mae_check;
         public Boolean pre_pedido;
@@ -2479,6 +2506,7 @@ public without sharing class OrderScreenController {
             this.firstTime = true;
             this.tipo_pedido = order.OrderType__c;
             this.codigo_sap = order.CodigoSAP__c;
+            this.orderCanceled = order.Status == 'X' ? true : false;
             this.organizacao_vendas = new InformationFields(order.SalesOrg__c, order.SalesOrg__r.Name);
             this.canal_distribuicao = order.DistributionChannel__c;
             this.setor_atividade = order.ActivitySector__c;
@@ -2488,6 +2516,7 @@ public without sharing class OrderScreenController {
             this.pedido_mae_check = order.IsOrderMother__c;
             this.emptyHectar = order.Hectare__c == null;
             this.hectares = order.Hectare__c == null ? '1,00' : String.valueOf(order.Hectare__c).contains('.') ? String.valueOf(order.Hectare__c).replace('.', ',') : String.valueOf(order.Hectare__c);
+            this.mto = order.MTO__c;
             this.condicao_pagamento = new InformationFields(order.PaymentCondition__c, order.PaymentCondition__r.Name);
             this.frete = order.Incoterms__c;
             this.observation = order.Description;
@@ -2594,8 +2623,8 @@ public without sharing class OrderScreenController {
             this.motherAvailableQuantity = orderItem.AmountUsed__c != null ? orderItem.Quantity - orderItem.AmountUsed__c : null;
             this.listPrice = orderItem.ListPrice__c;
             this.unitPrice = orderItem.PracticedPrice__c;
+            this.totalPrice = orderItem.PracticedPrice__c * this.quantity;
             this.brokerage = brokeragePerUnit != null ? this.quantity * brokeragePerUnit : orderItem.Brokerage__c;
-            this.totalPrice = orderItem.FinalTotalValue__c - this.comboDiscountValue;
             this.totalPriceWithBrokerage = this.brokerage != null ? (this.totalPrice + this.brokerage) : this.totalPrice;
             this.listCost = orderItem.ListCost__c;
             this.practicedCost = orderItem.PracticedCost__c;
@@ -2896,4 +2925,5 @@ public without sharing class OrderScreenController {
         public String  productGroupId;
         public Decimal quantity;
     }
+    
 }
