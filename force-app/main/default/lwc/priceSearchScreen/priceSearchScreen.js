@@ -1,4 +1,4 @@
-import { LightningElement, track } from 'lwc';
+import { LightningElement, track, api } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getProductRecords from '@salesforce/apex/CustomLookupController.fetchProductsRecords';
 import getAccountCompanies from '@salesforce/apex/OrderScreenController.getAccountCompanies';
@@ -6,6 +6,9 @@ import getFinancialInfos from '@salesforce/apex/OrderScreenController.getFinanci
 
 import SAFRA_OBJECT from '@salesforce/schema/Safra__c';
 import SAFRA_NAME from '@salesforce/schema/Safra__c.Name';
+
+import CONDICAO_VENDA_OBJECT from '@salesforce/schema/SalesCondition__c';
+import CONDICAO_VENDA_NAME from '@salesforce/schema/SalesCondition__c.Name';
 
 import ACCOUNT_OBJECT from '@salesforce/schema/Account';
 import ACCOUNT_NAME from '@salesforce/schema/Account.Name';
@@ -18,6 +21,14 @@ export default class PriceSearchScreen extends LightningElement {
     safra;
     @track redispatchSafraSearchFields = [SAFRA_NAME];
     @track redispatchSafraListItemOptions = {
+        title: 'Name',
+        description: 'Name'
+    };
+
+    @track redispatchCondicaoVendaObject = CONDICAO_VENDA_OBJECT;
+    condicao_venda;
+    @track redispatchCondicaoVendaSearchFields = [CONDICAO_VENDA_NAME];
+    @track redispatchCondicaoVendaListItemOptions = {
         title: 'Name',
         description: 'Name'
     };
@@ -46,11 +57,18 @@ export default class PriceSearchScreen extends LightningElement {
     showBaseProducts = false;
     productsPriceMap;
     salesInfos;
+    fieldKey = true;
+    company;
+    salesOrgId = '';
+    noProductsFound = false;
+
     searchData = {
         safra: {},
         account: {},
         ctv: {},
-        paymentDate: ''
+        paymentDate: '',
+        sales_condition: {},
+        tipo_venda: ''
     };
     columns = [
         {label: 'Código', fieldName: 'sapProductCode'},
@@ -59,7 +77,9 @@ export default class PriceSearchScreen extends LightningElement {
         {label: 'Safra', fieldName: 'safra'},
         {label: 'Tabela de Preços', fieldName: 'salesCondition'},
         {label: 'Valor Data Informada', fieldName: 'valueDiscounted'},
-        {label: 'Valor Data Safra', fieldName: 'realValue'}
+        {label: 'Valor Data Safra', fieldName: 'realValue'},
+        {label: 'Time de Vendas', fieldName: 'salesTeamName'},
+        {label: 'Escritório de Vendas', fieldName: 'salesOfficeName'}
     ];
 
     connectedCallback() {
@@ -83,7 +103,40 @@ export default class PriceSearchScreen extends LightningElement {
                     this.searchData[field] = event.target.value;
                 } else {
                     const { record } = event.detail;
+                    let currentValue = this.searchData[field];
                     this.searchData[field] = {Id: record.Id, Name: record.Name};
+                    if (field == 'safra') {
+                        if (JSON.stringify(this.searchData.ctv) === '{}') {
+                            this.fieldKey = true;
+                        } else {
+                            this.fieldKey = false;
+                        }
+                    } else if (field == 'ctv') {
+
+                        if (JSON.stringify(this.searchData.safra) === '{}') {
+                            this.fieldKey = true;
+                        } else {
+                            this.fieldKey = false;
+                        }
+
+                        let getCompanyData = {
+                            ctvId: this.isFilled(this.searchData.ctv.Id) ? this.searchData.ctv.Id : '',
+                            accountId: this.isFilled(this.searchData.account.Id) ? this.searchData.account.Id : '',
+                            orderType: 'VendaNormal',
+                            approvalNumber: 1
+                        }
+                        
+                        if (currentValue.Id != this.searchData[field].Id) {
+                            this.showLoading = true;
+                            getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: false, verifyUserType: false, priceScreen: true, childOrder: false})
+                            .then((result) => {
+                                this.showLoading = false;
+                                this.company = JSON.parse(result).listCompanyInfos;
+                                this.salesOrgId = this.company[0].salesOrgId;
+                            });
+                        }
+                        
+                    }
                 }
                 this.searchData = JSON.parse(JSON.stringify(this.searchData));
             }
@@ -96,6 +149,11 @@ export default class PriceSearchScreen extends LightningElement {
         try {
             let field = event.target.name;
             this.searchData[field] = {};
+            if (field == 'safra' || field == 'ctv') {
+                this.fieldKey = true;
+                this.template.querySelector('[data-name="sales_condition"]').clearAll();
+                this.searchData = JSON.parse(JSON.stringify(this.searchData));
+            }
         } catch (err) {
             console.log(err);
         }
@@ -106,111 +164,114 @@ export default class PriceSearchScreen extends LightningElement {
     }
 
     searchProducts() {
-        if (this.searchData.ctv.Id === undefined || this.searchData.safra.Id === undefined || this.searchData.paymentDate == '') {
+        if (this.searchData.ctv.Id === undefined || this.searchData.safra.Id === undefined || this.searchData.paymentDate == '' || this.searchData.sales_condition.Id === undefined) {
             this.showToast('warning', 'Atenção', 'Campos obrigatórios não preenchidos.');
             return;
         }
-
-        let getCompanyData = {
-            ctvId: this.isFilled(this.searchData.ctv.Id) ? this.searchData.ctv.Id : '',
-            accountId: this.isFilled(this.searchData.account.Id) ? this.searchData.account.Id : '',
-            orderType: 'VendaNormal',
-            approvalNumber: 1
-        }
-
         this.showLoading = true;
-        getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: false, verifyUserType: false, priceScreen: true})
+
+        let productParams = {
+            safra: this.searchData.safra.Id,
+            orderType: 'VendaNormal',
+            supplierCenter: this.company[0].supplierCenter,
+            salesOrgId: this.company[0].salesOrgId != null ? this.company[0].salesOrgId : '',
+            salesOfficeId: this.company[0].salesOfficeId != null ? this.company[0].salesOfficeId : '',
+            salesTeamId: this.company[0].salesTeamId != null ? this.company[0].salesTeamId : '',
+            accountId: this.isFilled(this.searchData.account.Id) ? this.searchData.account.Id : '',
+            activitySectorName: '',
+            ctvId: this.isFilled(this.searchData.ctv.Id) ? this.searchData.ctv.Id : '',
+            numberOfRowsToSkip: 0,
+            salesConditionId : this.searchData.sales_condition.Id != null ? this.searchData.sales_condition.Id : '',
+            dontGetSeeds: false,
+            paymentDate: this.headerData.data_pagamento
+        };
+
+        let orderData = {
+            paymentDate: this.searchData.paymentDate != null ? this.searchData.paymentDate : '',
+            salesOrg: this.company[0].salesOrgId != null ? this.company[0].salesOrgId : '',
+            salesOffice: this.company[0].salesOfficeId != null ? this.company[0].salesOfficeId : '',
+            salesTeam: this.company[0].salesTeamId != null ? this.company[0].salesTeamId : '',
+            accountId: this.isFilled(this.searchData.account.Id) ? this.searchData.account.Id : '',
+            safra: this.searchData.safra.Id != null ? this.searchData.safra.Id : '',
+            salesCondition : this.searchData.sales_condition.Id != null ? this.searchData.sales_condition.Id : ''
+        };
+
+        getFinancialInfos({data: JSON.stringify(orderData)})
         .then((result) => {
-            let companyResult = JSON.parse(result).listCompanyInfos;
-            let productParams = {
-                safra: this.searchData.safra.Id,
-                orderType: 'VendaNormal',
-                supplierCenter: companyResult[0].supplierCenter,
-                salesOrgId: companyResult[0].salesOrgId != null ? companyResult[0].salesOrgId : '',
-                salesOfficeId: companyResult[0].salesOfficeId != null ? companyResult[0].salesOfficeId : '',
-                salesTeamId: companyResult[0].salesTeamId != null ? companyResult[0].salesTeamId : '',
-                accountId: this.isFilled(this.searchData.account.Id) ? this.searchData.account.Id : '',
-                activitySectorName: this.selectedCompany.activitySectorName,
-                ctvId: this.isFilled(this.searchData.ctv.Id) ? this.searchData.ctv.Id : '',
-                numberOfRowsToSkip: 0,
-                dontGetSeeds: false,
-                paymentDate: this.searchData.data_pagamento
-            };
+            this.financialInfos = JSON.parse(result);
 
-            let orderData = {
-                paymentDate: this.searchData.paymentDate != null ? this.searchData.paymentDate : '',
-                salesOrg: companyResult[0].salesOrgId != null ? companyResult[0].salesOrgId : '',
-                salesOffice: companyResult[0].salesOfficeId != null ? companyResult[0].salesOfficeId : '',
-                salesTeam: companyResult[0].salesTeamId != null ? companyResult[0].salesTeamId : '',
-                accountId: this.isFilled(this.searchData.account.Id) ? this.searchData.account.Id : '',
-                safra: this.searchData.safra.Id != null ? this.searchData.safra.Id : ''
-            };
+            getProductRecords({
+                searchString: this.productSearch,
+                data: JSON.stringify(productParams),
+                isCommodity: false,
+                productsIds: [],
+                priceScreen: true,
+                getSeedPrices: false,
+                isLimit: false
+            })
+            .then(result => {
+                this.showBaseProducts = result.recordsDataList.length > 0;
+                this.noProductsFound  = result.recordsDataList.length == 0;
+                this.productsPriceMap = result.recordsDataMap;
+                this.salesInfos = result.salesResult;
+                let productRecords = [];
+                
+                for (let index = 0; index < result.recordsDataList.length; index++) {
+                    let priorityInfos = this.getProductByPriority(result.recordsDataList[index]);
 
-            getFinancialInfos({data: JSON.stringify(orderData)})
-            .then((result) => {
-                this.financialInfos = JSON.parse(result);
-
-                getProductRecords({
-                    searchString: this.productSearch,
-                    data: JSON.stringify(productParams),
-                    isCommodity: false,
-                    productsIds: [],
-                    priceScreen: true,
-                    getSeedPrices: false
-                })
-                .then(result => {
-                    this.showBaseProducts = result.recordsDataList.length > 0;
-                    this.productsPriceMap = result.recordsDataMap;
-                    this.salesInfos = result.salesResult;
-                    let productRecords = [];
-                    
-                    for (let index = 0; index < result.recordsDataList.length; index++) {
-                        let priorityInfos = this.getProductByPriority(result.recordsDataList[index]);
-                        let realValue = this.fixDecimalPlacesFront(priorityInfos.listPrice);
-                        let discountedValue = this.calculateDiscountValues(priorityInfos);
-                        
+                    for (let i = 0; i < priorityInfos.length; i++) {
+                        let realValue = this.fixDecimalPlacesFront(priorityInfos[i].listPrice);
+                        let discountedValue = this.calculateDiscountValues(priorityInfos[i]);
                         productRecords.push({
-                            sapProductCode: priorityInfos.sapProductCode,
-                            name: priorityInfos.Name,
-                            productGroupName: priorityInfos.productGroupName,
+                            sapProductCode: priorityInfos[i].sapProductCode,
+                            name: priorityInfos[i].Name,
+                            productGroupName: priorityInfos[i].productGroupName,
                             safra: this.searchData.safra.Name,
-                            salesCondition: priorityInfos.salesCondition,
+                            salesCondition: priorityInfos[i].salesCondition,
                             valueDiscounted: discountedValue,
                             realValue: realValue.split(',').length == 1 ? realValue + ',00' : realValue,
+                            salesTeamName: priorityInfos[i].salesTeamName,
+                            salesOfficeName: priorityInfos[i].salesOfficeName
                         })
                     }
+                    
+                }
 
-                    this.baseProducts = JSON.parse(JSON.stringify(productRecords));
-                    this.showLoading = false;
-                });
-            })
-        });
+                this.baseProducts = JSON.parse(JSON.stringify(productRecords));
+                this.showLoading = false;
+            });
+        })
     }
 
     getProductByPriority(selectedProduct) {
-        let priorityPrice;
+        let priorityPrice = [];
         let productsPrice = this.productsPriceMap;
         let productId = this.isFilled(selectedProduct.Id) ? selectedProduct.Id : selectedProduct.productId;
 
-        let key1 = this.searchData.account.Id + '-' + productId;
-        let key2 = this.salesInfos.segmento + '-' + productId;
-        let key3 = this.salesInfos.salesTeamId + '-' + productId;
-        let key4 = this.salesInfos.salesOfficeId + '-' + productId;
-        let key5 = selectedProduct.productGroupId;
-        let key6 = productId;
+        let key1 = 'G-' + this.searchData.account.Id + '-' + productId;
+        let key2 = 'G-' + this.salesInfos.segmento + '-' + productId;
+        let key3 = 'G-' + this.salesInfos.salesTeamId + '-' + productId;
+        let key4 = 'G-' + this.salesInfos.salesOfficeId + '-' + productId;
+        let key5 = 'G-' + selectedProduct.productGroupId;
+        let key6 = 'G-' + productId;
 
         if (this.isFilled(productsPrice[key1])) {
-            priorityPrice = productsPrice[key1];
-        } else if (this.isFilled(productsPrice[key2])) {
-            priorityPrice = productsPrice[key2];
-        } else if (this.isFilled(productsPrice[key3])) {
-            priorityPrice = productsPrice[key3];
-        } else if (this.isFilled(productsPrice[key4])) {
-            priorityPrice = productsPrice[key4];
-        } else if (this.isFilled(productsPrice[key5])) {
-            priorityPrice = productsPrice[key5];
-        } else if (this.isFilled(productsPrice[key6])) {
-            priorityPrice = productsPrice[key6];
+            priorityPrice.push(productsPrice[key1]);
+        }
+        if (this.isFilled(productsPrice[key2])) {
+            priorityPrice.push(productsPrice[key2]);
+        }
+        if (this.isFilled(productsPrice[key3])) {
+            priorityPrice.push(productsPrice[key3]);
+        }
+        if (this.isFilled(productsPrice[key4])) {
+            priorityPrice.push(productsPrice[key4]);
+        }
+        if (this.isFilled(productsPrice[key5])) {
+            priorityPrice.push(productsPrice[key5]);
+        }
+        if (this.isFilled(productsPrice[key6])) {
+            priorityPrice.push(productsPrice[key6]);
         }
 
         return priorityPrice;
