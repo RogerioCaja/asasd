@@ -79,7 +79,12 @@ global without sharing class IntegrationINVisitsPlanning {
             );
             CalendarHelper.enableTriggerForIntegration();
         }
+        List<String> visitListId = new List<String>();
         for(VisitPlanning__c visit : visitsListToUpsert){
+            visitListId.add(visit.Id);
+        }
+        List<VisitPlanning__c> visitListExternalId = new List<VisitPlanning__c>([SELECT Id, ExternalId__c, ExternalIdApp__c FROM VisitPlanning__c WHERE Id IN : visitListId]);
+        for(VisitPlanning__c visit : visitListExternalId){
             visitPlattingMap.put(visit.ExternalIdApp__c, visit.ExternalId__c);
         }
         if(technicalReportList.size() != 0){

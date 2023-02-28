@@ -2,12 +2,13 @@ public without sharing class CalloutVisits {
 
     
     public static void callIntegration(List<String> visitPlanningIdList){
-        updatePhoto(visitPlanningIdList);
-        sendOrder(visitPlanningIdList);
+        List<String> fotosIdsList = updatePhoto(visitPlanningIdList);
+        sendOrder(visitPlanningIdList, fotosIdsList);
+        
     }
-    public static void updatePhoto(List<String> visitIdList) {
+    public static List<String> updatePhoto(List<String> visitIdList) {
         List<String> technicalReportIdList = new List<String>();
-
+        List<String> photosIdList = new List<String>();
         List<TechnicalReport__c> technicalReportList  = new List<TechnicalReport__c>([SELECT id, ExternalId__c, Note__c, rtrControl__c, VisitPlanning__c, EndTime__c, EndDate__c, Status__c, CancellationReason__c FROM TechnicalReport__c WHERE VisitPlanning__c =: visitIdList]);
         for (TechnicalReport__c technical : technicalReportList) {
             technicalReportIdList.add(technical.Id); 
@@ -15,16 +16,18 @@ public without sharing class CalloutVisits {
         List<Fotos__c> photoList  = new List<Fotos__c>([SELECT id, RTR__c, Observation__c, ExternalId__c, FotoControl__c, IsIntegrated__c FROM Fotos__c WHERE RTR__c =: technicalReportIdList AND IsIntegrated__c = false]);
         for(Fotos__c fotos : photoList){
             fotos.IsIntegrated__c = true;
+            photosIdList.add(fotos.Id);
         }
-
+        
         if(!photoList.isEmpty()){
             FotosHelper.disableTrigger();
             upsert photoList;
             FotosHelper.enableTrigger();
         }
+        return photosIdList;
     }
     @future(callout = true)
-    public static void sendOrder(List<String> visitIdList) {
+    public static void sendOrder(List<String> visitIdList, List<String> fotosIdsList) {
 
         List<RequestParameters> request = new List<RequestParameters>();
         List<String> technicalReportIdList = new List<String>();
@@ -50,7 +53,7 @@ public without sharing class CalloutVisits {
                 technicalReportMap.put(technical.VisitPlanning__c,newTechnicalReportList);
             }
         }
-        List<Fotos__c> photoList  = new List<Fotos__c>([SELECT id, RTR__c, Observation__c, ExternalId__c, FotoControl__c, IsIntegrated__c FROM Fotos__c WHERE RTR__c =: technicalReportIdList AND IsIntegrated__c = false]);
+        List<Fotos__c> photoList  = new List<Fotos__c>([SELECT id, RTR__c, Observation__c, ExternalId__c, FotoControl__c, IsIntegrated__c FROM Fotos__c WHERE RTR__c =: technicalReportIdList AND Id =: fotosIdsList]);
         Map<String, List<Fotos__c>> fotoMap = new Map<String, List<Fotos__c>>();
         Map<String, Fotos__c> fotoIdMap = new Map<String, Fotos__c>();
         for(Fotos__c fotos : photoList){
