@@ -82,21 +82,59 @@ public without sharing class CalloutVisits {
         }
 		System.debug('photoBase64Map ' + photoBase64Map);
         
-        // Integration__c data = Integration__c.getInstance('Visits OUT');
-        // String payloadToken = 'grant_type=client_credentials';
-        // String endpointToken = (!Test.isRunningTest() ? data.UrlToken__c : 'http://callout.My_Named_Credential.com/some/path');
-        // Map<String, String> headersMapToken = new Map<String, String>();
-        // headersMapToken.put('Content-type', 'application/x-www-form-urlencoded');
-        // headersMapToken.put('Authorization', data.Token__c);
-        // IntegrationUtils.RequestResponseObject responseObject2 = IntegrationUtils.executeCallout(endpointToken, payloadToken, headersMapToken);
         
-        // if (responseObject2.success) {
-        //     HttpResponse response = responseObject2.response;
-        //     ResponseParametersToken responses = (ResponseParametersToken) JSON.deserialize(response.getBody(), ResponseParametersToken.class);
-        //     return responses.access_token;
-        // } else {
-        //     return null;
-        // }
+
+        for (VisitPlanning__c visit : visitUpdatedList) {
+            //criar map string,List technicalReport 
+            List<TechnicalReport__c> newTechnicalReportList = technicalReportMap.get(visit.Id); 
+            request.add(new RequestParameters(visit,newTechnicalReportList, fotoMap, photoBase64Map));
+
+        }
+
+        String code = (!Test.isRunningTest() ? getAcessCode() : 'acessToken');
+        System.debug('AcessCode: '+ code);
+        String payload = JSON.serialize(request);
+        System.debug('PayloadCheck: '+ payload);
+        
+        //Metodo para busca de Access Token, depende de cada projeto, podendo estar presente dentro de uma custom settings ou relacionado com outra requisição.
+        String accessToken = code;
+        //Url mock: https://aabb2740-69b0-4737-925c-2c40367a3737.mock.pstmn.io//CalloutCTVCarteira
+        //Path geralmente cadastrado dentro de ua customSettings 
+        Integration__c data = Integration__c.getInstance('Visits OUT');
+        String endpoint = (!Test.isRunningTest() ? data.Url__c : 'http://callout.My_Named_Credential.com/some/path');
+        Map<String, String> headersMap = new Map<String, String>();
+        headersMap.put('Content-type', 'application/json');
+        headersMap.put('Authorization', 'Bearer '+ accessToken);
+        
+        IntegrationUtils.RequestResponseObject responseObject = IntegrationUtils.executeCallout(endpoint, payload, headersMap);
+
+        if (responseObject.success) {
+
+            HttpResponse response = responseObject.response;
+
+            IntegrationLog.createLog('Visits OUT', 'OUT', response.getBody(), payload, false);
+            System.debug('response.getBody(): '+ response.getBody());
+        } else {
+            IntegrationLog.createLog('Visits OUT', 'OUT', responseObject.exceptionObject.getMessage(), payload, true);
+        } 
+    }
+    public static String getAcessCode(){
+        
+        Integration__c data = Integration__c.getInstance('Visits OUT');
+        String payloadToken = 'grant_type=client_credentials';
+        String endpointToken = (!Test.isRunningTest() ? data.UrlToken__c : 'http://callout.My_Named_Credential.com/some/path');
+        Map<String, String> headersMapToken = new Map<String, String>();
+        headersMapToken.put('Content-type', 'application/x-www-form-urlencoded');
+        headersMapToken.put('Authorization', data.Token__c);
+        IntegrationUtils.RequestResponseObject responseObject2 = IntegrationUtils.executeCallout(endpointToken, payloadToken, headersMapToken);
+        
+        if (responseObject2.success) {
+            HttpResponse response = responseObject2.response;
+            ResponseParametersToken responses = (ResponseParametersToken) JSON.deserialize(response.getBody(), ResponseParametersToken.class);
+            return responses.access_token;
+        } else {
+            return null;
+        }
     }
 
     //! Preparing data to Callout
@@ -104,42 +142,42 @@ public without sharing class CalloutVisits {
         public Object header;
 
         public RequestParameters(VisitPlanning__c visit, List<TechnicalReport__c> technicalReportList, Map<String, List<Fotos__c>> fotoMap, Map<String, String> photoBase64Map){
-            // CalloutVisits.HeaderInsert header = new CalloutVisits.HeaderInsert();
+            CalloutVisits.HeaderInsert header = new CalloutVisits.HeaderInsert();
 
-            // header.Name  = visit.Name;
-            // header.BpCode = visit.MainBP__r.ExternalId__c;
-            // header.BpPropertyCode = visit.BP_Property__r.ExternalId__c;
-            // header.PlanStartDate = visit.InitialDate__c;
-            // header.PlanEndDate = visit.EndDate__c;
-            // header.StartTime = visit.StartTime__c;
-            // header.EndTime = visit.EndTime__c;
-            // header.Status = visit.Status__c;
-            // header.Objective = visit.Objetivo__c;
-            // header.Crop = visit.Safra__r.Code__c;
-            // header.Culture = visit.Culture__r.Codigo__c;
-            // header.Email = visit.Email__c;
-            // header.Presential = visit.Presential__c;
-            // header.Reminder = visit.Reminder__c;
-            // header.Displacement = visit.Displacement__c;
-            // header.CtvVisit = visit.VisitSeller__r.CodigoSap__c;
-            // header.Observation = visit.Note__c;
-            // header.ReasonRescheduling = visit.ReschedulingReason__c;
-            // // header.ExternalCodeSalesforce = visit.ExternalId__c;
-            // header.ExternalCodeApp = visit.ExternalIdApp__c;
-            // header.ReasonCancellation = visit.CancellationReason__c;
+            header.Name  = visit.Name;
+            header.BpCode = visit.MainBP__r.ExternalId__c;
+            header.BpPropertyCode = visit.BP_Property__r.ExternalId__c;
+            header.PlanStartDate = visit.InitialDate__c;
+            header.PlanEndDate = visit.EndDate__c;
+            header.StartTime = visit.StartTime__c;
+            header.EndTime = visit.EndTime__c;
+            header.Status = visit.Status__c;
+            header.Objective = visit.Objetivo__c;
+            header.Crop = visit.Safra__r.Code__c;
+            header.Culture = visit.Culture__r.Codigo__c;
+            header.Email = visit.Email__c;
+            header.Presential = visit.Presential__c;
+            header.Reminder = visit.Reminder__c;
+            header.Displacement = visit.Displacement__c;
+            header.CtvVisit = visit.VisitSeller__r.CodigoSap__c;
+            header.Observation = visit.Note__c;
+            header.ReasonRescheduling = visit.ReschedulingReason__c;
+            header.ExternalCodeSalesforce = visit.ExternalId__c;
+            header.ExternalCodeApp = visit.ExternalIdApp__c;
+            header.ReasonCancellation = visit.CancellationReason__c;
 
 
-            // List<CalloutVisits.TechnicalReportsParameters> newtechnicalReportList = new List<CalloutVisits.TechnicalReportsParameters>();
-            // if(technicalReportList != null){
-            //     for(TechnicalReport__c technical : technicalReportList){
-            //         newtechnicalReportList.add(new CalloutVisits.TechnicalReportsParameters(technical, fotoMap, photoBase64Map));
-            //         System.debug('technicalReportList'+ technicalReportList);
-            //     }
-            // }else{
-            //     newtechnicalReportList.add(new CalloutVisits.TechnicalReportsParameters(null, fotoMap, photoBase64Map));
-            // }
-            // header.TechnicalReports = newtechnicalReportList;
-            // this.header = header;
+            List<CalloutVisits.TechnicalReportsParameters> newtechnicalReportList = new List<CalloutVisits.TechnicalReportsParameters>();
+            if(technicalReportList != null){
+                for(TechnicalReport__c technical : technicalReportList){
+                    newtechnicalReportList.add(new CalloutVisits.TechnicalReportsParameters(technical, fotoMap, photoBase64Map));
+                    System.debug('technicalReportList'+ technicalReportList);
+                }
+            }else{
+                newtechnicalReportList.add(new CalloutVisits.TechnicalReportsParameters(null, fotoMap, photoBase64Map));
+            }
+            header.TechnicalReports = newtechnicalReportList;
+            this.header = header;
         }
     }
     public class HeaderInsert{
