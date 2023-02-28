@@ -453,15 +453,16 @@ public without sharing class FactoryBuilder {
             this.ZZCOD_CULTURA = order.Culture__r.Codigo__c;
             this.ZZPED_CRM = order.OrderNumber;
             this.ZZDATA_CARENCIA = String.valueOf(delimiter.FinancialBaseDate__c).replace('-', '');
-            this.ZZDATA_VENCTO = String.valueOf(order.PaymentDate__c).replace('-', '');
             this.PRICE_LIST = String.valueOf(order.SalesCondition__r.ExternalId__c).leftPad(2, '0');
             if(order.OrderReference__c != null){
-                Order orderReference = [SELECT EffectiveOrderDate__c, EffectiveDate FROM Order WHERE Id =: order.OrderReference__c LIMIT 1];
+                Order orderReference = [SELECT EffectiveOrderDate__c, EffectiveDate, PaymentDate__c FROM Order WHERE Id =: order.OrderReference__c LIMIT 1];
                 if(orderReference != null){
                     this.PRICE_DATE = orderReference.EffectiveOrderDate__c == null ? String.valueOf(orderReference.EffectiveDate).replace('-', '') : String.valueOf(orderReference.EffectiveOrderDate__c).replace('-', '');
+                    this.ZZDATA_VENCTO = String.valueOf(orderReference.PaymentDate__c).replace('-', '');
                 }
             }
             else{
+                this.ZZDATA_VENCTO = String.valueOf(order.PaymentDate__c).replace('-', '');
                 this.PRICE_DATE = order.EffectiveOrderDate__c == null ? String.valueOf(order.EffectiveDate).replace('-', '') : String.valueOf(order.EffectiveOrderDate__c).replace('-', '');
             }
             this.REF_DOC = order.OrderReference__c != null ? order.OrderReference__r.CodigoSap__c : '';
@@ -567,12 +568,13 @@ public without sharing class FactoryBuilder {
             this.ZZCOD_CULTURA = order.Culture__r.Codigo__c;
             this.ZZPED_CRM = order.OrderNumber;
             this.ZZDATA_CARENCIA = String.valueOf(delimiter.FinancialBaseDate__c).replace('-', '');
-            this.ZZDATA_VENCTO = String.valueOf(order.PaymentDate__c).replace('-', '');
             this.PRICE_LIST = String.valueOf(order.SalesCondition__r.ExternalId__c).leftPad(2, '0');
+
             if(order.OrderReference__c != null){
-                Order orderReference = [SELECT EffectiveOrderDate__c, EffectiveDate FROM Order WHERE Id =: order.OrderReference__c LIMIT 1];
+                Order orderReference = [SELECT EffectiveOrderDate__c, EffectiveDate, PaymentDate__c FROM Order WHERE Id =: order.OrderReference__c LIMIT 1];
                 if(orderReference != null){
                     this.PRICE_DATE = orderReference.EffectiveOrderDate__c == null ? String.valueOf(orderReference.EffectiveDate).replace('-', '') : String.valueOf(orderReference.EffectiveOrderDate__c).replace('-', '');
+                    this.ZZDATA_VENCTO = String.valueOf(orderReference.PaymentDate__c).replace('-', '');
                 }
             }
             else{
@@ -580,6 +582,7 @@ public without sharing class FactoryBuilder {
                 if(hasSeed){
                     this.PRICE_DATE = String.valueOf(order.PaymentDate__c).replace('-', '');
                 }
+                this.ZZDATA_VENCTO = String.valueOf(order.PaymentDate__c).replace('-', '');
             }
             this.REF_DOC = order.OrderReference__c != null ? order.OrderReference__r.CodigoSap__c : '';
             this.CSTCNDGRP1 = statusSeller.get(order.SalesCTV__r.SellerType__c);
@@ -660,15 +663,16 @@ public without sharing class FactoryBuilder {
             this.ZZCOD_CULTURA = order.Culture__r.Codigo__c;
             this.ZZPED_CRM = order.OrderNumber;
             this.ZZDATA_CARENCIA = String.valueOf(delimiter.FinancialBaseDate__c).replace('-', '');
-            this.ZZDATA_VENCTO = String.valueOf(order.PaymentDate__c).replace('-', '');
             this.PRICE_LIST = String.valueOf(order.SalesCondition__r.ExternalId__c).leftPad(2, '0');
             if(order.OrderReference__c != null){
-                Order orderReference = [SELECT EffectiveOrderDate__c, EffectiveDate FROM Order WHERE Id =: order.OrderReference__c LIMIT 1];
+                Order orderReference = [SELECT EffectiveOrderDate__c, EffectiveDate, PaymentDate__c FROM Order WHERE Id =: order.OrderReference__c LIMIT 1];
                 if(orderReference != null){
                     this.PRICE_DATE = orderReference.EffectiveOrderDate__c == null ? String.valueOf(orderReference.EffectiveDate).replace('-', '') : String.valueOf(orderReference.EffectiveOrderDate__c).replace('-', '');
+                    this.ZZDATA_VENCTO = String.valueOf(orderReference.PaymentDate__c).replace('-', '');
                 }
             }
             else{
+                this.ZZDATA_VENCTO = String.valueOf(order.PaymentDate__c).replace('-', '');
                 this.PRICE_DATE = order.EffectiveOrderDate__c == null ? String.valueOf(order.EffectiveDate).replace('-', '') : String.valueOf(order.EffectiveOrderDate__c).replace('-', '');
             }
             this.REF_DOC = order.OrderReference__c != null ? order.OrderReference__r.CodigoSap__c : '';
@@ -786,12 +790,12 @@ public without sharing class FactoryBuilder {
             this.ZZCOD_CULTURA = order.Culture__r.Codigo__c;
             this.ZZPED_CRM = order.OrderNumber;
             this.ZZDATA_CARENCIA = String.valueOf(delimiter.FinancialBaseDate__c).replace('-', '');
-            this.ZZDATA_VENCTO = String.valueOf(order.PaymentDate__c).replace('-', '');
             this.PRICE_LIST = String.valueOf(order.SalesCondition__r.ExternalId__c).leftPad(2, '0');
             if(order.OrderReference__c != null){
-                Order orderReference = [SELECT EffectiveOrderDate__c, EffectiveDate FROM Order WHERE Id =: order.OrderReference__c LIMIT 1];
+                Order orderReference = [SELECT EffectiveOrderDate__c, EffectiveDate, PaymentDate__c FROM Order WHERE Id =: order.OrderReference__c LIMIT 1];
                 if(orderReference != null){
                     this.PRICE_DATE = orderReference.EffectiveOrderDate__c == null ? String.valueOf(orderReference.EffectiveDate).replace('-', '') : String.valueOf(orderReference.EffectiveOrderDate__c).replace('-', '');
+                    this.ZZDATA_VENCTO = String.valueOf(orderReference.PaymentDate__c).replace('-', '');
                 }
             }
             else{
@@ -799,6 +803,7 @@ public without sharing class FactoryBuilder {
                 if(hasSeed){
                     this.PRICE_DATE = String.valueOf(order.PaymentDate__c).replace('-', '');
                 }
+                this.ZZDATA_VENCTO = String.valueOf(order.PaymentDate__c).replace('-', '');
             }
             this.REF_DOC = order.OrderReference__c != null ? order.OrderReference__r.CodigoSap__c : '';
             this.ZZREFBARTER = order.CodigoSap__c;
