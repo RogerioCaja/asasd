@@ -330,6 +330,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Account.StorageBp__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Account.StateRegistration__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1566,6 +1571,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>NotaFiscal__c.Weight__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Order.ACMContract__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -3554,7 +3564,7 @@
         <tab>PotencialCompra__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
-    <tabSettings>
+   <tabSettings>
         <tab>PriceSearch</tab>
         <visibility>Visible</visibility>
     </tabSettings>
