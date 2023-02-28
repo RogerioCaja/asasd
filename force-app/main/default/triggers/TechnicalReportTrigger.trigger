@@ -15,9 +15,6 @@ trigger TechnicalReportTrigger on TechnicalReport__c (before insert, after inser
             when AFTER_UPDATE{
                 handler.OnAfterUpdate();
             }
-            when BEFORE_UPDATE{
-                //handler.OnBeforeUpdate();
-            }
             when AFTER_DELETE{
                 //BEFORE DELETE Method
             }
