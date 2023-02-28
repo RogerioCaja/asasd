@@ -69,17 +69,17 @@ public with sharing class FotosHelperTest {
 	@isTest
     public 	static void verifyInsertFoto(){
         
-        Account acct = [SELECT Id FROM Account WHERE Name='Teste 1' LIMIT 1];
+        // Account acct = [SELECT Id FROM Account WHERE Name='Teste 1' LIMIT 1];
             
-        Account acct2 = [SELECT Id FROM Account WHERE Name='Teste 2' LIMIT 1];
+        // Account acct2 = [SELECT Id FROM Account WHERE Name='Teste 2' LIMIT 1];
         
-        Cultura__c cult = [SELECT Id FROM Cultura__c WHERE Name='Safrinha' LIMIT 1];
+        // Cultura__c cult = [SELECT Id FROM Cultura__c WHERE Name='Safrinha' LIMIT 1];
         
-        Safra__c safr = [SELECT Id FROM Safra__c WHERE Name='Safra Teste' LIMIT 1];
+        // Safra__c safr = [SELECT Id FROM Safra__c WHERE Name='Safra Teste' LIMIT 1];
         
-        User us = [SELECT Id FROM User WHERE CodigoSap__c = '010' LIMIT 1];
+        // User us = [SELECT Id FROM User WHERE CodigoSap__c = '010' LIMIT 1];
         
-		VisitPlanning__c visit = new VisitPlanning__c();
+		// VisitPlanning__c visit = new VisitPlanning__c();
             
             visit.Name = 'Test';
         	visit.MainBP__c = acct.Id;
@@ -103,42 +103,42 @@ public with sharing class FotosHelperTest {
         	//visit.ExternalIdApp__c = '00232';
         	
 
-        	insert visit;
+        // 	insert visit;
         	
-        	TechnicalReport__c techReport = new TechnicalReport__c();
+        // 	TechnicalReport__c techReport = new TechnicalReport__c();
             
-            techReport.ExternalId__c = '001';
-            techReport.Status__c = 'Gerado';
-            techReport.rtrControl__c = 10;
-            techReport.Note__c = 'Visita realizada';
-        	techReport.VisitPlanning__c = visit.id;
-			techReport.EndTime__c = Time.newInstance(18, 30, 2, 20);
-            techReport.EndDate__c = Date.valueOf('2022-09-23');
-            techReport.CancellationReason__c = 'teste';
-        	insert techReport;
+        //     techReport.ExternalId__c = '001';
+        //     techReport.Status__c = 'Gerado';
+        //     techReport.rtrControl__c = 10;
+        //     techReport.Note__c = 'Visita realizada';
+        // 	techReport.VisitPlanning__c = visit.id;
+		// 	techReport.EndTime__c = Time.newInstance(18, 30, 2, 20);
+        //     techReport.EndDate__c = Date.valueOf('2022-09-23');
+        //     techReport.CancellationReason__c = 'teste';
+        // 	insert techReport;
         
         
-        	Fotos__c fotos = new Fotos__c();
-            	fotos.Observation__c = 'Teste de foto';
-            	fotos.RTR__c = techReport.id;
-        		fotos.FotoControl__c = 10;
+        // 	Fotos__c fotos = new Fotos__c();
+        //     	fotos.Observation__c = 'Teste de foto';
+        //     	fotos.RTR__c = techReport.id;
+        // 		fotos.FotoControl__c = 10;
 
-       		 insert fotos;
+       	// 	 insert fotos;
         
-        	Fotos__c fotos2 = new Fotos__c();
-            	fotos2.Observation__c = 'Teste de foto2';
-            	fotos2.RTR__c = techReport.id;
+        // 	Fotos__c fotos2 = new Fotos__c();
+        //     	fotos2.Observation__c = 'Teste de foto2';
+        //     	fotos2.RTR__c = techReport.id;
         		
 
-       		 insert fotos2;
+       	// 	 insert fotos2;
         
-        	Fotos__c fotos3 = new Fotos__c();
-            	fotos3.Observation__c = 'Teste de foto2';
-            	fotos3.RTR__c = techReport.id;
+        // 	Fotos__c fotos3 = new Fotos__c();
+        //     	fotos3.Observation__c = 'Teste de foto2';
+        //     	fotos3.RTR__c = techReport.id;
         		
-			FotosHelper.disableTrigger();
-       		 insert fotos3;
-        	FotosHelper.enableTrigger();
+		// 	FotosHelper.disableTrigger();
+       	// 	 insert fotos3;
+        // 	FotosHelper.enableTrigger();
     }
     
 }

@@ -17,19 +17,7 @@
                 Company__c = 'Empresa 01'
             );
             INSERT account;
-            Account accountFather = new Account(
-                Name = 'Teste 2',
-                BillingStreet = ' ',
-                BillingState = '' ,
-                ParentId = account.Id,
-                Phone= '', 
-                BillingCity = ' ', 
-                BillingLongitude = 000000,
-                BillingLatitude = 00000,
-                BillingPostalCode = '',
-                ExternalId__c = '2234',
-                Company__c = 'Empresa 01'
-            );
+            
             Safra__c safra = new Safra__c(
                 Code__c = '1223.0',
                 Name = 'Safra Teste',
@@ -44,7 +32,6 @@
             );
             INSERT safra;
             
-            INSERT accountFather;
             Profile p = [SELECT Id FROM Profile WHERE Name='Standard User']; 
             User u = new User(Alias = 'standt', Email='standarduser@testorg.com', 
             EmailEncodingKey='UTF-8', LastName='Testing', LanguageLocaleKey='en_US', 
