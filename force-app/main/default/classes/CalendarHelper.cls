@@ -34,13 +34,7 @@ public static Boolean disableTriggerForIntegration(){
 public static Boolean enableTriggerForIntegration(){
     return isEnaBledForIntegration = true;
 }
-public static void updateExternalId(List<VisitPlanning__c> visitPlanningList) {
 
-    for(VisitPlanning__c visitPlanning : visitPlanningList){
-        if(visitPlanning.ExternalId__c == null || visitPlanning.ExternalId__c == '')
-           visitPlanning.ExternalId__c = String.valueOf(visitPlanning.MainBP__c) + String.valueOf(visitPlanning.BP_Property__c) + visitPlanning.InitialDate__c + visitPlanning.EndDate__c + String.valueOf(visitPlanning.VisitSeller__c);
-    }
-}
 public static void callVisitsIntegration(List<VisitPlanning__c> visitPlanningList) {
     List<String> visitIdList = new List<String>();
     for(VisitPlanning__c visit : visitPlanningList){
@@ -50,13 +44,11 @@ public static void callVisitsIntegration(List<VisitPlanning__c> visitPlanningLis
 }
 
 public static void createCalendarEvent(List<VisitPlanning__c> visitPlanningList) {
-    //List<SObject_Visit> visitList = new List<SObject_Visit>();
     List<Event> eventList = new List<Event>();
     
 
 
     for(VisitPlanning__c visitPlanning : visitPlanningList){
-        //if()//DateTime.newInstance(withDate.date(), withTime.time())
         Long dt1Long = DateTime.newInstance(visitPlanning.InitialDate__c, visitPlanning.StartTime__c).getTime();
         System.debug('dt1Long ' + dt1Long);
         Long dt2Long = DateTime.newInstance(visitPlanning.EndDate__c, visitPlanning.EndTime__c).getTime();
@@ -76,14 +68,12 @@ public static void createCalendarEvent(List<VisitPlanning__c> visitPlanningList)
 }
 
 public static void updateCalendarEvent(Map<Id, VisitPlanning__c> visitPlanningMap) {
-    //List<SObject_Visit> visitList = new List<SObject_Visit>();
     
     List<String> visitId = new List<String>();
     
     
 
     for(VisitPlanning__c visitPlanning : visitPlanningMap.values()){
-        //if()//DateTime.newInstance(withDate.date(), withTime.time())
         visitId.add(visitPlanning.Id);
     }
 
