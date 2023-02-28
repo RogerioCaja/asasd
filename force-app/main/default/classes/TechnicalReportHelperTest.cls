@@ -99,7 +99,7 @@ public class TechnicalReportHelperTest {
         	visit.Note__c = 'test1';
         	visit.ReschedulingReason__c = 'test1';
         	visit.CancellationReason__c = 'test1';
-        	visit.ExternalId__c = '00232';
+        	//visit.ExternalId__c = '00232';
         	
 
         	insert visit;
