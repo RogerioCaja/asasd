@@ -575,7 +575,7 @@ public without sharing class FactoryBuilder {
                 if(orderReference != null){
                     this.PRICE_DATE = orderReference.EffectiveOrderDate__c == null ? String.valueOf(orderReference.EffectiveDate).replace('-', '') : String.valueOf(orderReference.EffectiveOrderDate__c).replace('-', '');
                     if(hasSeed){
-                        this.PRICE_DATE = String.valueOf(order.PaymentDate__c).replace('-', '');
+                        this.PRICE_DATE = String.valueOf(orderReference.PaymentDate__c).replace('-', '');
                     }
                     this.ZZDATA_VENCTO = String.valueOf(orderReference.PaymentDate__c).replace('-', '');
                 }
@@ -799,7 +799,7 @@ public without sharing class FactoryBuilder {
                 if(orderReference != null){
                     this.PRICE_DATE = orderReference.EffectiveOrderDate__c == null ? String.valueOf(orderReference.EffectiveDate).replace('-', '') : String.valueOf(orderReference.EffectiveOrderDate__c).replace('-', '');
                     if(hasSeed){
-                        this.PRICE_DATE = String.valueOf(order.PaymentDate__c).replace('-', '');
+                        this.PRICE_DATE = String.valueOf(orderReference.PaymentDate__c).replace('-', '');
                     }
                     this.ZZDATA_VENCTO = String.valueOf(orderReference.PaymentDate__c).replace('-', '');
                 }
