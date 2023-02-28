@@ -302,7 +302,7 @@ public without sharing class OrderScreenController {
 
     public static Set<Id> getTerritoryAccounts() {
         try {
-            Id sellerTerritoryId;
+            Set<Id> sellerTerritoryIds = new Set<Id>();
             String userTerritoryType = '';
             Set<Id> userTerritories = new Set<Id>();
             List<String> territoryTypes = new List<String>{'Torre', 'SalesOrg', 'SalesOffice', 'SalesTeam', 'SellerPosition'};
@@ -315,7 +315,7 @@ public without sharing class OrderScreenController {
                  WHERE UserId =: UserInfo.getUserId()
             ]) {
 				if (userAssociation.Territory2.Territory2Type.DeveloperName == 'SellerPosition') {
-                    sellerTerritoryId = userAssociation.Territory2Id;
+                    sellerTerritoryIds.add(userAssociation.Territory2Id);
                 }
 
                 userTerritories.add(userAssociation.Territory2Id);
@@ -329,7 +329,7 @@ public without sharing class OrderScreenController {
 			else if (userTerritoryType == 'SalesOrg') territoryQuery += 'WHERE ParentTerritory2.ParentTerritory2.ParentTerritory2Id IN: userTerritories';
 			else if (userTerritoryType == 'SalesOffice') territoryQuery += 'WHERE ParentTerritory2.ParentTerritory2Id IN: userTerritories';
 			else if (userTerritoryType == 'SalesTeam') territoryQuery += 'WHERE ParentTerritory2Id IN: userTerritories';
-			else if (userTerritoryType == 'SellerPosition') territoryQuery += 'WHERE Id =: sellerTerritoryId';
+			else if (userTerritoryType == 'SellerPosition') territoryQuery += 'WHERE Id IN: sellerTerritoryIds';
 			else territoryQuery += 'WHERE Id = null';
 			
 			for(SObject sobj : Database.query(territoryQuery)) {
