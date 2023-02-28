@@ -3,135 +3,135 @@ public without sharing class CalloutVisits {
     
     public static void callIntegration(List<String> visitPlanningIdList){
         updatePhoto(visitPlanningIdList);
-        sendOrder(visitPlanningIdList);
+        // sendOrder(visitPlanningIdList);
     }
     public static void updatePhoto(List<String> visitIdList) {
-        List<String> technicalReportIdList = new List<String>();
+    //     List<String> technicalReportIdList = new List<String>();
 
-        List<TechnicalReport__c> technicalReportList  = new List<TechnicalReport__c>([SELECT id, ExternalId__c, Note__c, rtrControl__c, VisitPlanning__c, EndTime__c, EndDate__c, Status__c, CancellationReason__c FROM TechnicalReport__c WHERE VisitPlanning__c =: visitIdList]);
-        for (TechnicalReport__c technical : technicalReportList) {
-            technicalReportIdList.add(technical.Id); 
-        }
-        List<Fotos__c> photoList  = new List<Fotos__c>([SELECT id, RTR__c, Observation__c, ExternalId__c, FotoControl__c, IsIntegrated__c FROM Fotos__c WHERE RTR__c =: technicalReportIdList AND IsIntegrated__c = false]);
-        for(Fotos__c fotos : photoList){
-            fotos.IsIntegrated__c = true;
-        }
+    //     List<TechnicalReport__c> technicalReportList  = new List<TechnicalReport__c>([SELECT id, ExternalId__c, Note__c, rtrControl__c, VisitPlanning__c, EndTime__c, EndDate__c, Status__c, CancellationReason__c FROM TechnicalReport__c WHERE VisitPlanning__c =: visitIdList]);
+    //     for (TechnicalReport__c technical : technicalReportList) {
+    //         technicalReportIdList.add(technical.Id); 
+    //     }
+    //     List<Fotos__c> photoList  = new List<Fotos__c>([SELECT id, RTR__c, Observation__c, ExternalId__c, FotoControl__c, IsIntegrated__c FROM Fotos__c WHERE RTR__c =: technicalReportIdList AND IsIntegrated__c = false]);
+    //     for(Fotos__c fotos : photoList){
+    //         fotos.IsIntegrated__c = true;
+    //     }
 
-        if(!photoList.isEmpty()){
-            FotosHelper.disableTrigger();
-            upsert photoList;
-            FotosHelper.enableTrigger();
-        }
+    //     if(!photoList.isEmpty()){
+    //         FotosHelper.disableTrigger();
+    //         upsert photoList;
+    //         FotosHelper.enableTrigger();
+    //     }
+    // }
+    // @future(callout = true)
+    // public static void sendOrder(List<String> visitIdList) {
+
+    //     List<RequestParameters> request = new List<RequestParameters>();
+    //     List<String> technicalReportIdList = new List<String>();
+    //     List<String> photoIdList = new List<String>();
+    //     List<String> contentDocumentIdList = new List<String>();
+
+    //     List<VisitPlanning__c> visitUpdatedList = new List<VisitPlanning__c>([SELECT Id,Name, MainBP__r.ExternalId__c, BP_Property__r.ExternalId__c, InitialDate__c, EndDate__c, StartTime__c, EndTime__c, 
+    //         Status__c, Objetivo__c, Safra__r.Code__c, Culture__r.Codigo__c, Email__c, ExternalIdApp__c, Presential__c, Reminder__c, Displacement__c, VisitSeller__r.CodigoSap__c, Note__c, ReschedulingReason__c, 
+    //         CancellationReason__c, ExternalId__c FROM VisitPlanning__c WHERE id IN: visitIdList]);
+
+    //     List<TechnicalReport__c> technicalReportList  = new List<TechnicalReport__c>([SELECT id, ExternalId__c, Note__c, rtrControl__c, VisitPlanning__c, EndTime__c, EndDate__c, Status__c, CancellationReason__c FROM TechnicalReport__c WHERE VisitPlanning__c =: visitIdList]);
+    //     Map<String, List<TechnicalReport__c>> technicalReportMap = new Map<String, List<TechnicalReport__c>>();
+    //     for (TechnicalReport__c technical : technicalReportList) {
+    //         technicalReportIdList.add(technical.Id); 
+
+    //         if(technicalReportMap.containsKey(technical.VisitPlanning__c)){
+    //             List<TechnicalReport__c> newTechnicalReportList = technicalReportMap.get(technical.VisitPlanning__c);
+    //             newTechnicalReportList.add(technical);
+    //             technicalReportMap.put(technical.VisitPlanning__c,newTechnicalReportList);
+    //         }else{
+    //             List<TechnicalReport__c> newTechnicalReportList = new List<TechnicalReport__c>();
+    //             newTechnicalReportList.add(technical);
+    //             technicalReportMap.put(technical.VisitPlanning__c,newTechnicalReportList);
+    //         }
+    //     }
+    //     List<Fotos__c> photoList  = new List<Fotos__c>([SELECT id, RTR__c, Observation__c, ExternalId__c, FotoControl__c, IsIntegrated__c FROM Fotos__c WHERE RTR__c =: technicalReportIdList AND IsIntegrated__c = false]);
+    //     Map<String, List<Fotos__c>> fotoMap = new Map<String, List<Fotos__c>>();
+    //     Map<String, Fotos__c> fotoIdMap = new Map<String, Fotos__c>();
+    //     for(Fotos__c fotos : photoList){
+    //         fotoIdMap.put(fotos.Id,fotos);
+    //         photoIdList.add(fotos.id);
+    //         if(fotoMap.containsKey(fotos.RTR__c)){
+    //             List<Fotos__c> newFotoList = fotoMap.get(fotos.RTR__c);
+    //             newFotoList.add(fotos);
+    //             fotoMap.put(fotos.RTR__c,newFotoList);
+    //         }else{
+    //             List<Fotos__c> newfotoList = new List<Fotos__c>();
+    //             newfotoList.add(fotos);
+    //             fotoMap.put(fotos.RTR__c,newfotoList);
+    //         }
+    //     }
+    //     List<ContentDocumentLink> contendLinkList = new List<ContentDocumentLink>();
+    //     if(!photoIdList.isEmpty()){
+    //         contendLinkList = [SELECT Id, LinkedEntityId, ContentDocumentId, ContentDocument.LatestPublishedVersion.VersionData FROM ContentDocumentLink WHERE LinkedEntityId IN: photoIdList]; 
+    //     }
+    //     System.debug('photoIdList ' + photoIdList);
+    //     System.debug('contendLinkList ' + contendLinkList);
+    //     Map<String, String> photoBase64Map = new Map<String, String>();
+    //     for(ContentDocumentLink contendLink : contendLinkList){
+    //         Fotos__c photo = fotoIdMap.get(contendLink.LinkedEntityId);
+    //         photoBase64Map.put(photo.Id,EncodingUtil.base64Encode(contendLink.ContentDocument.LatestPublishedVersion.VersionData));
+    //     }
+	// 	System.debug('photoBase64Map ' + photoBase64Map);
+        
+        
+
+    //     for (VisitPlanning__c visit : visitUpdatedList) {
+    //         //criar map string,List technicalReport 
+    //         List<TechnicalReport__c> newTechnicalReportList = technicalReportMap.get(visit.Id); 
+    //         request.add(new RequestParameters(visit,newTechnicalReportList, fotoMap, photoBase64Map));
+
+    //     }
+
+    //     String code = (!Test.isRunningTest() ? getAcessCode() : 'acessToken');
+    //     System.debug('AcessCode: '+ code);
+    //     String payload = JSON.serialize(request);
+    //     System.debug('PayloadCheck: '+ payload);
+        
+    //     //Metodo para busca de Access Token, depende de cada projeto, podendo estar presente dentro de uma custom settings ou relacionado com outra requisição.
+    //     String accessToken = code;
+    //     //Url mock: https://aabb2740-69b0-4737-925c-2c40367a3737.mock.pstmn.io//CalloutCTVCarteira
+    //     //Path geralmente cadastrado dentro de ua customSettings 
+    //     Integration__c data = Integration__c.getInstance('Visits OUT');
+    //     String endpoint = (!Test.isRunningTest() ? data.Url__c : 'http://callout.My_Named_Credential.com/some/path');
+    //     Map<String, String> headersMap = new Map<String, String>();
+    //     headersMap.put('Content-type', 'application/json');
+    //     headersMap.put('Authorization', 'Bearer '+ accessToken);
+        
+    //     IntegrationUtils.RequestResponseObject responseObject = IntegrationUtils.executeCallout(endpoint, payload, headersMap);
+
+    //     if (responseObject.success) {
+
+    //         HttpResponse response = responseObject.response;
+
+    //         IntegrationLog.createLog('Visits OUT', 'OUT', response.getBody(), payload, false);
+    //         System.debug('response.getBody(): '+ response.getBody());
+    //     } else {
+    //         IntegrationLog.createLog('Visits OUT', 'OUT', responseObject.exceptionObject.getMessage(), payload, true);
+    //     } 
     }
-    @future(callout = true)
-    public static void sendOrder(List<String> visitIdList) {
-
-        List<RequestParameters> request = new List<RequestParameters>();
-        List<String> technicalReportIdList = new List<String>();
-        List<String> photoIdList = new List<String>();
-        List<String> contentDocumentIdList = new List<String>();
-
-        List<VisitPlanning__c> visitUpdatedList = new List<VisitPlanning__c>([SELECT Id,Name, MainBP__r.ExternalId__c, BP_Property__r.ExternalId__c, InitialDate__c, EndDate__c, StartTime__c, EndTime__c, 
-            Status__c, Objetivo__c, Safra__r.Code__c, Culture__r.Codigo__c, Email__c, ExternalIdApp__c, Presential__c, Reminder__c, Displacement__c, VisitSeller__r.CodigoSap__c, Note__c, ReschedulingReason__c, 
-            CancellationReason__c, ExternalId__c FROM VisitPlanning__c WHERE id IN: visitIdList]);
-
-        List<TechnicalReport__c> technicalReportList  = new List<TechnicalReport__c>([SELECT id, ExternalId__c, Note__c, rtrControl__c, VisitPlanning__c, EndTime__c, EndDate__c, Status__c, CancellationReason__c FROM TechnicalReport__c WHERE VisitPlanning__c =: visitIdList]);
-        Map<String, List<TechnicalReport__c>> technicalReportMap = new Map<String, List<TechnicalReport__c>>();
-        for (TechnicalReport__c technical : technicalReportList) {
-            technicalReportIdList.add(technical.Id); 
-
-            if(technicalReportMap.containsKey(technical.VisitPlanning__c)){
-                List<TechnicalReport__c> newTechnicalReportList = technicalReportMap.get(technical.VisitPlanning__c);
-                newTechnicalReportList.add(technical);
-                technicalReportMap.put(technical.VisitPlanning__c,newTechnicalReportList);
-            }else{
-                List<TechnicalReport__c> newTechnicalReportList = new List<TechnicalReport__c>();
-                newTechnicalReportList.add(technical);
-                technicalReportMap.put(technical.VisitPlanning__c,newTechnicalReportList);
-            }
-        }
-        List<Fotos__c> photoList  = new List<Fotos__c>([SELECT id, RTR__c, Observation__c, ExternalId__c, FotoControl__c, IsIntegrated__c FROM Fotos__c WHERE RTR__c =: technicalReportIdList AND IsIntegrated__c = false]);
-        Map<String, List<Fotos__c>> fotoMap = new Map<String, List<Fotos__c>>();
-        Map<String, Fotos__c> fotoIdMap = new Map<String, Fotos__c>();
-        for(Fotos__c fotos : photoList){
-            fotoIdMap.put(fotos.Id,fotos);
-            photoIdList.add(fotos.id);
-            if(fotoMap.containsKey(fotos.RTR__c)){
-                List<Fotos__c> newFotoList = fotoMap.get(fotos.RTR__c);
-                newFotoList.add(fotos);
-                fotoMap.put(fotos.RTR__c,newFotoList);
-            }else{
-                List<Fotos__c> newfotoList = new List<Fotos__c>();
-                newfotoList.add(fotos);
-                fotoMap.put(fotos.RTR__c,newfotoList);
-            }
-        }
-        List<ContentDocumentLink> contendLinkList = new List<ContentDocumentLink>();
-        if(!photoIdList.isEmpty()){
-            contendLinkList = [SELECT Id, LinkedEntityId, ContentDocumentId, ContentDocument.LatestPublishedVersion.VersionData FROM ContentDocumentLink WHERE LinkedEntityId IN: photoIdList]; 
-        }
-        System.debug('photoIdList ' + photoIdList);
-        System.debug('contendLinkList ' + contendLinkList);
-        Map<String, String> photoBase64Map = new Map<String, String>();
-        for(ContentDocumentLink contendLink : contendLinkList){
-            Fotos__c photo = fotoIdMap.get(contendLink.LinkedEntityId);
-            photoBase64Map.put(photo.Id,EncodingUtil.base64Encode(contendLink.ContentDocument.LatestPublishedVersion.VersionData));
-        }
-		System.debug('photoBase64Map ' + photoBase64Map);
+    public static void getAcessCode(){
         
+        // Integration__c data = Integration__c.getInstance('Visits OUT');
+        // String payloadToken = 'grant_type=client_credentials';
+        // String endpointToken = (!Test.isRunningTest() ? data.UrlToken__c : 'http://callout.My_Named_Credential.com/some/path');
+        // Map<String, String> headersMapToken = new Map<String, String>();
+        // headersMapToken.put('Content-type', 'application/x-www-form-urlencoded');
+        // headersMapToken.put('Authorization', data.Token__c);
+        // IntegrationUtils.RequestResponseObject responseObject2 = IntegrationUtils.executeCallout(endpointToken, payloadToken, headersMapToken);
         
-
-        for (VisitPlanning__c visit : visitUpdatedList) {
-            //criar map string,List technicalReport 
-            List<TechnicalReport__c> newTechnicalReportList = technicalReportMap.get(visit.Id); 
-            request.add(new RequestParameters(visit,newTechnicalReportList, fotoMap, photoBase64Map));
-
-        }
-
-        String code = (!Test.isRunningTest() ? getAcessCode() : 'acessToken');
-        System.debug('AcessCode: '+ code);
-        String payload = JSON.serialize(request);
-        System.debug('PayloadCheck: '+ payload);
-        
-        //Metodo para busca de Access Token, depende de cada projeto, podendo estar presente dentro de uma custom settings ou relacionado com outra requisição.
-        String accessToken = code;
-        //Url mock: https://aabb2740-69b0-4737-925c-2c40367a3737.mock.pstmn.io//CalloutCTVCarteira
-        //Path geralmente cadastrado dentro de ua customSettings 
-        Integration__c data = Integration__c.getInstance('Visits OUT');
-        String endpoint = (!Test.isRunningTest() ? data.Url__c : 'http://callout.My_Named_Credential.com/some/path');
-        Map<String, String> headersMap = new Map<String, String>();
-        headersMap.put('Content-type', 'application/json');
-        headersMap.put('Authorization', 'Bearer '+ accessToken);
-        
-        IntegrationUtils.RequestResponseObject responseObject = IntegrationUtils.executeCallout(endpoint, payload, headersMap);
-
-        if (responseObject.success) {
-
-            HttpResponse response = responseObject.response;
-
-            IntegrationLog.createLog('Visits OUT', 'OUT', response.getBody(), payload, false);
-            System.debug('response.getBody(): '+ response.getBody());
-        } else {
-            IntegrationLog.createLog('Visits OUT', 'OUT', responseObject.exceptionObject.getMessage(), payload, true);
-        } 
-    }
-    public static String getAcessCode(){
-        
-        Integration__c data = Integration__c.getInstance('Visits OUT');
-        String payloadToken = 'grant_type=client_credentials';
-        String endpointToken = (!Test.isRunningTest() ? data.UrlToken__c : 'http://callout.My_Named_Credential.com/some/path');
-        Map<String, String> headersMapToken = new Map<String, String>();
-        headersMapToken.put('Content-type', 'application/x-www-form-urlencoded');
-        headersMapToken.put('Authorization', data.Token__c);
-        IntegrationUtils.RequestResponseObject responseObject2 = IntegrationUtils.executeCallout(endpointToken, payloadToken, headersMapToken);
-        
-        if (responseObject2.success) {
-            HttpResponse response = responseObject2.response;
-            ResponseParametersToken responses = (ResponseParametersToken) JSON.deserialize(response.getBody(), ResponseParametersToken.class);
-            return responses.access_token;
-        } else {
-            return null;
-        }
+        // if (responseObject2.success) {
+        //     HttpResponse response = responseObject2.response;
+        //     ResponseParametersToken responses = (ResponseParametersToken) JSON.deserialize(response.getBody(), ResponseParametersToken.class);
+        //     return responses.access_token;
+        // } else {
+        //     return null;
+        // }
     }
 
     //! Preparing data to Callout
@@ -139,42 +139,42 @@ public without sharing class CalloutVisits {
         public Object header;
 
         public RequestParameters(VisitPlanning__c visit, List<TechnicalReport__c> technicalReportList, Map<String, List<Fotos__c>> fotoMap, Map<String, String> photoBase64Map){
-            CalloutVisits.HeaderInsert header = new CalloutVisits.HeaderInsert();
+            // CalloutVisits.HeaderInsert header = new CalloutVisits.HeaderInsert();
 
-            header.Name  = visit.Name;
-            header.BpCode = visit.MainBP__r.ExternalId__c;
-            header.BpPropertyCode = visit.BP_Property__r.ExternalId__c;
-            header.PlanStartDate = visit.InitialDate__c;
-            header.PlanEndDate = visit.EndDate__c;
-            header.StartTime = visit.StartTime__c;
-            header.EndTime = visit.EndTime__c;
-            header.Status = visit.Status__c;
-            header.Objective = visit.Objetivo__c;
-            header.Crop = visit.Safra__r.Code__c;
-            header.Culture = visit.Culture__r.Codigo__c;
-            header.Email = visit.Email__c;
-            header.Presential = visit.Presential__c;
-            header.Reminder = visit.Reminder__c;
-            header.Displacement = visit.Displacement__c;
-            header.CtvVisit = visit.VisitSeller__r.CodigoSap__c;
-            header.Observation = visit.Note__c;
-            header.ReasonRescheduling = visit.ReschedulingReason__c;
-            header.ExternalCodeSalesforce = visit.ExternalId__c;
-            header.ExternalCodeApp = visit.ExternalIdApp__c;
-            header.ReasonCancellation = visit.CancellationReason__c;
+            // header.Name  = visit.Name;
+            // header.BpCode = visit.MainBP__r.ExternalId__c;
+            // header.BpPropertyCode = visit.BP_Property__r.ExternalId__c;
+            // header.PlanStartDate = visit.InitialDate__c;
+            // header.PlanEndDate = visit.EndDate__c;
+            // header.StartTime = visit.StartTime__c;
+            // header.EndTime = visit.EndTime__c;
+            // header.Status = visit.Status__c;
+            // header.Objective = visit.Objetivo__c;
+            // header.Crop = visit.Safra__r.Code__c;
+            // header.Culture = visit.Culture__r.Codigo__c;
+            // header.Email = visit.Email__c;
+            // header.Presential = visit.Presential__c;
+            // header.Reminder = visit.Reminder__c;
+            // header.Displacement = visit.Displacement__c;
+            // header.CtvVisit = visit.VisitSeller__r.CodigoSap__c;
+            // header.Observation = visit.Note__c;
+            // header.ReasonRescheduling = visit.ReschedulingReason__c;
+            // // header.ExternalCodeSalesforce = visit.ExternalId__c;
+            // header.ExternalCodeApp = visit.ExternalIdApp__c;
+            // header.ReasonCancellation = visit.CancellationReason__c;
 
 
-            List<CalloutVisits.TechnicalReportsParameters> newtechnicalReportList = new List<CalloutVisits.TechnicalReportsParameters>();
-            if(technicalReportList != null){
-                for(TechnicalReport__c technical : technicalReportList){
-                    newtechnicalReportList.add(new CalloutVisits.TechnicalReportsParameters(technical, fotoMap, photoBase64Map));
-                    System.debug('technicalReportList'+ technicalReportList);
-                }
-            }else{
-                newtechnicalReportList.add(new CalloutVisits.TechnicalReportsParameters(null, fotoMap, photoBase64Map));
-            }
-            header.TechnicalReports = newtechnicalReportList;
-            this.header = header;
+            // List<CalloutVisits.TechnicalReportsParameters> newtechnicalReportList = new List<CalloutVisits.TechnicalReportsParameters>();
+            // if(technicalReportList != null){
+            //     for(TechnicalReport__c technical : technicalReportList){
+            //         newtechnicalReportList.add(new CalloutVisits.TechnicalReportsParameters(technical, fotoMap, photoBase64Map));
+            //         System.debug('technicalReportList'+ technicalReportList);
+            //     }
+            // }else{
+            //     newtechnicalReportList.add(new CalloutVisits.TechnicalReportsParameters(null, fotoMap, photoBase64Map));
+            // }
+            // header.TechnicalReports = newtechnicalReportList;
+            // this.header = header;
         }
     }
     public class HeaderInsert{
