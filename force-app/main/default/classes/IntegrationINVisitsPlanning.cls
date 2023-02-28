@@ -75,7 +75,7 @@ global without sharing class IntegrationINVisitsPlanning {
                 Database.upsert(visitsListToUpsert, VisitPlanning__c.ExternalId__c, false), 
                 responseList, 
                 visitsListToUpsert, 
-                VisitPlanning__c.ExternalIdApp__c
+                VisitPlanning__c.ExternalId__c
             );
             CalendarHelper.enableTriggerForIntegration();
         }
