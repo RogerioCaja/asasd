@@ -2,16 +2,13 @@ public without sharing class CalloutVisits {
 
     
     public static void callIntegration(List<String> visitPlanningIdList){
-        updatePhoto(visitPlanningIdList);
-        sendOrder(visitPlanningIdList);
+        List<String> fotosIdsList = updatePhoto(visitPlanningIdList);
+        sendOrder(visitPlanningIdList, fotosIdsList);
+        
     }
-    public static void updatePhoto(List<String> visitIdList) {
+    public static List<String> updatePhoto(List<String> visitIdList) {
         List<String> technicalReportIdList = new List<String>();
-
-        List<VisitPlanning__c> visitUpdatedList = new List<VisitPlanning__c>([SELECT Id,Name, MainBP__r.ExternalId__c, BP_Property__r.ExternalId__c, InitialDate__c, EndDate__c, StartTime__c, EndTime__c, 
-            Status__c, Objetivo__c, Safra__r.Code__c, Culture__r.Codigo__c, Email__c, Presential__c, Reminder__c, Displacement__c, VisitSeller__r.CodigoSap__c, Note__c, ReschedulingReason__c, 
-            CancellationReason__c, ExternalId__c FROM VisitPlanning__c WHERE id IN: visitIdList]);
-
+        List<String> photosIdList = new List<String>();
         List<TechnicalReport__c> technicalReportList  = new List<TechnicalReport__c>([SELECT id, ExternalId__c, Note__c, rtrControl__c, VisitPlanning__c, EndTime__c, EndDate__c, Status__c, CancellationReason__c FROM TechnicalReport__c WHERE VisitPlanning__c =: visitIdList]);
         for (TechnicalReport__c technical : technicalReportList) {
             technicalReportIdList.add(technical.Id); 
@@ -19,16 +16,18 @@ public without sharing class CalloutVisits {
         List<Fotos__c> photoList  = new List<Fotos__c>([SELECT id, RTR__c, Observation__c, ExternalId__c, FotoControl__c, IsIntegrated__c FROM Fotos__c WHERE RTR__c =: technicalReportIdList AND IsIntegrated__c = false]);
         for(Fotos__c fotos : photoList){
             fotos.IsIntegrated__c = true;
+            photosIdList.add(fotos.Id);
         }
-
+        
         if(!photoList.isEmpty()){
             FotosHelper.disableTrigger();
             upsert photoList;
             FotosHelper.enableTrigger();
         }
+        return photosIdList;
     }
     @future(callout = true)
-    public static void sendOrder(List<String> visitIdList) {
+    public static void sendOrder(List<String> visitIdList, List<String> fotosIdsList) {
 
         List<RequestParameters> request = new List<RequestParameters>();
         List<String> technicalReportIdList = new List<String>();
@@ -36,7 +35,7 @@ public without sharing class CalloutVisits {
         List<String> contentDocumentIdList = new List<String>();
 
         List<VisitPlanning__c> visitUpdatedList = new List<VisitPlanning__c>([SELECT Id,Name, MainBP__r.ExternalId__c, BP_Property__r.ExternalId__c, InitialDate__c, EndDate__c, StartTime__c, EndTime__c, 
-            Status__c, Objetivo__c, Safra__r.Code__c, Culture__r.Codigo__c, Email__c, Presential__c, Reminder__c, Displacement__c, VisitSeller__r.CodigoSap__c, Note__c, ReschedulingReason__c, 
+            Status__c, Objetivo__c, Safra__r.Code__c, Culture__r.Codigo__c, Email__c, ExternalIdApp__c, Presential__c, Reminder__c, Displacement__c, VisitSeller__r.CodigoSap__c, Note__c, ReschedulingReason__c, 
             CancellationReason__c, ExternalId__c FROM VisitPlanning__c WHERE id IN: visitIdList]);
 
         List<TechnicalReport__c> technicalReportList  = new List<TechnicalReport__c>([SELECT id, ExternalId__c, Note__c, rtrControl__c, VisitPlanning__c, EndTime__c, EndDate__c, Status__c, CancellationReason__c FROM TechnicalReport__c WHERE VisitPlanning__c =: visitIdList]);
@@ -54,7 +53,7 @@ public without sharing class CalloutVisits {
                 technicalReportMap.put(technical.VisitPlanning__c,newTechnicalReportList);
             }
         }
-        List<Fotos__c> photoList  = new List<Fotos__c>([SELECT id, RTR__c, Observation__c, ExternalId__c, FotoControl__c, IsIntegrated__c FROM Fotos__c WHERE RTR__c =: technicalReportIdList AND IsIntegrated__c = false]);
+        List<Fotos__c> photoList  = new List<Fotos__c>([SELECT id, RTR__c, Observation__c, ExternalId__c, FotoControl__c, IsIntegrated__c FROM Fotos__c WHERE RTR__c =: technicalReportIdList AND Id =: fotosIdsList]);
         Map<String, List<Fotos__c>> fotoMap = new Map<String, List<Fotos__c>>();
         Map<String, Fotos__c> fotoIdMap = new Map<String, Fotos__c>();
         for(Fotos__c fotos : photoList){
@@ -163,7 +162,8 @@ public without sharing class CalloutVisits {
             header.CtvVisit = visit.VisitSeller__r.CodigoSap__c;
             header.Observation = visit.Note__c;
             header.ReasonRescheduling = visit.ReschedulingReason__c;
-            header.ExternalCodeVisits = visit.ExternalId__c;
+            header.ExternalCodeSalesforce = visit.ExternalId__c;
+            header.ExternalCodeApp = visit.ExternalIdApp__c;
             header.ReasonCancellation = visit.CancellationReason__c;
 
 
@@ -199,7 +199,8 @@ public without sharing class CalloutVisits {
         public String CtvVisit;
         public String Observation;
         public String ReasonRescheduling;
-        public String ExternalCodeVisits;
+        public String ExternalCodeSalesforce;
+        public String ExternalCodeApp;
         public String ReasonCancellation;
         public List<CalloutVisits.TechnicalReportsParameters> TechnicalReports;
 
@@ -209,13 +210,13 @@ public without sharing class CalloutVisits {
         public String Photo;
         public String Observation;
         public String FileLine;
-        public String ExternalCodePhoto;
+        //public String ExternalCodePhoto;
         public PhotosParameters(Fotos__c photo, Map<String, String> photoBase64Map){
             if(photoBase64Map.containsKey(photo.Id))
                 this.Photo = photoBase64Map.get(photo.Id);
             this.Observation = photo.Observation__c;
             this.FileLine = String.valueOf(photo.FotoControl__c);
-            this.ExternalCodePhoto = photo.ExternalId__c;
+            //this.ExternalCodePhoto = photo.ExternalId__c;
         }
     }
 
@@ -226,7 +227,7 @@ public without sharing class CalloutVisits {
         public String Status;
         public String CancellationReason;
         public String RtrLine;
-        public String ExternalCodeTechnical;
+        //public String ExternalCodeTechnical;
 
         public List<CalloutVisits.PhotosParameters> Photos;
         public TechnicalReportsParameters(TechnicalReport__c technicalReport,  Map<String, List<Fotos__c>> fotoMap, Map<String, String> photoBase64Map){
@@ -237,7 +238,7 @@ public without sharing class CalloutVisits {
             this.Status = technicalReport.Status__c;
             this.CancellationReason = technicalReport.CancellationReason__c;
             this.RtrLine = String.valueOf(technicalReport.rtrControl__c);
-            this.ExternalCodeTechnical = technicalReport.ExternalId__c;
+            //this.ExternalCodeTechnical = technicalReport.ExternalId__c;
 
             if(fotoMap.containsKey(technicalReport.id)){
                 List<CalloutVisits.PhotosParameters> newPhotoList= new List<CalloutVisits.PhotosParameters>();
@@ -254,7 +255,7 @@ public without sharing class CalloutVisits {
                 this.Status = null;
                 this.CancellationReason = null;
                 this.RtrLine = null;
-                this.ExternalCodeTechnical = null;
+                //this.ExternalCodeTechnical = null;
                 this.Photos = null;
             }
         }

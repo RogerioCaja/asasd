@@ -61,11 +61,11 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
-        <apexClass>CancelPriceListController</apexClass>
+        <apexClass>CancelOrderController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
-        <apexClass>CancelOrderController</apexClass>
+        <apexClass>CancelPriceListController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
@@ -361,6 +361,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>ActivitySector__c.Codigo__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>BarterTaxes__c.Commodity__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

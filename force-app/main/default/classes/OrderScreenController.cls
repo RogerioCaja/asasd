@@ -1014,7 +1014,6 @@ public without sharing class OrderScreenController {
 
                 }
 
-                Integer divisionCounter = 1;
                 Set<Id> setDivisionIds = new Set<Id>();
                 List<ShippingDivison__c> listShippingDivision = new List<ShippingDivison__c>();
 
