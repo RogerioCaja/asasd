@@ -1196,7 +1196,7 @@ public without sharing class FactoryBuilder {
 
         partnerParametersList.add(new PartnerParameters(order.Account.ExternalId__c, 'AG'));
         partnerParametersList.add(new PartnerParameters(order.ShippingAccount__r.ExternalId__c, 'RM'));
-        partnerParametersList.add(new PartnerParameters(order.SalesCTV__r.CodigoSap__c, 'ZC'));
+        partnerParametersList.add(new PartnerParameters(order.SalesCTV__r.CodigoSap__c, order.SalesCTV__r.SellerType__c == 'Franqueado' ? 'ZF' : 'ZC'));
 
         return partnerParametersList;
     }
