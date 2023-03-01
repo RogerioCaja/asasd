@@ -701,6 +701,8 @@ public without sharing class OrderScreenController {
                            Territory2Id
                       FROM UserTerritory2Association
                      WHERE UserId =: orderData.headerData.ctv_venda.Id
+                     AND 
+                     Territory2Id IN (SELECT Territory2Id FROM ObjectTerritory2Association WHERE ObjectId =: orderData.accountData.Id)
                      LIMIT 1
                 ]) {
                     userTerritoryId = userAssociation.Territory2Id;
