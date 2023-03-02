@@ -131,7 +131,7 @@ public without sharing class CalloutOrder {
 			}
 		} else {
 
-            IntegrationLog.createLog('Pedido OUT', 'OUT', responseObject.exceptionObject.getMessage(), payload, true);
+            IntegrationLog.createLog('Pedido OUT - SAP', 'OUT', responseObject.exceptionObject.getMessage(), payload, true);
 			return new IntegrationUtils.CalloutResponse(responseObject.exceptionObject.getMessage());
 		}
     }
