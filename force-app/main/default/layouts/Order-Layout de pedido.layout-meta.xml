@@ -52,10 +52,6 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>ACMContract__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
                 <field>BPStorage__c</field>
             </layoutItems>
             <layoutItems>
@@ -158,6 +154,10 @@
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>CodigoSap__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>ACMContract__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Required</behavior>
@@ -387,7 +387,7 @@
         <fields>ORDERS.ORDER_NUMBER</fields>
         <fields>SALES.ACCOUNT.NAME</fields>
         <fields>ORDERS.STATUS</fields>
-        <fields>ORDERS.FinalTotalValue__c</fields>
+        <fields>FinalTotalValue__c</fields>
         <relatedList>Order.OrderReference__c</relatedList>
     </relatedLists>
     <relatedLists>
