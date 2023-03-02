@@ -295,6 +295,15 @@
         <relatedList>RelatedHistoryList</relatedList>
     </relatedLists>
     <relatedLists>
+        <excludeButtons>MassChangeOwner</excludeButtons>
+        <excludeButtons>New</excludeButtons>
+        <fields>NAME</fields>
+        <fields>PaymentType__c</fields>
+        <fields>PaymentDate__c</fields>
+        <fields>Amount__c</fields>
+        <relatedList>FormPayment__c.Order__c</relatedList>
+    </relatedLists>
+    <relatedLists>
         <relatedList>RelatedNoteList</relatedList>
     </relatedLists>
     <relatedObjects>ContractId</relatedObjects>
