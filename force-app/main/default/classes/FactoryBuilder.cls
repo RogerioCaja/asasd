@@ -574,6 +574,9 @@ public without sharing class FactoryBuilder {
                 Order orderReference = [SELECT EffectiveOrderDate__c, EffectiveDate, PaymentDate__c FROM Order WHERE Id =: order.OrderReference__c LIMIT 1];
                 if(orderReference != null){
                     this.PRICE_DATE = orderReference.EffectiveOrderDate__c == null ? String.valueOf(orderReference.EffectiveDate).replace('-', '') : String.valueOf(orderReference.EffectiveOrderDate__c).replace('-', '');
+                    if(hasSeed){
+                        this.PRICE_DATE = String.valueOf(orderReference.PaymentDate__c).replace('-', '');
+                    }
                     this.ZZDATA_VENCTO = String.valueOf(orderReference.PaymentDate__c).replace('-', '');
                 }
             }
@@ -795,6 +798,9 @@ public without sharing class FactoryBuilder {
                 Order orderReference = [SELECT EffectiveOrderDate__c, EffectiveDate, PaymentDate__c FROM Order WHERE Id =: order.OrderReference__c LIMIT 1];
                 if(orderReference != null){
                     this.PRICE_DATE = orderReference.EffectiveOrderDate__c == null ? String.valueOf(orderReference.EffectiveDate).replace('-', '') : String.valueOf(orderReference.EffectiveOrderDate__c).replace('-', '');
+                    if(hasSeed){
+                        this.PRICE_DATE = String.valueOf(orderReference.PaymentDate__c).replace('-', '');
+                    }
                     this.ZZDATA_VENCTO = String.valueOf(orderReference.PaymentDate__c).replace('-', '');
                 }
             }
@@ -1190,7 +1196,7 @@ public without sharing class FactoryBuilder {
 
         partnerParametersList.add(new PartnerParameters(order.Account.ExternalId__c, 'AG'));
         partnerParametersList.add(new PartnerParameters(order.ShippingAccount__r.ExternalId__c, 'RM'));
-        partnerParametersList.add(new PartnerParameters(order.SalesCTV__r.CodigoSap__c, 'ZC'));
+        partnerParametersList.add(new PartnerParameters(order.SalesCTV__r.CodigoSap__c, order.SalesCTV__r.SellerType__c == 'Franqueado' ? 'ZF' : 'ZC'));
 
         return partnerParametersList;
     }
