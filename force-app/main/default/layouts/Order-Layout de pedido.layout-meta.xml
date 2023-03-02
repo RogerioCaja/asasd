@@ -387,7 +387,7 @@
         <fields>ORDERS.ORDER_NUMBER</fields>
         <fields>SALES.ACCOUNT.NAME</fields>
         <fields>ORDERS.STATUS</fields>
-        <fields>ORDERS.FinalTotalValue__c</fields>
+        <fields>FinalTotalValue__c</fields>
         <relatedList>Order.OrderReference__c</relatedList>
     </relatedLists>
     <relatedLists>
