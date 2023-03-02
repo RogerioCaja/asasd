@@ -796,9 +796,16 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     checkProductDivisionAndCommodities() {
         let enableScreen = true;
 
+        if(this.headerData.pedido_mae_check && (this.headerData.tipo_venda == 'Venda Barter') && (this.commodityData == undefined || this.commodityData == null || this.commodityData.length == 0)){
+            enableScreen = false;
+            this.customErrorMessage = 'É necessário selecionar uma commodity';
+            return enableScreen;
+        }
+
         if(this.headerData.pedido_mae_check && !this.headerData.IsOrderChild){
             return true
         }
+
         if (this.isFilled(this.productData) && this.isFilled(this.divisionData)) {
             for (let index = 0; index < this.productData.length; index++) {
                 let productDivisionQuantity = 0;
