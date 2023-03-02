@@ -183,7 +183,7 @@ export default class PriceSearchScreen extends LightningElement {
             numberOfRowsToSkip: 0,
             salesConditionId : this.searchData.sales_condition.Id != null ? this.searchData.sales_condition.Id : '',
             dontGetSeeds: false,
-            paymentDate: this.headerData.data_pagamento
+            paymentDate: this.searchData.paymentDate
         };
 
         let orderData = {
