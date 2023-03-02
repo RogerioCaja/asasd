@@ -122,7 +122,6 @@ export default class OrderProductScreen extends LightningElement {
     connectedCallback(event) {
         if (!this.isFilled(this.taxData)) this.taxData=[];
         if (!this.isFilled(this.combosSelecteds)) this.combosSelecteds=[];
-
         let today = new Date();
         let dd = String(today.getDate()).padStart(2, '0');
         let mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -254,6 +253,9 @@ export default class OrderProductScreen extends LightningElement {
                 }
             }
         });
+    
+
+        
     }
 
     newProduct(prod) {
@@ -475,7 +477,7 @@ export default class OrderProductScreen extends LightningElement {
                         this.financialInfoLogic(orderData);
                         checkFinancialInfos = false;
 
-                        fetchOrderRecords({searchString: '', data: JSON.stringify(this.productParams), isCommodity: false, productsIds: prodsIds, priceScreen: false, getSeedPrices: this.showRoyaltyTsi})
+                        fetchOrderRecords({searchString: '', data: JSON.stringify(this.productParams), isCommodity: false, productsIds: prodsIds, priceScreen: false, getSeedPrices: this.showRoyaltyTsi, isLimit: true})
                         .then(result => {
                             this.productsPriceMap = result.recordsDataMap;
                             this.salesInfos = result.salesResult;
@@ -567,7 +569,8 @@ export default class OrderProductScreen extends LightningElement {
 
                                         if (this.addProduct.commercialAdditionPercentage != '0%') this.addProduct.unitPrice = this.addProduct.listPrice + this.calculateValue(this.addProduct.commercialAdditionPercentage, this.addProduct.listPrice);
                                         else if (this.addProduct.commercialDiscountPercentage != '0%') this.addProduct.unitPrice = this.addProduct.listPrice - this.calculateValue(this.addProduct.commercialDiscountPercentage, this.addProduct.listPrice);
-
+                                        
+                                        this.addProduct.unitPriceFront = this.fixDecimalPlacesFront(this.addProduct.unitPrice);
                                         this.addProduct.unitPriceFront = this.fixDecimalPlacesFront(this.addProduct.unitPrice);
                                         this.calculateDiscountOrAddition();
                                         this.calculateTotalPrice(true, this.addProduct.commercialDiscountValue > 0);
@@ -2066,7 +2069,8 @@ export default class OrderProductScreen extends LightningElement {
             isCommodity: false,
             productsIds: [],
             priceScreen: false,
-            getSeedPrices: this.showRoyaltyTsi
+            getSeedPrices: this.showRoyaltyTsi,
+            isLimit: false
         })
         .then(result => {
             this.showBaseProducts = result.recordsDataList.length > 0;

@@ -143,7 +143,8 @@ export default class CustomOrderSearch extends LightningElement {
                     isCommodity: this.objectName == 'Commodity' ? true : false,
                     productsIds: [],
                     priceScreen: false,
-                    getSeedPrices: this.seedPrice
+                    getSeedPrices: this.seedPrice,
+                    isLimit: false
                 })
                 .then(result => {
                     const tabEvent = new CustomEvent("showresults");
