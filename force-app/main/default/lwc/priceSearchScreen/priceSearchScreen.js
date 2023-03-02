@@ -218,9 +218,9 @@ export default class PriceSearchScreen extends LightningElement {
     }
 
     calculateDiscountValues(productInfos) {
-        let defaultKey = this.financialInfos.salesOrg + '-' + this.searchData.safra.Id;
-        let key1 = defaultKey + '-' + this.financialInfos.salesOffice + '-' + productInfos.productId;
-        let key2 = defaultKey + '-' + this.financialInfos.salesOffice;
+        let defaultKey = this.financialInfos.salesOrg + '-' + this.headerData.safra.Id;
+        let key1 = defaultKey + '-' + this.financialInfos.salesTeam + '-' + productInfos.productId;
+        let key2 = defaultKey + '-' + this.financialInfos.salesTeam + '-' + productInfos.productGroupId;
         let key3 = defaultKey + '-' + productInfos.productGroupId;
         
         let currentDiscountOrAddition = 0;
