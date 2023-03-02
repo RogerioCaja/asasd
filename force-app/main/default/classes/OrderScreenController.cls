@@ -511,9 +511,9 @@ public without sharing class OrderScreenController {
                         OR OrderId =: order.OrderReference__c
                 ]) {
                     if (item.OrderId != orderData.headerData.pedido_mae.Id) {
-                        motherFreight = item.Order.OrderReference__r.FreightValue__c;
+                        motherFreight = item.Order.OrderReference__r.FreightValue__c != null ? item.Order.OrderReference__r.FreightValue__c : 0;
                     } else {
-                        motherFreight = item.Order.FreightValue__c;
+                        motherFreight = item.Order.FreightValue__c != null ? item.Order.FreightValue__c : 0;
                     }
 
                     if (!individualValuesByType.containsKey('Germoplasma')) {
@@ -855,7 +855,7 @@ public without sharing class OrderScreenController {
                 order.FinalTotalValue__c = order.FinalTotalValue__c + tsiTotalValue + royaltyTotalValue;
             }
 
-            if (individualValuesByType.containsKey('Germoplasma')) {
+            if (individualValuesByType.containsKey('Germoplasma') && seedSale) {
                 Decimal currentGermoplasma = individualValuesByType.get('Germoplasma') + motherFreight;
                 individualValuesByType.put('Germoplasma', currentGermoplasma);
             }
