@@ -510,18 +510,47 @@ public without sharing class OrderScreenController {
             Map<Id, OrderItem> motherItems = new Map<Id, OrderItem>();
             Boolean newDivision = false;
             Decimal motherQuantity = 0;
+            Map<String, Decimal> individualValuesByType = new Map<String, Decimal>();
             if (orderData.headerData.pedido_mae.Id != null || order.OrderReference__c != null) {
                 for (OrderItem item : [
                     SELECT Id,
                            Product2Id,
                            Quantity,
                            AmountUsed__c,
-                           NumeroSap__c
+                           NumeroSap__c,
+                           FinalTotalValue__c,
+                           TotalTSIAmount__c,
+                           TotalRoyaltyAmount__c
                       FROM OrderItem
                      WHERE OrderId =: orderData.headerData.pedido_mae.Id
                         OR OrderId =: order.OrderReference__c
                 ]) {
                     motherQuantity += item.Quantity;
+                    if (!individualValuesByType.containsKey('Germoplasma')) {
+                        individualValuesByType.put('Germoplasma', item.FinalTotalValue__c);
+                    } else {
+                        Decimal currentGermoplasma = individualValuesByType.get('Germoplasma') + item.FinalTotalValue__c;
+                        individualValuesByType.put('Germoplasma', currentGermoplasma);
+                    }
+
+                    if (item.TotalRoyaltyAmount__c != null && item.TotalRoyaltyAmount__c > 0) {
+                        if (!individualValuesByType.containsKey('Royalty')) {
+                            individualValuesByType.put('Royalty', item.TotalRoyaltyAmount__c);
+                        } else {
+                            Decimal currentRoyalty = individualValuesByType.get('Royalty') + item.TotalRoyaltyAmount__c;
+                            individualValuesByType.put('Royalty', currentRoyalty);
+                        }
+                    }
+                    
+                    if (item.TotalTSIAmount__c != null && item.TotalTSIAmount__c > 0) {
+                        if (!individualValuesByType.containsKey('TSI')) {
+                            individualValuesByType.put('TSI', item.TotalTSIAmount__c);
+                        } else {
+                            Decimal currentTSI = individualValuesByType.get('TSI') + item.TotalTSIAmount__c;
+                            individualValuesByType.put('TSI', currentTSI);
+                        }
+                    }
+                    
                     motherItems.put(item.Product2Id, item);
                 }
                 newDivision = newOrder ? true : false;
@@ -840,9 +869,13 @@ public without sharing class OrderScreenController {
             }
             order.FreightValue__c = (currentFreight != null) ? currentFreight : 0;
 
+            Decimal germoTotalValue = order.FinalTotalValue__c;
             if (seedSale) {
                 order.FinalTotalValue__c = order.FinalTotalValue__c + tsiTotalValue + royaltyTotalValue;
             }
+
+            Decimal currentGermoplasma = individualValuesByType.get('Germoplasma') + currentFreight;
+            individualValuesByType.put('Germoplasma', currentGermoplasma);
 
             if (Test.isRunningTest()) {
                 OrderHelper.disableTrigger();
@@ -1287,20 +1320,32 @@ public without sharing class OrderScreenController {
                 if(orderData.formsOfPayment != null) {
                     Integer counter = paymentFormsById != null ? paymentFormsById.size() + 1 : 1;
                     for (FormOfPaymentDeserialize payment : orderData.formsOfPayment) {
-                        FormPayment__c formOfPayment;
-                        if (payment.paymentId != null && payment.paymentId != '' && !newOrder && !cloneOrder && paymentFormsById.containsKey(payment.paymentId)) {
-                            formOfPayment = paymentFormsById.get(payment.paymentId);
-                        } else {
-                            formOfPayment = new FormPayment__c();
-                            formOfPayment.Order__c = order.Id;
-                            formOfPayment.ExternalId__c = order.Id + '|' + counter;
-                            counter++;
-                        }
+                        if ((payment.paymentType == 'TSI' && tsiTotalValue > 0) ||
+                            (payment.paymentType == 'Royalties' && royaltyTotalValue > 0) ||
+                            (payment.paymentType == 'Germoplasma' && germoTotalValue > 0)) {
+                            FormPayment__c formOfPayment;
+                            if (payment.paymentId != null && payment.paymentId != '' && !newOrder && !cloneOrder && paymentFormsById.containsKey(payment.paymentId)) {
+                                formOfPayment = paymentFormsById.get(payment.paymentId);
+                            } else {
+                                formOfPayment = new FormPayment__c();
+                                formOfPayment.Order__c = order.Id;
+                                formOfPayment.ExternalId__c = order.Id + '|' + counter;
+                                counter++;
+                            }
+                            
+                            Decimal paymentValueToUse = Decimal.valueOf(payment.value);
+                            if (childOrder) {
+                                Decimal currentTypeValue = payment.paymentType == 'Germoplasma' ? germoTotalValue :
+                                                           (payment.paymentType == 'Royalties' ? royaltyTotalValue : tsiTotalValue);
+                                Decimal motherAmount = individualValuesByType.get(payment.paymentType);
+                                paymentValueToUse = (currentTypeValue * paymentValueToUse) / motherAmount;
+                            }
 
-                        formOfPayment.PaymentType__c = payment.paymentType;
-                        formOfPayment.PaymentDate__c = Date.valueOf(payment.paymentDay);
-                        formOfPayment.Amount__c = childOrder ? (Decimal.valueOf(payment.value) / orderData.headerData.motherTotalQuantity) * productQuantities : Decimal.valueOf(payment.value);
-                        upsFormsOfPayment.add(formOfPayment);
+                            formOfPayment.PaymentType__c = payment.paymentType;
+                            formOfPayment.PaymentDate__c = Date.valueOf(payment.paymentDay);
+                            formOfPayment.Amount__c = paymentValueToUse;
+                            upsFormsOfPayment.add(formOfPayment);
+                        }
                     }
                 }
                 
