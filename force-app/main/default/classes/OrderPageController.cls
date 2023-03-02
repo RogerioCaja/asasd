@@ -42,7 +42,7 @@ public with sharing class OrderPageController {
 
         Decimal totalValue = 0;
         for(OrderItemDAO orderItem : this.orderToPage.orderItemList){
-            totalValue += Decimal.valueOf(orderItem.totalAmount.replace(' sacas', '').replace('R$', '').replace(',00', '').replace('.', '').replace(',', '.').trim());
+            totalValue += Decimal.valueOf(orderItem.totalAmount.replace(' sacas', '').replace('R$', '').replace('USD', '').replace(',00', '').replace('.', '').replace(',', '.').trim());
             
         }
         
@@ -83,7 +83,7 @@ public with sharing class OrderPageController {
         Set<String> fieldSet = new Set<String>{
             'Product2Id','Product2.ProductCode' ,'Description', 'UnitMeasure__c', 'FinalTotalValue__c', 'TotalRoyaltyAmount__c', 'TotalTSIAmount__c',
             'UnitPrice', 'PracticedPrice__c','Quantity','TotalPrice' , 'Product2.Name', 'Product2.GrossWeightUnitOfMeasure__c',
-            'Brokerage__c'
+            'Brokerage__c', 'UnitPricePerBag__c'
         };
 
         String query = new Q(OrderItem.SObjectType)
@@ -231,7 +231,7 @@ public with sharing class OrderPageController {
             this.codCTV = order.SalesCTV__r.CodigoSap__c;
             this.nameCTV = order.SalesCTV__r.Name;
             this.freight = order.Incoterms__c;
-            this.freightValue = formatCurrency(order.FreightValue__c == null ? 0 : order.FreightValue__c, this.currencyOrder).contains(',') ? formatCurrency(order.FreightValue__c == null ? 0 : order.FreightValue__c, this.currencyOrder) : formatCurrency(order.FreightValue__c == null ? 0 : order.FreightValue__c, this.currencyOrder) + ',00';
+            this.freightValue = formatCurrency(order.FreightValue__c == null ? 0 : order.FreightValue__c,  order.Currency__c).contains(',') ? formatCurrency(order.FreightValue__c == null ? 0 : order.FreightValue__c,  order.Currency__c) : formatCurrency(order.FreightValue__c == null ? 0 : order.FreightValue__c,  order.Currency__c) + ',00';
             this.salesTeamName = order.Company__r.salesTeam__r.Subsidiary__c;
             this.salesTeamLocale = order.Company__r.salesTeam__r.Address__c;
             this.salesTeamLocation = order.Company__r.salesTeam__r.ZipCode__c +' - '+ order.Company__r.salesTeam__r.Locale__c +', '+ order.Company__r.salesTeam__r.State__c +' - '+ order.Company__r.salesTeam__r.Country__c;
@@ -294,9 +294,9 @@ public with sharing class OrderPageController {
             this.brokerage = orderItem.Brokerage__c != null ? (orderItem.Brokerage__c / orderItem.Quantity) : 0;
             this.description = orderItem.Product2.Name;
             this.unitOfMeasure = orderItem.Product2.GrossWeightUnitOfMeasure__c;
-            this.unitPrice = commodity != null ? formatCurrency(((orderItem.PracticedPrice__c*100)/(commodity.CommodityPrice__c * 100)), currencyCode) + ' por saca': formatCurrency((orderItem.PracticedPrice__c + this.brokerage + (orderItem.TotalTSIAmount__c / orderItem.Quantity) + (orderItem.TotalRoyaltyAmount__c / orderItem.Quantity) ), currencyCode);
+            this.unitPrice = commodity != null ? formatCurrency(orderItem.UnitPricePerBag__c, currencyCode) + ' por saca': formatCurrency((orderItem.PracticedPrice__c + this.brokerage + (orderItem.TotalTSIAmount__c / orderItem.Quantity) + (orderItem.TotalRoyaltyAmount__c / orderItem.Quantity) ), currencyCode);
             this.quantity =  String.valueOf(orderItem.Quantity);
-            this.totalAmount = commodity != null ? formatCurrency(((orderItem.PracticedPrice__c*100)/(commodity.CommodityPrice__c * 100)).setScale(2) * orderItem.Quantity, currencyCode) + ' sacas' : formatCurrency( ((orderItem.PracticedPrice__c + this.brokerage)* Decimal.valueOf(this.quantity)) + orderItem.TotalTSIAmount__c + orderItem.TotalRoyaltyAmount__c, currencyCode) ;
+            this.totalAmount = commodity != null ? formatCurrency((orderItem.UnitPricePerBag__c * orderItem.Quantity).round(System.RoundingMode.UP), currencyCode) + ' sacas' : formatCurrency( ((orderItem.PracticedPrice__c + this.brokerage)* Decimal.valueOf(this.quantity)) + orderItem.TotalTSIAmount__c + orderItem.TotalRoyaltyAmount__c, currencyCode) ;
             this.culture = culture;
             this.divisonList = divisonList;
         }
