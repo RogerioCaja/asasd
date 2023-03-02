@@ -878,10 +878,9 @@ export default class OrderProductScreen extends LightningElement {
             }
 
             let defaultKey = this.financialInfos.salesOrg + '-' + this.headerData.safra.Id;
-            let key1 = defaultKey + '-' + this.headerData.cultura.Id + '-' + this.addProduct.productId;
-            let key2 = defaultKey + '-' + this.financialInfos.salesOffice + '-' + this.addProduct.productId;
-            let key3 = defaultKey + '-' + this.financialInfos.salesOffice;
-            let key4 = defaultKey + '-' + this.addProduct.productGroupId;
+            let key1 = defaultKey + '-' + this.financialInfos.salesTeam + '-' + this.addProduct.productId;
+            let key2 = defaultKey + '-' + this.financialInfos.salesTeam + '-' + this.addProduct.productGroupId;
+            let key3 = defaultKey + '-' + this.addProduct.productGroupId;
             
             let currentDiscountOrAddition = 0;
             let financialValues = this.financialInfos.financialValues;
@@ -891,8 +890,6 @@ export default class OrderProductScreen extends LightningElement {
                 currentDiscountOrAddition = financialValues[key2];
             } else if (this.isFilled(financialValues[key3])) {
                 currentDiscountOrAddition = financialValues[key3];
-            } else if (this.isFilled(financialValues[key4])) {
-                currentDiscountOrAddition = financialValues[key4];
             } else if (this.isFilled(financialValues[defaultKey])) {
                 currentDiscountOrAddition = financialValues[defaultKey];
             }
