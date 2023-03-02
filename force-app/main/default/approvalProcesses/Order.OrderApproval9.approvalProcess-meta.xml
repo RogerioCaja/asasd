@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ApprovalProcess xmlns="http://soap.sforce.com/2006/04/metadata">
-    <active>false</active>
+    <active>true</active>
     <allowRecall>true</allowRecall>
     <allowedSubmitters>
         <type>creator</type>
@@ -22,6 +22,26 @@
         <field>Owner</field>
     </approvalPageFields>
     <approvalStep>
+        <allowDelegate>false</allowDelegate>
+        <assignedApprover>
+            <approver>
+                <name>AprovacaoCreditoBarter</name>
+                <type>queue</type>
+            </approver>
+            <whenMultipleApprovers>FirstResponse</whenMultipleApprovers>
+        </assignedApprover>
+        <entryCriteria>
+            <criteriaItems>
+                <field>Order.RecordType</field>
+                <operation>equals</operation>
+                <value>Venda Barter</value>
+            </criteriaItems>
+        </entryCriteria>
+        <ifCriteriaNotMet>GotoNextStep</ifCriteriaNotMet>
+        <label>Aprovação Crédito - Barter</label>
+        <name>AprovacaoCreditoBarter</name>
+    </approvalStep>
+    <approvalStep>
         <allowDelegate>true</allowDelegate>
         <assignedApprover>
             <approver>
@@ -40,6 +60,9 @@
         <ifCriteriaNotMet>GotoNextStep</ifCriteriaNotMet>
         <label>Aprovação Barter</label>
         <name>AprovacaoBarter</name>
+        <rejectBehavior>
+            <type>RejectRequest</type>
+        </rejectBehavior>
     </approvalStep>
     <approvalStep>
         <allowDelegate>true</allowDelegate>
