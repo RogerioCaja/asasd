@@ -79,7 +79,7 @@ public without sharing class OrderHelper {
         for(Order order : newRecords){ 
             orderTypeName = Schema.getGlobalDescribe().get('Order').getDescribe().getRecordTypeInfosById().get(order.RecordTypeId).getName();
             if(order.StatusSF__c == 'Aprovado' && order.Status != 'X'){
-                if(orderTypeName == 'Venda Barter'){
+                if(orderTypeName == 'Venda Barter' && order.OrderReference__c == null){
                     System.enqueueJob(new calloutsQueueBarter(order.Id));
                 }else{
                     System.enqueueJob(new calloutsQueue(order.Id));
@@ -221,7 +221,7 @@ public without sharing class OrderHelper {
             Map<ID,Schema.RecordTypeInfo> orderMap = Order.sObjectType.getDescribe().getRecordTypeInfosById();
             for(Order order : newRecords){
                 if(order.Status != '0' && !(order.Description != null ? order.Description.contains('1n73gr4ção N3sc4r4 5F x 4PP') : false)){
-                    if(order.MarginCommittee__c || order.Manager_BranchOffice__c || order.Gerente_Regional__c || order.Director__c || orderMap.get(order.RecordTypeId).getName() == 'Venda Barter')
+                    if(order.MarginCommittee__c || order.Manager_BranchOffice__c || order.Gerente_Regional__c || order.Director__c || (orderMap.get(order.RecordTypeId).getName() == 'Venda Barter' && order.OrderReference__c == null))
                     {
                         try{
                             Approval.ProcessSubmitRequest administrationRequest = new Approval.ProcessSubmitRequest();
@@ -277,7 +277,7 @@ public without sharing class OrderHelper {
                     }
                 }
                 if((oldMap.get(id).Status == '0' && newMap.get(id).Status == '001') || ( (newMap.get(id).Description != null ? newMap.get(id).Description.contains('1n73gr4ção N3sc4r4 5F x 4PP') : false) && newMap.get(id).Status == '001')){
-                    if(newMap.get(id).MarginCommittee__c || newMap.get(id).Manager_BranchOffice__c || newMap.get(id).Gerente_Regional__c || newMap.get(id).Director__c || orderMap.get(newMap.get(id).RecordTypeId).getName() == 'Venda Barter')
+                    if(newMap.get(id).MarginCommittee__c || newMap.get(id).Manager_BranchOffice__c || newMap.get(id).Gerente_Regional__c || newMap.get(id).Director__c || (orderMap.get(newMap.get(id).RecordTypeId).getName() == 'Venda Barter' && newMap.get(id).OrderReference__c == null))
                     {
                         
                         try{
