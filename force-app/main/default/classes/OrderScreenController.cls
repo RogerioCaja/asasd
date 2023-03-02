@@ -1842,20 +1842,13 @@ public without sharing class OrderScreenController {
                 discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
             }
 
-            key += financialDiscount.SalesOffice__c != null ? '-' + financialDiscount.SalesOffice__c : '';
+            key += financialDiscount.SalesTeam__c != null ? '-' + financialDiscount.SalesTeam__c : '';
             if (!discountByFinancialInfos.containsKey(key)) {
                 discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
             }
 
             key = financialDiscount.SalesOrg__c + '-' + financialDiscount.harvest__c;
-            key += financialDiscount.SalesOffice__c != null ? '-' + financialDiscount.SalesOffice__c : '';
-            key += financialDiscount.Product__c != null ? '-' + financialDiscount.Product__c : '';
-            if (!discountByFinancialInfos.containsKey(key)) {
-                discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
-            }
-
-            key = financialDiscount.SalesOrg__c + '-' + financialDiscount.harvest__c;
-            key += financialDiscount.Culture__c != null ? '-' + financialDiscount.Culture__c : '';
+            key += financialDiscount.SalesTeam__c != null ? '-' + financialDiscount.SalesTeam__c : '';
             key += financialDiscount.Product__c != null ? '-' + financialDiscount.Product__c : '';
             if (!discountByFinancialInfos.containsKey(key)) {
                 discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
