@@ -46,7 +46,7 @@ public without sharing class CustomLookupController {
 		}
 		return out.toLowercase();
 	}
-
+    
     @AuraEnabled
     public static ProductDataResult fetchProductsRecords(String searchString, String data, Boolean isCommodity, List<String> productsIds, Boolean priceScreen, Boolean getSeedPrices) {
         try {
@@ -167,7 +167,7 @@ public without sharing class CustomLookupController {
                                   '       )' +
                                   ' ORDER BY Name' +
                                   (
-                                    !priceScreen && !isCommodity ? 
+                                    !priceScreen && !isCommodity && !isLimit ? 
                                         ' LIMIT 9' +
                                         ' OFFSET :numberOfRowsToSkip' : 
                                         ''
