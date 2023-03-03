@@ -1845,12 +1845,16 @@ export default class OrderProductScreen extends LightningElement {
         this.commodities = event.results.recordsDataList;
     }
 
-    calculateTaxes(totalValue) {
+    calculateTaxes(totalValue, commodityId) {
         let totalTaxes = 0;
         let taxes = this.parseObject(this.taxData);
         for (let i = 0; i < taxes.length; i++) {
-            taxes[i].taxValue = totalValue * (taxes[i].taxPercentage / 100);
-            totalTaxes += taxes[i].taxValue;
+            if (taxes[i].taxProduct == commodityId) {
+                taxes[i].taxValue = totalValue * (taxes[i].taxPercentage / 100);
+                totalTaxes += taxes[i].taxValue;
+            } else {
+                taxes[i].taxValue = 0;
+            }
         }
         this.taxData = this.parseObject(taxes);
         return totalTaxes;
@@ -1871,7 +1875,7 @@ export default class OrderProductScreen extends LightningElement {
 
         let marginPercent = ((1 - (orderTotalCost / totalProducts)) * 100);
         let chooseCommodity = this.commodities.find(e => e.Id == event.target.dataset.targetId);
-        let commodityPrice = chooseCommodity.listPrice - this.calculateTaxes(chooseCommodity.listPrice);
+        let commodityPrice = chooseCommodity.listPrice - this.calculateTaxes(chooseCommodity.listPrice, chooseCommodity.Id);
 
         this.selectedCommodity = {
             id: chooseCommodity.Id,
@@ -2014,7 +2018,7 @@ export default class OrderProductScreen extends LightningElement {
             let marginPercent = ((1 - (orderTotalCost / totalProducts)) * 100);
 
             let currentCommodityValues = this.parseObject(this.commoditiesData[0]);
-            let commodityPrice = currentCommodityValues.cotation - this.calculateTaxes(currentCommodityValues.cotation);
+            let commodityPrice = currentCommodityValues.cotation - this.calculateTaxes(currentCommodityValues.cotation, currentCommodityValues.productId);
 
             currentCommodityValues.area = this.headerData.hectares;
             currentCommodityValues.quantity = productsQuantity;
