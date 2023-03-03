@@ -233,6 +233,7 @@ public without sharing class OrderScreenController {
         for (CommodityTaxes__c commodityTax : [
             SELECT Id,
                    Tax__c,
+                   Tax__r.Commodity__c,
                    Commodity__c,
                    DeductionAmount__c,
                    PercentageDeducted__c
@@ -1279,18 +1280,20 @@ public without sharing class OrderScreenController {
 
                     for (TaxData taxData : orderData.taxData) {
                         System.debug('orderData.taxData: ' + orderData.taxData);
-                        CommodityTaxes__c commodityTax;
-                        if (!newOrder && !cloneOrder && taxesById.containsKey(taxData.taxId)) {
-                            commodityTax = taxesById.get(taxData.taxId);
-                        } else {
-                            commodityTax = new CommodityTaxes__c();
-                        }
+                        if (taxData.taxProduct == upsCommodities[0].Product__c) {
+                            CommodityTaxes__c commodityTax;
+                            if (!newOrder && !cloneOrder && taxesById.containsKey(taxData.taxId)) {
+                                commodityTax = taxesById.get(taxData.taxId);
+                            } else {
+                                commodityTax = new CommodityTaxes__c();
+                            }
 
-                        commodityTax.Tax__c = taxData.taxId;
-                        commodityTax.Commodity__c = upsCommodities[0].Id;
-                        commodityTax.DeductionAmount__c = toatlCommodityValue * (taxData.taxPercentage / 100);
-                        commodityTax.PercentageDeducted__c = taxData.taxPercentage;
-                        upsCommoditiesTaxes.add(commodityTax);
+                            commodityTax.Tax__c = taxData.taxId;
+                            commodityTax.Commodity__c = upsCommodities[0].Id;
+                            commodityTax.DeductionAmount__c = toatlCommodityValue * (taxData.taxPercentage / 100);
+                            commodityTax.PercentageDeducted__c = taxData.taxPercentage;
+                            upsCommoditiesTaxes.add(commodityTax);
+                        }
                     }
                     
                     if (upsCommoditiesTaxes.size() > 0) {
@@ -2121,7 +2124,8 @@ public without sharing class OrderScreenController {
             for (CustomerTaxes__c tax : [
                 SELECT Id,
                        Tax__c,
-                       Tax__r.TaxPercentage__c
+                       Tax__r.TaxPercentage__c,
+                       Tax__r.Commodity__c
                   FROM CustomerTaxes__c
                  WHERE Account__c =: accountId
                    AND SalesOrg__c =: salesOrgId
@@ -2133,6 +2137,7 @@ public without sharing class OrderScreenController {
                 currentTax.taxId = tax.Tax__c;
                 currentTax.taxValue = 0;
                 currentTax.taxPercentage = tax.Tax__r.TaxPercentage__c;
+                currentTax.taxProduct = tax.Tax__r.Commodity__c;
                 taxValues.add(currentTax);
             }
 
@@ -2372,6 +2377,7 @@ public without sharing class OrderScreenController {
     public class TaxData {
         public String  taxId;
         public String  commodityId;
+        public String  taxProduct;
         public Decimal taxValue;
         public Decimal taxPercentage;
     }
@@ -2379,6 +2385,7 @@ public without sharing class OrderScreenController {
     public class TaxDataSerialize {
         public String  taxId;
         public String  commodityId;
+        public String  taxProduct;
         public Decimal taxValue;
         public Decimal taxPercentage;
 
@@ -2386,6 +2393,7 @@ public without sharing class OrderScreenController {
         public TaxDataSerialize(CommodityTaxes__c tax){
             this.taxId = tax.Tax__c;
             this.commodityId = tax.Commodity__c;
+            this.taxProduct = tax.Tax__r.Commodity__c;
             this.taxValue = tax.DeductionAmount__c;
             this.taxPercentage = tax.PercentageDeducted__c;
         }
