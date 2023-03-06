@@ -467,7 +467,7 @@ export default class OrderProductScreen extends LightningElement {
                 .then((result) => {
                     let safraResult = JSON.parse(result);
                     this.safraData = {initialDate:safraResult.initialDate,endDate:safraResult.endDateBilling};
-                    let orderData = {paymentDate:this.headerData.data_pagamento != null ? this.headerData.data_pagamento : '',salesOrg:this.selectedCompany.salesOrgId != null ? this.selectedCompany.salesOrgId : '',salesOffice:this.selectedCompany.salesOfficeId != null ? this.selectedCompany.salesOfficeId : '',salesTeam:this.selectedCompany.salesTeamId != null ? this.selectedCompany.salesTeamId : '',salesCondition:this.salesConditionId != null ? this.salesConditionId : '',safra:this.headerData.safra.Id != null ? this.headerData.safra.Id : '',culture:this.headerData.cultura.Id != null ? this.headerData.cultura.Id : ''};
+                    let orderData = {paymentDate:this.headerData.data_pagamento != null ? this.headerData.data_pagamento : '',salesOrg:this.selectedCompany.salesOrgId != null ? this.selectedCompany.salesOrgId : '',salesOffice:this.selectedCompany.salesOfficeId != null ? this.selectedCompany.salesOfficeId : '',salesTeam:this.selectedCompany.salesTeamId != null ? this.selectedCompany.salesTeamId : '',salesCondition:this.salesConditionId != null ? this.salesConditionId : '',safra:this.headerData.safra.Id != null ? this.headerData.safra.Id : '',culture:this.headerData.cultura.Id != null ? this.headerData.cultura.Id : '',clientGroup: this.selectedCompany.clientGroup != null ? this.selectedCompany.clientGroup : ''};
                     let allowChange = (this.headerData.tipo_pedido != 'Pedido Filho' && !this.headerData.IsOrderChild && this.isFilled(this.headerData.codigo_sap)) || (this.headerData.tipo_pedido == 'Pedido Filho' && this.isFilled(this.headerData.codigo_sap)) ? false : true;
                     let checkFinancialInfos = true;
 
@@ -1179,15 +1179,17 @@ export default class OrderProductScreen extends LightningElement {
             }
 
             let defaultKey = this.financialInfos.salesOrg + '-' + this.headerData.safra.Id;
-            let key1 = defaultKey + '-' + this.financialInfos.salesTeam + '-' + this.addProduct.productId;
-            let key2 = defaultKey + '-' + this.financialInfos.salesTeam + '-' + this.addProduct.productGroupId;
-            let key3 = defaultKey + '-' + this.addProduct.productGroupId;
+            let key1 = defaultKey + '-' + this.financialInfos.clientGroup + '-' + this.addProduct.productId;
+            let key2 = defaultKey + '-' + this.financialInfos.salesTeam + '-' + this.addProduct.productId;
+            let key3 = defaultKey + '-' + this.financialInfos.salesTeam + '-' + this.addProduct.productGroupId;
+            let key4 = defaultKey + '-' + this.addProduct.productGroupId;
             
             let currentDiscountOrAddition = 0;
             let financialValues = this.financialInfos.financialValues;
             if (this.isFilled(financialValues[key1])) currentDiscountOrAddition = financialValues[key1];
             else if (this.isFilled(financialValues[key2])) currentDiscountOrAddition = financialValues[key2];
             else if (this.isFilled(financialValues[key3])) currentDiscountOrAddition = financialValues[key3];
+            else if (this.isFilled(financialValues[key4])) currentDiscountOrAddition = financialValues[key4];
             else if (this.isFilled(financialValues[defaultKey])) currentDiscountOrAddition = financialValues[defaultKey];
 
             let totalValue = this.isFilled(this.headerData.id) ? this.addProduct.quantity * this.addProduct.unitPrice : this.addProduct.totalPrice;
