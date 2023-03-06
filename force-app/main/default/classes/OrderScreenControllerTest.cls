@@ -401,6 +401,7 @@ public class OrderScreenControllerTest {
         orderData.salesTeam = [SELECT Id FROM SalesTeam__c LIMIT 1].Id;
         orderData.safra = [SELECT Id FROM Safra__c LIMIT 1].Id;
         orderData.culture = [SELECT Id FROM Cultura__c LIMIT 1].Id;
+        orderData.clientGroup = '07';
 
         String data = JSON.serialize(orderData);
         OrderScreenController.getFinancialInfos(data);
