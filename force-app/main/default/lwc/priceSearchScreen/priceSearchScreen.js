@@ -142,6 +142,7 @@ export default class PriceSearchScreen extends LightningElement {
                 salesOrg: companyResult[0].salesOrgId != null ? companyResult[0].salesOrgId : '',
                 salesOffice: companyResult[0].salesOfficeId != null ? companyResult[0].salesOfficeId : '',
                 salesTeam: companyResult[0].salesTeamId != null ? companyResult[0].salesTeamId : '',
+                clientGroup: companyResult[0].clientGroup != null ? companyResult[0].clientGroup : '',
                 accountId: this.isFilled(this.searchData.account.Id) ? this.searchData.account.Id : '',
                 safra: this.searchData.safra.Id != null ? this.searchData.safra.Id : ''
             };
@@ -219,9 +220,10 @@ export default class PriceSearchScreen extends LightningElement {
 
     calculateDiscountValues(productInfos) {
         let defaultKey = this.financialInfos.salesOrg + '-' + this.searchData.safra.Id;
-        let key1 = defaultKey + '-' + this.financialInfos.salesTeam + '-' + productInfos.productId;
-        let key2 = defaultKey + '-' + this.financialInfos.salesTeam + '-' + productInfos.productGroupId;
-        let key3 = defaultKey + '-' + productInfos.productGroupId;
+        let key1 = defaultKey + '-' + this.financialInfos.clientGroup + '-' + productInfos.productId;
+        let key2 = defaultKey + '-' + this.financialInfos.salesTeam + '-' + productInfos.productId;
+        let key3 = defaultKey + '-' + this.financialInfos.salesTeam + '-' + productInfos.productGroupId;
+        let key4 = defaultKey + '-' + productInfos.productGroupId;
         
         let currentDiscountOrAddition = 0;
         let financialValues = this.financialInfos.financialValues;
@@ -231,6 +233,8 @@ export default class PriceSearchScreen extends LightningElement {
             currentDiscountOrAddition = financialValues[key2];
         } else if (this.isFilled(financialValues[key3])) {
             currentDiscountOrAddition = financialValues[key3];
+        } else if (this.isFilled(financialValues[key4])) {
+            currentDiscountOrAddition = financialValues[key4];
         } else if (this.isFilled(financialValues[defaultKey])) {
             currentDiscountOrAddition = financialValues[defaultKey];
         }
