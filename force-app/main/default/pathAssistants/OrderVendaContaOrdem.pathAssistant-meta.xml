@@ -3,7 +3,7 @@
     <active>true</active>
     <entityName>Order</entityName>
     <fieldName>Status</fieldName>
-    <masterLabel>Pedidos</masterLabel>
+    <masterLabel>Venda Conta e Ordem</masterLabel>
     <pathAssistantSteps>
         <picklistValueName>0</picklistValueName>
     </pathAssistantSteps>
@@ -22,5 +22,5 @@
         <info>&lt;p&gt;“Os Status de Crédito apresentados aqui não correspondem necessariamente à realidade neste momento.&lt;/p&gt;&lt;p&gt;Para uma informação correta, favor consultar a Equipe de Crédito”.&lt;/p&gt;</info>
         <picklistValueName>3</picklistValueName>
     </pathAssistantSteps>
-    <recordTypeName>__MASTER__</recordTypeName>
+    <recordTypeName>VendaContaOrdem</recordTypeName>
 </PathAssistant>
