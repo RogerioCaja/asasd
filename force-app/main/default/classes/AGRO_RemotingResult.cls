@@ -14,6 +14,8 @@ public virtual class AGRO_RemotingResult {
     @AuraEnabled
     public String orderId;
 
+
+    
     /*public AGRO_RemotingResult() {
         this.hasError   = false;
         this.sessionExpired = UserInfo.getSessionId() == null;
