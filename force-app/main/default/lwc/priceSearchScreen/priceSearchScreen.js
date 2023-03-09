@@ -118,24 +118,10 @@ export default class PriceSearchScreen extends LightningElement {
                         } else {
                             this.fieldKey = false;
                         }
+                    }
 
-                        let getCompanyData = {
-                            ctvId: this.isFilled(this.searchData.ctv.Id) ? this.searchData.ctv.Id : '',
-                            accountId: this.isFilled(this.searchData.account.Id) ? this.searchData.account.Id : '',
-                            orderType: 'VendaNormal',
-                            approvalNumber: 1
-                        }
-                        
-                        if (currentValue.Id != this.searchData[field].Id) {
-                            this.showLoading = true;
-                            getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: false, verifyUserType: false, priceScreen: true, childOrder: false})
-                            .then((result) => {
-                                this.showLoading = false;
-                                this.company = JSON.parse(result).listCompanyInfos;
-                                this.salesOrgId = this.company[0].salesOrgId;
-                            });
-                        }
-                        
+                    if (currentValue.Id != this.searchData[field].Id && (field == 'ctv' || field == 'account')) {
+                        this.getCompany();
                     }
                 }
                 this.searchData = JSON.parse(JSON.stringify(this.searchData));
@@ -143,6 +129,23 @@ export default class PriceSearchScreen extends LightningElement {
         } catch (err) {
             console.log(err);
         }
+    }
+
+    getCompany() {
+        let getCompanyData = {
+            ctvId: this.isFilled(this.searchData.ctv.Id) ? this.searchData.ctv.Id : '',
+            accountId: this.isFilled(this.searchData.account.Id) ? this.searchData.account.Id : '',
+            orderType: 'VendaNormal',
+            approvalNumber: 1
+        }
+        
+        this.showLoading = true;
+        getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: false, verifyUserType: false, priceScreen: true, childOrder: false})
+        .then((result) => {
+            this.showLoading = false;
+            this.company = JSON.parse(result).listCompanyInfos;
+            this.salesOrgId = this.company[0].salesOrgId;
+        });
     }
 
     removeItemRegister(event) {
