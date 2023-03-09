@@ -1821,12 +1821,9 @@ public without sharing class OrderScreenController {
         for (JurosDescontoAntecipao__c financialDiscount : [
             SELECT Id,
                    ConditionType__c,
-                   Culture__c,
                    Percentage__c,
-                   PriorityLevel__c,
                    ProductGroup__c,
                    Product__c,
-                   SalesOffice__c,
                    SalesOrg__c,
                    SalesTeam__c,
                    harvest__c,
@@ -1838,33 +1835,45 @@ public without sharing class OrderScreenController {
                AND SalesOrg__c =: result.salesOrg
                AND harvest__c =: orderValues.safra
         ]) {
-            String key = financialDiscount.SalesOrg__c + '-' + financialDiscount.harvest__c;
-            if (!discountByFinancialInfos.containsKey(key)) {
-                discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
-            }
+            if ((financialDiscount.SalesTeam__c == result.salesTeam || financialDiscount.SalesTeam__c == null) &&
+                (financialDiscount.ClientGroup__c == result.clientGroup || financialDiscount.ClientGroup__c == null))  {
+                String key = financialDiscount.SalesOrg__c + '-' + financialDiscount.harvest__c;
+                key += financialDiscount.ClientGroup__c != null ? '-' + financialDiscount.ClientGroup__c : '';
+                key += financialDiscount.Product__c != null ? '-' + financialDiscount.Product__c : '';
+                if (financialDiscount.ClientGroup__c != null && financialDiscount.Product__c != null && !discountByFinancialInfos.containsKey(key)) {
+                    discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
+                    continue;
+                }
 
-            key += financialDiscount.ProductGroup__c != null ? '-' + financialDiscount.ProductGroup__c : '';
-            if (!discountByFinancialInfos.containsKey(key)) {
-                discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
-            }
+                key = financialDiscount.SalesOrg__c + '-' + financialDiscount.harvest__c;
+                key += financialDiscount.SalesTeam__c != null ? '-' + financialDiscount.SalesTeam__c : '';
+                key += financialDiscount.Product__c != null ? '-' + financialDiscount.Product__c : '';
+                if (financialDiscount.SalesTeam__c != null && financialDiscount.Product__c != null && !discountByFinancialInfos.containsKey(key)) {
+                    discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
+                    continue;
+                }
 
-            key += financialDiscount.SalesTeam__c != null ? '-' + financialDiscount.SalesTeam__c : '';
-            if (!discountByFinancialInfos.containsKey(key)) {
-                discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
-            }
+                key = financialDiscount.SalesOrg__c + '-' + financialDiscount.harvest__c;
+                key += financialDiscount.SalesTeam__c != null ? '-' + financialDiscount.SalesTeam__c : '';
+                key += financialDiscount.ProductGroup__c != null ? '-' + financialDiscount.ProductGroup__c : '';
+                if (financialDiscount.SalesTeam__c != null && financialDiscount.ProductGroup__c != null && !discountByFinancialInfos.containsKey(key)) {
+                    discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
+                    continue;
+                }
+                
+                key = financialDiscount.SalesOrg__c + '-' + financialDiscount.harvest__c;
+                key += financialDiscount.ProductGroup__c != null ? '-' + financialDiscount.ProductGroup__c : '';
+                if (financialDiscount.ProductGroup__c != null && !discountByFinancialInfos.containsKey(key)) {
+                    discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
+                    continue;
+                }
 
-            key = financialDiscount.SalesOrg__c + '-' + financialDiscount.harvest__c;
-            key += financialDiscount.SalesTeam__c != null ? '-' + financialDiscount.SalesTeam__c : '';
-            key += financialDiscount.Product__c != null ? '-' + financialDiscount.Product__c : '';
-            if (!discountByFinancialInfos.containsKey(key)) {
-                discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
-            }
-
-            key = financialDiscount.SalesOrg__c + '-' + financialDiscount.harvest__c;
-            key += financialDiscount.ClientGroup__c != null ? '-' + financialDiscount.ClientGroup__c : '';
-            key += financialDiscount.Product__c != null ? '-' + financialDiscount.Product__c : '';
-            if (!discountByFinancialInfos.containsKey(key)) {
-                discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
+                key = financialDiscount.SalesOrg__c + '-' + financialDiscount.harvest__c;
+                if (financialDiscount.ClientGroup__c == null && financialDiscount.SalesTeam__c == null && financialDiscount.Product__c == null &&
+                    financialDiscount.ProductGroup__c == null && !discountByFinancialInfos.containsKey(key)) {
+                    discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
+                    continue;
+                }
             }
         }
 
