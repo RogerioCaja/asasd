@@ -685,8 +685,6 @@ global with sharing class TemplateDataIntegrationFields {
         public Boolean orderCommodityECalendariazacao;
         public String orderExternalId;
         public String Name;
-        //public String OrderItemCode;
-        public String Name;
         public String material;
         public Decimal commodityPrice;
         public Decimal bagQuantity;
