@@ -174,7 +174,7 @@ public without sharing class CalloutOrderDatalake {
             
 
 
-            List<OrderCommodity__c> commoditiesList = [SELECT Id, Product__c, CommodityPrice__c, BagQuantity__c, BagMargin__c, Order__c, StartDate__c, EndDate__c, DeliveryAddress__c, Product__r.ProductCode FROM OrderCommodity__c WHERE Order__c IN: orderIds];  
+            List<OrderCommodity__c> commoditiesList = [SELECT Id, Name, Product__c, CommodityPrice__c, BagQuantity__c, BagMargin__c, Order__c, StartDate__c, EndDate__c, DeliveryAddress__c, Product__r.ProductCode FROM OrderCommodity__c WHERE Order__c IN: orderIds];  
             List<ShippingDivison__c> divisonList = [SELECT Id,Name, DeliveryDate__c, Quantity__c, OrderItem__c, ExternalId__c, SapNumber__c FROM ShippingDivison__c WHERE OrderItem__c IN: orderItemIds];
             Map<Id, List<ShippingDivison__c>> divisionMap = new  Map<Id, List<ShippingDivison__c>>();
 
@@ -487,6 +487,7 @@ public without sharing class CalloutOrderDatalake {
     }
 
     public class OrderCommoditiesParameters{
+        public String commodityName;
         public String material;
         public Decimal commodityPrice;
         public Decimal bagQuantity;
@@ -496,6 +497,7 @@ public without sharing class CalloutOrderDatalake {
         public String deliveryAddress;
 
         public OrderCommoditiesParameters(OrderCommodity__c orderCommodity){
+            this.commodityName = orderCommodity.Name;
             this.material = orderCommodity.Product__r.ProductCode;
             this.commodityPrice = orderCommodity.CommodityPrice__c;
             this.bagQuantity = orderCommodity.BagQuantity__c;
