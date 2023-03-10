@@ -289,7 +289,7 @@ export default class PriceSearchScreen extends LightningElement {
         
         let currentDiscountOrAddition = 0;
         let financialValues = this.financialInfos.financialValues;
-        if (this.isFilled(financialValues[key1])) {
+        if (this.isFilled(financialValues[key1]) && this.isFilled(this.searchData.account.Id)) {
             currentDiscountOrAddition = financialValues[key1];
         } else if (this.isFilled(financialValues[key2])) {
             currentDiscountOrAddition = financialValues[key2];
