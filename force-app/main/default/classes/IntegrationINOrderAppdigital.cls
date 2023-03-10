@@ -105,6 +105,8 @@ global without sharing class IntegrationINOrderAppdigital {
             if(order.commodity != null){
                 for(TemplateDataIntegrationFields.OrderCommodityINData orderCommodity : order.commodity){
                     //orderCommodity.orderItemCode = orderCommodity.orderItemCode.replaceFirst('^0+','');
+                    orderCommodity.orderCommodityECalendariazacao = order.eCalendarizacao;
+                    System.debug('orderCommodityECalendariazacao ' + orderCommodity.orderCommodityECalendariazacao);
                         if(order.numeroPedidoApp != null && order.numeroPedidoApp != ''){
                             orderCommodity.orderExternalId = order.numeroPedidoApp;
                         }
