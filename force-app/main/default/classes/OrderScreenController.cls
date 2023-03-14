@@ -25,6 +25,7 @@ public without sharing class OrderScreenController {
                 productQuantity += item.quantity + (item.amountUsed != null ? item.amountUsed : 0);
             }
             order.freightPerUnit = order.freightValue != null ? order.freightValue / productQuantity : 0;
+            order.motherTotalQuantity = productQuantity;
         }
 
         if (order.bpStorage != null) {
@@ -70,9 +71,9 @@ public without sharing class OrderScreenController {
     }
 
     public static HeaderSerialize getOrderData(Id orderId, Boolean cloneOrder){
-        Order order = [SELECT Id, OrderNumber, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c , ShippingAccount__r.Phone,  ShippingAccount__r.Name, 
+        Order order = [SELECT Id, OrderNumber, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c , ShippingAccount__r.Phone,  ShippingAccount__r.Name,
         ShippingAccount__r.BillingCity, ShippingAccount__r.BillingState ,ShippingAccount__r.CPF__c, ShippingAccount__r.CNPJ__c , SalesCondition__c, SalesCondition__r.Name, FreightValue__c,
-        Pricebook2.InitialDate__c, Pricebook2.EndDate__c, PaymentDate__c,  CustomerOrderNumber__c, Crop__c , Crop__r.Name, Culture__c , Culture__r.Name, OrderMargin__c, RecordTypeId,
+        Pricebook2.InitialDate__c, Pricebook2.EndDate__c, PaymentDate__c,  CustomerOrderNumber__c, Crop__c , Crop__r.Name, Culture__c , Culture__r.Name, OrderMargin__c, RecordTypeId, MTO__c,
         PaymentForm__c, StatusSF__c, CodigoSAP__c, SalesOrg__c, SalesOrg__r.Name, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, SalesCTV__r.Name, OrderType__c, BPStorage__c,
         PaymentCondition__c, PaymentCondition__r.Name, ShippingDate__c, Incoterms__c, OrderReference__c, OrderReference__r.Name, IsOrderMother__c, Company__c, Hectare__c, Status, DistributionCenter__c
         FROM Order 
@@ -154,13 +155,13 @@ public without sharing class OrderScreenController {
                    ReasonRefuse__c,
                    Sieve__c,
                    Class__c,
+                   ComboPromotion__c,
+                   AgrogalaxyComboDiscount__c,
+                   IndustryComboDiscount__c,
                    TSIValue__c,
                    RoyaltyAmount__c,
                    TotalTSIAmount__c,
-                   TotalRoyaltyAmount__c,
-                   ComboPromotion__c,
-                   AgrogalaxyComboDiscount__c,
-                   IndustryComboDiscount__c
+                   TotalRoyaltyAmount__c
               FROM OrderItem
              WHERE OrderId =: orderId
         ]){
@@ -232,6 +233,7 @@ public without sharing class OrderScreenController {
         for (CommodityTaxes__c commodityTax : [
             SELECT Id,
                    Tax__c,
+                   Tax__r.Commodity__c,
                    Commodity__c,
                    DeductionAmount__c,
                    PercentageDeducted__c
@@ -302,7 +304,7 @@ public without sharing class OrderScreenController {
 
     public static Set<Id> getTerritoryAccounts() {
         try {
-            Id sellerTerritoryId;
+            Set<Id> sellerTerritoryIds = new Set<Id>();
             String userTerritoryType = '';
             Set<Id> userTerritories = new Set<Id>();
             List<String> territoryTypes = new List<String>{'Torre', 'SalesOrg', 'SalesOffice', 'SalesTeam', 'SellerPosition'};
@@ -315,7 +317,7 @@ public without sharing class OrderScreenController {
                  WHERE UserId =: UserInfo.getUserId()
             ]) {
 				if (userAssociation.Territory2.Territory2Type.DeveloperName == 'SellerPosition') {
-                    sellerTerritoryId = userAssociation.Territory2Id;
+                    sellerTerritoryIds.add(userAssociation.Territory2Id);
                 }
 
                 userTerritories.add(userAssociation.Territory2Id);
@@ -329,7 +331,7 @@ public without sharing class OrderScreenController {
 			else if (userTerritoryType == 'SalesOrg') territoryQuery += 'WHERE ParentTerritory2.ParentTerritory2.ParentTerritory2Id IN: userTerritories';
 			else if (userTerritoryType == 'SalesOffice') territoryQuery += 'WHERE ParentTerritory2.ParentTerritory2Id IN: userTerritories';
 			else if (userTerritoryType == 'SalesTeam') territoryQuery += 'WHERE ParentTerritory2Id IN: userTerritories';
-			else if (userTerritoryType == 'SellerPosition') territoryQuery += 'WHERE Id =: sellerTerritoryId';
+			else if (userTerritoryType == 'SellerPosition') territoryQuery += 'WHERE Id IN: sellerTerritoryIds';
 			else territoryQuery += 'WHERE Id = null';
 			
 			for(SObject sobj : Database.query(territoryQuery)) {
@@ -509,18 +511,58 @@ public without sharing class OrderScreenController {
             Map<Id, OrderItem> motherItems = new Map<Id, OrderItem>();
             Boolean newDivision = false;
             Decimal motherQuantity = 0;
+            Decimal motherFreight = 0;
+            Map<String, Decimal> individualValuesByType = new Map<String, Decimal>();
             if (orderData.headerData.pedido_mae.Id != null || order.OrderReference__c != null) {
                 for (OrderItem item : [
                     SELECT Id,
                            Product2Id,
                            Quantity,
                            AmountUsed__c,
-                           NumeroSap__c
+                           NumeroSap__c,
+                           FinalTotalValue__c,
+                           TotalTSIAmount__c,
+                           TotalRoyaltyAmount__c,
+                           FreightValue__c,
+                           OrderId,
+                           Order.FreightValue__c,
+                           Order.OrderReference__r.FreightValue__c
                       FROM OrderItem
                      WHERE OrderId =: orderData.headerData.pedido_mae.Id
                         OR OrderId =: order.OrderReference__c
                 ]) {
                     motherQuantity += item.Quantity;
+                    if (item.OrderId != orderData.headerData.pedido_mae.Id) {
+                        motherFreight = item.Order.OrderReference__r.FreightValue__c != null ? item.Order.OrderReference__r.FreightValue__c : 0;
+                    } else {
+                        motherFreight = item.Order.FreightValue__c != null ? item.Order.FreightValue__c : 0;
+                    }
+
+                    if (!individualValuesByType.containsKey('Germoplasma')) {
+                        individualValuesByType.put('Germoplasma', item.FinalTotalValue__c);
+                    } else {
+                        Decimal currentGermoplasma = individualValuesByType.get('Germoplasma') + item.FinalTotalValue__c;
+                        individualValuesByType.put('Germoplasma', currentGermoplasma);
+                    }
+
+                    if (item.TotalRoyaltyAmount__c != null && item.TotalRoyaltyAmount__c > 0) {
+                        if (!individualValuesByType.containsKey('Royalties')) {
+                            individualValuesByType.put('Royalties', item.TotalRoyaltyAmount__c);
+                        } else {
+                            Decimal currentRoyalty = individualValuesByType.get('Royalties') + item.TotalRoyaltyAmount__c;
+                            individualValuesByType.put('Royalties', currentRoyalty);
+                        }
+                    }
+                    
+                    if (item.TotalTSIAmount__c != null && item.TotalTSIAmount__c > 0) {
+                        if (!individualValuesByType.containsKey('TSI')) {
+                            individualValuesByType.put('TSI', item.TotalTSIAmount__c);
+                        } else {
+                            Decimal currentTSI = individualValuesByType.get('TSI') + item.TotalTSIAmount__c;
+                            individualValuesByType.put('TSI', currentTSI);
+                        }
+                    }
+                    
                     motherItems.put(item.Product2Id, item);
                 }
                 newDivision = newOrder ? true : false;
@@ -618,6 +660,7 @@ public without sharing class OrderScreenController {
                        AND Approver__c = 'ComiteMargem'
                        AND ClientGroup__c =: company.ClientGroup__c
                        AND SalesOrg__c =: company.SalesOrg__c
+                       AND CurrencyIsoCode =: orderData.headerData.moeda
                        AND ProductGroup__c IN: smallerMarginByProductGroup.keySet()
                        AND InitialDate__c <=: System.today()
                        AND EndDate__c >=: System.today()
@@ -646,7 +689,7 @@ public without sharing class OrderScreenController {
                      WHERE Product2Id IN: listProductsIds
                 ]) {
                     pricebookId = entry.Pricebook2Id;
-                    entriesByProductsIds.put(entry.Product2Id, entry);
+                    entriesByProductsIds.put(entry.Product2Id + 'BRL', entry);
                 }
             } else {
                 for (PricebookEntry entry : [
@@ -683,9 +726,10 @@ public without sharing class OrderScreenController {
                            ProductHierarchy__c,
                            SellerType__c,
                            CommissionPercentage__c 
-                    FROM Comissao__c
-                   WHERE ProductHierarchy__c IN: setProductHierarchyIds
-                     AND SellerType__c =: sellerType
+                      FROM Comissao__c
+                     WHERE ProductHierarchy__c IN: setProductHierarchyIds
+                       AND SellerType__c =: sellerType
+                       AND SalesOrg__c =: company.SalesOrg__c
                 ]) {
                     if (!commissionByHierarchy.containsKey(commission.ProductHierarchy__c)) {
                         commissionByHierarchy.put(commission.ProductHierarchy__c, commission);
@@ -726,6 +770,7 @@ public without sharing class OrderScreenController {
                      WHERE Status__c = 'Aprovado'
                        AND ClientGroup__c =: company.ClientGroup__c
                        AND SalesOrg__c =: company.SalesOrg__c
+                       AND CurrencyIsoCode =: orderData.headerData.moeda
                        AND ProductGroup__c =: productGroupId
                        AND InitialDate__c <=: System.today()
                        AND EndDate__c >=: System.today()
@@ -817,6 +862,7 @@ public without sharing class OrderScreenController {
             order.OrderReference__c = order.OrderReference__c != null ? order.OrderReference__c : orderData.headerData.pedido_mae.Id;
             order.IsOrderMother__c = orderData.headerData.pedido_mae.Id != null ? false : Boolean.valueOf(orderData.headerData.pedido_mae_check);
             order.Hectare__c = orderData.headerData.hectares.contains(',') ? Decimal.valueOf(orderData.headerData.hectares.replace(',', '.').trim()) : Decimal.valueOf(orderData.headerData.hectares.trim());
+            order.MTO__c = orderData.headerData.mto;
             order.FinalTotalValue__c = orderTotalValue;
             order.Company__c = company.Id;
             order.DistributionCenter__c = orderData.summaryData.centerId != null ? orderData.summaryData.centerId : orderData.headerData.centerId;
@@ -837,8 +883,14 @@ public without sharing class OrderScreenController {
             }
             order.FreightValue__c = (currentFreight != null) ? currentFreight : 0;
 
+            Decimal germoTotalValue = order.FinalTotalValue__c;
             if (seedSale) {
                 order.FinalTotalValue__c = order.FinalTotalValue__c + tsiTotalValue + royaltyTotalValue;
+            }
+
+            if (individualValuesByType.containsKey('Germoplasma') && seedSale) {
+                Decimal currentGermoplasma = individualValuesByType.get('Germoplasma') + motherFreight;
+                individualValuesByType.put('Germoplasma', currentGermoplasma);
             }
 
             if (Test.isRunningTest()) {
@@ -1033,7 +1085,7 @@ public without sharing class OrderScreenController {
                 }
                 
                 Map<Id, Integer> divisionCounterByItemId = new Map<Id, Integer>();
-                if (orderData.divisionData != null && orderData.divisionData.size() > 0 && typeOrder != 'prepedido') {
+                if (orderData.divisionData != null && orderData.divisionData.size() > 0) {
                     Map<String, DivisionDeserialize> divisionsByKey = new Map<String, DivisionDeserialize>();
                     for (DivisionDeserialize division : orderData.divisionData) {
                         if (division.divisionId != null) {
@@ -1228,18 +1280,20 @@ public without sharing class OrderScreenController {
 
                     for (TaxData taxData : orderData.taxData) {
                         System.debug('orderData.taxData: ' + orderData.taxData);
-                        CommodityTaxes__c commodityTax;
-                        if (!newOrder && !cloneOrder && taxesById.containsKey(taxData.taxId)) {
-                            commodityTax = taxesById.get(taxData.taxId);
-                        } else {
-                            commodityTax = new CommodityTaxes__c();
-                        }
+                        if (taxData.taxProduct == upsCommodities[0].Product__c) {
+                            CommodityTaxes__c commodityTax;
+                            if (!newOrder && !cloneOrder && taxesById.containsKey(taxData.taxId)) {
+                                commodityTax = taxesById.get(taxData.taxId);
+                            } else {
+                                commodityTax = new CommodityTaxes__c();
+                            }
 
-                        commodityTax.Tax__c = taxData.taxId;
-                        commodityTax.Commodity__c = upsCommodities[0].Id;
-                        commodityTax.DeductionAmount__c = toatlCommodityValue * (taxData.taxPercentage / 100);
-                        commodityTax.PercentageDeducted__c = taxData.taxPercentage;
-                        upsCommoditiesTaxes.add(commodityTax);
+                            commodityTax.Tax__c = taxData.taxId;
+                            commodityTax.Commodity__c = upsCommodities[0].Id;
+                            commodityTax.DeductionAmount__c = toatlCommodityValue * (taxData.taxPercentage / 100);
+                            commodityTax.PercentageDeducted__c = taxData.taxPercentage;
+                            upsCommoditiesTaxes.add(commodityTax);
+                        }
                     }
                     
                     if (upsCommoditiesTaxes.size() > 0) {
@@ -1284,20 +1338,32 @@ public without sharing class OrderScreenController {
                 if(orderData.formsOfPayment != null) {
                     Integer counter = paymentFormsById != null ? paymentFormsById.size() + 1 : 1;
                     for (FormOfPaymentDeserialize payment : orderData.formsOfPayment) {
-                        FormPayment__c formOfPayment;
-                        if (payment.paymentId != null && payment.paymentId != '' && !newOrder && !cloneOrder && paymentFormsById.containsKey(payment.paymentId)) {
-                            formOfPayment = paymentFormsById.get(payment.paymentId);
-                        } else {
-                            formOfPayment = new FormPayment__c();
-                            formOfPayment.Order__c = order.Id;
-                            formOfPayment.ExternalId__c = order.Id + '|' + counter;
-                            counter++;
-                        }
+                        if ((payment.paymentType == 'TSI' && tsiTotalValue > 0) ||
+                            (payment.paymentType == 'Royalties' && royaltyTotalValue > 0) ||
+                            (payment.paymentType == 'Germoplasma' && germoTotalValue > 0)) {
+                            FormPayment__c formOfPayment;
+                            if (payment.paymentId != null && payment.paymentId != '' && !newOrder && !cloneOrder && paymentFormsById.containsKey(payment.paymentId)) {
+                                formOfPayment = paymentFormsById.get(payment.paymentId);
+                            } else {
+                                formOfPayment = new FormPayment__c();
+                                formOfPayment.Order__c = order.Id;
+                                formOfPayment.ExternalId__c = order.Id + '|' + counter;
+                                counter++;
+                            }
+                            
+                            Decimal paymentValueToUse = Decimal.valueOf(payment.value);
+                            if (childOrder) {
+                                Decimal currentTypeValue = payment.paymentType == 'Germoplasma' ? germoTotalValue :
+                                                           (payment.paymentType == 'Royalties' ? royaltyTotalValue : tsiTotalValue);
+                                Decimal motherAmount = individualValuesByType.get(payment.paymentType);
+                                paymentValueToUse = (currentTypeValue * paymentValueToUse) / motherAmount;
+                            }
 
-                        formOfPayment.PaymentType__c = payment.paymentType;
-                        formOfPayment.PaymentDate__c = Date.valueOf(payment.paymentDay);
-                        formOfPayment.Amount__c = Decimal.valueOf(payment.value);
-                        upsFormsOfPayment.add(formOfPayment);
+                            formOfPayment.PaymentType__c = payment.paymentType;
+                            formOfPayment.PaymentDate__c = Date.valueOf(payment.paymentDay);
+                            formOfPayment.Amount__c = paymentValueToUse;
+                            upsFormsOfPayment.add(formOfPayment);
+                        }
                     }
                 }
                 
@@ -1481,7 +1547,7 @@ public without sharing class OrderScreenController {
         }
 
         Set<Id> existingPrices = new Set<Id>();
-        CustomLookupController.ProductDataResult productPrices = CustomLookupController.fetchProductsRecords('', JSON.serialize(productParams), false, prodsIds, false, false);
+        CustomLookupController.ProductDataResult productPrices = CustomLookupController.fetchProductsRecords('', JSON.serialize(productParams), false, prodsIds, false, false, false);
         for (CustomLookupController.ProductData products : productPrices.recordsDataList) {
             existingPrices.add(products.Id);
         }
@@ -1592,7 +1658,7 @@ public without sharing class OrderScreenController {
             }
         }
         Set<String> fieldSet = new Set<String>{
-            'Id','SalesOrg__c', 'SalesTeam__r.Name', 'SalesOffice__c',
+            'Id','SalesOrg__c', 'SalesTeam__r.Name', 'SalesOffice__c', 'ClientGroup__c',
             'SupplierCenter__c','ActivitySector__c','ActivitySector__r.Name',
              'DistributionChannel__c','DistributionChannel__r.Name', 'Status__c'
         };
@@ -1631,6 +1697,7 @@ public without sharing class OrderScreenController {
                     company.activitySectorName = salesTeamCompany.ActivitySector__r.Name;
                     company.distributionChannelId = salesTeamCompany.DistributionChannel__c;
                     company.distributionChannelName = salesTeamCompany.DistributionChannel__r.Name;
+                    company.clientGroup = salesTeamCompany.ClientGroup__c;
                     company.selected = false;
                     companyList.add(company);
                 }
@@ -1749,19 +1816,18 @@ public without sharing class OrderScreenController {
         result.salesOrg = orderValues.salesOrg;
         result.salesOffice = orderValues.salesOffice;
         result.salesTeam = orderValues.salesTeam;
+        result.clientGroup = orderValues.clientGroup;
         Map<String, Decimal> discountByFinancialInfos = new Map<String, Decimal>();
         for (JurosDescontoAntecipao__c financialDiscount : [
             SELECT Id,
                    ConditionType__c,
-                   Culture__c,
                    Percentage__c,
-                   PriorityLevel__c,
                    ProductGroup__c,
                    Product__c,
-                   SalesOffice__c,
                    SalesOrg__c,
                    SalesTeam__c,
-                   harvest__c
+                   harvest__c,
+                   ClientGroup__c
               FROM JurosDescontoAntecipao__c
              WHERE RecordTypeId =: discountOrAdditionRecType
                AND StartDate__c <=: System.today()
@@ -1769,33 +1835,45 @@ public without sharing class OrderScreenController {
                AND SalesOrg__c =: result.salesOrg
                AND harvest__c =: orderValues.safra
         ]) {
-            String key = financialDiscount.SalesOrg__c + '-' + financialDiscount.harvest__c;
-            if (!discountByFinancialInfos.containsKey(key)) {
-                discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
-            }
+            if ((financialDiscount.SalesTeam__c == result.salesTeam || financialDiscount.SalesTeam__c == null) &&
+                (financialDiscount.ClientGroup__c == result.clientGroup || financialDiscount.ClientGroup__c == null))  {
+                String key = financialDiscount.SalesOrg__c + '-' + financialDiscount.harvest__c;
+                key += financialDiscount.ClientGroup__c != null ? '-' + financialDiscount.ClientGroup__c : '';
+                key += financialDiscount.Product__c != null ? '-' + financialDiscount.Product__c : '';
+                if (financialDiscount.ClientGroup__c != null && financialDiscount.Product__c != null && !discountByFinancialInfos.containsKey(key)) {
+                    discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
+                    continue;
+                }
 
-            key += financialDiscount.ProductGroup__c != null ? '-' + financialDiscount.ProductGroup__c : '';
-            if (!discountByFinancialInfos.containsKey(key)) {
-                discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
-            }
+                key = financialDiscount.SalesOrg__c + '-' + financialDiscount.harvest__c;
+                key += financialDiscount.SalesTeam__c != null ? '-' + financialDiscount.SalesTeam__c : '';
+                key += financialDiscount.Product__c != null ? '-' + financialDiscount.Product__c : '';
+                if (financialDiscount.SalesTeam__c != null && financialDiscount.Product__c != null && !discountByFinancialInfos.containsKey(key)) {
+                    discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
+                    continue;
+                }
 
-            key += financialDiscount.SalesOffice__c != null ? '-' + financialDiscount.SalesOffice__c : '';
-            if (!discountByFinancialInfos.containsKey(key)) {
-                discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
-            }
+                key = financialDiscount.SalesOrg__c + '-' + financialDiscount.harvest__c;
+                key += financialDiscount.SalesTeam__c != null ? '-' + financialDiscount.SalesTeam__c : '';
+                key += financialDiscount.ProductGroup__c != null ? '-' + financialDiscount.ProductGroup__c : '';
+                if (financialDiscount.SalesTeam__c != null && financialDiscount.ProductGroup__c != null && !discountByFinancialInfos.containsKey(key)) {
+                    discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
+                    continue;
+                }
+                
+                key = financialDiscount.SalesOrg__c + '-' + financialDiscount.harvest__c;
+                key += financialDiscount.ProductGroup__c != null ? '-' + financialDiscount.ProductGroup__c : '';
+                if (financialDiscount.ProductGroup__c != null && !discountByFinancialInfos.containsKey(key)) {
+                    discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
+                    continue;
+                }
 
-            key = financialDiscount.SalesOrg__c + '-' + financialDiscount.harvest__c;
-            key += financialDiscount.SalesOffice__c != null ? '-' + financialDiscount.SalesOffice__c : '';
-            key += financialDiscount.Product__c != null ? '-' + financialDiscount.Product__c : '';
-            if (!discountByFinancialInfos.containsKey(key)) {
-                discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
-            }
-
-            key = financialDiscount.SalesOrg__c + '-' + financialDiscount.harvest__c;
-            key += financialDiscount.Culture__c != null ? '-' + financialDiscount.Culture__c : '';
-            key += financialDiscount.Product__c != null ? '-' + financialDiscount.Product__c : '';
-            if (!discountByFinancialInfos.containsKey(key)) {
-                discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
+                key = financialDiscount.SalesOrg__c + '-' + financialDiscount.harvest__c;
+                if (financialDiscount.ClientGroup__c == null && financialDiscount.SalesTeam__c == null && financialDiscount.Product__c == null &&
+                    financialDiscount.ProductGroup__c == null && !discountByFinancialInfos.containsKey(key)) {
+                    discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
+                    continue;
+                }
             }
         }
 
@@ -1831,10 +1909,10 @@ public without sharing class OrderScreenController {
 
     @AuraEnabled
     public static String getPaymentTypes() {
-        List<PaymentType> listPaymentType = new List<PaymentType>();
+        List<ComboboxValues> listPaymentType = new List<ComboboxValues>();
         List<Schema.PicklistEntry> paymentTypes = FormPayment__c.PaymentType__c.getDescribe().getPicklistValues();
         for (Schema.PicklistEntry sp : paymentTypes) {
-            PaymentType paymentForm = new PaymentType();
+            ComboboxValues paymentForm = new ComboboxValues();
             paymentForm.label = sp.getLabel();
             paymentForm.value = sp.getValue();
             listPaymentType.add(paymentForm);
@@ -1842,7 +1920,20 @@ public without sharing class OrderScreenController {
         return JSON.serialize(listPaymentType);
     }
 
-    public class PaymentType {
+    @AuraEnabled
+    public static String getMTOTypes() {
+        List<ComboboxValues> listPaymentType = new List<ComboboxValues>();
+        List<Schema.PicklistEntry> mtoTypes = Order.MTO__c.getDescribe().getPicklistValues();
+        for (Schema.PicklistEntry sp : mtoTypes) {
+            ComboboxValues paymentForm = new ComboboxValues();
+            paymentForm.label = sp.getLabel();
+            paymentForm.value = sp.getValue();
+            listPaymentType.add(paymentForm);
+        }
+        return JSON.serialize(listPaymentType);
+    }
+
+    public class ComboboxValues {
         public String label;
         public String value;
     }
@@ -1988,6 +2079,7 @@ public without sharing class OrderScreenController {
                        AND Approver__c = 'ComiteMargem'
                        AND ClientGroup__c =: company.ClientGroup__c
                        AND SalesOrg__c =: company.SalesOrg__c
+                       AND CurrencyIsoCode =: orderData.headerData.moeda
                        AND ProductGroup__c IN: smallerMarginByProductGroup.keySet()
                        AND InitialDate__c <=: System.today()
                        AND EndDate__c >=: System.today()
@@ -2013,6 +2105,7 @@ public without sharing class OrderScreenController {
                  WHERE Status__c = 'Aprovado'
                    AND ClientGroup__c =: company.ClientGroup__c
                    AND SalesOrg__c =: company.SalesOrg__c
+                   AND CurrencyIsoCode =: orderData.headerData.moeda
                    AND ProductGroup__c =: productGroupId
                    AND InitialDate__c <=: System.today()
                    AND EndDate__c >=: System.today()
@@ -2050,7 +2143,8 @@ public without sharing class OrderScreenController {
             for (CustomerTaxes__c tax : [
                 SELECT Id,
                        Tax__c,
-                       Tax__r.TaxPercentage__c
+                       Tax__r.TaxPercentage__c,
+                       Tax__r.Commodity__c
                   FROM CustomerTaxes__c
                  WHERE Account__c =: accountId
                    AND SalesOrg__c =: salesOrgId
@@ -2062,6 +2156,7 @@ public without sharing class OrderScreenController {
                 currentTax.taxId = tax.Tax__c;
                 currentTax.taxValue = 0;
                 currentTax.taxPercentage = tax.Tax__r.TaxPercentage__c;
+                currentTax.taxProduct = tax.Tax__r.Commodity__c;
                 taxValues.add(currentTax);
             }
 
@@ -2148,10 +2243,13 @@ public without sharing class OrderScreenController {
         public String  orderMargin;
         public String  companyId;
         public String  hectares;
+        public String  mto;
+        public Decimal motherTotalQuantity;
         public String  centerId;
         public Decimal freightValue;
         public Decimal freightPerUnit;
         public Boolean emptyHectar;
+        public Boolean orderCanceled;
         public Boolean pedido_mae_check;
         public Boolean pre_pedido;
         public Boolean firstTime;
@@ -2298,6 +2396,7 @@ public without sharing class OrderScreenController {
     public class TaxData {
         public String  taxId;
         public String  commodityId;
+        public String  taxProduct;
         public Decimal taxValue;
         public Decimal taxPercentage;
     }
@@ -2305,6 +2404,7 @@ public without sharing class OrderScreenController {
     public class TaxDataSerialize {
         public String  taxId;
         public String  commodityId;
+        public String  taxProduct;
         public Decimal taxValue;
         public Decimal taxPercentage;
 
@@ -2312,6 +2412,7 @@ public without sharing class OrderScreenController {
         public TaxDataSerialize(CommodityTaxes__c tax){
             this.taxId = tax.Tax__c;
             this.commodityId = tax.Commodity__c;
+            this.taxProduct = tax.Tax__r.Commodity__c;
             this.taxValue = tax.DeductionAmount__c;
             this.taxPercentage = tax.PercentageDeducted__c;
         }
@@ -2335,7 +2436,7 @@ public without sharing class OrderScreenController {
             this.accountData = account;
         }  
 
-        OrderSerialize(HeaderSerialize order, List<ProductSerialize> products, List<DivisionSerialize> divisions, AccountSerialize account, List<CommoditySerialize> commodities, List<FormOfPaymentSerialize> formsOfPayment, List<TaxDataSerialize> taxData, AccountSerialize bpAccount){
+        OrderSerialize(HeaderSerialize order, List<ProductSerialize> products, List<DivisionSerialize> divisions, AccountSerialize account, List<CommoditySerialize> commodities, List<FormOfPaymentSerialize> formsOfPayment, List<TaxDataSerialize> taxData, AccountSerialize bpAccount) {
             this.headerData = order;
             this.productData = products;
             this.divisionData = divisions;
@@ -2352,6 +2453,7 @@ public without sharing class OrderScreenController {
         public List<ProductSerialize> productData;
         public List<DivisionSerialize> divisionData;
         public List<CommodityDeserialize> commodityData;
+        public List<FormOfPaymentSerialize> formsOfPayment;
         public List<TaxData> taxData;
         public AccountSerialize accountData;
         public AccountSerialize bpAccount;
@@ -2363,11 +2465,12 @@ public without sharing class OrderScreenController {
             this.accountData = account;
         }  
 
-        public OrderSerializeAll(HeaderSerialize order, List<ProductSerialize> products, List<DivisionSerialize> divisions, List<CommodityDeserialize> commodities, AccountSerialize account, SummarySerialize summaryData, List<TaxData> taxData, AccountSerialize bpAccount){
+        public OrderSerializeAll(HeaderSerialize order, List<ProductSerialize> products, List<DivisionSerialize> divisions, List<CommodityDeserialize> commodities, List<FormOfPaymentSerialize> formsOfPayment, AccountSerialize account, SummarySerialize summaryData, List<TaxData> taxData, AccountSerialize bpAccount) {
             this.headerData = order;
             this.productData = products;
             this.divisionData = divisions;
             this.commodityData = commodities;
+            this.formsOfPayment = formsOfPayment;
             this.taxData = taxData;
             this.accountData = account;
             this.summaryData = summaryData;
@@ -2434,9 +2537,12 @@ public without sharing class OrderScreenController {
         public String  recTypeId;
         public String  hectares;
         public String  bpStorage;
+        public String  mto;
         public Decimal freightValue;
         public Decimal freightPerUnit;
+        public Decimal motherTotalQuantity;
         public Boolean emptyHectar;
+        public Boolean orderCanceled;
         public String  centerId;
         public Boolean pedido_mae_check;
         public Boolean pre_pedido;
@@ -2480,6 +2586,7 @@ public without sharing class OrderScreenController {
             this.firstTime = true;
             this.tipo_pedido = order.OrderType__c;
             this.codigo_sap = order.CodigoSAP__c;
+            this.orderCanceled = order.Status == 'X' ? true : false;
             this.organizacao_vendas = new InformationFields(order.SalesOrg__c, order.SalesOrg__r.Name);
             this.canal_distribuicao = order.DistributionChannel__c;
             this.setor_atividade = order.ActivitySector__c;
@@ -2489,6 +2596,7 @@ public without sharing class OrderScreenController {
             this.pedido_mae_check = order.IsOrderMother__c;
             this.emptyHectar = order.Hectare__c == null;
             this.hectares = order.Hectare__c == null ? '1,00' : String.valueOf(order.Hectare__c).contains('.') ? String.valueOf(order.Hectare__c).replace('.', ',') : String.valueOf(order.Hectare__c);
+            this.mto = order.MTO__c;
             this.condicao_pagamento = new InformationFields(order.PaymentCondition__c, order.PaymentCondition__r.Name);
             this.frete = order.Incoterms__c;
             this.observation = order.Description;
@@ -2571,7 +2679,7 @@ public without sharing class OrderScreenController {
         ProductSerialize(OrderItem orderItem, Integer position, Boolean cloneOrder, Decimal brokeragePerUnit){
             this.comboId = orderItem.ComboPromotion__c;
             this.containsCombo = orderItem.ComboPromotion__c != null ? true : false;
-            this.industryCombo = orderItem.AgrogalaxyComboDiscount__c != 0 ? true : false;
+            this.industryCombo = orderItem.IndustryComboDiscount__c != 0 ? true : false;
             this.comboDiscountPercent = '0%';
             this.comboDiscountValue = this.comboId != null ? (this.industryCombo ? orderItem.IndustryComboDiscount__c : orderItem.AgrogalaxyComboDiscount__c) : 0;
             this.position = position;
@@ -2595,8 +2703,8 @@ public without sharing class OrderScreenController {
             this.motherAvailableQuantity = orderItem.AmountUsed__c != null ? orderItem.Quantity - orderItem.AmountUsed__c : null;
             this.listPrice = orderItem.ListPrice__c;
             this.unitPrice = orderItem.PracticedPrice__c;
+            this.totalPrice = orderItem.PracticedPrice__c * this.quantity;
             this.brokerage = brokeragePerUnit != null ? this.quantity * brokeragePerUnit : orderItem.Brokerage__c;
-            this.totalPrice = orderItem.FinalTotalValue__c - this.comboDiscountValue;
             this.totalPriceWithBrokerage = this.brokerage != null ? (this.totalPrice + this.brokerage) : this.totalPrice;
             this.listCost = orderItem.ListCost__c;
             this.practicedCost = orderItem.PracticedCost__c;
@@ -2756,12 +2864,14 @@ public without sharing class OrderScreenController {
         public String safra;
         public String culture;
         public String salesCondition;
+        public String clientGroup;
     }
 
     public class FinancialResult {
         public String  salesOrg;
         public String  salesOffice;
         public String  salesTeam;
+        public String  clientGroup;
         public Integer dayDifference;
         public Boolean isDiscount;
         public Boolean correctPayment;
@@ -2772,6 +2882,7 @@ public without sharing class OrderScreenController {
         public String  salesOrg;
         public String  salesOffice;
         public String  salesTeam;
+        public String  clientGroup;
         public Integer dayDifference;
         public Boolean isDiscount;
         public Boolean correctPayment;
@@ -2783,6 +2894,7 @@ public without sharing class OrderScreenController {
             this.salesOrg = financialResult.salesOrg;
             this.salesOffice = financialResult.salesOffice;
             this.salesTeam = financialResult.salesTeam;
+            this.clientGroup = financialResult.clientGroup;
             this.dayDifference = financialResult.dayDifference;
             this.isDiscount = financialResult.isDiscount;
             this.correctPayment = financialResult.correctPayment;
@@ -2808,6 +2920,7 @@ public without sharing class OrderScreenController {
         public String  activitySectorName;
         public String  distributionChannelId;
         public String  distributionChannelName;
+        public String  clientGroup;
         public Boolean selected;
     }
 

@@ -17,19 +17,19 @@
                 Company__c = 'Empresa 01'
             );
             INSERT account;
-            Account accountFather = new Account(
-                Name = 'Teste 2',
-                BillingStreet = ' ',
-                BillingState = '' ,
-                ParentId = account.Id,
-                Phone= '', 
-                BillingCity = ' ', 
-                BillingLongitude = 000000,
-                BillingLatitude = 00000,
-                BillingPostalCode = '',
-                ExternalId__c = '2234',
-                Company__c = 'Empresa 01'
-            );
+            Account accountFather = new Account( 
+ 		                Name = 'Teste 2', 
+ 		                BillingStreet = ' ', 
+ 		                BillingState = '' , 
+ 		                ParentId = account.Id, 
+ 		                Phone= '',  
+ 		                BillingCity = ' ',  
+ 		                BillingLongitude = 000000, 
+ 		                BillingLatitude = 00000, 
+ 		                BillingPostalCode = '', 
+ 		                ExternalId__c = '2234', 
+ 		                Company__c = 'Empresa 01' 
+ 		            ); 
             Safra__c safra = new Safra__c(
                 Code__c = '1223.0',
                 Name = 'Safra Teste',

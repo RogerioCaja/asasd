@@ -12,6 +12,7 @@ global without sharing class IntegrationINCommodityAppdigital {
 
         Set<String> productLookupsForName = new Set<String>();
         Set<String> productLookups = new Set<String>();
+        
 
         Map<String, List<TemplateDataINtegrationFields.Response>> responseMap = new Map<String, List<TemplateDataIntegrationFields.Response>>();
 
@@ -40,16 +41,19 @@ global without sharing class IntegrationINCommodityAppdigital {
                 OrderCommodity__c ordCommodity = commodityIdsMap.get(orderCommodity.orderExternalId + '|' + orderCommodity.material);
                 System.debug('ordCommodity ' + commodityIdsMap.get(orderCommodity.orderExternalId + '|' + orderCommodity.material));
                 if(orderCommodity.orderExternalId == null){
+                        
                     if(ordCommodity.Order__c != null){
-                            orderCommodity.orderExternalId = ordCommodity.Order__c;
+                            orderCommodity.orderExternalId = ordCommodity.Order__c; 
                             lookups.put('Order' + ordCommodity.Order__r.CodigoSap__c, ordCommodity.Order__c);
                     }
                     }
+            
+            
             if(orderCommodity.material == null || orderCommodity.orderCommodityECalendariazacao == true){
                 if(ordCommodity.Product__c != null){
                     orderCommodity.material = ordCommodity.Product__r.ProductCode__c;
                     lookups.put('Product2' + ordCommodity.Product__r.ProductCode__c, ordCommodity.Product__c);
-                }
+                } 
             }
                 System.debug('orderCommodity.material ' + orderCommodity.material);
             if(orderCommodity.material == null || orderCommodity.orderCommodityECalendariazacao == true){
@@ -79,7 +83,8 @@ global without sharing class IntegrationINCommodityAppdigital {
         }
     }
 
-        for (Product2 product : [SELECT Id,ProductCode FROM Product2 WHERE ProductCode IN: productLookups ]) {
+
+        for (Product2 product : [SELECT Id, ProductCode FROM Product2 WHERE ProductCode IN: productLookups ]) {
             //Map structure for the model -> object name + parameter to record id
             lookups.put('Product2' + product.ProductCode, product.Id);
         }

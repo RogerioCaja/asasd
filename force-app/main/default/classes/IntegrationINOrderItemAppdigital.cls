@@ -67,6 +67,14 @@ global without sharing class IntegrationINOrderItemAppdigital {
         }
         System.debug('orderItemsIdsMap ' + orderItemsIdsMap);
         for (TemplateDataIntegrationFields.OrderItemINData orderItem : request){
+
+            //Excluir linha 71 até 77 quando Saldo Item estiver ok - 23.02.23
+            OrderItem ordItemFixApp = orderItemsIdsMap.get(orderItem.orderExternalId + '|' + orderItem.orderItemCode);
+
+            if(orderItem.quantidadeUtilizada == null && !orderItemsIdsMap.containsKey(orderItem.orderExternalId + '|' + orderItem.orderItemCode)){
+                orderItem.quantidadeUtilizada = 0;
+            }
+
             if(orderItem.orderItemECalendariazacao == true){
             OrderItem ordItem = orderItemsIdsMap.get(orderItem.orderExternalId + '|' + orderItem.orderItemCode);
                 
@@ -180,7 +188,6 @@ global without sharing class IntegrationINOrderItemAppdigital {
                 orderItem.peneira = ordItem.Sieve__c;
             }
             
-
             if(orderItem.saldoItem == null || orderItem.orderItemECalendariazacao == true){
                 orderItem.saldoItem = ordItem.ItemBalance__c;
             }
