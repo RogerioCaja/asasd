@@ -16,6 +16,7 @@ public without sharing class OrderItemTriggerHandler {
     }
 
     public void OnBeforeInsert(){
+        
     }
     
     public void OnAfterInsert(){
@@ -28,6 +29,7 @@ public without sharing class OrderItemTriggerHandler {
     
     public void OnAfterUpdate(){
         OrderItemHelper.updateOrderItem(this.newRecords, this.oldMap);
+        OrderItemHelper.updateQuotes(this.newRecords);
         OrderItemHelper.cleanDescriptionOrderItem(this.newRecords);
     }
     
