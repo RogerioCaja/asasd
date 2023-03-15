@@ -47,12 +47,15 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
                 var arrayType = data.recordTypeInfos[this.recordTypeId]
                 this.headerData.tipo_venda = arrayType.name;
             }else{
-                getRecordTypeData().then((result) => {
-                    this.headerData.tipo_venda = result
-                }).catch((err) =>{
-                    console.log(err)
-                })
-                
+                if (this.headerData.IsOrderChild || this.childOrder) {
+                    this.recordTypeId = this.headerData.recTypeId;
+                } else {
+                    getRecordTypeData().then((result) => {
+                        this.headerData.tipo_venda = result
+                    }).catch((err) =>{
+                        console.log(err)
+                    })
+                }
             }
             
             this.barterSale = this.headerData.tipo_venda == 'Venda Barter';
@@ -110,6 +113,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         centerId: null,
         hectares: '',
         freightPerUnit: null,
+        motherTotalQuantity: null,
         firstTime: true
     };
     @track productData;
@@ -262,7 +266,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
                     this.valorTotal += parseFloat(totalPrice);
                 })
                 let frete = (this.summaryData.freightValue != undefined && this.summaryData.freightValue != null ? Number(this.summaryData.freightValue) : 0);
-                this.valorTotal = parseFloat(Number(this.valorTotal) + Number(frete)).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
+                this.valorTotal = parseFloat(Number(this.valorTotal) + Number(frete)).toLocaleString("pt-BR", {style:"currency", currency:this.headerData.moeda});
 
             }
             catch(e)
@@ -274,7 +278,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.summaryData['observation'] = this.headerData.observation;
             this.summaryData['billing_sale_observation'] = this.headerData.billing_sale_observation;
             this.summaryData['freightValue'] = this.headerData.freightValue === undefined || this.headerData.freightValue == null ? 0 : this.headerData.freightValue;
-            this.frete = this.summaryData.freightValue != undefined && this.summaryData.freightValue != null ? parseFloat(this.summaryData.freightValue).toLocaleString("pt-BR", {style:"currency", currency:"BRL"}) : (0).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
+            this.frete = this.summaryData.freightValue != undefined && this.summaryData.freightValue != null ? parseFloat(this.summaryData.freightValue).toLocaleString("pt-BR", {style:"currency", currency:this.headerData.moeda}) : (0).toLocaleString("pt-BR", {style:"currency", currency:this.headerData.moeda});
             this.isLoading = false;
             this.cloneData.cloneOrder = this.clone.cloneOrder;
             if(this.cloneData.cloneOrder){
@@ -375,8 +379,8 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
                 } else {
                     frete = (this.summaryData.freightValue != undefined && this.summaryData.freightValue != null ? Number(this.summaryData.freightValue) : 0);
                 }
-                this.valorTotal = parseFloat(Number(this.valorTotal) + Number(frete)).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
-                this.frete = parseFloat(frete).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
+                this.valorTotal = parseFloat(Number(this.valorTotal) + Number(frete)).toLocaleString("pt-BR", {style:"currency", currency:this.headerData.moeda});
+                this.frete = parseFloat(frete).toLocaleString("pt-BR", {style:"currency", currency:this.headerData.moeda});
 
             }
             catch(e)
@@ -388,7 +392,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.summaryData['observation'] = this.headerData.observation;
             this.summaryData['billing_sale_observation'] = this.headerData.billing_sale_observation;
             this.summaryData['freightValue'] = this.headerData.freightValue === undefined || this.headerData.freightValue == null ? 0 : this.headerData.freightValue;
-            this.frete = this.isFilled(this.headerData.freightPerUnit) ? this.frete : (this.summaryData.freightValue != undefined && this.summaryData.freightValue != null ? parseFloat(this.summaryData.freightValue).toLocaleString("pt-BR", {style:"currency", currency:"BRL"}) : (0).toLocaleString("pt-BR", {style:"currency", currency:"BRL"}));
+            this.frete = this.isFilled(this.headerData.freightPerUnit) ? this.frete : (this.summaryData.freightValue != undefined && this.summaryData.freightValue != null ? parseFloat(this.summaryData.freightValue).toLocaleString("pt-BR", {style:"currency", currency:this.headerData.moeda}) : (0).toLocaleString("pt-BR", {style:"currency", currency:this.headerData.moeda}));
             this.isLoading = false;
             this.cloneData.cloneOrder = this.clone.cloneOrder;
             if(this.cloneData.cloneOrder){
@@ -421,6 +425,9 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
                     this.redirectToOrder();
                 } else if (this.headerData.codigo_sap == undefined || this.headerData.codigo_sap == null || this.headerData.codigo_sap == '') {
                     this.showNotification('Só é possível gerar pedidos filhos após o pedido ser integrado com o SAP', 'Atenção!', 'warning');
+                    this.redirectToOrder();
+                } else if (this.headerData.orderCanceled) {
+                    this.showNotification('Não é possível gerar pedidos filhos a partir de um pedido cancelado', 'Atenção!', 'warning');
                     this.redirectToOrder();
                 } else {
                     checkMotherQuantities({orderId: this.recordId})
@@ -752,8 +759,9 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             } else {
                 frete = (this.summaryData.freightValue != undefined && this.summaryData.freightValue != null ? Number(this.summaryData.freightValue) : 0);
             }
-            this.valorTotal = parseFloat(Number(this.valorTotal) + Number(frete)).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
-            this.frete = parseFloat(frete).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
+            console.log('this.headerData.moeda: ' + this.headerData.moeda);
+            this.valorTotal = parseFloat(Number(this.valorTotal) + Number(frete)).toLocaleString("pt-BR", {style:"currency", currency:this.headerData.moeda});
+            this.frete = parseFloat(frete).toLocaleString("pt-BR", {style:"currency", currency:this.headerData.moeda});
 
             isSeedSale({salesOrgId: this.headerData.organizacao_vendas.Id, productGroupName: null})
             .then((result) => {
@@ -769,6 +777,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.handlePrevious();
             this.disableNextScreen();
             this.showNotification('Necessário incluir ao menos um produto', 'Atenção!', 'warning');
+            return;
         }
         
         if (!this.checkProductDivisionAndCommodities()) {
@@ -813,6 +822,9 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
                     break;
                 }
             }
+        }else{
+            enableScreen = false;
+            this.customErrorMessage = 'É preciso criar remessa para todos os produtos selecionados';
         }
         
         if (this.headerData.tipo_venda == 'Venda Barter' && (this.commodityData == undefined || this.commodityData == null || this.commodityData.length == 0)) {
@@ -852,8 +864,8 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         console.log('summary data setted:', JSON.stringify(this.summaryData));
         let frete = this.summaryData.freightValue != undefined && this.summaryData.freightValue != null ? Number(this.summaryData.freightValue) : 0
         let valorTotal = this.summaryData.totalValue != undefined && this.summaryData.totalValue != null ? Number(this.summaryData.totalValue) : 0
-        this.frete = parseFloat(frete).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
-        this.valorTotal = parseFloat(Number(valorTotal) + Number(frete)).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
+        this.frete = parseFloat(frete).toLocaleString("pt-BR", {style:"currency", currency:this.headerData.moeda});
+        this.valorTotal = parseFloat(Number(valorTotal) + Number(frete)).toLocaleString("pt-BR", {style:"currency", currency:this.headerData.moeda});
         this.enableNextScreen();
     }
 

@@ -212,7 +212,7 @@ public without sharing class OrderHelper {
             update individualsQuotasToUpdate;
         }
     }
-
+    
     public static void sendApprovalProccess(List<Order> newRecords){
 
         Set<Id> orderToUpdate = new Set<Id>();
