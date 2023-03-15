@@ -682,8 +682,10 @@ global with sharing class TemplateDataIntegrationFields {
 
 
     global class OrderCommodityINData implements FieldDataChild{
+        public Boolean orderCommodityECalendariazacao;
         public String orderExternalId;
         //public String OrderItemCode;
+        public String Name;
         public String material;
         public Decimal commodityPrice;
         public Decimal bagQuantity;
@@ -696,7 +698,7 @@ global with sharing class TemplateDataIntegrationFields {
 
         public OrderCommodity__c serialize(Map<String, Id> lookups){
             return new OrderCommodity__c(
-
+                Name = this.Name,
                 ExternalId__c = orderExternalId + '|' + material, // Or order Id and Product Id
                 Product__c = lookups.containsKey('Product2'+this.material) ? lookups.get('Product2'+this.material) : null,
                 CommodityPrice__c = this.commodityPrice,
@@ -913,8 +915,8 @@ global with sharing class TemplateDataIntegrationFields {
                 Invoice_CreationDate__c = this.dataCriacao,
                 HoraCriacao__c = this.horaCriacao,
                 Invoice_TotalAmount__c = this.valorTotalNf,
-                CFOP__c = this.naturezaOperacao,
-                Base64__c = this.nfBasePdf
+                CFOP__c = this.naturezaOperacao
+                //Base64__c = this.nfBasePdf
             );
         }
         

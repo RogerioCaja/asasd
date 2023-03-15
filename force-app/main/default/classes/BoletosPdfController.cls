@@ -37,7 +37,7 @@ public without sharing class BoletosPdfController {
         
         this.writableLine = boleto.WritableLine__c;
         System.debug('writableLine ' + writableLine);
-        String code = (!Test.isRunningTest() ? getAcessCode() : 'acesstoken');
+        String code = (!Test.isRunningTest() ? getAcessCode() : 'acessToken');
         String accessToken = code;
         
         System.debug('code' + code);
