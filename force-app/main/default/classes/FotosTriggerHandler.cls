@@ -29,10 +29,10 @@ public without sharing class FotosTriggerHandler {
            FotosHelper.callVisitsIntegration(this.newRecords);
         }
         
-        // public void OnBeforeDelete(){}
+        public void OnBeforeDelete(){}
         
-        // public void OnAfterDelete(){}
+        public void OnAfterDelete(){}
         
-        // public void OnUndelete(){}
+        public void OnUndelete(){}
 
 }
