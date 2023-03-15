@@ -195,8 +195,8 @@ export default class PriceSearchScreen extends LightningElement {
             salesOffice: this.company[0].salesOfficeId != null ? this.company[0].salesOfficeId : '',
             salesTeam: this.company[0].salesTeamId != null ? this.company[0].salesTeamId : '',
             accountId: this.isFilled(this.searchData.account.Id) ? this.searchData.account.Id : '',
-            clientGroup: this.company[0].clientGroup != null ? this.company[0].clientGroup : '',
             safra: this.searchData.safra.Id != null ? this.searchData.safra.Id : '',
+            clientGroup: this.company[0].clientGroup != null ? this.company[0].clientGroup : '',
             salesCondition : this.searchData.sales_condition.Id != null ? this.searchData.sales_condition.Id : ''
         };
 
@@ -221,23 +221,20 @@ export default class PriceSearchScreen extends LightningElement {
                 
                 for (let index = 0; index < result.recordsDataList.length; index++) {
                     let priorityInfos = this.getProductByPriority(result.recordsDataList[index]);
-
-                    for (let i = 0; i < priorityInfos.length; i++) {
-                        let realValue = this.fixDecimalPlacesFront(priorityInfos[i].listPrice);
-                        let discountedValue = this.calculateDiscountValues(priorityInfos[i]);
-                        productRecords.push({
-                            sapProductCode: priorityInfos[i].sapProductCode,
-                            name: priorityInfos[i].Name,
-                            productGroupName: priorityInfos[i].productGroupName,
-                            safra: this.searchData.safra.Name,
-                            salesCondition: priorityInfos[i].salesCondition,
-                            valueDiscounted: discountedValue,
-                            realValue: realValue.split(',').length == 1 ? realValue + ',00' : realValue,
-                            salesTeamName: priorityInfos[i].salesTeamName,
-                            salesOfficeName: priorityInfos[i].salesOfficeName
-                        })
-                    }
+                    let realValue = this.fixDecimalPlacesFront(priorityInfos.listPrice);
+                    let discountedValue = this.calculateDiscountValues(priorityInfos);
                     
+                    productRecords.push({
+                        sapProductCode: priorityInfos.sapProductCode,
+                        name: priorityInfos.Name,
+                        productGroupName: priorityInfos.productGroupName,
+                        safra: this.searchData.safra.Name,
+                        salesCondition: priorityInfos.salesCondition,
+                        valueDiscounted: discountedValue,
+                        realValue: realValue.split(',').length == 1 ? realValue + ',00' : realValue,
+                        salesTeamName: priorityInfos.salesTeamName,
+                        salesOfficeName: priorityInfos.salesOfficeName
+                    })
                 }
 
                 this.baseProducts = JSON.parse(JSON.stringify(productRecords));
@@ -259,22 +256,17 @@ export default class PriceSearchScreen extends LightningElement {
         let key6 = 'G-' + productId;
 
         if (this.isFilled(productsPrice[key1])) {
-            priorityPrice.push(productsPrice[key1]);
-        }
-        if (this.isFilled(productsPrice[key2])) {
-            priorityPrice.push(productsPrice[key2]);
-        }
-        if (this.isFilled(productsPrice[key3])) {
-            priorityPrice.push(productsPrice[key3]);
-        }
-        if (this.isFilled(productsPrice[key4])) {
-            priorityPrice.push(productsPrice[key4]);
-        }
-        if (this.isFilled(productsPrice[key5])) {
-            priorityPrice.push(productsPrice[key5]);
-        }
-        if (this.isFilled(productsPrice[key6])) {
-            priorityPrice.push(productsPrice[key6]);
+            priorityPrice = productsPrice[key1];
+        } else if (this.isFilled(productsPrice[key2])) {
+            priorityPrice = productsPrice[key2];
+        } else if (this.isFilled(productsPrice[key3])) {
+            priorityPrice = productsPrice[key3];
+        } else if (this.isFilled(productsPrice[key4])) {
+            priorityPrice = productsPrice[key4];
+        } else if (this.isFilled(productsPrice[key5])) {
+            priorityPrice = productsPrice[key5];
+        } else if (this.isFilled(productsPrice[key6])) {
+            priorityPrice = productsPrice[key6];
         }
 
         return priorityPrice;
