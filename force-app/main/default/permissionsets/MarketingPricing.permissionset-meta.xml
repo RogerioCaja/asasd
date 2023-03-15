@@ -909,6 +909,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>CustomerTaxes__c.TaxCode__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>CustomerTaxes__c.Tax__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -2704,6 +2709,21 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>TaxCommodities__c.Commodity__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>TaxCommodities__c.Impostos_Barter__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>TaxCommodities__c.TaxPercentage__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>TechnicalReport__c.CancellationReason__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -3261,6 +3281,15 @@
     <objectPermissions>
         <allowCreate>true</allowCreate>
         <allowDelete>false</allowDelete>
+        <allowEdit>false</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>TaxCommodities__c</object>
+        <viewAllRecords>false</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>false</allowDelete>
         <allowEdit>true</allowEdit>
         <allowRead>true</allowRead>
         <modifyAllRecords>false</modifyAllRecords>
@@ -3534,6 +3563,10 @@
     </tabSettings>
     <tabSettings>
         <tab>ShippingDivison__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>TaxCommodities__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
     <tabSettings>
