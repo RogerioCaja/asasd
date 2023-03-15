@@ -442,6 +442,23 @@ public  class TemplateDefaultFields {
         INSERT order2;
         INSERT order3;
 
+        OrderCommodity__c orderCommodity_1 = new OrderCommodity__c(
+        	CommodityPrice__c = 19.00,
+            StartDate__c = System.today(),
+            EndDate__c = System.today().addDays(5),
+            Order__c = order2.Id
+        );
+
+        OrderCommodity__c orderCommodity_2 = new OrderCommodity__c(
+        	CommodityPrice__c = 20.00,
+            StartDate__c = System.today(),
+            EndDate__c = System.today().addDays(5),
+            Order__c = order3.Id
+        );
+
+        INSERT orderCommodity_1;
+        INSERT orderCommodity_2;
+
         FormPayment__c pF = new FormPayment__c(
             Amount__c = 5.00,
             PaymentDate__c = System.today(),
