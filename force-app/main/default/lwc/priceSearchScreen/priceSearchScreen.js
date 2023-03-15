@@ -232,6 +232,8 @@ export default class PriceSearchScreen extends LightningElement {
                         salesCondition: priorityInfos.salesCondition,
                         valueDiscounted: discountedValue,
                         realValue: realValue.split(',').length == 1 ? realValue + ',00' : realValue,
+                        salesTeamName: priorityInfos.salesTeamName,
+                        salesOfficeName: priorityInfos.salesOfficeName
                     })
                 }
 
