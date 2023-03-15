@@ -195,6 +195,8 @@ global without sharing class IntegrationINOrderAppdigital {
             if(order.salesType == null || order.eCalendarizacao == true){
                 order.recordIdToUpdate = ord.RecordTypeId;
             }
+
+            
             
 			if(order.pricebook2Id == null || order.eCalendarizacao == true ){
                 if(ord.Pricebook2Id != null){
@@ -421,7 +423,7 @@ global without sharing class IntegrationINOrderAppdigital {
             String orderId;
                 if(shipIt.orderExternalId != null){
                     orderId = orderUpMap.get(shipIt.orderExternalId);
-                    
+                    System.debug('orderId ' + orderId);
                     shipIt.orderExternalId = orderId;
                 } 
         }
