@@ -254,22 +254,17 @@ export default class PriceSearchScreen extends LightningElement {
         let key6 = 'G-' + productId;
 
         if (this.isFilled(productsPrice[key1])) {
-            priorityPrice.push(productsPrice[key1]);
-        }
-        if (this.isFilled(productsPrice[key2])) {
-            priorityPrice.push(productsPrice[key2]);
-        }
-        if (this.isFilled(productsPrice[key3])) {
-            priorityPrice.push(productsPrice[key3]);
-        }
-        if (this.isFilled(productsPrice[key4])) {
-            priorityPrice.push(productsPrice[key4]);
-        }
-        if (this.isFilled(productsPrice[key5])) {
-            priorityPrice.push(productsPrice[key5]);
-        }
-        if (this.isFilled(productsPrice[key6])) {
-            priorityPrice.push(productsPrice[key6]);
+            priorityPrice = productsPrice[key1];
+        } else if (this.isFilled(productsPrice[key2])) {
+            priorityPrice = productsPrice[key2];
+        } else if (this.isFilled(productsPrice[key3])) {
+            priorityPrice = productsPrice[key3];
+        } else if (this.isFilled(productsPrice[key4])) {
+            priorityPrice = productsPrice[key4];
+        } else if (this.isFilled(productsPrice[key5])) {
+            priorityPrice = productsPrice[key5];
+        } else if (this.isFilled(productsPrice[key6])) {
+            priorityPrice = productsPrice[key6];
         }
 
         return priorityPrice;
