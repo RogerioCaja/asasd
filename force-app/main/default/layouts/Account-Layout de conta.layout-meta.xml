@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Layout xmlns="http://soap.sforce.com/2006/04/metadata">
+    <excludeButtons>DataDotComAccountInsights</excludeButtons>
+    <excludeButtons>DataDotComClean</excludeButtons>
+    <excludeButtons>DataDotComCompanyHierarchy</excludeButtons>
     <excludeButtons>Submit</excludeButtons>
     <layoutSections>
         <customLabel>false</customLabel>
@@ -245,6 +248,8 @@
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
+        <fields>TaxCode__c</fields>
+        <fields>SalesOrg__c</fields>
         <relatedList>CustomerTaxes__c.Account__c</relatedList>
     </relatedLists>
     <relatedLists>
@@ -298,7 +303,7 @@
     <showRunAssignmentRulesCheckbox>false</showRunAssignmentRulesCheckbox>
     <showSubmitAndAttachButton>false</showSubmitAndAttachButton>
     <summaryLayout>
-        <masterLabel>00h8F000001OHT5</masterLabel>
+        <masterLabel>00h01000000bBl9</masterLabel>
         <sizeX>4</sizeX>
         <sizeY>0</sizeY>
         <summaryLayoutStyle>Default</summaryLayoutStyle>
