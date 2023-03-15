@@ -46,12 +46,12 @@ class ProcessAutomation:
             self.branch_safe_name = self.branch_name.strip()
             self.branch_name = self.branch_name.strip().split('/')[1]
             self.branch_merge_develop = 'mergedevelop/' + self.branch_name
-            self.branch_merge_qa2 = 'mergeqa2/' + self.branch_name
+            # self.branch_merge_qa2 = 'mergeqa2/' + self.branch_name
             self.branch_merge_qa = 'mergeqa/' +  self.branch_name
 
     def prepare_data_git(self) -> None:
         self.prepare_enviroments("develop", self.branch_merge_develop)
-        self.prepare_enviroments("qa2", self.branch_merge_qa2)
+        # self.prepare_enviroments("qa2", self.branch_merge_qa2)
         self.prepare_enviroments("qa", self.branch_merge_qa)
         self.prepare_pull_request()
     
