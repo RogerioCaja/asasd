@@ -929,6 +929,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>false</editable>
+        <field>CustomerTaxes__c.TaxCode__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>true</editable>
         <field>CustomerTaxes__c.Tax__c</field>
         <readable>true</readable>
@@ -2750,6 +2755,21 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>TaxCommodities__c.Commodity__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>TaxCommodities__c.Impostos_Barter__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>TaxCommodities__c.TaxPercentage__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>TechnicalReport__c.CancellationReason__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -3327,6 +3347,15 @@
         <allowEdit>true</allowEdit>
         <allowRead>true</allowRead>
         <modifyAllRecords>true</modifyAllRecords>
+        <object>TaxCommodities__c</object>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>true</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>true</modifyAllRecords>
         <object>TechnicalReport__c</object>
         <viewAllRecords>true</viewAllRecords>
     </objectPermissions>
@@ -3617,6 +3646,10 @@
     </tabSettings>
     <tabSettings>
         <tab>ShippingDivison__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>TaxCommodities__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
     <tabSettings>
