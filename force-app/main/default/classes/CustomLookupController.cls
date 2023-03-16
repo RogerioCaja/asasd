@@ -46,7 +46,7 @@ public without sharing class CustomLookupController {
 		}
 		return out.toLowercase();
 	}
-
+    
     @AuraEnabled
     public static ProductDataResult fetchProductsRecords(String searchString, String data, Boolean isCommodity, List<String> productsIds, Boolean priceScreen, Boolean getSeedPrices) {
         try {

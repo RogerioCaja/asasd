@@ -1170,9 +1170,9 @@ export default class OrderProductScreen extends LightningElement {
             }
 
             let defaultKey = this.financialInfos.salesOrg + '-' + this.headerData.safra.Id;
-            let key1 = defaultKey + '-' + this.headerData.cultura.Id + '-' + this.addProduct.productId;
-            let key2 = defaultKey + '-' + this.financialInfos.salesOffice + '-' + this.addProduct.productId;
-            let key3 = defaultKey + '-' + this.financialInfos.salesOffice;
+            let key1 = defaultKey + '-' + this.financialInfos.clientGroup + '-' + this.addProduct.productId;
+            let key2 = defaultKey + '-' + this.financialInfos.salesTeam + '-' + this.addProduct.productId;
+            let key3 = defaultKey + '-' + this.financialInfos.salesTeam + '-' + this.addProduct.productGroupId;
             let key4 = defaultKey + '-' + this.addProduct.productGroupId;
 
             let currentDiscountOrAddition = 0;

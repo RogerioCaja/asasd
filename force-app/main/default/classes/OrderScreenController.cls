@@ -1651,7 +1651,7 @@ public without sharing class OrderScreenController {
             }
         }
         Set<String> fieldSet = new Set<String>{
-            'Id','SalesOrg__c', 'SalesTeam__r.Name', 'SalesOffice__c',
+            'Id','SalesOrg__c', 'SalesTeam__r.Name', 'SalesOffice__c', 'ClientGroup__c',
             'SupplierCenter__c','ActivitySector__c','ActivitySector__r.Name',
              'DistributionChannel__c','DistributionChannel__r.Name', 'Status__c'
         };
@@ -1690,6 +1690,7 @@ public without sharing class OrderScreenController {
                     company.activitySectorName = salesTeamCompany.ActivitySector__r.Name;
                     company.distributionChannelId = salesTeamCompany.DistributionChannel__c;
                     company.distributionChannelName = salesTeamCompany.DistributionChannel__r.Name;
+                    company.clientGroup = salesTeamCompany.ClientGroup__c;
                     company.selected = false;
                     companyList.add(company);
                 }
@@ -1808,19 +1809,18 @@ public without sharing class OrderScreenController {
         result.salesOrg = orderValues.salesOrg;
         result.salesOffice = orderValues.salesOffice;
         result.salesTeam = orderValues.salesTeam;
+        result.clientGroup = orderValues.clientGroup;
         Map<String, Decimal> discountByFinancialInfos = new Map<String, Decimal>();
         for (JurosDescontoAntecipao__c financialDiscount : [
             SELECT Id,
                    ConditionType__c,
-                   Culture__c,
                    Percentage__c,
-                   PriorityLevel__c,
                    ProductGroup__c,
                    Product__c,
-                   SalesOffice__c,
                    SalesOrg__c,
                    SalesTeam__c,
-                   harvest__c
+                   harvest__c,
+                   ClientGroup__c
               FROM JurosDescontoAntecipao__c
              WHERE RecordTypeId =: discountOrAdditionRecType
                AND StartDate__c <=: System.today()
@@ -1828,33 +1828,45 @@ public without sharing class OrderScreenController {
                AND SalesOrg__c =: result.salesOrg
                AND harvest__c =: orderValues.safra
         ]) {
-            String key = financialDiscount.SalesOrg__c + '-' + financialDiscount.harvest__c;
-            if (!discountByFinancialInfos.containsKey(key)) {
-                discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
-            }
+            if ((financialDiscount.SalesTeam__c == result.salesTeam || financialDiscount.SalesTeam__c == null) &&
+                (financialDiscount.ClientGroup__c == result.clientGroup || financialDiscount.ClientGroup__c == null))  {
+                String key = financialDiscount.SalesOrg__c + '-' + financialDiscount.harvest__c;
+                key += financialDiscount.ClientGroup__c != null ? '-' + financialDiscount.ClientGroup__c : '';
+                key += financialDiscount.Product__c != null ? '-' + financialDiscount.Product__c : '';
+                if (financialDiscount.ClientGroup__c != null && financialDiscount.Product__c != null && !discountByFinancialInfos.containsKey(key)) {
+                    discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
+                    continue;
+                }
 
-            key += financialDiscount.ProductGroup__c != null ? '-' + financialDiscount.ProductGroup__c : '';
-            if (!discountByFinancialInfos.containsKey(key)) {
-                discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
-            }
+                key = financialDiscount.SalesOrg__c + '-' + financialDiscount.harvest__c;
+                key += financialDiscount.SalesTeam__c != null ? '-' + financialDiscount.SalesTeam__c : '';
+                key += financialDiscount.Product__c != null ? '-' + financialDiscount.Product__c : '';
+                if (financialDiscount.SalesTeam__c != null && financialDiscount.Product__c != null && !discountByFinancialInfos.containsKey(key)) {
+                    discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
+                    continue;
+                }
 
-            key += financialDiscount.SalesOffice__c != null ? '-' + financialDiscount.SalesOffice__c : '';
-            if (!discountByFinancialInfos.containsKey(key)) {
-                discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
-            }
+                key = financialDiscount.SalesOrg__c + '-' + financialDiscount.harvest__c;
+                key += financialDiscount.SalesTeam__c != null ? '-' + financialDiscount.SalesTeam__c : '';
+                key += financialDiscount.ProductGroup__c != null ? '-' + financialDiscount.ProductGroup__c : '';
+                if (financialDiscount.SalesTeam__c != null && financialDiscount.ProductGroup__c != null && !discountByFinancialInfos.containsKey(key)) {
+                    discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
+                    continue;
+                }
+                
+                key = financialDiscount.SalesOrg__c + '-' + financialDiscount.harvest__c;
+                key += financialDiscount.ProductGroup__c != null ? '-' + financialDiscount.ProductGroup__c : '';
+                if (financialDiscount.ProductGroup__c != null && !discountByFinancialInfos.containsKey(key)) {
+                    discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
+                    continue;
+                }
 
-            key = financialDiscount.SalesOrg__c + '-' + financialDiscount.harvest__c;
-            key += financialDiscount.SalesOffice__c != null ? '-' + financialDiscount.SalesOffice__c : '';
-            key += financialDiscount.Product__c != null ? '-' + financialDiscount.Product__c : '';
-            if (!discountByFinancialInfos.containsKey(key)) {
-                discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
-            }
-
-            key = financialDiscount.SalesOrg__c + '-' + financialDiscount.harvest__c;
-            key += financialDiscount.Culture__c != null ? '-' + financialDiscount.Culture__c : '';
-            key += financialDiscount.Product__c != null ? '-' + financialDiscount.Product__c : '';
-            if (!discountByFinancialInfos.containsKey(key)) {
-                discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
+                key = financialDiscount.SalesOrg__c + '-' + financialDiscount.harvest__c;
+                if (financialDiscount.ClientGroup__c == null && financialDiscount.SalesTeam__c == null && financialDiscount.Product__c == null &&
+                    financialDiscount.ProductGroup__c == null && !discountByFinancialInfos.containsKey(key)) {
+                    discountByFinancialInfos.put(key, financialDiscount.Percentage__c);
+                    continue;
+                }
             }
         }
 
@@ -2833,12 +2845,14 @@ public without sharing class OrderScreenController {
         public String safra;
         public String culture;
         public String salesCondition;
+        public String clientGroup;
     }
 
     public class FinancialResult {
         public String  salesOrg;
         public String  salesOffice;
         public String  salesTeam;
+        public String  clientGroup;
         public Integer dayDifference;
         public Boolean isDiscount;
         public Boolean correctPayment;
@@ -2849,6 +2863,7 @@ public without sharing class OrderScreenController {
         public String  salesOrg;
         public String  salesOffice;
         public String  salesTeam;
+        public String  clientGroup;
         public Integer dayDifference;
         public Boolean isDiscount;
         public Boolean correctPayment;
@@ -2860,6 +2875,7 @@ public without sharing class OrderScreenController {
             this.salesOrg = financialResult.salesOrg;
             this.salesOffice = financialResult.salesOffice;
             this.salesTeam = financialResult.salesTeam;
+            this.clientGroup = financialResult.clientGroup;
             this.dayDifference = financialResult.dayDifference;
             this.isDiscount = financialResult.isDiscount;
             this.correctPayment = financialResult.correctPayment;
@@ -2885,6 +2901,7 @@ public without sharing class OrderScreenController {
         public String  activitySectorName;
         public String  distributionChannelId;
         public String  distributionChannelName;
+        public String  clientGroup;
         public Boolean selected;
     }
 
