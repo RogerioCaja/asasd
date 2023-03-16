@@ -1678,7 +1678,7 @@ public without sharing class OrderScreenController {
             }
             if (salesTeamsDevNames.size() > 0) {
                 proQuery.add(Q.condition('SalesTeam__r.ExternalId__c').isIn(salesTeamsDevNames));
-                proQuery.add(Q.condition('SalesOrg__r.SalesOrganizationCode__c').isIn(new List<String>{'1000', '1100', '1300', '1500', '1600', '1700', '1800', '1900', '2000', '9000', '9003'}));
+                proQuery.add(Q.condition('SalesOrg__r.SalesOrganizationCode__c').isIn(new List<String>(SalesOrgSettings__c.getAll().keySet())));
                 if(companyInfos.orderType == 'Venda de Serviço')
                     proQuery.add(Q.condition('ActivitySector__r.Codigo__c').equalsTo('40'));
                 else {
