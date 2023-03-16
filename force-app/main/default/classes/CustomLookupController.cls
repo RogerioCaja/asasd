@@ -167,7 +167,7 @@ public without sharing class CustomLookupController {
                                   '       )' +
                                   ' ORDER BY Name' +
                                   (
-                                    !priceScreen && !isCommodity ? 
+                                    !priceScreen && !isCommodity && !isLimit ? 
                                         ' LIMIT 9' +
                                         ' OFFSET :numberOfRowsToSkip' : 
                                         ''
