@@ -25,6 +25,11 @@
                 <default>false</default>
                 <label>Venda Conta e Ordem</label>
             </value>
+            <value>
+                <fullName>ZVBA</fullName>
+                <default>false</default>
+                <label>Venda Barter</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>
