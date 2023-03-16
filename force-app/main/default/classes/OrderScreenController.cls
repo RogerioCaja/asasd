@@ -2668,7 +2668,7 @@ public without sharing class OrderScreenController {
         ProductSerialize(OrderItem orderItem, Integer position, Boolean cloneOrder, Decimal brokeragePerUnit){
             this.comboId = orderItem.ComboPromotion__c;
             this.containsCombo = orderItem.ComboPromotion__c != null ? true : false;
-            this.industryCombo = orderItem.AgrogalaxyComboDiscount__c != 0 ? true : false;
+            this.industryCombo = orderItem.IndustryComboDiscount__c != 0 ? true : false;
             this.comboDiscountPercent = '0%';
             this.comboDiscountValue = this.comboId != null ? (this.industryCombo ? orderItem.IndustryComboDiscount__c : orderItem.AgrogalaxyComboDiscount__c) : 0;
             this.position = position;
