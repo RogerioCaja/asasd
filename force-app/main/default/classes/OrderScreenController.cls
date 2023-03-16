@@ -2248,7 +2248,6 @@ public without sharing class OrderScreenController {
         public String  centerId;
         public Decimal freightValue;
         public Decimal freightPerUnit;
-        public Decimal motherTotalQuantity;
         public Boolean emptyHectar;
         public Boolean orderCanceled;
         public Boolean pedido_mae_check;
