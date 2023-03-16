@@ -477,9 +477,9 @@ export default class OrderHeaderScreen extends LightningElement {
                             let mtoValues = JSON.parse(result);
                             this.mtoOpitions = JSON.parse(JSON.stringify(mtoValues));
                             if(this.headerDictLocale.tipo_venda == 'Venda Barter'){
-                                this.mtoOpitions.splice(list.findIndex((e) => e.value == 'ZVNO'), 1)
+                                this.mtoOpitions.splice(this.mtoOpitions.findIndex((e) => e.value == 'ZVNO'), 1)
                             }else{
-                                this.mtoOpitions.splice(list.findIndex((e) => e.value == 'ZVBA'), 1)
+                                this.mtoOpitions.splice(this.mtoOpitions.findIndex((e) => e.value == 'ZVBA'), 1)
                             }
                             console.log('this.mtoOpitions: ' + this.mtoOpitions);
                         });
