@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customSettingsType>List</customSettingsType>
+    <description>Custom settings utilizada para delimitar quais organizações serem incluídas na busca de empresas no cabeçalho do pedido.</description>
+    <enableFeeds>false</enableFeeds>
+    <label>Organização de Vendas</label>
+    <visibility>Public</visibility>
+</CustomObject>
