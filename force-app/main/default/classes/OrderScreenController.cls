@@ -233,8 +233,8 @@ public without sharing class OrderScreenController {
         for (CommodityTaxes__c commodityTax : [
             SELECT Id,
                    Tax__c,
-                   Tax__r.Commodity__c,
                    Commodity__c,
+                   Commodity__r.Product__c,
                    DeductionAmount__c,
                    PercentageDeducted__c
               FROM CommodityTaxes__c
@@ -2139,24 +2139,32 @@ public without sharing class OrderScreenController {
     @AuraEnabled
     public static String getTaxes(String accountId, String salesOrgId) {
         try {
-            List<TaxData> taxValues = new List<TaxData>();
-            for (CustomerTaxes__c tax : [
+            Set<Id> taxIds = new Set<Id>();
+            for (CustomerTaxes__c customerTax : [
                 SELECT Id,
-                       Tax__c,
-                       Tax__r.TaxPercentage__c,
-                       Tax__r.Commodity__c
+                       Tax__c
                   FROM CustomerTaxes__c
                  WHERE Account__c =: accountId
                    AND SalesOrg__c =: salesOrgId
                    AND Status__c = 'Ativo'
-                   AND Tax__c != null
-                   AND Tax__r.TaxPercentage__c != null
+            ]) {
+                taxIds.add(customerTax.Tax__c);
+            }
+
+            List<TaxData> taxValues = new List<TaxData>();
+            for (TaxCommodities__c taxCommodity : [
+                SELECT Id,
+                       Commodity__c,
+                       Impostos_Barter__c,
+                       TaxPercentage__c
+                  FROM TaxCommodities__c
+                 WHERE Impostos_Barter__c IN: taxIds
             ]) {
                 TaxData currentTax = new TaxData();
-                currentTax.taxId = tax.Tax__c;
+                currentTax.taxId = taxCommodity.Impostos_Barter__c;
                 currentTax.taxValue = 0;
-                currentTax.taxPercentage = tax.Tax__r.TaxPercentage__c;
-                currentTax.taxProduct = tax.Tax__r.Commodity__c;
+                currentTax.taxPercentage = taxCommodity.TaxPercentage__c;
+                currentTax.taxProduct = taxCommodity.Commodity__c;
                 taxValues.add(currentTax);
             }
 
@@ -2412,7 +2420,7 @@ public without sharing class OrderScreenController {
         public TaxDataSerialize(CommodityTaxes__c tax){
             this.taxId = tax.Tax__c;
             this.commodityId = tax.Commodity__c;
-            this.taxProduct = tax.Tax__r.Commodity__c;
+            this.taxProduct = tax.Commodity__r.Product__c;
             this.taxValue = tax.DeductionAmount__c;
             this.taxPercentage = tax.PercentageDeducted__c;
         }
