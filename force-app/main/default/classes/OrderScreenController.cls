@@ -1264,26 +1264,25 @@ public without sharing class OrderScreenController {
                     List<CommodityTaxes__c> upsCommoditiesTaxes = new List<CommodityTaxes__c>();
                     Set<Id> setCommodityTaxIds = new Set<Id>();
                     for (TaxData tax : orderData.taxData) {
-                        setCommodityTaxIds.add(tax.taxId);
+                        setCommodityTaxIds.add(tax.commodityTaxId);
                     }
 
                     Map<Id, CommodityTaxes__c> taxesById = new Map<Id, CommodityTaxes__c>();
                     for (CommodityTaxes__c commodityTax : [
-                        SELECT Id, Tax__c
+                        SELECT Id
                           FROM CommodityTaxes__c
-                         WHERE Tax__c IN: setCommodityTaxIds
-                           AND Commodity__c =: upsCommodities[0].Id
+                         WHERE Id IN: setCommodityTaxIds
                     ]) {
                         System.debug('commodityTax: ' + commodityTax);
-                        taxesById.put(commodityTax.Tax__c, commodityTax);
+                        taxesById.put(commodityTax.Id, commodityTax);
                     }
 
                     for (TaxData taxData : orderData.taxData) {
                         System.debug('orderData.taxData: ' + orderData.taxData);
                         if (taxData.taxProduct == upsCommodities[0].Product__c) {
                             CommodityTaxes__c commodityTax;
-                            if (!newOrder && !cloneOrder && taxesById.containsKey(taxData.taxId)) {
-                                commodityTax = taxesById.get(taxData.taxId);
+                            if (!newOrder && !cloneOrder && taxesById.containsKey(taxData.commodityTaxId)) {
+                                commodityTax = taxesById.get(taxData.commodityTaxId);
                             } else {
                                 commodityTax = new CommodityTaxes__c();
                             }
@@ -1292,6 +1291,7 @@ public without sharing class OrderScreenController {
                             commodityTax.Commodity__c = upsCommodities[0].Id;
                             commodityTax.DeductionAmount__c = toatlCommodityValue * (taxData.taxPercentage / 100);
                             commodityTax.PercentageDeducted__c = taxData.taxPercentage;
+                            System.debug('commodityTax: ' + commodityTax);
                             upsCommoditiesTaxes.add(commodityTax);
                         }
                     }
@@ -2403,6 +2403,7 @@ public without sharing class OrderScreenController {
 
     public class TaxData {
         public String  taxId;
+        public String  commodityTaxId;
         public String  commodityId;
         public String  taxProduct;
         public Decimal taxValue;
@@ -2411,6 +2412,7 @@ public without sharing class OrderScreenController {
 
     public class TaxDataSerialize {
         public String  taxId;
+        public String  commodityTaxId;
         public String  commodityId;
         public String  taxProduct;
         public Decimal taxValue;
@@ -2419,6 +2421,7 @@ public without sharing class OrderScreenController {
         public TaxDataSerialize(){}
         public TaxDataSerialize(CommodityTaxes__c tax){
             this.taxId = tax.Tax__c;
+            this.commodityTaxId = tax.Id;
             this.commodityId = tax.Commodity__c;
             this.taxProduct = tax.Commodity__r.Product__c;
             this.taxValue = tax.DeductionAmount__c;
