@@ -158,13 +158,14 @@ public without sharing class CalloutOrderUpdate {
 
             Set<Id> orderItemIds = new Set<Id>();
             String IV_TYPE = order.IsOrderMother__c != false ? 'G' : 'C';
+            Delimitadores__c delimiter = getDelimiterByKey(order);
             String dateF;
 
-            if(order.Crop__r.StartDateOrderInsertion__c < System.today() && IV_TYPE == 'G' ){
+            if(delimiter.StartDateOV__c < System.today() && IV_TYPE == 'G' ){
                 dateF = String.valueOf(order.EffectiveDate).replace('-', '');
             }
             else{
-                dateF = String.valueOf(order.Crop__r.StartDateOrderInsertion__c).replace('-', '');
+                dateF = String.valueOf(delimiter.StartDateOV__c).replace('-', '');
             }
            
             IV_SALES_DOC = order.CodigoSap__c;
@@ -176,7 +177,7 @@ public without sharing class CalloutOrderUpdate {
             IS_HEADER_IN.PYMT_METH = order.PaymentForm__c;
             
             IS_HEADER_IN.CT_VALID_F = IV_TYPE == 'G'  ? dateF :  '';
-            IS_HEADER_IN.CT_VALID_T = IV_TYPE == 'G' ? String.valueOf(order.Crop__r.EndDateInsertionOrders__c).replace('-', '') : '';
+            IS_HEADER_IN.CT_VALID_T = IV_TYPE == 'G' ? String.valueOf(delimiter.EndDateOV__c).replace('-', '') : '';
             
             IS_HEADER_IN.PURCH_NO_C = order.CustomerOrderNumber__c;
             
@@ -186,7 +187,7 @@ public without sharing class CalloutOrderUpdate {
             IS_HEADER_IN.ZZSAFRA = order.Crop__r.Code__c;
             IS_HEADER_IN.ZZCOD_CULTURA = order.Culture__r.Codigo__c;
             IS_HEADER_IN.ZZPED_CRM = order.OrderNumber;
-            IS_HEADER_IN.ZZDATA_CARENCIA = String.valueOf(order.Crop__r.PaymentBaseDate__c).replace('-', '');
+            IS_HEADER_IN.ZZDATA_CARENCIA = String.valueOf(delimiter.FinancialBaseDate__c).replace('-', '');
             IS_HEADER_IN.ZZDATA_VENCTO = String.valueOf(order.PaymentDate__c).replace('-', '');
            
             if(order.Description != null) order.Description = order.Description.replace('1n73gr4ção N3sc4r4 5F x 4PP', '');
@@ -229,6 +230,24 @@ public without sharing class CalloutOrderUpdate {
                 IT_ITEMS_IN.add(new CalloutOrderUpdate.OrderItemParameters(orderItem, order.Company__r.SupplierCenter__c));
                 
             }
+        }
+
+        private static Delimitadores__c getDelimiterByKey(Order order){
+            String keyDelimiter = order.Crop__r.Name +' '+ order.SalesCondition__r.ExternalId__c +' '+  order.SalesOrg__r.Name;
+            
+            Delimitadores__c delimiter = [
+                SELECT Id,
+                    StartDateBilling__c,
+                    StartDateOV__c,
+                    EndDateOV__c,
+                    LimitDateAfterPayment__c,
+                    EndDateBilling__c,
+                    FinancialBaseDate__c
+                FROM Delimitadores__c
+                WHERE Name =: keyDelimiter
+            ];
+    
+            return delimiter;
         }
     }
 
