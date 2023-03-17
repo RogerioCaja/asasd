@@ -1,9 +1,5 @@
 public without sharing class CalloutOrder {
-    public CalloutOrder() {
-        
-    }
-
-
+    public CalloutOrder() { }
 
     @future(callout = true)
     public static void callIntegration(Id orderId){
@@ -32,7 +28,6 @@ public without sharing class CalloutOrder {
 			}
 
 			List<Order> orderList = new List<Order>();
-            //test
 			
             for(Messages message : resp.responses.ET_RETURN.item){
                 if(message.TYPE != 'S' && message.TYPE != 'W' && message.TYPE != 'I'){
@@ -75,7 +70,6 @@ public without sharing class CalloutOrder {
 
         IntegrationUtils.RequestResponseObject responseObject = IntegrationUtils.executeCallout(endpoint, payload, headersMap);
         AuthToken auth = (AuthToken)JSON.deserialize(responseObject.response.getBody(), AuthToken.class);
-        System.debug(responseObject);
         return auth.access_token;
     }
 
@@ -118,7 +112,6 @@ public without sharing class CalloutOrder {
             }else{
                 IntegrationLog.createLog(title, 'OUT', response.getBody(), payload, false);
             }
-			// .WSLog('Pedido', 'OUTBOUND', response.getBody(), payload, false);
 			try {
 
 				ResponseParametersWrapper responses = (ResponseParametersWrapper) JSON.deserialize(response.getBody(), ResponseParametersWrapper.class);
