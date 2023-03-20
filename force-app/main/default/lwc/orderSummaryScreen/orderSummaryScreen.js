@@ -99,8 +99,8 @@ export default class OrderSummaryScreen extends LightningElement {
         
         getPaymentTypes()
         .then((result) => {
-            let teste = JSON.parse(result);
-            this.paymentsTypes = JSON.parse(JSON.stringify(teste));
+            let payments = JSON.parse(result);
+            this.paymentsTypes = JSON.parse(JSON.stringify(payments));
         });
 
         this.summaryDataLocale = {... this.summaryData};
@@ -303,9 +303,9 @@ export default class OrderSummaryScreen extends LightningElement {
                     
                     let currentTotalPrice = this.seedSale && this.isFilled(this.productDataLocale[i].brokerage) && this.productDataLocale[i].brokerage > 0 ? this.productDataLocale[i].totalPriceWithBrokerage : this.productDataLocale[i].totalPrice;
                     currentTotalPrice = Number(currentTotalPrice) + (this.seedSale ? Number(this.productDataLocale[i].tsiTotalPrice) + Number(this.productDataLocale[i].royaltyTotalPrice) : 0);
-                    this.productDataLocale[i]['unitPrice'] = 'R$ ' + this.fixDecimalPlacesFront(this.productDataLocale[i].unitPrice);
-                    this.productDataLocale[i]['totalPrice']  = 'R$ ' + this.fixDecimalPlacesFront(currentTotalPrice);
-                    this.productDataLocale[i]['commercialDiscountValue']  = 'R$ ' +  this.fixDecimalPlacesFront(this.productDataLocale[i].commercialDiscountValue);
+                    this.productDataLocale[i]['unitPrice'] = (this.headerData.moeda == 'BRL' ? 'R$ ' : 'US$ ') + this.fixDecimalPlacesFront(this.productDataLocale[i].unitPrice);
+                    this.productDataLocale[i]['totalPrice'] = (this.headerData.moeda == 'BRL' ? 'R$ ' : 'US$ ') + this.fixDecimalPlacesFront(currentTotalPrice);
+                    this.productDataLocale[i]['commercialDiscountValue'] = (this.headerData.moeda == 'BRL' ? 'R$ ' : 'US$ ') + this.fixDecimalPlacesFront(this.productDataLocale[i].commercialDiscountValue);
                     this.productDataLocale[i]['commercialDiscountPercentage']  =  this.fixDecimalPlacesPercentage(this.productDataLocale[i].commercialDiscountPercentage);
                     this.productDataLocale[i]['commercialMarginPercentage']  = this.fixDecimalPlacesFront(this.productDataLocale[i].commercialMarginPercentage) + '%';
                     this.productDataLocale[i]['divisionData'] = [];
@@ -479,7 +479,7 @@ export default class OrderSummaryScreen extends LightningElement {
 
     formatCurrency(num){
         try{
-            return parseFloat(num).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
+            return parseFloat(num).toLocaleString("pt-BR", {style:"currency", currency:this.headerData.moeda});
         }
         catch(err){
             console.log(err);

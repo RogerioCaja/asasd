@@ -130,9 +130,10 @@ public without sharing class CalloutBP {
             }
             List<Account> accountFatherListExternalId = new List<Account>([SELECT Id, ExternalId__c FROM Account WHERE ExternalId__c =: accountFatherIdsList]);
             creatyAccountTerrytoryAssossiation(accountList,accountFatherListExternalId, userCodigoSapList, resp, companyList);
-
+            List<String> accountIdList = new List<String>();
             for(Account acc : accountList){
                 lookups.put('Account__c' + acc.ExternalId__c, acc.Id);
+                accountIdList.add(acc.Id);
             }
 
             Map<String, Id> newLookups = creatyNewLookup(companyList, creditoList, tabelaImpostosList, lookups);
@@ -143,7 +144,7 @@ public without sharing class CalloutBP {
             System.debug('newLookups: '+ newLookups);
             Database.UpsertResult[] resultsCredit = creatyCredit(creditoList, newLookups);
             Database.UpsertResult[] resultsCompany = creatyCompany(companyList, newLookups, nameLookups);
-            Database.UpsertResult[] resultsImposto = clientTax(tabelaImpostosList, newLookups);
+            Database.UpsertResult[] resultsImposto = clientTax(tabelaImpostosList, newLookups, accountIdList);
             String resultsError = '';
             
             if(resultsImposto != null){
@@ -322,9 +323,10 @@ public without sharing class CalloutBP {
             }
             List<Account> accountFatherListExternalId = new List<Account>([SELECT Id, ExternalId__c FROM Account WHERE ExternalId__c =: accountFatherIdsList]);
             creatyAccountTerrytoryAssossiation(accountList,accountFatherListExternalId, userCodigoSapList, resp, companyList);
-
+            List<String> accountIdList = new List<String>();
             for(Account acc : accountList){
                 lookups.put('Account__c' + acc.ExternalId__c, acc.Id);
+                accountIdList.add(acc.Id);
             }
 
             Map<String, Id> newLookups = creatyNewLookup(companyList, creditoList, tabelaImpostosList, lookups);
@@ -335,7 +337,7 @@ public without sharing class CalloutBP {
             System.debug('tabelaImpostosList: '+ tabelaImpostosList);
             Database.UpsertResult[] resultsCredit = creatyCredit(creditoList, newLookups);
             Database.UpsertResult[] resultsCompany = creatyCompany(companyList, newLookups, nameLookups);
-            Database.UpsertResult[] resultsImposto = clientTax(tabelaImpostosList, newLookups);
+            Database.UpsertResult[] resultsImposto = clientTax(tabelaImpostosList, newLookups, accountIdList);
             String resultsError = '';
             
             if(resultsImposto != null){
@@ -719,7 +721,7 @@ public without sharing class CalloutBP {
         }
         return null;
     } 
-    public static Database.UpsertResult[] clientTax(List<TaxINData> tabelaImpostosList, Map<String, Id> lookups){
+    public static Database.UpsertResult[] clientTax(List<TaxINData> tabelaImpostosList, Map<String, Id> lookups, List<String> accountListId){
 
         List<CustomerTaxes__c> clientTaxListToUpsert = new List<CustomerTaxes__c>(); 
         for(TaxINData valor : tabelaImpostosList){
@@ -742,16 +744,19 @@ public without sharing class CalloutBP {
             CustomerTaxesHelper.enableTrigger();
             List<String> taxExternalIdList = new List<String>(); 
             List<String> codigoExternoAccountList = new List<String>(); 
-            List<String> accountIdList = new List<String>(); 
             for(CustomerTaxes__c clientTax : clientTaxListToUpsert){
                 taxExternalIdList.add(clientTax.ExternalId__c);
-                accountIdList.add(clientTax.Account__c);
             }
-            List<CustomerTaxes__c> clientTaxOldList = new List<CustomerTaxes__c>([SELECT Id, Account__c, ExternalId__c, Status__c FROM CustomerTaxes__c WHERE  Account__c =: accountIdList AND ExternalId__c !=: taxExternalIdList]); 
+            List<CustomerTaxes__c> clientTaxOldList = new List<CustomerTaxes__c>([SELECT Id, Account__c, ExternalId__c, Status__c FROM CustomerTaxes__c WHERE  Account__c =: accountListId AND ExternalId__c !=: taxExternalIdList]); 
 
             delete clientTaxOldList;
             return resultImpostList;
+        }else{
+            List<CustomerTaxes__c> clientTaxOldListToRemove = new List<CustomerTaxes__c>([SELECT Id, Account__c, ExternalId__c, Status__c FROM CustomerTaxes__c WHERE  Account__c =: accountListId]); 
+            delete clientTaxOldListToRemove;
         }
+
+        
         return null;
     } 
 

@@ -12,14 +12,6 @@
                 <field>Name</field>
             </layoutItems>
             <layoutItems>
-                <behavior>Edit</behavior>
-                <field>TaxPercentage__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
-                <field>Commodity__c</field>
-            </layoutItems>
-            <layoutItems>
                 <behavior>Required</behavior>
                 <field>ExternalId__c</field>
             </layoutItems>
@@ -83,11 +75,22 @@
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
+        <fields>TaxCode__c</fields>
+        <fields>SalesOrg__c</fields>
         <relatedList>CustomerTaxes__c.Tax__c</relatedList>
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
+        <fields>DeductionAmount__c</fields>
+        <fields>Commodity__c</fields>
         <relatedList>CommodityTaxes__c.Tax__c</relatedList>
+    </relatedLists>
+    <relatedLists>
+        <fields>NAME</fields>
+        <fields>Commodity__c</fields>
+        <fields>CURRENCY_ISO_CODE</fields>
+        <fields>TaxPercentage__c</fields>
+        <relatedList>TaxCommodities__c.Impostos_Barter__c</relatedList>
     </relatedLists>
     <showEmailCheckbox>false</showEmailCheckbox>
     <showHighlightsPanel>false</showHighlightsPanel>
@@ -95,7 +98,7 @@
     <showRunAssignmentRulesCheckbox>false</showRunAssignmentRulesCheckbox>
     <showSubmitAndAttachButton>false</showSubmitAndAttachButton>
     <summaryLayout>
-        <masterLabel>00h8F000001OXgF</masterLabel>
+        <masterLabel>00h01000000bBk2</masterLabel>
         <sizeX>4</sizeX>
         <sizeY>0</sizeY>
         <summaryLayoutStyle>Default</summaryLayoutStyle>

@@ -46,12 +46,12 @@ class ProcessAutomation:
             self.branch_safe_name = self.branch_name.strip()
             self.branch_name = self.branch_name.strip().split('/')[1]
             self.branch_merge_develop = 'mergedevelop/' + self.branch_name
-            self.branch_merge_qa2 = 'mergeqa2/' + self.branch_name
+            # self.branch_merge_qa2 = 'mergeqa2/' + self.branch_name
             self.branch_merge_qa = 'mergeqa/' +  self.branch_name
 
     def prepare_data_git(self) -> None:
         self.prepare_enviroments("develop", self.branch_merge_develop)
-        self.prepare_enviroments("qa2", self.branch_merge_qa2)
+        # self.prepare_enviroments("qa2", self.branch_merge_qa2)
         self.prepare_enviroments("qa", self.branch_merge_qa)
         self.prepare_pull_request()
     
@@ -72,11 +72,11 @@ class ProcessAutomation:
         self.dict_payload["title"] = "Mergedevelop/" + self.branch_merge_develop.split('/')[1]
         payload = json.dumps(self.dict_payload)
 
-        self.dict_payload["destination"]["branch"]["name"] = "qa2"
-        self.dict_payload["source"]["branch"]["name"] = self.branch_merge_qa2
-        self.dict_payload["title"] = "Mergeqa2/" + self.branch_merge_qa2.split('/')[1]
+        # self.dict_payload["destination"]["branch"]["name"] = "qa2"
+        # self.dict_payload["source"]["branch"]["name"] = self.branch_merge_qa2
+        # self.dict_payload["title"] = "Mergeqa2/" + self.branch_merge_qa2.split('/')[1]
 
-        payload2 = json.dumps(self.dict_payload)
+        # payload2 = json.dumps(self.dict_payload)
 
         self.dict_payload["destination"]["branch"]["name"] = "qa"
         self.dict_payload["source"]["branch"]["name"] = self.branch_merge_qa
@@ -91,12 +91,12 @@ class ProcessAutomation:
             headers=self.headers
         )
 
-        requests.request(
-            "POST",
-            self.url,
-            data=payload2,
-            headers=self.headers
-        )
+        # requests.request(
+        #     "POST",
+        #     self.url,
+        #     data=payload2,
+        #     headers=self.headers
+        # )
 
         requests.request(
             "POST",

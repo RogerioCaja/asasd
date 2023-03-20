@@ -169,6 +169,21 @@ public with sharing class CalloutOrderDatalakeTest {
             RecordTypeId = Schema.SObjectType.Order.getRecordTypeInfosByName().get('Venda Normal').getRecordTypeId()
         );
 
+        Delimitadores__c delimiter = new Delimitadores__c(
+            Name = '',
+            EndDateBilling__c = System.today().addDays(30),
+            EndDateOV__c = System.today().addDays(30),
+            ExternalId__c = '' ,
+            FinancialBaseDate__c = System.today().addDays(15),
+            Safra__c= safra.Id, 
+            SalesCondition__c = sales.Id, 
+            SalesOrg__c = so.Id,
+            StartDateBilling__c = System.today(),
+            StartDateOV__c = System.today()
+        );
+
+        INSERT delimiter;
+
         INSERT order2;
 
         Product2 prod = new Product2(
