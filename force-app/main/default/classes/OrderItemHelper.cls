@@ -427,11 +427,12 @@ public without sharing class OrderItemHelper {
             System.debug('valorAcrescComercial  ' + orderItemsForConditions.valorAcrescComercial);
             System.debug('Desconto Valor ' + orderItemsForConditions.descontoValor);
             System.debug('Preço Praticado ' + orderItemsForConditions.precoPraticado);
-            if(valorCorretagem != 0 || valorCorretagem != null){
+            if(valorCorretagem != 0 && valorCorretagem != null){
                 orderItemsForConditions.valorTotal += valorCorretagem;
             }
             porcentagemZCBA = 0;
             porcentagemZCBI = 0;
+            valorCorretagem = 0;
         }
     }
     
