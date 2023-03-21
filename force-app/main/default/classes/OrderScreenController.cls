@@ -580,6 +580,7 @@ public without sharing class OrderScreenController {
             Set<Id> setProductHierarchyIds = new Set<Id>();
             Map<String, Decimal> quantitiesById = new Map<String, Decimal>();
             Map<String, Decimal> smallerMarginByProductGroup = new Map<String, Decimal>();
+            Map<String, Decimal> IdOrderItemToQuantity = new Map<String, Decimal>();
             
             Decimal productQuantities = 0;
             for (ProductDeserialize orderProduct : orderData.productData) {
@@ -595,6 +596,7 @@ public without sharing class OrderScreenController {
 
                 if (orderProduct.productId != null) {
                     listProductsIds.add(orderProduct.productId);
+                    IdOrderItemToQuantity.put(orderProduct.productId, orderProduct.quantity);
                 }
 
                 if (orderProduct.productGroupId != null && !orderProduct.containsCombo) {
@@ -631,6 +633,18 @@ public without sharing class OrderScreenController {
 
                 productQuantities += orderProduct.quantity;
                 quantitiesById.put(orderProduct.productId, orderProduct.quantity);
+            }
+
+            for (Id orderItemId : setOrderItemsIds) {
+                Double auxiliar =0;
+                for (DivisionDeserialize division : orderData.divisionData) {
+                    if (division.orderItemKey==orderItemId) {
+                        auxiliar+=division.quantity;
+                    }
+                    if (auxiliar>IdOrderItemToQuantity.get(division.orderItemKey)) {
+                        ApexPages.addmessage(new ApexPages.message(ApexPages.severity.FATAL,'Não é possível ultrapassar nas remessas a quantidade adquirida.'));
+                    }
+                }
             }
 
             QuantitiesResult quantitiesResult;
