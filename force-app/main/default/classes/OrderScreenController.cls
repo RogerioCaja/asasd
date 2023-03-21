@@ -635,16 +635,20 @@ public without sharing class OrderScreenController {
                 quantitiesById.put(orderProduct.productId, orderProduct.quantity);
             }
 
-            for (Id orderItemId : setOrderItemsIds) {
-                Double auxiliar =0;
-                for (DivisionDeserialize division : orderData.divisionData) {
-                    if (division.orderItemKey==orderItemId) {
-                        auxiliar+=division.quantity;
-                    }
-                    if (auxiliar>IdOrderItemToQuantity.get(division.orderItemKey)) {
-                        ApexPages.addmessage(new ApexPages.message(ApexPages.severity.FATAL,'Não é possível ultrapassar nas remessas a quantidade adquirida.'));
+            try {
+                for (Id orderItemId : setOrderItemsIds) {
+                    Double auxiliar =0;
+                    for (DivisionDeserialize division : orderData.divisionData) {
+                        if (division.orderItemKey==orderItemId) {
+                            auxiliar+=division.quantity;
+                        }
+                        if (auxiliar>IdOrderItemToQuantity.get(division.orderItemKey)) {
+                            ApexPages.addmessage(new ApexPages.message(ApexPages.severity.FATAL,'Não é possível ultrapassar nas remessas a quantidade adquirida.'));
+                        }
                     }
                 }
+            } catch (Exception e) {
+                System.debug('Ta quebrando o try');
             }
 
             QuantitiesResult quantitiesResult;
