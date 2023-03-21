@@ -647,7 +647,7 @@ public without sharing class OrderScreenController {
                         }
                     }
                 }
-            } catch (Exception e) {
+            } catch (Exception ex) {
                 System.debug('Erro: ' + ex.getMessage() + '  -  ' + ex.getStackTraceString());
             }
 
