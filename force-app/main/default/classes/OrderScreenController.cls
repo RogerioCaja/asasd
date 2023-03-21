@@ -648,7 +648,7 @@ public without sharing class OrderScreenController {
                     }
                 }
             } catch (Exception e) {
-                System.debug('Ta quebrando o try');
+                System.debug('Erro: ' + ex.getMessage() + '  -  ' + ex.getStackTraceString());
             }
 
             QuantitiesResult quantitiesResult;
