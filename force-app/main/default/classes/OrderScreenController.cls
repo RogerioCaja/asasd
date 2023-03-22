@@ -1256,6 +1256,7 @@ public without sharing class OrderScreenController {
                         orderCommodity.StartDate__c = Date.valueOf(commodity.startDate);
                         orderCommodity.EndDate__c = Date.valueOf(commodity.endDate);
                         orderCommodity.DeliveryAddress__c = commodity.deliveryAddress;
+                        orderCommodity.CurrencyIsoCode = orderData.headerData.moeda;
                         upsCommodities.add(orderCommodity);
 
                         toatlCommodityValue = commodity.commodityPrice * orderCommodity.BagQuantity__c;
