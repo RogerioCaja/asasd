@@ -2,7 +2,7 @@ public without sharing class CalloutVisits {
 
     
     public static void callIntegration(List<String> visitPlanningIdList){
-        List<String> fotosIdsList = updatePhoto(visitPlanningIdList);
+        //List<String> fotosIdsList = updatePhoto(visitPlanningIdList);
         //sendOrder(visitPlanningIdList, fotosIdsList);
         
     }/*
