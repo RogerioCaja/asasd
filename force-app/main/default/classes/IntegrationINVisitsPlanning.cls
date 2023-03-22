@@ -149,7 +149,7 @@ global without sharing class IntegrationINVisitsPlanning {
                 }
             }
         }
-		
+		CalloutVisits.callIntegration(visitListId);
         //Creating integration log
         IntegrationLog.createLog('Visit Planning - App', 'IN', JSON.serialize(request), JSON.serialize(responseList), hasError);
         
