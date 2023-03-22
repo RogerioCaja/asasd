@@ -684,8 +684,8 @@ global with sharing class TemplateDataIntegrationFields {
     global class OrderCommodityINData implements FieldDataChild{
         public Boolean orderCommodityECalendariazacao;
         public String orderExternalId;
-        //public String OrderItemCode;
         public String Name;
+        //public String OrderItemCode;
         public String material;
         public Decimal commodityPrice;
         public Decimal bagQuantity;
@@ -952,6 +952,7 @@ global with sharing class TemplateDataIntegrationFields {
             public String instrucoes;
             public String numeroBoleto;
             public String bancoEmpresa;
+            public String boletoBasePdf;
             public Boletos__c serialize(Map<String, Id> lookups){
 
                 //Returning Object with Fields
@@ -967,6 +968,7 @@ global with sharing class TemplateDataIntegrationFields {
                 OurNumber__c = this.numeroBoleto,
                 BusinessLocation__c = this.localNegocio, 
                 Instructions__c = this.instrucoes
+                //Base64__c = this.boletoBasePdf
             );
         }
 

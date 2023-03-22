@@ -210,8 +210,7 @@ export default class PriceSearchScreen extends LightningElement {
                 isCommodity: false,
                 productsIds: [],
                 priceScreen: true,
-                getSeedPrices: false,
-                isLimit: false
+                getSeedPrices: false
             })
             .then(result => {
                 this.showBaseProducts = result.recordsDataList.length > 0;
@@ -245,7 +244,7 @@ export default class PriceSearchScreen extends LightningElement {
     }
 
     getProductByPriority(selectedProduct) {
-        let priorityPrice;
+        let priorityPrice = [];
         let productsPrice = this.productsPriceMap;
         let productId = this.isFilled(selectedProduct.Id) ? selectedProduct.Id : selectedProduct.productId;
 
