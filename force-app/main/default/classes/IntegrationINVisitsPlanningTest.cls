@@ -1,6 +1,6 @@
 @isTest
 public class IntegrationINVisitsPlanningTest {
-  /*
+  
     @TestSetup
     static void makeData(){
 
@@ -118,5 +118,5 @@ public class IntegrationINVisitsPlanningTest {
         Test.stopTest();
         
         System.debug(model);
-    }*/
+    }
 }
