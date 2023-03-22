@@ -1,6 +1,6 @@
 @isTest
     public class CalloutVisitsTest {
-      /*
+      
         @TestSetup
         static void makeData(){
     
@@ -114,5 +114,5 @@
             Test.stopTest();
             
         }
-*/
+
     }

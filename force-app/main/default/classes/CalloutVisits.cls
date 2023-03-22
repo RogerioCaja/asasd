@@ -2,10 +2,10 @@ public without sharing class CalloutVisits {
 
     
     public static void callIntegration(List<String> visitPlanningIdList){
-        //List<String> fotosIdsList = updatePhoto(visitPlanningIdList);
-        //sendOrder(visitPlanningIdList, fotosIdsList);
+        List<String> fotosIdsList = updatePhoto(visitPlanningIdList);
+        sendOrder(visitPlanningIdList, fotosIdsList);
         
-    }/*
+    }
     public static List<String> updatePhoto(List<String> visitIdList) {
         List<String> technicalReportIdList = new List<String>();
         List<String> photosIdList = new List<String>();
@@ -291,5 +291,5 @@ public without sharing class CalloutVisits {
     public class OrderDetails{
         public String StatusSap;
         public String NumeroOrdemVenda;
-    }*/
+    }
 }
