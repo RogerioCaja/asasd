@@ -1,5 +1,5 @@
 public without sharing class TechnicalReportTriggerHandler {
-   
+    /*
         List<TechnicalReport__c> oldRecords {get; set;} // Trigger.old 
         List<TechnicalReport__c> newRecords {get; set;} // Trigger.new
         Map<Id, TechnicalReport__c> oldMap {get; set;} // Trigger.oldMap
@@ -33,5 +33,5 @@ public without sharing class TechnicalReportTriggerHandler {
         // public void OnAfterDelete(){}
         
         // public void OnUndelete(){}
-
+    */
 }

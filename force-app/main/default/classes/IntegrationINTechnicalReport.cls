@@ -1,6 +1,6 @@
 global with sharing class IntegrationINTechnicalReport {
 
-    
+    /*
     global static Map<String, List<TemplateDataINtegrationFields.Response>> upsertTechnicalReport (List<TemplateDataINtegrationFields.TechnicalReportINData> request){
 
         Map<String, Id> lookups = new Map<String, Id>();
@@ -38,5 +38,5 @@ global with sharing class IntegrationINTechnicalReport {
         IntegrationUtils.upsertChildRecords(upsResults, responseMap, technicalReportListToUpsert, TechnicalReport__c.ExternalId__c);
         TechnicalReportHelper.enableTrigger();
         return responseMap;
-    }
+    }*/
 }
