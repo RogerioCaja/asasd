@@ -162,7 +162,7 @@ public without sharing class CalloutVisits {
             header.CtvVisit = visit.VisitSeller__r.CodigoSap__c;
             header.Observation = visit.Note__c;
             header.ReasonRescheduling = visit.ReschedulingReason__c;
-            header.ExternalCodeSalesforce = visit.AutoNumberGenerator;
+            header.ExternalCodeSalesforce = visit.AutoNumberGenerator__c;
             header.ExternalCodeApp = visit.ExternalIdApp__c;
             header.ReasonCancellation = visit.CancellationReason__c;
 
