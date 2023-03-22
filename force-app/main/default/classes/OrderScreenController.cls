@@ -510,6 +510,7 @@ public without sharing class OrderScreenController {
 
             Map<Id, OrderItem> motherItems = new Map<Id, OrderItem>();
             Boolean newDivision = false;
+            Decimal motherQuantity = 0;
             Decimal motherFreight = 0;
             Map<String, Decimal> individualValuesByType = new Map<String, Decimal>();
             if (orderData.headerData.pedido_mae.Id != null || order.OrderReference__c != null) {
@@ -1794,7 +1795,11 @@ public without sharing class OrderScreenController {
                    Name, 
                    FinancialBaseDate__c
               FROM Delimitadores__c
-             WHERE Name =: keyDelimiter
+             WHERE 
+                Name =: keyDelimiter 
+                AND StartDateOV__c <=: System.today()
+                AND EndDateOV__c >=: System.today()
+
         ]) {
             safraPaymentDate = delimiter.FinancialBaseDate__c;
         }
@@ -1895,6 +1900,8 @@ public without sharing class OrderScreenController {
                     FinancialBaseDate__c
                 FROM Delimitadores__c
                 WHERE Name =: keyDelimiter
+                AND StartDateOV__c <=: System.today()
+                AND EndDateOV__c >=: System.today()
             ];
 
             return JSON.serialize(new SafraDataSerialize(delimiter));
