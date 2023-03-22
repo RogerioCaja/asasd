@@ -1816,7 +1816,11 @@ public without sharing class OrderScreenController {
                    Name, 
                    FinancialBaseDate__c
               FROM Delimitadores__c
-             WHERE Name =: keyDelimiter
+             WHERE 
+                Name =: keyDelimiter 
+                AND StartDateOV__c <=: System.today()
+                AND EndDateOV__c >=: System.today()
+
         ]) {
             safraPaymentDate = delimiter.FinancialBaseDate__c;
         }
@@ -1917,6 +1921,8 @@ public without sharing class OrderScreenController {
                     FinancialBaseDate__c
                 FROM Delimitadores__c
                 WHERE Name =: keyDelimiter
+                AND StartDateOV__c <=: System.today()
+                AND EndDateOV__c >=: System.today()
             ];
 
             return JSON.serialize(new SafraDataSerialize(delimiter));
