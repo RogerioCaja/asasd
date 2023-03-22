@@ -580,6 +580,7 @@ public without sharing class OrderScreenController {
             Set<Id> setProductHierarchyIds = new Set<Id>();
             Map<String, Decimal> quantitiesById = new Map<String, Decimal>();
             Map<String, Decimal> smallerMarginByProductGroup = new Map<String, Decimal>();
+            Map<String, Decimal> IdOrderItemToQuantity = new Map<String, Decimal>();
             
             Decimal productQuantities = 0;
             for (ProductDeserialize orderProduct : orderData.productData) {
@@ -595,6 +596,7 @@ public without sharing class OrderScreenController {
 
                 if (orderProduct.productId != null) {
                     listProductsIds.add(orderProduct.productId);
+                    IdOrderItemToQuantity.put(orderProduct.productId, orderProduct.quantity);
                 }
 
                 if (orderProduct.productGroupId != null && !orderProduct.containsCombo) {
@@ -631,6 +633,22 @@ public without sharing class OrderScreenController {
 
                 productQuantities += orderProduct.quantity;
                 quantitiesById.put(orderProduct.productId, orderProduct.quantity);
+            }
+
+            try {
+                for (Id orderItemId : setOrderItemsIds) {
+                    Double auxiliar =0;
+                    for (DivisionDeserialize division : orderData.divisionData) {
+                        if (division.orderItemKey==orderItemId) {
+                            auxiliar+=division.quantity;
+                        }
+                        if (auxiliar>IdOrderItemToQuantity.get(division.orderItemKey)) {
+                            ApexPages.addmessage(new ApexPages.message(ApexPages.severity.FATAL,'Não é possível ultrapassar nas remessas a quantidade adquirida.'));
+                        }
+                    }
+                }
+            } catch (Exception ex) {
+                System.debug('Erro: ' + ex.getMessage() + '  -  ' + ex.getStackTraceString());
             }
 
             QuantitiesResult quantitiesResult;
@@ -1799,7 +1817,11 @@ public without sharing class OrderScreenController {
                    Name, 
                    FinancialBaseDate__c
               FROM Delimitadores__c
-             WHERE Name =: keyDelimiter
+             WHERE 
+                Name =: keyDelimiter 
+                AND StartDateOV__c <=: System.today()
+                AND EndDateOV__c >=: System.today()
+
         ]) {
             safraPaymentDate = delimiter.FinancialBaseDate__c;
         }
@@ -1900,6 +1922,8 @@ public without sharing class OrderScreenController {
                     FinancialBaseDate__c
                 FROM Delimitadores__c
                 WHERE Name =: keyDelimiter
+                AND StartDateOV__c <=: System.today()
+                AND EndDateOV__c >=: System.today()
             ];
 
             return JSON.serialize(new SafraDataSerialize(delimiter));
