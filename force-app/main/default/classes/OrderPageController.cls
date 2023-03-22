@@ -47,7 +47,7 @@ public with sharing class OrderPageController {
         }
         
         if(!this.orderToPage.isNormalSales){
-			totalValue += Decimal.valueOf(this.orderToPage.freightValue.replace('R$', '').replace(',00', '').replace('.', '').replace(',', '.').trim());
+			totalValue += Decimal.valueOf(this.orderToPage.freightValue.replace('R$', '').replace('USD', '').replace(',00', '').replace('.', '').replace(',', '.').trim());
         }
         this.orderToPage.totalAmount = this.orderToPage.currencyOrder == 'Barter' ? String.valueOf(totalValue) + ' sacas' : ('R$ ' + String.format(totalValue.format(), args)).contains(',') == true ?  'R$ ' + String.format(totalValue.format(), args): 'R$ ' + String.format(totalValue.format(), args) + ',00';
         

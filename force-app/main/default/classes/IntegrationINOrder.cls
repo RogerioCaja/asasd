@@ -184,7 +184,7 @@ global without sharing class IntegrationINOrder {
                     formPaymentListToUpsert.addAll(order.formPayment);
                     System.debug('formPaymentListToUpsert ' + formPaymentListToUpsert);
             }
-            
+           
             
             for (TemplateDataIntegrationFields.PartnerInsert partnerList : order.partners){
                 
