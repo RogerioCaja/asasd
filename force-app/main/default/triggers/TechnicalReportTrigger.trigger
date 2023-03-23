@@ -1,5 +1,5 @@
 trigger TechnicalReportTrigger on TechnicalReport__c (before insert, after insert, after update) {
-    /*
+    
     TechnicalReportTriggerHandler handler = new TechnicalReportTriggerHandler(
         Trigger.old, Trigger.new, Trigger.oldMap, Trigger.newMap
     );
@@ -23,5 +23,5 @@ trigger TechnicalReportTrigger on TechnicalReport__c (before insert, after inser
             }
         }
     }
-    */
+    
 }

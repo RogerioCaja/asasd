@@ -1,6 +1,6 @@
 @isTest
 public class TechnicalReportHelperTest {
-    /*
+    
 	@TestSetup
    public static void makeData(){
         
@@ -141,5 +141,5 @@ public class TechnicalReportHelperTest {
         	TechnicalReportHelper.enableTrigger();
         	insert techReport3;
         	TechnicalReportHelper.disableTrigger();
-}*/
+}
 }

@@ -1,6 +1,6 @@
 @RestResource(urlMapping='/upsertVisitsPlanning/*')
 global without sharing class IntegrationINVisitsPlanning {
-/*
+
     @HttpPost
     global static ResponseModel upsertVisitsPlanning(List<TemplateDataIntegrationFields.VisitPlanningINData> request) {
 
@@ -149,7 +149,7 @@ global without sharing class IntegrationINVisitsPlanning {
                 }
             }
         }
-		
+		CalloutVisits.callIntegration(visitListId);
         //Creating integration log
         IntegrationLog.createLog('Visit Planning - App', 'IN', JSON.serialize(request), JSON.serialize(responseList), hasError);
         
@@ -172,5 +172,5 @@ global without sharing class IntegrationINVisitsPlanning {
         public ResponseModel() {   
             this.response = new List<TemplateDataIntegrationFields.ResponseParent>();         
         }
-    }*/
+    }
 }

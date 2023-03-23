@@ -16,6 +16,7 @@ public without sharing class CalendarTriggerHandler {
     }
     
     public void OnAfterInsert(){
+        CalendarHelper.updateExternalId(this.newRecords);
         if (CalendarHelper.isTriggerEnabledForIntegration()) {
             CalendarHelper.callVisitsIntegration(this.newRecords);
         }
