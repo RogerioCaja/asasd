@@ -34,3 +34,4 @@ public without sharing class TechnicalReportTriggerHandler {
         
         // public void OnUndelete(){}
 
+    }
