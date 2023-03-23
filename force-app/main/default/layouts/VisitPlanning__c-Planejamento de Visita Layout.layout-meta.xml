@@ -43,6 +43,10 @@
                 <behavior>Readonly</behavior>
                 <field>LastVisit_Date__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>DomicilioFiscal__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>

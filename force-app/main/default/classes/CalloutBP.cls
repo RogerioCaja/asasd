@@ -1,3 +1,10 @@
+/**
+ * @description       : 
+ * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+ * @group             : 
+ * @last modified on  : 03-23-2023
+ * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+**/
 public without sharing class CalloutBP {
     @future(callout = true)
     public static void processIntegration(){
@@ -93,6 +100,7 @@ public without sharing class CalloutBP {
                 StateRegistration__c = valor.InscricaoEstadual,
                 Email__c = email,
                 Phone = valor.Telefone,
+                DomicilioFiscal__c = valor.DomicilioFiscal,
                 Status__c = statusType);
                 if(valor.ContaPai != null){
                     ac.ParentId = lookups.containsKey('Account'+valor.ContaPai) ? lookups.get('Account'+valor.ContaPai) : null;
@@ -287,6 +295,7 @@ public without sharing class CalloutBP {
                 StateRegistration__c = valor.InscricaoEstadual,
                 Email__c = email,
                 Phone = valor.Telefone,
+                DomicilioFiscal__c = valor.DomicilioFiscal,
                 Status__c = statusType);
                 if(valor.ContaPai != null){
                     ac.ParentId = lookups.containsKey('Account'+valor.ContaPai) ? lookups.get('Account'+valor.ContaPai) : null;
@@ -949,6 +958,7 @@ public without sharing class CalloutBP {
         public String Email;
         public String Telefone;
         public String Status;
+        public String DomicilioFiscal;
         public List<LimiteCreditoINData> Credito;
         public List<CompanyINData> EstruturaOrganizacional;
         public List<TaxINData> TabelaImpostoCliente;
@@ -972,19 +982,18 @@ public without sharing class CalloutBP {
 
     public class CompanyINData{
     
-    public String Partner;
-    public String CodigoExternoAccount;
-    public String CodigoExternoFatherAccount;    
-    public String OrganizacaoVendas;
-    public String SetorAtividade;
-    public String CanalDistribuicao;
-    public String DomicilioFiscal;
-    public String EscritorioVendas;
-    public String CentroFornecedor;
-    public String EquipeVendas;
-    public String GrupoClientes;
-    public String Status;
-    public String SetorVendas;
+        public String Partner;
+        public String CodigoExternoAccount;
+        public String CodigoExternoFatherAccount;    
+        public String OrganizacaoVendas;
+        public String SetorAtividade;
+        public String CanalDistribuicao;
+        public String EscritorioVendas;
+        public String CentroFornecedor;
+        public String EquipeVendas;
+        public String GrupoClientes;
+        public String Status;
+        public String SetorVendas;
     }
 
     public class TaxINData{
