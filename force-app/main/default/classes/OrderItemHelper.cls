@@ -259,7 +259,8 @@ public without sharing class OrderItemHelper {
         
         Decimal porcentagemZCBA;
         Decimal porcentagemZCBI;
-        
+        Decimal valorCorretagem;
+
         for(TemplateDataIntegrationFields.OrderItemINData orderItemsForConditions : request) {
             
             for(TemplateDataIntegrationFields.ConditionInsert  conditionsAssignment : conditionList){
@@ -313,6 +314,11 @@ public without sharing class OrderItemHelper {
                         Decimal custoPraticado = Decimal.valueOf(conditionsAssignment.KBETR) / orderItemsForConditions.quantidade;
                         orderItemsForConditions.custoPreco = custoPraticado;
                         System.debug('custoPreco ' + orderItemsForConditions.custoPreco);
+                    }
+
+                    if(conditionsAssignment.KSCHL == 'ZCOR'){
+                        valorCorretagem = Decimal.valueOf(conditionsAssignment.KBETR);
+                        
                     }
                     
                     if(conditionsAssignment.KSCHL == 'ZCBI'){
@@ -421,9 +427,12 @@ public without sharing class OrderItemHelper {
             System.debug('valorAcrescComercial  ' + orderItemsForConditions.valorAcrescComercial);
             System.debug('Desconto Valor ' + orderItemsForConditions.descontoValor);
             System.debug('Preço Praticado ' + orderItemsForConditions.precoPraticado);
-            
+            if(valorCorretagem != 0 && valorCorretagem != null){
+                orderItemsForConditions.valorTotal += valorCorretagem;
+            }
             porcentagemZCBA = 0;
             porcentagemZCBI = 0;
+            valorCorretagem = 0;
         }
     }
     

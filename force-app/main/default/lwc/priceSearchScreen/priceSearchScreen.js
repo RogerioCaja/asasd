@@ -245,7 +245,7 @@ export default class PriceSearchScreen extends LightningElement {
     }
 
     getProductByPriority(selectedProduct) {
-        let priorityPrice;
+        let priorityPrice = [];
         let productsPrice = this.productsPriceMap;
         let productId = this.isFilled(selectedProduct.Id) ? selectedProduct.Id : selectedProduct.productId;
 

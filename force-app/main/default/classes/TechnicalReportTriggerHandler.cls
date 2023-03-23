@@ -20,18 +20,16 @@ public without sharing class TechnicalReportTriggerHandler {
             TechnicalReportHelper.callVisitsIntegration(this.newRecords);
         }
         
-        // public void OnBeforeUpdate(){
+        public void OnBeforeUpdate(){
     
-        // }
+        }
         
         public void OnAfterUpdate(){
             TechnicalReportHelper.callVisitsIntegration(this.newRecords);
         }
-        
-        // public void OnBeforeDelete(){}
-        
-        // public void OnAfterDelete(){}
-        
-        // public void OnUndelete(){}
+}       
 
-}
+
+
+
+
