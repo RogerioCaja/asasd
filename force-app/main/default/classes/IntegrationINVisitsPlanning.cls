@@ -1,6 +1,6 @@
 @RestResource(urlMapping='/upsertVisitsPlanning/*')
 global without sharing class IntegrationINVisitsPlanning {
-/*
+
     @HttpPost
     global static ResponseModel upsertVisitsPlanning(List<TemplateDataIntegrationFields.VisitPlanningINData> request) {
 
@@ -172,5 +172,5 @@ global without sharing class IntegrationINVisitsPlanning {
         public ResponseModel() {   
             this.response = new List<TemplateDataIntegrationFields.ResponseParent>();         
         }
-    }*/
+    }
 }
