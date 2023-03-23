@@ -15,7 +15,7 @@ public without sharing class CalloutOrderUpdate {
                             OrderNumber, Crop__r.Code__c, Crop__r.StartDateOrderInsertion__c, Crop__r.EndDateInsertionOrders__c ,Culture__r.Codigo__c, EndDate, TotalAmount, PaymentForm__c, OrderReference__c, CustomerOrderNumber__c, SalesCTV__r.SellerType__c, EffectiveOrderDate__c, NumeroPedidoApp__c, SalesOrg__r.Name,
                             Currency__c, Crop__r.PaymentBaseDate__c,IsOrderMother__c, RecordTypeId,Description,DescriptionBillingSale__c, DistributionCenter__r.Code__c, RecordType.DeveloperName, (SELECT Id FROM OrderItems) 
                             FROM Order WHERE Id = :orderId];
-		
+
 		List<Order> allOrders = new List<Order>{parentOrder};
 		
 		IntegrationUtils.CalloutUpdateResponse calloutResponse = sendOrder(allOrders, rmCode, agCode, zcCode);
@@ -33,13 +33,12 @@ public without sharing class CalloutOrderUpdate {
 
 			
             for(Messages message : resp.responses.ET_RETURN.item){
-                if(message.TYPE != 'S' && message.TYPE != 'W'){
+                if(message.TYPE != 'S' && message.TYPE != 'W' && message.TYPE != 'I'){
                     calloutResponse.success = false;
                     calloutResponse.errorMessage = (calloutResponse.errorMessage != null ? calloutResponse.errorMessage : '') + message.MESSAGE + '\n';
                 }
             }
-
-            if(!calloutResponse.success || resp.responses.ET_RETURN.item == null){
+            if(!calloutResponse.success){
                 allOrders[0].ErrorIntegrationSAP__c = calloutResponse.errorMessage;
                 orderList.add(allOrders[0]);
             }
@@ -98,12 +97,12 @@ public without sharing class CalloutOrderUpdate {
 
 			HttpResponse response = responseObject.response;
 
-            if(response.getBody().contains('"TYPE":"E"') || response.getBody().contains('"An internal server error occured')){
+            if(response.getBody().contains('"TYPE":"E"') || response.getBody().contains('An internal server error occured')){
                 IntegrationLog.createLog('Pedido OUT - SAP - Atualização', 'OUT', response.getBody(), payload, true);
             }else{
                 IntegrationLog.createLog('Pedido OUT - SAP - Atualização', 'OUT', response.getBody(), payload, false);
             }
-			try {
+            try {
 
 				ResponseParametersWrapper responses = (ResponseParametersWrapper) JSON.deserialize(response.getBody(), ResponseParametersWrapper.class);
 				return new IntegrationUtils.CalloutUpdateResponse(new ResponseParameters(responses));
@@ -190,11 +189,11 @@ public without sharing class CalloutOrderUpdate {
             IS_HEADER_IN.ZZPED_CRM = order.OrderNumber;
             IS_HEADER_IN.ZZDATA_CARENCIA = String.valueOf(delimiter.FinancialBaseDate__c).replace('-', '');
             IS_HEADER_IN.ZZDATA_VENCTO = String.valueOf(order.PaymentDate__c).replace('-', '');
-
+           
             if(order.Description != null) order.Description = order.Description.replace('1n73gr4ção N3sc4r4 5F x 4PP', '');
             IS_HEADER_IN.TEXT_ADICIONAL = order.Description != null ? order.Description : '';
             IS_HEADER_IN.TEXT_DANFE = order.DescriptionBillingSale__c != null ? order.DescriptionBillingSale__c : '';
-           
+
             for(OrderItem orderItem : order.OrderItems){
                 orderItemIds.add(orderItem.Id);
             }
