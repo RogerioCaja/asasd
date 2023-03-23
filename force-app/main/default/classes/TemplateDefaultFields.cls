@@ -1,4 +1,3 @@
-
 public  class TemplateDefaultFields {
 	public TemplateDefaultFields(){
 
@@ -471,6 +470,7 @@ public  class TemplateDefaultFields {
         Product2 prod = new Product2(
             Name = 'Laptop X200', 
             Family = 'Hardware',
+            ProductCode = '0018675867',
             ExternalId__c = '0001',
             ClasseAvaliacao__c = 'chucrute',
             GrupoQuimico__c = 'Só o quimico',
@@ -493,6 +493,9 @@ public  class TemplateDefaultFields {
             UnitPrice = 160,
             PracticedCost__c = 130,
             PracticedPrice__c = 160,
+            UnitPricePerBag__c = 10,
+            TotalTSIAmount__c = 10000,
+            TotalRoyaltyAmount__c = 15000,
             Status__c = '5',
             UnitMeasure__c = 'Each',
             FinalTotalValue__c = 1600,
