@@ -48,12 +48,19 @@ public without sharing class CustomLookupController {
 	}
     
     @AuraEnabled
-    public static ProductDataResult fetchProductsRecords(String searchString, String data, Boolean isCommodity, List<String> productsIds, Boolean priceScreen, Boolean isLimit) {
+    public static ProductDataResult fetchProductsRecords(String searchString, String data, Boolean isCommodity, List<String> productsIds, Boolean priceScreen, Boolean getSeedPrices) {
         try {
             ProductDataResult result = new ProductDataResult();
             ProductParams productParams = (ProductParams) JSON.deserialize(data, ProductParams.class);
             System.debug('productParams: ' + productParams);
-            Id commodityRecType = Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get('ZPR0').getRecordTypeId();
+            
+            List<Id> pricesRecTypes = new List<Id>();
+            pricesRecTypes.add(Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get('ZPR0').getRecordTypeId());
+            if (getSeedPrices) {
+                pricesRecTypes.add(Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get('ZROY').getRecordTypeId());
+                pricesRecTypes.add(Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get('ZTRA').getRecordTypeId());
+            }
+
             List<Account> lstAccount = new List<Account>();
             if (productParams.accountId != '') lstAccount = [SELECT Industry FROM Account WHERE Id =: productParams.accountId];
 
@@ -65,15 +72,16 @@ public without sharing class CustomLookupController {
             salesResult.searchString = searchString;
             result.salesResult = salesResult;
 
-            Set<String> priceFields = new Set<String>{'Id', 'UnitPrice__c', 'Cost__c', 'Product__c', 'ProductGroup__c', 'Currency__c', 'SalesOrg__c', 'SalesTeam__c', 'SalesOffice__c', 'Account__c', 'Culture__c', 'ProductMultiplier__c', 'ExternalId__c', 'SalesCondition__r.Name'};
+            Date dayToConsider = getSeedPrices ? Date.valueOf(productParams.paymentDate) : System.today();
+            Set<String> priceFields = new Set<String>{'Id', 'UnitPrice__c', 'Cost__c', 'Product__c', 'ProductGroup__c', 'Currency__c', 'SalesOrg__c', 'SalesTeam__c', 'SalesOffice__c', 'Account__c', 'Culture__c', 'ProductMultiplier__c', 'ExternalId__c', 'SalesCondition__r.Name', 'RecordType.DeveloperName'};
             Q priceQuery = new Q(JurosDescontoAntecipao__c.SObjectType)
                                 .selectFields(priceFields)
-                                .add(Q.condition('RecordTypeId').equalsTo(commodityRecType))
+                                .add(Q.condition('RecordTypeId').isIn(pricesRecTypes))
                                 .add(Q.condition('harvest__c').equalsTo(productParams.safra))
                                 .add(Q.condition('SalesOrg__c').equalsTo(salesResult.salesOrgId))
                                 .add(Q.condition('IsActive__c').equalsTo(true))
-                                .add(Q.condition('StartDate__c').isLessOrEquals(System.today()))
-                                .add(Q.condition('EndDate__c').isGreaterOrEquals(System.today()));
+                                .add(Q.condition('StartDate__c').isLessOrEquals(dayToConsider))
+                                .add(Q.condition('EndDate__c').isGreaterOrEquals(dayToConsider));
 
             if (!priceScreen) {
                 priceQuery.add(Q.condition('SalesCondition__c').equalsTo(productParams.salesConditionId))
@@ -86,7 +94,6 @@ public without sharing class CustomLookupController {
             Map<Id, List<JurosDescontoAntecipao__c>> productsPriceById = new Map<Id, List<JurosDescontoAntecipao__c>>();
             Set<Id> accountIds = new Set<Id>();
             for(SObject jda : Database.query(priceQuery.build())) {
-                System.debug('jda: ' + jda);
                 if (!productsPriceById.containsKey((Id)jda.get('Product__c'))) {
                     productsPriceById.put((Id)jda.get('Product__c'), new List<JurosDescontoAntecipao__c>{(JurosDescontoAntecipao__c)jda});
                 } else {
@@ -128,13 +135,26 @@ public without sharing class CustomLookupController {
                 recTypeDevName = orderRecType.DeveloperName;
             }
 
+            String seedGroup = 'SEM001';
+            Set<String> insumosGroups = new Set<String>{'SEM001', 'SERV001'};
             Set<String> normalSale = new Set<String>{'HAWA', 'FERT'};
             String productType = isCommodity ? 'ZCOM' : (recTypeDevName == 'VendaServico' ? 'DIEN' : (recTypeDevName == 'VendaBarter' ? 'HAWA' : ''));
             
             Integer numberOfRowsToSkip = productParams.numberOfRowsToSkip;
-            String productQuery = 'SELECT Id, Name, ExternalId__c, UnidadeMedida__c, ProductGroup__c, ProductGroup__r.Name, ProductSubgroup__c, PrincipleActive__c, Multiplicity__c, ProductHierarchy__c' +
+            String productQuery = 'SELECT Id, Name, ExternalId__c, UnidadeMedida__c, ProductGroup__c, ProductGroup__r.Name, ProductGroup__r.ExternalId__c, ProductSubgroup__c, PrincipleActive__c, Multiplicity__c, ProductHierarchy__c' +
                                   '  FROM Product2' +
                                   ' WHERE Id IN:prodsId' +
+                                  (
+                                    getSeedPrices ? 
+                                        ' AND ProductGroup__r.ExternalId__c =: seedGroup' :
+                                        ''
+                                  ) +
+                                  (
+                                    productParams.dontGetSeeds && productParams.activitySectorName.toUpperCase() == 'INSUMOS' ||
+                                    productParams.dontGetSeeds && productParams.activitySectorName.toUpperCase() == 'INSUMO' ?
+                                        ' AND ProductGroup__r.ExternalId__c NOT IN: insumosGroups' :
+                                        ''
+                                  ) +
                                   (
                                     productType == '' ? 
                                         ' AND ProductType__c IN: normalSale' :
@@ -147,7 +167,7 @@ public without sharing class CustomLookupController {
                                   '       )' +
                                   ' ORDER BY Name' +
                                   (
-                                    !priceScreen && !isCommodity && !isLimit ? 
+                                    !priceScreen && !isCommodity ? 
                                         ' LIMIT 9' +
                                         ' OFFSET :numberOfRowsToSkip' : 
                                         ''
@@ -157,10 +177,41 @@ public without sharing class CustomLookupController {
             Set<Id> prodGroupIds = new Set<Id>();
             Set<Id> prodSubgroupIds = new Set<Id>();
             Set<Id> prodHierarchyIds = new Set<Id>();
+            List<String> prodIdList = new List<String>();
+            Set<Id> prodIdsWithoutQuota = new Set<Id>();
+
+            Boolean seedSale = OrderScreenController.isSeedSale(salesResult.salesOrgId, null);
+
             for (SObject product : queryResult) {
                 prodGroupIds.add((String)product.get('ProductGroup__c'));
+                prodIdList.add((String)product.get('Id'));
                 prodSubgroupIds.add((String)product.get('ProductSubgroup__c'));
                 prodHierarchyIds.add((String)product.get('ProductHierarchy__c'));
+            }
+
+            if(seedSale){
+
+                OrderScreenController.QuotaData quotaData = new OrderScreenController.QuotaData(productParams.safra, productParams.ctvId, prodIdList);
+            
+                String dataCheck = OrderScreenController.checkQuotaQuantity(JSON.serialize(quotaData));
+                Map<Id, OrderScreenController.QuotaResult> quoteResultMap = new Map<Id, OrderScreenController.QuotaResult>();
+                List<OrderScreenController.QuotaResult> quoteResult = (List<OrderScreenController.QuotaResult>)JSON.deserialize(dataCheck, List<OrderScreenController.QuotaResult>.class);
+            
+                for(OrderScreenController.QuotaResult quota : quoteResult){
+                    quoteResultMap.put(quota.productId, quota);
+                }
+
+                for(Id id : prodIdList){
+                    if(!quoteResultMap.containsKey(id)){
+                        prodIdsWithoutQuota.add(id);
+                    }
+                    
+                    if(quoteResultMap.containsKey(id)){
+                        if(quoteResultMap.get(id).balance == 0){
+                            prodIdsWithoutQuota.add(id);
+                        }
+                    }
+                }
             }
 
             Map<Id, ProductGroup__c> productsGroupById = new Map<Id, ProductGroup__c>([
@@ -215,11 +266,13 @@ public without sharing class CustomLookupController {
             for(SObject s : queryResult) {
                 List<JurosDescontoAntecipao__c> jdaList = productsPriceById.get((Id) s.get('Id'));
                 Boolean productIncluded = false;
+                
                 for (JurosDescontoAntecipao__c jda : jdaList) {
+                    String prefix = jda.RecordType.DeveloperName == 'ZPR0' ? 'G-' : (jda.RecordType.DeveloperName == 'ZROY' ? 'R-' : 'T-');
                     if ((jda.SalesOrg__c == salesResult.salesOrgId || jda.SalesOrg__c == null) &&
                         (jda.SalesOffice__c == salesResult.salesOfficeId || jda.SalesOffice__c == null) &&
                         (jda.SalesTeam__c == salesResult.salesTeamId || jda.SalesTeam__c == null) &&
-                        (productParams.accountId == '' || jda.Account__c == productParams.accountId || jda.Account__c == null))  {
+                        (productParams.accountId == '' || jda.Account__c == productParams.accountId || jda.Account__c == null) )  {
                         String productGroupId = (String)s.get('ProductGroup__c');
                         String productSubgroupId = (String)s.get('ProductSubgroup__c');
                         String productHierarchyId = (String)s.get('ProductHierarchy__c');
@@ -243,45 +296,45 @@ public without sharing class CustomLookupController {
                         ProductData productData = new ProductData((String)s.get('Id'), (String)s.get('Name'), (String)s.get('ExternalId__c'), (String)s.get('UnidadeMedida__c'), (String)s.get('PrincipleActive__c'), (Decimal)s.get('Multiplicity__c'), productGroupId, productHierarchyId, productGroupName, productSubgroupId, productSubgroupName, jda.Currency__c, jda.Id, jda.UnitPrice__c, jda.Cost__c, commissionPercentage, jda.ProductMultiplier__c, isPtaProduct, jda.ExternalId__c, jda.SalesCondition__r.Name);
                         
                         Boolean priceIncluded = false;
-                        String key = jda.Account__c + '-' + (String)s.get('Id');
-                        if ((productParams.accountId == '' && jda.Account__c == null) || (productParams.accountId != '')) {
+                        String key = prefix + jda.Account__c + '-' + (String)s.get('Id');
+                        if (((productParams.accountId == '' && jda.Account__c == null) || (productParams.accountId != '')) && ((!productParams.dontGetSeeds && !prodIdsWithoutQuota.contains((String)s.get('Id'))) || productParams.dontGetSeeds)) {
                             if (jda.Account__c != null && !result.recordsDataMap.containsKey(key)) {
                                 result.recordsDataMap.put(key, productData);
                                 priceIncluded = true;
                             }
             
                             String accountSegment = jda.Account__c != null ? industryByAccountIds.get(jda.Account__c).Industry : '';
-                            key = accountSegment + '-' + (String)s.get('Id');
+                            key = prefix + accountSegment + '-' + (String)s.get('Id');
                             if (!priceIncluded && accountSegment != '' && !result.recordsDataMap.containsKey(key)) {
                                 result.recordsDataMap.put(key, productData);
                                 priceIncluded = true;
                             }
             
-                            key = jda.Culture__c + '-' + jda.SalesTeam__c + '-' + (String)s.get('Id');
+                            key = prefix + jda.Culture__c + '-' + jda.SalesTeam__c + '-' + (String)s.get('Id');
                             if (!priceIncluded && jda.Culture__c != null && jda.SalesTeam__c != null && !result.recordsDataMap.containsKey(key)) {
                                 result.recordsDataMap.put(key, productData);
                                 priceIncluded = true;
                             }
             
-                            key = jda.SalesTeam__c + '-' + (String)s.get('Id');
+                            key = prefix + jda.SalesTeam__c + '-' + (String)s.get('Id');
                             if (!priceIncluded && jda.SalesTeam__c != null && !result.recordsDataMap.containsKey(key)) {
                                 result.recordsDataMap.put(key, productData);
                                 priceIncluded = true;
                             }
             
-                            key = jda.SalesOffice__c + '-' + (String)s.get('Id');
+                            key = prefix + jda.SalesOffice__c + '-' + (String)s.get('Id');
                             if (!priceIncluded && jda.SalesOffice__c != null && !result.recordsDataMap.containsKey(key)) {
                                 result.recordsDataMap.put(key, productData);
                                 priceIncluded = true;
                             }
             
-                            key = jda.ProductGroup__c;
+                            key = prefix + jda.ProductGroup__c;
                             if (!priceIncluded && jda.ProductGroup__c != null && !result.recordsDataMap.containsKey(key)) {
                                 result.recordsDataMap.put(key, productData);
                                 priceIncluded = true;
                             }
             
-                            key = (String)s.get('Id');
+                            key = prefix + (String)s.get('Id');
                             if (!priceIncluded && !result.recordsDataMap.containsKey(key)) {
                                 result.recordsDataMap.put(key, productData);
                                 priceIncluded = true;
@@ -305,6 +358,188 @@ public without sharing class CustomLookupController {
                 throw new AuraHandledException(err.getMessage());
             }
 	    }
+    }
+
+    @AuraEnabled
+    public static TerritoryDataresult fetchAccountsWithTerritories(String searchString, String data){
+        try {
+            TerritoryDataresult result = new TerritoryDataresult();
+            result.dataList = new List<InformationData>();
+            TerritoryParams territoryParams = (TerritoryParams) JSON.deserialize(data, TerritoryParams.class);
+            if(territoryParams.ctv != '' && territoryParams.territory == ''){
+                List<UserTerritory2Association> territories = [SELECT User.Name, Territory2Id FROM UserTerritory2Association WHERE UserId =: territoryParams.ctv];
+                if(territories.size() > 0){
+                    UserTerritory2Association territory = territories[0];
+                    Set<String> fieldsSet = new Set<String>{'Id', 'Name', 'ExternalId__c'};
+                    Q accountQuery = new Q(Account.SObjectType)
+                                .selectFields(fieldsSet)
+                                .add(new QConditionGroup(new List<Qcondition>{
+                                    new Qcondition('Name').isLike('%' + String.escapeSingleQuotes(searchString.trim()) + '%'),
+                                    new Qcondition('ExternalId__c').isLike('%' + String.escapeSingleQuotes(searchString.trim()) + '%')
+                                }).setLogicalOperatorAsOr())
+                                .addLimit(40000)
+                                .addOffset(territoryParams.offSet);
+
+                    List<Account> accountList = Database.query(accountQuery.build());
+                    Map<Id, Account> accountMap = new Map<Id, Account>();
+                    for(Account acc : accountList){
+                        accountMap.put(acc.Id, acc);
+                    }
+
+                    Integer counter = [SELECT COUNT() FROM ObjectTerritory2Association
+                                        WHERE ObjectId IN: accountMap.keySet() AND Territory2Id =: territory.Territory2Id];
+                    result.counter = counter;
+                    List<ObjectTerritory2Association> objectList = [SELECT ObjectId, Territory2Id, Territory2.Name, Territory2.ParentTerritory2.Name FROM ObjectTerritory2Association
+                                                                    WHERE ObjectId IN: accountMap.keySet() AND Territory2Id =: territory.Territory2Id LIMIT 30 OFFSET : territoryParams.offSet];
+                                                                    System.debug('objectList => ' + objectList);
+                    for(ObjectTerritory2Association objectItem : objectList){
+                        InformationData resultData = new InformationData();
+                        if(accountMap.containsKey(objectItem.ObjectId)){
+                            resultData.accountCode = accountMap.get(objectItem.ObjectId).ExternalId__c;
+                            resultData.accountName = accountMap.get(objectItem.ObjectId).Name;
+                            resultData.actualCTV = territory.User.Name;
+                            resultData.territoryName = objectItem.Territory2.Name;
+                            resultData.territoryFatherName = objectItem.Territory2.ParentTerritory2.Name;
+                            result.dataList.add(resultData);
+                        }
+                    }
+                }
+                return result;
+            }
+            else if(territoryParams.ctv == '' && territoryParams.territory != ''){
+                List<UserTerritory2Association> territories = [SELECT User.Name, Territory2Id FROM UserTerritory2Association WHERE Territory2Id =: territoryParams.territory LIMIT 1];
+                if(territories.size() > 0){
+                    UserTerritory2Association territory = territories[0];
+                    
+                    Set<String> fieldsSet = new Set<String>{'Id', 'Name', 'ExternalId__c'};
+                    Q accountQuery = new Q(Account.SObjectType)
+                    .selectFields(fieldsSet)
+                    .add(new QConditionGroup(new List<Qcondition>{
+                        new Qcondition('Name').isLike('%' + String.escapeSingleQuotes(searchString.trim()) + '%'),
+                        new Qcondition('ExternalId__c').isLike('%' + String.escapeSingleQuotes(searchString.trim()) + '%')
+                    }).setLogicalOperatorAsOr())
+                    .addLimit(40000)
+                    .addOffset(territoryParams.offSet);
+
+                    List<Account> accountList = Database.query(accountQuery.build());
+                    Map<Id, Account> accountMap = new Map<Id, Account>();
+                    for(Account acc : accountList){
+                        accountMap.put(acc.Id, acc);
+                    }
+
+                    Integer counter = [SELECT COUNT() FROM ObjectTerritory2Association
+                                        WHERE ObjectId IN: accountMap.keySet() AND Territory2Id =: territory.Territory2Id];
+                    result.counter = counter;
+
+                    List<ObjectTerritory2Association> objectList = [SELECT ObjectId, Territory2Id, Territory2.Name, Territory2.ParentTerritory2.Name FROM ObjectTerritory2Association
+                                                                    WHERE ObjectId IN: accountMap.keySet() AND Territory2Id =: territory.Territory2Id LIMIT 30 OFFSET : territoryParams.offSet];
+
+                    for(ObjectTerritory2Association objectItem : objectList){
+                        InformationData resultData = new InformationData();
+                        if(accountMap.containsKey(objectItem.ObjectId)){
+                            resultData.accountCode = accountMap.get(objectItem.ObjectId).ExternalId__c;
+                            resultData.accountName = accountMap.get(objectItem.ObjectId).Name;
+                            resultData.actualCTV = territory.User.Name;
+                            resultData.territoryName = objectItem.Territory2.Name;
+                            resultData.territoryFatherName = objectItem.Territory2.ParentTerritory2.Name;
+                            result.dataList.add(resultData);
+                        }
+                    }
+                }
+                return result;
+            }else if(territoryParams.ctv != '' && territoryParams.territory != ''){
+                Map<Id, String> ctvToTerritory = new Map<Id, String>();
+                List<UserTerritory2Association> territoryList = [SELECT User.Name, Territory2Id FROM UserTerritory2Association WHERE UserId =: territoryParams.ctv OR Territory2Id =: territoryParams.territory];
+                if(territoryList != null && territoryList.size() > 0){
+                        for(UserTerritory2Association userTerr : territoryList){
+                            if(!ctvToTerritory.containsKey(userTerr.Territory2Id)){
+                                ctvToTerritory.put(userTerr.Territory2Id, userTerr.User.Name);
+                            }
+                        }
+                    
+                    
+                    Set<String> fieldsSet = new Set<String>{'Id', 'Name', 'ExternalId__c'};
+                    Q accountQuery = new Q(Account.SObjectType)
+                    .selectFields(fieldsSet)
+                    .add(new QConditionGroup(new List<Qcondition>{
+                        new Qcondition('Name').isLike('%' + String.escapeSingleQuotes(searchString.trim()) + '%'),
+                        new Qcondition('ExternalId__c').isLike('%' + String.escapeSingleQuotes(searchString.trim()) + '%')
+                    }).setLogicalOperatorAsOr())
+                    .addLimit(40000)
+                    .addOffset(territoryParams.offSet);
+
+                    List<Account> accountList = Database.query(accountQuery.build());
+                    Map<Id, Account> accountMap = new Map<Id, Account>();
+                    for(Account acc : accountList){
+                        accountMap.put(acc.Id, acc);
+                    }
+
+                    Integer counter = [SELECT COUNT() FROM ObjectTerritory2Association
+                                        WHERE ObjectId IN: accountMap.keySet() AND Territory2Id IN: ctvToTerritory.keySet()];
+                    result.counter = counter;
+
+                    List<ObjectTerritory2Association> objectList = [SELECT ObjectId, Territory2Id, Territory2.Name, Territory2.ParentTerritory2.Name FROM ObjectTerritory2Association
+                                        WHERE ObjectId IN: accountMap.keySet() AND Territory2Id IN: ctvToTerritory.keySet() LIMIT 30 OFFSET : territoryParams.offSet];
+                    Map<Id, ObjectTerritory2Association> objectMap = new Map<Id, ObjectTerritory2Association>();
+                    for(ObjectTerritory2Association objectItem : objectList){
+                        objectMap.put(objectItem.Territory2Id, objectItem);
+                    }
+                    for(ObjectTerritory2Association objectItem : objectList){
+                        InformationData resultData = new InformationData();
+                        if(accountMap.containsKey(objectItem.ObjectId)){
+                            resultData.accountCode = accountMap.get(objectItem.ObjectId).ExternalId__c;
+                            resultData.accountName = accountMap.get(objectItem.ObjectId).Name;
+                            resultData.actualCTV = ctvToTerritory.get(objectItem.Territory2Id);
+                            resultData.territoryName = objectMap.get(objectItem.Territory2Id).Territory2.Name;
+                            resultData.territoryFatherName = objectMap.get(objectItem.Territory2Id).Territory2.ParentTerritory2.Name;
+                            result.dataList.add(resultData);
+                        }
+                    }
+                }
+                return result;
+            }else{
+                String validation = '%' + String.escapeSingleQuotes(searchString.trim()) + '%';
+                List<ObjectTerritory2Association> accountObjList = [SELECT ObjectId FROM ObjectTerritory2Association WHERE Object.Name LIKE: validation ];
+                Map<Id, ObjectTerritory2Association> accountObjMap = new Map<Id, ObjectTerritory2Association>();
+                List<String> accountIdList = new List<String>();
+                for(ObjectTerritory2Association obj : accountObjList){
+                    accountObjMap.put(obj.ObjectId, obj);
+                    accountIdList.add(String.valueOf(obj.ObjectId));
+                }
+
+                Set<String> fieldsSet = new Set<String>{'Id', 'Name', 'ExternalId__c'};
+                Integer counter = [SELECT COUNT() FROM Account WHERE (Name LIKE: validation OR ExternalId__c LIKE: validation)  AND Id NOT IN: accountIdList];
+
+                result.counter = counter;
+
+                String query = 'SELECT Id, Name, ExternalId__c FROM Account WHERE (ExternalId__c LIKE \'%' + String.escapeSingleQuotes(searchString.trim()) + '%\' OR Name LIKE \'%' + String.escapeSingleQuotes(searchString.trim()) + '%\') AND Id NOT IN: accountIdList ' +
+				' ORDER BY Name' +
+				' LIMIT 30' + 
+				' OFFSET ' + territoryParams.offSet;
+
+                List<Account> accountList = Database.query(query);
+                Map<Id, Account> accountMap = new Map<Id, Account>();
+                for(Account acc : accountList){
+                    accountMap.put(acc.Id, acc);
+                }
+                
+                for(Account account : accountList){
+                    InformationData resultData = new InformationData();
+                    if(accountMap.containsKey(account.Id)){
+                        resultData.accountCode = accountMap.get(account.Id).ExternalId__c;
+                        resultData.accountName = accountMap.get(account.Id).Name;
+                        resultData.actualCTV = '';
+                        resultData.territoryName = '';
+                        resultData.territoryFatherName = '';
+                        result.dataList.add(resultData);
+                    }
+                }
+                
+                return result;
+            }
+        } catch (Exception e) {
+            throw new AuraHandledException(e.getMessage());
+        }
     }
 
     public class RecordsData {
@@ -375,6 +610,9 @@ public without sharing class CustomLookupController {
         public String  salesOrgId;
         public String  salesOfficeId;
         public String  salesTeamId;
+        public String  activitySectorName;
+        public String  paymentDate;
+        public Boolean dontGetSeeds;
         public Integer numberOfRowsToSkip;
     }
 
@@ -385,10 +623,30 @@ public without sharing class CustomLookupController {
     }
 
     public class SalesResult {
-        @AuraEnabled public Id salesOrgId;
         @AuraEnabled public Id salesOfficeId;
         @AuraEnabled public Id salesTeamId;
+        @AuraEnabled public Id salesOrgId;
         @AuraEnabled public String segmento;
         @AuraEnabled public String searchString;
+    }
+
+    public class TerritoryParams{
+        public String territory;
+        public String ctv;
+        public Integer offSet;
+    }
+
+    public class InformationData{
+        @AuraEnabled public String accountName;
+        @AuraEnabled public String accountCode;
+        @AuraEnabled public String actualCTV;
+        @AuraEnabled public String territoryName;
+        @AuraEnabled public String territoryFatherName;
+    }
+
+
+    public class TerritoryDataresult{
+        @AuraEnabled public List<InformationData> dataList;
+        @AuraEnabled public Integer counter = 0;
     }
 }

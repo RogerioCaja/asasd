@@ -31,6 +31,9 @@ global without sharing class IntegrationINOrderAppdigital {
         // Guarda uma lista de pedidos para fazer o upsert
         Set<Id> orderItemIds = new Set<Id>();
         List<TemplateDataINtegrationFields.ShippingDivisonINData> shippingDivisonListToUpsert = new List<TemplateDataIntegrationFields.ShippingDivisonINData>();
+
+        List<TemplateDataIntegrationFields.OrderCommodityINData> orderCommodityListToUpsert = new List<TemplateDataINtegrationFields.OrderCommodityINData>();
+
         List<Order> orderListToUpsert = new List<Order>();
 
         List<String> idOrders = new List<String>();
@@ -61,6 +64,8 @@ global without sharing class IntegrationINOrderAppdigital {
                 //Putting the Order's ExternalId parameter in the OrderItem
                 for (TemplateDataIntegrationFields.OrderItemINData orderItem : order.orderItems){
                     orderItem.orderItemCode = orderItem.orderItemCode.replaceFirst('^0+','');
+                    orderItem.currencyOrder = order.CurrencyOrder;
+                    System.debug('Curreny ' + orderItem.currencyOrder);
                     if(order.numeroPedidoApp != null && order.numeroPedidoApp != ''){
                         System.debug('orderItem.orderExternalId ' + orderItem.orderExternalId );
                         orderItem.orderExternalId = order.numeroPedidoApp;
@@ -97,7 +102,23 @@ global without sharing class IntegrationINOrderAppdigital {
              
             System.debug('shippingDivisonListToUpsert' + shippingDivisonListToUpsert);
             
+            if(order.commodity != null){
+                for(TemplateDataIntegrationFields.OrderCommodityINData orderCommodity : order.commodity){
+                    //orderCommodity.orderItemCode = orderCommodity.orderItemCode.replaceFirst('^0+','');
+                    orderCommodity.orderCommodityECalendariazacao = order.eCalendarizacao;
+                    System.debug('orderCommodityECalendariazacao ' + orderCommodity.orderCommodityECalendariazacao);
+                        if(order.numeroPedidoApp != null && order.numeroPedidoApp != ''){
+                            orderCommodity.orderExternalId = order.numeroPedidoApp;
+                        }
+                        else{
+                            orderCommodity.orderExternalId = order.codigoSap;
+                        }
+                    }
+                    orderCommodityListToUpsert.addAll(order.commodity);
+    
+                }
             }
+            
            
         Map<String, Order> ordersIdsMap = new Map<String, Order>();
         List<Order> orderSelectList = new List<Order>([SELECT Id, NumeroPedidoApp__c,PaymentDate__c,ShippingDate__c,Type,CustomerOrderNumber__c,
@@ -319,8 +340,8 @@ global without sharing class IntegrationINOrderAppdigital {
             lookups.put('Pricebook2Id' + pricebook2Id.Name, pricebook2Id.Id);
         }
 
-        for (Order orderReference: [SELECT Id, CodigoSap__c FROM Order WHERE CodigoSap__c IN : orderReferenceLookups]){
-            lookups.put('Order' + orderReference.CodigoSap__c, orderReference.Id);
+        for (Order orderReference: [SELECT Id, NumeroPedidoApp__c FROM Order WHERE NumeroPedidoApp__c IN : orderReferenceLookups]){
+            lookups.put('Order' + orderReference.NumeroPedidoApp__c, orderReference.Id);
         }
 
         for (Company__c companyOrd: [SELECT Id, ExternalID__c FROM Company__c WHERE ExternalID__c IN : companyLookups]){
@@ -404,6 +425,15 @@ global without sharing class IntegrationINOrderAppdigital {
                     shipIt.orderExternalId = orderId;
                 } 
         }
+
+        for (TemplateDataIntegrationFields.OrderCommodityINData ordCommodity : orderCommodityListToUpsert){
+            String orderId;
+            if(ordCommodity.orderExternalId != null){
+                orderId = orderUpMap.get(ordCommodity.orderExternalId);
+
+                ordCommodity.orderExternalId = orderId;
+            }
+        }
         
          //Confirmar com o Helder
         //Upserting records (OrderItem)
@@ -440,6 +470,15 @@ global without sharing class IntegrationINOrderAppdigital {
             );
             System.debug('shippingDivisonResponse' + shippingDivisonResponse);
         }
+
+        Map<String, List<TemplateDataIntegrationFields.Response>> orderCommodityResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
+        
+        if(orderCommodityListToUpsert.size() != 0){
+            orderCommodityResponse.putAll(
+                IntegrationINCommodityAppdigital.upsertCommodity(orderCommodityListToUpsert)
+            );
+            System.debug('orderCommodityResponse' + orderCommodityResponse);
+        }
         
         if(!orderListForAppr.isEmpty()){
            if(orderListForAppr[0].CodigoSap__c == null || orderListForAppr[0].CodigoSap__c == ''){
@@ -466,6 +505,10 @@ global without sharing class IntegrationINOrderAppdigital {
                 for(TemplatedataIntegrationFields.Response orderItem : orderItemsResponse.get(response.externalCode)){
                     response.items.addAll(shippingDivisonResponse.get(orderItem.externalCode)); 
                 }
+            }
+
+            if(orderCommodityResponse.size() != 0 && orderCommodityResponse.containsKey(response.idSalesforce)){
+                response.items.addAll(orderCommodityResponse.get(response.idSalesforce));
             }
         }
 
@@ -576,7 +619,7 @@ global without sharing class IntegrationINOrderAppdigital {
                    
                 }
 
-                Order orders = [SELECT Id, Company__r.ClientGroup__c FROM Order WHERE Id =: orderDiscount.Id];
+                Order orders = [SELECT Id, Company__r.ClientGroup__c, Company__r.SalesOrg__c FROM Order WHERE Id =: orderDiscount.Id];
                 Discount__c orderDisc = new Discount__c();
                 
                 System.debug('ClientGroup__c => ' + orders.Company__r.ClientGroup__c);
@@ -588,6 +631,7 @@ global without sharing class IntegrationINOrderAppdigital {
                       FROM Discount__c
                      WHERE Status__c = 'Aprovado'
                        AND ClientGroup__c =: orders.Company__r.ClientGroup__c
+                       AND SalesOrg__c =: orders.Company__r.SalesOrg__c
                        AND ProductGroup__c =: productGroupId //Vamos rever esse daqui
                        AND InitialDate__c <=: System.today()
                        AND EndDate__c >=: System.today()

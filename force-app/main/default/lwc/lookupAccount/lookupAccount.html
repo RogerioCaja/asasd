@@ -30,14 +30,14 @@
 								class="slds-var-m-right_small">
 							</lightning-icon>
 							<div class="slds-truncate">
-								<h1 data-value={account.Id} class="slds-truncate">{account.Name}</h1>
+								<h1 data-value={account.Id} class="slds-truncate">{account.Name} - {account.CodSap}</h1>
 								<div data-value={account.Id} class="slds-text-color_weak slds-truncate">
                                     <div class="dados">
-                                        <span>Código SAP:  {account.CodSap}</span>
+                                        <span>IE: {account.IE} </span>
                                         <span if:true={account.CNPJ}>CPF/CNPJ: {account.CNPJ}</span>
                                         <span if:true={account.CPF}>CPF/CNPJ: {account.CPF}</span>
                                         <span>Cidade: {account.City}</span>
-                                        <span>UF: {account.UF}</span>
+                                        <span>Conta Pai: {account.ParentName}</span>
                                     </div>
 								</div>
 							</div>

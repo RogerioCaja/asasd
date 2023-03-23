@@ -10,6 +10,7 @@ public with sharing class OrderPageController {
         }
         catch(Exception e){
             System.debug(e);
+            System.debug(e.getStackTraceString());
             System.debug('Sem ID encontrado');
         }
     }
@@ -22,18 +23,34 @@ public with sharing class OrderPageController {
         if(this.orderToPage.currencyOrder == 'Barter'){
             commodity = getCommodityByOrderId(orderId)[0];
         }
+
+        if(!this.orderToPage.isNormalSales){
+            List<FormPayment__c> paymentFormList = getFormPaymentByOrderId(orderId);
+            for(FormPayment__c form : paymentFormList){
+                this.orderToPage.paymentFormList.add(new PaymentFormDAO(form,  this.orderToPage.currencyOrder));
+            }
+        }
         
         Map<Id, List<DivisonDAO>> divisonMap = getDivisonByList(orderItemList);
 
         for(OrderItem orderItem : orderItemList){
             this.orderToPage.orderItemList.add(new OrderItemDAO(orderItem, this.orderToPage.culture, this.orderToPage.currencyOrder, divisonMap.get(orderItem.Id), commodity));
         }
+        
+        
+        List<String> args = new String[]{'0','number','###,###,##0.00'};
+
         Decimal totalValue = 0;
         for(OrderItemDAO orderItem : this.orderToPage.orderItemList){
-            totalValue += Decimal.valueOf(orderItem.totalAmount.replace(' sacas', '').replace('R$', '').replace(',', '.').trim());
+            totalValue += Decimal.valueOf(orderItem.totalAmount.replace(' sacas', '').replace('R$', '').replace('USD', '').replace(',00', '').replace('.', '').replace(',', '.').trim());
+            
         }
-        this.orderToPage.totalAmount = this.orderToPage.currencyOrder == 'Barter' ? String.valueOf(totalValue) + ' sacas' : String.valueOf(totalValue);
-       
+        
+        if(!this.orderToPage.isNormalSales){
+			totalValue += Decimal.valueOf(this.orderToPage.freightValue.replace('R$', '').replace(',00', '').replace('.', '').replace(',', '.').trim());
+        }
+        this.orderToPage.totalAmount = this.orderToPage.currencyOrder == 'Barter' ? String.valueOf(totalValue) + ' sacas' : ('R$ ' + String.format(totalValue.format(), args)).contains(',') == true ?  'R$ ' + String.format(totalValue.format(), args): 'R$ ' + String.format(totalValue.format(), args) + ',00';
+        
         String downloadingFileName = 'Pedido de Venda-' + this.orderToPage.codeSap + '.pdf';
         Apexpages.currentPage().getHeaders().put( 'content-disposition', 'inline; filename=' + downloadingFileName );
        
@@ -45,12 +62,12 @@ public with sharing class OrderPageController {
   
         Set<String> fieldSet = new Set<String>{
             'Id', 'Account.ExternalId__c', 'Account.Name', 'Account.BillingStreet', 'OrderNumber',
-            'ShippingAccount__r.Name','Account.BillingCity', 'Account.StateRegistration__c',
+            'ShippingAccount__r.Name', 'ShippingAccount__r.Phone', 'ShippingAccount__r.Email__c', 'Account.BillingCity', 'Account.StateRegistration__c', 'SalesOrg__r.SalesOrganizationCode__c', 'SalesOrg__r.PDFLegalClauses__c',
             'Company__r.salesTeam__r.Address__c','Company__r.salesTeam__r.CNPJ__c', 'Company__r.salesTeam__r.Country__c', 'Company__r.salesTeam__r.Locale__c','Company__r.salesTeam__r.Phone__c',
             'Company__r.salesTeam__r.Registration__c','Company__r.salesTeam__r.State__c', 'Company__r.salesTeam__r.Subsidiary__c', 'Company__r.salesTeam__r.ZipCode__c',
-            'Account.CPF__c', 'Account.CNPJ__c', 'TotalAmount', 'Description', 'FinalTotalValue__c', 'Status',
-            'Account.BillingPostalCode', 'Crop__r.Name', 'PaymentForm__c', 'PaymentDate__c', 'RecordTypeId',
-            'Currency__c', 'Culture__r.Name', 'CodigoSap__c', 'SalesCTV__r.CodigoSap__c', 'SalesCTV__r.Name', 'IsOrderMother__c'
+            'Account.CPF__c', 'Account.CNPJ__c', 'TotalAmount', 'Description', 'FinalTotalValue__c', 'Status', 'TotalRoyaltiesAmount__c', 'TotalTSIAmount__c',
+            'Account.BillingPostalCode', 'Crop__r.Name', 'toLabel(PaymentForm__c)', 'PaymentDate__c', 'RecordTypeId',' Incoterms__c',
+            'Currency__c', 'Culture__r.Name', 'CodigoSap__c', 'SalesCTV__r.CodigoSap__c', 'SalesCTV__r.Name', 'IsOrderMother__c', 'FreightValue__c'
         };
 
         String query = new Q(Order.SObjectType)
@@ -64,8 +81,9 @@ public with sharing class OrderPageController {
     public static List<OrderItem> getOrderItemByOrderId(Id orderId){
 
         Set<String> fieldSet = new Set<String>{
-            'Product2Id','Product2.ProductCode' ,'Description', 'UnitMeasure__c', 'FinalTotalValue__c',
-            'UnitPrice','Quantity','TotalPrice' , 'Product2.Name', 'Product2.GrossWeightUnitOfMeasure__c'
+            'Product2Id','Product2.ProductCode' ,'Description', 'UnitMeasure__c', 'FinalTotalValue__c', 'TotalRoyaltyAmount__c', 'TotalTSIAmount__c',
+            'UnitPrice', 'PracticedPrice__c','Quantity','TotalPrice' , 'Product2.Name', 'Product2.GrossWeightUnitOfMeasure__c',
+            'Brokerage__c', 'UnitPricePerBag__c'
         };
 
         String query = new Q(OrderItem.SObjectType)
@@ -83,6 +101,19 @@ public with sharing class OrderPageController {
         };
 
         String query = new Q(OrderCommodity__c.SObjectType)
+                            .selectFields(fieldSet)
+                            .add(Q.condition('Order__c').equalsTo(orderId)).build();
+
+        return Database.query(query);
+    }
+
+    public static List<FormPayment__c> getFormPaymentByOrderId(Id orderId){
+        Set<String> fieldSet = new Set<String>{
+            'PaymentDate__c','Amount__c', 'toLabel(PaymentType__c)'
+            
+        };
+
+        String query = new Q(FormPayment__c.SObjectType)
                             .selectFields(fieldSet)
                             .add(Q.condition('Order__c').equalsTo(orderId)).build();
 
@@ -132,45 +163,57 @@ public with sharing class OrderPageController {
     public class OrderDAO{
         //Cód. Pessoa, Pessoa, Local, Fazenda, municipio, CPF/CNPJ, I.E., CEP
         //safra, Cond. de Pagamento, Vencimento
-        public String codCTV {get; set;}
-        public String orderNumber {get; set;}
-        public String nameCTV {get; set;}
-        public String codeSap {get; set;}
-        public String codeSapOrder {get; set;}
-        public String account {get; set;}
-        public String accountAddress {get; set;}
-        public String ranch {get; set;}
-        public String district {get; set;}
-        public String CPF_CNPJ {get; set;}
-        public String IE {get; set;}
-        public String CEP{get; set;}
-        public String safra {get; set;}
-        public String paymentCondition {get; set;}
-        public String dueDate {get; set;}
-        public String currencyOrder {get; set;}
-        public String culture {get; set;}
-        public String totalAmount {get; set;}
-        public String observation {get; set;}
-        public String status {get; set;}
-        public Boolean isMother {get; set;}
-        public String messageDivisionOrNo {get; set;}
+        public String codCTV                    {get; set;}
+        public String orderNumber               {get; set;}
+        public String nameCTV                   {get; set;}
+        public String codeSap                   {get; set;}
+        public String codeSapOrder              {get; set;}
+        public String account                   {get; set;}
+        public String accountAddress            {get; set;}
+        public String ranch                     {get; set;}
+        public String phone                     {get; set;}
+        public String email                     {get; set;}
+        public String district                  {get; set;}
+        public String CPF_CNPJ                  {get; set;}
+        public String IE                        {get; set;}
+        public String CEP                       {get; set;}
+        public String safra                     {get; set;}
+        public String paymentCondition          {get; set;}
+        public String dueDate                   {get; set;}
+        public String currencyOrder             {get; set;}
+        public String culture                   {get; set;}
+        public String totalAmount               {get; set;}
+        public String observation               {get; set;}
+        public String status                    {get; set;}
+        public Boolean isMother                 {get; set;}
+        public String messageDivisionOrNo       {get; set;}
+        public String freight                   {get; set;}
+        public String freightValue              {get; set;}
 
-        public String salesTeamName {get;set;}
-        public String salesTeamLocale {get;set;}
-        public String salesTeamLocation {get;set;}
-        public String salesTeamPhone {get;set;}
-        public String salesTeamCNPJ {get;set;}
-        public String salesTeamIE {get;set;}
+        public String salesTeamName             {get; set;}
+        public String salesTeamLocale           {get; set;}
+        public String salesTeamLocation         {get; set;}
+        public String salesTeamPhone            {get; set;}
+        public String salesTeamCNPJ             {get; set;}
+        public String salesTeamIE               {get; set;}
+        public String legalClauses              {get; set;}
+        public Boolean isNormalSales            {get; set;}
+        
+        public String totalTSI					{get; set;}
+        public String totalRoyalties        	{get; set;}
 
         public List<OrderItemDAO> orderItemList {get; set;}
+        public List<PaymentFormDAO> paymentFormList {get; set;}
 
         public OrderDAO(Order order){
             this.codeSap = order.Account.ExternalId__c;
             this.orderNumber = order.OrderNumber;
-            this.codeSapOrder = order.CodigoSap__c != null ? 'Codigo SAP: ' + order.CodigoSap__c : '';
+            this.codeSapOrder = order.CodigoSap__c != null ? order.CodigoSap__c : '';
             this.account = order.Account.Name;
             this.accountAddress = order.Account.BillingStreet;
             this.ranch = order.ShippingAccount__r.Name;
+            this.phone = order.ShippingAccount__r.Phone;
+            this.email = order.ShippingAccount__r.Email__c;
             this.district = order.Account.BillingCity;
             this.IE = order.Account.StateRegistration__c;
             this.CEP = order.Account.BillingPostalCode;
@@ -187,13 +230,20 @@ public with sharing class OrderPageController {
             this.messageDivisionOrNo = order.IsOrderMother__c ? 'Quantidade' : 'Data de Entrega(s) - Quant.';
             this.codCTV = order.SalesCTV__r.CodigoSap__c;
             this.nameCTV = order.SalesCTV__r.Name;
+            this.freight = order.Incoterms__c;
+            this.freightValue = formatCurrency(order.FreightValue__c == null ? 0 : order.FreightValue__c,  order.Currency__c).contains(',') ? formatCurrency(order.FreightValue__c == null ? 0 : order.FreightValue__c,  order.Currency__c) : formatCurrency(order.FreightValue__c == null ? 0 : order.FreightValue__c,  order.Currency__c) + ',00';
             this.salesTeamName = order.Company__r.salesTeam__r.Subsidiary__c;
             this.salesTeamLocale = order.Company__r.salesTeam__r.Address__c;
             this.salesTeamLocation = order.Company__r.salesTeam__r.ZipCode__c +' - '+ order.Company__r.salesTeam__r.Locale__c +', '+ order.Company__r.salesTeam__r.State__c +' - '+ order.Company__r.salesTeam__r.Country__c;
             this.salesTeamPhone = order.Company__r.salesTeam__r.Phone__c;
             this.salesTeamCNPJ = order.Company__r.salesTeam__r.CNPJ__c;
             this.salesTeamIE = order.Company__r.salesTeam__r.Registration__c;
+            this.isNormalSales = order.SalesOrg__r.SalesOrganizationCode__c == '1700' ? false : true;
+            this.legalClauses = order.SalesOrg__r.PDFLegalClauses__c != null ? order.SalesOrg__r.PDFLegalClauses__c : '';
+            this.totalTSI = String.valueOf(order.TotalTSIAmount__c);
+            this.totalRoyalties = String.valueOf(order.TotalRoyaltiesAmount__c);
             this.orderItemList = new List<OrderItemDAO>();
+            this.paymentFormList = new List<PaymentFormDAO>();
         }
 
         public String currencyLogic(Order order){
@@ -203,10 +253,10 @@ public with sharing class OrderPageController {
         }
 
         public String formatCurrency(Decimal value, String currencyCode){
-            String valueToFormat = String.valueOf(value.setScale(2));
+            List<String> args = new String[]{'0','number','###,###,##0.00'};
+            String valueToFormat = '';
             if(currencyCode == 'BRL'){
-                valueToFormat = valueToFormat.replace('.', ',');
-                valueToFormat = 'R$ ' + valueToFormat;
+                valueToFormat = 'R$ ' + String.format(value.format(), args);
             }
             else if(currencyCode == 'USD'){
                 valueToFormat = '$ ' + valueToFormat;
@@ -229,34 +279,39 @@ public with sharing class OrderPageController {
 
     public class OrderItemDAO{
         // Cód. Produto Descrição Cultura Unid. Medida Quant. Preço Unit. Valor Total
-        public String productCode {get; set;}
-        public String description {get; set;}
-        public String culture {get;set;}
-        public String unitOfMeasure {get; set;}
-        public String unitPrice {get; set;}
-        public String quantity {get; set;}
-        public String totalAmount {get; set;}
+        public String productCode           {get; set;}
+        public String description           {get; set;}
+        public String culture               {get; set;}
+        public String unitOfMeasure         {get; set;}
+        public String unitPrice             {get; set;}
+        public String quantity              {get; set;}
+        public Decimal brokerage            {get; set;}
+        public String totalAmount           {get; set;}
         public List<DivisonDAO> divisonList {get; set;}
 
         public OrderItemDAO(OrderItem orderItem, String culture, String currencyCode, List<DivisonDAO> divisonList, OrderCommodity__c commodity){
-            this.productCode = orderItem.Product2.ProductCode;
+            this.productCode = orderItem.Product2.ProductCode.replaceFirst('^0+','');
+            this.brokerage = orderItem.Brokerage__c != null ? (orderItem.Brokerage__c / orderItem.Quantity) : 0;
             this.description = orderItem.Product2.Name;
             this.unitOfMeasure = orderItem.Product2.GrossWeightUnitOfMeasure__c;
-            this.unitPrice = commodity != null ? formatCurrency(((orderItem.UnitPrice*100)/(commodity.CommodityPrice__c * 100)), currencyCode) + ' por saca': formatCurrency((orderItem.UnitPrice), currencyCode);
+            this.unitPrice = commodity != null ? formatCurrency(orderItem.UnitPricePerBag__c, currencyCode) + ' por saca': formatCurrency((orderItem.PracticedPrice__c + this.brokerage + (orderItem.TotalTSIAmount__c / orderItem.Quantity) + (orderItem.TotalRoyaltyAmount__c / orderItem.Quantity) ), currencyCode);
             this.quantity =  String.valueOf(orderItem.Quantity);
-            this.totalAmount = commodity != null ? formatCurrency(((orderItem.UnitPrice*100)/(commodity.CommodityPrice__c * 100)).setScale(2) * orderItem.Quantity, currencyCode) + ' sacas' : formatCurrency(orderItem.FinalTotalValue__c, currencyCode) ;
+            this.totalAmount = commodity != null ? formatCurrency((orderItem.UnitPricePerBag__c * orderItem.Quantity).round(System.RoundingMode.UP), currencyCode) + ' sacas' : formatCurrency( ((orderItem.PracticedPrice__c + this.brokerage)* Decimal.valueOf(this.quantity)) + orderItem.TotalTSIAmount__c + orderItem.TotalRoyaltyAmount__c, currencyCode) ;
             this.culture = culture;
             this.divisonList = divisonList;
         }
 
         public String formatCurrency(Decimal value, String currencyCode){
+            List<String> args = new String[]{'0','number','###,###,##0.00'};
             String valueToFormat = String.valueOf((value).setScale(2));
             if(currencyCode == 'BRL'){
                 valueToFormat = valueToFormat.replace('.', ',');
-                valueToFormat = 'R$ ' + valueToFormat;
+                valueToFormat = ('R$ ' + String.format(value.format(), args)).contains(',') == true ? 'R$ ' + String.format(value.setScale(2).format(), args): 'R$ ' + String.format(value.format(), args) + ',00';
             }
             else if(currencyCode == 'USD'){
                 valueToFormat = '$ ' + valueToFormat;
+            }else{
+                valueToFormat = valueToFormat.replace('.', ','); 
             }
     
             return valueToFormat;
@@ -265,7 +320,7 @@ public with sharing class OrderPageController {
 
     public class DivisonDAO{
         public String deliveryDate {get; set;}
-        public String quantity {get; set;}
+        public String quantity     {get; set;}
 
         public DivisonDAO(ShippingDivison__c divison){
             this.deliveryDate =  divison.DeliveryDate__c.format();
@@ -274,15 +329,43 @@ public with sharing class OrderPageController {
     }
 
     public class CommodityDAO{
-        public String price {get; set;}
+        public String price    {get; set;}
         public String quantity {get; set;}
-        public String product {get; set;}
+        public String product  {get; set;}
 
         public CommodityDAO(OrderCommodity__c commodity){
             this.quantity = String.valueOf(commodity.BagQuantity__c);
             this.price = String.valueOf(commodity.CommodityPrice__c) + ' por saca';
             this.product = commodity.Product__c;
         } 
+    }
+
+    public class PaymentFormDAO{
+        public String paymentDate    {get; set;}
+        public String price {get; set;}
+        public String type  {get; set;}
+
+        public PaymentFormDAO(FormPayment__c form, String currencyCode){
+            this.paymentDate = form.PaymentDate__c.format();
+            this.price = formatCurrency(form.Amount__c, currencyCode);
+            this.type = form.PaymentType__c;
+        }
+
+        public String formatCurrency(Decimal value, String currencyCode){
+            List<String> args = new String[]{'0','number','###,###,##0.00'};
+            String valueToFormat = String.valueOf((value).setScale(2));
+            if(currencyCode == 'BRL'){
+                valueToFormat = valueToFormat.replace('.', ',');
+                valueToFormat = ('R$ ' + String.format(value.format(), args)).contains(',') == true ? 'R$ ' + String.format(value.setScale(2).format(), args): 'R$ ' + String.format(value.format(), args) + ',00';
+            }
+            else if(currencyCode == 'USD'){
+                valueToFormat = '$ ' + valueToFormat;
+            }else{
+                valueToFormat = valueToFormat.replace('.', ','); 
+            }
+    
+            return valueToFormat;
+        }
     }
     
 }

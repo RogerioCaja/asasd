@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>RegisterTipe__c</fullName>
+    <externalId>false</externalId>
+    <label>Tipo de Registro</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>FLCU01</fullName>
+                <default>false</default>
+                <label>FLCU01</label>
+            </value>
+            <value>
+                <fullName>UKM000</fullName>
+                <default>false</default>
+                <label>UKM000</label>
+            </value>
+            <value>
+                <fullName>TR0604</fullName>
+                <default>false</default>
+                <label>TR0604</label>
+            </value>
+            <value>
+                <fullName>BPSITE</fullName>
+                <default>false</default>
+                <label>BPSITE</label>
+            </value>
+            <value>
+                <fullName>FLVN00</fullName>
+                <default>false</default>
+                <label>FLVN00</label>
+            </value>
+            <value>
+                <fullName>FLCU00</fullName>
+                <default>false</default>
+                <label>FLCU00</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

@@ -58,6 +58,7 @@ public class OrderScreenControllerTest {
 
         Safra__c crop = new Safra__c(
             Name = 'Safra 01',
+            Name__c = 'Safra 1',
             Code__c = '001',
             BillingStartDate__c = System.today(),
             StartDateOrderInsertion__c = System.today(),
@@ -68,6 +69,21 @@ public class OrderScreenControllerTest {
             ReleaseStatus__c = 'Ativo'
         );
         insert crop;
+
+        Delimitadores__c delimiter = new Delimitadores__c(
+            Name = 'a',
+            Safra__c = crop.Id,
+            SalesOrg__c = salesOrg.Id,
+            salesCondition__c = salesCondition.Id, 
+            StartDateBilling__c = System.today(),
+            StartDateOV__c = System.today(),
+            EndDateBilling__c = System.today().addDays(90),
+            EndDateOV__c = System.today().addDays(90),
+            LimitDateAfterPayment__c = System.today().addDays(10),
+            FinancialBaseDate__c = System.today().addDays(90)
+        );
+
+        insert delimiter;
 
         Cultura__c culture = new Cultura__c(
             Name = 'Culture 01',
@@ -346,7 +362,7 @@ public class OrderScreenControllerTest {
         OrderScreenController.AccountSerialize account = OrderScreenController.getOrderAccountData(ord.AccountId);
         List<OrderScreenController.ProductSerialize> ordItemList = OrderScreenController.getOrderItemData(ord.Id, false);
         List<OrderScreenController.DivisionSerialize> divisionList = OrderScreenController.getShippingDivison();
-        OrderScreenController.SummarySerialize summary = new OrderScreenController.SummarySerialize('Observation', 'Observation Sales');
+        OrderScreenController.SummarySerialize summary = new OrderScreenController.SummarySerialize('Observation', 'Observation Sales', 150);
 
         OrderScreenController.CommodityDeserialize commodity = new OrderScreenController.CommodityDeserialize();
         commodity.product = 'Soja';
@@ -363,7 +379,7 @@ public class OrderScreenControllerTest {
         commodity.endDate = '2099-01-01';
         commodity.saved = true;
 
-        String data = JSON.serialize(new OrderScreenController.OrderSerializeAll(order, ordItemList, divisionList, new List<OrderScreenController.CommodityDeserialize>{commodity}, account, summary));
+        String data = JSON.serialize(new OrderScreenController.OrderSerializeAll(order, ordItemList, divisionList, new List<OrderScreenController.CommodityDeserialize>{commodity}, account, summary, null, null));
         OrderScreenController.saveOrder(null, false, data, '', null);
         OrderScreenController.approvals(data);
     }
@@ -383,7 +399,9 @@ public class OrderScreenControllerTest {
     @isTest
     public static void getSafraInfosTest() {
         Id safraId = [SELECT Id FROM Safra__c LIMIT 1].Id;
-        OrderScreenController.getSafraInfos(safraId);
+        Id salesOrgId = [SELECT Id FROM SalesOrg__c  LIMIT 1].Id;
+        Id salesConditionId = [SELECT Id FROM SalesCondition__c LIMIT 1].Id;
+        OrderScreenController.getSafraInfos(safraId, salesConditionId, salesOrgId);
     }
 
     @isTest
@@ -401,6 +419,8 @@ public class OrderScreenControllerTest {
         orderData.salesTeam = [SELECT Id FROM SalesTeam__c LIMIT 1].Id;
         orderData.safra = [SELECT Id FROM Safra__c LIMIT 1].Id;
         orderData.culture = [SELECT Id FROM Cultura__c LIMIT 1].Id;
+        orderData.salesCondition = [SELECT Id FROM SalesCondition__c LIMIT 1].Id;
+        orderData.clientGroup = '07';
 
         String data = JSON.serialize(orderData);
         OrderScreenController.getFinancialInfos(data);

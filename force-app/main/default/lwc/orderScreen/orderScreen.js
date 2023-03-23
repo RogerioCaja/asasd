@@ -16,8 +16,12 @@ import saveOrder from '@salesforce/apex/OrderScreenController.saveOrder';
 // import calloutOrder from '@salesforce/apex/OrderScreenController.callout';
 import getOrder from '@salesforce/apex/OrderScreenController.getOrder';
 import getAccount from '@salesforce/apex/OrderScreenController.getAccount';
+import checkQuotaQuantity from '@salesforce/apex/OrderScreenController.checkQuotaQuantity';
 import getOrderByOrderItem from '@salesforce/apex/OrderScreenController.getOrderByOrderItem';
 import checkMotherQuantities from '@salesforce/apex/OrderScreenController.checkMotherQuantities';
+import getOrderByFormOfPayment from '@salesforce/apex/OrderScreenController.getOrderByFormOfPayment';
+import getRecordTypeData from '@salesforce/apex/RecordTypeAvailableToUser.getRecordTypeData';
+import isSeedSale from '@salesforce/apex/OrderScreenController.isSeedSale';
 import { NavigationMixin } from 'lightning/navigation';
 
 export default class OrderScreen extends NavigationMixin(LightningElement) {
@@ -29,6 +33,12 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     @track cloneData = {
         cloneOrder: false
     };
+    barterSale = false;
+    productTab = 2;
+    summaryTab = 3;
+
+    
+    tabs = [];
 
     @wire(getObjectInfo, {objectApiName: Order})
     getObjectData({data, error}){
@@ -36,18 +46,35 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             if(this.recordTypeId != undefined && this.recordTypeId != ''){
                 var arrayType = data.recordTypeInfos[this.recordTypeId]
                 this.headerData.tipo_venda = arrayType.name;
+            }else{
+                getRecordTypeData().then((result) => {
+                    this.headerData.tipo_venda = result
+                }).catch((err) =>{
+                    console.log(err)
+                })
+                
             }
+            
+            this.barterSale = this.headerData.tipo_venda == 'Venda Barter';
+            this.tabsToUse();
         }
     }
     account = true;
     header = false;
+    bp = false;
     product = false;
+    changeProductInfos = false;
+    allProductQuotas = [];
+    quotaProducts = [];
     @track summary = false;
+    seedSale = false;
 
     customErrorMessage = '';
+    hideFooterButtons=false;
 
     @api accountData;
     @api headerDataTitle = {};
+    @api bpData;
     @api headerData = {
         Id: " ",
         orderNumber: null,
@@ -79,15 +106,25 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         org: {Name: " "},
         aprovation: " ",
         companyId: null,
+        companySector: null,
+        centerId: null,
+        hectares: '',
+        freightPerUnit: null,
+        motherTotalQuantity: null,
         firstTime: true
     };
     @track productData;
     @track divisionData;
     @track commodityData;
     @track excludedItems;
+    @track combosSelecteds;
+    @track taxData;
+    @track bpData;
+    @track formsOfPayment;
     @track summaryData = {
         'observation' : "",
-        'billing_sale_observation': ""
+        'billing_sale_observation': "",
+        'freightValue': 0
     };
 
     qtdItens = 0;
@@ -97,40 +134,6 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
     currentTab = 0;
 
     isLoading = false;
-
-    tabs = [{
-            name: 'account',
-            current: true,
-            enable: true,
-            completed:false,
-            message: 'Necessário selecionar pelo menos uma conta',
-            component: 'c-order-account-screen'
-        },
-        {
-            name: 'header',
-            current: false,
-            enable: false,
-            completed:false,
-            message: 'Necessário preencher todos os dados obrigatórios antes de seguir',
-            component: 'c-order-header-screen'
-        },
-        {
-            name: 'product',
-            current: false,
-            enable: false,
-            completed:false,
-            message: 'Necessário selecionar pelo menos 1 produto',
-            component: 'c-order-product-screen'
-        },
-        {
-            name: 'summary',
-            current: false,
-            enable: false,
-            completed:false,
-            message: '',
-            component: 'c-order-summary-screen'
-        }
-    ];
 
     //Variaveis para mensagem
     _title = 'Operação inválida';
@@ -169,8 +172,31 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.getAccount();
            
         }
+        else if(this.originScreen.includes('FormPayment__c')){
+            this.getFormOfPayment();
+        }
+
         //console.log(this.recordId, this.originScreen);
 
+    }
+
+    tabsToUse() {
+        let currentTabs = [
+            {name: 'account', current: true, enable: true, completed:false, message: 'Necessário selecionar pelo menos uma conta', component: 'c-order-account-screen'},
+            {name: 'header', current: false, enable: false, completed:false, message: 'Necessário preencher todos os dados obrigatórios antes de seguir', component: 'c-order-header-screen'}
+        ];
+        
+        if (this.barterSale) {
+            currentTabs.push({name: 'bp', current: false, enable: false, completed: false, message: 'Necessário selecionar um Local de Entrega antes de seguir', component: 'c-order-supplier-screen'});
+            this.productTab = 3;
+            this.summaryTab = 4;
+        }
+
+        currentTabs.push(
+            {name: 'product', current: false, enable: false, completed: false, message: 'Necessário selecionar pelo menos 1 produto', component: 'c-order-product-screen'},
+            {name: 'summary', current: false, enable: false, completed:false, message: '', component: 'c-order-summary-screen'}
+        );
+        this.tabs = JSON.parse(JSON.stringify(currentTabs));
     }
 
     getAccount(){
@@ -193,6 +219,19 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         });
     }
 
+    getFormOfPayment(){
+        console.log('getFormOfPayment');
+        if(this.headerData.Id != " ")
+            return;
+
+        this.isLoading = true;
+        getOrderByFormOfPayment({recordId: this.recordId})
+        .then((result) =>{
+            this.recordId = result;
+            this.getOrder();
+        });
+    }
+
     getOrderItem(){
         console.log('getOrderItem');
         if(this.headerData.Id != " ")
@@ -204,6 +243,9 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             const data = JSON.parse(result);
             this.accountData = data.accountData;
             this.headerData = data.headerData;
+            this.bpData = data.bpAccount;
+            this.barterSale = this.headerData.tipo_venda == 'Venda Barter';
+            this.tabsToUse();
 
             if (this.childOrder) {
                 this.headerData.status_pedido = 'Em digitação'
@@ -215,9 +257,13 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             try
             {
                 this.productData.forEach(product =>{
-                    this.valorTotal  += parseFloat(product.totalPrice);
+                    let useBrookerage = this.isFilled(product.brokerage) && product.brokerage > 0 ? true : false;
+                    let totalPrice = this.isFilled(product.totalPriceWithBrokerage) && useBrookerage ? Number(product.totalPriceWithBrokerage) : Number(product.totalPrice);
+                    totalPrice = Number(totalPrice) + Number(product.tsiTotalPrice) + Number(product.royaltyTotalPrice);
+                    this.valorTotal += parseFloat(totalPrice);
                 })
-                this.valorTotal = parseFloat(this.valorTotal).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
+                let frete = (this.summaryData.freightValue != undefined && this.summaryData.freightValue != null ? Number(this.summaryData.freightValue) : 0);
+                this.valorTotal = parseFloat(Number(this.valorTotal) + Number(frete)).toLocaleString("pt-BR", {style:"currency", currency:this.headerData.moeda});
 
             }
             catch(e)
@@ -228,12 +274,14 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.divisionData = data.divisionData;
             this.summaryData['observation'] = this.headerData.observation;
             this.summaryData['billing_sale_observation'] = this.headerData.billing_sale_observation;
-            
+            this.summaryData['freightValue'] = this.headerData.freightValue === undefined || this.headerData.freightValue == null ? 0 : this.headerData.freightValue;
+            this.frete = this.summaryData.freightValue != undefined && this.summaryData.freightValue != null ? parseFloat(this.summaryData.freightValue).toLocaleString("pt-BR", {style:"currency", currency:this.headerData.moeda}) : (0).toLocaleString("pt-BR", {style:"currency", currency:this.headerData.moeda});
             this.isLoading = false;
             this.cloneData.cloneOrder = this.clone.cloneOrder;
             if(this.cloneData.cloneOrder){
                 this.headerData.ctv_venda.Id = null;
                 this.headerData.companyId = null;
+                this.headerData.companySector = null;
                 this.headerData.status_pedido = 'Em digitação';
                 this.headerData.cliente_entrega.Id = null;
                 this.headerData.orderNumber = null;
@@ -243,8 +291,13 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
                 this.enableScreens([0, 1]);
                 this.completeScreens([0]);
             }else{
-                this.enableScreens([0, 1, 2, 3]);
-                this.completeScreens([0, 1, 2, 3]);
+                if (this.barterSale) {
+                    this.enableScreens([0, 1, 2, 3, 4]);
+                    this.completeScreens([0, 1, 2, 3, 4]);
+                } else {
+                    this.enableScreens([0, 1, 2, 3]);
+                    this.completeScreens([0, 1, 2, 3]);
+                }
             }
             this.headerData.condicao_venda = this.headerData.condicao_venda != null ? this.headerData.condicao_venda : ' ';
             
@@ -294,21 +347,37 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             const data = JSON.parse(result);
             this.accountData = data.accountData;
             this.headerData = data.headerData;
+            this.bpData = data.bpAccount;
+            this.barterSale = this.headerData.tipo_venda == 'Venda Barter';
+            this.tabsToUse();
 
             if (this.childOrder) {
-                this.headerData.status_pedido = 'Em digitação'
+                this.headerData.status_pedido = 'Em digitação';
             }
 
             this.productData = data.productData;
             this.commodityData = data.commodityData;
-            this.qtdItens = data.productData.length;
+            this.formsOfPayment = data.formsOfPayment;
             this.valorTotal = 0;
             try
             {
+                let numberOfProducts = 0;
                 this.productData.forEach(product =>{
-                    this.valorTotal  += parseFloat(product.totalPrice);
+                    numberOfProducts += Number(product.quantity);
+                    let useBrookerage = this.isFilled(product.brokerage) && product.brokerage > 0 ? true : false;
+                    let totalPrice = this.isFilled(product.totalPriceWithBrokerage) && useBrookerage ? Number(product.totalPriceWithBrokerage) : Number(product.totalPrice);
+                    totalPrice = Number(totalPrice) + Number(product.tsiTotalPrice) + Number(product.royaltyTotalPrice);
+                    this.valorTotal += parseFloat(totalPrice);
                 })
-                this.valorTotal = parseFloat(this.valorTotal).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
+
+                let frete = 0;
+                if (this.isFilled(this.headerData.freightPerUnit)) {
+                    frete = Number(this.headerData.freightPerUnit) * Number(numberOfProducts);
+                } else {
+                    frete = (this.summaryData.freightValue != undefined && this.summaryData.freightValue != null ? Number(this.summaryData.freightValue) : 0);
+                }
+                this.valorTotal = parseFloat(Number(this.valorTotal) + Number(frete)).toLocaleString("pt-BR", {style:"currency", currency:this.headerData.moeda});
+                this.frete = parseFloat(frete).toLocaleString("pt-BR", {style:"currency", currency:this.headerData.moeda});
 
             }
             catch(e)
@@ -319,11 +388,14 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             this.divisionData = data.divisionData;
             this.summaryData['observation'] = this.headerData.observation;
             this.summaryData['billing_sale_observation'] = this.headerData.billing_sale_observation;
+            this.summaryData['freightValue'] = this.headerData.freightValue === undefined || this.headerData.freightValue == null ? 0 : this.headerData.freightValue;
+            this.frete = this.isFilled(this.headerData.freightPerUnit) ? this.frete : (this.summaryData.freightValue != undefined && this.summaryData.freightValue != null ? parseFloat(this.summaryData.freightValue).toLocaleString("pt-BR", {style:"currency", currency:this.headerData.moeda}) : (0).toLocaleString("pt-BR", {style:"currency", currency:this.headerData.moeda}));
             this.isLoading = false;
             this.cloneData.cloneOrder = this.clone.cloneOrder;
             if(this.cloneData.cloneOrder){
                 this.headerData.ctv_venda.Id = null;
                 this.headerData.companyId = null;
+                this.headerData.companySector = null;
                 this.headerData.status_pedido = 'Em digitação';
                 this.headerData.cliente_entrega.Id = null;
                 this.headerData.orderNumber = null;
@@ -334,8 +406,13 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
                 this.enableScreens([0, 1]);
                 this.completeScreens([0]);
             }else{
-                this.enableScreens([0, 1, 2, 3]);
-                this.completeScreens([0, 1, 2, 3]);
+                if (this.barterSale) {
+                    this.enableScreens([0, 1, 2, 3, 4]);
+                    this.completeScreens([0, 1, 2, 3, 4]);
+                } else {
+                    this.enableScreens([0, 1, 2, 3]);
+                    this.completeScreens([0, 1, 2, 3]);
+                }
             }
             this.headerData.condicao_venda = this.headerData.condicao_venda != null ? this.headerData.condicao_venda : ' ';
             
@@ -395,7 +472,39 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         await this.recordId;
     }
 
+    excludeProducts() {
+        let allQuotas = JSON.parse(JSON.stringify(this.quotaProducts));
+        let currentProducts = JSON.parse(JSON.stringify(this.productData));
+        let products = [];
+        for (let index = 0; index < currentProducts.length; index++) {
+            let currentQuota = allQuotas.find(e => e.id == currentProducts[index].productId);
+            if (!this.isFilled(currentQuota)) {
+                products.push(currentProducts[index]);
+            }
+        }
+
+        this.productData = products;
+        if (this.productData.length == 0) {
+            this.tabs[this.currentTab].enable = false;
+            this.handlePrevious();
+        } else {
+            const objChild = this.template.querySelector('c-order-summary-screen');
+            objChild.loadData(true, this.productData);
+        }
+        this.changeProductInfos = false;
+    }
+
+    changeQuantity() {
+        this.changeProductInfos = false;
+        this.handlePrevious();
+    }
+
+    isFilled(field) {
+        return ((field !== undefined && field != null && field != '') || field == 0);
+    }
+
     async saveOrder(event){
+        this.isLoading = true;
         let today = new Date();
         let dd = String(today.getDate()).padStart(2, '0');
         let mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -405,59 +514,172 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         if (this.headerData.status_pedido.toLowerCase() == 'em aprovação - gerente filial' || this.headerData.status_pedido.toLowerCase() == 'em aprovação - gerente regional' ||
             this.headerData.status_pedido.toLowerCase() == 'em aprovação - diretor' || this.headerData.status_pedido.toLowerCase() == 'em aprovação - comitê margem' || this.headerData.status_pedido.toLowerCase() == 'em aprovação - mesa de grãos') {
             this.showNotification('O pedido está Em Aprovação, portanto não pode ser alterado', 'Atenção', 'warning');
+            this.isLoading = false;
             return;
         } else if (this.headerData.pre_pedido && event.detail == 'gerarpedido' && this.headerData.condicao_pagamento.CashPayment && this.headerData.data_pagamento != currentDate) {
             this.headerData.condicao_pagamento = {Id: null, Name: null, CashPayment: null};
             this.headerData.data_pagamento = " ";
             this.showNotification('Informe a condição de pagamento novamente', 'Atenção', 'warning');
+            this.isLoading = false;
             return;
-        } else if (!this.headerData.pre_pedido && !this.cloneData.cloneOrder && !this.headerData.IsOrderChild){
+        } else if ((!this.headerData.pre_pedido && !this.cloneData.cloneOrder && !this.headerData.IsOrderChild) || (!this.headerData.pre_pedido && !this.childOrder)){
             this.showNotification('Pedidos Efetivados não podem ser alterados', 'Atenção', 'warning');
+            this.isLoading = false;
             return;
         }
 
-        const mode = event.detail;
-        await this.recordId;
-        const data = {accountData: this.accountData, headerData: this.headerData, productData: this.productData, divisionData: this.divisionData, commodityData: this.commodityData, summaryData: this.summaryData};
-        console.log(JSON.stringify(data));
-        this.isLoading = true;
-        //console.log(data);
-        saveOrder({
-            orderId: (this.recordId && this.originScreen.includes('Order') && !this.childOrder) ? this.recordId : null,
-            cloneOrder: this.cloneData.cloneOrder,
-            data: JSON.stringify(data),
-            typeOrder: mode,
-            itemsToExclude: JSON.stringify(this.excludedItems)
-        })
-        .then((result) => {
-            console.log(JSON.stringify(result));
-            result = JSON.parse(result);
+        let totalPayment = 0;
+        let totalPaymentTsi = 0;
+        let totalPaymentRoyalties = 0;
+        let prodsIds = [];
+        for (let index = 0; index < this.productData.length; index++) {
+            totalPayment += Number(this.productData[index].unitPrice) * Number(this.productData[index].quantity) + Number(this.productData[index].brokerage);
+            totalPaymentTsi += Number(this.productData[index].tsiTotalPrice);
+            totalPaymentRoyalties += Number(this.productData[index].royaltyTotalPrice);
+            prodsIds.push(this.productData[index].productId);
+        }
 
-            if(!result.hasError){
-                this.showNotification(result.message, 'Sucesso', 'success');
-              
-                this[NavigationMixin.Navigate]({
-                    type: 'standard__recordPage',
-                    attributes: {
-                        recordId: result.orderId,
-                        objectApiName: 'Order',
-                        actionName: 'view'
-                    }
-                });
-               
+        if (this.template.querySelector(this.tabs[this.summaryTab].component).allowFormOfPayment) {
+            let orderTotalPrice = 0;
+            let orderTotalPaymentTsi = 0;
+            let orderTotalPaymentRoyalties = 0;
+            if (this.formsOfPayment != undefined && this.formsOfPayment != null) {
+                for (let index = 0; index < this.formsOfPayment.length; index++) {
+                    if (this.formsOfPayment[index].paymentType == 'Germoplasma') orderTotalPrice += Number(this.formsOfPayment[index].value);
+                    if (this.formsOfPayment[index].paymentType == 'TSI') orderTotalPaymentTsi += Number(this.formsOfPayment[index].value);
+                    if (this.formsOfPayment[index].paymentType == 'Royalties') orderTotalPaymentRoyalties += Number(this.formsOfPayment[index].value);
+                }
+            } else {
+                this.showNotification('O valor total do pagamento deve ser igual ao do pedido', 'Atenção', 'warning');
+                this.isLoading = false;
+                return;
             }
-            else
-                this.showNotification(result.message, 'Algo de errado aconteceu','erro');
 
+            if (this.headerData.frete == 'CIF' && this.seedSale) {
+                let summary = JSON.parse(JSON.stringify(this.summaryData));
+                totalPayment = Number(totalPayment) + Number(summary.freightValue);
+            }
+
+            if (this.fixDecimalPlacesFront(totalPayment) != this.fixDecimalPlacesFront(orderTotalPrice) ||
+                this.fixDecimalPlacesFront(totalPaymentTsi) != this.fixDecimalPlacesFront(orderTotalPaymentTsi) ||
+                this.fixDecimalPlacesFront(totalPaymentRoyalties) != this.fixDecimalPlacesFront(orderTotalPaymentRoyalties)) {
+                this.showNotification('O valor total do pagamento deve ser igual ao do pedido', 'Atenção', 'warning');
+                this.isLoading = false;
+                return;
+            }
+        }
+
+        let quotaResponse;
+        quotaResponse = await this.verifyQuotas(prodsIds);
+        if (this.headerData.tipo_venda == 'Venda Barter') this.commodityData[0].marginValue = this.headerData.IsOrderChild ? (this.headerData.orderMargin.includes('%') ? this.headerData.orderMargin.replace('%', ' sacas') : this.headerData.orderMargin) : this.commodityData[0].marginValue;
+        if (quotaResponse) {
+            const mode = event.detail;
+            await this.recordId;
+            const data = {accountData: this.accountData, headerData: this.headerData, productData: this.productData, divisionData: this.divisionData, commodityData: this.commodityData, summaryData: this.summaryData, formsOfPayment: this.formsOfPayment, comboData: this.combosSelecteds, taxData: this.taxData, bpAccount: this.bpData};
+            console.log(JSON.stringify(data));
+            this.isLoading = true;
+            //console.log(data);
+            saveOrder({
+                orderId: (this.recordId && this.originScreen.includes('Order') && !this.childOrder) ? this.recordId : null,
+                cloneOrder: this.cloneData.cloneOrder,
+                data: JSON.stringify(data),
+                typeOrder: mode,
+                itemsToExclude: JSON.stringify(this.excludedItems)
+            })
+            .then((result) => {
+                console.log(JSON.stringify(result));
+                result = JSON.parse(result);
+                this.isLoading = false;
+
+                if(!result.hasError){
+                    this.showNotification(result.message, 'Sucesso', 'success');
+                
+                    this[NavigationMixin.Navigate]({
+                        type: 'standard__recordPage',
+                        attributes: {
+                            recordId: result.orderId,
+                            objectApiName: 'Order',
+                            actionName: 'view'
+                        }
+                    });
+                
+                }
+                else
+                    this.showNotification(result.message, 'Algo de errado aconteceu','erro');
+
+                this.isLoading = false;
+            }).catch((err)=>{
+                console.log(JSON.stringify(err));
+                this.showNotification(err.message, 'Aconteceram alguns erros', 'error');
+                this.isLoading = false;
+            });
+        } else {
             this.isLoading = false;
-        }).catch((err)=>{
-            console.log(JSON.stringify(err));
-            this.showNotification(err.message, 'Aconteceram alguns erros', 'error');
-            this.isLoading = false;
+            return;
+        }
+    }
+
+    async verifyQuotas(prodsIds) {
+        let verifyQuota = false;
+        return new Promise(resolve => {
+            isSeedSale({salesOrgId: this.headerData.organizacao_vendas.Id, productGroupName: null})
+            .then((result) => {
+                let seedType = result;
+                if (seedType && this.headerData.tipo_pedido != 'Pedido Filho' && !this.headerData.IsOrderChild && this.headerData.tipo_venda != 'Venda Barter') {
+                    verifyQuota = true;
+                }
+
+                console.log('verifyQuota: ' + verifyQuota);
+                if (verifyQuota && (this.headerData.companySector.toUpperCase() == 'SEMENTES' || this.headerData.companySector.toUpperCase() == 'SEMENTE')) {
+                    let quoteData = {
+                        cropId: this.headerData.safra.Id,
+                        sellerId: this.headerData.ctv_venda.Id,
+                        productsIds: prodsIds
+                    };
+            
+                    checkQuotaQuantity({data: JSON.stringify(quoteData)})
+                    .then((result) => {
+                        this.allProductQuotas = JSON.parse(result);
+                        console.log('this.allProductQuotas: ' + JSON.stringify(this.allProductQuotas));
+                        let productsWithoutQuota = [];
+                        for (let index = 0; index < this.productData.length; index++) {
+                            let allQuotas = JSON.parse(JSON.stringify(this.allProductQuotas));
+                            let currentQuota = allQuotas.find(e => e.productId == this.productData[index].productId);
+                            console.log('this.productData[index].quantity: ' + this.productData[index].quantity);
+                            console.log('currentQuota.balance: ' + currentQuota.balance);
+                            if (Number(this.productData[index].quantity) > Number(currentQuota.balance)) {
+                                this.changeProductInfos = true;
+                                productsWithoutQuota.push({
+                                    id: this.productData[index].productId,
+                                    name: this.productData[index].name,
+                                    currentQuantity: this.productData[index].quantity,
+                                    availableQuantity: currentQuota.balance
+                                })
+                            }
+                        }
+                        console.log('productsWithoutQuota: ' + JSON.stringify(productsWithoutQuota));
+                        
+                        if (this.changeProductInfos) {
+                            this.quotaProducts = productsWithoutQuota;
+                            resolve(false);
+                        } else {
+                            resolve(true);
+                        }
+                    });
+                } else {
+                    resolve(true);
+                }
+            });
         });
     }
 
+    fixDecimalPlacesFront(value) {
+        let formatNumber = new Intl.NumberFormat('de-DE').format(Number(Math.round(value + 'e' + 2) + 'e-' + 2));
+        return formatNumber;
+    }
+
     _setAccountData(event) {
+        let enableScreen = true
         try {
             if(event.data !== undefined && this.accountData != undefined && event.data.Id != this.accountData.id){
                 this.headerData.cliente_entrega = " "
@@ -466,12 +688,22 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             }
             this.accountData = event.data;
 
+            if(!this.accountData?.Supplier__c && this.headerData.tipo_venda == 'Venda Barter'){
+                enableScreen = false
+                this.showNotification('Cadastro incompleto para venda Barter', 'Atenção!', 'warning');
+            }
+
             console.log('account data setted:', this.accountData);
         } catch (e) {
             console.log(e);
         }
-        this.enableNextScreen();
-        this.completeCurrentScreen();
+
+        if (enableScreen) {
+            this.enableNextScreen();
+            this.completeCurrentScreen();
+        } else {
+            this.disableNextScreen();
+        }
     }
 
     _setHeaderData(event) {
@@ -497,18 +729,50 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         this.valorTotal = 0;
         try
         {
-            this.productData.forEach(product =>{
-                this.valorTotal  = parseFloat(this.valorTotal) + parseFloat(product.totalPrice);
-            })
-            this.valorTotal = parseFloat(this.valorTotal).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
+            let numberOfProducts = 0;
+            if(this.template.querySelector(this.tabs[this.productTab].component).seedSale){
+                this.productData.forEach(product =>{
+                    numberOfProducts += Number(product.quantity);
+                    let totalPrice = this.isFilled(product.totalPriceWithBrokerage) ? Number(product.totalPriceWithBrokerage) : Number(product.totalPrice);
+                    totalPrice = Number(totalPrice) + Number(product.tsiTotalPrice) + Number(product.royaltyTotalPrice);
+                    this.valorTotal  += parseFloat(totalPrice);
+                })
+            }else{
+                this.productData.forEach(product =>{
+                    numberOfProducts += Number(product.quantity);
+                    let useBrookerage = this.isFilled(product.brokerage) && product.brokerage > 0 ? true : false;
+                    let totalPrice = this.isFilled(product.totalPriceWithBrokerage) && useBrookerage ? Number(product.totalPriceWithBrokerage) : Number(product.totalPrice);
+                    totalPrice = Number(totalPrice) + Number(product.tsiTotalPrice) + Number(product.royaltyTotalPrice);
+                    this.valorTotal  += parseFloat(totalPrice);
+                })
+            }
+
+            let frete = 0;
+            if (this.isFilled(this.headerData.freightPerUnit)) {
+                frete = Number(this.headerData.freightPerUnit) * Number(numberOfProducts);
+            } else {
+                frete = (this.summaryData.freightValue != undefined && this.summaryData.freightValue != null ? Number(this.summaryData.freightValue) : 0);
+            }
+            console.log('this.headerData.moeda: ' + this.headerData.moeda);
+            this.valorTotal = parseFloat(Number(this.valorTotal) + Number(frete)).toLocaleString("pt-BR", {style:"currency", currency:this.headerData.moeda});
+            this.frete = parseFloat(frete).toLocaleString("pt-BR", {style:"currency", currency:this.headerData.moeda});
+
+            isSeedSale({salesOrgId: this.headerData.organizacao_vendas.Id, productGroupName: null})
+            .then((result) => {
+                this.seedSale = result;
+            });
         }
         catch(e)
         {
             console.log(e);
         }
+
+        if (this.qtdItens == 0 && this.currentTab == this.summaryTab) {
+            this.handlePrevious();
+            this.disableNextScreen();
+            this.showNotification('Necessário incluir ao menos um produto', 'Atenção!', 'warning');
+        }
         
-        console.log('this.productData: ' + this.productData);
-        console.log('acproductcount data setted:', this.productData, event.detail, event.data, event);
         if (!this.checkProductDivisionAndCommodities()) {
             this.disableNextScreen();
         } else {
@@ -517,9 +781,26 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         }
     }
 
+    _setBpData(event) {
+        this.bpData = event.data;
+        this.completeCurrentScreen();
+        this.enableNextScreen();
+    }
+
     checkProductDivisionAndCommodities() {
         let enableScreen = true;
-        if (this.headerData.IsOrderChild) {
+
+        if(this.headerData.pedido_mae_check && (this.headerData.tipo_venda == 'Venda Barter') && (this.commodityData == undefined || this.commodityData == null || this.commodityData.length == 0)){
+            enableScreen = false;
+            this.customErrorMessage = 'É necessário selecionar uma commodity';
+            return enableScreen;
+        }
+
+        if(this.headerData.pedido_mae_check && !this.headerData.IsOrderChild){
+            return true
+        }
+
+        if (this.isFilled(this.productData) && this.isFilled(this.divisionData)) {
             for (let index = 0; index < this.productData.length; index++) {
                 let productDivisionQuantity = 0;
                 for (let i = 0; i < this.divisionData.length; i++) {
@@ -570,12 +851,44 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
     _setSummaryData(event) {
         this.summaryData = event.data;
-        console.log('summary data setted:', this.summaryData);
+        console.log('summary data setted:', JSON.stringify(this.summaryData));
+        let frete = this.summaryData.freightValue != undefined && this.summaryData.freightValue != null ? Number(this.summaryData.freightValue) : 0
+        let valorTotal = this.summaryData.totalValue != undefined && this.summaryData.totalValue != null ? Number(this.summaryData.totalValue) : 0
+        this.frete = parseFloat(frete).toLocaleString("pt-BR", {style:"currency", currency:this.headerData.moeda});
+        this.valorTotal = parseFloat(Number(valorTotal) + Number(frete)).toLocaleString("pt-BR", {style:"currency", currency:this.headerData.moeda});
         this.enableNextScreen();
+    }
+
+    _setformsofpayment(event) {
+        this.formsOfPayment = event.data;
     }
 
     _setExcludedesItems(event) {
         this.excludedItems = event.data;
+    }
+
+    _setcombosSelecteds(event) {
+        this.combosSelecteds = event.data;
+    }
+
+    _setTaxData(event) {
+        this.taxData = event.data;
+    }
+    
+    _setHideFooterButtons(event) {
+        this.hideFooterButtons = event.data;
+    }
+
+    _setHandlePrevious(event) {
+        this.hideFooterButtons = event.data;
+        console.log('this.hideFooterButtons: ' + this.hideFooterButtons);
+        this.handlePrevious();
+    }
+
+    _setHandleNext(event) {
+        this.hideFooterButtons = event.data;
+        console.log('this.hideFooterButtons: ' + this.hideFooterButtons);
+        // this.handleNext();
     }
 
     //c/orderScreenNavbar
@@ -607,7 +920,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             if (this.currentTab == 0) {
                 nextTab.className = 'next';
                 previousTab.className = 'previous disabled';
-            } else if (this.currentTab == 3) {
+            } else if (this.currentTab == this.summaryTab) {
                 nextTab.className = 'next disabled';
                 previousTab.className = 'previous';
             } else {
@@ -621,7 +934,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         if (this.currentTab !== 0) {
             if (this.tabs[this.currentTab - 1].enable == true) {
                 this.tabs[this.currentTab].current = false;
-                if(this.currentTab == 2)
+                if(this.currentTab == this.productTab)
                     this.tabs[this.currentTab].enable = false;
                 this.currentTab = this.currentTab - 1;
                 this.tabs[this.currentTab].current = true;
@@ -634,8 +947,17 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         }
     }
 
+    handleNextCombo() {
+        if(this.currentTab === this.productTab){
+            const objChild = this.template.querySelector('c-order-product-screen');
+            objChild.handleNext();
+        }else{
+            this.handleNext()
+        }
+    }
+
     handleNext() {
-        if (this.currentTab !== 3) {
+        if (this.currentTab !== this.summaryTab) {
             let errorMessage = this.customErrorMessage != '' ? this.customErrorMessage : this.tabs[this.currentTab].message;
             if(this.template.querySelector(this.tabs[this.currentTab].component).verifyMandatoryFields()){
                 if (this.tabs[this.currentTab + 1].enable == true) {
@@ -697,6 +1019,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         this.checkPreviousNextBtn();
         this.account = false;
         this.header = false;
+        this.bp = false;
         this.product = false;
         this.summary = false;
 
@@ -708,9 +1031,14 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
                 this.header = true;
                 break;
             case 2:
-                this.product = true;
+                if (this.barterSale) this.bp = true;
+                else this.product = true;
                 break;
             case 3:
+                if (this.barterSale) this.product = true;
+                else this.summary = true;
+                break;
+            case 4:
                 this.summary = true;
                 break;
         }
@@ -732,7 +1060,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
     enableNextScreen() {
         console.log('enableNextScreen');
-        if ((this.currentTab + 1) <= 3) {
+        if ((this.currentTab + 1) <= this.summaryTab) {
             if (this.tabs[this.currentTab + 1].enable == false) {
                 this.tabs[this.currentTab + 1].enable = true;
             }
@@ -741,7 +1069,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
 
     disableNextScreen() {
         console.log('disableNextScreen');
-        if ((this.currentTab + 1) <= 3) {
+        if ((this.currentTab + 1) <= this.summaryTab) {
             if (this.tabs[this.currentTab + 1].enable == true) {
                 this.tabs[this.currentTab + 1].enable = false;
             }

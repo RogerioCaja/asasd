@@ -69,8 +69,10 @@ global with sharing class TemplateDataIntegrationFields {
             if(this.typeCondition == 'ZPRS'){
                 lists.Cost__c = Decimal.valueOf(this.unitPrice.trim());
             }
-            else if(this.typeCondition == 'ZPR0' || this.typeCondition == 'ZCPE'){
+            else if(this.typeCondition == 'ZPR0' || this.typeCondition == 'ZCPE' || this.typeCondition == 'ZROY' || this.typeCondition == 'ZTRA'){
                 lists.UnitPrice__c = Decimal.valueOf(this.unitPrice.trim());
+                if(this.typeCondition == 'ZROY') lists.ConditionType__c = 'Royalties';
+                if(this.typeCondition == 'ZTRA') lists.ConditionType__c = 'TSI';
             }
             else{
                 lists.Percentage__c = Decimal.valueOf(this.unitPrice.trim());
@@ -286,9 +288,12 @@ global with sharing class TemplateDataIntegrationFields {
         /*ATUALIZAÇÃO 05.07.22*/
         public String salesType;
         public String recordIdToUpdate;
+        public String contratoACM;
         //public String clienteCode; 
         public List<TemplateDataIntegrationFields.OrderItemINData> orderItems;
         public List<TemplateDataIntegrationFields.ShippingDivisonINData> shippingDivison;
+        public List<TemplateDataIntegrationFields.FormPaymentINData> formPayment;
+        public List<TemplateDataIntegrationFields.OrderCommodityINData> commodity;
         public List<TemplateDataIntegrationFields.PartnerInsert> partners;
         public List<TemplateDataIntegrationFields.ConditionInsert> conditions;
         public Order serialize(Map<String, Id> lookups){
@@ -335,6 +340,10 @@ global with sharing class TemplateDataIntegrationFields {
                     pedidoMae = false;
 
                 }
+
+                when 'ZVAB'{
+                    pedidoMae = false;
+                }
             }
 
             
@@ -349,6 +358,7 @@ global with sharing class TemplateDataIntegrationFields {
                         codTypeOrder.put('ZVEF', 'Venda Entrega Futura');
                         codTypeOrder.put('ZVNO', 'Venda Normal');
                         codTypeOrder.put('ZVVO', 'Venda Ordem Simples Faturamento');
+                        codTypeOrder.put('ZVAB', 'Venda Normal');
                     }
                     else{
                         codTypeOrder.put('ZCCO', 'Venda Conta e Ordem');
@@ -388,6 +398,7 @@ global with sharing class TemplateDataIntegrationFields {
                 PaymentForm__c = this.paymentForm,
                 StatusSF__c = (this.CodigoSap != null && this.CodigoSap != '') ? 'Integrado' :'Em digitação',
                 Currency__c = this.CurrencyOrder,
+                CurrencyIsoCode = this.CurrencyOrder,
                 Incoterms__c = this.incoterms,
                 Incoterms2__c = this.incoterms,
                 Description = this.description + '1n73gr4ção N3sc4r4 5F x 4PP',
@@ -404,7 +415,8 @@ global with sharing class TemplateDataIntegrationFields {
                 Type = this.salesType != null ? this.salesType : Schema.getGlobalDescribe().get('Order').getDescribe().getRecordTypeInfosById().get(this.recordIdToUpdate).getName(),
                 OrderType__c = this.orderReference != '' ? 'Pedido Filho' : (this.pedidoMae ? 'Pedido Mãe' : 'Pedido Normal'),
                 
-                OwnerId = lookups.containsKey('User'+this.salesCTV) ? lookups.get('User'+this.salesCTV) : null
+                OwnerId = lookups.containsKey('User'+this.salesCTV) ? lookups.get('User'+this.salesCTV) : null,
+                ACMContract__c = this.contratoACM
                 
             );
         }
@@ -429,7 +441,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String orderItemCode;
         public String orderExternalId;
         public String material;
-        public String productCode;
+        //public String productCode;
         public Decimal quantidade;
         public Boolean orderItemECalendariazacao;
         //public String centro;
@@ -452,16 +464,29 @@ global with sharing class TemplateDataIntegrationFields {
         public Decimal precoPraticado;
         public Decimal precoUnitario;
         public String motivoRecusa;
+        public String peneira;
+        public String classeCategoria;
+        public Decimal freteItem;
+        public Decimal valorZroy;
+        public Decimal valorTotalZroy;
+        public Decimal valorZtra;
+        public Decimal valorTotalZtra;
+        public Decimal valorZCBI;
+        public Decimal valorZCBA;
+        public String currencyOrder;
+        public String pricebookEntryId; // Passar do Order para o OrderItem.
+        public Decimal quantidadeUtilizada;
+        public Decimal saldoItem;
         public OrderItem serialize(Map<String, Id> lookups){
 
             
             orderItemCode = orderItemCode.replaceFirst('^0+','');
-            
             return new OrderItem(
                 OrderId = this.orderExternalId,
                 Product2Id = lookups.containsKey('Product2'+this.material) ? lookups.get('Product2'+this.material) : null,
-                PricebookEntryId = lookups.containsKey('PricebookEntry'+ this.material) ? lookups.get('PricebookEntry' + this.material) : null,
-                //ProductCode = this.material,
+                //PricebookEntryId = lookups.containsKey('PricebookEntry'+ this.material) ? lookups.get('PricebookEntry' + this.material) : null,
+                PricebookEntryId = this.pricebookEntryId,
+                
                 ExternalId__c = this.orderExternalId + '|' + this.orderItemCode,
                 Quantity = this.quantidade,
                 UnitMeasure__c = this.unidadeMedida,
@@ -484,7 +509,19 @@ global with sharing class TemplateDataIntegrationFields {
                 PracticedCost__c = this.custoPreco,
                 PracticedPrice__c = this.precoPraticado,
                 UnitPrice = this.precoPraticado,
-                ReasonRefuse__c = this.motivoRecusa
+                ReasonRefuse__c = this.motivoRecusa,
+                Description = '',
+                Sieve__c = this.peneira,
+                Class__c = this.classeCategoria,
+                FreightValue__c = this.freteItem,
+                RoyaltyAmount__c = this.valorZroy,
+                TSIValue__c = this.valorZtra,
+                TotalRoyaltyAmount__c = this.valorTotalZroy,
+                TotalTSIAmount__c = this.valorTotalZtra,
+                AmountUsed__c = this.quantidadeUtilizada,
+                AgrogalaxyComboDiscount__c = this.valorZCBA,
+                IndustryComboDiscount__c = this.valorZCBI,
+                ItemBalance__c = this.saldoItem
             );
         }
         public List<String> getRequiredFields(){
@@ -557,7 +594,288 @@ global with sharing class TemplateDataIntegrationFields {
         }
     }
 
+    global class FormPaymentINData implements FieldDataChild{
+        public String orderExternalId;
+        //public String OrderItemCode;
+        public String orderCode;
+        public Date paymentDate;
+        public String paymentItemCode;
+        public Decimal paymentAndValue;
+
+        public FormPayment__c serialize(Map<String, Id> lookups){
+            return new FormPayment__c(
+                ExternalId__c = orderExternalId + '|' + paymentItemCode, 
+                Order__c = this.orderExternalId,
+                //ExternalId__c = this.orderCode, //Elaborar
+                PaymentDate__c = this.paymentDate,
+                Amount__c = this.paymentAndValue
+            );
+        }
+
+        public List<String> getRequiredFields(){
+            return new List<String>{
+
+            };
+        }
+
+        public String getFieldKey(){
+            return 'Id';
+        }
+
+        public String getFieldExternal(){
+            return 'ExternalId__c';
+        }
+
+        public String getParentKey(){
+            return 'OrderId';
+        }
+    }
+
+    global class DelimitadoresINData implements FieldData{
+        public String DelimitadoresExternalId;
+        public String Name;
+        public String SalesOrganization;
+        public String Safra;
+        public String PriceList;
+        public String AfterPaymentDate;
+        public Date StartDateOV;
+        public Date EndDateOV;
+        public Date StartDateFaturalmente;
+        public Date EndDateFaturalmente;
+        public Date BaseDateFinancing;
+        public Date AfterPayment;
+        public Delimitadores__c serialize(Map<String, Id> lookups){
+            return new Delimitadores__c(
+                ExternalId__c = this.DelimitadoresExternalId,
+                Name = this.Name, 
+                SalesOrg__c = lookups.containsKey('SalesOrg__c'+this.SalesOrganization) ? lookups.get('SalesOrg__c'+this.SalesOrganization) : null,
+                Safra__c = lookups.containsKey('Safra__c'+this.Safra) ? lookups.get('Safra__c'+this.Safra) : null,
+                SalesCondition__c = lookups.containsKey('SalesCondition__c'+this.PriceList) ? lookups.get('SalesCondition__c'+this.PriceList) : null,
+                StartDateOV__c = this.StartDateOV,
+                EndDateOV__c = this.EndDateOV,
+                StartDateBilling__c = this.StartDateFaturalmente,
+                EndDateBilling__c = this.EndDateFaturalmente,
+                FinancialBaseDate__c = this.BaseDateFinancing,
+                LimitDateAfterPayment__c = this.AfterPayment
+            );
+        }
+
+        //Required fields for integration
+        public List<String> getRequiredFields(){
+            return new List<String>{
+                //'Name'
+                //'numeroNotaFiscal'
+       
+            };
+        }
+
+        //ExternalId field
+        public String getFieldKey(){
+            return 'ExternalId__c';
+        }
+        
+        //Id field
+        public String getFieldId() {
+            return 'Id';
+        }
+    }
+
+
+    global class OrderCommodityINData implements FieldDataChild{
+        public Boolean orderCommodityECalendariazacao;
+        public String orderExternalId;
+        //public String OrderItemCode;
+        public String Name;
+        public String material;
+        public Decimal commodityPrice;
+        public Decimal bagQuantity;
+        public Decimal bagMargin;
+        public String orderExternal;
+        //public String order;
+        public Date startDate;
+        public Date endDate;
+        public String deliveryAddress;
+
+        public OrderCommodity__c serialize(Map<String, Id> lookups){
+            return new OrderCommodity__c(
+                Name = this.Name,
+                ExternalId__c = orderExternalId + '|' + material, // Or order Id and Product Id
+                Product__c = lookups.containsKey('Product2'+this.material) ? lookups.get('Product2'+this.material) : null,
+                CommodityPrice__c = this.commodityPrice,
+                BagQuantity__c = this.bagQuantity,
+                BagMargin__c = this.bagMargin,
+                Order__c = this.orderExternalId,
+                StartDate__c  = this.startDate,
+                EndDate__c  = this.endDate,
+                DeliveryAddress__c  = this.deliveryAddress
+            );
+        }
+
+        public List<String> getRequiredFields(){
+            return new List<String>{
+
+            };
+        }
+
+        public String getFieldKey(){
+            return 'Id';
+        }
+
+        public String getFieldExternal(){
+            return 'ExternalId__c';
+        }
+
+        public String getParentKey(){
+            return 'OrderId';
+        }
+    }
+
+    global class VisitPlanningINData implements FieldData{
+        public String Name;
+        public String BpCode;
+        public String ExternalId;
+        public String ExternalIdApp;
+        public String BpPropertyCode;
+        public Date PlanStartDate;
+        public Date PlanEndDate;
+        public Time StartTime;
+        public Time EndTime;
+        public String Status;
+        public String Objective;
+        public String Crop;
+        public String Culture;
+        public String Email;
+        public Boolean Presential;
+        public Boolean Reminder;
+        public String Displacement;
+        public String CtvVisit;
+        public String Observation;
+        public String ReasonRescheduling;
+        public String ReasonCancellation;
+        public List<TemplateDataIntegrationFields.TechnicalReportINData> TechnicalReports;
+        public VisitPlanning__c serialize(Map<String, Id> lookups){
+            return new VisitPlanning__c(
+                //ExternalId__c = this.ExternalId,
+                ExternalIdApp__c = this.ExternalIdApp,
+                Name = this.Name,
+                MainBP__c = lookups.containsKey('Account'+this.BpCode) ? lookups.get('Account'+this.BpCode) : null,
+                BP_Property__c = lookups.containsKey('Account'+this.BpPropertyCode) ? lookups.get('Account'+this.BpPropertyCode) : null,
+                InitialDate__c = this.PlanStartDate,
+                EndDate__c = this.PlanEndDate,
+                StartTime__c = this.StartTime,
+                EndTime__c = this.EndTime,
+                Status__c = this.Status,
+                Objetivo__c = this.Objective,
+                Safra__c = lookups.containsKey('Safra'+this.Crop) ? lookups.get('Safra'+this.Crop) : null,
+                Culture__c = lookups.containsKey('Culture'+this.Culture) ? lookups.get('Culture'+this.Culture) : null,
+                Email__c = this.Email,
+                Presential__c = this.Presential,
+                Reminder__c = this.Reminder,
+                Displacement__c = this.Displacement,
+                VisitSeller__c = lookups.containsKey('User'+this.CtvVisit) ? lookups.get('User'+this.CtvVisit) : null,
+                Note__c = this.Observation,
+                ReschedulingReason__c = this.ReasonRescheduling,
+                CancellationReason__c = this.ReasonCancellation
+            );
+        }
+
+        //Required fields for integration
+        public List<String> getRequiredFields(){
+            return new List<String>{
+       
+            };
+        }
+
+        //ExternalId field
+        public String getFieldKey(){
+            return 'ExternalId__c';
+        }
+        
+        //Id field
+        public String getFieldId() {
+            return 'Id';
+        }
+    }
     
+    global class TechnicalReportINData implements FieldDataChild{
+        public String Observation;
+        public String ExternalIdVisit;
+        public String RtrLine;
+        public String ExternalId;
+        public Time EndTime;
+        public Date EndDate;
+        public String Status;
+        public String CancellationReason;
+        public List<TemplateDataIntegrationFields.FotosINData> Photos;
+
+        public TechnicalReport__c serialize(Map<String, Id> lookups){
+            return new TechnicalReport__c(
+                VisitPlanning__c = lookups.containsKey('Visit'+this.ExternalIdVisit) ? lookups.get('Visit'+this.ExternalIdVisit) : null,
+                Note__c = this.Observation,
+                ExternalId__c = this.ExternalId + this.RtrLine,
+                rtrControl__c = Decimal.valueOf(this.RtrLine),
+                EndTime__c = this.EndTime,
+                EndDate__c = this.EndDate,
+                Status__c = this.Status,
+                CancellationReason__c = this.CancellationReason
+            );
+        }
+
+        public List<String> getRequiredFields(){
+            return new List<String>{
+
+            };
+        }
+
+        public String getFieldKey(){
+            return 'Id';
+        }
+
+        public String getFieldExternal(){
+            return 'ExternalId__c';
+        }
+
+        public String getParentKey(){
+            return 'OrderId';
+        }
+    }
+
+    global class FotosINData implements FieldDataChild{
+        public String Photo;
+        public String filename;
+        public String Rtr;
+        public String FileLine;
+        public String ExternalId;
+        public String Observation;
+        
+        public Fotos__c serialize(Map<String, Id> lookups){
+            return new Fotos__c(
+                RTR__c = lookups.containsKey('Technical'+this.Rtr) ? lookups.get('Technical'+this.Rtr) : null,
+                IsIntegrated__c = true,
+                Observation__c = this.Observation,
+                ExternalId__c = this.ExternalId,
+                FotoControl__c = Decimal.valueOf(this.FileLine)
+            );
+        }
+
+        public List<String> getRequiredFields(){
+            return new List<String>{
+            };
+        }
+
+        public String getFieldKey(){
+            return 'Id';
+        }
+
+        public String getFieldExternal(){
+            return 'ExternalId__c';
+        }
+
+        public String getParentKey(){
+            return 'OrderId';
+        }
+    }
+
     global class NotaFiscalINData implements FieldData{
         //JSON fields Example
         
@@ -576,6 +894,7 @@ global with sharing class TemplateDataIntegrationFields {
         public Decimal valorTotalNf;
         public String naturezaOperacao;
         public String numeroPedido; //
+        public String nfBasePdf;
         public List<TemplateDataIntegrationFields.ItensNotaFiscalINData> itensNotaFiscal; 
         public NotaFiscal__c serialize(Map<String, Id> lookups){
 
@@ -583,7 +902,7 @@ global with sharing class TemplateDataIntegrationFields {
             return new NotaFiscal__c(
                
                 Name = this.invoiceName,
-                ExternalID__c = this.invoiceName + '|' + this.numeroNotaFiscal,
+                ExternalID__c = this.chaveAcesso,
                 AccountCode__c = lookups.containsKey('Account'+this.cliente) ? lookups.get('Account' + this.cliente) : null,
                 OrderCode__c = lookups.containsKey('Order'+this.numeroPedido) ? lookups.get('Order'+ this.numeroPedido) : null, //
                 Company__c = lookups.containsKey('SalesOrg__c'+this.codigoEmpresa) ? lookups.get('SalesOrg__c'+this.codigoEmpresa) : null,
@@ -597,6 +916,7 @@ global with sharing class TemplateDataIntegrationFields {
                 HoraCriacao__c = this.horaCriacao,
                 Invoice_TotalAmount__c = this.valorTotalNf,
                 CFOP__c = this.naturezaOperacao
+                //Base64__c = this.nfBasePdf
             );
         }
         

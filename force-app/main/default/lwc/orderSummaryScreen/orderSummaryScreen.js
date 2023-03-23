@@ -1,9 +1,20 @@
 import { LightningElement, api, track } from 'lwc';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import approval from '@salesforce/apex/OrderScreenController.approvals';
 import getAccountCompanies from '@salesforce/apex/OrderScreenController.getAccountCompanies';
-
+import getAccountDistrCenters from '@salesforce/apex/OrderScreenController.getAccountDistrCenters';
+import verifyProductDisponibility from '@salesforce/apex/OrderScreenController.verifyProductDisponibility';
+import isSeedSale from '@salesforce/apex/OrderScreenController.isSeedSale';
+import getPaymentTypes from '@salesforce/apex/OrderScreenController.getPaymentTypes';
+import checkSalesOrgFreight from '@salesforce/apex/OrderScreenController.checkSalesOrgFreight';
+import getParentIdFromAccountProperty from '@salesforce/apex/OrderScreenController.getParentIdFromAccountProperty';
 export default class OrderSummaryScreen extends LightningElement {
+    showLoading = false;
     staticValue = 'hidden';
+    showFreightScreen=false;
+    allowFreight=false;
+    currentFreight;
+    allowCloseFreightScreen=false;
     hasData = true;
     disabled=false;
     isBarter = false;
@@ -11,10 +22,47 @@ export default class OrderSummaryScreen extends LightningElement {
     formattedDeliveryDate;
     totalDelivery;
     hideMargin = false;
+    hideBagQuantity = false;
+    @api seedSale = false;
+    clientProperty = '';
+
+    germoTotalValue = 0;
+    orderTotalPrice = 0;
+    orderTotalPriceFront = 0;
+    orderTotalToDistribution = 0;
+    tsiTotalPriceFront = 0;
+    tsiTotalToDistribution = 0;
+    royaltiesTotalPriceFront = 0;
+    royaltiesTotalToDistribution = 0;
+    
+    showRed;
+    showTsiRed;
+    showRoyaltiesRed;
+    @api allowFormOfPayment = false;
+
+    showFormOfPayment = false;
+    blockPaymentFields = false;
+    currentDate;
+    maxDate;
+    paymentLastPosition = 0;
+    paymentsTypes = [];
+    @api formsOfPayment = [];
 
     @track orderMargin = 0;
     @track approval = '';
     @track approvalMargin = 'Dispensado';
+
+    distrCenterResult=[];
+    selectDistributionCenter = false;
+    selectedDistributionCenter;
+    showUnavailableProducts = false;
+    unavailableProducts;
+    columns = [
+        {label: 'Nome do Produto', fieldName: 'name'},
+        {label: 'Código', fieldName: 'sapProductCode'},
+        {label: 'Quantidade', fieldName: 'quantity'},
+        {label: 'Preço Praticado', fieldName: 'unitPriceFront'}
+    ];
 
     @api accountData;
     @api productData;
@@ -30,10 +78,33 @@ export default class OrderSummaryScreen extends LightningElement {
     @api cloneData;
     @api childOrder;
     @api excludedItems;
+    @api combosSelecteds;
+    @api taxData;
+    @api bpData;
 
     connectedCallback(){
+        if (this.formsOfPayment === undefined) {
+            this.formsOfPayment = [];
+        } else {
+            for (let index = 0; index < this.formsOfPayment.length; index++) {
+                this.paymentLastPosition = this.formsOfPayment[index].paymentPosition;
+            }
+        }
+
+        getParentIdFromAccountProperty({
+            accountId: this.headerData.cliente_entrega.Id
+        }).then((result) =>{
+            this.clientProperty = result
+        });
+        
+        getPaymentTypes()
+        .then((result) => {
+            let payments = JSON.parse(result);
+            this.paymentsTypes = JSON.parse(JSON.stringify(payments));
+        });
+
         this.summaryDataLocale = {... this.summaryData};
-        this.loadData();
+        
 
         let getCompanyData = {
             ctvId: this.headerData.ctv_venda.Id != null ? this.headerData.ctv_venda.Id : '',
@@ -41,12 +112,41 @@ export default class OrderSummaryScreen extends LightningElement {
             orderType: this.headerData.tipo_venda,
             approvalNumber: 1
         }
+        
+        let today = new Date();
+        let dd = String(today.getDate()).padStart(2, '0');
+        let mm = String(today.getMonth() + 1).padStart(2, '0');
+        let yyyy = today.getFullYear();
+
+        this.currentDate = yyyy + '-' + mm + '-' + dd;
+        this.maxDate = this.headerData.data_pagamento;
 
         console.log('this.childOrder: ' + this.childOrder);
         getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: false, verifyUserType: true, priceScreen: false, childOrder: this.childOrder})
         .then((result) => {
             this.hideMargin = JSON.parse(result);
         });
+        isSeedSale({salesOrgId: this.headerData.organizacao_vendas.Id, productGroupName: null})
+            .then((result) => {
+                this.seedSale = result;
+                if (this.seedSale && !this.headerData.IsOrderChild && this.headerData.tipo_venda != 'Venda Barter') {
+                    this.allowFormOfPayment = true;
+                }
+                this.loadData();
+        });
+        
+        if (this.headerData.IsOrderChild) {
+            this.showLoading = true;
+            isSeedSale({salesOrgId: this.headerData.organizacao_vendas.Id, productGroupName: null})
+            .then((result) => {
+                this.seedSale = result
+                if (result) {
+                    this.getDistributionCenters();
+                } else {
+                    this.showLoading = false;
+                }
+            });
+        }
 
         const data = {accountData: this.accountData, headerData: this.headerData, productData: this.productData, divisionData: this.divisionData, summaryData: this.summaryData};
         approval({
@@ -68,10 +168,48 @@ export default class OrderSummaryScreen extends LightningElement {
         }).catch((err)=>{
             console.log(JSON.stringify(err));
         });
+
+
     }
 
-    loadData(){
-       
+    getDistributionCenters() {
+        this.showLoading = true;
+        this.showUnavailableProducts = false;
+        getAccountDistrCenters({salesOrgId: this.headerData.organizacao_vendas.Id})
+        .then((result) => {
+            try{
+                this.distrCenterResult = JSON.parse(result);
+                if (this.headerData.centerId != null) {
+                    this.selectedDistributionCenter = this.distrCenterResult.find(element => element.centerId == this.headerData.centerId)
+                    this.showLoading = false;
+                } else {
+                    if(this.distrCenterResult.length == 0){
+                        this.showToast('warning', 'Atenção!', 'Não foi encontrado centro de distribuição relacionado a organização de vendas. Contate o administrador do sistema.');
+                        this.showLoading = false;
+                    }
+                    else if(this.distrCenterResult.length == 1){
+                        this.selectedDistributionCenter = this.distrCenterResult[0];
+                        this.summaryDataLocale.centerId = this.selectedDistributionCenter.centerId;
+                        this.onSelectDistrCenter();
+                    }
+                    else if(this.distrCenterResult.length > 1){
+                        this.selectDistributionCenter = true;
+                        this.showLoading = false;
+                    }
+                }
+            }catch(err){
+                console.log(err)
+                this.showLoading = false;
+            }
+        });
+    }
+
+    @api
+    loadData(orderScreen, newProductData){
+        if (orderScreen) {
+            this.productData = JSON.parse(JSON.stringify(newProductData));
+        }
+
         if(this.productData){
             this.productDataLocale = JSON.parse(JSON.stringify(this.productData));
            
@@ -79,7 +217,41 @@ export default class OrderSummaryScreen extends LightningElement {
             if(this.commodityData){
                 this.commodityDataLocale= JSON.parse(JSON.stringify(this.commodityData));
             }
-            
+
+            let getCompanyData = {
+                ctvId: this.headerData.ctv_venda.Id != null ? this.headerData.ctv_venda.Id : '',
+                accountId: this.accountData.Id != null ? this.accountData.Id : '',
+                orderType: this.headerData.tipo_venda,
+                approvalNumber: 1
+            }
+
+            getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: true, verifyUserType: false})
+            .then((result) => {
+               this.salesOrgId = result;
+               if(this.headerData.frete == 'CIF'){
+                    checkSalesOrgFreight({salesOrgId: this.salesOrgId})
+                    .then((result) => {
+                        let summary = JSON.parse(JSON.stringify(this.summaryDataLocale));
+                        let numberOfProducts = 0;
+                        for (let i = 0; i < this.productDataLocale.length; i++) {
+                            numberOfProducts += Number(this.productDataLocale[i].quantity);
+                        }
+                        let currentFreight = this.isFilled(this.headerData.freightPerUnit) ? (this.headerData.freightPerUnit * numberOfProducts) : summary.freightValue;
+
+                        this.allowFreight = this.headerData.IsOrderChild || this.childOrder ? false : result;
+                        this.showFreightScreen = result;
+                        summary.freightValue = summary.freightValue === undefined ? 0 : (this.headerData.IsOrderChild || this.childOrder ? currentFreight : summary.freightValue);
+                        summary.freightValueFront = this.fixDecimalPlacesFront(summary.freightValue);
+                        this.currentFreight = summary.freightValue;
+                        this.summaryDataLocale = JSON.parse(JSON.stringify(summary));
+                        this.showFreightScreen = this.showFreightScreen && !this.headerData.IsOrderChild ? true : false;
+
+                        if (this.showFreightScreen && this.headerData.frete == 'FOB') {
+                            this.allowCloseFreightScreen = true;
+                        }
+                    });
+               }
+            });
            
             if (this.headerData.status_pedido == 'Em aprovação - Gerente Filial' || this.headerData.status_pedido == 'Em aprovação - Gerente Regional' ||
                 this.headerData.status_pedido == 'Em aprovação - Diretor' || this.headerData.status_pedido == 'Em aprovação - Comitê Margem' || this.headerData.status_pedido == 'Em aprovação - Mesa de Grãos') {
@@ -90,15 +262,20 @@ export default class OrderSummaryScreen extends LightningElement {
             this.formattedDeliveryDate = this.headerData.data_entrega.split('-')[2] + '/' + this.headerData.data_entrega.split('-')[1] + '/' + this.headerData.data_entrega.split('-')[0];
             
             let orderTotalPrice = 0;
+            let orderTotalPriceToCalcMargin = 0;
             let orderTotalCost = 0;
+            let royaltiesTotalPrice = 0;
+            let tsiTotalPrice = 0;
             if(this.headerData.tipo_venda == 'Venda Barter'){
                 for(var i= 0; i< this.productDataLocale.length; i++){
                     orderTotalPrice += Number(this.productDataLocale[i].unitPrice) * Number(this.productDataLocale[i].quantity);
                     orderTotalCost += Number(this.productDataLocale[i].practicedCost) * Number(this.productDataLocale[i].quantity);
+                    orderTotalPriceToCalcMargin += Number(this.productDataLocale[i].unitPrice) * Number(this.productDataLocale[i].quantity);
                     this.isBarter = true;
                     this.hideMargin = true;
+                    this.hideBagQuantity = this.headerData.IsOrderChild ? true : false;
                     this.orderMargin = this.commodityDataLocale[0].marginValue;
-                    this.totalDelivery = this.commodityDataLocale[0].totalDeliveryFront.replace(' sacas', '');
+                    this.totalDelivery = this.isFilled(this.commodityDataLocale[0].totalDeliveryFront) ? this.commodityDataLocale[0].totalDeliveryFront.replace(' sacas', '') : this.commodityDataLocale[0].totalDelivery.replace(' sacas', '');
                     let unitPrice = Number(this.productDataLocale[i].unitPrice) / Number(this.commodityDataLocale[0].commodityPrice);
                     this.productDataLocale[i]['unitPrice'] = this.fixDecimalPlacesFront(unitPrice).toString() + ' por saca';
                     this.productDataLocale[i]['totalPrice']  = this.fixDecimalPlacesFront(Number(unitPrice * Number(this.productDataLocale[i].quantity))).toString() + ' sacas';
@@ -117,11 +294,18 @@ export default class OrderSummaryScreen extends LightningElement {
             }
             else{
                 for(var i= 0; i< this.productDataLocale.length; i++){
-                    orderTotalPrice += Number(this.productDataLocale[i].unitPrice) * Number(this.productDataLocale[i].quantity);
-                    orderTotalCost += Number(this.productDataLocale[i].practicedCost) * Number(this.productDataLocale[i].quantity);
-                    this.productDataLocale[i]['unitPrice'] = 'R$ ' + this.fixDecimalPlacesFront(this.productDataLocale[i].unitPrice);
-                    this.productDataLocale[i]['totalPrice']  = 'R$ ' + this.fixDecimalPlacesFront(this.productDataLocale[i].totalPrice);
-                    this.productDataLocale[i]['commercialDiscountValue']  = 'R$ ' +  this.fixDecimalPlacesFront(this.productDataLocale[i].commercialDiscountValue);
+                    console.log(this.seedSale)
+                    orderTotalPrice += Number(this.productDataLocale[i].unitPrice) * Number(this.productDataLocale[i].quantity) + (this.seedSale ? Number(this.productDataLocale[i].brokerage) : 0);
+                    orderTotalPriceToCalcMargin += Number(this.productDataLocale[i].unitPrice) * Number(this.productDataLocale[i].quantity);
+                    orderTotalCost += Number(this.productDataLocale[i].listCost) * Number(this.productDataLocale[i].quantity);
+                    tsiTotalPrice += Number(this.productDataLocale[i].tsiTotalPrice);
+                    royaltiesTotalPrice += Number(this.productDataLocale[i].royaltyTotalPrice);
+                    
+                    let currentTotalPrice = this.seedSale && this.isFilled(this.productDataLocale[i].brokerage) && this.productDataLocale[i].brokerage > 0 ? this.productDataLocale[i].totalPriceWithBrokerage : this.productDataLocale[i].totalPrice;
+                    currentTotalPrice = Number(currentTotalPrice) + (this.seedSale ? Number(this.productDataLocale[i].tsiTotalPrice) + Number(this.productDataLocale[i].royaltyTotalPrice) : 0);
+                    this.productDataLocale[i]['unitPrice'] = (this.headerData.moeda == 'BRL' ? 'R$ ' : 'US$ ') + this.fixDecimalPlacesFront(this.productDataLocale[i].unitPrice);
+                    this.productDataLocale[i]['totalPrice'] = (this.headerData.moeda == 'BRL' ? 'R$ ' : 'US$ ') + this.fixDecimalPlacesFront(currentTotalPrice);
+                    this.productDataLocale[i]['commercialDiscountValue'] = (this.headerData.moeda == 'BRL' ? 'R$ ' : 'US$ ') + this.fixDecimalPlacesFront(this.productDataLocale[i].commercialDiscountValue);
                     this.productDataLocale[i]['commercialDiscountPercentage']  =  this.fixDecimalPlacesPercentage(this.productDataLocale[i].commercialDiscountPercentage);
                     this.productDataLocale[i]['commercialMarginPercentage']  = this.fixDecimalPlacesFront(this.productDataLocale[i].commercialMarginPercentage) + '%';
                     this.productDataLocale[i]['divisionData'] = [];
@@ -134,16 +318,168 @@ export default class OrderSummaryScreen extends LightningElement {
                 }
             }
             
-            let margin = (1 - (orderTotalCost / orderTotalPrice)) * 100;
-            this.orderMargin = this.fixDecimalPlacesFront(margin) + '%';
-            this.summaryDataLocale.orderMargin = (+(Math.trunc(+(margin + 'e' + 6)) + 'e' + -6)).toFixed(6);
+            let summary = JSON.parse(JSON.stringify(this.summaryDataLocale));
+            this.germoTotalValue = orderTotalPrice;
+            this.orderTotalPrice = this.germoTotalValue + Number(this.headerData.frete == 'CIF' && this.seedSale ? summary.freightValue : 0);
+            this.orderTotalPriceFront = this.fixDecimalPlacesFront(this.orderTotalPrice);
+            this.orderTotalToDistribution = this.orderTotalPrice;
+
+            this.royaltiesTotalPrice = royaltiesTotalPrice;
+            this.royaltiesTotalPriceFront = this.fixDecimalPlacesFront(royaltiesTotalPrice);
+            this.royaltiesTotalToDistribution = royaltiesTotalPrice;
+
+            this.tsiTotalPrice = tsiTotalPrice;
+            this.tsiTotalPriceFront = this.fixDecimalPlacesFront(tsiTotalPrice);
+            this.tsiTotalToDistribution = tsiTotalPrice;
+            
+            if (this.headerData.tipo_venda == 'Venda Barter' && this.headerData.IsOrderChild) {
+                this.summaryDataLocale.orderMargin = this.headerData.orderMargin;
+            } else {
+                let margin = (1 - (orderTotalCost / orderTotalPriceToCalcMargin)) * 100;
+                this.orderMargin = this.fixDecimalPlacesFront(margin) + '%';
+                this.summaryDataLocale.orderMargin = (+(Math.trunc(+(margin + 'e' + 6)) + 'e' + -6)).toFixed(6);
+            }
+
+            this.summaryDataLocale.totalValue = orderTotalPrice + royaltiesTotalPrice + tsiTotalPrice;
+
             this.defineOrderMargin();
         }
     }
 
+    openFreight(event) {
+        this.showFreightScreen = true;
+    }
+
+    chooseDistributionCenter(event){
+        let oldDC = this.isFilled(this.selectedDistributionCenter) ? this.selectedDistributionCenter : null;
+        let DCs = this.distrCenterResult;
+        if(this.isFilled(event)){
+            try{
+                this.selectedDistributionCenter = DCs.find(element => element.centerId == event.target.dataset.targetId);
+                if(this.isFilled(oldDC)) DCs.find(element => element.centerId == oldDC.centerId).selected = false;
+                DCs.find(element => element.centerId == this.selectedDistributionCenter.centerId).selected = true;
+            }catch(err){
+                console.log(err);
+            }
+        }
+
+        this.distrCenterResult = JSON.parse(JSON.stringify(DCs));
+    }
+
+    onSelectDistrCenter(){
+        this.showLoading = true;
+        try{
+            
+            this.selectDistributionCenter = !this.selectDistributionCenter;
+            this.summaryDataLocale.centerId = this.selectedDistributionCenter.centerId;
+            this.verifyProdDisponiblity();
+            
+            const setSummaryData = new CustomEvent('setsummarydata');
+            setSummaryData.data = this.summaryDataLocale;
+        
+            this.dispatchEvent(setSummaryData);
+        }catch(err){
+            console.log(err)
+        }
+    }
+
+    verifyProdDisponiblity() {
+        let orderProductsId = [];
+        let products = JSON.parse(JSON.stringify(this.productData));
+        for (let index = 0; index < products.length; index++) {
+            orderProductsId.push(products[index].productId);
+        }
+
+        let disponibilityData = {
+            orderProductsId: orderProductsId,
+            salesOrgId: this.headerData.organizacao_vendas.Id,
+            supplierCenter: this.distrCenterResult.find(element => element.centerId == this.selectedDistributionCenter.centerId).code
+        }
+
+        this.unavailableProducts = [];
+        verifyProductDisponibility({data: JSON.stringify(disponibilityData)})
+        .then((result) => {
+            let missingProducts = [];
+            let availableProducts = JSON.parse(result);
+
+            for (let index = 0; index < products.length; index++) {
+                if (!availableProducts.includes(products[index].productId)) {
+                    missingProducts.push(products[index]);
+                    this.showUnavailableProducts = true;
+                }
+            }
+            
+            this.unavailableProducts = JSON.parse(JSON.stringify(missingProducts));
+            this.showLoading = false;
+        });
+    }
+
+    excludeProducts() {
+        let availableProducts = [];
+        let products = JSON.parse(JSON.stringify(this.productData));
+        for (let index = 0; index < products.length; index++) {
+            let deletedProduct = this.unavailableProducts.find(e => e.productId == products[index].productId);
+            if (!this.isFilled(deletedProduct)) {
+                availableProducts.push(products[index]);
+            }
+        }
+
+        this.showUnavailableProducts = false;
+        this.productData = JSON.parse(JSON.stringify(availableProducts));
+        this._setProductData();
+        if (availableProducts.length > 0) {
+            this.loadData();
+        }
+    }
+    changeFreightValue(event) {
+        let fieldValue = event.target.value;
+        fieldValue = fieldValue.toString().includes('.') ? fieldValue.toString().replace('.', '') : fieldValue;
+        fieldValue = fieldValue.toString().includes(',') ? fieldValue.toString().replace(',', '.') : fieldValue;
+        
+        let summary = JSON.parse(JSON.stringify(this.summaryDataLocale));
+        summary.freightValue = this.fixFreightDecimalPlaces(fieldValue);
+        summary.freightValueFront = this.fixDecimalPlacesFront(fieldValue);
+        this.summaryDataLocale = JSON.parse(JSON.stringify(summary));
+    }
+
+    closeFreightScreen() {
+        this.showFreightScreen = false;
+        let summary = JSON.parse(JSON.stringify(this.summaryDataLocale));
+        summary.freightValue = this.isFilled(this.currentFreight) ? this.currentFreight : 0;
+        summary.freightValueFront = this.fixDecimalPlacesFront(summary.freightValue);
+        this.summaryDataLocale = JSON.parse(JSON.stringify(summary));
+    }
+
+    confirmFreight() {
+        let variable = 'freight-value';
+        if(!this.template.querySelector(`[data-target-id="${variable}"]`).checkValidity()){
+            this.showToast('warning', 'Atenção', 'Valor de frete inválido');
+            return;
+        }
+
+        this.showFreightScreen = false;
+        let summary = JSON.parse(JSON.stringify(this.summaryDataLocale));
+        this.currentFreight = this.fixFreightDecimalPlaces(summary.freightValue);
+
+        let allPayments = JSON.parse(JSON.stringify(this.formsOfPayment));
+        let germoplasmaValue = 0;
+        for (let index = 0; index < allPayments.length; index++) {
+            if (allPayments[index].paymentType == 'Germoplasma') germoplasmaValue += Number(allPayments[index].value);
+        }
+
+        this.orderTotalPrice = Number(this.germoTotalValue) + Number(this.headerData.frete == 'CIF' && this.seedSale ? summary.freightValue : 0);
+        this.orderTotalPriceFront = this.fixDecimalPlacesFront(this.orderTotalPrice);
+        this.orderTotalToDistribution = this.orderTotalPrice - Number(this.headerData.frete == 'CIF' && this.seedSale ? germoplasmaValue : 0);
+        this.changeFreight();
+    }
+
+    fixFreightDecimalPlaces(value) {
+        return (+(Math.trunc(+(value + 'e' + 4)) + 'e' + -4)).toFixed(4);
+    }
+
     formatCurrency(num){
         try{
-            return parseFloat(num).toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
+            return parseFloat(num).toLocaleString("pt-BR", {style:"currency", currency:this.headerData.moeda});
         }
         catch(err){
             console.log(err);
@@ -166,6 +502,10 @@ export default class OrderSummaryScreen extends LightningElement {
 
     }
 
+    fixDecimalPlaces(value) {
+        return (+(Math.trunc(+(value + 'e' + 6)) + 'e' + -6)).toFixed(6);
+    }
+
     fixDecimalPlacesFront(value) {
         let formatNumber = new Intl.NumberFormat('de-DE').format(Number(Math.round(value + 'e' + 2) + 'e-' + 2));
         return formatNumber;
@@ -175,6 +515,234 @@ export default class OrderSummaryScreen extends LightningElement {
         value = value.toString().includes(',') ? value.toString().replace(',', '.') : value.toString();
         value = value.includes('%') ? Number(value.replace('%', '')) : Number(value);
         return Number(Math.round(value + 'e' + 2) + 'e-' + 2).toString().replace('.', ',') + '%';
+    }
+
+    openFormOfPayment(event) {
+        this.recalcTotalToDistribution();
+        let allPayments = JSON.parse(JSON.stringify(this.formsOfPayment));
+        let savedPayments = []
+        for (let index = 0; index < allPayments.length; index++) {
+            if (allPayments[index].saved) {
+                allPayments[index].valueFront = this.fixDecimalPlacesFront(allPayments[index].value);
+                savedPayments.push(allPayments[index]);
+            }
+        }
+        this.formsOfPayment = JSON.parse(JSON.stringify(savedPayments));
+        this.showFormOfPayment = !this.showFormOfPayment;
+    }
+
+    changeValue(event) {
+        let fieldId = event.target.dataset.targetId;
+        let fieldValue = event.target.value;
+        let paymentPosition = fieldId.split('-')[1];
+        let allPayments = JSON.parse(JSON.stringify(this.formsOfPayment));
+
+        for (let index = 0; index < allPayments.length; index++) {
+            if (allPayments[index].paymentPosition == paymentPosition) {
+                if (fieldId.includes('paymentTypeId')) {
+                    allPayments[index].paymentType = fieldValue;
+                    if (allPayments[index].paymentDay != '') allPayments[index].paymentKey = fieldValue + '-' + allPayments[index].paymentDay;
+                } else if (fieldId.includes('paymentDayId')) {
+                    if (fieldValue > this.maxDate) {
+                        allPayments[index].paymentDay = null;
+                    } else {
+                        allPayments[index].paymentDay = fieldValue;
+                        if (allPayments[index].paymentType != '') allPayments[index].paymentKey = allPayments[index].paymentType + '-' + fieldValue;
+                    }
+                } else if (fieldId.includes('valueId')) {
+                    fieldValue = fieldValue.toString().includes('.') ? fieldValue.toString().replaceAll('.', '') : fieldValue;
+                    fieldValue = fieldValue.toString().includes(',') ? fieldValue.toString().replace(',', '.') : fieldValue;
+                    allPayments[index].value = this.fixDecimalPlaces(fieldValue);
+                    allPayments[index].valueFront = this.fixDecimalPlacesFront(fieldValue);
+                }
+            }
+        }
+
+        this.formsOfPayment = JSON.parse(JSON.stringify(allPayments));
+        this.recalcTotalToDistribution();
+    }
+
+    recalcTotalToDistribution(){
+        let value = 0;
+        let tsiValue = 0;
+        let royaltiesValue = 0;
+        let allPayments = JSON.parse(JSON.stringify(this.formsOfPayment));
+        
+        if (allPayments.length == 0) {
+            value = 0.01;
+            allPayments.push(this.createDefaultValues('Germoplasma'));
+
+            if (this.royaltiesTotalPrice > 0) {
+                royaltiesValue = 0.01;
+                allPayments.push(this.createDefaultValues('Royalties'));
+            }
+            if (this.tsiTotalPrice > 0) {
+                tsiValue = 0.01;
+                allPayments.push(this.createDefaultValues('TSI'));
+            }
+            this.formsOfPayment = JSON.parse(JSON.stringify(allPayments));
+
+        } else {
+            for (let index = 0; index < allPayments.length; index++) {
+                let currentValue = this.isFilled(allPayments[index].value) ? allPayments[index].value : 0;
+                if (allPayments[index].paymentType == 'Germoplasma') value += Number(currentValue);
+                if (allPayments[index].paymentType == 'TSI') tsiValue += Number(currentValue);
+                if (allPayments[index].paymentType == 'Royalties') royaltiesValue += Number(currentValue);
+            }
+        }
+        
+        this.orderTotalToDistribution = this.fixDecimalPlacesFront(Number(this.orderTotalPrice) - Number(value));
+        this.showRed = this.orderTotalToDistribution < 0;
+        
+        this.tsiTotalToDistribution = this.fixDecimalPlacesFront(Number(this.tsiTotalPrice) - Number(tsiValue));;
+        this.showTsiRed = this.tsiTotalToDistribution < 0;
+        
+        this.royaltiesTotalToDistribution = this.fixDecimalPlacesFront(Number(this.royaltiesTotalPrice) - Number(royaltiesValue));;
+        this.showRoyaltiesRed = this.royaltiesTotalToDistribution < 0;
+    }
+
+    createDefaultValues(paymentType) {
+        this.paymentLastPosition = this.paymentLastPosition + 1;
+        let divPosition = this.paymentLastPosition;
+        let paymentTypeId = 'paymentTypeId-' + divPosition;
+        let paymentDayId = 'paymentDayId-' + divPosition;
+        let valueId = 'valueId-' + divPosition;
+        
+        let newDefaultValues = {
+            paymentType: paymentType,
+            paymentDay: this.headerData.data_pagamento,
+            value: 0.01,
+            valueFront: this.fixDecimalPlaces('0.01'),
+            paymentPosition: this.paymentLastPosition,
+            paymentTypeId: paymentTypeId,
+            paymentDayId: paymentDayId,
+            valueId: valueId,
+            paymentKey: paymentType + '-' + this.headerData.data_pagamento,
+            saved: true
+        };
+        return newDefaultValues;
+    }
+
+    newFields() {
+        let allFromsOfPayment = JSON.parse(JSON.stringify(this.formsOfPayment));
+        this.paymentLastPosition = this.paymentLastPosition + 1;
+        let divPosition = this.paymentLastPosition;
+        let paymentTypeId = 'paymentTypeId-' + divPosition;
+        let paymentDayId = 'paymentDayId-' + divPosition;
+        let valueId = 'valueId-' + divPosition;
+        
+        if(allFromsOfPayment.length < 10){
+            allFromsOfPayment.push({
+                paymentType: '',
+                paymentDay: null,
+                value: '',
+                paymentPosition: this.paymentLastPosition,
+                paymentTypeId: paymentTypeId,
+                paymentDayId: paymentDayId,
+                valueId: valueId,
+                paymentKey: '',
+                saved: false
+            });
+            
+            this.formsOfPayment = JSON.parse(JSON.stringify(allFromsOfPayment));  
+        }else{
+            this.showToast('warning', 'Atenção!', 'É possível inserir no máximo 10 formas de pagamento.');
+        }
+    }
+
+    validRegexField(allPayment){
+        let isPassed = true;
+        try{
+            for (let index = 0; index < allPayment.length; index++) {
+                if(!this.template.querySelector(`[data-target-id="${allPayment[index].valueId}"]`).checkValidity()){
+                    isPassed = false
+                }
+            }
+        }catch(err){
+            console.log(err)
+        }
+        return isPassed;
+    }
+    confirmFormOfPayment() {
+        let allPayments = JSON.parse(JSON.stringify(this.formsOfPayment));
+        let groupedFormsOfPayment = [];
+
+        for (let index = 0; index < allPayments.length; index++) {
+            let checkFields = allPayments[index];
+            let pushValue = true;
+            if (this.isFilled(allPayments[index].paymentType) && this.isFilled(allPayments[index].paymentDay) && this.isFilled(allPayments[index].value)) {
+                if (checkFields.paymentKey != '') {
+                    for (let i = 0; i < groupedFormsOfPayment.length; i++) {
+                        if (groupedFormsOfPayment[i].paymentKey == checkFields.paymentKey) {
+                            groupedFormsOfPayment[i].value = Number(groupedFormsOfPayment[i].value) + Number(checkFields.value);
+                            pushValue = false;
+                        }
+                    }
+                    if (pushValue) {
+                        checkFields.saved = true;
+                        groupedFormsOfPayment.push(checkFields);
+                    }
+                }
+            } else {
+                this.showToast('warning', 'Atenção!', 'Todos os campos são obrigatórios.');
+                return;
+            }
+        }
+
+        try{
+            const result = this.validRegexField(allPayments)
+            if(!result){
+                this.showToast('warning', 'Atenção!', 'Valor inserido no formato incorreto.');
+                return;
+            }
+        }catch(err){
+            console.log(err)
+        }
+
+        this.formsOfPayment = JSON.parse(JSON.stringify(groupedFormsOfPayment));
+        if (this.formsOfPayment.length > 10) {
+            this.showToast('warning', 'Atenção!', 'É possível inserir no máximo 10 formas de pagamento.');
+        } else {
+            this.showFormOfPayment = !this.showFormOfPayment;
+            this.setFormsOfPayment();
+        }
+    }
+
+    excludeLine(event) {
+        let currentLines = JSON.parse(JSON.stringify(this.formsOfPayment));
+        let linesToUse = [];
+        for (let index = 0; index < currentLines.length; index++) {
+            if (currentLines[index].paymentPosition != event.target.dataset.targetId) {
+                linesToUse.push(currentLines[index]);
+            }
+        }
+
+        this.formsOfPayment = JSON.parse(JSON.stringify(linesToUse));
+        this.recalcTotalToDistribution();
+    }
+
+    showToast(type, title, message) {
+        let event = new ShowToastEvent({
+            variant: type,
+            title: title,
+            message: message,
+        });
+        this.dispatchEvent(event);
+    }
+
+    closeFormOfPayment() {
+        this.showFormOfPayment = !this.showFormOfPayment;
+    }
+
+    setFormsOfPayment(){
+        const setformsofpayment = new CustomEvent('setformsofpayment');
+        setformsofpayment.data = this.formsOfPayment;
+        this.dispatchEvent(setformsofpayment);
+    }
+    changeFreight(){
+        const setSummaryData = new CustomEvent('setsummarydata');
+        setSummaryData.data = this.summaryDataLocale;
+        this.dispatchEvent(setSummaryData);
     }
 
     changeObservation(event){
@@ -206,7 +774,17 @@ export default class OrderSummaryScreen extends LightningElement {
       
         this.dispatchEvent(setSummaryData);
     }
+
+    _setProductData() {
+        const setProductData = new CustomEvent('setproductdata');
+        setProductData.data = this.productData;
+        this.dispatchEvent(setProductData);
+    }
    
+    isFilled(field) {
+        return ((field !== undefined && field != null && field != '') || field == 0);
+    }
+    
     @api showandHiddenTextArea(){
         // let values;
         // let buttons;
@@ -225,7 +803,4 @@ export default class OrderSummaryScreen extends LightningElement {
         //     buttons[0].style.setProperty("-webkit-transform", "rotate(0deg)", null);
         // }
     }
-  
-
-    
 }
