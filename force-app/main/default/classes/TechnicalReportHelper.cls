@@ -1,5 +1,5 @@
 public without sharing class TechnicalReportHelper {
-    
+    /*
     private static Boolean isEnabled;
 
     static{
@@ -60,5 +60,5 @@ public without sharing class TechnicalReportHelper {
                 }
             }
         }
-    }
+    }*/
 }
