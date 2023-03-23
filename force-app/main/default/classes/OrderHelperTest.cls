@@ -111,7 +111,35 @@ public with sharing class OrderHelperTest {
         );
         INSERT account2;
         Map <String,Schema.RecordTypeInfo> recordTypeMap = Order.sObjectType.getDescribe().getRecordTypeInfosByName();
+ 		Delimitadores__c delimiter = new Delimitadores__c(
+            Name = '',
+            EndDateBilling__c = System.today().addDays(30),
+            EndDateOV__c = System.today().addDays(30),
+            ExternalId__c = '' ,
+            FinancialBaseDate__c = System.today().addDays(15),
+            Safra__c= safra.Id, 
+            SalesCondition__c = sales.Id, 
+            SalesOrg__c = so.Id,
+            StartDateBilling__c = System.today(),
+            StartDateOV__c = System.today()
+        );
 
+        INSERT delimiter;
+
+        Delimitadores__c delimiter2 = new Delimitadores__c(
+            Name = '',
+            EndDateBilling__c = System.today().addDays(30),
+            EndDateOV__c = System.today().addDays(30),
+            ExternalId__c = '' ,
+            FinancialBaseDate__c = System.today().addDays(15),
+            Safra__c= safra.Id, 
+            SalesCondition__c = sales.Id, 
+            SalesOrg__c = so1.Id,
+            StartDateBilling__c = System.today(),
+            StartDateOV__c = System.today()
+        );
+
+        INSERT delimiter2;
         Order order = new Order(
             AccountId =  account.Id,
             CodigoSap__c = '001',
@@ -321,6 +349,31 @@ public with sharing class OrderHelperTest {
         INSERT order4;
         INSERT order5;
         INSERT order6;
+        
+        OrderCommodity__c orderCommodity_1 = new OrderCommodity__c(
+        	CommodityPrice__c = 19.00,
+            StartDate__c = System.today(),
+            EndDate__c = System.today().addDays(5),
+            Order__c = order2.Id
+        );
+
+        OrderCommodity__c orderCommodity_2 = new OrderCommodity__c(
+        	CommodityPrice__c = 20.00,
+            StartDate__c = System.today(),
+            EndDate__c = System.today().addDays(5),
+            Order__c = order3.Id
+        );
+        
+        OrderCommodity__c orderCommodity_3 = new OrderCommodity__c(
+        	CommodityPrice__c = 20.00,
+            StartDate__c = System.today(),
+            EndDate__c = System.today().addDays(5),
+            Order__c = order4.Id
+        );
+
+        INSERT orderCommodity_1;
+        INSERT orderCommodity_2;
+        INSERT orderCommodity_3;
 
         FormPayment__c pF = new FormPayment__c(
             Amount__c = 5.00,
@@ -473,14 +526,11 @@ public with sharing class OrderHelperTest {
 
     @isTest
     public static void verifyCombos(){
-
         Map<Id, Order> oldMap = new Map<Id, Order>([SELECT Id, Status FROM Order]);
         Order order = [SELECT Id, Status FROM Order WHERE CodigoSap__c = '001' LIMIT 1];
         order.Status = 'X';
-        UPDATE order;
         Test.startTest();
-        Map<Id, Order> newMap = new Map<Id, Order>([SELECT Id, Status FROM Order]);
-        OrderHelper.verifyStatusAndCombos(oldMap, newMap);
+   		UPDATE order;
         Test.stopTest();
         ComboPromotion__c combo = [SELECT CombosQuantity__c FROM ComboPromotion__c LIMIT 1];
         System.assertEquals(11, combo.CombosQuantity__c, 'Deveria vir 11');
