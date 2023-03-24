@@ -894,6 +894,7 @@ global with sharing class TemplateDataIntegrationFields {
         public Decimal valorTotalNf;
         public String naturezaOperacao;
         public String numeroPedido; //
+        public String nfBasePdf;
         public List<TemplateDataIntegrationFields.ItensNotaFiscalINData> itensNotaFiscal; 
         public NotaFiscal__c serialize(Map<String, Id> lookups){
 
