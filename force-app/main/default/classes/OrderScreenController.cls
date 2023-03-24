@@ -688,7 +688,7 @@ public without sharing class OrderScreenController {
                      WHERE Product2Id IN: listProductsIds
                 ]) {
                     pricebookId = entry.Pricebook2Id;
-                    entriesByProductsIds.put(entry.Product2Id, entry);
+                    entriesByProductsIds.put(entry.Product2Id + 'BRL', entry);
                 }
             } else {
                 for (PricebookEntry entry : [
@@ -2466,6 +2466,7 @@ public without sharing class OrderScreenController {
         public List<DivisionSerialize> divisionData;
         public List<CommodityDeserialize> commodityData;
         public List<TaxData> taxData;
+        public List<FormOfPaymentSerialize> formsOfPayment;
         public AccountSerialize accountData;
         public AccountSerialize bpAccount;
         public SummarySerialize summaryData;
@@ -2476,12 +2477,13 @@ public without sharing class OrderScreenController {
             this.accountData = account;
         }  
 
-        public OrderSerializeAll(HeaderSerialize order, List<ProductSerialize> products, List<DivisionSerialize> divisions, List<CommodityDeserialize> commodities, AccountSerialize account, SummarySerialize summaryData, List<TaxData> taxData, AccountSerialize bpAccount){
+        public OrderSerializeAll(HeaderSerialize order, List<ProductSerialize> products, List<DivisionSerialize> divisions, List<CommodityDeserialize> commodities, List<FormOfPaymentSerialize> formsOfPayment, AccountSerialize account, SummarySerialize summaryData, List<TaxData> taxData, AccountSerialize bpAccount){
             this.headerData = order;
             this.productData = products;
             this.divisionData = divisions;
             this.commodityData = commodities;
             this.taxData = taxData;
+            this.formsOfPayment = formsOfPayment;
             this.accountData = account;
             this.summaryData = summaryData;
             this.bpAccount = bpAccount;
