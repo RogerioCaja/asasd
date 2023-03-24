@@ -1,4 +1,4 @@
-public with sharing class Product2Helper {
+public without sharing class Product2Helper {
     public Product2Helper() {
 
     }
@@ -35,6 +35,15 @@ public with sharing class Product2Helper {
                     unitPrice = 0,
                     IsActive = true,
                     CurrencyIsoCode = 'BRL'
+                )
+            );  
+            pricebookEntryList.add(
+                new PriceBookEntry(
+                    pricebook2Id = STANDARD_PRICEBOOK_ID,
+                    product2Id = product2.id,
+                    unitPrice = 0,
+                    IsActive = true,
+                    CurrencyIsoCode = 'USD'
                 )
             );  
         }

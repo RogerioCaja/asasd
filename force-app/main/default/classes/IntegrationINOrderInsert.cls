@@ -30,6 +30,8 @@ global without sharing class IntegrationINOrderInsert {
         // Guarda uma lista de pedidos para fazer o upsert
         List<TemplateDataINtegrationFields.ShippingDivisonINData> shippingDivisonListToUpsert = new List<TemplateDataIntegrationFields.ShippingDivisonINData>();
 
+        List<TemplateDataIntegrationFields.FormPaymentINData> formPaymentListToUpsert = new List<TemplateDataIntegrationFields.FormPaymentINData>();
+
         List<TemplateDataIntegrationFields.ConditionInsert> conditionList = new List<TemplateDataIntegrationFields.ConditionInsert>();
         
         List<String> idOrders = new List<String>();
@@ -70,6 +72,7 @@ global without sharing class IntegrationINOrderInsert {
                 //Putting the Order's ExternalId parameter in the OrderItem
                 for (TemplateDataIntegrationFields.OrderItemINData orderItem : order.orderItems){
                     orderItem.orderExternalId = order.CodigoSap;
+                    orderItem.currencyOrder = order.CurrencyOrder;
                     orderItem.orderItemCode = orderItem.orderItemCode.replaceFirst('^0+','');
                 }
                 // Adiciona os orderItem na lista para upsert
@@ -125,6 +128,16 @@ global without sharing class IntegrationINOrderInsert {
                 }
                 shippingDivisonListToUpsert.addAll(order.shippingDivison);
             }
+            if(order.formPayment.size() > 0){
+                for(TemplateDataIntegrationFields.FormPaymentINData paymentFormItem : order.formPayment){
+                    paymentFormItem.orderExternalId = order.CodigoSap;
+                    System.debug('orderExternalId ' + paymentFormItem.orderExternalId); 
+                    paymentFormItem.paymentItemCode = paymentFormItem.paymentItemCode.replaceFirst('^0+', '');
+                }
+                    formPaymentListToUpsert.addAll(order.formPayment);
+                    System.debug('formPaymentListToUpsert ' + formPaymentListToUpsert);
+            }
+            
 
             for (TemplateDataIntegrationFields.PartnerInsert partnerList : order.partners){
                 
@@ -248,6 +261,17 @@ global without sharing class IntegrationINOrderInsert {
                     shipIt.orderExternalId = orderId;
                 } 
         }
+
+        for(TemplateDataIntegrationFields.FormPaymentINData formPayment : formPaymentListToUpsert){
+            String orderId;
+
+            if(formPayment.orderExternalId != null){
+                orderId = orderUpMap.get(formPayment.orderExternalId);
+
+                formPayment.orderExternalId = orderId;
+                System.debug('orderId ' + orderId);
+            }
+        }
         
       
          //Confirmar com o Helder
@@ -269,26 +293,70 @@ global without sharing class IntegrationINOrderInsert {
             );
             System.debug('shippingDivisonResponse' + shippingDivisonResponse);
         }
+
+        Map<String, List<TemplateDataIntegrationFields.Response>> formPaymentResponse = new Map<String, List<TemplateDataIntegrationFields.Response>>();
+        System.debug('formPaymentListToUpsert ' + formPaymentListToUpsert.size());
+        if(formPaymentListToUpsert.size() != 0){
+            formPaymentResponse.putAll(
+                IntegrationINPaymentForm.upsertFormPayment(formPaymentListToUpsert)   
+            );
+            System.debug('teste de entrada'  + formPaymentResponse);
+        }
         
-            AggregateResult[] resulTotal =[SELECT SUM(FinalTotalValue__c) somatoria FROM OrderItem WHERE OrderId =: orderIdEx.keySet() AND ReasonRefuse__c  =: null AND ReasonRefuse__c  =: ''];
-        	 List<OrderItem> orderItemListT = [SELECT Id,  FinalTotalValue__c FROM OrderItem WHERE OrderId =: orderIdEx.keySet()];
-        	 System.debug('orderItemListT ' + orderItemListT);
-             System.debug('resulTotal ' + resulTotal);
-             Order order = new Order();
-             order.Id = (new List<String>(orderIdEx.keySet()))[0]; //(new List<String>(posts.keySet()))[0]
-             //Object avgAmount = resulTotal[0].get('somatoria');
-             order.FinalTotalValue__c  = (Decimal)resulTotal[0].get('somatoria');
-             System.debug('order.FinalTotalValue__c ' + order.FinalTotalValue__c);
-             OrderHelper.disableTrigger();
-             Database.update(order, false);
-             OrderHelper.enableTrigger();
+        AggregateResult[] resulTotal =[SELECT SUM(FinalTotalValue__c) somatoria  FROM OrderItem WHERE OrderId =: orderIdEx.keySet() AND ReasonRefuse__c  =: null AND ReasonRefuse__c  =: ''];
+        AggregateResult[] sumTSI = [SELECT SUM(TotalTSIAmount__c) somatoria FROM OrderItem WHERE OrderId =: orderIdEx.KeySet() AND ReasonRefuse__c =: null AND ReasonRefuse__c =: '' AND TotalTSIAmount__c != null];
+        AggregateResult[] sumRoy = [SELECT SUM(TotalRoyaltyAmount__c) somatoria FROM OrderItem WHERE OrderId =: orderIdEx.KeySet() AND ReasonRefuse__c =: null AND ReasonRefuse__c =: '' AND TotalRoyaltyAmount__c != null];
+        AggregateResult[] totalValueWthCif = [SELECT SUM(FreightValue__c) somatoria FROM OrderItem WHERE  OrderId =: orderIdEx.KeySet() AND ReasonRefuse__c =: null AND ReasonRefuse__c =: '' AND Order.Incoterms__c = 'CIF'];
+        Order order = new Order();
+         order.Id = (new List<String>(orderIdEx.keySet()))[0]; //(new List<String>(posts.keySet()))[0]
+         //Object avgAmount = resulTotal[0].get('somatoria');
+         System.debug('Somatoria TSI ' + (Decimal)sumTSI[0].get('somatoria'));
+         System.debug('Somatoria ROY ' + (Decimal)sumRoy[0].get('somatoria'));
         
+         System.debug('Somatoria Total ' + (Decimal)resulTotal[0].get('somatoria'));
         
+         order.FinalTotalValue__c  = (Decimal)resulTotal[0].get('somatoria');
+
+         if((Decimal)sumTSI[0].get('somatoria') != null){
+             order.FinalTotalValue__c  += (Decimal)sumTSI[0].get('somatoria');
+            System.debug('Valor total com TSI ' + order.FinalTotalValue__c); 
+         }
+         if((Decimal)sumRoy[0].get('somatoria') != null) {
+            order.FinalTotalValue__c  += (Decimal)sumRoy[0].get('somatoria');
+             System.debug('Valor total com ROY ' + order.FinalTotalValue__c); 
+         }
+         if((Decimal)totalValueWthCif[0].get('somatoria') != null){
+            order.FinalTotalValue__c  += (Decimal)totalValueWthCif[0].get('somatoria');
+             System.debug('Valor total com Frete ' + order.FinalTotalValue__c); 
+         }
+         
+         //order.FinalTotalValue__c  = (Decimal)resulTotal[0].get('somatoria');
+         System.debug('order.FinalTotalValue__c ' + order.FinalTotalValue__c);
+         OrderHelper.disableTrigger();
+         Database.update(order, false);
+         OrderHelper.enableTrigger();    
+         
+         
+         AggregateResult[] freightTotal = [SELECT SUM(FreightValue__c) somatoria FROM OrderItem WHERE  OrderId =: orderIdEx.KeySet() AND ReasonRefuse__c =: null AND ReasonRefuse__c =: ''];
+         
+         Order orderFreight = new Order();
+         orderFreight.Id = (new List<String>(orderIdEx.KeySet()))[0];
+         orderFreight.FreightValue__c = (Decimal)freightTotal[0].get('somatoria');
+         System.debug('Frete total ' + orderFreight.FreightValue__c);
+         OrderHelper.disableTrigger();
+         Database.update(orderFreight, false);
+         OrderHelper.enableTrigger();
+
         System.debug('Chegou!? ');
         //Associating child object's response with object response
         // Pega todas as respostas dos OrderItem
         for(TemplateDataIntegrationFields.ResponseParent response : responseList){
             response.items = new List<TemplateDataIntegrationFields.Response>();
+
+            if(formPaymentResponse.size() != 0 && formPaymentResponse.containsKey(response.idSalesforce)){
+                response.items.addAll(formPaymentResponse.get(response.idSalesforce));
+            }
+
             if(orderItemsResponse.size() != 0 && orderItemsResponse.containsKey(response.idSalesforce)){
                 response.items.addAll(orderItemsResponse.get(response.idSalesforce));
                 
@@ -300,6 +368,7 @@ global without sharing class IntegrationINOrderInsert {
                 
                 System.debug('orderItemsResponse' + orderItemsResponse);
                 System.debug('shippingDivisonResponse' + shippingDivisonResponse);
+                System.debug('formPaymentListToUpsert' + formPaymentResponse);
             } 
             else if(orderItemsResponse.size() != 0 && orderItemsResponse.containsKey(response.externalCode)){
                 response.items.addAll(orderItemsResponse.get(response.externalCode));

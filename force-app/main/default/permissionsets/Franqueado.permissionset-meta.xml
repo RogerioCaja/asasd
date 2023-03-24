@@ -157,6 +157,10 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>PhotosToReportController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>Pricebook2DAO</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -185,15 +189,15 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>ReportController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>TemplateDataIntegrationFields</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
         <apexClass>TemplateDefaultFields</apexClass>
-        <enabled>true</enabled>
-    </classAccesses>
-    <classAccesses>
-        <apexClass>VisitController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <fieldPermissions>
@@ -319,6 +323,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Account.Status__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Account.Supplier__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -1222,6 +1231,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>false</editable>
+        <field>Order.BPStorage__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>true</editable>
         <field>Order.BillToContactId</field>
         <readable>true</readable>
@@ -1354,6 +1368,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Order.IsOrderMother__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Order.MTO__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -2088,6 +2107,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>SalesOrg__c.Freight__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>SalesTeam__c.Address__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -2189,36 +2213,6 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Task.WhoId</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>VisitPlanning__c.CTVvisit__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>VisitPlanning__c.Culture__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>VisitPlanning__c.EndDate__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>VisitPlanning__c.InitialDate__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>VisitPlanning__c.Safra__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
-        <field>VisitPlanning__c.SellOrg__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <hasActivationRequired>false</hasActivationRequired>
@@ -2539,15 +2533,6 @@
         <object>ShippingDivison__c</object>
         <viewAllRecords>false</viewAllRecords>
     </objectPermissions>
-    <objectPermissions>
-        <allowCreate>true</allowCreate>
-        <allowDelete>false</allowDelete>
-        <allowEdit>true</allowEdit>
-        <allowRead>true</allowRead>
-        <modifyAllRecords>false</modifyAllRecords>
-        <object>VisitPlanning__c</object>
-        <viewAllRecords>false</viewAllRecords>
-    </objectPermissions>
     <pageAccesses>
         <apexPage>CallExcludePage</apexPage>
         <enabled>true</enabled>
@@ -2710,10 +2695,6 @@
     </tabSettings>
     <tabSettings>
         <tab>ShippingDivison__c</tab>
-        <visibility>Visible</visibility>
-    </tabSettings>
-    <tabSettings>
-        <tab>VisitPlanning__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
     <tabSettings>
