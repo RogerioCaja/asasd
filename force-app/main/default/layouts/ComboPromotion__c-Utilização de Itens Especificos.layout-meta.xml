@@ -89,11 +89,16 @@
     <relatedLists>
         <excludeButtons>MassChangeOwner</excludeButtons>
         <fields>NAME</fields>
+        <fields>Product__c</fields>
+        <fields>MinQuantity__c</fields>
         <relatedList>FormerProduct__c.ComboPromotion__c</relatedList>
     </relatedLists>
     <relatedLists>
         <excludeButtons>MassChangeOwner</excludeButtons>
         <fields>NAME</fields>
+        <fields>Product__c</fields>
+        <fields>MinQuantity__c</fields>
+        <fields>DiscountPercentage__c</fields>
         <relatedList>BenefitProduct__c.ComboPromotion__c</relatedList>
     </relatedLists>
     <relatedLists>
