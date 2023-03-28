@@ -35,7 +35,7 @@ public without sharing class CalloutOrder {
                     calloutResponse.errorMessage = (calloutResponse.errorMessage != null ? calloutResponse.errorMessage : '') + message.MESSAGE + '\n';
                 }
             }
-            if(!calloutResponse.success || resp.responses.ET_RETURN.item == null){
+            if(!calloutResponse.success){
                 allOrders[0].ErrorIntegrationSAP__c = calloutResponse.errorMessage;
                 orderList.add(allOrders[0]);
             }

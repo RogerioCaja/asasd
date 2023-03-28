@@ -684,7 +684,6 @@ global with sharing class TemplateDataIntegrationFields {
     global class OrderCommodityINData implements FieldDataChild{
         public Boolean orderCommodityECalendariazacao;
         public String orderExternalId;
-        //public String OrderItemCode;
         public String Name;
         public String material;
         public Decimal commodityPrice;
@@ -755,7 +754,7 @@ global with sharing class TemplateDataIntegrationFields {
         public List<TemplateDataIntegrationFields.TechnicalReportINData> TechnicalReports;
         public VisitPlanning__c serialize(Map<String, Id> lookups){
             return new VisitPlanning__c(
-                //ExternalId__c = this.ExternalId,
+                ExternalId__c = this.ExternalId,
                 ExternalIdApp__c = this.ExternalIdApp,
                 Name = this.Name,
                 MainBP__c = lookups.containsKey('Account'+this.BpCode) ? lookups.get('Account'+this.BpCode) : null,
@@ -851,7 +850,7 @@ global with sharing class TemplateDataIntegrationFields {
         public Fotos__c serialize(Map<String, Id> lookups){
             return new Fotos__c(
                 RTR__c = lookups.containsKey('Technical'+this.Rtr) ? lookups.get('Technical'+this.Rtr) : null,
-                IsIntegrated__c = true,
+                IsIntegrated__c = false,
                 Observation__c = this.Observation,
                 ExternalId__c = this.ExternalId,
                 FotoControl__c = Decimal.valueOf(this.FileLine)
@@ -951,6 +950,7 @@ global with sharing class TemplateDataIntegrationFields {
             public String instrucoes;
             public String numeroBoleto;
             public String bancoEmpresa;
+            public String boletoBasePdf;
             public Boletos__c serialize(Map<String, Id> lookups){
 
                 //Returning Object with Fields
@@ -966,6 +966,7 @@ global with sharing class TemplateDataIntegrationFields {
                 OurNumber__c = this.numeroBoleto,
                 BusinessLocation__c = this.localNegocio, 
                 Instructions__c = this.instrucoes
+                //Base64__c = this.boletoBasePdf
             );
         }
 
@@ -1013,7 +1014,7 @@ global with sharing class TemplateDataIntegrationFields {
             return new ItensNotaFiscal__c(
                 Name = 'Nota Fiscal ' + this.notaFiscal + ' - ' + this.NameProduct, //Pegar descrição do produto e number NF
                 ExternalID__c = this.codigoMaterial + '|' + this.notaFiscal + '|' + this.lote,
-                Invoice__c = lookups.containsKey('NotaFiscal__c' + this.notaFiscal) ? lookups.get('NotaFiscal__c' + this.notaFiscal) : null,
+                Invoice__c = lookups.containsKey('NotaFiscal__c' + this.nfExternalId) ? lookups.get('NotaFiscal__c' + this.nfExternalId) : null,
                 Productcode__c = lookups.containsKey('Product2'+this.codigoMaterial) ? lookups.get('Product2' + this.codigoMaterial) : null,
                 Theamount__c = this.quantidade,
                 Amount__c = this.valorTotalItem,
