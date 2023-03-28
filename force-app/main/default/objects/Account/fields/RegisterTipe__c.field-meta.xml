@@ -40,6 +40,16 @@
                 <default>false</default>
                 <label>FLCU00</label>
             </value>
+            <value>
+                <fullName>FLVN01</fullName>
+                <default>false</default>
+                <label>FLVN01</label>
+            </value>
+            <value>
+                <fullName>FLCU01/FLVN01</fullName>
+                <default>false</default>
+                <label>FLCU01/FLVN01</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>
