@@ -315,6 +315,9 @@ global with sharing class TemplateDataIntegrationFields {
                 when 'ZCVN'{
                     pedidoMae = true;
                 }
+                when 'ZCVB'{
+                    pedidoMae = true;
+                }
 
                // --- Pedidos normais ---
                 when 'ZSER'{
@@ -364,6 +367,7 @@ global with sharing class TemplateDataIntegrationFields {
                         codTypeOrder.put('ZCCO', 'Venda Conta e Ordem');
                         codTypeOrder.put('ZCVF', 'Venda Entrega Futura');
                         codTypeOrder.put('ZCVN', 'Venda Normal');
+                        codTypeOrder.put('ZCVB', 'Venda Barter');
                     }
 
                     salesType = codTypeOrder.containsKey(salesType) ? codTypeOrder.get(salesType) : salesType;
