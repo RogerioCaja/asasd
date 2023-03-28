@@ -436,16 +436,19 @@ export default class OrderSummaryScreen extends LightningElement {
             }
         }
 
+        console.log('availableDivisions: ' + JSON.stringify(availableDivisions));
+
         this.showUnavailableProducts = false;
         this.productData = JSON.parse(JSON.stringify(availableProducts));
         this._setProductData();
 
-        this.divisionData = JSON.parse(JSON.stringify(availableDivisions));		 
+        this.divisionData = JSON.parse(JSON.stringify(availableDivisions));
         this._setDivisionData();
         if (availableProducts.length > 0) {
             this.loadData();
         }
     }
+    
     changeFreightValue(event) {
         let fieldValue = event.target.value;
         fieldValue = fieldValue.toString().includes('.') ? fieldValue.toString().replace('.', '') : fieldValue;
@@ -754,6 +757,7 @@ export default class OrderSummaryScreen extends LightningElement {
         setformsofpayment.data = this.formsOfPayment;
         this.dispatchEvent(setformsofpayment);
     }
+    
     changeFreight(){
         const setSummaryData = new CustomEvent('setsummarydata');
         setSummaryData.data = this.summaryDataLocale;
