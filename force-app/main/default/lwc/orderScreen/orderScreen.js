@@ -311,6 +311,9 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
                 } else if (this.headerData.codigo_sap == undefined || this.headerData.codigo_sap == null || this.headerData.codigo_sap == '') {
                     this.showNotification('Só é possível gerar pedidos filhos após o pedido ser integrado com o SAP', 'Atenção!', 'warning');
                     this.redirectToOrder();
+                } else if (this.headerData.orderCanceled) {		 
+                    this.showNotification('Não é possível gerar pedidos filhos a partir de um pedido cancelado', 'Atenção!', 'warning');		 
+                    this.redirectToOrder();
                 } else {
                     checkMotherQuantities({orderId: this.recordId})
                     .then((motherResult) =>{
