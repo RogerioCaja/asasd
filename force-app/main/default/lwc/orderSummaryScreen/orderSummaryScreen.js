@@ -436,13 +436,11 @@ export default class OrderSummaryScreen extends LightningElement {
             }
         }
 
-        console.log('availableDivisions: ' + JSON.stringify(availableDivisions));
-
         this.showUnavailableProducts = false;
         this.productData = JSON.parse(JSON.stringify(availableProducts));
         this._setProductData();
 
-        this.divisionData = JSON.parse(JSON.stringify(availableDivisions));
+        this.divisionData = JSON.parse(JSON.stringify(availableDivisions));		 
         this._setDivisionData();
         if (availableProducts.length > 0) {
             this.loadData();

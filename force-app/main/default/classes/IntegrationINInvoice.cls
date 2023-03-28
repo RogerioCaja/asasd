@@ -33,7 +33,7 @@ global with sharing class IntegrationINInvoice {
             if(invoice.itensNotaFiscal != null) {
 
                 for (TemplateDataIntegrationFields.ItensNotaFiscalINData itensNotafiscal : invoice.itensNotaFiscal){
-                    itensNotafiscal.nfExternalId = invoice.numeroNotaFiscal;
+                    itensNotafiscal.nfExternalId = invoice.chaveAcesso;
                 }
                 invoiceItensListToUpsert.addAll(invoice.itensNotaFiscal);
                 System.debug('invoiceItensListToUpsert' + invoiceItensListToUpsert); 
