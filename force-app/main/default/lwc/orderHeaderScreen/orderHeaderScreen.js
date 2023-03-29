@@ -435,7 +435,7 @@ export default class OrderHeaderScreen extends LightningElement {
             return;
         }else if(this.headerDictLocale[this.sequentialDict[index]] != ' ' && this.headerDictLocale[this.sequentialDict[index]] != null){
             let name = this.sequentialDict[index];
-            if(name == 'condicao_venda'  && this.headerData['moeda'] != ' ' && this.headerDictLocale['safra'].hasOwnProperty("Id")){
+            if(name == 'condicao_venda'  && this.headerDictLocale['moeda'] != ' ' && this.headerDictLocale['safra'].hasOwnProperty("Id")){
                 let condition = "condicao_venda";
                 setTimeout(()=>this.template.querySelector(`[data-name="${condition}"]`).disabled = false);
             }
@@ -484,7 +484,8 @@ export default class OrderHeaderScreen extends LightningElement {
                         });
                     }
                 }
-                if (this.headerDictLocale.tipo_venda == 'Venda Conta e Ordem' || this.headerDictLocale.tipo_venda == 'Venda Entrega Futura' || this.headerDictLocale.tipo_venda == 'Venda Normal' || this.headerDictLocale.tipo_venda == 'Venda Barter') {
+                if (this.headerDictLocale.tipo_venda == 'Venda Conta e Ordem' || this.headerDictLocale.tipo_venda == 'Venda Entrega Futura' || this.headerDictLocale.tipo_venda == 'Venda Normal' || 
+                    this.headerDictLocale.tipo_venda == 'Venda Barter' || this.headerDictLocale.tipo_venda == 'Venda Zona Franca') {
                     this.allowMotherOrder = true;
                 } else {
                     this.headerDictLocale.pedido_mae_check = false;
@@ -575,6 +576,7 @@ export default class OrderHeaderScreen extends LightningElement {
                                     this.headerDictLocale.firstTime = false;
                                 } else {
                                     this.headerDictLocale.data_pagamento = this.currentDate;
+                                    setTimeout(()=>this.template.querySelector('[data-target-id="data_pagamento"]').value =  this.headerDictLocale.data_pagamento);
                                 }
 
                                 this.headerData = JSON.parse(JSON.stringify(this.headerDictLocale));

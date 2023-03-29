@@ -1,8 +1,6 @@
 @isTest
-public with sharing class NotaPdfControllerTest {
-    public NotaPdfControllerTest() {
-
-    }
+public without sharing class NotaPdfControllerTest {
+    
 
     @TestSetup
     static void makeData(){
@@ -221,14 +219,38 @@ public with sharing class NotaPdfControllerTest {
         );
         insert invoice;
     }
+
     @isTest
     static void vefifyConstructor(){
     PageReference pageRef = Page.NFPagePDF;
     Test.setCurrentPage(pageRef);
     pageRef.getParameters().put('Id', String.valueOf([SELECT Id FROM NotaFiscal__c LIMIT 1].Id));
     ApexPages.StandardController sc = new ApexPages.StandardController([SELECT Id FROM NotaFiscal__c LIMIT 1][0]);
-    // ApexPages.StandardController sc = new ApexPages.StandardController(testAccountPlanInsert);
+    Test.setMock(HttpCalloutMock.class, new CalloutNFePdfMock(true, String.valueOf([SELECT Id, AccessKey__c FROM NotaFiscal__c LIMIT 1][0].AccessKey__c), false));
+    Test.startTest();
     NotaPdfController notasController = new NotaPdfController(sc);
+    Test.stopTest();
     }
 
+    @isTest
+    static void calloutNFeToken(){
+        Test.setMock(HttpCalloutMock.class, new CalloutNFePdfMock(true, '0000023', true));
+        Test.startTest();
+        String response = NotaPdfController.getAcessCode();
+        Test.stopTest();
+        System.assertEquals('fdgfdbvkhjfdv', response, 'O access_token devia vir preenchido');
+    }
+
+    @isTest
+    static void NFeExtension_UnitTest(){
+        Pagereference pageRef = Page.NFPagePDF;
+        Test.setCurrentPage(pageRef);
+        NotaFiscal__c notaFiscal = [SELECT Id, AccessKey__c,Name FROM NotaFiscal__c LIMIT 1][0];
+         pageRef.getParameters().put('Id', String.valueOf([SELECT Id, AccessKey__c FROM NotaFiscal__c LIMIT 1].Id));
+        ApexPages.StandardController stdController = new ApexPages.StandardController([SELECT Id, AccessKey__c  FROM NotaFiscal__c LIMIT 1][0]);
+        Test.setMock(HttpCalloutMock.class, new CalloutNFePdfMock(true, String.valueOf(notaFiscal.AccessKey__c), false));
+        Test.startTest();
+        NotaPdfController notaFiscalExt = new NotaPdfController(stdController);
+        Test.stopTest();
+    }
 }

@@ -29,7 +29,7 @@ public without sharing class BoletosPdfController {
         public String token_type;
         public Decimal expires_in;
     }
-
+    
     public BoletosPdfController(ApexPages.StandardController stdController) {
         
         Id boletosIdPgReference = Id.valueOf(String.escapeSingleQuotes(ApexPages.currentPage().getParameters().get('Id').escapeHtml4()));
