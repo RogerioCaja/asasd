@@ -94,7 +94,6 @@ public with sharing class CalloutCTVCarteiraTest {
         CalloutCTVCarteira.sendOrder(territoryList);
         Test.stopTest();
     } 
-
     @isTest
     static void calloutCTVRequestMethod(){
         List<Company__c> companyList = new List<Company__c>([SELECT Name,Blocked__c,ClientGroup__c,Conta__c,SalesOrg__c,DistributionChannel__r.Codigo__c, ActivitySector__r.Codigo__c,SalesOrg__r.SalesOrganizationCode__c,SalesOffice__r.Codigo__c,SalesTeam__r.ExternalId__c,SalesOffice__c,SalesTeam__c,ActivitySector__c,DistributionChannel__c,ExternalID__c,SupplierCenter__c FROM Company__c WHERE ExternalID__c = '001']);
