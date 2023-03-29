@@ -56,7 +56,6 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
                         console.log(err)
                     })
                 }
-                
             }
             
             this.barterSale = this.headerData.tipo_venda == 'Venda Barter';
@@ -429,6 +428,9 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
                     this.redirectToOrder();
                 } else if (this.headerData.codigo_sap == undefined || this.headerData.codigo_sap == null || this.headerData.codigo_sap == '') {
                     this.showNotification('Só é possível gerar pedidos filhos após o pedido ser integrado com o SAP', 'Atenção!', 'warning');
+                    this.redirectToOrder();
+                } else if (this.headerData.orderCanceled) {
+                    this.showNotification('Não é possível gerar pedidos filhos a partir de um pedido cancelado', 'Atenção!', 'warning');
                     this.redirectToOrder();
                 } else {
                     checkMotherQuantities({orderId: this.recordId})
@@ -823,9 +825,9 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
                     break;
                 }
             }
-        } else {		 
-            enableScreen = false;		 
-            this.customErrorMessage = 'É preciso criar remessa para todos os produtos selecionados';		 
+        }else{
+            enableScreen = false;
+            this.customErrorMessage = 'É preciso criar remessa para todos os produtos selecionados';
         }
         
         if (this.headerData.tipo_venda == 'Venda Barter' && (this.commodityData == undefined || this.commodityData == null || this.commodityData.length == 0)) {

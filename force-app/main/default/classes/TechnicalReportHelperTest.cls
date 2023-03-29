@@ -1,5 +1,6 @@
 @isTest
 public class TechnicalReportHelperTest {
+    
 	@TestSetup
    public static void makeData(){
         
