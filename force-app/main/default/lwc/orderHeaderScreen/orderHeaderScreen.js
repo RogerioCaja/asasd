@@ -485,7 +485,7 @@ export default class OrderHeaderScreen extends LightningElement {
                         });
                     }
                 }
-                if (this.headerDictLocale.tipo_venda == 'Venda Conta e Ordem' || this.headerDictLocale.tipo_venda == 'Venda Entrega Futura' || this.headerDictLocale.tipo_venda == 'Venda Normal' ||
+                if (this.headerDictLocale.tipo_venda == 'Venda Conta e Ordem' || this.headerDictLocale.tipo_venda == 'Venda Entrega Futura' || this.headerDictLocale.tipo_venda == 'Venda Normal' || 
                     this.headerDictLocale.tipo_venda == 'Venda Barter' || this.headerDictLocale.tipo_venda == 'Venda Zona Franca') {
                     this.allowMotherOrder = true;
                 } else {
