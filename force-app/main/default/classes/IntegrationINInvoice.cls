@@ -64,10 +64,10 @@ global with sharing class IntegrationINInvoice {
           
         //Upserting records (Product)
 		IntegrationUtils.upsertRecords(
-            Database.upsert(notaFiscalListToUpsert, NotaFiscal__c.Name, false), 
+            Database.upsert(notaFiscalListToUpsert, NotaFiscal__c.ExternalID__c, false), 
             responseList, 
             notaFiscalListToUpsert, 
-            NotaFiscal__c.Name
+            NotaFiscal__c.ExternalID__c
         );
         System.debug('notaFiscalListToUpsert' + notaFiscalListToUpsert);
         //Upserting records (OrderItem)
