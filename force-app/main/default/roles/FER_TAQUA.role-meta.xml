@@ -5,5 +5,5 @@
     <mayForecastManagerShare>false</mayForecastManagerShare>
     <name>FER-TAQUA</name>
     <opportunityAccessLevel>Edit</opportunityAccessLevel>
-    <parentRole>Agro_Ferrari_Norte</parentRole>
+    <parentRole>Agro_Ferrari_Sul</parentRole>
 </Role>
