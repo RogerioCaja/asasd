@@ -1677,9 +1677,9 @@ public without sharing class OrderScreenController {
             }
         }
         Set<String> fieldSet = new Set<String>{
-            'Id','SalesOrg__c', 'SalesTeam__r.Name', 'SalesOffice__c', 'ClientGroup__c',
-            'SupplierCenter__c','ActivitySector__c','ActivitySector__r.Name',
-             'DistributionChannel__c','DistributionChannel__r.Name', 'Status__c'
+            'Id','SalesOrg__c', 'SalesTeam__r.Name', 'SalesTeam__r.ShowBarterPrices__c', 'SalesOffice__c',
+            'ClientGroup__c', 'SupplierCenter__c','ActivitySector__c','ActivitySector__r.Name',
+            'DistributionChannel__c','DistributionChannel__r.Name', 'Status__c'
         };
         Q proQuery = new Q(Company__c.SObjectType);
         proQuery.selectFields(fieldSet);
@@ -1718,6 +1718,7 @@ public without sharing class OrderScreenController {
                     company.distributionChannelName = salesTeamCompany.DistributionChannel__r.Name;
                     company.clientGroup = salesTeamCompany.ClientGroup__c;
                     company.selected = false;
+                    company.showBarterPrices = salesTeamCompany.SalesTeam__r.ShowBarterPrices__c;
                     companyList.add(company);
                 }
             }
@@ -2958,6 +2959,7 @@ public without sharing class OrderScreenController {
         public String  distributionChannelName;
         public String  clientGroup;
         public Boolean selected;
+        public Boolean showBarterPrices;
     }
 
     public class CompanyInfosSerialize {
