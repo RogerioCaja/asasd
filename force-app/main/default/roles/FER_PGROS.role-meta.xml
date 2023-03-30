@@ -5,5 +5,5 @@
     <mayForecastManagerShare>false</mayForecastManagerShare>
     <name>FER-PGROS</name>
     <opportunityAccessLevel>Edit</opportunityAccessLevel>
-    <parentRole>CG_Expansões</parentRole>
+    <parentRole>CG_Expansoes</parentRole>
 </Role>
