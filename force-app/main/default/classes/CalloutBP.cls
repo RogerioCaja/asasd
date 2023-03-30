@@ -99,7 +99,7 @@ public without sharing class CalloutBP {
                 }else{
                     ac.ParentId = lookups.containsKey('Account'+valor.ZZCRED) ? lookups.get('Account'+valor.ZZCRED) : null;
                 }
-                ac.RegisterTipe__c = valor.TipoRegistro;
+                ac.RegisterTipe__c = blocked == true ? 'FLCU01/FLVN01' : valor.TipoRegistro;
                 if(valor.TipoBp == 'Cliente'){
                     ac.BpType__c = 'Proprietario';
                 }else{
