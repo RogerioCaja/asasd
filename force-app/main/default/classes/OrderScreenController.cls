@@ -342,6 +342,7 @@ public without sharing class OrderScreenController {
             Set<Id> setProductsIds = new Set<Id>();
             Set<Id> setProductHierarchyIds = new Set<Id>();
             Map<String, Decimal> smallerMarginByProductGroup = new Map<String, Decimal>();
+            Map<String, Decimal> IdOrderItemToQuantity = new Map<String, Decimal>();
             for (ProductDeserialize orderProduct : orderData.productData) {
                 orderTotalValue += orderProduct.totalPrice;
                 if (orderProduct.orderItemId != null) {
@@ -350,6 +351,7 @@ public without sharing class OrderScreenController {
 
                 if (orderProduct.productId != null) {
                     setProductsIds.add(orderProduct.productId);
+                    IdOrderItemToQuantity.put(orderProduct.productId, orderProduct.quantity);
                 }
 
                 if (orderProduct.productGroupId != null) {
@@ -379,6 +381,23 @@ public without sharing class OrderScreenController {
                     }
                 }
             }
+            
+            try {
+                for (Id orderItemId : setOrderItemsIds) {
+                    Double auxiliar = 0;
+                    for (DivisionDeserialize division : orderData.divisionData) {
+                        if (division.orderItemKey == orderItemId) {
+                            auxiliar += division.quantity;
+                        }
+                        if (auxiliar > IdOrderItemToQuantity.get(division.orderItemKey)) {
+                            ApexPages.addmessage(new ApexPages.message(ApexPages.severity.FATAL,'Não é possível ultrapassar nas remessas a quantidade adquirida.'));
+                        }
+                    }
+                }
+            } catch (Exception ex) {
+                System.debug('Erro: ' + ex.getMessage() + '  -  ' + ex.getStackTraceString());
+            }
+            
 
             Map<String, Decimal> orderMarginMap = new Map<String, Decimal>();
             if (orderData.headerData.pedido_mae.Id == null && company != null && company.ClientGroup__c != null) {

@@ -692,7 +692,7 @@ export default class OrderHeaderScreen extends LightningElement {
                 this.headerDictLocale.moeda !== ' ' &&
                 this.headerDictLocale.numero_pedido_cliente !== undefined &&
                 this.headerDictLocale.ctv_venda.Id !==undefined &&
-                this.headerDictLocale.forma_pagamento !== undefined &&
+                this.headerDictLocale.forma_pagamento !== '' &&
                 this.headerDictLocale.cliente_entrega.Id !== undefined) || this.pass
             ) {
                 return true;
