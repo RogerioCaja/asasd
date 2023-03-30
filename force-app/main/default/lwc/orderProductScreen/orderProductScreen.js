@@ -102,6 +102,7 @@ export default class OrderProductScreen extends LightningElement {
     comboRowsToSkip=0;
     itensToRemove=[];
     comboProducts={formerIds: [], benefitsIds: []};
+    hidePrices=false;
 
     @track products=[];
     @track commoditiesData=[];
@@ -383,7 +384,9 @@ export default class OrderProductScreen extends LightningElement {
         }
         this._setHeaderValues();
 
+        this.hidePrices = false;
         if (this.headerData.tipo_venda == 'Venda Barter') {
+            this.hidePrices = !this.selectedCompany.showBarterPrices;
             getTaxes({accountId: this.accountData.Id, salesOrgId: this.selectedCompany.salesOrgId})
             .then((result) => {
                 this.taxData = JSON.parse(result);
