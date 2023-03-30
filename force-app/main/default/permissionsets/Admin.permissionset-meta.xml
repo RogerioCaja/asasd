@@ -2715,6 +2715,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>SalesTeam__c.ShowBarterPrices__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>SalesTeam__c.State__c</field>
         <readable>true</readable>
     </fieldPermissions>
