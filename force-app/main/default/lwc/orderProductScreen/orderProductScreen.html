@@ -72,7 +72,7 @@
 						<p class="new-product-title">Incluir novo produto: {addProduct.name}</p>
 
 						<div class="row">
-							<div class="column">
+							<div class="column" if:false={hidePrices}>
 								<label>Preço Lista</label><br>
 								<input class="input-design" type="text" value={addProduct.listPriceFront} disabled/>
 							</div>
@@ -119,7 +119,7 @@
 							</div>
 						</div>
 
-						<div class="row">
+						<div class="row" if:false={hidePrices}>
 							<div class="column">
 								<label>Preço Praticado (un)</label><br>
 								<template if:true={headerData.IsOrderChild}>
@@ -142,28 +142,30 @@
 						</div>
 
 						<div if:true={seedSale} class="row">
-							<hr class="line-divisor"/>
-							<p class="title-divisor">Valores Sementes</p>
-	
-							<div class="row">
-								<div class="column">
-									<label>Preço TSI</label><br>
-									<input class="input-design" type="text" value={addProduct.tListPriceFront} data-target-id="tsiPrice" disabled/>
+							<div if:false={hidePrices}>
+								<hr class="line-divisor"/>
+								<p class="title-divisor">Valores Sementes</p>
+		
+								<div class="row">
+									<div class="column">
+										<label>Preço TSI</label><br>
+										<input class="input-design" type="text" value={addProduct.tListPriceFront} data-target-id="tsiPrice" disabled/>
+									</div>
+									<div class="column">
+										<label>Valor Total TSI</label><br>
+										<input class="input-design" type="text" value={addProduct.tsiTotalPriceFront} data-target-id="tsiTotalPrice" disabled/>
+									</div>
 								</div>
-								<div class="column">
-									<label>Valor Total TSI</label><br>
-									<input class="input-design" type="text" value={addProduct.tsiTotalPriceFront} data-target-id="tsiTotalPrice" disabled/>
-								</div>
-							</div>
-							
-							<div class="row">
-								<div class="column">
-									<label>Preço Royalty</label><br>
-									<input class="input-design" type="text" value={addProduct.rListPriceFront} data-target-id="royaltyPrice" disabled/>
-								</div>
-								<div class="column">
-									<label>Valor Total Royalty</label><br>
-									<input class="input-design" type="text" value={addProduct.royaltyTotalPriceFront} data-target-id="royaltyTotalPrice" disabled/>
+								
+								<div class="row">
+									<div class="column">
+										<label>Preço Royalty</label><br>
+										<input class="input-design" type="text" value={addProduct.rListPriceFront} data-target-id="royaltyPrice" disabled/>
+									</div>
+									<div class="column">
+										<label>Valor Total Royalty</label><br>
+										<input class="input-design" type="text" value={addProduct.royaltyTotalPriceFront} data-target-id="royaltyTotalPrice" disabled/>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -178,7 +180,7 @@
 										<label>% Desconto Comercial</label><br>
 										<input class="input-design" type="text" value={addProduct.commercialDiscountPercentageFront} maxlength="8" onkeypress={changeToPercentage} onchange={changeValue} data-target-id="commercialDiscountPercentage" disabled/>
 									</div>
-									<div class="column">
+									<div class="column" if:false={hidePrices}>
 										<label>Valor de Desconto Comercial</label><br>
 										<input class="input-design" type="text" value={addProduct.commercialDiscountValueFront} onchange={changeValue} data-target-id="commercialDiscountValue" disabled/>
 									</div>
@@ -189,7 +191,7 @@
 										<label>% Acréscimo Comercial</label><br>
 										<input class="input-design" type="text" value={addProduct.commercialAdditionPercentageFront} maxlength="8" onkeypress={changeToPercentage} onchange={changeValue} data-target-id="commercialAdditionPercentage" disabled/>
 									</div>
-									<div class="column">
+									<div class="column" if:false={hidePrices}>
 										<label>Valor de Acréscimo Comercial</label><br>
 										<input class="input-design" type="text" value={addProduct.commercialAdditionValueFront} onchange={changeValue} data-target-id="commercialAdditionValue" disabled/>
 									</div>
@@ -202,7 +204,7 @@
 										<label>% Desconto Comercial</label><br>
 										<input class="input-design" type="text" value={addProduct.commercialDiscountPercentageFront} maxlength="8" onkeypress={changeToPercentage} onchange={changeValue} data-target-id="commercialDiscountPercentage" disabled={disabled}/>
 									</div>
-									<div class="column">
+									<div class="column" if:false={hidePrices}>
 										<label>Valor de Desconto Comercial</label><br>
 										<input class="input-design" type="text" value={addProduct.commercialDiscountValueFront} onchange={changeValue} data-target-id="commercialDiscountValue" disabled={disabled}/>
 									</div>
@@ -213,7 +215,7 @@
 										<label>% Acréscimo Comercial</label><br>
 										<input class="input-design" type="text" value={addProduct.commercialAdditionPercentageFront} maxlength="8" onkeypress={changeToPercentage} onchange={changeValue} data-target-id="commercialAdditionPercentage" disabled={disabled}/>
 									</div>
-									<div class="column">
+									<div class="column" if:false={hidePrices}>
 										<label>Valor de Acréscimo Comercial</label><br>
 										<input class="input-design" type="text" value={addProduct.commercialAdditionValueFront} onchange={changeValue} data-target-id="commercialAdditionValue" disabled={disabled}/>
 									</div>
@@ -229,7 +231,7 @@
 								<label>% Acréscimo Financeiro</label><br>
 								<input class="input-design" type="text" value={addProduct.financialAdditionPercentageFront} maxlength="8" data-target-id="financialAdditionPercentage" disabled/>
 							</div>
-							<div class="column">
+							<div class="column" if:false={hidePrices}>
 								<label>Valor de Acréscimo Financeiro</label><br>
 								<input class="input-design" type="text" value={addProduct.financialAdditionValueFront} data-target-id="financialAdditionValue" disabled/>
 							</div>
@@ -240,7 +242,7 @@
 								<label>% Decréscimo Financeiro</label><br>
 								<input class="input-design" type="text" value={addProduct.financialDecreasePercentageFront} maxlength="8" data-target-id="financialDecreasePercentage" disabled/>
 							</div>
-							<div class="column">
+							<div class="column" if:false={hidePrices}>
 								<label>Valor de Decréscimo Financeiro</label><br>
 								<input class="input-design" type="text" value={addProduct.financialDecreaseValueFront} data-target-id="financialDecreaseValue" disabled/>
 							</div>
@@ -498,7 +500,7 @@
 									<label>Quantidade a Entregar</label><br>
 									<input class="input-design" type="text" value={selectedCommodity.deliveryQuantityFront} disabled/> 
 								</div>
-								<div class="column">
+								<div class="column" if:false={hidePrices}>
 									<label>Valor PTAX Pós-Fixado</label><br>
 									<input class="input-design" type="text" value={selectedCommodity.ptax} disabled/> 
 								</div>
