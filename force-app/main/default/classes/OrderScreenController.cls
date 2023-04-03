@@ -149,7 +149,7 @@ public without sharing class OrderScreenController {
                    FinancialDiscountValue__c,
                    ComissionValue__c,
                    CommercialMargin__c,
-                   AmountUsed__c,
+                   ItemBalance__c,
                    PTA__c,
                    PriceListCode__c,
                    ReasonRefuse__c,
@@ -363,7 +363,7 @@ public without sharing class OrderScreenController {
         {
             List<InformationFields> orders = new List<InformationFields>();
             Q subQuery = new Q('OrderItems')
-                         .selectFields(new Set<String>{'AmountUsed__c', 'Quantity'});
+                         .selectFields(new Set<String>{'ItemBalance__c', 'Quantity'});
 
             String query = new Q(Order.SObjectType)
                            .addSubquery(subQuery)
@@ -374,7 +374,7 @@ public without sharing class OrderScreenController {
 
             Boolean isAvalaible = false;
             for (OrderItem orderItem : motherOrder.OrderItems) {
-                if (orderItem.AmountUsed__c < orderItem.Quantity) isAvalaible = true;
+                if (orderItem.ItemBalance__c > 0) isAvalaible = true;
             }
 
             return isAvalaible;
@@ -518,7 +518,7 @@ public without sharing class OrderScreenController {
                     SELECT Id,
                            Product2Id,
                            Quantity,
-                           AmountUsed__c,
+                           ItemBalance__c,
                            NumeroSap__c,
                            FinalTotalValue__c,
                            TotalTSIAmount__c,
@@ -619,7 +619,7 @@ public without sharing class OrderScreenController {
 
                 if (order.OrderReference__c != null && motherItems.containsKey(orderProduct.productId) && order.Status == '0' && typeOrder != 'prepedido') {
                     OrderItem motherItem = motherItems.get(orderProduct.productId);
-                    if (motherItem.AmountUsed__c + orderProduct.quantity > motherItem.Quantity) {
+                    if (motherItem.ItemBalance__c - orderProduct.quantity < 0) {
                         return JSON.serializePretty(new AGRO_RemotingResult(true, '200', 'Não é possível efetivar o pedido por ter excedido as quantidades do pedido mãe.'));
                     }
                 }
@@ -936,14 +936,14 @@ public without sharing class OrderScreenController {
                         orderItem.Product2Id = orderProduct.productId;
                         orderItem.ListPrice = entriesByProductsIds.get(orderProduct.productId + orderData.headerData.moeda).UnitPrice != null ? entriesByProductsIds.get(orderProduct.productId + orderData.headerData.moeda).UnitPrice.setScale(2) : 0;
                         orderItem.UnitPrice = orderProduct.unitPrice != null ? orderProduct.unitPrice.setScale(2) : 0;
-                        orderItem.AmountUsed__c = order.IsOrderMother__c ? 0 : null;
+                        orderItem.ItemBalance__c = order.IsOrderMother__c ? orderProduct.quantity : null;
                         orderItem.ServiceDate = System.today();
                         itemCounter++;
                     }
                     
                     if (motherItems.containsKey(orderProduct.productId) && typeOrder != 'prepedido') {
                         OrderItem motherItem = motherItems.get(orderProduct.productId);
-                        motherItem.AmountUsed__c = motherItem.AmountUsed__c != null ? motherItem.AmountUsed__c + orderProduct.quantity : 0;
+                        motherItem.ItemBalance__c = motherItem.ItemBalance__c != null ? motherItem.ItemBalance__c - orderProduct.quantity : 0;
                         motherItems.put(orderProduct.productId, motherItem);
                     }
 
@@ -2716,10 +2716,10 @@ public without sharing class OrderScreenController {
             this.entryId = orderItem.PricebookEntryId;
             this.orderId = OrderId;
             this.serviceDate = orderItem.ServiceDate;
-            this.quantity = !cloneOrder ? (orderItem.AmountUsed__c != 0 && orderItem.AmountUsed__c != null ? orderItem.Quantity - orderItem.AmountUsed__c : orderItem.Quantity) : orderItem.Quantity;
-            this.amountUsed = orderItem.AmountUsed__c;
+            this.quantity = !cloneOrder ? (orderItem.ItemBalance__c != null ? orderItem.ItemBalance__c : orderItem.Quantity) : orderItem.Quantity;
+            this.amountUsed = orderItem.Quantity - orderItem.ItemBalance__c;
             this.invoicedQuantity = orderItem.InvoicedQuantity__c;
-            this.motherAvailableQuantity = orderItem.AmountUsed__c != null ? orderItem.Quantity - orderItem.AmountUsed__c : null;
+            this.motherAvailableQuantity = orderItem.ItemBalance__c != null ? orderItem.ItemBalance__c : null;
             this.listPrice = orderItem.ListPrice__c;
             this.unitPrice = orderItem.PracticedPrice__c;
             this.totalPrice = orderItem.PracticedPrice__c * this.quantity;
