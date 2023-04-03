@@ -57,26 +57,22 @@ public without sharing class OrderItemHelper {
             System.debug('ordMap' + ordMap);
             
         }
-        for(OrderItem ordemItem : orderItemList){
-            Order ord = ordIdMap.get(ordemItem.OrderId);
+        for(OrderItem orderItemChild : orderItemList){
+            Order ord = ordIdMap.get(orderItemChild.OrderId);
             
-            string concProductOrderRef = String.valueOf(ordemItem.Product2Id) + String.valueOf(ord.OrderReference__c);
+            string concProductOrderRef = String.valueOf(orderItemChild.Product2Id) + String.valueOf(ord.OrderReference__c);
             System.debug('ordMap Fora ' + ordMap);
             System.debug('concProductOrderRef ' + concProductOrderRef);
             if(ordMap.containsKey(concProductOrderRef)){
                 System.debug('ordMap Dentro' + ordMap);
-                OrderItem ordrItem = ordMap.get(concProductOrderRef);
-                System.debug('ordrItem ' + ordrItem);
-                if(ordemItem.Product2Id == ordrItem.Product2Id){
+                OrderItem orderItemMother = ordMap.get(concProductOrderRef);
+                System.debug('orderItemMother ' + orderItemMother);
+                if(orderItemChild.Product2Id == orderItemMother.Product2Id){
                     System.debug('orderItemListM ' + orderItemListM);
-                    OrderItem orddItem = New OrderItem();
-                    orddItem.Id = ordrItem.Id;
-                    orddItem.ItemBalance__c = orderItemAmountedUsedPerOrderReference.containsKey(concProductOrderRef) ? (ordrItem.Quantity - orderItemAmountedUsedPerOrderReference.get(concProductOrderRef)) : ordrItem.Quantity;
-                    // orddItem.ItemBalance__c =  ordemItem.Quantity - ordrItem.ItemBalance__c;
-                    // if(orddItem.ItemBalance__c < 0){
-                    //     orddItem.ItemBalance__c = orddItem.ItemBalance__c * (-1);                            
-                    // } 
-                    orderItemListM.add(orddItem);
+                    OrderItem orderItemToUpdate = New OrderItem();
+                    orderItemToUpdate.Id = orderItemMother.Id;
+                    orderItemToUpdate.ItemBalance__c = orderItemAmountedUsedPerOrderReference.containsKey(concProductOrderRef) ? (orderItemMother.Quantity - orderItemAmountedUsedPerOrderReference.get(concProductOrderRef)) : orderItemMother.Quantity;
+                    orderItemListM.add(orderItemToUpdate);
                     
                 }
             }
@@ -212,6 +208,7 @@ public without sharing class OrderItemHelper {
             System.debug('concProductOrderRef ' + concProductOrderRef);
             if(ordMap.containsKey(concProductOrderRef)){
                 System.debug('ordMap Dentro' + ordMap);
+                
                 OrderItem ordrItem = ordMap.get(concProductOrderRef);
                 System.debug('ordrItem ' + ordrItem);
                 if(ordemItem.Product2Id == ordrItem.Product2Id){
