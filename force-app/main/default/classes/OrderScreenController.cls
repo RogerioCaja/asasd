@@ -526,44 +526,47 @@ public without sharing class OrderScreenController {
                            FreightValue__c,
                            OrderId,
                            Order.FreightValue__c,
-                           Order.OrderReference__r.FreightValue__c
+                           Order.OrderReference__r.FreightValue__c,
+                           ReasonRefuse__c
                       FROM OrderItem
                      WHERE OrderId =: orderData.headerData.pedido_mae.Id
                         OR OrderId =: order.OrderReference__c
                 ]) {
-                    motherQuantity += item.Quantity;
-                    if (item.OrderId != orderData.headerData.pedido_mae.Id) {
-                        motherFreight = item.Order.OrderReference__r.FreightValue__c != null ? item.Order.OrderReference__r.FreightValue__c : 0;
-                    } else {
-                        motherFreight = item.Order.FreightValue__c != null ? item.Order.FreightValue__c : 0;
-                    }
-
-                    if (!individualValuesByType.containsKey('Germoplasma')) {
-                        individualValuesByType.put('Germoplasma', item.FinalTotalValue__c);
-                    } else {
-                        Decimal currentGermoplasma = individualValuesByType.get('Germoplasma') + item.FinalTotalValue__c;
-                        individualValuesByType.put('Germoplasma', currentGermoplasma);
-                    }
-
-                    if (item.TotalRoyaltyAmount__c != null && item.TotalRoyaltyAmount__c > 0) {
-                        if (!individualValuesByType.containsKey('Royalties')) {
-                            individualValuesByType.put('Royalties', item.TotalRoyaltyAmount__c);
+                    if (item.ReasonRefuse__c == null || item.ReasonRefuse__c == '') {
+                        motherQuantity += item.Quantity;
+                        if (item.OrderId != orderData.headerData.pedido_mae.Id) {
+                            motherFreight = item.Order.OrderReference__r.FreightValue__c != null ? item.Order.OrderReference__r.FreightValue__c : 0;
                         } else {
-                            Decimal currentRoyalty = individualValuesByType.get('Royalties') + item.TotalRoyaltyAmount__c;
-                            individualValuesByType.put('Royalties', currentRoyalty);
+                            motherFreight = item.Order.FreightValue__c != null ? item.Order.FreightValue__c : 0;
                         }
-                    }
-                    
-                    if (item.TotalTSIAmount__c != null && item.TotalTSIAmount__c > 0) {
-                        if (!individualValuesByType.containsKey('TSI')) {
-                            individualValuesByType.put('TSI', item.TotalTSIAmount__c);
+
+                        if (!individualValuesByType.containsKey('Germoplasma')) {
+                            individualValuesByType.put('Germoplasma', item.FinalTotalValue__c);
                         } else {
-                            Decimal currentTSI = individualValuesByType.get('TSI') + item.TotalTSIAmount__c;
-                            individualValuesByType.put('TSI', currentTSI);
+                            Decimal currentGermoplasma = individualValuesByType.get('Germoplasma') + item.FinalTotalValue__c;
+                            individualValuesByType.put('Germoplasma', currentGermoplasma);
                         }
+
+                        if (item.TotalRoyaltyAmount__c != null && item.TotalRoyaltyAmount__c > 0) {
+                            if (!individualValuesByType.containsKey('Royalties')) {
+                                individualValuesByType.put('Royalties', item.TotalRoyaltyAmount__c);
+                            } else {
+                                Decimal currentRoyalty = individualValuesByType.get('Royalties') + item.TotalRoyaltyAmount__c;
+                                individualValuesByType.put('Royalties', currentRoyalty);
+                            }
+                        }
+                        
+                        if (item.TotalTSIAmount__c != null && item.TotalTSIAmount__c > 0) {
+                            if (!individualValuesByType.containsKey('TSI')) {
+                                individualValuesByType.put('TSI', item.TotalTSIAmount__c);
+                            } else {
+                                Decimal currentTSI = individualValuesByType.get('TSI') + item.TotalTSIAmount__c;
+                                individualValuesByType.put('TSI', currentTSI);
+                            }
+                        }
+                        
+                        motherItems.put(item.Product2Id, item);
                     }
-                    
-                    motherItems.put(item.Product2Id, item);
                 }
                 newDivision = newOrder ? true : false;
             }
@@ -707,12 +710,15 @@ public without sharing class OrderScreenController {
             }
             
             List<String> deleteItems = itemsToExclude != null ? (List<String>) JSON.deserialize(itemsToExclude, List<String>.class) : new List<String>();
-            Map<Id, OrderItem> orderItemsById = new Map<Id, OrderItem>([
-                SELECT Id, Product2Id, OrderId
+            Map<Id, OrderItem> orderItemsById = new Map<Id, OrderItem>();
+            for (OrderItem ordItem : [
+                SELECT Id, Product2Id, OrderId, ReasonRefuse__c
                   FROM OrderItem
                  WHERE Id IN: setOrderItemsIds
                     OR Id IN: deleteItems
-            ]);
+            ]) {
+                if (ordItem.ReasonRefuse__c == null || ordItem.ReasonRefuse__c == '') orderItemsById.put(ordItem.Id, ordItem);
+            }
 
             String salesCTVId = orderData.headerData.ctv_venda != null ? orderData.headerData.ctv_venda.Id : '';
             User user = [SELECT Id, SellerType__c FROM User WHERE Id =: salesCTVId];
@@ -1074,11 +1080,12 @@ public without sharing class OrderScreenController {
                            Product2Id,
                            Quantity,
                            UnitPrice,
-                           NumeroSap__c
+                           NumeroSap__c,
+                           ReasonRefuse__c
                       FROM OrderItem
                      WHERE Id IN: itemsIds
                 ]) {
-                    mapOrderItems.put(orderItem.Product2Id, orderItem);
+                    if (orderItem.ReasonRefuse__c == null || orderItem.ReasonRefuse__c == '') mapOrderItems.put(orderItem.Product2Id, orderItem);
                 }
                 
                 Map<Id, Integer> divisionCounterByItemId = new Map<Id, Integer>();
