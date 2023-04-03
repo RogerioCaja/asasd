@@ -48,10 +48,6 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>AmountUsed__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
                 <field>ItemBalance__c</field>
             </layoutItems>
             <layoutItems>
