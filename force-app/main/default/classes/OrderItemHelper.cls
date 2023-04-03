@@ -39,7 +39,7 @@ public without sharing class OrderItemHelper {
                 System.debug('OrderReference__c ' + ordIt.Order.OrderReference__c);
                 ordList.add(ord.OrderReference__c);
                 System.debug('ordList ' + ordList);
-                //ordIt.Quantity =  ordIt.Quantity - ordIt.AmountUsed__c; 
+                //ordIt.Quantity =  ordIt.Quantity - ordIt.ItemBalance__c; 
             }
         }
         List<AggregateResult> sumQuantityPerOrderItem = [SELECT Order.OrderReference__c, Product2.Id, SUM(Quantity) FROM OrderItem WHERE Order.OrderReference__c IN: ordList AND Order.Status != 'X' AND Order.Status != '0' AND ReasonRefuse__c = null GROUP BY Product2.Id,Order.OrderReference__c];
@@ -47,7 +47,7 @@ public without sharing class OrderItemHelper {
         for(AggregateResult aggResult : sumQuantityPerOrderItem){
             orderItemAmountedUsedPerOrderReference.put((String)aggResult.get('Id') + (String)aggResult.get('OrderReference__c'), (Decimal)aggResult.get('expr0') );
         }
-        List<OrderItem> ordItemList = ([SELECT Id, OrderId, Order.IsOrderMother__c, Product2Id, AmountUsed__c, Quantity  FROM OrderItem WHERE OrderId =: ordList]);
+        List<OrderItem> ordItemList = ([SELECT Id, OrderId, Order.IsOrderMother__c, Product2Id, ItemBalance__c, Quantity  FROM OrderItem WHERE OrderId =: ordList]);
         Map<String, OrderItem> ordMap = new Map<String, OrderItem>();
         for(OrderItem ordItem : ordItemList){
             string concProductOrder = String.valueOf(ordItem.Product2Id) + String.valueOf(ordItem.OrderId);
@@ -71,10 +71,10 @@ public without sharing class OrderItemHelper {
                     System.debug('orderItemListM ' + orderItemListM);
                     OrderItem orddItem = New OrderItem();
                     orddItem.Id = ordrItem.Id;
-                    orddItem.AmountUsed__c = orderItemAmountedUsedPerOrderReference.containsKey(concProductOrderRef) ? orderItemAmountedUsedPerOrderReference.get(concProductOrderRef) : 0;
-                    // orddItem.AmountUsed__c =  ordemItem.Quantity - ordrItem.AmountUsed__c;
-                    // if(orddItem.AmountUsed__c < 0){
-                    //     orddItem.AmountUsed__c = orddItem.AmountUsed__c * (-1);                            
+                    orddItem.ItemBalance__c = orderItemAmountedUsedPerOrderReference.containsKey(concProductOrderRef) ? (ordrItem.Quantity - orderItemAmountedUsedPerOrderReference.get(concProductOrderRef)) : ordrItem.Quantity;
+                    // orddItem.ItemBalance__c =  ordemItem.Quantity - ordrItem.ItemBalance__c;
+                    // if(orddItem.ItemBalance__c < 0){
+                    //     orddItem.ItemBalance__c = orddItem.ItemBalance__c * (-1);                            
                     // } 
                     orderItemListM.add(orddItem);
                     
@@ -191,10 +191,10 @@ public without sharing class OrderItemHelper {
                 System.debug('OrderReference__c ' + ordIt.Order.OrderReference__c);
                 ordList.add(ord.OrderReference__c);
                 System.debug('ordList ' + ordList);
-                //ordIt.Quantity =  ordIt.Quantity - ordIt.AmountUsed__c; 
+                //ordIt.Quantity =  ordIt.Quantity - ordIt.ItemBalance__c; 
             }
         }
-        List<OrderItem> ordItemList = ([SELECT Id, OrderId, Order.IsOrderMother__c, Product2Id, AmountUsed__c, Quantity  FROM OrderItem WHERE OrderId =: ordList]);
+        List<OrderItem> ordItemList = ([SELECT Id, OrderId, Order.IsOrderMother__c, Product2Id, ItemBalance__c, Quantity  FROM OrderItem WHERE OrderId =: ordList]);
         Map<String, OrderItem> ordMap = new Map<String, OrderItem>();
         for(OrderItem ordItem : ordItemList){
             string concProductOrder = String.valueOf(ordItem.Product2Id) + String.valueOf(ordItem.OrderId);
@@ -219,15 +219,15 @@ public without sharing class OrderItemHelper {
                     OrderItem orddItem = New OrderItem();
                     orddItem.Id = ordrItem.Id;
                     System.debug('ordemItem.Quantity ' + ordemItem.Quantity);
-                    System.debug('ordrItem.AmountUsed__c ' + ordrItem.AmountUsed__c);
-                    if(ordrItem.AmountUsed__c != null){
-                        calcAmountUsed = ordemItem.Quantity + ordrItem.AmountUsed__c;
+                    System.debug('ordrItem.ItemBalance__c ' + ordrItem.ItemBalance__c);
+                    if(ordrItem.ItemBalance__c != null){
+                        calcAmountUsed = ordrItem.ItemBalance__c - ordemItem.Quantity;
                     }
                     else {
                         calcAmountUsed = ordemItem.Quantity;
                     }
                    
-                    orddItem.AmountUsed__c =  calcAmountUsed; 
+                    orddItem.ItemBalance__c =  calcAmountUsed; 
                     orderItemListM.add(orddItem);
                 }
             }
