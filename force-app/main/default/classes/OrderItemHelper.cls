@@ -221,7 +221,7 @@ public without sharing class OrderItemHelper {
                     System.debug('ordemItem.Quantity ' + ordemItem.Quantity);
                     System.debug('ordrItem.ItemBalance__c ' + ordrItem.ItemBalance__c);
                     if(ordrItem.ItemBalance__c != null){
-                        calcAmountUsed = ordemItem.Quantity + ordrItem.ItemBalance__c;
+                        calcAmountUsed = ordrItem.ItemBalance__c - ordemItem.Quantity;
                     }
                     else {
                         calcAmountUsed = ordemItem.Quantity;
