@@ -17,70 +17,73 @@ public without sharing class OrderItemHelper {
     public static void updateOrderItem (List<OrderItem> orderItemList, Map<Id, OrderItem> oldRequest){
         List<String> ordList = new List<String>();
         List<String> orderList = new List<String>();
-        List<OrderItem> orderItemListM = new List<OrderItem>();
-        for(OrderItem ord : orderItemList){
-            orderList.add(ord.OrderId);
-        }
-        List<Order> orderIdList = new List<Order>([SELECT Id, OrderReference__c, IsOrderMother__c FROM Order WHERE Id =: orderList]);
-        Map<String, Order> ordIdMap = New Map<String, Order>();
-        for(Order ordIds : orderIdList){
-            ordIdMap.put(ordIds.Id, ordIds);
-            System.debug('ordIdMap ' + ordIdMap);
-        }
-        for(OrderItem ordIt : orderItemList){
-            Order ord = ordIdMap.get(ordIt.OrderId);
-            
-            OrderItem oldOrdIt = new OrderItem();
-            oldOrdIt = oldRequest.get(ordIt.id);
-            System.debug('OrderReference__c ' + ord);
-            System.debug('teste'+ ordIt.Order.IsOrderMother__c);
-            if(ordIt.Order.IsOrderMother__c != true && ord.OrderReference__c != null){
-                System.debug('Entrou no IF');
-                System.debug('OrderReference__c ' + ordIt.Order.OrderReference__c);
-                ordList.add(ord.OrderReference__c);
-                System.debug('ordList ' + ordList);
-                //ordIt.Quantity =  ordIt.Quantity - ordIt.ItemBalance__c; 
+
+        if(System.URL.getCurrentRequestUrl()?.GetPath()?.contains('/upsertINOrder/') != null && !System.URL.getCurrentRequestUrl()?.GetPath()?.contains('/upsertINOrder/')){
+            List<OrderItem> orderItemListM = new List<OrderItem>();
+            for(OrderItem ord : orderItemList){
+                orderList.add(ord.OrderId);
             }
-        }
-        List<AggregateResult> sumQuantityPerOrderItem = [SELECT Order.OrderReference__c, Product2.Id, SUM(Quantity) FROM OrderItem WHERE Order.OrderReference__c IN: ordList AND Order.Status != 'X' AND Order.Status != '0' AND ReasonRefuse__c = null GROUP BY Product2.Id,Order.OrderReference__c];
-        Map<String, Decimal> orderItemAmountedUsedPerOrderReference = new Map<String, Decimal>();
-        for(AggregateResult aggResult : sumQuantityPerOrderItem){
-            orderItemAmountedUsedPerOrderReference.put((String)aggResult.get('Id') + (String)aggResult.get('OrderReference__c'), (Decimal)aggResult.get('expr0') );
-        }
-        List<OrderItem> ordItemList = ([SELECT Id, OrderId, Order.IsOrderMother__c, Product2Id, ItemBalance__c, Quantity  FROM OrderItem WHERE OrderId =: ordList]);
-        Map<String, OrderItem> ordMap = new Map<String, OrderItem>();
-        for(OrderItem ordItem : ordItemList){
-            string concProductOrder = String.valueOf(ordItem.Product2Id) + String.valueOf(ordItem.OrderId);
-            System.debug('concatenação ' + concProductOrder);
-            System.debug('ordItem' + ordItem);
-            ordMap.put(concProductOrder, ordItem);
-            System.debug('ordMap' + ordMap);
-            
-        }
-        for(OrderItem orderItemChild : orderItemList){
-            Order ord = ordIdMap.get(orderItemChild.OrderId);
-            
-            string concProductOrderRef = String.valueOf(orderItemChild.Product2Id) + String.valueOf(ord.OrderReference__c);
-            System.debug('ordMap Fora ' + ordMap);
-            System.debug('concProductOrderRef ' + concProductOrderRef);
-            if(ordMap.containsKey(concProductOrderRef)){
-                System.debug('ordMap Dentro' + ordMap);
-                OrderItem orderItemMother = ordMap.get(concProductOrderRef);
-                System.debug('orderItemMother ' + orderItemMother);
-                if(orderItemChild.Product2Id == orderItemMother.Product2Id){
-                    System.debug('orderItemListM ' + orderItemListM);
-                    OrderItem orderItemToUpdate = New OrderItem();
-                    orderItemToUpdate.Id = orderItemMother.Id;
-                    orderItemToUpdate.ItemBalance__c = orderItemAmountedUsedPerOrderReference.containsKey(concProductOrderRef) ? (orderItemMother.Quantity - orderItemAmountedUsedPerOrderReference.get(concProductOrderRef)) : orderItemMother.Quantity;
-                    orderItemListM.add(orderItemToUpdate);
-                    
+            List<Order> orderIdList = new List<Order>([SELECT Id, OrderReference__c, IsOrderMother__c FROM Order WHERE Id =: orderList]);
+            Map<String, Order> ordIdMap = New Map<String, Order>();
+            for(Order ordIds : orderIdList){
+                ordIdMap.put(ordIds.Id, ordIds);
+                System.debug('ordIdMap ' + ordIdMap);
+            }
+            for(OrderItem ordIt : orderItemList){
+                Order ord = ordIdMap.get(ordIt.OrderId);
+                
+                OrderItem oldOrdIt = new OrderItem();
+                oldOrdIt = oldRequest.get(ordIt.id);
+                System.debug('OrderReference__c ' + ord);
+                System.debug('teste'+ ordIt.Order.IsOrderMother__c);
+                if(ordIt.Order.IsOrderMother__c != true && ord.OrderReference__c != null){
+                    System.debug('Entrou no IF');
+                    System.debug('OrderReference__c ' + ordIt.Order.OrderReference__c);
+                    ordList.add(ord.OrderReference__c);
+                    System.debug('ordList ' + ordList);
+                    //ordIt.Quantity =  ordIt.Quantity - ordIt.ItemBalance__c; 
                 }
             }
-            
+            List<AggregateResult> sumQuantityPerOrderItem = [SELECT Order.OrderReference__c, Product2.Id, SUM(Quantity) FROM OrderItem WHERE Order.OrderReference__c IN: ordList AND Order.Status != 'X' AND Order.Status != '0' AND ReasonRefuse__c = null GROUP BY Product2.Id,Order.OrderReference__c];
+            Map<String, Decimal> orderItemAmountedUsedPerOrderReference = new Map<String, Decimal>();
+            for(AggregateResult aggResult : sumQuantityPerOrderItem){
+                orderItemAmountedUsedPerOrderReference.put((String)aggResult.get('Id') + (String)aggResult.get('OrderReference__c'), (Decimal)aggResult.get('expr0') );
+            }
+            List<OrderItem> ordItemList = ([SELECT Id, OrderId, Order.IsOrderMother__c, Product2Id, ItemBalance__c, Quantity  FROM OrderItem WHERE OrderId =: ordList]);
+            Map<String, OrderItem> ordMap = new Map<String, OrderItem>();
+            for(OrderItem ordItem : ordItemList){
+                string concProductOrder = String.valueOf(ordItem.Product2Id) + String.valueOf(ordItem.OrderId);
+                System.debug('concatenação ' + concProductOrder);
+                System.debug('ordItem' + ordItem);
+                ordMap.put(concProductOrder, ordItem);
+                System.debug('ordMap' + ordMap);
+                
+            }
+            for(OrderItem orderItemChild : orderItemList){
+                Order ord = ordIdMap.get(orderItemChild.OrderId);
+                
+                string concProductOrderRef = String.valueOf(orderItemChild.Product2Id) + String.valueOf(ord.OrderReference__c);
+                System.debug('ordMap Fora ' + ordMap);
+                System.debug('concProductOrderRef ' + concProductOrderRef);
+                if(ordMap.containsKey(concProductOrderRef)){
+                    System.debug('ordMap Dentro' + ordMap);
+                    OrderItem orderItemMother = ordMap.get(concProductOrderRef);
+                    System.debug('orderItemMother ' + orderItemMother);
+                    if(orderItemChild.Product2Id == orderItemMother.Product2Id){
+                        System.debug('orderItemListM ' + orderItemListM);
+                        OrderItem orderItemToUpdate = New OrderItem();
+                        orderItemToUpdate.Id = orderItemMother.Id;
+                        orderItemToUpdate.ItemBalance__c = orderItemAmountedUsedPerOrderReference.containsKey(concProductOrderRef) ? (orderItemMother.Quantity - orderItemAmountedUsedPerOrderReference.get(concProductOrderRef)) : orderItemMother.Quantity;
+                        orderItemListM.add(orderItemToUpdate);
+                        
+                    }
+                }
+                
+            }
+            OrderItemHelper.disableTrigger();
+            update orderItemListM;
+            OrderItemHelper.enableTrigger();
         }
-        OrderItemHelper.disableTrigger();
-        update orderItemListM;
-        OrderItemHelper.enableTrigger();
     }
     public static void updateQuotes(List<OrderItem> orderItemList){
         Set<Id> generalQuotasId = new Set<Id>();
@@ -168,71 +171,73 @@ public without sharing class OrderItemHelper {
         List<String> orderList = new List<String>();
         List<OrderItem> orderItemListM = new List<OrderItem>();
         
-        for(OrderItem ord : orderItemList){
-            orderList.add(ord.OrderId);
-        }
-        List<Order> orderIdList = new List<Order>([SELECT Id, OrderReference__c, IsOrderMother__c FROM Order WHERE Id =: orderList]);
-        Map<String, Order> ordIdMap = New Map<String, Order>();
-        for(Order ordIds : orderIdList){
-            ordIdMap.put(ordIds.Id, ordIds);
-            System.debug('ordIdMap ' + ordIdMap);
-        }
-        for(OrderItem ordIt : orderItemList){
-            Order ord = ordIdMap.get(ordIt.OrderId);
-            
-            System.debug('OrderReference__c ' + ord);
-            System.debug('teste'+ ordIt.Order.IsOrderMother__c);                     
-            if(ordIt.Description !=null && ordIt.Order.IsOrderMother__c != true && ord.OrderReference__c != null && ordIt.Description.Contains('In73gr ins37t x')){
-                System.debug('Entrou no IF');
-                System.debug('OrderReference__c ' + ordIt.Order.OrderReference__c);
-                ordList.add(ord.OrderReference__c);
-                System.debug('ordList ' + ordList);
-                //ordIt.Quantity =  ordIt.Quantity - ordIt.ItemBalance__c; 
+        if(System.URL.getCurrentRequestUrl()?.GetPath()?.contains('/upsertINOrder/') != null && !System.URL.getCurrentRequestUrl()?.GetPath()?.contains('/upsertINOrder/')){
+            for(OrderItem ord : orderItemList){
+                orderList.add(ord.OrderId);
             }
-        }
-        List<OrderItem> ordItemList = ([SELECT Id, OrderId, Order.IsOrderMother__c, Product2Id, ItemBalance__c, Quantity  FROM OrderItem WHERE OrderId =: ordList]);
-        Map<String, OrderItem> ordMap = new Map<String, OrderItem>();
-        for(OrderItem ordItem : ordItemList){
-            string concProductOrder = String.valueOf(ordItem.Product2Id) + String.valueOf(ordItem.OrderId);
-            System.debug('concatenação ' + concProductOrder);
-            System.debug('ordItem' + ordItem);
-            ordMap.put(concProductOrder, ordItem);
-            System.debug('ordMap' + ordMap);
-            
-        }
-        for(OrderItem ordemItem : orderItemList){
-            Order ord = ordIdMap.get(ordemItem.OrderId);
-            Decimal calcAmountUsed;
-            string concProductOrderRef = String.valueOf(ordemItem.Product2Id) + String.valueOf(ord.OrderReference__c);
-            System.debug('ordMap Fora ' + ordMap);
-            System.debug('concProductOrderRef ' + concProductOrderRef);
-            if(ordMap.containsKey(concProductOrderRef)){
-                System.debug('ordMap Dentro' + ordMap);
+            List<Order> orderIdList = new List<Order>([SELECT Id, OrderReference__c, IsOrderMother__c FROM Order WHERE Id =: orderList]);
+            Map<String, Order> ordIdMap = New Map<String, Order>();
+            for(Order ordIds : orderIdList){
+                ordIdMap.put(ordIds.Id, ordIds);
+                System.debug('ordIdMap ' + ordIdMap);
+            }
+            for(OrderItem ordIt : orderItemList){
+                Order ord = ordIdMap.get(ordIt.OrderId);
                 
-                OrderItem ordrItem = ordMap.get(concProductOrderRef);
-                System.debug('ordrItem ' + ordrItem);
-                if(ordemItem.Product2Id == ordrItem.Product2Id){
-                    System.debug('orderItemListM ' + orderItemListM);
-                    OrderItem orddItem = New OrderItem();
-                    orddItem.Id = ordrItem.Id;
-                    System.debug('ordemItem.Quantity ' + ordemItem.Quantity);
-                    System.debug('ordrItem.ItemBalance__c ' + ordrItem.ItemBalance__c);
-                    if(ordrItem.ItemBalance__c != null){
-                        calcAmountUsed = ordrItem.ItemBalance__c - ordemItem.Quantity;
-                    }
-                    else {
-                        calcAmountUsed = ordemItem.Quantity;
-                    }
-                   
-                    orddItem.ItemBalance__c =  calcAmountUsed; 
-                    orderItemListM.add(orddItem);
+                System.debug('OrderReference__c ' + ord);
+                System.debug('teste'+ ordIt.Order.IsOrderMother__c);                     
+                if(ordIt.Description !=null && ordIt.Order.IsOrderMother__c != true && ord.OrderReference__c != null && ordIt.Description.Contains('In73gr ins37t x')){
+                    System.debug('Entrou no IF');
+                    System.debug('OrderReference__c ' + ordIt.Order.OrderReference__c);
+                    ordList.add(ord.OrderReference__c);
+                    System.debug('ordList ' + ordList);
+                    //ordIt.Quantity =  ordIt.Quantity - ordIt.ItemBalance__c; 
                 }
             }
+            List<OrderItem> ordItemList = ([SELECT Id, OrderId, Order.IsOrderMother__c, Product2Id, ItemBalance__c, Quantity  FROM OrderItem WHERE OrderId =: ordList]);
+            Map<String, OrderItem> ordMap = new Map<String, OrderItem>();
+            for(OrderItem ordItem : ordItemList){
+                string concProductOrder = String.valueOf(ordItem.Product2Id) + String.valueOf(ordItem.OrderId);
+                System.debug('concatenação ' + concProductOrder);
+                System.debug('ordItem' + ordItem);
+                ordMap.put(concProductOrder, ordItem);
+                System.debug('ordMap' + ordMap);
+                
+            }
+            for(OrderItem ordemItem : orderItemList){
+                Order ord = ordIdMap.get(ordemItem.OrderId);
+                Decimal calcAmountUsed;
+                string concProductOrderRef = String.valueOf(ordemItem.Product2Id) + String.valueOf(ord.OrderReference__c);
+                System.debug('ordMap Fora ' + ordMap);
+                System.debug('concProductOrderRef ' + concProductOrderRef);
+                if(ordMap.containsKey(concProductOrderRef)){
+                    System.debug('ordMap Dentro' + ordMap);
+                    
+                    OrderItem ordrItem = ordMap.get(concProductOrderRef);
+                    System.debug('ordrItem ' + ordrItem);
+                    if(ordemItem.Product2Id == ordrItem.Product2Id){
+                        System.debug('orderItemListM ' + orderItemListM);
+                        OrderItem orddItem = New OrderItem();
+                        orddItem.Id = ordrItem.Id;
+                        System.debug('ordemItem.Quantity ' + ordemItem.Quantity);
+                        System.debug('ordrItem.ItemBalance__c ' + ordrItem.ItemBalance__c);
+                        if(ordrItem.ItemBalance__c != null){
+                            calcAmountUsed = ordrItem.ItemBalance__c - ordemItem.Quantity;
+                        }
+                        else {
+                            calcAmountUsed = ordemItem.Quantity;
+                        }
+                    
+                        orddItem.ItemBalance__c =  calcAmountUsed; 
+                        orderItemListM.add(orddItem);
+                    }
+                }
+            }
+            
+            OrderItemHelper.disableTrigger();
+            upsert orderItemListM;
+            OrderItemHelper.enableTrigger();
         }
-        
-        OrderItemHelper.disableTrigger();
-        upsert orderItemListM;
-        OrderItemHelper.enableTrigger();
     }
     public static void cleanDescriptionOrderItem (List<OrderItem> orderItemList){
         List<OrderItem> cleanOrdItemDesc = new List<OrderItem>();
