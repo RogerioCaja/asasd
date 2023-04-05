@@ -59,6 +59,10 @@
     <div style="padding: 0 24px 24px">
         <p>Para visualizar detalhes da solicitação de desconto ou visualizar o pedido <a href="{!LEFT($Api.Partner_Server_URL_280, FIND(".com/",$Api.Partner_Server_URL_280)+3)}/{!relatedTo.Id}">clique aqui</a></p>
 
+        <p>Você pode aprovar este pedido respondendo este e-mail com as seguintes palavras: APROVAR, APROVADO e SIM para aprovar o pedido. REPROVAR, REPROVADO e NÃO para reprovar o pedido.</p>
+
+        <p>Caso queira adicionar algum comentário a aprovação ou reprovação, basta pular uma linha no e-mail e redigir o seu comentário.</p>
+
         <p style="margin-bottom: 2px">Atenciosamente,</p>
         
         <p style="margin-top: 0">{!relatedTo.Owner.FirstName} {!relatedTo.Owner.LastName}</p>
