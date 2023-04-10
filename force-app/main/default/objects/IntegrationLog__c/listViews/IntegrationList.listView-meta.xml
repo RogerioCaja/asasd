@@ -18,5 +18,5 @@
         <operation>contains</operation>
         <value>Lista de Preço</value>
     </filters> 
-    <label>Lista de Preço, Juros e Descontos de Antecipação IN</label>
+    <label>Lista de Preço IN</label>
 </ListView>
