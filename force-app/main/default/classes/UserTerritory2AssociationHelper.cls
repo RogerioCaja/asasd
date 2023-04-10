@@ -32,6 +32,8 @@ public with sharing class UserTerritory2AssociationHelper {
     public static void validateUserTerritory2Association(List<UserTerritory2Association> newRecords){
         List<AggregateResult> territoriesHasOneUser  = [SELECT Territory2Id, COUNT(UserId) FROM UserTerritory2Association WHERE UserId != null GROUP BY Territory2Id HAVING COUNT(UserId) >= 1];
         Set<Id> territoriesNotAcceptInsertion = new Set<Id>();
+        Map<Id, List<UserTerritory2Association>> userPerTerritoryMap = new Map<Id, List<UserTerritory2Association>>();
+        
         for(AggregateResult territory : territoriesHasOneUser){
             territoriesNotAcceptInsertion.add((Id)territory.get('Territory2Id'));
         }
@@ -39,6 +41,20 @@ public with sharing class UserTerritory2AssociationHelper {
         for(UserTerritory2Association userTerritory2Association : newRecords){
             if(territoriesNotAcceptInsertion.contains(userTerritory2Association.Territory2Id)){
                 userTerritory2Association.addError('Não é possível inserir mais de 1 usuário no mesmo território');
+            }
+
+            if(!userPerTerritoryMap.containsKey(userTerritory2Association.Territory2Id)){
+                userPerTerritoryMap.put(userTerritory2Association.Territory2Id, new List<UserTerritory2Association>());
+            }
+
+            userPerTerritoryMap.get(userTerritory2Association.Territory2Id).add(userTerritory2Association);
+        }
+
+        for(Id territoryId : userPerTerritoryMap.keySet()){
+            if(userPerTerritoryMap.get(territoryId).size() > 1){
+                for(UserTerritory2Association userTerritory2Association : userPerTerritoryMap.get(territoryId)){
+                    userTerritory2Association.addError('Não é possível inserir mais de 1 usuário no mesmo território');
+                }
             }
         }
     }
