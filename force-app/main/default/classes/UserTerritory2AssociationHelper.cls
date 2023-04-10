@@ -33,7 +33,7 @@ public with sharing class UserTerritory2AssociationHelper {
         List<AggregateResult> territoriesHasOneUser  = [SELECT Territory2Id, COUNT(UserId) FROM UserTerritory2Association WHERE UserId != null GROUP BY Territory2Id HAVING COUNT(UserId) >= 1];
         Set<Id> territoriesNotAcceptInsertion = new Set<Id>();
         for(AggregateResult territory : territoriesHasOneUser){
-            territoriesNotAcceptInsertion.add(territory.Territory2Id);
+            territoriesNotAcceptInsertion.add((Id)territory.get('Territory2Id'));
         }
 
         for(UserTerritory2Association userTerritory2Association : newRecords){
