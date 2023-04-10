@@ -9,12 +9,16 @@
     <columns>Status__c</columns>
     <filterScope>Everything</filterScope>
     <filters>
-        <field>Flow__c</field>
-        <operation>equals</operation>
-        <value>OUT</value>
-        <field>Integration__c</field>
-        <operation>contains</operation>
-        <value>Pedido OUT - SAP</value>
+        <filter>
+            <field>Flow__c</field>
+            <operation>equals</operation>
+            <value>OUT</value>
+        </filter>
+        <filter>
+            <field>Integration__c</field>
+            <operation>contains</operation>
+            <value>Pedido OUT - SAP</value>
+        </filter>
     </filters>
     <label>SAP</label>
 </ListView>

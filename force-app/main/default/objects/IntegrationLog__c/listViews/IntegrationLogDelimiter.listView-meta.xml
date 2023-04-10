@@ -9,12 +9,16 @@
     <columns>Status__c</columns>
     <filterScope>Everything</filterScope>
     <filters>
-        <field>Flow__c</field>
-        <operation>equals</operation>
-        <value>IN</value>
-        <field>Integration__c</field>
-        <operation>equals</operation>
-        <value>Safra Delimitadores - DataLake</value>
+        <filter>
+            <field>Flow__c</field>
+            <operation>equals</operation>
+            <value>IN</value>
+        </filter>
+        <filter>
+            <field>Integration__c</field>
+            <operation>equals</operation>
+            <value>Safra Delimitadores - DataLake</value>
+        </filter>
     </filters>
     <label>Safra Delimitadores - DataLake IN</label>
 </ListView>
