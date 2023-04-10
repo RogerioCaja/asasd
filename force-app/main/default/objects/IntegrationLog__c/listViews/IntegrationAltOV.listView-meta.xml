@@ -11,7 +11,7 @@
     <filters>
         <field>Flow__c</field>
         <operation>equals</operation>
-        <value>OUT</value>
+        <value>IN</value>
     </filters>
     <filters>
         <field>Integration__c</field>
