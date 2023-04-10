@@ -16,7 +16,21 @@ global without sharing class IntegrationINVisitsPlanning {
         List<TemplateDataIntegrationFields.VisitPlanningINData> visitPlanningInsertList = new List<TemplateDataIntegrationFields.VisitPlanningINData>();
         List<TemplateDataIntegrationFields.FotosINData> photosList = new List<TemplateDataIntegrationFields.FotosINData>();
         List<VisitPlanning__c> visitsListToUpsert = new List<VisitPlanning__c>();
+        List<String> visitCheck = new List<String>();
+        Map<String,String> visitCheckExternalIdMap = new Map<String,String>();
+
         for (TemplateDataIntegrationFields.VisitPlanningINData visit : request){
+            visitCheck.add(visit.ExternalIdApp);
+        }
+        for (VisitPlanning__c visit : [SELECT Id, ExternalIdApp__c, ExternalId__c  FROM VisitPlanning__c WHERE ExternalIdApp__c !=: visitCheck]){
+            visitCheckExternalIdMap.put(visit.ExternalIdApp__c,visit.ExternalId__c);
+        }
+        for (TemplateDataIntegrationFields.VisitPlanningINData visit : request){
+            if(visitCheckExternalIdMap.containsKey(visit.ExternalIdApp)){
+                String externalIdSalesforce = visitCheckExternalIdMap.get(visit.ExternalIdApp);
+                visit.ExternalId =  externalIdSalesforce;
+            }
+
             if(visit.ExternalId != null){
                 visitPlanningUpdatesList.add(visit);
             }else{
@@ -149,7 +163,7 @@ global without sharing class IntegrationINVisitsPlanning {
                 }
             }
         }
-		
+		CalloutVisits.callIntegration(visitListId);
         //Creating integration log
         IntegrationLog.createLog('Visit Planning - App', 'IN', JSON.serialize(request), JSON.serialize(responseList), hasError);
         

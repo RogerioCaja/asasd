@@ -34,7 +34,7 @@ public without sharing class CalloutVisits {
         List<String> photoIdList = new List<String>();
         List<String> contentDocumentIdList = new List<String>();
 
-        List<VisitPlanning__c> visitUpdatedList = new List<VisitPlanning__c>([SELECT Id,Name, MainBP__r.ExternalId__c, BP_Property__r.ExternalId__c, InitialDate__c, EndDate__c, StartTime__c, EndTime__c, 
+        List<VisitPlanning__c> visitUpdatedList = new List<VisitPlanning__c>([SELECT Id,Name, MainBP__r.ExternalId__c, AutoNumberGenerator__c, BP_Property__r.ExternalId__c, InitialDate__c, EndDate__c, StartTime__c, EndTime__c, 
             Status__c, Objetivo__c, Safra__r.Code__c, Culture__r.Codigo__c, Email__c, ExternalIdApp__c, Presential__c, Reminder__c, Displacement__c, VisitSeller__r.CodigoSap__c, Note__c, ReschedulingReason__c, 
             CancellationReason__c, ExternalId__c FROM VisitPlanning__c WHERE id IN: visitIdList]);
 
@@ -162,7 +162,7 @@ public without sharing class CalloutVisits {
             header.CtvVisit = visit.VisitSeller__r.CodigoSap__c;
             header.Observation = visit.Note__c;
             header.ReasonRescheduling = visit.ReschedulingReason__c;
-            header.ExternalCodeSalesforce = visit.ExternalId__c;
+            header.ExternalCodeSalesforce = visit.AutoNumberGenerator__c;
             header.ExternalCodeApp = visit.ExternalIdApp__c;
             header.ReasonCancellation = visit.CancellationReason__c;
 
