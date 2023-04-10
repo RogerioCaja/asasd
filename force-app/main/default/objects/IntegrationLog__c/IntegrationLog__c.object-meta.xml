@@ -160,7 +160,12 @@
         <type>AutoNumber</type>
     </nameField>
     <pluralLabel>Logs de integrações</pluralLabel>
-    <searchLayouts/>
+    <searchLayouts>
+        <searchResultsAdditionalFields>Integration__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Flow__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>ExecutionDate__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Status__c</searchResultsAdditionalFields>
+    </searchLayouts>
     <sharingModel>ReadWrite</sharingModel>
     <visibility>Public</visibility>
 </CustomObject>
