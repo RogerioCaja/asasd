@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ListView xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>IntegrationLogBP</fullName>
+    <fullName>IntegrationNF</fullName>
     <columns>NAME</columns>
     <columns>Integration__c</columns>
     <columns>Flow__c</columns>
@@ -11,12 +11,12 @@
     <filters>
         <field>Flow__c</field>
         <operation>equals</operation>
-        <value>OUT</value>
+        <value>IN</value>
     </filters>
     <filters>
         <field>Integration__c</field>
         <operation>equals</operation>
-        <value>Bp OUT</value>
+        <value>Nota Fiscal - DataLake</value>
     </filters>
-    <label>BP OUT</label>
+    <label>Nota Fiscal - DataLake IN</label>
 </ListView>
