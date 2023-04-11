@@ -377,7 +377,6 @@
         <excludeButtons>MassChangeOwner</excludeButtons>
         <excludeButtons>New</excludeButtons>
         <fields>NAME</fields>
-        <fields>CommodityPrice__c</fields>
         <fields>BagQuantity__c</fields>
         <relatedList>OrderCommodity__c.Order__c</relatedList>
     </relatedLists>
