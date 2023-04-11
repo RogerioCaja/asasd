@@ -288,17 +288,7 @@
         </columns>
         <columns>
             <checkedByDefault>false</checkedByDefault>
-            <field>Number__c</field>
-            <table>Account</table>
-        </columns>
-        <columns>
-            <checkedByDefault>false</checkedByDefault>
-            <field>Complement__c</field>
-            <table>Account</table>
-        </columns>
-        <columns>
-            <checkedByDefault>false</checkedByDefault>
-            <field>Neighborhood__c</field>
+            <field>Supplier__c</field>
             <table>Account</table>
         </columns>
         <masterLabel>Accounts</masterLabel>
