@@ -365,8 +365,8 @@
         <excludeButtons>MultiEdit</excludeButtons>
         <fields>Product2</fields>
         <fields>Quantity</fields>
-        <fields>CommercialMargin__c</fields>
         <fields>DiscountPercent__c</fields>
+        <fields>CommercialMargin__c</fields>
         <fields>DiscountValue__c</fields>
         <fields>FinalTotalValue__c</fields>
         <fields>CommitteeTrigger__c</fields>
