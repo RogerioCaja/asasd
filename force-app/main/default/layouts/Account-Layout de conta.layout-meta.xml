@@ -55,10 +55,6 @@
                 <field>BpType__c</field>
             </layoutItems>
             <layoutItems>
-                <behavior>Edit</behavior>
-                <field>Supplier__c</field>
-            </layoutItems>
-            <layoutItems>
                 <behavior>Readonly</behavior>
                 <field>LastVisit_Date__c</field>
             </layoutItems>
@@ -88,10 +84,6 @@
                 <behavior>Edit</behavior>
                 <field>Phone</field>
             </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
-                <field>StorageBp__c</field>
-            </layoutItems>
         </layoutColumns>
         <style>TwoColumnsTopToBottom</style>
     </layoutSections>
@@ -104,6 +96,18 @@
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>BillingAddress</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Neighborhood__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Number__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Complement__c</field>
             </layoutItems>
         </layoutColumns>
         <layoutColumns>
@@ -248,9 +252,18 @@
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
-        <fields>TaxCode__c</fields>
-        <fields>SalesOrg__c</fields>
-        <relatedList>CustomerTaxes__c.Account__c</relatedList>
+        <fields>harvest__c</fields>
+        <fields>SalesOrganization__c</fields>
+        <fields>TotalSaleValue__c</fields>
+        <fields>TotalSalesVolume__c</fields>
+        <relatedList>PlanejamentoVendas__c.Client__c</relatedList>
+    </relatedLists>
+    <relatedLists>
+        <fields>NAME</fields>
+        <fields>ProductsGroup__c</fields>
+        <fields>harvest__c</fields>
+        <fields>PotentialPurchaseValue__c</fields>
+        <relatedList>PotencialCompra__c.Client__c</relatedList>
     </relatedLists>
     <relatedLists>
         <fields>TERRITORY.NAME</fields>
@@ -296,6 +309,13 @@
         <fields>InitialDate__c</fields>
         <relatedList>VisitPlanning__c.MainBP__c</relatedList>
     </relatedLists>
+    <relatedLists>
+        <excludeButtons>MassChangeOwner</excludeButtons>
+        <fields>NAME</fields>
+        <fields>MainBP__c</fields>
+        <fields>InitialDate__c</fields>
+        <relatedList>VisitPlanning__c.BP_Property__c</relatedList>
+    </relatedLists>
     <relatedObjects>ParentId</relatedObjects>
     <showEmailCheckbox>false</showEmailCheckbox>
     <showHighlightsPanel>true</showHighlightsPanel>
@@ -303,7 +323,7 @@
     <showRunAssignmentRulesCheckbox>false</showRunAssignmentRulesCheckbox>
     <showSubmitAndAttachButton>false</showSubmitAndAttachButton>
     <summaryLayout>
-        <masterLabel>00h01000000bBl9</masterLabel>
+        <masterLabel>00h53000002Ke3H</masterLabel>
         <sizeX>4</sizeX>
         <sizeY>0</sizeY>
         <summaryLayoutStyle>Default</summaryLayoutStyle>
