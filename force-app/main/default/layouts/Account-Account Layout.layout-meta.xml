@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Layout xmlns="http://soap.sforce.com/2006/04/metadata">
+<Layout xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <excludeButtons>DataDotComAccountInsights</excludeButtons>
+    <excludeButtons>DataDotComClean</excludeButtons>
+    <excludeButtons>DataDotComCompanyHierarchy</excludeButtons>
     <excludeButtons>Submit</excludeButtons>
     <layoutSections>
         <customLabel>false</customLabel>
@@ -43,6 +46,10 @@
                 <behavior>Edit</behavior>
                 <field>BpType__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Supplier__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>
@@ -56,6 +63,10 @@
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>Website</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>StorageBp__c</field>
             </layoutItems>
         </layoutColumns>
         <style>TwoColumnsTopToBottom</style>
@@ -113,18 +124,6 @@
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>BillingAddress</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
-                <field>Neighborhood__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
-                <field>Number__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
-                <field>Complement__c</field>
             </layoutItems>
         </layoutColumns>
         <layoutColumns>
@@ -415,6 +414,10 @@
         <fields>InitialDate__c</fields>
         <relatedList>VisitPlanning__c.BP_Property__c</relatedList>
     </relatedLists>
+    <relatedLists>
+        <fields>NAME</fields>
+        <relatedList>CustomerTaxes__c.Account__c</relatedList>
+    </relatedLists>
     <relatedObjects>ParentId</relatedObjects>
     <showEmailCheckbox>false</showEmailCheckbox>
     <showHighlightsPanel>true</showHighlightsPanel>
@@ -422,9 +425,9 @@
     <showRunAssignmentRulesCheckbox>false</showRunAssignmentRulesCheckbox>
     <showSubmitAndAttachButton>false</showSubmitAndAttachButton>
     <summaryLayout>
-        <masterLabel>00h53000002KdXv</masterLabel>
+        <masterLabel>00h8D000000iWqU</masterLabel>
         <sizeX>4</sizeX>
         <sizeY>0</sizeY>
-        <summaryLayoutStyle>Default</summaryLayoutStyle>
+        <summaryLayoutStyle xsi:nil="true"/>
     </summaryLayout>
 </Layout>
