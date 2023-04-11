@@ -755,7 +755,7 @@ global with sharing class TemplateDataIntegrationFields {
         public List<TemplateDataIntegrationFields.TechnicalReportINData> TechnicalReports;
         public VisitPlanning__c serialize(Map<String, Id> lookups){
             return new VisitPlanning__c(
-                //ExternalId__c = this.ExternalId,
+                ExternalId__c = this.ExternalId,
                 ExternalIdApp__c = this.ExternalIdApp,
                 Name = this.Name,
                 MainBP__c = lookups.containsKey('Account'+this.BpCode) ? lookups.get('Account'+this.BpCode) : null,
@@ -851,7 +851,7 @@ global with sharing class TemplateDataIntegrationFields {
         public Fotos__c serialize(Map<String, Id> lookups){
             return new Fotos__c(
                 RTR__c = lookups.containsKey('Technical'+this.Rtr) ? lookups.get('Technical'+this.Rtr) : null,
-                IsIntegrated__c = true,
+                IsIntegrated__c = false,
                 Observation__c = this.Observation,
                 ExternalId__c = this.ExternalId,
                 FotoControl__c = Decimal.valueOf(this.FileLine)

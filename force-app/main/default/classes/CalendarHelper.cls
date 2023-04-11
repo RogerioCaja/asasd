@@ -42,7 +42,19 @@ public static void callVisitsIntegration(List<VisitPlanning__c> visitPlanningLis
     }
     CalloutVisits.callIntegration(visitIdList);
 }
-
+public static void updateExternalId(List<VisitPlanning__c> visitPlanningList) {
+    List<String> visitIdList = new List<String>();
+    for(VisitPlanning__c visit : visitPlanningList){
+        visitIdList.add(visit.Id);
+    }
+    List<VisitPlanning__c> visitPlanningNewList = new List<VisitPlanning__c>([SELECT ExternalId__c, AutoNumberGenerator__c FROM VisitPlanning__c WHERE Id =: visitIdList]);
+    for(VisitPlanning__c visit : visitPlanningNewList){
+        visit.ExternalId__c = visit.AutoNumberGenerator__c;
+    }
+    CalendarHelper.disableTrigger();
+    update visitPlanningNewList;
+    CalendarHelper.enableTrigger();
+}
 public static void createCalendarEvent(List<VisitPlanning__c> visitPlanningList) {
     List<Event> eventList = new List<Event>();
     
