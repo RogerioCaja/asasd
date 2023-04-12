@@ -102,6 +102,7 @@ export default class OrderProductScreen extends LightningElement {
     comboRowsToSkip=0;
     itensToRemove=[];
     comboProducts={formerIds: [], benefitsIds: []};
+    hidePrices=false;
 
     @track products=[];
     @track commoditiesData=[];
@@ -381,7 +382,9 @@ export default class OrderProductScreen extends LightningElement {
         }
         this._setHeaderValues();
 
+        this.hidePrices = false;
         if (this.headerData.tipo_venda == 'Venda Barter') {
+            this.hidePrices = !this.selectedCompany.showBarterPrices;
             getTaxes({accountId: this.accountData.Id, salesOrgId: this.selectedCompany.salesOrgId})
             .then((result) => {
                 this.taxData = JSON.parse(result);
@@ -1013,7 +1016,6 @@ export default class OrderProductScreen extends LightningElement {
             if (remainder == 0) {
                 return quantity;
             } else {
-                quantity = this.fixDecimalPlacesFront(quantity);
                 quantity = quantity.toString().includes(',') ? Number(quantity.replace(',', '.')) : quantity;
                 quantity = Math.ceil(quantity / this.multiplicity) * this.multiplicity;
                 this.showToast('warning', 'Atenção!', 'A quantidade foi arredondada para ' + quantity + '.');
