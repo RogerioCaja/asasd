@@ -286,7 +286,7 @@ public without sharing class OrderHelper {
                     if(newMap.get(id).MarginCommittee__c || newMap.get(id).Manager_BranchOffice__c || newMap.get(id).Gerente_Regional__c || newMap.get(id).Director__c || (orderMap.get(newMap.get(id).RecordTypeId).getName() == 'Venda Barter' && newMap.get(id).OrderReference__c == null) || orderMap.get(newMap.get(id).RecordTypeId).getName() == 'Venda de Serviço')
                     {
                         String processName = '';
-                        if(orderMap.get(newMap.get(id).RecordTypeId).getName() == 'Venda de Serviço' && order.Higher_Discount__c > 5){
+                        if(orderMap.get(newMap.get(id).RecordTypeId).getName() == 'Venda de Serviço' && newMap.get(id).Higher_Discount__c > 5){
                             processName = 'OrderApproval_ServiceSale';
                         }else{
                             processName = 'OrderApproval9';
