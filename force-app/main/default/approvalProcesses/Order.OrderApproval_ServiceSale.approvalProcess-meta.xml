@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ApprovalProcess xmlns="http://soap.sforce.com/2006/04/metadata">
-    <active>false</active>
+    <active>true</active>
     <allowRecall>false</allowRecall>
     <allowedSubmitters>
         <type>creator</type>
@@ -26,6 +26,16 @@
                 <field>Order.RecordType</field>
                 <operation>equals</operation>
                 <value>Venda de Serviço</value>
+            </criteriaItems>
+            <criteriaItems>
+                <field>Order.Higher_Discount__c</field>
+                <operation>greaterThan</operation>
+                <value>5,000000</value>
+            </criteriaItems>
+            <criteriaItems>
+                <field>Order.Higher_Discount__c</field>
+                <operation>lessOrEqual</operation>
+                <value>10,000000</value>
             </criteriaItems>
         </entryCriteria>
         <ifCriteriaNotMet>GotoNextStep</ifCriteriaNotMet>
