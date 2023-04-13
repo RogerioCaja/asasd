@@ -483,7 +483,7 @@ public without sharing class OrderScreenController {
             
             if (orderId != null && !cloneOrder) {
                 newOrder = false;
-                order = [SELECT Id, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c, SalesCondition__c, PaymentDate__c, ShippingDate__c, PaymentCondition__c, CustomerOrderNumber__c, OrderType__c, OrderReference__c, Higher_Discount__c
+                order = [SELECT Id, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c, SalesCondition__c, PaymentDate__c, ShippingDate__c, PaymentCondition__c, CustomerOrderNumber__c, OrderType__c, OrderReference__c, Higher_Discount__c,
                                 Crop__c, Culture__c, PaymentForm__c, StatusSF__c, SalesOrg__c, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, EffectiveDate, Company__c, Hectare__c, OrderMargin__c, Status, FreightValue__c, BPStorage__c
                 FROM Order WHERE Id =: orderId LIMIT 1];
             } else {
