@@ -2139,6 +2139,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>false</editable>
+        <field>OrderItem.ItemBalance__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>true</editable>
         <field>OrderItem.ListCost__c</field>
         <readable>true</readable>
@@ -2246,6 +2251,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>OrderItem.UnitPricePerBag__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>OrderItem.ValorFaturado__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
