@@ -236,19 +236,19 @@ public without sharing class OrderHelper {
                         }
                     }
                     else{
-                        orderToUpdate.add(order.Id);
+                        if(orderMap.get(order.RecordTypeId).getName() == 'Venda de Serviço' && order.Higher_Discount__c > 5){
+                            Approval.ProcessSubmitRequest administrationRequest = new Approval.ProcessSubmitRequest();
+                            administrationRequest.setProcessDefinitionNameOrId('OrderApproval_ServiceSale');
+                            administrationRequest.setComments(order.ApprovalJustification__c);
+                            administrationRequest.setObjectId(order.Id);
+                            Approval.ProcessResult approvalResult = Approval.process(administrationRequest);
+                            System.debug('pedido submetido para aprovação com sucesso: '+ approvalResult.isSuccess());
+                        }else{
+                            orderToUpdate.add(order.Id);
+                        }
                     }
 
-                    if(orderMap.get(order.RecordTypeId).getName() == 'Venda de Serviço' && order.Higher_Discount__c > 5){
-                        Approval.ProcessSubmitRequest administrationRequest = new Approval.ProcessSubmitRequest();
-                        administrationRequest.setProcessDefinitionNameOrId('OrderApproval_ServiceSale');
-                        administrationRequest.setComments(order.ApprovalJustification__c);
-                        administrationRequest.setObjectId(order.Id);
-                        Approval.ProcessResult approvalResult = Approval.process(administrationRequest);
-                        System.debug('pedido submetido para aprovação com sucesso: '+ approvalResult.isSuccess());
-                    }else{
-                        orderToUpdate.add(order.Id);
-                    }
+                    
                 }
                 
             }
@@ -304,19 +304,19 @@ public without sharing class OrderHelper {
                         }
                     }
                     else{
-                       orderToUpdate.add(id);
+                        if(orderMap.get(newMap.get(id).RecordTypeId).getName() == 'Venda de Serviço' && newMap.get(id).Higher_Discount__c > 5){
+                            Approval.ProcessSubmitRequest administrationRequest = new Approval.ProcessSubmitRequest();
+                            administrationRequest.setProcessDefinitionNameOrId('OrderApproval_ServiceSale');
+                            administrationRequest.setComments(newMap.get(id).ApprovalJustification__c);
+                            administrationRequest.setObjectId(id);
+                            Approval.ProcessResult approvalResult = Approval.process(administrationRequest);
+                            System.debug('pedido submetido para aprovação com sucesso: '+ approvalResult.isSuccess());
+                        }else{
+                            orderToUpdate.add(id);
+                        }
                     }
 
-                    if(orderMap.get(newMap.get(id).RecordTypeId).getName() == 'Venda de Serviço' && newMap.get(id).Higher_Discount__c > 5){
-                        Approval.ProcessSubmitRequest administrationRequest = new Approval.ProcessSubmitRequest();
-                        administrationRequest.setProcessDefinitionNameOrId('OrderApproval_ServiceSale');
-                        administrationRequest.setComments(newMap.get(id).ApprovalJustification__c);
-                        administrationRequest.setObjectId(id);
-                        Approval.ProcessResult approvalResult = Approval.process(administrationRequest);
-                        System.debug('pedido submetido para aprovação com sucesso: '+ approvalResult.isSuccess());
-                    }else{
-                        orderToUpdate.add(id);
-                    }
+                    
                 }
             }
             if(orderToUpdate.size() > 0){
