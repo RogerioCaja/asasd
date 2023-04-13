@@ -2149,6 +2149,10 @@ public without sharing class OrderScreenController {
                 approval += approvalLevels.get(orderDiscount.Approver__c);
             }
         }
+
+        if (biggerDiscount > 5 && orderData.headerData.tipo_venda == 'Venda de Serviço') {
+            approval = 'Necessita aprovação';
+        }
         return approval;
     }
 
