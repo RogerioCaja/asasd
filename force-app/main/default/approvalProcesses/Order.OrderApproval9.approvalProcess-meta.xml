@@ -221,6 +221,10 @@
     <finalRejectionRecordLock>false</finalRejectionRecordLock>
     <initialSubmissionActions>
         <action>
+            <name>Solicitacao_de_Aprovacao_do_Pedido</name>
+            <type>Alert</type>
+        </action>
+        <action>
             <name>StatusEmAprovacao</name>
             <type>FieldUpdate</type>
         </action>
