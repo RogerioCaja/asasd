@@ -307,7 +307,7 @@ public without sharing class OrderHelper {
                        orderToUpdate.add(id);
                     }
 
-                    if(orderMap.get(newMap.get(id).RecordTypeId).getName() == 'Venda de Serviço' && order.Higher_Discount__c > 5){
+                    if(orderMap.get(newMap.get(id).RecordTypeId).getName() == 'Venda de Serviço' && newMap.get(id).Higher_Discount__c > 5){
                         Approval.ProcessSubmitRequest administrationRequest = new Approval.ProcessSubmitRequest();
                         administrationRequest.setProcessDefinitionNameOrId('OrderApproval_ServiceSale');
                         administrationRequest.setComments(newMap.get(id).ApprovalJustification__c);
