@@ -111,6 +111,9 @@ public without sharing class CalloutBP {
                 ac.ShippingState = valor.Estado;
                 ac.ShippingCountry = valor.PaisEntrega;
                 ac.ShippingPostalCode = valor.CEPEntrega;
+                ac.Neighborhood__c = valor.BairroEntrega;
+                ac.Number__c = valor.NumeroEndereçoEntrega;
+                ac.Complement__c = valor.ComplementoEntrega;
                 ac.BillingStreet = valor.RuaCobranca;
                 ac.BillingCity = valor.CidadeCobranca;
                 ac.BillingState = valor.EstadoCobranca;
@@ -304,6 +307,9 @@ public without sharing class CalloutBP {
                 ac.ShippingState = valor.Estado;
                 ac.ShippingCountry = valor.PaisEntrega;
                 ac.ShippingPostalCode = valor.CEPEntrega;
+                ac.Neighborhood__c = valor.BairroEntrega;
+                ac.Number__c = valor.NumeroEndereçoEntrega;
+                ac.Complement__c = valor.ComplementoEntrega;
                 ac.BillingStreet = valor.RuaCobranca;
                 ac.BillingCity = valor.CidadeCobranca;
                 ac.BillingState = valor.EstadoCobranca;
@@ -949,6 +955,11 @@ public without sharing class CalloutBP {
         public String Email;
         public String Telefone;
         public String Status;
+
+        public String NumeroEndereçoEntrega;
+        public String ComplementoEntrega;
+        public String BairroEntrega;
+
         public List<LimiteCreditoINData> Credito;
         public List<CompanyINData> EstruturaOrganizacional;
         public List<TaxINData> TabelaImpostoCliente;
