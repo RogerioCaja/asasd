@@ -112,7 +112,7 @@ public without sharing class CalloutBP {
                 ac.ShippingCountry = valor.PaisEntrega;
                 ac.ShippingPostalCode = valor.CEPEntrega;
                 ac.Neighborhood__c = valor.BairroEntrega;
-                ac.Number__c = valor.NumeroEndereçoEntrega;
+                ac.Number__c = valor.NumeroEnderecoEntrega;
                 ac.Complement__c = valor.ComplementoEntrega;
                 ac.BillingStreet = valor.RuaCobranca;
                 ac.BillingCity = valor.CidadeCobranca;
@@ -308,7 +308,7 @@ public without sharing class CalloutBP {
                 ac.ShippingCountry = valor.PaisEntrega;
                 ac.ShippingPostalCode = valor.CEPEntrega;
                 ac.Neighborhood__c = valor.BairroEntrega;
-                ac.Number__c = valor.NumeroEndereçoEntrega;
+                ac.Number__c = valor.NumeroEnderecoEntrega;
                 ac.Complement__c = valor.ComplementoEntrega;
                 ac.BillingStreet = valor.RuaCobranca;
                 ac.BillingCity = valor.CidadeCobranca;
@@ -956,7 +956,7 @@ public without sharing class CalloutBP {
         public String Telefone;
         public String Status;
 
-        public String NumeroEndereçoEntrega;
+        public String NumeroEnderecoEntrega;
         public String ComplementoEntrega;
         public String BairroEntrega;
 
