@@ -990,7 +990,8 @@ export default class OrderProductScreen extends LightningElement {
                 } else {
                     this.addProduct.totalPrice = this.fixDecimalPlaces((this.addProduct.unitPrice * this.addProduct.quantity));
                     this.addProduct.totalPriceFront = this.fixDecimalPlacesFront((this.addProduct.unitPrice * this.addProduct.quantity));
-
+                    this.addProduct.quantityFront = this.fixDecimalPlacesFront(this.addProduct.quantity);
+                    
                     if (this.seedSale) {
                         this.addProduct.brokerage =  this.isFilled(this.addProduct.brokeragePerUnit) ? this.addProduct.quantity * Number(this.addProduct.brokeragePerUnit) : this.addProduct.brokerage;
                         this.addProduct.brokerageFront = this.fixDecimalPlacesFront(this.addProduct.brokerage);
