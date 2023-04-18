@@ -9,7 +9,6 @@ trigger Product2Trigger on Product2 (after insert, after update) {
             when AFTER_INSERT {
                 handler.OnAfterInsert();
             }
-
             when AFTER_UPDATE {
                 handler.OnAfterUpdate();
             }
