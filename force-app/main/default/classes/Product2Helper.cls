@@ -51,4 +51,54 @@ public without sharing class Product2Helper {
             insert pricebookEntryList;
         }
     }
+
+    public static void updateStandardEntries(Map<Id, Product2> newMap){
+        List<PricebookEntry> pricebookEntryList = new List<PricebookEntry>();
+        
+        List<PricebookEntry> priceBookEntry = [SELECT Id, CurrencyIsoCode, ProductCode FROM PricebookEntry WHERE CurrencyIsoCode != null AND Product2Id IN: newMap.keySet() ORDER BY ProductCode ASC];
+        System.debug(priceBookEntry);
+        
+        Map<String, Set<String>> priceEntries = new Map<String, Set<String>>();
+        
+        for(PricebookEntry price : priceBookEntry){
+            if(!priceEntries.containsKey(price.ProductCode)){
+                priceEntries.put(price.ProductCode, new Set<String>());
+            }
+            priceEntries.get(price.ProductCode).add(price.CurrencyIsoCode);
+        }
+        
+        System.debug(priceEntries);
+        
+        for(Product2 product : newMap.values()){
+            Set<String> currencies = priceEntries.get(product.ProductCode);
+            System.debug(currencies);
+            if(!currencies.contains('BRL')){
+                pricebookEntryList.add(
+                        new PriceBookEntry(
+                            pricebook2Id = STANDARD_PRICEBOOK_ID,
+                            product2Id = product.id,
+                            unitPrice = 0,
+                            IsActive = true,
+                            CurrencyIsoCode = 'BRL'
+                        )
+                    );    
+            }
+            if(!currencies.contains('USD')){
+                pricebookEntryList.add(
+                        new PriceBookEntry(
+                            pricebook2Id = STANDARD_PRICEBOOK_ID,
+                            product2Id = product.id,
+                            unitPrice = 0,
+                            IsActive = true,
+                            CurrencyIsoCode = 'USD'
+                        )
+                    );    
+            }
+            System.debug(pricebookEntryList);
+        }
+
+        if(!pricebookEntryList.isEmpty()){
+            Upsert pricebookEntryList;
+        }
+    }
 }
