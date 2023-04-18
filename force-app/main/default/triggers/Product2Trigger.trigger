@@ -7,7 +7,7 @@ trigger Product2Trigger on Product2 (after insert, after update) {
     if (Product2Helper.isTriggerEnabled()){
         switch on Trigger.operationType{
             when AFTER_INSERT {
-                handler.OnAfterUpdate();
+                handler.OnAfterInsert();
             }
 
             when AFTER_UPDATE {

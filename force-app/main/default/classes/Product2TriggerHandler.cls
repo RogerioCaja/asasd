@@ -14,11 +14,11 @@ public with sharing class Product2TriggerHandler {
         this.newMap = newMap;
     }
 
-    public void afterInsert(){
+    public void OnAfterInsert(){
         Product2Helper.createStandardEntries(this.newRecords);
     }
 
-     public void afterUpdate(){
+     public void OnAfterUpdate(){
         Product2Helper.updateStandardEntries(this.newMap);
     }
 }
