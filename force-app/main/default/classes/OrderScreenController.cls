@@ -637,7 +637,8 @@ public without sharing class OrderScreenController {
             }
 
             QuantitiesResult quantitiesResult;
-            if (seedSale && (company.ActivitySector__r.Name.toUpperCase() == 'SEMENTE' || company.ActivitySector__r.Name.toUpperCase() == 'SEMENTES')) {
+            Boolean childOrder = orderData.headerData.pedido_mae.Id != null;
+            if (seedSale && (company.ActivitySector__r.Name.toUpperCase() == 'SEMENTE' || company.ActivitySector__r.Name.toUpperCase() == 'SEMENTES') && !childOrder) {
                 QuotaData quotaData = new QuotaData();
                 quotaData.cropId = orderData.headerData.safra.Id;
                 quotaData.sellerId = orderData.headerData.ctv_venda.Id;
@@ -928,7 +929,6 @@ public without sharing class OrderScreenController {
                 Set<Id> combosIds = new Set<Id>();
 
                 Integer itemCounter = setOrderItemsIds.size() + 1;
-                Boolean childOrder = order.OrderType__c == 'Pedido Filho';
                 for (ProductDeserialize orderProduct : orderData.productData) {
                     OrderItem orderItem;
                     if (!newOrder && orderItemsById.containsKey(orderProduct.orderItemId)) {
