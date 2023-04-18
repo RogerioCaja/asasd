@@ -168,7 +168,7 @@ public without sharing class OrderHelper {
                 Order oldValues = oldMap.get(order.Id);
                 System.debug('oldValues.Status: ' + oldValues.Status);
                 System.debug('order.Status: ' + order.Status);
-                if (oldValues.Status != 'X' && oldValues.Status != '0' && order.Status == 'X') {
+                if (oldValues.Status != 'X' && oldValues.Status != '0' && order.Status == 'X' && order.OrderType__c != 'Pedido Filho') {
                     ordersToRemoveQuotas.add(order.Id);
                 }
             }

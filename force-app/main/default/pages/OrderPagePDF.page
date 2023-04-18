@@ -227,7 +227,7 @@
             </td>
         </tr>
 
-        <tr>
+        <tr style="page-break-inside: avoid;">
             <td colspan="2" class="padd-h">
                 <div class="container-text-area">                    
                     <div class="container-obs-header">

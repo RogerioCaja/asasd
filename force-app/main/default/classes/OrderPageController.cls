@@ -294,7 +294,7 @@ public with sharing class OrderPageController {
             this.brokerage = orderItem.Brokerage__c != null ? (orderItem.Brokerage__c / orderItem.Quantity) : 0;
             this.description = orderItem.Product2.Name;
             this.unitOfMeasure = orderItem.Product2.GrossWeightUnitOfMeasure__c;
-            this.unitPrice = commodity != null ? formatCurrency(orderItem.UnitPricePerBag__c, currencyCode) + ' por saca': formatCurrency((orderItem.PracticedPrice__c + this.brokerage + (orderItem.TotalTSIAmount__c / orderItem.Quantity) + (orderItem.TotalRoyaltyAmount__c / orderItem.Quantity) ), currencyCode);
+            this.unitPrice = commodity != null ? formatCurrency(orderItem.UnitPricePerBag__c, currencyCode) + ' por saca': formatCurrency((orderItem.PracticedPrice__c + (this.brokerage != null ? this.brokerage : 0) + (orderItem.TotalTSIAmount__c != null ? (orderItem.TotalTSIAmount__c / orderItem.Quantity) : 0) + (orderItem.TotalRoyaltyAmount__c != null ? (orderItem.TotalRoyaltyAmount__c / orderItem.Quantity) : 0 )), currencyCode);
             this.quantity =  String.valueOf(orderItem.Quantity);
             this.totalAmount = commodity != null ? formatCurrency((orderItem.UnitPricePerBag__c * orderItem.Quantity).round(System.RoundingMode.UP), currencyCode) + ' sacas' : formatCurrency( ((orderItem.PracticedPrice__c + this.brokerage)* Decimal.valueOf(this.quantity)) + orderItem.TotalTSIAmount__c + orderItem.TotalRoyaltyAmount__c, currencyCode) ;
             this.culture = culture;
