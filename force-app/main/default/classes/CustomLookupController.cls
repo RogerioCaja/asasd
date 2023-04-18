@@ -46,7 +46,6 @@ public without sharing class CustomLookupController {
 		}
 		return out.toLowercase();
 	}
-    //Desenvolimento PS Adição de Boleano
     @AuraEnabled
     public static ProductDataResult fetchProductsRecords(String searchString, String data, Boolean isCommodity, List<String> productsIds, Boolean priceScreen, Boolean getSeedPrices, Boolean isLimit) {
         try {
@@ -93,7 +92,10 @@ public without sharing class CustomLookupController {
 
             Map<Id, List<JurosDescontoAntecipao__c>> productsPriceById = new Map<Id, List<JurosDescontoAntecipao__c>>();
             Set<Id> accountIds = new Set<Id>();
-            for(SObject jda : Database.query(priceQuery.build())) {
+            String officeId = salesResult.salesOfficeId;
+            String teamId = salesResult.salesTeamId;
+            String finalPriceQuery = priceQuery.build() + ' AND (SalesOffice__c =: officeId OR SalesOffice__c = null) AND (SalesTeam__c =: teamId OR SalesTeam__c = null)';
+            for(SObject jda : Database.query(finalPriceQuery)) {
                 if (!productsPriceById.containsKey((Id)jda.get('Product__c'))) {
                     productsPriceById.put((Id)jda.get('Product__c'), new List<JurosDescontoAntecipao__c>{(JurosDescontoAntecipao__c)jda});
                 } else {
@@ -135,6 +137,32 @@ public without sharing class CustomLookupController {
                 recTypeDevName = orderRecType.DeveloperName;
             }
 
+            Set<Id> prodIdsWithoutQuota = new Set<Id>();
+            Boolean seedSale = OrderScreenController.isSeedSale(salesResult.salesOrgId, null);
+            if (seedSale) {
+                OrderScreenController.QuotaData quotaData = new OrderScreenController.QuotaData(productParams.safra, productParams.ctvId, prodsId);
+            
+                String dataCheck = OrderScreenController.checkQuotaQuantity(JSON.serialize(quotaData));
+                Map<Id, OrderScreenController.QuotaResult> quoteResultMap = new Map<Id, OrderScreenController.QuotaResult>();
+                List<OrderScreenController.QuotaResult> quoteResult = (List<OrderScreenController.QuotaResult>)JSON.deserialize(dataCheck, List<OrderScreenController.QuotaResult>.class);
+            
+                for (OrderScreenController.QuotaResult quota : quoteResult) {
+                    quoteResultMap.put(quota.productId, quota);
+                }
+
+                for (Id id : prodsId) {
+                    if (!quoteResultMap.containsKey(id)) {
+                        prodIdsWithoutQuota.add(id);
+                    }
+                    
+                    if (quoteResultMap.containsKey(id)) {
+                        if (quoteResultMap.get(id).balance == 0) {
+                            prodIdsWithoutQuota.add(id);
+                        }
+                    }
+                }
+            }
+
             String seedGroup = 'SEM001';
             Set<String> insumosGroups = new Set<String>{'SEM001', 'SERV001'};
             Set<String> normalSale = new Set<String>{'HAWA', 'FERT'};
@@ -144,6 +172,11 @@ public without sharing class CustomLookupController {
             String productQuery = 'SELECT Id, Name, ExternalId__c, UnidadeMedida__c, ProductGroup__c, ProductGroup__r.Name, ProductGroup__r.ExternalId__c, ProductSubgroup__c, PrincipleActive__c, Multiplicity__c, ProductHierarchy__c' +
                                   '  FROM Product2' +
                                   ' WHERE Id IN:prodsId' +
+                                  (
+                                    seedSale ?
+                                        ' AND Id NOT IN: prodIdsWithoutQuota' :
+                                        ''
+                                  ) +
                                   (
                                     getSeedPrices ? 
                                         ' AND ProductGroup__r.ExternalId__c =: seedGroup' :
@@ -178,40 +211,12 @@ public without sharing class CustomLookupController {
             Set<Id> prodSubgroupIds = new Set<Id>();
             Set<Id> prodHierarchyIds = new Set<Id>();
             List<String> prodIdList = new List<String>();
-            Set<Id> prodIdsWithoutQuota = new Set<Id>();
-
-            Boolean seedSale = OrderScreenController.isSeedSale(salesResult.salesOrgId, null);
 
             for (SObject product : queryResult) {
                 prodGroupIds.add((String)product.get('ProductGroup__c'));
                 prodIdList.add((String)product.get('Id'));
                 prodSubgroupIds.add((String)product.get('ProductSubgroup__c'));
                 prodHierarchyIds.add((String)product.get('ProductHierarchy__c'));
-            }
-
-            if(seedSale){
-
-                OrderScreenController.QuotaData quotaData = new OrderScreenController.QuotaData(productParams.safra, productParams.ctvId, prodIdList);
-            
-                String dataCheck = OrderScreenController.checkQuotaQuantity(JSON.serialize(quotaData));
-                Map<Id, OrderScreenController.QuotaResult> quoteResultMap = new Map<Id, OrderScreenController.QuotaResult>();
-                List<OrderScreenController.QuotaResult> quoteResult = (List<OrderScreenController.QuotaResult>)JSON.deserialize(dataCheck, List<OrderScreenController.QuotaResult>.class);
-            
-                for(OrderScreenController.QuotaResult quota : quoteResult){
-                    quoteResultMap.put(quota.productId, quota);
-                }
-
-                for(Id id : prodIdList){
-                    if(!quoteResultMap.containsKey(id)){
-                        prodIdsWithoutQuota.add(id);
-                    }
-                    
-                    if(quoteResultMap.containsKey(id)){
-                        if(quoteResultMap.get(id).balance == 0){
-                            prodIdsWithoutQuota.add(id);
-                        }
-                    }
-                }
             }
 
             Map<Id, ProductGroup__c> productsGroupById = new Map<Id, ProductGroup__c>([
