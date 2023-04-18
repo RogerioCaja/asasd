@@ -71,7 +71,7 @@ public without sharing class OrderScreenController {
     }
 
     public static HeaderSerialize getOrderData(Id orderId, Boolean cloneOrder){
-        Order order = [SELECT Id, OrderNumber, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c , ShippingAccount__r.Phone,  ShippingAccount__r.Name, 
+        Order order = [SELECT Id, OrderNumber, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c , ShippingAccount__r.Phone,  ShippingAccount__r.Name, Higher_Discount__c,
         ShippingAccount__r.BillingCity, ShippingAccount__r.BillingState ,ShippingAccount__r.CPF__c, ShippingAccount__r.CNPJ__c , SalesCondition__c, SalesCondition__r.Name, FreightValue__c,
         Pricebook2.InitialDate__c, Pricebook2.EndDate__c, PaymentDate__c,  CustomerOrderNumber__c, Crop__c , Crop__r.Name, Culture__c , Culture__r.Name, OrderMargin__c, RecordTypeId, MTO__c,
         PaymentForm__c, StatusSF__c, CodigoSAP__c, SalesOrg__c, SalesOrg__r.Name, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, SalesCTV__r.Name, OrderType__c, BPStorage__c,
@@ -149,7 +149,7 @@ public without sharing class OrderScreenController {
                    FinancialDiscountValue__c,
                    ComissionValue__c,
                    CommercialMargin__c,
-                   AmountUsed__c,
+                   ItemBalance__c,
                    PTA__c,
                    PriceListCode__c,
                    ReasonRefuse__c,
@@ -363,7 +363,7 @@ public without sharing class OrderScreenController {
         {
             List<InformationFields> orders = new List<InformationFields>();
             Q subQuery = new Q('OrderItems')
-                         .selectFields(new Set<String>{'AmountUsed__c', 'Quantity'});
+                         .selectFields(new Set<String>{'ItemBalance__c', 'Quantity'});
 
             String query = new Q(Order.SObjectType)
                            .addSubquery(subQuery)
@@ -374,7 +374,7 @@ public without sharing class OrderScreenController {
 
             Boolean isAvalaible = false;
             for (OrderItem orderItem : motherOrder.OrderItems) {
-                if (orderItem.AmountUsed__c < orderItem.Quantity) isAvalaible = true;
+                if (orderItem.ItemBalance__c > 0) isAvalaible = true;
             }
 
             return isAvalaible;
@@ -483,7 +483,7 @@ public without sharing class OrderScreenController {
             
             if (orderId != null && !cloneOrder) {
                 newOrder = false;
-                order = [SELECT Id, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c, SalesCondition__c, PaymentDate__c, ShippingDate__c, PaymentCondition__c, CustomerOrderNumber__c, OrderType__c, OrderReference__c,
+                order = [SELECT Id, Description, DescriptionBillingSale__c, AccountId, Type, ShippingAccount__c, SalesCondition__c, PaymentDate__c, ShippingDate__c, PaymentCondition__c, CustomerOrderNumber__c, OrderType__c, OrderReference__c, Higher_Discount__c,
                                 Crop__c, Culture__c, PaymentForm__c, StatusSF__c, SalesOrg__c, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, EffectiveDate, Company__c, Hectare__c, OrderMargin__c, Status, FreightValue__c, BPStorage__c
                 FROM Order WHERE Id =: orderId LIMIT 1];
             } else {
@@ -518,7 +518,7 @@ public without sharing class OrderScreenController {
                     SELECT Id,
                            Product2Id,
                            Quantity,
-                           AmountUsed__c,
+                           ItemBalance__c,
                            NumeroSap__c,
                            FinalTotalValue__c,
                            TotalTSIAmount__c,
@@ -526,44 +526,47 @@ public without sharing class OrderScreenController {
                            FreightValue__c,
                            OrderId,
                            Order.FreightValue__c,
-                           Order.OrderReference__r.FreightValue__c
+                           Order.OrderReference__r.FreightValue__c,
+                           ReasonRefuse__c
                       FROM OrderItem
                      WHERE OrderId =: orderData.headerData.pedido_mae.Id
                         OR OrderId =: order.OrderReference__c
                 ]) {
-                    motherQuantity += item.Quantity;
-                    if (item.OrderId != orderData.headerData.pedido_mae.Id) {
-                        motherFreight = item.Order.OrderReference__r.FreightValue__c != null ? item.Order.OrderReference__r.FreightValue__c : 0;
-                    } else {
-                        motherFreight = item.Order.FreightValue__c != null ? item.Order.FreightValue__c : 0;
-                    }
-
-                    if (!individualValuesByType.containsKey('Germoplasma')) {
-                        individualValuesByType.put('Germoplasma', item.FinalTotalValue__c);
-                    } else {
-                        Decimal currentGermoplasma = individualValuesByType.get('Germoplasma') + item.FinalTotalValue__c;
-                        individualValuesByType.put('Germoplasma', currentGermoplasma);
-                    }
-
-                    if (item.TotalRoyaltyAmount__c != null && item.TotalRoyaltyAmount__c > 0) {
-                        if (!individualValuesByType.containsKey('Royalties')) {
-                            individualValuesByType.put('Royalties', item.TotalRoyaltyAmount__c);
+                    if (item.ReasonRefuse__c == null || item.ReasonRefuse__c == '') {
+                        motherQuantity += item.Quantity;
+                        if (item.OrderId != orderData.headerData.pedido_mae.Id) {
+                            motherFreight = item.Order.OrderReference__r.FreightValue__c != null ? item.Order.OrderReference__r.FreightValue__c : 0;
                         } else {
-                            Decimal currentRoyalty = individualValuesByType.get('Royalties') + item.TotalRoyaltyAmount__c;
-                            individualValuesByType.put('Royalties', currentRoyalty);
+                            motherFreight = item.Order.FreightValue__c != null ? item.Order.FreightValue__c : 0;
                         }
-                    }
-                    
-                    if (item.TotalTSIAmount__c != null && item.TotalTSIAmount__c > 0) {
-                        if (!individualValuesByType.containsKey('TSI')) {
-                            individualValuesByType.put('TSI', item.TotalTSIAmount__c);
+
+                        if (!individualValuesByType.containsKey('Germoplasma')) {
+                            individualValuesByType.put('Germoplasma', item.FinalTotalValue__c);
                         } else {
-                            Decimal currentTSI = individualValuesByType.get('TSI') + item.TotalTSIAmount__c;
-                            individualValuesByType.put('TSI', currentTSI);
+                            Decimal currentGermoplasma = individualValuesByType.get('Germoplasma') + item.FinalTotalValue__c;
+                            individualValuesByType.put('Germoplasma', currentGermoplasma);
                         }
+
+                        if (item.TotalRoyaltyAmount__c != null && item.TotalRoyaltyAmount__c > 0) {
+                            if (!individualValuesByType.containsKey('Royalties')) {
+                                individualValuesByType.put('Royalties', item.TotalRoyaltyAmount__c);
+                            } else {
+                                Decimal currentRoyalty = individualValuesByType.get('Royalties') + item.TotalRoyaltyAmount__c;
+                                individualValuesByType.put('Royalties', currentRoyalty);
+                            }
+                        }
+                        
+                        if (item.TotalTSIAmount__c != null && item.TotalTSIAmount__c > 0) {
+                            if (!individualValuesByType.containsKey('TSI')) {
+                                individualValuesByType.put('TSI', item.TotalTSIAmount__c);
+                            } else {
+                                Decimal currentTSI = individualValuesByType.get('TSI') + item.TotalTSIAmount__c;
+                                individualValuesByType.put('TSI', currentTSI);
+                            }
+                        }
+                        
+                        motherItems.put(item.Product2Id, item);
                     }
-                    
-                    motherItems.put(item.Product2Id, item);
                 }
                 newDivision = newOrder ? true : false;
             }
@@ -619,7 +622,7 @@ public without sharing class OrderScreenController {
 
                 if (order.OrderReference__c != null && motherItems.containsKey(orderProduct.productId) && order.Status == '0' && typeOrder != 'prepedido') {
                     OrderItem motherItem = motherItems.get(orderProduct.productId);
-                    if (motherItem.AmountUsed__c + orderProduct.quantity > motherItem.Quantity) {
+                    if (motherItem.ItemBalance__c - orderProduct.quantity < 0) {
                         return JSON.serializePretty(new AGRO_RemotingResult(true, '200', 'Não é possível efetivar o pedido por ter excedido as quantidades do pedido mãe.'));
                     }
                 }
@@ -634,7 +637,8 @@ public without sharing class OrderScreenController {
             }
 
             QuantitiesResult quantitiesResult;
-            if (seedSale && (company.ActivitySector__r.Name.toUpperCase() == 'SEMENTE' || company.ActivitySector__r.Name.toUpperCase() == 'SEMENTES')) {
+            Boolean childOrder = orderData.headerData.pedido_mae.Id != null;
+            if (seedSale && (company.ActivitySector__r.Name.toUpperCase() == 'SEMENTE' || company.ActivitySector__r.Name.toUpperCase() == 'SEMENTES') && !childOrder) {
                 QuotaData quotaData = new QuotaData();
                 quotaData.cropId = orderData.headerData.safra.Id;
                 quotaData.sellerId = orderData.headerData.ctv_venda.Id;
@@ -707,12 +711,15 @@ public without sharing class OrderScreenController {
             }
             
             List<String> deleteItems = itemsToExclude != null ? (List<String>) JSON.deserialize(itemsToExclude, List<String>.class) : new List<String>();
-            Map<Id, OrderItem> orderItemsById = new Map<Id, OrderItem>([
-                SELECT Id, Product2Id, OrderId
+            Map<Id, OrderItem> orderItemsById = new Map<Id, OrderItem>();
+            for (OrderItem ordItem : [
+                SELECT Id, Product2Id, OrderId, ReasonRefuse__c
                   FROM OrderItem
                  WHERE Id IN: setOrderItemsIds
                     OR Id IN: deleteItems
-            ]);
+            ]) {
+                if (ordItem.ReasonRefuse__c == null || ordItem.ReasonRefuse__c == '') orderItemsById.put(ordItem.Id, ordItem);
+            }
 
             String salesCTVId = orderData.headerData.ctv_venda != null ? orderData.headerData.ctv_venda.Id : '';
             User user = [SELECT Id, SellerType__c FROM User WHERE Id =: salesCTVId];
@@ -868,6 +875,7 @@ public without sharing class OrderScreenController {
                                    stringToDecimal(orderData.summaryData.orderMargin.replace(' sacas', '')) : stringToDecimal((orderData.summaryData.orderMargin))) : 0;
             order.ApprovalJustification__c = orderData.summaryData.justification;
             order.BPStorage__c = orderData.bpAccount != null ? orderData.bpAccount.Id : null;
+            order.Higher_Discount__c = biggerDiscount;
 
             Decimal currentFreight = orderData.summaryData.freightValue;
             if (order.OrderType__c == 'Pedido Filho') {
@@ -918,7 +926,6 @@ public without sharing class OrderScreenController {
                 Set<Id> combosIds = new Set<Id>();
 
                 Integer itemCounter = setOrderItemsIds.size() + 1;
-                Boolean childOrder = order.OrderType__c == 'Pedido Filho';
                 for (ProductDeserialize orderProduct : orderData.productData) {
                     OrderItem orderItem;
                     if (!newOrder && orderItemsById.containsKey(orderProduct.orderItemId)) {
@@ -933,14 +940,14 @@ public without sharing class OrderScreenController {
                         orderItem.Product2Id = orderProduct.productId;
                         orderItem.ListPrice = entriesByProductsIds.get(orderProduct.productId + orderData.headerData.moeda).UnitPrice != null ? entriesByProductsIds.get(orderProduct.productId + orderData.headerData.moeda).UnitPrice.setScale(2) : 0;
                         orderItem.UnitPrice = orderProduct.unitPrice != null ? orderProduct.unitPrice.setScale(2) : 0;
-                        orderItem.AmountUsed__c = order.IsOrderMother__c ? 0 : null;
+                        orderItem.ItemBalance__c = order.IsOrderMother__c ? orderProduct.quantity : null;
                         orderItem.ServiceDate = System.today();
                         itemCounter++;
                     }
                     
                     if (motherItems.containsKey(orderProduct.productId) && typeOrder != 'prepedido') {
                         OrderItem motherItem = motherItems.get(orderProduct.productId);
-                        motherItem.AmountUsed__c = motherItem.AmountUsed__c != null ? motherItem.AmountUsed__c + orderProduct.quantity : 0;
+                        motherItem.ItemBalance__c = motherItem.ItemBalance__c != null ? motherItem.ItemBalance__c - orderProduct.quantity : 0;
                         motherItems.put(orderProduct.productId, motherItem);
                     }
 
@@ -1074,11 +1081,12 @@ public without sharing class OrderScreenController {
                            Product2Id,
                            Quantity,
                            UnitPrice,
-                           NumeroSap__c
+                           NumeroSap__c,
+                           ReasonRefuse__c
                       FROM OrderItem
                      WHERE Id IN: itemsIds
                 ]) {
-                    mapOrderItems.put(orderItem.Product2Id, orderItem);
+                    if (orderItem.ReasonRefuse__c == null || orderItem.ReasonRefuse__c == '') mapOrderItems.put(orderItem.Product2Id, orderItem);
                 }
                 
                 Map<Id, Integer> divisionCounterByItemId = new Map<Id, Integer>();
@@ -1656,9 +1664,9 @@ public without sharing class OrderScreenController {
             }
         }
         Set<String> fieldSet = new Set<String>{
-            'Id','SalesOrg__c', 'SalesTeam__r.Name', 'SalesOffice__c', 'ClientGroup__c',
-            'SupplierCenter__c','ActivitySector__c','ActivitySector__r.Name',
-             'DistributionChannel__c','DistributionChannel__r.Name', 'Status__c'
+            'Id','SalesOrg__c', 'SalesTeam__r.Name', 'SalesTeam__r.ShowBarterPrices__c', 'SalesOffice__c',
+            'ClientGroup__c', 'SupplierCenter__c','ActivitySector__c','ActivitySector__r.Name',
+            'DistributionChannel__c','DistributionChannel__r.Name', 'Status__c'
         };
         Q proQuery = new Q(Company__c.SObjectType);
         proQuery.selectFields(fieldSet);
@@ -1697,6 +1705,7 @@ public without sharing class OrderScreenController {
                     company.distributionChannelName = salesTeamCompany.DistributionChannel__r.Name;
                     company.clientGroup = salesTeamCompany.ClientGroup__c;
                     company.selected = false;
+                    company.showBarterPrices = salesTeamCompany.SalesTeam__r.ShowBarterPrices__c;
                     companyList.add(company);
                 }
             }
@@ -2707,10 +2716,10 @@ public without sharing class OrderScreenController {
             this.entryId = orderItem.PricebookEntryId;
             this.orderId = OrderId;
             this.serviceDate = orderItem.ServiceDate;
-            this.quantity = !cloneOrder ? (orderItem.AmountUsed__c != 0 && orderItem.AmountUsed__c != null ? orderItem.Quantity - orderItem.AmountUsed__c : orderItem.Quantity) : orderItem.Quantity;
-            this.amountUsed = orderItem.AmountUsed__c;
+            this.quantity = !cloneOrder ? (orderItem.ItemBalance__c != null ? orderItem.ItemBalance__c : orderItem.Quantity) : orderItem.Quantity;
+            this.amountUsed = orderItem.Quantity - orderItem.ItemBalance__c;
             this.invoicedQuantity = orderItem.InvoicedQuantity__c;
-            this.motherAvailableQuantity = orderItem.AmountUsed__c != null ? orderItem.Quantity - orderItem.AmountUsed__c : null;
+            this.motherAvailableQuantity = orderItem.ItemBalance__c != null ? orderItem.ItemBalance__c : null;
             this.listPrice = orderItem.ListPrice__c;
             this.unitPrice = orderItem.PracticedPrice__c;
             this.brokerage = brokeragePerUnit != null ? this.quantity * brokeragePerUnit : orderItem.Brokerage__c;
@@ -2932,6 +2941,7 @@ public without sharing class OrderScreenController {
         public String  distributionChannelName;
         public String  clientGroup;
         public Boolean selected;
+        public Boolean showBarterPrices;
     }
 
     public class CompanyInfosSerialize {

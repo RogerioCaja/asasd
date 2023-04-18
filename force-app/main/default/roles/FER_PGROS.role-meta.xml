@@ -5,5 +5,5 @@
     <mayForecastManagerShare>false</mayForecastManagerShare>
     <name>FER-PGROS</name>
     <opportunityAccessLevel>Edit</opportunityAccessLevel>
-    <parentRole>Agro_Ferrari_Sul</parentRole>
+    <parentRole>CG_Expansoes</parentRole>
 </Role>

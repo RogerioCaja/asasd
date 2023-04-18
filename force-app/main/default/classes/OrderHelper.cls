@@ -168,7 +168,7 @@ public without sharing class OrderHelper {
                 Order oldValues = oldMap.get(order.Id);
                 System.debug('oldValues.Status: ' + oldValues.Status);
                 System.debug('order.Status: ' + order.Status);
-                if (oldValues.Status != 'X' && oldValues.Status != '0' && order.Status == 'X') {
+                if (oldValues.Status != 'X' && oldValues.Status != '0' && order.Status == 'X' && order.OrderType__c != 'Pedido Filho') {
                     ordersToRemoveQuotas.add(order.Id);
                 }
             }
@@ -221,7 +221,7 @@ public without sharing class OrderHelper {
             Map<ID,Schema.RecordTypeInfo> orderMap = Order.sObjectType.getDescribe().getRecordTypeInfosById();
             for(Order order : newRecords){
                 if(order.Status != '0' && !(order.Description != null ? order.Description.contains('1n73gr4ção N3sc4r4 5F x 4PP') : false)){
-                    if(order.MarginCommittee__c || order.Manager_BranchOffice__c || order.Gerente_Regional__c || order.Director__c || (orderMap.get(order.RecordTypeId).getName() == 'Venda Barter' && order.OrderReference__c == null))
+                    if((order.MarginCommittee__c || order.Manager_BranchOffice__c || order.Gerente_Regional__c || order.Director__c || (orderMap.get(order.RecordTypeId).getName() == 'Venda Barter' && order.OrderReference__c == null)) && orderMap.get(order.RecordTypeId).getName() != 'Venda de Serviço')
                     {
                         try{
                             Approval.ProcessSubmitRequest administrationRequest = new Approval.ProcessSubmitRequest();
@@ -236,8 +236,19 @@ public without sharing class OrderHelper {
                         }
                     }
                     else{
-                        orderToUpdate.add(order.Id);
+                        if(orderMap.get(order.RecordTypeId).getName() == 'Venda de Serviço' && order.Higher_Discount__c > 5){
+                            Approval.ProcessSubmitRequest administrationRequest = new Approval.ProcessSubmitRequest();
+                            administrationRequest.setProcessDefinitionNameOrId('OrderApproval_ServiceSale');
+                            administrationRequest.setComments(order.ApprovalJustification__c);
+                            administrationRequest.setObjectId(order.Id);
+                            Approval.ProcessResult approvalResult = Approval.process(administrationRequest);
+                            System.debug('pedido submetido para aprovação com sucesso: '+ approvalResult.isSuccess());
+                        }else{
+                            orderToUpdate.add(order.Id);
+                        }
                     }
+
+                    
                 }
                 
             }
@@ -277,9 +288,9 @@ public without sharing class OrderHelper {
                     }
                 }
                 if((oldMap.get(id).Status == '0' && newMap.get(id).Status == '001') || ( (newMap.get(id).Description != null ? newMap.get(id).Description.contains('1n73gr4ção N3sc4r4 5F x 4PP') : false) && newMap.get(id).Status == '001')){
-                    if(newMap.get(id).MarginCommittee__c || newMap.get(id).Manager_BranchOffice__c || newMap.get(id).Gerente_Regional__c || newMap.get(id).Director__c || (orderMap.get(newMap.get(id).RecordTypeId).getName() == 'Venda Barter' && newMap.get(id).OrderReference__c == null))
+                    if((newMap.get(id).MarginCommittee__c || newMap.get(id).Manager_BranchOffice__c || newMap.get(id).Gerente_Regional__c || newMap.get(id).Director__c || (orderMap.get(newMap.get(id).RecordTypeId).getName() == 'Venda Barter' && newMap.get(id).OrderReference__c == null)) && orderMap.get(newMap.get(id).RecordTypeId).getName() != 'Venda de Serviço')
                     {
-                        
+                      
                         try{
                             Approval.ProcessSubmitRequest administrationRequest = new Approval.ProcessSubmitRequest();
                             administrationRequest.setProcessDefinitionNameOrId('OrderApproval9');
@@ -293,8 +304,19 @@ public without sharing class OrderHelper {
                         }
                     }
                     else{
-                       orderToUpdate.add(id);
+                        if(orderMap.get(newMap.get(id).RecordTypeId).getName() == 'Venda de Serviço' && newMap.get(id).Higher_Discount__c > 5){
+                            Approval.ProcessSubmitRequest administrationRequest = new Approval.ProcessSubmitRequest();
+                            administrationRequest.setProcessDefinitionNameOrId('OrderApproval_ServiceSale');
+                            administrationRequest.setComments(newMap.get(id).ApprovalJustification__c);
+                            administrationRequest.setObjectId(id);
+                            Approval.ProcessResult approvalResult = Approval.process(administrationRequest);
+                            System.debug('pedido submetido para aprovação com sucesso: '+ approvalResult.isSuccess());
+                        }else{
+                            orderToUpdate.add(id);
+                        }
                     }
+
+                    
                 }
             }
             if(orderToUpdate.size() > 0){
