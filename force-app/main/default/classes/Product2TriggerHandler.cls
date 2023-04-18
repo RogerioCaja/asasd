@@ -17,4 +17,8 @@ public with sharing class Product2TriggerHandler {
     public void afterInsert(){
         Product2Helper.createStandardEntries(this.newRecords);
     }
+
+     public void afterUpdate(){
+        Product2Helper.updateStandardEntries(this.newMap);
+    }
 }
