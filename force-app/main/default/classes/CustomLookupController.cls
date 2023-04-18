@@ -46,7 +46,6 @@ public without sharing class CustomLookupController {
 		}
 		return out.toLowercase();
 	}
-    
     @AuraEnabled
     public static ProductDataResult fetchProductsRecords(String searchString, String data, Boolean isCommodity, List<String> productsIds, Boolean priceScreen, Boolean getSeedPrices, Boolean isLimit) {
         try {
@@ -72,20 +71,20 @@ public without sharing class CustomLookupController {
             salesResult.searchString = searchString;
             result.salesResult = salesResult;
 
+            Set<String> priceFields = new Set<String>{'Id', 'UnitPrice__c', 'Cost__c', 'Product__c', 'ProductGroup__c', 'Currency__c', 'SalesOrg__c', 'SalesTeam__c', 'Salesteam__r.Name', 'SalesOffice__c', 'Salesoffice__r.Name', 'Account__c', 'Culture__c', 'ProductMultiplier__c', 'ExternalId__c', 'SalesCondition__r.Name', 'RecordType.DeveloperName'};
             Date dayToConsider = getSeedPrices ? Date.valueOf(productParams.paymentDate) : System.today();
-            Set<String> priceFields = new Set<String>{'Id', 'UnitPrice__c', 'Cost__c', 'Product__c', 'ProductGroup__c', 'Currency__c', 'SalesOrg__c', 'SalesTeam__c', 'SalesOffice__c', 'Account__c', 'Culture__c', 'ProductMultiplier__c', 'ExternalId__c', 'SalesCondition__r.Name', 'RecordType.DeveloperName'};
             Q priceQuery = new Q(JurosDescontoAntecipao__c.SObjectType)
                                 .selectFields(priceFields)
                                 .add(Q.condition('RecordTypeId').isIn(pricesRecTypes))
                                 .add(Q.condition('harvest__c').equalsTo(productParams.safra))
                                 .add(Q.condition('SalesOrg__c').equalsTo(salesResult.salesOrgId))
                                 .add(Q.condition('IsActive__c').equalsTo(true))
+                                .add(Q.condition('SalesCondition__c').equalsTo(productParams.salesConditionId))
                                 .add(Q.condition('StartDate__c').isLessOrEquals(dayToConsider))
                                 .add(Q.condition('EndDate__c').isGreaterOrEquals(dayToConsider));
 
             if (!priceScreen) {
-                priceQuery.add(Q.condition('SalesCondition__c').equalsTo(productParams.salesConditionId))
-                          .add(Q.condition('Currency__c').equalsTo(productParams.productCurrency));
+                priceQuery.add(Q.condition('Currency__c').equalsTo(productParams.productCurrency));
             }
             if (productsIds.size() > 0) {
                 priceQuery.add(Q.condition('Product__c').isIn(productsIds));
@@ -93,7 +92,10 @@ public without sharing class CustomLookupController {
 
             Map<Id, List<JurosDescontoAntecipao__c>> productsPriceById = new Map<Id, List<JurosDescontoAntecipao__c>>();
             Set<Id> accountIds = new Set<Id>();
-            for(SObject jda : Database.query(priceQuery.build())) {
+            String officeId = salesResult.salesOfficeId;
+            String teamId = salesResult.salesTeamId;
+            String finalPriceQuery = priceQuery.build() + ' AND (SalesOffice__c =: officeId OR SalesOffice__c = null) AND (SalesTeam__c =: teamId OR SalesTeam__c = null)';
+            for(SObject jda : Database.query(finalPriceQuery)) {
                 if (!productsPriceById.containsKey((Id)jda.get('Product__c'))) {
                     productsPriceById.put((Id)jda.get('Product__c'), new List<JurosDescontoAntecipao__c>{(JurosDescontoAntecipao__c)jda});
                 } else {
@@ -135,6 +137,32 @@ public without sharing class CustomLookupController {
                 recTypeDevName = orderRecType.DeveloperName;
             }
 
+            Set<Id> prodIdsWithoutQuota = new Set<Id>();
+            Boolean seedSale = OrderScreenController.isSeedSale(salesResult.salesOrgId, null);
+            if (seedSale) {
+                OrderScreenController.QuotaData quotaData = new OrderScreenController.QuotaData(productParams.safra, productParams.ctvId, prodsId);
+            
+                String dataCheck = OrderScreenController.checkQuotaQuantity(JSON.serialize(quotaData));
+                Map<Id, OrderScreenController.QuotaResult> quoteResultMap = new Map<Id, OrderScreenController.QuotaResult>();
+                List<OrderScreenController.QuotaResult> quoteResult = (List<OrderScreenController.QuotaResult>)JSON.deserialize(dataCheck, List<OrderScreenController.QuotaResult>.class);
+            
+                for (OrderScreenController.QuotaResult quota : quoteResult) {
+                    quoteResultMap.put(quota.productId, quota);
+                }
+
+                for (Id id : prodsId) {
+                    if (!quoteResultMap.containsKey(id)) {
+                        prodIdsWithoutQuota.add(id);
+                    }
+                    
+                    if (quoteResultMap.containsKey(id)) {
+                        if (quoteResultMap.get(id).balance == 0) {
+                            prodIdsWithoutQuota.add(id);
+                        }
+                    }
+                }
+            }
+
             String seedGroup = 'SEM001';
             Set<String> insumosGroups = new Set<String>{'SEM001', 'SERV001'};
             Set<String> normalSale = new Set<String>{'HAWA', 'FERT'};
@@ -144,6 +172,11 @@ public without sharing class CustomLookupController {
             String productQuery = 'SELECT Id, Name, ExternalId__c, UnidadeMedida__c, ProductGroup__c, ProductGroup__r.Name, ProductGroup__r.ExternalId__c, ProductSubgroup__c, PrincipleActive__c, Multiplicity__c, ProductHierarchy__c' +
                                   '  FROM Product2' +
                                   ' WHERE Id IN:prodsId' +
+                                  (
+                                    seedSale ?
+                                        ' AND Id NOT IN: prodIdsWithoutQuota' :
+                                        ''
+                                  ) +
                                   (
                                     getSeedPrices ? 
                                         ' AND ProductGroup__r.ExternalId__c =: seedGroup' :
@@ -178,40 +211,12 @@ public without sharing class CustomLookupController {
             Set<Id> prodSubgroupIds = new Set<Id>();
             Set<Id> prodHierarchyIds = new Set<Id>();
             List<String> prodIdList = new List<String>();
-            Set<Id> prodIdsWithoutQuota = new Set<Id>();
-
-            Boolean seedSale = OrderScreenController.isSeedSale(salesResult.salesOrgId, null);
 
             for (SObject product : queryResult) {
                 prodGroupIds.add((String)product.get('ProductGroup__c'));
                 prodIdList.add((String)product.get('Id'));
                 prodSubgroupIds.add((String)product.get('ProductSubgroup__c'));
                 prodHierarchyIds.add((String)product.get('ProductHierarchy__c'));
-            }
-
-            if(seedSale){
-
-                OrderScreenController.QuotaData quotaData = new OrderScreenController.QuotaData(productParams.safra, productParams.ctvId, prodIdList);
-            
-                String dataCheck = OrderScreenController.checkQuotaQuantity(JSON.serialize(quotaData));
-                Map<Id, OrderScreenController.QuotaResult> quoteResultMap = new Map<Id, OrderScreenController.QuotaResult>();
-                List<OrderScreenController.QuotaResult> quoteResult = (List<OrderScreenController.QuotaResult>)JSON.deserialize(dataCheck, List<OrderScreenController.QuotaResult>.class);
-            
-                for(OrderScreenController.QuotaResult quota : quoteResult){
-                    quoteResultMap.put(quota.productId, quota);
-                }
-
-                for(Id id : prodIdList){
-                    if(!quoteResultMap.containsKey(id)){
-                        prodIdsWithoutQuota.add(id);
-                    }
-                    
-                    if(quoteResultMap.containsKey(id)){
-                        if(quoteResultMap.get(id).balance == 0){
-                            prodIdsWithoutQuota.add(id);
-                        }
-                    }
-                }
             }
 
             Map<Id, ProductGroup__c> productsGroupById = new Map<Id, ProductGroup__c>([
@@ -293,7 +298,7 @@ public without sharing class CustomLookupController {
                         }
         
                         Decimal commissionPercentage = commissionByHierarchy.get(productHierarchyId) != null ? commissionByHierarchy.get(productHierarchyId) : 0;
-                        ProductData productData = new ProductData((String)s.get('Id'), (String)s.get('Name'), (String)s.get('ExternalId__c'), (String)s.get('UnidadeMedida__c'), (String)s.get('PrincipleActive__c'), (Decimal)s.get('Multiplicity__c'), productGroupId, productHierarchyId, productGroupName, productSubgroupId, productSubgroupName, jda.Currency__c, jda.Id, jda.UnitPrice__c, jda.Cost__c, commissionPercentage, jda.ProductMultiplier__c, isPtaProduct, jda.ExternalId__c, jda.SalesCondition__r.Name);
+                        ProductData productData = new ProductData((String)s.get('Id'), (String)s.get('Name'), (String)s.get('ExternalId__c'), (String)s.get('UnidadeMedida__c'), (String)s.get('PrincipleActive__c'), (Decimal)s.get('Multiplicity__c'), productGroupId, productHierarchyId, productGroupName, productSubgroupId, productSubgroupName, jda.Currency__c, jda.Id, jda.UnitPrice__c, jda.Cost__c, commissionPercentage, jda.ProductMultiplier__c, isPtaProduct, jda.ExternalId__c, jda.SalesCondition__r.Name, jda.Salesteam__r.Name, jda.Salesoffice__r.Name);
                         
                         Boolean priceIncluded = false;
                         String key = prefix + jda.Account__c + '-' + (String)s.get('Id');
@@ -568,13 +573,15 @@ public without sharing class CustomLookupController {
         @AuraEnabled public String  productCurrency;
         @AuraEnabled public String  priceListCode;
         @AuraEnabled public String  salesCondition;
+        @AuraEnabled public String  salesTeamName;
+        @AuraEnabled public String  salesOfficeName;
         @AuraEnabled public Boolean ptaProduct;
         @AuraEnabled public Decimal multiplicity;
         @AuraEnabled public Decimal listPrice;
         @AuraEnabled public Decimal costPrice;
         @AuraEnabled public Decimal commissionPercentage;
         
-        public ProductData(String Id, String Name, String sapProductCode, String unity, String activePrinciple, Decimal multiplicity, String productGroup, String productHierarchy, String productGroupName, String productSubgroup, String productSubgroupName, String productCurrency, Id entryId, Decimal listPrice, Decimal costPrice, Decimal commissionPercentage, Decimal multiplier, Boolean ptaProduct, String priceListCode, String salesCondition) {
+        public ProductData(String Id, String Name, String sapProductCode, String unity, String activePrinciple, Decimal multiplicity, String productGroup, String productHierarchy, String productGroupName, String productSubgroup, String productSubgroupName, String productCurrency, Id entryId, Decimal listPrice, Decimal costPrice, Decimal commissionPercentage, Decimal multiplier, Boolean ptaProduct, String priceListCode, String salesCondition, String salesTeamName, String salesOfficeName) {
             multiplier = multiplier != null ? multiplier : 1;
             this.Id = Id;
             this.Name = Name;
@@ -595,6 +602,8 @@ public without sharing class CustomLookupController {
             this.commissionPercentage = commissionPercentage != null ? commissionPercentage : 0;
             this.priceListCode = priceListCode != null ? priceListCode : '';
             this.salesCondition = salesCondition != null ? salesCondition : '';
+            this.salesTeamName = salesTeamName != null ? salesTeamName : '';
+            this.salesOfficeName = salesOfficeName != null ? salesOfficeName : '';
         }
     }
 
