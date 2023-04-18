@@ -306,6 +306,7 @@ export default class OrderProductScreen extends LightningElement {
             brokerage: this.isFilled(prod.brokerage) ? prod.brokerage : 0,
             brokerageFront: this.isFilled(prod.brokerage) ? this.fixDecimalPlacesFront(prod.brokerage) : 0,
             quantity: prod.quantity,
+            quantityFront: this.fixDecimalPlacesFront(prod.quantity),
             motherAvailableQuantity: prod.motherAvailableQuantity,
             invoicedQuantity: this.isFilled(prod.invoicedQuantity) ? prod.invoicedQuantity : 0,
             multiplicity: prod.multiplicity,
@@ -653,6 +654,7 @@ export default class OrderProductScreen extends LightningElement {
                         showPriceChange = true;
                         priceChangeMessage += 'O preço do ' + currentProducts[index].name + ' foi alterado de ' + oldPrice + ' para ' + newPrice + '.\n';
                     }
+                    this.addProduct.quantityFront = this.fixDecimalPlacesFront(this.addProduct.quantity);
                 }
 
                 this.recalculatePrice = false;
@@ -792,6 +794,7 @@ export default class OrderProductScreen extends LightningElement {
             brokerage: 0,
             brokerageFront: 0,
             quantity: this.isFilled(combos) ? combos.quantity : null,
+            quantityFront: this.isFilled(combos) ? this.fixDecimalPlacesFront(combos.quantity) : null,
             unitPrice: this.isFilled(prices.listPrice) ? this.fixDecimalPlaces(prices.listPrice) : 0,
             unitPriceFront: this.isFilled(prices.listPrice) ? this.fixDecimalPlacesFront(prices.listPrice) : 0,
             totalPrice: null,
@@ -963,6 +966,7 @@ export default class OrderProductScreen extends LightningElement {
                     this.listTotalPrice = this.addProduct.listPrice * this.addProduct.quantity;
                     this.calculateDiscountOrAddition();
                     this.calculateTotalPrice(true);
+                    this.addProduct.quantityFront = this.fixDecimalPlacesFront(this.addProduct.quantity);
                 }
             } else if (fieldId == 'brokerage'){
                 if (!this.headerData.IsOrderChild) {
@@ -982,6 +986,7 @@ export default class OrderProductScreen extends LightningElement {
                     this.listTotalPrice = this.addProduct.listPrice * this.addProduct.quantity;
                     this.calculateDiscountOrAddition();
                     this.calculateTotalPrice(true);
+                    this.addProduct.quantityFront = this.fixDecimalPlacesFront(this.addProduct.quantity);
                 } else {
                     this.addProduct.totalPrice = this.fixDecimalPlaces((this.addProduct.unitPrice * this.addProduct.quantity));
                     this.addProduct.totalPriceFront = this.fixDecimalPlacesFront((this.addProduct.unitPrice * this.addProduct.quantity));
@@ -1016,9 +1021,10 @@ export default class OrderProductScreen extends LightningElement {
             if (remainder == 0) {
                 return quantity;
             } else {
+                quantity = this.fixDecimalPlacesFront(quantity);
                 quantity = quantity.toString().includes(',') ? Number(quantity.replace(',', '.')) : quantity;
                 quantity = Math.ceil(quantity / this.multiplicity) * this.multiplicity;
-                this.showToast('warning', 'Atenção!', 'A quantidade foi arredondada para ' + quantity + '.');
+                this.showToast('warning', 'Atenção!', 'A quantidade foi arredondada para ' + this.fixDecimalPlacesFront(quantity) + '.');
                 return quantity;
             }
         }
