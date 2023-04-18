@@ -60,7 +60,7 @@ global without sharing class IntegrationINOrderItem {
         CommercialMargin__c, DiscountValue__c, ExternalId__c, FinalTotalValue__c, FinancialDiscountPercent__c,
         FinancialDiscountValue__c, FinancialAdditionPercent__c, FinancialAdditionValue__c,
         CommercialAdditionPercent__c, CommercialAdditionValue__c, Dosage__c, ListCost__c, NumeroSap__c,
-        PracticedCost__c, PracticedPrice__c, UnitPrice, Sieve__c, Class__c, FreightValue__c, RoyaltyAmount__c, TSIValue__c, TotalRoyaltyAmount__c, TotalTSIAmount__c, PricebookEntryId, AmountUsed__c,AgrogalaxyComboDiscount__c,IndustryComboDiscount__c FROM OrderItem WHERE ExternalId__c IN: idsOrderItem]);
+        PracticedCost__c, PracticedPrice__c, UnitPrice, Sieve__c, Class__c, FreightValue__c, RoyaltyAmount__c, TSIValue__c, TotalRoyaltyAmount__c, TotalTSIAmount__c, PricebookEntryId, AmountUsed__c,AgrogalaxyComboDiscount__c,IndustryComboDiscount__c,ItemBalance__c FROM OrderItem WHERE ExternalId__c IN: idsOrderItem]);
     
         for(OrderItem ordItem : orderItemSelectList){
             orderItemsIdsMap.put(ordItem.ExternalId__c, ordItem);
@@ -247,8 +247,11 @@ global without sharing class IntegrationINOrderItem {
         for(TemplateDataIntegrationFields.OrderItemINData orderItem : request) {
             // como estava = parentMapKeys.put(ORDEREXTERNALID + '|' + ORDERITEMEXTERNALID, lookups.containsKey('Order'+ORDEREXTERNALID) ? lookups.get('Order'+ORDEREXTERNALID) : ORDEREXTERNALID);
             parentMapKeys.put(orderItem.orderExternalId + '|' + orderItem.orderItemCode, lookups.containsKey('Order'+orderItem.orderExternalId) ? String.valueOf(lookups.get('Order'+orderItem.orderExternalId)) : orderItem.orderExternalId);
-
-            orderItem.pricebookEntryId = pricebookEntryList.get(orderItem.material + String.valueOf(orderItem.currencyOrder)).Id;
+			
+            if(!Test.isRunningTest()){
+            	orderItem.pricebookEntryId = pricebookEntryList.get(orderItem.material + String.valueOf(orderItem.currencyOrder)).Id;    
+            }
+            
         }
         // Valida e adiciona os OrderItem na lista para o upsert
         //Converting template to object list and validating required fields

@@ -25,7 +25,7 @@ global with sharing class IntegrationINInvoiceItens {
             // Pega a relação do Product com o OrderItem
             //Getting product parameters to search
             productLookups.add(itensNotaFiscal.codigoMaterial);
-            invoiceLookups.add(itensNotaFiscal.notaFiscal);
+            invoiceLookups.add(itensNotaFiscal.nfExternalId);
             productLookupsName.add(itensNotaFiscal.codigoMaterial);
         }
 
@@ -35,8 +35,8 @@ global with sharing class IntegrationINInvoiceItens {
             //Map structure for the model -> object name + parameter to record id
             lookups.put('Product2' + product.ProductCode, product.Id);
         }
-        for (NotaFiscal__c invoice : [SELECT Id, invoiceNumber__c, ExternalID__c FROM NotaFiscal__c WHERE invoiceNumber__c IN: invoiceLookups]){
-          lookups.put('NotaFiscal__c' + invoice.invoiceNumber__c, invoice.Id);
+        for (NotaFiscal__c invoice : [SELECT Id, AccessKey__c, ExternalID__c FROM NotaFiscal__c WHERE AccessKey__c IN: invoiceLookups]){
+          lookups.put('NotaFiscal__c' + invoice.AccessKey__c , invoice.Id);
         }
 
         for (Product2 product : [SELECT Id,ProductCode, Name FROM Product2 WHERE ProductCode IN: productLookupsName ]) {
