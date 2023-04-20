@@ -38,7 +38,7 @@
                 <field>DiscountPercentage__c</field>
             </layoutItems>
             <layoutItems>
-                <behavior>Required</behavior>
+                <behavior>Edit</behavior>
                 <field>PaymentCondition__c</field>
             </layoutItems>
         </layoutColumns>
