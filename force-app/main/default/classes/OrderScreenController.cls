@@ -1485,6 +1485,8 @@ public without sharing class OrderScreenController {
                     AND SalesOrg__c =: company.salesOrgId
                     AND SalesCondition__c =: comboData.salesConditionId
                     AND CombosQuantity__c > 0
+                    AND (SalesTeam__c = null OR SalesTeam__c =: productParams.salesTeamId)
+                    AND (SalesOffice__c = null OR SalesOffice__c =: productParams.salesOfficeId)
                     )
                )
              LIMIT 4
@@ -1994,7 +1996,10 @@ public without sharing class OrderScreenController {
                   FROM ComboPromotion__c
                  WHERE Safra__c =: comboData.cropId
                    AND SalesOrg__c =: comboData.salesOrgId
-                   AND SalesCondition__c =: comboData.salesConditionId
+                   AND (SalesCondition__c = null OR SalesCondition__c =: comboData.salesConditionId)
+                   AND (PaymentCondition__c = null OR PaymentCondition__c =: comboData.paymentConditionId)
+                   AND (SalesTeam__c = null OR SalesTeam__c =: comboData.salesTeamId)
+                   AND (SalesOffice__c = null OR SalesOffice__c =: comboData.salesOfficeId)
                    AND CombosQuantity__c > 0
                    AND RecordTypeId IN: recTypes
                    AND Status__c = 'Ativo'
@@ -3029,6 +3034,7 @@ public without sharing class OrderScreenController {
         public String  salesTeamId;
         public String  salesOfficeId;
         public String  salesConditionId;
+        public String  paymentConditionId;
         public Integer rowsToSkip;
     }
 
