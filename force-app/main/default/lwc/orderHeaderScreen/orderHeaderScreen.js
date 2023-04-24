@@ -480,6 +480,10 @@ export default class OrderHeaderScreen extends LightningElement {
                             }else{
                                 this.mtoOpitions.splice(this.mtoOpitions.findIndex((e) => e.value == 'ZVBA'), 1)
                             }
+
+                            if (this.headerDictLocale.tipo_venda == 'Venda Entrega Futura') {
+                                this.mtoOpitions.splice(this.mtoOpitions.findIndex((e) => e.value == 'ZVBA'), 1)
+                            }
                             console.log('this.mtoOpitions: ' + this.mtoOpitions);
                         });
                     }
