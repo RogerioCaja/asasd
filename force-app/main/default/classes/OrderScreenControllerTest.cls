@@ -106,6 +106,7 @@ public class OrderScreenControllerTest {
 
         Order order = new Order(
             RecordTypeId = Schema.SObjectType.Order.getRecordTypeInfosByName().get('Venda Normal').getRecordTypeId(),
+            OrderType__c = 'Pedido Normal',
             AccountId = parentAccount.Id,
             Status = 'Draft',
             PriceBook2Id = Test.getStandardPricebookId(),
@@ -206,7 +207,7 @@ public class OrderScreenControllerTest {
             Status__c = '5',
             UnitMeasure__c = 'Each',
             FinalTotalValue__c = 1600,
-            DiscountPercent__c = 0,
+            DiscountPercent__c = 2,
             DiscountValue__c = 0,
             CommercialAdditionPercent__c = 6.6666,
             CommercialAdditionValue__c = 100,
@@ -219,7 +220,11 @@ public class OrderScreenControllerTest {
             Dosage__c = 5,
             InvoicedQuantity__c = 0,
             NumeroSap__c = '001',
-            ExternalId__c = order.Id + '|001'
+            ExternalId__c = order.Id + '|001',
+            Brokerage__c = 10,
+            ItemBalance__c = 10,
+            TotalTSIAmount__c = 500,
+            TotalRoyaltyAmount__c = 200
         );
         OrderHelper.disableTrigger();
         insert orderItem;
