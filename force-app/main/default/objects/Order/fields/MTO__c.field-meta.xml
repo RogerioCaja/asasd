@@ -26,6 +26,11 @@
                 <label>Venda Conta e Ordem</label>
             </value>
             <value>
+                <fullName>ZVEF</fullName>
+                <default>false</default>
+                <label>Venda Futura</label>
+            </value>
+            <value>
                 <fullName>ZVBA</fullName>
                 <default>false</default>
                 <label>Venda Barter</label>
