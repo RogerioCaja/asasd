@@ -264,7 +264,7 @@ public without sharing class OrderScreenController {
     }
 
     public static AccountSerialize getOrderAccountData(Id accountId) {
-        Account account = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState, StateRegistration__c, Parent.Name FROM Account WHERE Id =: accountId LIMIT 1];
+        Account account = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState, StateRegistration__c, Parent.Name, ShippingStreet, Number__c, Complement__c, ShippingState, ShippingPostalCode, ShippingCountry, ShippingCity, Neighborhood__c, Email__c FROM Account WHERE Id =: accountId LIMIT 1];
         return new AccountSerialize(account);
     }
 
@@ -290,9 +290,9 @@ public without sharing class OrderScreenController {
 			
             if (profileName != 'Balcão') {
                 Set<Id> relatedAccounts = getTerritoryAccounts();
-                accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState, Parent.Name, StateRegistration__c FROM Account WHERE Status__c = 'Ativo' AND ((ParentId =: accountId AND Id IN: relatedAccounts AND ExternalId__c LIKE '0002%') OR (Id =: accountId AND CNPJ__c != null AND CPF__c = null) OR (ParentId IN: familyAccountIds AND ExternalId__c LIKE '0002%' AND Id IN: relatedAccounts))];
+                accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState, Parent.Name, StateRegistration__c, ShippingStreet, Number__c, Complement__c, ShippingState, ShippingPostalCode, ShippingCountry, ShippingCity, Neighborhood__c, Email__c FROM Account WHERE Status__c = 'Ativo' AND ((ParentId =: accountId AND Id IN: relatedAccounts AND ExternalId__c LIKE '0002%') OR (Id =: accountId AND CNPJ__c != null AND CPF__c = null) OR (ParentId IN: familyAccountIds AND ExternalId__c LIKE '0002%' AND Id IN: relatedAccounts))];
             } else {
-                accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState, Parent.Name, StateRegistration__c FROM Account WHERE Status__c = 'Ativo' AND ((ParentId =: accountId AND ExternalId__c LIKE '0002%') OR (Id =: accountId AND CNPJ__c != null AND CPF__c = null) OR ((ParentId IN: familyAccountIds AND ExternalId__c LIKE '0002%')))];
+                accountList = [SELECT Id, Name, CNPJ__c, CPF__c, ExternalId__c, Company__c, Phone, BillingCity, BillingState, Parent.Name, StateRegistration__c, ShippingStreet, Number__c, Complement__c, ShippingState, ShippingPostalCode, ShippingCountry, ShippingCity, Neighborhood__c, Email__c FROM Account WHERE Status__c = 'Ativo' AND ((ParentId =: accountId AND ExternalId__c LIKE '0002%') OR (Id =: accountId AND CNPJ__c != null AND CPF__c = null) OR ((ParentId IN: familyAccountIds AND ExternalId__c LIKE '0002%')))];
             }
 
             for(Account account : accountList) accountListSerialize.add(new AccountSerialize(account));
@@ -2604,6 +2604,15 @@ public without sharing class OrderScreenController {
         public String Company;
         public String IE;
         public String ParentName;
+        public String ShippingStreet;
+        public String AccountNumber;
+        public String Complement;
+        public String ShippingState;
+        public String ShippingPostalCode;
+        public String ShippingCountry;
+        public String ShippingCity;
+        public String Neighborhood;
+        public String Email;
         
         public List<AccountSerialize> accountList;
         AccountSerialize(){}
@@ -2619,6 +2628,15 @@ public without sharing class OrderScreenController {
             this.Company = account.Company__c;
             this.IE = account.StateRegistration__c;
             this.ParentName = account.Parent.Name;
+            this.ShippingStreet = account.ShippingStreet;
+            this.AccountNumber = account.Number__c;
+            this.Complement = account.Complement__c;
+            this.ShippingState = account.ShippingState;
+            this.ShippingPostalCode = account.ShippingPostalCode;
+            this.ShippingCountry = account.ShippingCountry;
+            this.ShippingCity = account.ShippingCity;
+            this.Neighborhood = account.Neighborhood__c;
+            this.Email = account.Email__c;
         }
 
         AccountSerialize(List<AccountSerialize> accountList){
