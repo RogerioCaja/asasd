@@ -1,7 +1,4 @@
 global without sharing class IntegrationINPaymentForm {
-    public IntegrationINPaymentForm() {
-
-    }
 
     global static Map<String, List<TemplateDataIntegrationFields.Response>> upsertFormPayment(List<TemplateDataIntegrationFields.FormPaymentINData> request) {
         // Guarda as relações de order e product de preço com OrderItem

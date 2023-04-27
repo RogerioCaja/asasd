@@ -1,8 +1,6 @@
 @RestResource(urlMapping='/upsertINBoleto/*')
 global with sharing class IntegrationINBoletos {
-    public IntegrationINBoletos() {
-
-    }
+    
     @HttpPost
     global static ResponseModel upsertBoletos(List<TemplateDataIntegrationFields.BoletosINData> request) {
         // Guarda as relações de order e product de preço com OrderItem

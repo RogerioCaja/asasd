@@ -1,7 +1,5 @@
 global without sharing class IntegrationINOrderItemInsert {
-    public IntegrationINOrderItemInsert() {
-
-    }
+    
     global static Map<String, List<TemplateDataIntegrationFields.Response>> upsertOrderItem(List<TemplateDataIntegrationFields.OrderItemINData> request,List<TemplateDataIntegrationFields.ConditionInsert> conditionList) {
         // Guarda as relações de order e product de preço com OrderItem
         Map<String, Id> lookups = new Map<String, Id>();
