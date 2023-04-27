@@ -990,7 +990,7 @@ public without sharing class FactoryBuilder {
     private static Map<String, String> generateRefMapOrderItem(Order order){
         Map<String, String> referenceItemMotherMap = new Map<String, String>();
         if(order.OrderReference__c != null){
-            List<OrderItem> orderItemReferenceList = [SELECT Product2.ExternalId__c, NumeroSap__c FROM OrderItem WHERE OrderId =:  order.OrderReference__c];
+            List<OrderItem> orderItemReferenceList = [SELECT Product2.ExternalId__c, NumeroSap__c FROM OrderItem WHERE OrderId =:  order.OrderReference__c AND (ReasonRefuse__c = null OR ReasonRefuse__c = '')];
             for(OrderItem orderItem : orderItemReferenceList){
                 referenceItemMotherMap.put(orderItem.Product2.ExternalId__c, orderItem.NumeroSap__c);
             }

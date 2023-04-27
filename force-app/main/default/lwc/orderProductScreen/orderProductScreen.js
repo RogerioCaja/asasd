@@ -599,7 +599,7 @@ export default class OrderProductScreen extends LightningElement {
                     else this.showLoading = false;
 
                     if (!this.headerData.IsOrderChild && !this.isFilled(this.headerData.codigo_sap)) {
-                        let headerValues = {cropId:this.headerData.safra.Id,salesOrgId:this.selectedCompany.salesOrgId,salesTeamId:this.selectedCompany.salesTeamId,salesOfficeId:this.selectedCompany.salesOfficeId,salesConditionId:this.headerData.condicao_venda.Id};
+                        let headerValues = {cropId:this.headerData.safra.Id,salesOrgId:this.selectedCompany.salesOrgId,salesTeamId:this.selectedCompany.salesTeamId,salesOfficeId:this.selectedCompany.salesOfficeId,salesConditionId:this.headerData.condicao_venda.Id, paymentConditionId:this.headerData.condicao_pagamento.Id};
                         getMixAndConditionCombos({data: JSON.stringify(headerValues)})
                         .then((result) => {
                             let combosAndPromotions = JSON.parse(result);
@@ -990,7 +990,8 @@ export default class OrderProductScreen extends LightningElement {
                 } else {
                     this.addProduct.totalPrice = this.fixDecimalPlaces((this.addProduct.unitPrice * this.addProduct.quantity));
                     this.addProduct.totalPriceFront = this.fixDecimalPlacesFront((this.addProduct.unitPrice * this.addProduct.quantity));
-
+                    this.addProduct.quantityFront = this.fixDecimalPlacesFront(this.addProduct.quantity);
+                    
                     if (this.seedSale) {
                         this.addProduct.brokerage =  this.isFilled(this.addProduct.brokeragePerUnit) ? this.addProduct.quantity * Number(this.addProduct.brokeragePerUnit) : this.addProduct.brokerage;
                         this.addProduct.brokerageFront = this.fixDecimalPlacesFront(this.addProduct.brokerage);
