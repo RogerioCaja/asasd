@@ -25,6 +25,7 @@
 										<p><b>Grupo:</b> {prod.productGroupName}</p>
 										<p><b>Princípio ativo:</b> {prod.activePrinciple}</p>
 										<p><b>Código:</b> {prod.sapProductCode}</p>
+										<p><b>Marca:</b> {prod.brand}</p>
 									</div>
 									<div class="card-02" style="padding: 10px 10px 2px 0px !important; width: 35% !important;">
 										<button class="include-button" style="width: 64%;" data-target-id={prod.Id} onclick={showProductModal}>Incluir</button>
@@ -455,7 +456,7 @@
 							<div if:true={selectCommodityScreen}>
 								<template for:each={commodities} for:item="commodity">
 									<div key={commodity.Id} class="card" style="width: 50%;">
-										<div class="container">
+										<div class="container" style="height: auto;">
 											<div class="card-01">
 												<p class="product-name">{commodity.Name}</p>
 											</div>
@@ -499,14 +500,14 @@
 								</div>
 							</div>
 
-							<div class="row">
+							<!-- <div class="row">
 								<div class="column">
 									<label><span class="required"></span>Local de Entrega</label><br>
 									<input class="input-design" type="text" value={selectedCommodity.deliveryAddress} data-target-id="deliveryAddress" onchange={commodityChange}/> 
 								</div>
 
 								<div class="column"></div>
-							</div>
+							</div> -->
 						</div>
 
 						<div if:true={summaryScreen}>
@@ -525,8 +526,8 @@
 									<input class="input-design" type="text" value={accountData.Name} disabled/> 
 								</div>
 								<div class="column">
-									<label>Local de Entrega</label><br>
-									<input class="input-design" type="text" value={selectedCommodity.deliveryAddress} disabled/> 
+									<!-- <label>Local de Entrega</label><br>
+									<input class="input-design" type="text" value={selectedCommodity.deliveryAddress} disabled/>  -->
 								</div>
 							</div>
 
@@ -655,7 +656,7 @@
 
 						<template for:each={companyResult} for:item="company">
 							<div key={company.companyId} class="company-card">
-								<div class="container">
+								<div class="container" style="height: auto;">
 									<div class="company-card-01">
 										<p><b>Equipe de Vendas:</b> {company.salesTeamName}</p>
 										<p><b>Centro Fornecedor:</b> {company.supplierCenter}</p>
