@@ -315,6 +315,9 @@ global with sharing class TemplateDataIntegrationFields {
                 when 'ZCVN'{
                     pedidoMae = true;
                 }
+                when 'ZCVB'{
+                    pedidoMae = true;
+                }
 
                // --- Pedidos normais ---
                 when 'ZSER'{
@@ -364,6 +367,7 @@ global with sharing class TemplateDataIntegrationFields {
                         codTypeOrder.put('ZCCO', 'Venda Conta e Ordem');
                         codTypeOrder.put('ZCVF', 'Venda Entrega Futura');
                         codTypeOrder.put('ZCVN', 'Venda Normal');
+                        codTypeOrder.put('ZCVB', 'Venda Barter');
                     }
 
                     salesType = codTypeOrder.containsKey(salesType) ? codTypeOrder.get(salesType) : salesType;
@@ -1013,7 +1017,7 @@ global with sharing class TemplateDataIntegrationFields {
             return new ItensNotaFiscal__c(
                 Name = 'Nota Fiscal ' + this.notaFiscal + ' - ' + this.NameProduct, //Pegar descrição do produto e number NF
                 ExternalID__c = this.codigoMaterial + '|' + this.notaFiscal + '|' + this.lote,
-                Invoice__c = lookups.containsKey('NotaFiscal__c' + this.notaFiscal) ? lookups.get('NotaFiscal__c' + this.notaFiscal) : null,
+                Invoice__c = lookups.containsKey('NotaFiscal__c' + this.nfExternalId) ? lookups.get('NotaFiscal__c' + this.nfExternalId) : null,
                 Productcode__c = lookups.containsKey('Product2'+this.codigoMaterial) ? lookups.get('Product2' + this.codigoMaterial) : null,
                 Theamount__c = this.quantidade,
                 Amount__c = this.valorTotalItem,
