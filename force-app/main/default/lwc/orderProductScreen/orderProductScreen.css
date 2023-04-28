@@ -166,6 +166,7 @@ lightning-datatable.dt-outer-container {
     overflow: hidden;
     clear: both;
 	padding: 0px;
+	height: 150px;
 }
 
 .combo-container {
