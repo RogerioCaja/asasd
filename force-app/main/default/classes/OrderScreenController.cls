@@ -1242,7 +1242,6 @@ public without sharing class OrderScreenController {
                         orderCommodity.Product__c = commodity.productId;
                         orderCommodity.StartDate__c = Date.valueOf(commodity.startDate);
                         orderCommodity.EndDate__c = Date.valueOf(commodity.endDate);
-                        orderCommodity.DeliveryAddress__c = commodity.deliveryAddress;
                         orderCommodity.CurrencyIsoCode = orderData.headerData.moeda;
                         upsCommodities.add(orderCommodity);
 
@@ -2366,7 +2365,6 @@ public without sharing class OrderScreenController {
         public String  totalDelivery;
         public String  startDate;
         public String  endDate;
-        public String  deliveryAddress;
         public Decimal quantity;
         public Decimal commodityPrice;
         public Boolean saved;
