@@ -8,21 +8,26 @@ public with sharing class IntegrationINProductTest {
             External_Id__c ='hierarquia01'
         );
         
-
+		insert productHierarchy;
+        
         ProductGroup__c productGroup = new ProductGroup__c(
             Name = 'Grupo de produto Teste',
             ExternalId__c = 'gp01'
         );
-
+		insert productGroup;
+        
         ProductSubgroup__c productSubGroup = new ProductSubgroup__c( 
             Name =  'SubGrupo de produto Teste',
             ExternalId__c = 'sgp01'
         );
-
+		insert productSubGroup;
+        
         SalesOrg__c salesOrg = new SalesOrg__c(
             Name = 'AgroGalaxy',
             SalesOrganizationCode__c = '1000'
         );
+        
+        insert salesOrg;
 
         Product2 product = new Product2(
             Name = 'Laptop X200', 
@@ -38,6 +43,25 @@ public with sharing class IntegrationINProductTest {
             OrigemMaterial__c = 'sp',
             UnidadeMedida__c = 'un'
         );
+        
+        insert product;
+        
+        Product2 product2 = new Product2(
+            Id = Product.Id,
+            Name = 'Laptop X200', 
+            Family = 'Hardware',
+            ExternalId__c = '0001',
+            ProductCode__c = '0001',
+            ProductCode = '0001',
+            ClasseAvaliacao__c = 'av01',
+            GrupoQuimico__c = 'bg1',
+            MarcadoEliminacao__c = 'tes01',
+            NCM__c = '85432000',
+            NumeroRegistro__c = '2',
+            OrigemMaterial__c = 'sp',
+            UnidadeMedida__c = 'l'
+        );
+        update product2;
     }
 
     @isTest
