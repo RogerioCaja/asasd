@@ -1,8 +1,6 @@
 @RestResource(urlMapping='/upsertOrderAppdigital/*')
 global without sharing class IntegrationINOrderAppdigital {
-    public IntegrationINOrderAppdigital() {
-
-    }
+    
     @HttpPost
     global static ResponseModel upsertOrder(List<TemplateDataIntegrationFields.OrderINData> request) {
         // Guarda a relação da conta com o pedido

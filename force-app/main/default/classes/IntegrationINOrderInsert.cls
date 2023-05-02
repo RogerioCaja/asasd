@@ -1,9 +1,5 @@
 global without sharing class IntegrationINOrderInsert {
-    public IntegrationINOrderInsert() {
 
-    }
-
- 
     global static ResponseModel upsertOrder(List<TemplateDataIntegrationFields.OrderINData> request) {
         // Guarda a relação da conta com o pedido
         Map<String, Id> lookups = new Map<String, Id>();
