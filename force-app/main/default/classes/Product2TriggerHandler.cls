@@ -1,7 +1,5 @@
 public with sharing class Product2TriggerHandler {
-    public Product2TriggerHandler() {
-
-    }
+    
     List<Product2> oldRecords {get; set;} //Trigger Old 
     List<Product2> newRecords {get; set;} //Trigger New
     Map<Id, Product2> oldMap {get; set;} //Trigger oldMap

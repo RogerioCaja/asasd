@@ -1,7 +1,5 @@
 global without sharing class IntegrationINOrderItemAppdigital {
-    public IntegrationINOrderItemAppdigital() {
-
-    }
+    
     // Integração do OrderItem Upsert
     //@HttpPost 
     global static Map<String, List<TemplateDataIntegrationFields.Response>> upsertOrderItem(List<TemplateDataIntegrationFields.OrderItemINData> request) {
