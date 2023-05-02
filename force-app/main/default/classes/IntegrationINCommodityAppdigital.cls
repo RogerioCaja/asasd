@@ -1,7 +1,5 @@
 global without sharing class IntegrationINCommodityAppdigital {
-    public IntegrationINCommodityAppdigital() {
-
-    }
+    
 
     global static Map<String, List<TemplateDataINtegrationFields.Response>> upsertCommodity (List<TemplateDataINtegrationFields.OrderCommodityINData> request){
 
