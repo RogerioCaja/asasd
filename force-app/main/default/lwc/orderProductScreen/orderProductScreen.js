@@ -273,6 +273,7 @@ export default class OrderProductScreen extends LightningElement {
             sapStatus: prod.sapStatus,
             sapProductCode: prod.sapProductCode,
             activePrinciple: prod.activePrinciple,
+            brand: prod.brand,
             commercialDiscountPercentage: prod.commercialDiscountPercentage,
             commercialDiscountPercentageFront: this.headerData.IsOrderChild ? '0%' : this.fixDecimalPlacesPercentage(prod.commercialDiscountPercentage),
             commercialAdditionPercentage: prod.commercialAdditionPercentage,
@@ -821,6 +822,7 @@ export default class OrderProductScreen extends LightningElement {
             invoicedQuantity: this.isFilled(prod.invoicedQuantity) ? prod.invoicedQuantity : 0,
             motherAvailableQuantity: prod.motherAvailableQuantity,
             activePrinciple: prod.activePrinciple != null ? prod.activePrinciple : '',
+            brand: prod.brand != null ? prod.brand : '',
             productGroupId: prod.productGroupId != null ? prod.productGroupId : '',
             productGroupName: prod.productGroupName != null ? prod.productGroupName : '',
             productSubgroupName: prod.productSubgroupName != null ? prod.productSubgroupName : '',
@@ -1888,7 +1890,6 @@ export default class OrderProductScreen extends LightningElement {
             deliveryQuantityFront: Math.ceil((totalProducts / commodityPrice)) + ' sacas',
             ptax: chooseCommodity.productCurrency + chooseCommodity.listPrice,
             commodityPrice: chooseCommodity.listPrice,
-            deliveryAddress: '',
             commission: 'R$' + ((chooseCommodity.commissionPercentage * totalProducts) / 100),
             totalMarginPercent: this.fixDecimalPlaces(marginPercent) + '%',
             totalMarginPercentFront: this.fixDecimalPlacesFront(marginPercent) + '%',
@@ -1924,7 +1925,6 @@ export default class OrderProductScreen extends LightningElement {
             cotation: this.selectedCommodity.cotation,
             startDate: this.selectedCommodity.startDate,
             endDate: this.selectedCommodity.endDate,
-            deliveryAddress : this.selectedCommodity.deliveryAddress,
             saved: false
         });
     }
@@ -1956,7 +1956,7 @@ export default class OrderProductScreen extends LightningElement {
         if (this.isFilled(event.target.value)) this.selectedCommodity[event.target.dataset.targetId] = event.target.value;
     }
 
-    verifyConditions(startDate, endDate, deliveryAddress){
+    verifyConditions(startDate, endDate){
         if ((this.isFilled(startDate)  && startDate != "") && (this.isFilled(endDate) && endDate != "")){
             var start = new Date(startDate);
             var end = new Date(endDate);
@@ -1968,11 +1968,7 @@ export default class OrderProductScreen extends LightningElement {
             this.showToast('warning', 'Atenção', 'Campos Obrigatórios não preenchidos.');
             return false;
         }
-
-        if (deliveryAddress.trim() == "") {
-            this.showToast('warning', 'Atenção', 'Campos Obrigatórios não preenchidos.');
-            return false;
-        }
+        
         return true;
     }
 
@@ -1982,7 +1978,7 @@ export default class OrderProductScreen extends LightningElement {
         this.commoditySelected = false;
         this.summaryScreen = false;
         if (this.currentScreen== 'fillCommodity' && this.commodityScreens[this.commodityScreens.indexOf(this.currentScreen) + 1] == 'negotiationDetails'){
-            if (!this.verifyConditions(this.selectedCommodity.startDate, this.selectedCommodity.endDate, this.selectedCommodity.deliveryAddress)){
+            if (!this.verifyConditions(this.selectedCommodity.startDate, this.selectedCommodity.endDate)){
                 this.commoditySelected = true;
                 return;
             }
