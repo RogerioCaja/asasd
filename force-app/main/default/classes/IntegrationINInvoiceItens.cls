@@ -1,7 +1,5 @@
 global with sharing class IntegrationINInvoiceItens {
-    public IntegrationINInvoiceItens() {
-
-    }
+    
     global static Map<String, List<TemplateDataIntegrationFields.Response>> upsertInvoiceItens(List<TemplateDataIntegrationFields.ItensNotaFiscalINData> request) {
         // Guarda as relações de order e product de preço com OrderItem
         Map<String, Id> lookups = new Map<String, Id>();

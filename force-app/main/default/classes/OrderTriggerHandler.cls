@@ -11,9 +11,6 @@ public without sharing class OrderTriggerHandler {
         this.oldMap = oldMap;
         this.newMap = newMap;
     }
-
-    public void OnBeforeInsert(){
-    }
     
     public void OnAfterInsert(){
         OrderHelper.sendApprovalProccess(this.newRecords);
@@ -32,10 +29,5 @@ public without sharing class OrderTriggerHandler {
         OrderHelper.creatyShareRecord(this.newRecords);
     }
     
-    public void OnBeforeDelete(){}
-    
-    public void OnAfterDelete(){}
-    
-    public void OnUndelete(){}
     
 }

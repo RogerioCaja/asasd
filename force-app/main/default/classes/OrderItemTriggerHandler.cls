@@ -1,7 +1,4 @@
 public without sharing class OrderItemTriggerHandler {
-    public OrderItemTriggerHandler() {
-
-    }
 
     List<OrderItem> oldRecords {get; set;} // Trigger.old 
     List<OrderItem> newRecords {get; set;} // Trigger.new
@@ -15,17 +12,12 @@ public without sharing class OrderItemTriggerHandler {
         this.newMap = newMap;
     }
 
-    public void OnBeforeInsert(){
-        
-    }
     
     public void OnAfterInsert(){
         OrderItemHelper.insertOrderItem(this.newRecords);
         OrderItemHelper.cleanDescriptionOrderItem(this.newRecords);
     }
     
-    public void OnBeforeUpdate(){
-    }
     
     public void OnAfterUpdate(){
         OrderItemHelper.updateOrderItem(this.newRecords, this.oldMap);
@@ -33,9 +25,4 @@ public without sharing class OrderItemTriggerHandler {
         OrderItemHelper.cleanDescriptionOrderItem(this.newRecords);
     }
     
-    public void OnBeforeDelete(){}
-    
-    public void OnAfterDelete(){}
-    
-    public void OnUndelete(){}
 }

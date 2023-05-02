@@ -1,7 +1,5 @@
 public without sharing class Product2Helper {
-    public Product2Helper() {
-
-    }
+    
     private static boolean isEnabled;
 
     @TestVisible

@@ -1,8 +1,6 @@
 @RestResource(urlMapping='/upsertInvoice/*')
 global with sharing class IntegrationINInvoice {
-    public IntegrationINInvoice() {
-
-    }
+    
     @HttpPost
     global static ResponseModel upsertInvoice(List<TemplateDataIntegrationFields.NotaFiscalINData> request) {
         // Guarda a relação da conta com o pedido
