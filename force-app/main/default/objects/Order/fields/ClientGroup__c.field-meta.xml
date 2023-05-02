@@ -12,6 +12,7 @@
 &apos;05&apos;, &apos;CONECTA&apos;,
 &apos;06&apos;, &apos;DINÂMICO&apos;,
 &apos;08&apos;, &apos;FORNECEDOR&apos;,
+&apos;11&apos;, &apos;NOVO&apos;,
 &apos;10&apos;, &apos;FUNCIONÁRIO&apos;,
 &apos;Não encontrado&apos;)</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
