@@ -53,17 +53,32 @@
                 <div class="account-info" if:true={bpData.CPF}>
                     <span>CPF:</span> {bpData.CPF}
                 </div>
-                <div class="account-info" if:true={bpData.City}>
-                    {bpData.City} - {bpData.UF} - Brasil
+                <div class="account-info" if:true={bpData.Number__c}>
+                    <span>Endereço:</span> {bpData.ShippingStreet}, {bpData.Number__c}, {bpData.Complement__c} - {bpData.Neighborhood__c}
                 </div>
-                <div class="account-info" if:true={bpData.BillingCity}>
-                    {bpData.BillingCity} - {bpData.BillingState} - Brasil
-                    </div>
+                <div class="account-info" if:true={bpData.AccountNumber}>
+                    <span>Endereço:</span> {bpData.ShippingStreet},{bpdata.AccountNumber}, {bpdata.Complement} - {bpdata.Neighborhood}
+                </div>
+                <div class="account-info" if:true={bpData.ShippingCity}>
+                    <span>Cidade:</span> {bpData.ShippingCity} - {bpData.ShippingState}
+                </div>
+                <div class="account-info" if:true={bpData.ShippingCountry}>
+                    <span>País:</span> {bpData.ShippingCountry}
+                </div>
+                <div class="account-info" if:true={bpData.ShippingPostalCode}>
+                    <span>Código Postal:</span> {bpData.ShippingPostalCode}
+                </div>
                 <div class="account-info" if:true={bpData.ExternalId__c}>
                     <span>Código SAP:</span> {bpData.ExternalId__c}
                 </div>
                 <div class="account-info" if:true={bpData.CodSap}>
                     <span>Código SAP:</span> {bpData.CodSap}
+                </div>
+                <div class="account-info" if:true={bpData.Email__c}>
+                    <span>Email:</span> {bpData.Email__c}
+                </div>
+                <div class="account-info" if:true={bpData.Email}>
+                    <span>Email:</span> {bpData.Email}
                 </div>
                 <div class="account-info">
                     <span>Telefone:</span> {bpData.Phone}
@@ -159,17 +174,32 @@
                         <div class="account-info" if:true={rec.CPF}>
                             <span>CPF:</span> {rec.CPF}
                         </div>
-                        <div class="account-info" if:true={rec.City}>
-                            {rec.City} - {rec.UF} - Brasil
+                        <div class="account-info" if:true={rec.Number__c}>
+                            <span>Endereço:</span> {rec.ShippingStreet}, {rec.Number__c}, {rec.Complement__c} - {rec.Neighborhood__c}
                         </div>
-                        <div class="account-info" if:true={rec.BillingCity}>
-                            {rec.BillingCity} - {rec.BillingState} - Brasil
+                        <div class="account-info" if:true={rec.AccountNumber}>
+                            <span>Endereço:</span> {rec.ShippingStreet},{rec.AccountNumber}, {rec.Complement} - {rec.Neighborhood}
+                        </div>
+                        <div class="account-info" if:true={rec.ShippingCity}>
+                            <span>Cidade:</span> {rec.ShippingCity} - {rec.ShippingState}
+                        </div>
+                        <div class="account-info" if:true={rec.ShippingCountry}>
+                            <span>País:</span> {rec.ShippingCountry}
+                        </div>
+                        <div class="account-info" if:true={rec.ShippingPostalCode}>
+                            <span>Código Postal:</span> {rec.ShippingPostalCode}
                         </div>
                         <div class="account-info" if:true={rec.ExternalId__c}>
                             <span>Código SAP:</span> {rec.ExternalId__c}
                         </div>
                         <div class="account-info" if:true={rec.CodSap}>
                             <span>Código SAP:</span> {rec.ExternalId__c}
+                        </div>
+                        <div class="account-info" if:true={rec.Email__c}>
+                            <span>Email:</span> {rec.Email__c}
+                        </div>
+                        <div class="account-info" if:true={rec.Email}>
+                            <span>Email:</span> {rec.Email}
                         </div>
                         <div class="account-info">
                             <span>Telefone:</span> {rec.Phone}
