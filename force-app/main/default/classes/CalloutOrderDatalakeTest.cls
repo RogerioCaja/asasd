@@ -121,6 +121,7 @@ public with sharing class CalloutOrderDatalakeTest {
         Order order = new Order(
             AccountId =  account.Id,
             Status = '2',
+            ShippingDate__c = Date.today(),
             PriceBook2Id = Test.getStandardPricebookId(),
             Type =  'Venda Normal',
             ShippingAccount__c =   account.Id,
@@ -147,6 +148,7 @@ public with sharing class CalloutOrderDatalakeTest {
           Order order2 = new Order(
             AccountId =  account.Id,
             CodigoSap__c = '1002',
+            ShippingDate__c = Date.today(),
             Status = 'Draft',
             PriceBook2Id = Test.getStandardPricebookId(),
             Type =  'Venda Normal',
