@@ -2627,7 +2627,7 @@ public without sharing class OrderScreenController {
             this.IE = account.StateRegistration__c;
             this.ParentName = account.Parent.Name;
             this.ShippingStreet = account.ShippingStreet;
-            this.AccountNumber = account.Number__c;
+            this.AccountNumber = account.Number__c != null ? account.Number__c : ' ';
             this.Complement = account.Complement__c;
             this.ShippingState = account.ShippingState;
             this.ShippingPostalCode = account.ShippingPostalCode;
