@@ -53,11 +53,11 @@
                 <div class="account-info" if:true={bpData.CPF}>
                     <span>CPF:</span> {bpData.CPF}
                 </div>
-                <div class="account-info" if:true={bpData.Number__c}>
+                <div class="account-info" if:false={bpData.AccountNumber}>
                     <span>Endereço:</span> {bpData.ShippingStreet}, {bpData.Number__c}, {bpData.Complement__c} - {bpData.Neighborhood__c}
                 </div>
                 <div class="account-info" if:true={bpData.AccountNumber}>
-                    <span>Endereço:</span> {bpData.ShippingStreet},{bpdata.AccountNumber}, {bpdata.Complement} - {bpdata.Neighborhood}
+                    <span>Endereço:</span> {bpData.ShippingStreet}, {bpData.AccountNumber}, {bpData.Complement} - {bpData.Neighborhood}
                 </div>
                 <div class="account-info" if:true={bpData.ShippingCity}>
                     <span>Cidade:</span> {bpData.ShippingCity} - {bpData.ShippingState}
@@ -174,11 +174,8 @@
                         <div class="account-info" if:true={rec.CPF}>
                             <span>CPF:</span> {rec.CPF}
                         </div>
-                        <div class="account-info" if:true={rec.Number__c}>
+                        <div class="account-info">
                             <span>Endereço:</span> {rec.ShippingStreet}, {rec.Number__c}, {rec.Complement__c} - {rec.Neighborhood__c}
-                        </div>
-                        <div class="account-info" if:true={rec.AccountNumber}>
-                            <span>Endereço:</span> {rec.ShippingStreet},{rec.AccountNumber}, {rec.Complement} - {rec.Neighborhood}
                         </div>
                         <div class="account-info" if:true={rec.ShippingCity}>
                             <span>Cidade:</span> {rec.ShippingCity} - {rec.ShippingState}
