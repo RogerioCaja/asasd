@@ -289,6 +289,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String salesType;
         public String recordIdToUpdate;
         public String contratoACM;
+        public String orderMTO;
         //public String clienteCode; 
         public List<TemplateDataIntegrationFields.OrderItemINData> orderItems;
         public List<TemplateDataIntegrationFields.ShippingDivisonINData> shippingDivison;
@@ -420,7 +421,8 @@ global with sharing class TemplateDataIntegrationFields {
                 OrderType__c = this.orderReference != '' ? 'Pedido Filho' : (this.pedidoMae ? 'Pedido Mãe' : 'Pedido Normal'),
                 
                 OwnerId = lookups.containsKey('User'+this.salesCTV) ? lookups.get('User'+this.salesCTV) : null,
-                ACMContract__c = this.contratoACM
+                ACMContract__c = this.contratoACM,
+                MTO__C = this.orderMTO
                 
             );
         }
