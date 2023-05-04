@@ -646,8 +646,13 @@ public class OrderScreenControllerTest {
     public static void getMixAndConditionCombosTest() {
         OrderScreenController.HeaderValues data = new OrderScreenController.HeaderValues();
         data.cropId = [SELECT Id FROM Safra__c LIMIT 1].Id;
-        data.salesOrgId = [SELECT Id FROM SalesOrg__c LIMIT 1].Id;
-        data.salesConditionId = [SELECT Id FROM SalesCondition__c LIMIT 1].Id;
+        data.salesOrgId = [SELECT Id FROM SalesOrg__c  LIMIT 1].Id;
+        data.salesConditionId = [SELECT Id FROM SalesCondition__c  LIMIT 1].Id;
         OrderScreenController.getMixAndConditionCombos(JSON.serialize(data));
+    }
+
+    @isTest
+    static void getMTOTypesTest(){
+        OrderScreenController.getMTOTypes();
     }
 }

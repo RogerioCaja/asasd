@@ -580,7 +580,7 @@ global without sharing class IntegrationINOrderAppdigital {
         PracticedCost__c, 
         PracticedPrice__c, 
         UnitPrice FROM OrderItem WHERE OrderId =: orderDiscount.Id];
-        if (orderDiscount.Company__c != null) {
+        if (orderDiscount.Company__c != null && orderDiscount.OrderType__c != 'Pedido Filho') {
             Id userTerritoryId;
             for (UserTerritory2Association userAssociation : [
                 SELECT Id,
@@ -725,8 +725,10 @@ global without sharing class IntegrationINOrderAppdigital {
                 orderDiscount.ApprovalDirector__c = approvalsByTerritory.get(approvalByCounter.get(2));
                 orderDiscount.Director__c = true;
             }
-            orderDiscount.Description += '1n73gr4ção N3sc4r4 5F x 4PP';
-            update orderDiscount;
+            
         }
+
+        orderDiscount.Description += '1n73gr4ção N3sc4r4 5F x 4PP';
+        Database.update(orderDiscount, Order.Id);
     }
 }
