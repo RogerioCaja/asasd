@@ -8,6 +8,7 @@ import isSeedSale from '@salesforce/apex/OrderScreenController.isSeedSale';
 import getPaymentTypes from '@salesforce/apex/OrderScreenController.getPaymentTypes';
 import checkSalesOrgFreight from '@salesforce/apex/OrderScreenController.checkSalesOrgFreight';
 import getParentIdFromAccountProperty from '@salesforce/apex/OrderScreenController.getParentIdFromAccountProperty';
+import getSafraInfos from '@salesforce/apex/OrderScreenController.getSafraInfos';
 export default class OrderSummaryScreen extends LightningElement {
     showLoading = false;
     staticValue = 'hidden';
@@ -39,6 +40,13 @@ export default class OrderSummaryScreen extends LightningElement {
     showTsiRed;
     showRoyaltiesRed;
     @api allowFormOfPayment = false;
+
+    showProductDivision = false;
+    currentDivisionProduct = {};
+    divisionProducts = [];
+    productPosition;
+    multiplicity;
+    safraData = {};
 
     showFormOfPayment = false;
     blockPaymentFields = false;
@@ -169,7 +177,11 @@ export default class OrderSummaryScreen extends LightningElement {
             console.log(JSON.stringify(err));
         });
 
-
+        getSafraInfos({safraId: this.headerData.safra.Id, salesConditionId: this.headerData.condicao_venda.Id, salesOrgId: this.headerData.organizacao_vendas.Id})
+        .then((result) => {
+            let safraResult = JSON.parse(result);
+            this.safraData = {initialDate:safraResult.initialDate,endDate:safraResult.endDateBilling};
+        });
     }
 
     getDistributionCenters() {
@@ -284,10 +296,15 @@ export default class OrderSummaryScreen extends LightningElement {
                     this.productDataLocale[i]['commercialDiscountPercentage']  =  this.productDataLocale[i].commercialDiscountPercentageFront;
                     this.productDataLocale[i]['commercialMarginPercentage']  = this.fixDecimalPlacesFront(Number((Number(this.productDataLocale[i].commercialMarginPercentage) / 100) * Number(totalProductPrice))).toString() + ' sacas';
                     this.productDataLocale[i]['divisionData'] = [];
-                    if(this.divisionData){
-                        for(var j=0; j< this.divisionData.length; j++){
-                            if(this.divisionData[j].productPosition == i)
-                                this.productDataLocale[i]['divisionData'].push(this.divisionData[j])
+                    if (this.divisionData) {
+                        for (var j=0; j< this.divisionData.length; j++) {
+                            let counter = this.headerData.pedido_mae.Id != null ? i : i + 1;
+                            if (this.divisionData[j].productPosition == counter) {
+                                let currentDivision = JSON.parse(JSON.stringify(this.divisionData[j]));
+                                let splitedDate = currentDivision.deliveryDate.split('-');
+                                currentDivision.dateToShow = splitedDate[2] + '/' + splitedDate[1] + '/' + splitedDate[0];
+                                this.productDataLocale[i]['divisionData'].push(currentDivision);
+                            }
                         }
                     }
                 }
@@ -310,9 +327,14 @@ export default class OrderSummaryScreen extends LightningElement {
                     this.productDataLocale[i]['commercialMarginPercentage']  = this.fixDecimalPlacesFront(this.productDataLocale[i].commercialMarginPercentage) + '%';
                     this.productDataLocale[i]['divisionData'] = [];
                     if(this.divisionData){
-                        for(var j=0; j< this.divisionData.length; j++){
-                            if(this.divisionData[j].productPosition == i)
-                                this.productDataLocale[i]['divisionData'].push(this.divisionData[j])
+                        for (var j=0; j< this.divisionData.length; j++) {
+                            let counter = this.headerData.pedido_mae.Id != null ? i : i + 1;
+                            if(this.divisionData[j].productPosition == counter) {
+                                let currentDivision = JSON.parse(JSON.stringify(this.divisionData[j]));
+                                let splitedDate = currentDivision.deliveryDate.split('-');
+                                currentDivision.dateToShow = splitedDate[2] + '/' + splitedDate[1] + '/' + splitedDate[0];
+                                this.productDataLocale[i]['divisionData'].push(currentDivision);
+                            }
                         }
                     }
                 }
@@ -735,6 +757,168 @@ export default class OrderSummaryScreen extends LightningElement {
 
         this.formsOfPayment = JSON.parse(JSON.stringify(linesToUse));
         this.recalcTotalToDistribution();
+    }
+
+    openDivisionModal(event) {
+        this.productDivision(event.target.dataset.targetId);
+    }
+
+    productDivision(position) {
+        let distributedQuantity = 0;
+        this.divisionProducts = this.isFilled(this.divisionData) ? JSON.parse(JSON.stringify(this.divisionData)) : [];
+        for (let index = 0; index < this.divisionProducts.length; index++) {
+            if (this.divisionProducts[index].productPosition == position) {
+                this.divisionProducts[index].showInfos = true;
+                distributedQuantity += Number(this.divisionProducts[index].quantity);
+            } else {
+                this.divisionProducts[index].showInfos = false;
+            }
+        }
+
+        let currentProduct = this.productDataLocale.find(e => e.position == position);
+        let availableQuantity = Number(currentProduct.quantity) - Number(distributedQuantity);
+        this.productPosition = position;
+        this.multiplicity = this.isFilled(currentProduct.multiplicity) && currentProduct.multiplicity > 0 ? currentProduct.multiplicity : 1;
+        let allowChange = (this.headerData.tipo_pedido != 'Pedido Filho' && !this.headerData.IsOrderChild && this.isFilled(this.headerData.codigo_sap)) ||
+                          (this.headerData.tipo_pedido == 'Pedido Filho' && this.isFilled(this.headerData.codigo_sap)) ? true : false;
+        this.currentDivisionProduct = {productId:currentProduct.productId,unitPrice:currentProduct.unitPrice,position:position,name:currentProduct.name,quantity:currentProduct.quantity,availableQuantity:availableQuantity,showRed:availableQuantity < 0 ? true : false,dontAllowChange:allowChange};
+        this.showProductDivision = !this.showProductDivision;
+        if (!this.currentDivisionProduct.dontAllowChange) this.newDivisionFields();
+    }
+
+    newDivisionFields() {
+        let allDivisions = JSON.parse(JSON.stringify(this.divisionProducts));
+        let divPosition = this.isFilled(allDivisions) ? allDivisions.length : 0;
+        let deliveryId = 'deliveryId-' + divPosition;
+        let quantityId = 'quantityId-' + divPosition;
+        let orderItemKey = this.currentDivisionProduct.productId;
+        allDivisions.push({productId: this.currentDivisionProduct.productId, deliveryDate: null, quantity: null, position: divPosition, deliveryId: deliveryId, quantityId: quantityId, orderItemKey: orderItemKey, productPosition: this.productPosition, showInfos: true});
+        this.divisionProducts = JSON.parse(JSON.stringify(allDivisions));
+    }
+
+    showDivisionModal() {
+        let quantityError = this.quantityExceed();
+        if (quantityError) this.showToast('warning', 'Atenção!', 'A soma das quantidades não pode ultrapassar ' + this.currentDivisionProduct.quantity + '.');
+        else this.showProductDivision = !this.showProductDivision;
+    }
+
+    quantityExceed() {
+        let allDivisions = JSON.parse(JSON.stringify(this.divisionProducts));
+        if (allDivisions.length > 0) {
+            let allDivisionQuantitys = 0;
+            for (let index = 0; index < allDivisions.length; index++) {
+                let existingProductDivision = allDivisions[index];
+                if (existingProductDivision.productPosition == this.productPosition) allDivisionQuantitys += Number(existingProductDivision.quantity);
+            }
+            if (allDivisionQuantitys > Number(this.currentDivisionProduct.quantity)) return true;
+            else return false;
+        }
+    }
+
+    confirmDivision() {
+        let quantityError = this.quantityExceed();
+        if (quantityError) {
+            this.showToast('warning', 'Atenção!', 'A soma das quantidades não pode ultrapassar ' + this.currentDivisionProduct.quantity + '.');
+        } else {
+            let filledDivisions = [];
+            for (let index = 0; index < this.divisionProducts.length; index++) {
+                let checkFields = this.divisionProducts[index];
+                let pushValue = true;
+                if (this.isFilled(checkFields.quantity) && checkFields.quantity > 0 && this.isFilled(checkFields.deliveryDate)) {
+                    for (let i = 0; i < filledDivisions.length; i++) {
+                        if (filledDivisions[i].deliveryDate == checkFields.deliveryDate && filledDivisions[i].productId == checkFields.productId) {
+                            filledDivisions[i].quantity = Number(filledDivisions[i].quantity) + Number(checkFields.quantity);
+                            pushValue = false;
+                        }
+                    }
+                    if (pushValue) filledDivisions.push(checkFields);
+                }
+            }
+
+            for (let index = 0; index < filledDivisions.length; index++) {
+                if (filledDivisions[index].productPosition == this.productPosition) filledDivisions[index].orderItemKey = this.currentDivisionProduct.productId;
+            }
+
+            this.divisionData = JSON.parse(JSON.stringify(filledDivisions));
+            this.showProductDivision = !this.showProductDivision;
+            this.showToast('success', 'Sucesso!', 'Remessas salvas.');
+            this._setDivisionData();
+            let allProducts = JSON.parse(JSON.stringify(this.productDataLocale));
+            for (var i= 0; i< allProducts.length; i++) {
+                allProducts[i].divisionData = [];
+                for (var j=0; j< this.divisionData.length; j++) {
+                    let counter = this.headerData.pedido_mae.Id != null ? i : i + 1;
+                    if (this.divisionData[j].productPosition == counter) {
+                        let currentDivision = JSON.parse(JSON.stringify(this.divisionData[j]));
+                        let splitedDate = currentDivision.deliveryDate.split('-');
+                        currentDivision.dateToShow = splitedDate[2] + '/' + splitedDate[1] + '/' + splitedDate[0];
+                        if (currentDivision.quantity > 0) allProducts[i].divisionData.push(currentDivision);
+                    }
+                }
+            }
+            this.productDataLocale = JSON.parse(JSON.stringify(allProducts));
+        }
+    }
+
+    divisionChange(event) {
+        let allDivisions = JSON.parse(JSON.stringify(this.divisionProducts));
+        let fieldId = event.target.dataset.targetId;
+        let fieldValue = event.target.value;
+        let currentProduct;
+
+        if (this.isFilled(fieldValue)) {
+            if (fieldId.includes('deliveryId-')) {
+                currentProduct = allDivisions.find(e => e.deliveryId == fieldId);
+                if (fieldValue >= this.currentDate && fieldValue >= this.safraData.initialDate && fieldValue <= this.safraData.endDate) {
+                    currentProduct.deliveryDate = fieldValue;
+                } else {
+                    currentProduct.deliveryDate = null;
+                    let formatInitialDate = this.safraData.initialDate.split('-')[2] + '/' + this.safraData.initialDate.split('-')[1] + '/' + this.safraData.initialDate.split('-')[0];
+                    let formatEndDate = this.safraData.endDate.split('-')[2] + '/' + this.safraData.endDate.split('-')[1] + '/' + this.safraData.endDate.split('-')[0];
+                    this.showToast('warning', 'Atenção!', 'A data de remessa precisa ser maior que a atual e estar entre a vigência de entrega da Safra: ' + formatInitialDate + '-' + formatEndDate + '.');
+                }
+            } else if (fieldId.includes('quantityId-')) {
+                let productQuantity = 0;
+                for (let index = 0; index < allDivisions.length; index++) {
+                    if (allDivisions[index].productPosition == this.currentDivisionProduct.position && allDivisions[index].quantityId != fieldId) productQuantity = productQuantity + (Number(allDivisions[index].quantity));
+                }
+
+                currentProduct = allDivisions.find(e => e.quantityId == fieldId);
+                this.currentDivisionProduct.availableQuantity = Number(this.currentDivisionProduct.quantity) - ((Number(productQuantity)));
+                if ((parseFloat(fieldValue) + parseFloat(productQuantity)) <= parseFloat(this.currentDivisionProduct.quantity)) {
+                    currentProduct.quantity = this.calculateMultiplicity(fieldValue);
+                } else {
+                    currentProduct.quantity = this.currentDivisionProduct.quantity - Number(productQuantity);
+                    this.showToast('warning', 'Atenção!', 'A quantidade foi arredondada para ' + currentProduct.quantity + ' para não exceder.');
+                }
+
+                this.currentDivisionProduct.availableQuantity = Number(this.currentDivisionProduct.quantity) - ((Number(productQuantity) + Number(currentProduct.quantity)));
+                if (this.currentDivisionProduct.availableQuantity < 0) this.currentDivisionProduct.showRed = true;
+                else this.currentDivisionProduct.showRed = false;
+            }
+            this.divisionProducts = JSON.parse(JSON.stringify(allDivisions));
+        }
+    }
+
+    calculateMultiplicity(quantity) {
+        if (this.isFilled(this.multiplicity)) {
+            this.multiplicity = this.multiplicity > 0 ? this.multiplicity : 1;
+            let remainder = (quantity * 100) % (this.multiplicity * 100);
+            if (quantity > this.currentDivisionProduct.availableQuantity) {
+                this.showToast('warning', 'Atenção!', 'A quantidade não pode ultrapassar ' + this.currentDivisionProduct.availableQuantity + '.');
+                return this.currentDivisionProduct.availableQuantity;
+            }
+
+            if (remainder == 0) {
+                return quantity;
+            } else {
+                quantity = this.fixDecimalPlacesFront(quantity);
+                quantity = quantity.toString().includes(',') ? Number(quantity.replace(',', '.')) : quantity;
+                quantity = Math.ceil(quantity / this.multiplicity) * this.multiplicity;
+                this.showToast('warning', 'Atenção!', 'A quantidade foi arredondada para ' + this.fixDecimalPlacesFront(quantity) + '.');
+                return quantity;
+            }
+        }
     }
 
     showToast(type, title, message) {
