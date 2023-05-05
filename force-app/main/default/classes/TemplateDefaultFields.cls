@@ -1,3 +1,4 @@
+@isTest
 public  class TemplateDefaultFields {
 	public TemplateDefaultFields(){
 
