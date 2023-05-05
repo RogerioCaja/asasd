@@ -930,7 +930,7 @@ public without sharing class OrderScreenController {
                 individualValuesByType.put('Germoplasma', currentGermoplasma);
             }
 
-            if (Test.isRunningTest()) {
+            if (Test.isRunningTest() || newOrder) {
                 OrderHelper.disableTrigger();
             }
             
@@ -1059,9 +1059,15 @@ public without sharing class OrderScreenController {
 
                 String orderItemErrors = '';
                 Set<Id> itemsIds = new Set<Id>();
-                OrderHelper.disableTrigger();
+                
+                if (newOrder) OrderHelper.disableTrigger();
                 List<Database.UpsertResult> insOrderItemResults = Database.upsert(listOrderItems, false);
                 OrderHelper.enableTrigger();
+                if (newOrder) {
+                    OrderHelper.sendApprovalProccess(new List<Order>{order});
+                    OrderHelper.creatyShareRecord(new List<Order>{order});
+                }
+                
                 for (Database.UpsertResult result : insOrderItemResults){
                     System.debug('result => ' + result);
                     if(!result.isSuccess()){
