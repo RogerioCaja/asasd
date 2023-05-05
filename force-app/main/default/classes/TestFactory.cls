@@ -1,3 +1,4 @@
+@isTest
 public class TestFactory {
 
     // Default Fields For SObjects

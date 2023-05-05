@@ -1,8 +1,4 @@
 public with sharing class RecordTypeAvailableToUser {
-    public RecordTypeAvailableToUser() {
-
-    }
-
     @AuraEnabled(cacheable=true)
     public static String getRecordTypeData(){
         try {
