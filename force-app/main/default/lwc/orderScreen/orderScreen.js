@@ -538,6 +538,13 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
             return;
         }
 
+        let isDivisionCorrect = this.checkProductDivisionAndCommodities();
+        if (!isDivisionCorrect) {
+            this.showNotification(this.customErrorMessage, 'Atenção', 'warning');
+            this.isLoading = false;
+            return;
+        }
+
         let totalPayment = 0;
         let totalPaymentTsi = 0;
         let totalPaymentRoyalties = 0;
