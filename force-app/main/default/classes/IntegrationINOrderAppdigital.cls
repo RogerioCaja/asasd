@@ -122,7 +122,7 @@ global without sharing class IntegrationINOrderAppdigital {
         List<Order> orderSelectList = new List<Order>([SELECT Id, NumeroPedidoApp__c,PaymentDate__c,ShippingDate__c,Type,CustomerOrderNumber__c,
         Currency__c,Description,DescriptionBillingSale__c,FinalTotalValue__c,Hectare__c,OrderMargin__c,OrderType__c,SalesCondition__c,IsOrderMother__c, RecordTypeId, OwnerId,
         CodigoSap__c, Pricebook2Id, Pricebook2.Name,EffectiveDate,Status,StatusRecusa__c,Incoterms__c,Incoterms2__c,PaymentForm__c, Crop__r.Code__c, Crop__c, Culture__c, Culture__r.Codigo__c, SalesOrg__r.SalesOrganizationCode__c, SalesOrg__c, SalesCondition__r.ExternalId__c,ActivitySector__r.Codigo__c,
-        SalesCTV__r.CodigoSap__c, SalesCTV__c, PaymentCondition__r.Code__c, PaymentCondition__c,OrderReference__r.CodigoSap__c, OrderReference__c, Account.ExternalId__c, AccountId, ShippingAccount__r.ExternalId__c, ShippingAccount__c,Company__r.ExternalID__c,Company__c,DistributionChannel__r.Codigo__c,DistributionChannel__c
+        SalesCTV__r.CodigoSap__c, SalesCTV__c, PaymentCondition__r.Code__c, PaymentCondition__c,OrderReference__r.CodigoSap__c, OrderReference__c, Account.ExternalId__c, AccountId, ShippingAccount__r.ExternalId__c, ShippingAccount__c,Company__r.ExternalID__c,Company__c,DistributionChannel__r.Codigo__c,DistributionChannel__c,MTO__c
         FROM Order WHERE CodigoSap__c  IN : idOrders]);
 
         for (Order ord : orderSelectList){
@@ -582,7 +582,7 @@ global without sharing class IntegrationINOrderAppdigital {
         PracticedCost__c, 
         PracticedPrice__c, 
         UnitPrice FROM OrderItem WHERE OrderId =: orderDiscount.Id];
-        if (orderDiscount.Company__c != null) {
+        if (orderDiscount.Company__c != null && orderDiscount.OrderType__c != 'Pedido Filho') {
             Id userTerritoryId;
             for (UserTerritory2Association userAssociation : [
                 SELECT Id,
@@ -726,9 +726,9 @@ global without sharing class IntegrationINOrderAppdigital {
             if (approvalNumber >= 3) {
                 orderDiscount.ApprovalDirector__c = approvalsByTerritory.get(approvalByCounter.get(2));
                 orderDiscount.Director__c = true;
-            }
-            orderDiscount.Description += '1n73gr4ção N3sc4r4 5F x 4PP';
-            update orderDiscount;
+            }  
         }
+        orderDiscount.Description += '1n73gr4ção N3sc4r4 5F x 4PP';
+        Database.update(orderDiscount, Order.Id);
     }
 }

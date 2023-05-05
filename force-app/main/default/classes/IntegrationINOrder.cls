@@ -230,7 +230,7 @@ global without sharing class IntegrationINOrder {
         List<Order> orderSelectList = new List<Order>([SELECT Id, NumeroPedidoApp__c,PaymentDate__c,ShippingDate__c,Type,CustomerOrderNumber__c,
         Currency__c,Description,DescriptionBillingSale__c,FinalTotalValue__c,Hectare__c,OrderMargin__c,OrderType__c,SalesCondition__c,IsOrderMother__c, RecordTypeId, OwnerId, FreightValue__c,
         CodigoSap__c, Pricebook2Id, Pricebook2.Name,EffectiveDate,Status,StatusRecusa__c,Incoterms__c,Incoterms2__c,PaymentForm__c, Crop__r.Code__c, Crop__c, Culture__c, Culture__r.Codigo__c, SalesOrg__r.SalesOrganizationCode__c, SalesOrg__c, SalesCondition__r.ExternalId__c,ActivitySector__r.Codigo__c,
-        SalesCTV__r.CodigoSap__c, SalesCTV__c, PaymentCondition__r.Code__c, PaymentCondition__c,OrderReference__r.CodigoSap__c, OrderReference__c, Account.ExternalId__c, AccountId, ShippingAccount__r.ExternalId__c, ShippingAccount__c,Company__r.ExternalID__c,Company__c,DistributionChannel__r.Codigo__c,DistributionChannel__c
+        SalesCTV__r.CodigoSap__c, SalesCTV__c, PaymentCondition__r.Code__c, PaymentCondition__c,OrderReference__r.CodigoSap__c, OrderReference__c, Account.ExternalId__c, AccountId, ShippingAccount__r.ExternalId__c, ShippingAccount__c,Company__r.ExternalID__c,Company__c,DistributionChannel__r.Codigo__c,DistributionChannel__c,MTO__c
         FROM Order WHERE CodigoSap__c  IN : idOrders]);
 
         for (Order ord : orderSelectList){
@@ -303,6 +303,10 @@ global without sharing class IntegrationINOrder {
                 order.recordIdToUpdate = ord.RecordTypeId;
             }
             
+            if(order.orderMTO == null || order.orderMTO == ''){
+                order.orderMTO = ord.MTO__c;
+            }
+
 			if(order.pricebook2Id == null || order.pricebook2Id == ''){
                 if(ord.Pricebook2Id != null){
                     order.pricebook2Id = ord.Pricebook2.Name;
