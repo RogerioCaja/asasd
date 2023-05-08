@@ -37,6 +37,7 @@ public without sharing class CalloutOrder {
             }
             if(!calloutResponse.success){
                 allOrders[0].ErrorIntegrationSAP__c = calloutResponse.errorMessage;
+                allOrders[0].IsDisableSendIntegration__c = false;
                 orderList.add(allOrders[0]);
             }
 
