@@ -394,7 +394,7 @@ public without sharing class OrderHelper {
                 return '';
             
             List<Order> orderList = [SELECT Id, OrderNumber, StatusSF__c, CodigoSap__c, IsDisableSendIntegration__c FROM Order WHERE Id =: orderId];
-            if(!IsDisableSendIntegration__c){
+            if(!orderList[0].IsDisableSendIntegration__c){
                 calloutOrderToSAPTest(orderList);
                 return 'O pedido ' + orderList[0].OrderNumber + ' foi enviado para integração';
             }else{
