@@ -253,10 +253,11 @@ public without sharing class OrderHelper {
                 
             }
             if(orderToUpdate.size() > 0){
-                List<Order> orderList = [SELECT Id, StatusSF__c FROM Order WHERE Id IN: orderToUpdate AND StatusSF__c != 'Aprovado'];
+                List<Order> orderList = [SELECT Id, StatusSF__c, IsDisableSendIntegration__c FROM Order WHERE Id IN: orderToUpdate AND StatusSF__c != 'Aprovado'];
                 List<Order> orderToUpdateList = new List<Order>();
                 for(Order order : orderList){
                     order.StatusSF__c = 'Aprovado';
+                    order.IsDisableSendIntegration__c = true;
                     orderToUpdateList.add(order);
                 }
                 //OrderHelper.disableTrigger();
@@ -320,13 +321,15 @@ public without sharing class OrderHelper {
                 }
             }
             if(orderToUpdate.size() > 0){
-                List<Order> orderList = [SELECT Id, StatusSF__c, CodigoSAP__c, Description FROM Order WHERE Id IN: orderToUpdate];
+                List<Order> orderList = [SELECT Id, StatusSF__c, CodigoSAP__c, IsDisableSendIntegration__c, Description FROM Order WHERE Id IN: orderToUpdate];
                 List<Order> orderToUpdateList = new List<Order>();
                 for(Order order : orderList){
                     if(order.CodigoSAP__c != null){
                         order.StatusSF__c = 'Integrado';
+                        order.IsDisableSendIntegration__c = true;
                     }else{
                         order.StatusSF__c = 'Aprovado';
+                        order.IsDisableSendIntegration__c = true;
                     }
                     
                     if(order.Description != null){
@@ -390,9 +393,14 @@ public without sharing class OrderHelper {
             if(profileId != userProfileId)
                 return '';
             
-            List<Order> orderList = [SELECT Id, OrderNumber, StatusSF__c, CodigoSap__c FROM Order WHERE Id =: orderId];
-            calloutOrderToSAPTest(orderList);
-            return 'O pedido ' + orderList[0].OrderNumber + ' foi enviado para integração';
+            List<Order> orderList = [SELECT Id, OrderNumber, StatusSF__c, CodigoSap__c, IsDisableSendIntegration__c FROM Order WHERE Id =: orderId];
+            if(!orderList[0].IsDisableSendIntegration__c){
+                calloutOrderToSAPTest(orderList);
+                return 'O pedido ' + orderList[0].OrderNumber + ' foi enviado para integração';
+            }else{
+                return 'O pedido já foi enviado ao SAP, aguarde o código SAP do Pedido ou verifique os Logs de Integração';
+            }
+            
         }
         catch(Exception e){
             return 'Um erro inesperado aconteceu!';
