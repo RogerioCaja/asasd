@@ -109,6 +109,7 @@ public without sharing class OrderHelper {
         for(Order order : newRecords){
             orderIds.add(order.Id);
         }
+            System.debug('Olá')
         Map<Id, Order> orderMap = new Map<Id, Order>([
             SELECT Account.ExternalId__c, ShippingAccount__r.ExternalId__c, SalesCTV__r.CodigoSap__c
             FROM Order
