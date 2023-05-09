@@ -1,4 +1,10 @@
 public without sharing class CalloutOrder {
+    private static Boolean errorIntegration;
+
+    static{
+        errorIntegration = false;
+    }
+    
     public CalloutOrder() { }
 
     @future(callout = true)
@@ -35,7 +41,7 @@ public without sharing class CalloutOrder {
                     calloutResponse.errorMessage = (calloutResponse.errorMessage != null ? calloutResponse.errorMessage : '') + message.MESSAGE + '\n';
                 }
             }
-            if(!calloutResponse.success || resp.responses.ET_RETURN.item == null){
+            if(!calloutResponse.success || resp.responses.ET_RETURN.item == null || errorIntegration){
                 allOrders[0].ErrorIntegrationSAP__c = calloutResponse.errorMessage;
                 allOrders[0].IsDisableSendIntegration__c = false;
                 orderList.add(allOrders[0]);
@@ -47,8 +53,10 @@ public without sharing class CalloutOrder {
                     allOrders[0].StatusSF__c = 'Integrado';
                     allOrders[0].Status =  resp.responses.EV_STATUS;
                     allOrders[0].ErrorIntegrationSAP__c = '';
+                    allOrders[0].IsDisableSendIntegration__c = true;
                 }else{
                     allOrders[0].ACMContract__c = resp.responses.EV_SALES_DOC;
+                    allOrders[0].IsDisableSendIntegration__c = true;
                 }
                 orderList.add(allOrders[0]);
             }
@@ -108,7 +116,8 @@ public without sharing class CalloutOrder {
             String title = 'Pedido OUT - SAP';
             if(payload.contains('"IV_TYPE":"B"')){ title += ' - Contrato Barter';}
 
-            if(response.getBody().contains('"TYPE":"E"') || response.getBody().contains('An internal server error')){
+            if(response.getBody().contains('"TYPE":"E"') || response.getBody().contains('An internal server error') || response.getBody().contains('Read timed out')){
+                errorIntegration = true;
                 IntegrationLog.createLog(title, 'OUT', response.getBody(), payload, true);
             }else{
                 IntegrationLog.createLog(title, 'OUT', response.getBody(), payload, false);
@@ -118,13 +127,13 @@ public without sharing class CalloutOrder {
 				ResponseParametersWrapper responses = (ResponseParametersWrapper) JSON.deserialize(response.getBody(), ResponseParametersWrapper.class);
 				return new IntegrationUtils.CalloutResponse(new ResponseParameters(responses));
 			} catch (Exception e) {
-				
+				errorIntegration = true;
 				String defaultErrorMessage = 'Malformatted HTTP Response Exception: ' + e.getMessage();
 
 				return new IntegrationUtils.CalloutResponse(defaultErrorMessage);
 			}
 		} else {
-
+            errorIntegration = true;
             IntegrationLog.createLog('Pedido OUT - SAP', 'OUT', responseObject.exceptionObject.getMessage(), payload, true);
 			return new IntegrationUtils.CalloutResponse(responseObject.exceptionObject.getMessage());
 		}
