@@ -1417,11 +1417,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Order.FinalTotalValue__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
         <field>Order.FreightValue__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1751,11 +1746,6 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
-        <field>OrderItem.ItemBalance__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
         <editable>true</editable>
         <field>OrderItem.IndustryComboDiscount__c</field>
         <readable>true</readable>
@@ -1763,6 +1753,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>OrderItem.InvoicedQuantity__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>OrderItem.ItemBalance__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
