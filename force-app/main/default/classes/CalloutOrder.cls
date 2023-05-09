@@ -1,4 +1,10 @@
 public without sharing class CalloutOrder {
+    private static Boolean errorIntegration;
+
+    static{
+        errorIntegration = false;
+    }
+    
     public CalloutOrder() { }
 
     @future(callout = true)
@@ -7,7 +13,7 @@ public without sharing class CalloutOrder {
     }
 
     public static IntegrationUtils.CalloutResponse processIntegration(Id orderId){
-
+        errorIntegration = false;
 		Order parentOrder = [SELECT Id, CodigoSap__c, ShippingAccount__r.ExternalId__c, Company__r.SupplierCenter__c, Account.ExternalId__c, Type, SalesOrg__r.SalesOrganizationCode__c, SalesOrg__r.Name, DistributionChannel__c, DistributionChannel__r.Codigo__c, SalesCondition__r.ExternalId__c, SalesCondition__r.Name, Company__r.salesOffice__r.Codigo__c,
                             ActivitySector__c, ACMContract__c, ActivitySector__r.Codigo__c, PaymentCondition__r.CashPayment__c, Incoterms__c, Incoterms2__c, PaymentCondition__r.Code__c, OrderReason__c , SalesCTV__r.CodigoSap__c, PaymentDate__c,EffectiveDate, OrderReference__r.CodigoSap__c, Company__r.salesTeam__r.ExternalId__c, BPStorage__r.ExternalId__c,
                             OrderNumber, Crop__r.Name, Crop__r.Code__c, Crop__r.StartDateOrderInsertion__c, Crop__r.EndDateInsertionOrders__c ,Culture__r.Codigo__c, EndDate, TotalAmount, PaymentForm__c, OrderReference__c, CustomerOrderNumber__c, SalesCTV__r.SellerType__c, EffectiveOrderDate__c, NumeroPedidoApp__c, FreightValue__c, MTO__c, ShippingDate__c,
@@ -35,7 +41,7 @@ public without sharing class CalloutOrder {
                     calloutResponse.errorMessage = (calloutResponse.errorMessage != null ? calloutResponse.errorMessage : '') + message.MESSAGE + '\n';
                 }
             }
-            if(!calloutResponse.success || resp.responses.ET_RETURN.item == null){
+            if(!calloutResponse.success || resp.responses.ET_RETURN.item == null || errorIntegration){
                 allOrders[0].ErrorIntegrationSAP__c = calloutResponse.errorMessage;
                 allOrders[0].IsDisableSendIntegration__c = false;
                 orderList.add(allOrders[0]);
@@ -47,8 +53,10 @@ public without sharing class CalloutOrder {
                     allOrders[0].StatusSF__c = 'Integrado';
                     allOrders[0].Status =  resp.responses.EV_STATUS;
                     allOrders[0].ErrorIntegrationSAP__c = '';
+                    allOrders[0].IsDisableSendIntegration__c = true;
                 }else{
                     allOrders[0].ACMContract__c = resp.responses.EV_SALES_DOC;
+                    allOrders[0].IsDisableSendIntegration__c = true;
                 }
                 orderList.add(allOrders[0]);
             }
@@ -108,7 +116,8 @@ public without sharing class CalloutOrder {
             String title = 'Pedido OUT - SAP';
             if(payload.contains('"IV_TYPE":"B"')){ title += ' - Contrato Barter';}
 
-            if(response.getBody().contains('"TYPE":"E"') || response.getBody().contains('An internal server error')){
+            if(response.getBody().contains('"TYPE":"E"') || response.getBody().contains('An internal server error') || response.getBody().contains('Read timed out')){
+                errorIntegration = true;
                 IntegrationLog.createLog(title, 'OUT', response.getBody(), payload, true);
             }else{
                 IntegrationLog.createLog(title, 'OUT', response.getBody(), payload, false);
@@ -118,13 +127,13 @@ public without sharing class CalloutOrder {
 				ResponseParametersWrapper responses = (ResponseParametersWrapper) JSON.deserialize(response.getBody(), ResponseParametersWrapper.class);
 				return new IntegrationUtils.CalloutResponse(new ResponseParameters(responses));
 			} catch (Exception e) {
-				
+				errorIntegration = true;
 				String defaultErrorMessage = 'Malformatted HTTP Response Exception: ' + e.getMessage();
 
 				return new IntegrationUtils.CalloutResponse(defaultErrorMessage);
 			}
 		} else {
-
+            errorIntegration = true;
             IntegrationLog.createLog('Pedido OUT - SAP', 'OUT', responseObject.exceptionObject.getMessage(), payload, true);
 			return new IntegrationUtils.CalloutResponse(responseObject.exceptionObject.getMessage());
 		}

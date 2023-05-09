@@ -105,6 +105,7 @@ public without sharing class OrderHelper {
 
     public static void calloutOrderToSAPTest(List<Order> newRecords){
         Set<Id> orderIds = new Set<Id>();
+        String orderTypeName = '';
         for(Order order : newRecords){
             orderIds.add(order.Id);
         }
@@ -115,18 +116,28 @@ public without sharing class OrderHelper {
         ]);
 
         Orderhelper.disableTrigger();
-        for(Order order : newRecords){
-            if(order.StatusSF__c != 'Integrado'){
-                CalloutOrder.callIntegration(order.Id);
-                CalloutOrderDatalake.callIntegration(order.Id);
-            }
-            if(order.CodigoSap__c != null && order.StatusSF__c == 'Integrado' && orderMap != null){
+        for(Order order : newRecords){ 
+            orderTypeName = Schema.getGlobalDescribe().get('Order').getDescribe().getRecordTypeInfosById().get(order.RecordTypeId).getName();
+            if(order.StatusSF__c == 'Aprovado' && order.Status != 'X'){
+                if(orderTypeName == 'Venda Barter' && order.OrderReference__c == null){
+                    System.enqueueJob(new calloutsQueueBarter(order.Id));
+                }else{
+                    System.enqueueJob(new calloutsQueue(order.Id));
+                }
                 
-                System.debug('Account.ExternalId__c => ' + orderMap.get(order.Id).Account.ExternalId__c);
-                String rmCode = orderMap.get(order.Id).ShippingAccount__r.ExternalId__c;
-                String agCode = orderMap.get(order.Id).Account.ExternalId__c;
-                String zcCode = orderMap.get(order.Id).SalesCTV__r.CodigoSap__c;
-                CalloutOrderUpdate.callIntegration(order.Id, rmCode , agCode , zcCode);
+            }
+            else{
+                if(!Test.isRunningTest()) CalloutOrderDatalake.callIntegration(order.Id);
+            }
+
+            if(order.CodigoSap__c != null && order.StatusSF__c == 'Integrado' && orderMap != null){
+                if(System.URL.getCurrentRequestUrl() != null && System.URL.getCurrentRequestUrl().GetPath() != null && System.URL.getCurrentRequestUrl().GetPath().contains('/upsertOrderAppdigital')){
+                    String rmCode = orderMap.get(order.Id).ShippingAccount__r.ExternalId__c;
+                    String agCode = orderMap.get(order.Id).Account.ExternalId__c;
+                    String zcCode = orderMap.get(order.Id).SalesCTV__r.CodigoSap__c;
+                    CalloutOrderUpdate.callIntegration(order.Id, rmCode , agCode , zcCode);
+                }
+                
             }  
         }
         Orderhelper.enableTrigger(); 
@@ -395,6 +406,12 @@ public without sharing class OrderHelper {
             
             List<Order> orderList = [SELECT Id, OrderNumber, StatusSF__c, CodigoSap__c, IsDisableSendIntegration__c FROM Order WHERE Id =: orderId];
             if(!orderList[0].IsDisableSendIntegration__c){
+                orderList[0].IsDisableSendIntegration__c = true;
+
+                OrderHelper.disableTrigger();
+                Database.update(orderList, Order.Id);
+                OrderHelper.enableTrigger();
+                
                 calloutOrderToSAPTest(orderList);
                 return 'O pedido ' + orderList[0].OrderNumber + ' foi enviado para integração';
             }else{
