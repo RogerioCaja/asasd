@@ -212,23 +212,84 @@
                                 </a>
                                 <div class="tooltiptext">
                                     <table>
-                                        <tr>
-                                            <th>Data</th>
-                                            <th>Quantidade</th>
+                                        <tr class="row">
+                                            <th class="column" style="font-size: 15px; margin-top: 7px;">Data</th>
+                                            <th class="column" style="font-size: 15px; margin-top: 7px;">Quantidade</th>
                                         </tr>
                                         <template for:each={product.divisionData} for:item="division">
-                                            <tr key={division.deliveryId}>
-                                                <td>{division.deliveryDate}</td>
-                                                <td>{division.quantity}</td>
+                                            <tr key={division.deliveryId} class="row">
+                                                <td class="column" style="font-size: 14px; margin-top: 8px;">{division.dateToShow}</td>
+                                                <td class="column" style="font-size: 14px; margin-top: 8px;">{division.quantity}</td>
                                             </tr>
                                         </template>
                                     </table>
+
+                                    <div class="row">
+                                        <div class="column" style="width: 100%;">
+                                            <button class="confirm-button distribution-button" data-target-id={product.position} onclick={openDivisionModal}>Alterar Calendarização</button>
+                                        </div>
+                                    </div>
                                 </div> 
                             </div>  
                         </td>
                     </tr>
                 </template>
             </table>
+
+            <template if:true={showProductDivision}>
+				<div id="product-division-modal" class="modal">
+					<div class="modal-content">
+						<span class="close" onclick={showDivisionModal}>&times;</span>
+						<p class="new-product-title">Divisão de entrega: {currentDivisionProduct.name}</p>
+
+						<div class="quantities-div">
+							<div class="column">
+								Quantidade total do produto: <label class="quantities-bold">{currentDivisionProduct.quantity}</label><br>
+							</div>
+							<template if:true={currentDivisionProduct.showRed}>
+								<div class="column">
+									Quantidade a distribuir: <label class="quantities-red">{currentDivisionProduct.availableQuantity}</label><br>
+								</div>
+							</template>
+							<template if:false={currentDivisionProduct.showRed}>
+								<div class="column">
+									Quantidade a distribuir: <label class="quantities-bold">{currentDivisionProduct.availableQuantity}</label><br>
+								</div>
+							</template>
+						</div>
+
+						<template for:each={divisionProducts} for:item="divProduct">
+							<div class="row" key={divProduct.position}>
+								<template if:true={divProduct.showInfos}>
+									<div class="column">
+										<label>Data de entrega</label><br>
+										<input class="input-design" type="date" value={divProduct.deliveryDate} onchange={divisionChange} data-target-id={divProduct.deliveryId} disabled={currentDivisionProduct.dontAllowChange}/>
+									</div>
+									<div class="column">
+										<label>Quantidade</label><br>
+										<input class="input-design" type="number" value={divProduct.quantity} onchange={divisionChange} data-target-id={divProduct.quantityId} disabled={currentDivisionProduct.dontAllowChange}/>
+									</div>
+								</template>
+							</div>
+						</template>
+
+						<div class="row">
+							<div class="back-button">
+								<a if:false={currentDivisionProduct.dontAllowChange} onclick={newDivisionFields}>Adicionar remessa</a>
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="back-button">
+								<a onclick={showDivisionModal}>Fechar</a>
+							</div>
+							<div class="column">
+								<button class="confirm-button" onclick={confirmDivision}>Confirmar</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</template>
 
             <div class="observation">
                 <div>
