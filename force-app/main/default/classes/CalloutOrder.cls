@@ -1,5 +1,5 @@
 public without sharing class CalloutOrder {
-    public Boolean errorIntegration = false;
+    static Boolean errorIntegration = false;
     
     public CalloutOrder() { }
 
