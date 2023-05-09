@@ -1244,29 +1244,7 @@ export default class OrderProductScreen extends LightningElement {
         if (this.checkRequiredFields(prod)) {
             let allProducts = this.parseObject(this.products);
             let comboDiscountPercent = this.verifyComboAndPromotion(prod.quantity);
-            if (prod.commercialDiscountPercentageFront == '0%' && prod.comboDiscountPercent == '0%' && comboDiscountPercent != null) {
-                prod.comboId = comboDiscountPercent.comboId;
-                prod.comboDiscountPercent = comboDiscountPercent.discount + '%';
-                prod.comboDiscountValue = this.calculateValue(comboDiscountPercent.discount + '%', prod.totalPrice);
-                prod.totalPrice = prod.totalPrice - prod.comboDiscountValue;
-                prod.totalPriceFront = this.fixDecimalPlacesFront(prod.totalPrice);
-                prod.industryCombo = comboDiscountPercent.industryCombo;
-                prod.unitPrice = this.fixDecimalPlaces(prod.totalPrice / prod.quantity);
-                prod.unitPriceFront = this.fixDecimalPlacesFront(prod.unitPrice);
-                prod.containsCombo = true;
-                prod.containsComboString = prod.containsCombo ? 'Sim' : 'Não';
-
-                let allCombos = this.parseObject(this.combosSelecteds);
-                let currentCombo = allCombos.find(e => e.comboId == comboDiscountPercent.comboId);
-                if (this.isFilled(currentCombo)) {
-                    currentCombo.productQuantity = prod.quantity;
-                } else {
-                    allCombos.push({comboId:comboDiscountPercent.comboId,comboQuantity:comboDiscountPercent.comboQuantity,productQuantity:prod.quantity,productId:prod.productId,specificItemCombo:false});
-                }
-
-                this.combosSelecteds = this.parseObject(allCombos);
-                this._setcombosSelecteds();
-            }
+            prod = this.applyComboOnProduct(this.addProduct, comboDiscountPercent);
 
             let margin = this.isFilled(this.addProduct.practicedCost) ? this.fixDecimalPlaces((1 - (Number(this.addProduct.practicedCost) / (prod.totalPrice / prod.quantity))) * 100) : 0;
             prod.commercialMarginPercentage = margin;
@@ -1318,6 +1296,42 @@ export default class OrderProductScreen extends LightningElement {
         }
 
         return null;
+    }
+
+    applyComboOnProduct(prod, combo) {
+        if ((prod.commercialDiscountPercentageFront == '0%' && prod.comboDiscountPercent == '0%' && combo != null) || (combo == null && prod.comboId != null)) {
+            let removeCombo = combo == null && prod.comboId != null;
+            let totalPrice = removeCombo ? Number(prod.totalPrice) + Number(prod.comboDiscountValue) : prod.totalPrice;
+
+            prod.comboId = removeCombo ? null : combo.comboId;
+            prod.comboDiscountPercent = removeCombo ? '0%' : combo.discount + '%';
+            prod.comboDiscountValue = removeCombo ? 0 : this.calculateValue(combo.discount + '%', totalPrice);
+            prod.totalPrice = removeCombo ? totalPrice : Number(totalPrice) - Number(prod.comboDiscountValue);
+            prod.totalPriceFront = this.fixDecimalPlacesFront(totalPrice);
+            prod.industryCombo = removeCombo ? false : combo.industryCombo;
+            prod.unitPrice = this.fixDecimalPlaces(prod.totalPrice / prod.quantity);
+            prod.unitPriceFront = this.fixDecimalPlacesFront(prod.unitPrice);
+            prod.containsCombo = removeCombo ? false : true;
+            prod.containsComboString = removeCombo ? 'Não' : 'Sim';
+            let allCombos = this.parseObject(this.combosSelecteds);
+            let keepCombos = [];
+            for (let index = 0; index < allCombos.length; index++) {
+                if (removeCombo) {
+                    for (let index = 0; index < allCombos.length; index++) {
+                        if (allCombos[index].comboId != prod.comboId) keepCombos.push(allCombos[index]);
+                    }
+                } else {
+                    let currentCombo = allCombos.find(e => e.comboId == combo.comboId);
+                    if (this.isFilled(currentCombo)) currentCombo.productQuantity = prod.quantity;
+                    else allCombos.push({comboId:combo.comboId,comboQuantity:combo.comboQuantity,productQuantity:prod.quantity,productId:prod.productId,specificItemCombo:false});
+                }
+            }
+
+            this.combosSelecteds = removeCombo ? this.parseObject(keepCombos) : this.parseObject(allCombos);
+            this._setcombosSelecteds();
+        }
+
+        return prod;
     }
 
     changeComboQuantity(event) {
@@ -1400,25 +1414,7 @@ export default class OrderProductScreen extends LightningElement {
                     }
 
                     let comboDiscountPercent = this.verifyComboAndPromotion(this.addProduct.quantity);
-                    if (this.addProduct.commercialDiscountPercentageFront == '0%' && this.addProduct.comboDiscountPercent == '0%' && comboDiscountPercent != null) {
-                        this.addProduct.comboId = comboDiscountPercent.comboId;
-                        this.addProduct.comboDiscountPercent = comboDiscountPercent.discount + '%';
-                        this.addProduct.comboDiscountValue = this.calculateValue(comboDiscountPercent.discount + '%', this.addProduct.totalPrice);
-                        this.addProduct.totalPrice = this.addProduct.totalPrice - this.addProduct.comboDiscountValue;
-                        this.addProduct.totalPriceFront = this.fixDecimalPlacesFront(this.addProduct.totalPrice);
-                        this.addProduct.industryCombo = comboDiscountPercent.industryCombo;
-                        this.addProduct.unitPrice = this.fixDecimalPlaces(this.addProduct.totalPrice / this.addProduct.quantity);
-                        this.addProduct.unitPriceFront = this.fixDecimalPlacesFront(this.addProduct.unitPrice);
-
-                        let allCombos = this.parseObject(this.combosSelecteds);
-                        let currentCombo = allCombos.find(e => e.comboId == comboDiscountPercent.comboId);
-
-                        if (this.isFilled(currentCombo)) currentCombo.productQuantity = this.addProduct.quantity;
-                        else allCombos.push({comboId: comboDiscountPercent.comboId, comboQuantity: 1, productQuantity: this.addProduct.quantity, productId: this.addProduct.productId, specificItemCombo: false});
-
-                        this.combosSelecteds = this.parseObject(allCombos);
-                        this._setcombosSelecteds();
-                    }
+                    this.addProduct = this.applyComboOnProduct(this.addProduct, comboDiscountPercent);
 
                     let margin = this.isFilled(this.addProduct.practicedCost) ? this.fixDecimalPlaces(((1 - (Number(this.addProduct.practicedCost) / (Number(this.addProduct.totalPrice) / Number(this.addProduct.quantity)))) * 100)) : null;
                     this.addProduct.commercialMarginPercentage = this.headerData.IsOrderChild ? this.addProduct.commercialMarginPercentage : margin;
