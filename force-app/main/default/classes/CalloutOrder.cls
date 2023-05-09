@@ -37,7 +37,7 @@ public without sharing class CalloutOrder {
                     calloutResponse.errorMessage = (calloutResponse.errorMessage != null ? calloutResponse.errorMessage : '') + message.MESSAGE + '\n';
                 }
             }
-            if(!calloutResponse.success || resp.responses.ET_RETURN.item == null || errorIntegration){
+            if(!calloutResponse.success || resp.responses.ET_RETURN.item == null || this.errorIntegration){
                 allOrders[0].ErrorIntegrationSAP__c = calloutResponse.errorMessage;
                 allOrders[0].IsDisableSendIntegration__c = false;
                 orderList.add(allOrders[0]);
@@ -113,7 +113,7 @@ public without sharing class CalloutOrder {
             if(payload.contains('"IV_TYPE":"B"')){ title += ' - Contrato Barter';}
 
             if(response.getBody().contains('"TYPE":"E"') || response.getBody().contains('An internal server error') || response.getBody().contains('Read timed out')){
-                errorIntegration = true;
+                this.errorIntegration = true;
                 IntegrationLog.createLog(title, 'OUT', response.getBody(), payload, true);
             }else{
                 IntegrationLog.createLog(title, 'OUT', response.getBody(), payload, false);
@@ -123,13 +123,13 @@ public without sharing class CalloutOrder {
 				ResponseParametersWrapper responses = (ResponseParametersWrapper) JSON.deserialize(response.getBody(), ResponseParametersWrapper.class);
 				return new IntegrationUtils.CalloutResponse(new ResponseParameters(responses));
 			} catch (Exception e) {
-				errorIntegration = true;
+				this.errorIntegration = true;
 				String defaultErrorMessage = 'Malformatted HTTP Response Exception: ' + e.getMessage();
 
 				return new IntegrationUtils.CalloutResponse(defaultErrorMessage);
 			}
 		} else {
-            errorIntegration = true;
+            this.errorIntegration = true;
             IntegrationLog.createLog('Pedido OUT - SAP', 'OUT', responseObject.exceptionObject.getMessage(), payload, true);
 			return new IntegrationUtils.CalloutResponse(responseObject.exceptionObject.getMessage());
 		}
