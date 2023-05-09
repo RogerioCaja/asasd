@@ -573,24 +573,24 @@ global without sharing class IntegrationINOrder {
          //System.debug('Somatoria Total ' + sum);
         
          //Decimal resultFinalTotalValue = (Decimal)resulTotal[0].get('somatoria');
-         totalValueOrderItems = totalValueOrderItems.setScale(3, RoundingMode.HALF_UP);
+         totalValueOrderItems = totalValueOrderItems.setScale(3);
          order.FinalTotalValue__c  = totalValueOrderItems;
          System.debug(order.FinalTotalValue__c);
          if(totalValueTSIAmount  != null && totalValueTSIAmount != 0){
             //Decimal totalWithTsi = (Decimal)sumTSI[0].get('somatoria');
-            totalValueTSIAmount = totalValueTSIAmount.setScale(3, RoundingMode.HALF_UP);
+            totalValueTSIAmount = totalValueTSIAmount.setScale(3);
             order.FinalTotalValue__c  += totalValueTSIAmount;
             System.debug('Valor total com TSI ' + order.FinalTotalValue__c); 
          }
          if(totalValueRoyAmount  != null && totalValueRoyAmount != 0) {
             //Decimal totalWithRoy = (Decimal)sumRoy[0].get('somatoria');
-            totalValueRoyAmount  = totalValueRoyAmount.setScale(3, RoundingMode.HALF_UP);
+            totalValueRoyAmount  = totalValueRoyAmount.setScale(3);
             order.FinalTotalValue__c  += totalValueRoyAmount ;
              System.debug('Valor total com ROY ' + order.FinalTotalValue__c); 
          }
          if(totalValueFreightAmount  != null && totalValueFreightAmount != 0){
             //Decimal totalWithFrete = (Decimal)totalValueWthCif[0].get('somatoria');
-            totalValueFreightAmount  = totalValueFreightAmount .setScale(3, RoundingMode.HALF_UP);  
+            totalValueFreightAmount  = totalValueFreightAmount .setScale(3);  
             order.FinalTotalValue__c  += totalValueFreightAmount;
              System.debug('Valor total com Frete ' + order.FinalTotalValue__c); 
          }
