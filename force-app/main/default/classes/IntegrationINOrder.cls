@@ -531,31 +531,67 @@ global without sharing class IntegrationINOrder {
             System.debug('teste de entrada'  + formPaymentResponse);
         }
         
-       
-        AggregateResult[] resulTotal =[SELECT SUM(FinalTotalValue__c) somatoria  FROM OrderItem WHERE OrderId =: orderIdEx.keySet() AND ReasonRefuse__c  =: null AND ReasonRefuse__c  =: ''];
-        AggregateResult[] sumTSI = [SELECT SUM(TotalTSIAmount__c) somatoria FROM OrderItem WHERE OrderId =: orderIdEx.KeySet() AND ReasonRefuse__c =: null AND ReasonRefuse__c =: '' AND TotalTSIAmount__c != null];
-        AggregateResult[] sumRoy = [SELECT SUM(TotalRoyaltyAmount__c) somatoria FROM OrderItem WHERE OrderId =: orderIdEx.KeySet() AND ReasonRefuse__c =: null AND ReasonRefuse__c =: '' AND TotalRoyaltyAmount__c != null];
-        AggregateResult[] totalValueWthCif = [SELECT SUM(FreightValue__c) somatoria FROM OrderItem WHERE  OrderId =: orderIdEx.KeySet() AND ReasonRefuse__c =: null AND ReasonRefuse__c =: '' AND Order.Incoterms__c = 'CIF'];
+        List<OrderItem> resultOrderItems = [SELECT FinalTotalValue__c,TotalTSIAmount__c,TotalRoyaltyAmount__c,FreightValue__c, OrderId, Order.Incoterms__c FROM OrderItem WHERE OrderId =: orderIdEx.keySet() AND ReasonRefuse__c  =: null AND ReasonRefuse__c  =: ''];
+        Decimal totalValueOrderItems = 0;
+        Decimal totalValueTSIAmount = 0;
+        Decimal totalValueRoyAmount = 0;
+        Decimal totalValueFreightAmount = 0;
+        For(OrderItem orderItemTotalValues : resultOrderItems){
+            System.debug(orderItemTotalValues.FinalTotalValue__c);
+            if(orderItemTotalValues.FinalTotalValue__c != null){
+                totalValueOrderItems += orderItemTotalValues.FinalTotalValue__c;
+            }
+            if(orderItemTotalValues.TotalTSIAmount__c != null){
+                totalValueTSIAmount += orderItemTotalValues.TotalTSIAmount__c;
+            }
+            if(orderItemTotalValues.TotalRoyaltyAmount__c != null){
+                totalValueRoyAmount +=  orderItemTotalValues.TotalRoyaltyAmount__c;
+            }
+            if(orderItemTotalValues.Order.Incoterms__c == 'CIF' && orderItemTotalValues.FreightValue__c != null ){
+                totalValueFreightAmount +=  orderItemTotalValues.FreightValue__c;
+            }
+        }
+
+        System.debug(totalValueOrderItems);
+        System.debug(totalValueTSIAmount);
+        System.debug(totalValueRoyAmount);
+        System.debug(totalValueFreightAmount);
+        //AggregateResult[] resulTotal =[SELECT SUM(FinalTotalValue__c) somatoria  FROM OrderItem WHERE OrderId =: orderIdEx.keySet() AND ReasonRefuse__c  =: null AND ReasonRefuse__c  =: ''];
+        //AggregateResult[] sumTSI = [SELECT SUM(TotalTSIAmount__c) somatoria FROM OrderItem WHERE OrderId =: orderIdEx.KeySet() AND ReasonRefuse__c =: null AND ReasonRefuse__c =: '' AND TotalTSIAmount__c != null];
+        //AggregateResult[] sumRoy = [SELECT SUM(TotalRoyaltyAmount__c) somatoria FROM OrderItem WHERE OrderId =: orderIdEx.KeySet() AND ReasonRefuse__c =: null AND ReasonRefuse__c =: '' AND TotalRoyaltyAmount__c != null];
+        //AggregateResult[] totalValueWthCif = [SELECT SUM(FreightValue__c) somatoria FROM OrderItem WHERE  OrderId =: orderIdEx.KeySet() AND ReasonRefuse__c =: null AND ReasonRefuse__c =: '' AND Order.Incoterms__c = 'CIF'];
         Order order = new Order();
          order.Id = (new List<String>(orderIdEx.keySet()))[0]; //(new List<String>(posts.keySet()))[0]
          //Object avgAmount = resulTotal[0].get('somatoria');
-         System.debug('Somatoria TSI ' + (Decimal)sumTSI[0].get('somatoria'));
-         System.debug('Somatoria ROY ' + (Decimal)sumRoy[0].get('somatoria'));
+         //System.debug('Somatoria TSI ' + (Decimal)sumTSI[0].get('somatoria'));
+         //System.debug('Somatoria ROY ' + (Decimal)sumRoy[0].get('somatoria'));
         
-         System.debug('Somatoria Total ' + (Decimal)resulTotal[0].get('somatoria'));
+         //System.debug('Somatoria Total ' + (Decimal)resulTotal[0].get('somatoria').setScale(3));
+         //Decimal sum =  Decimal.valueOf(String.format('{0,number,#,##0.0000}', resulTotal[0].get('somatoria')));
+         
+         //System.debug('Somatoria Total ' + ((Decimal)resulTotal[0].get('somatoria')).setScale(3));
+         //System.debug('Somatoria Total ' + sum);
         
-         order.FinalTotalValue__c  = (Decimal)resulTotal[0].get('somatoria');
-
-         if((Decimal)sumTSI[0].get('somatoria') != null){
-             order.FinalTotalValue__c  += (Decimal)sumTSI[0].get('somatoria');
+         //Decimal resultFinalTotalValue = (Decimal)resulTotal[0].get('somatoria');
+         totalValueOrderItems = totalValueOrderItems.setScale(3);
+         order.FinalTotalValue__c  = totalValueOrderItems;
+         System.debug(order.FinalTotalValue__c);
+         if(totalValueTSIAmount  != null && totalValueTSIAmount != 0){
+            //Decimal totalWithTsi = (Decimal)sumTSI[0].get('somatoria');
+            totalValueTSIAmount = totalValueTSIAmount.setScale(3);
+            order.FinalTotalValue__c  += totalValueTSIAmount;
             System.debug('Valor total com TSI ' + order.FinalTotalValue__c); 
          }
-         if((Decimal)sumRoy[0].get('somatoria') != null) {
-            order.FinalTotalValue__c  += (Decimal)sumRoy[0].get('somatoria');
+         if(totalValueRoyAmount  != null && totalValueRoyAmount != 0) {
+            //Decimal totalWithRoy = (Decimal)sumRoy[0].get('somatoria');
+            totalValueRoyAmount  = totalValueRoyAmount.setScale(3);
+            order.FinalTotalValue__c  += totalValueRoyAmount ;
              System.debug('Valor total com ROY ' + order.FinalTotalValue__c); 
          }
-         if((Decimal)totalValueWthCif[0].get('somatoria') != null){
-            order.FinalTotalValue__c  += (Decimal)totalValueWthCif[0].get('somatoria');
+         if(totalValueFreightAmount  != null && totalValueFreightAmount != 0){
+            //Decimal totalWithFrete = (Decimal)totalValueWthCif[0].get('somatoria');
+            totalValueFreightAmount  = totalValueFreightAmount .setScale(3);  
+            order.FinalTotalValue__c  += totalValueFreightAmount;
              System.debug('Valor total com Frete ' + order.FinalTotalValue__c); 
          }
          
@@ -655,4 +691,6 @@ global without sharing class IntegrationINOrder {
         }
     }
 
+
+    
 }
