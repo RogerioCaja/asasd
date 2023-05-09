@@ -25,7 +25,7 @@ public without sharing class CalloutOrderDatalake {
         IsOrderMother__c, Company__c, RecordTypeId, TotalAmount, StatusSAP__c,Culture__r.Name,SalesOrg__r.Name,Crop__r.Name,
         SalesCTV__r.CodigoSap__c,PaymentCondition__r.Code__c, Company__r.SupplierCenter__c, Company__r.SalesOffice__r.Codigo__c, Company__r.SalesTeam__r.ExternalId__c,
         DistributionChannel__r.Codigo__c,ActivitySector__r.Codigo__c, PaymentCondition__r.Name,EndDate,
-        SalesCondition__r.ExternalId__c,SalesCondition__r.Name, Company__r.ExternalID__c,ACMContract__c, (SELECT Id FROM OrderItems) 
+        SalesCondition__r.ExternalId__c,SalesCondition__r.Name, Company__r.ExternalID__c,ACMContract__c,MTO__c, (SELECT Id FROM OrderItems) 
                             FROM Order WHERE Id = :orderId];
         System.debug('parentOrder' + parentOrder);
         List<Order> allOrders = new List<Order>{parentOrder};
@@ -172,7 +172,12 @@ public without sharing class CalloutOrderDatalake {
                 }
                 System.debug(statusDesc.get('1'));
             
-
+            Map<String, String> orderMTODesc = new Map<String, String>();
+            Schema.DescribeFieldResult ordMtoValues = Schema.Order.MTO__c.getDescribe();
+            List<Schema.PicklistEntry> listOrdMtoValues = ordMtoValues.getPicklistValues();
+            for( Schema.PicklistEntry ordMtoPickList: listOrdMtoValues){
+                orderMTODesc.put(ordMtoPickList.getValue(), ordMtoPickList.getLabel());
+            }
 
             List<OrderCommodity__c> commoditiesList = [SELECT Id, Name, Product__c, CommodityPrice__c, BagQuantity__c, BagMargin__c, Order__c, StartDate__c, EndDate__c, DeliveryAddress__c, Product__r.ProductCode FROM OrderCommodity__c WHERE Order__c IN: orderIds];  
             List<ShippingDivison__c> divisonList = [SELECT Id,Name, DeliveryDate__c, Quantity__c, OrderItem__c, ExternalId__c, SapNumber__c FROM ShippingDivison__c WHERE OrderItem__c IN: orderItemIds];
@@ -259,6 +264,8 @@ public without sharing class CalloutOrderDatalake {
                 header.orderMargin = order.OrderMargin__c;
                 header.orderType = order.OrderType__c;
                 header.isOrderMother = order.IsOrderMother__c;
+                header.orderMTO = order.MTO__c;
+                header.orderMTODescription = orderMTODesc.get(order.MTO__c);
                 header.recordType = Schema.getGlobalDescribe().get('Order').getDescribe().getRecordTypeInfosById().get(order.RecordTypeId).getName();
 
                 header.orderItemList = orderItemList;
@@ -323,6 +330,8 @@ public without sharing class CalloutOrderDatalake {
                 header.orderMargin = order.OrderMargin__c;
                 header.orderType = order.OrderType__c;
                 header.isOrderMother = order.IsOrderMother__c;
+                header.orderMTO = order.MTO__c;
+                header.orderMTODescription = orderMTODesc.get(order.MTO__c);
                 header.recordType = Schema.getGlobalDescribe().get('Order').getDescribe().getRecordTypeInfosById().get(order.RecordTypeId).getName();
 
                 header.orderItemList = orderItemList;
@@ -389,7 +398,8 @@ public without sharing class CalloutOrderDatalake {
         public Boolean isOrderMother; 
         public String company; 
         public String recordType; 
-
+        public String orderMTO;
+        public String orderMTODescription;
         public List<CalloutOrderDatalake.ScheduleParameters> scheduleList;
         public List<CalloutOrderDatalake.OrderItemParameters> orderItemList;
         public List<CalloutOrderDatalake.OrderCommoditiesParameters> commodityList;
@@ -444,6 +454,8 @@ public without sharing class CalloutOrderDatalake {
         public Boolean isOrderMother; 
         public String company; 
         public String recordType; 
+        public String orderMTO;
+        public String orderMTODescription;
 
         public List<CalloutOrderDatalake.ScheduleParameters> scheduleList;
         public List<CalloutOrderDatalake.OrderItemParameters> orderItemList;

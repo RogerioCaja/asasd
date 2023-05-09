@@ -395,6 +395,12 @@ public without sharing class OrderHelper {
             
             List<Order> orderList = [SELECT Id, OrderNumber, StatusSF__c, CodigoSap__c, IsDisableSendIntegration__c FROM Order WHERE Id =: orderId];
             if(!orderList[0].IsDisableSendIntegration__c){
+                orderList[0].IsDisableSendIntegration__c = true;
+
+                OrderHelper.disableTrigger();
+                Database.update(orderList, Order.Id);
+                OrderHelper.enableTrigger();
+                
                 calloutOrderToSAPTest(orderList);
                 return 'O pedido ' + orderList[0].OrderNumber + ' foi enviado para integração';
             }else{
