@@ -62,6 +62,16 @@ public with sharing class IntegrationINProductTest {
             UnidadeMedida__c = 'l'
         );
         update product2;
+        
+        OrgVProduct__c orgV = new OrgVProduct__c(
+        	OrgVExternal__c = '00012',
+            SalesOrg__c = salesOrg.Id,
+            Product__c = product.Id,
+            Department__c = '10',
+            SupplierCenter__c = '1013',
+            Status__c = 'Adicionada'
+        );
+        insert orgV;
     }
 
     @isTest
@@ -93,10 +103,11 @@ public with sharing class IntegrationINProductTest {
         TemplateDataIntegrationFields.OrgVProductINData listOrgVProduct = new TemplateDataIntegrationFields.OrgVProductINData();
         listOrgVProduct.OrganizacaoVendas = '1000'; //Lookup
         listOrgVProduct.OrgProduct = '100'; //Lookup
-        listOrgVProduct.SetorAtividade = 'Terra 2 de minas';
-        listOrgVProduct.centroFilial = '1001';
+        listOrgVProduct.SetorAtividade = '10';
+        listOrgVProduct.centroFilial = '1000';
         listOrgVProduct.Status = 'Adicionada';
         lisProduct.orgVProductItems = new List<TemplateDataINtegrationFields.OrgVProductINData>();
+        lisProduct.orgVProductItems.add(listOrgVProduct);
         listProductList.add(lisProduct);
         IntegrationINProduct.ResponseModel modelo = IntegrationINProduct.upsertProduct(listProductList);
     }
