@@ -2,7 +2,7 @@
 <RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>VendaBarter</fullName>
     <active>true</active>
-    <compactLayoutAssignment>AgroGalaxyOrder</compactLayoutAssignment>
+    <compactLayoutAssignment>AgroGalaxyOrderBarter</compactLayoutAssignment>
     <label>Venda Barter</label>
     <picklistValues>
         <picklist>Currency__c</picklist>

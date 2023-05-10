@@ -2,6 +2,7 @@
 <RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>VendaFinsEspecificosExportacao</fullName>
     <active>true</active>
+    <compactLayoutAssignment>AgroGalaxyOrder</compactLayoutAssignment>
     <label>Venda Fins Específicos Exportação</label>
     <picklistValues>
         <picklist>Currency__c</picklist>

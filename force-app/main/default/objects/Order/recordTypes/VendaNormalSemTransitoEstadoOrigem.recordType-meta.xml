@@ -2,6 +2,7 @@
 <RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>VendaNormalSemTransitoEstadoOrigem</fullName>
     <active>true</active>
+    <compactLayoutAssignment>AgroGalaxyOrder</compactLayoutAssignment>
     <label>Venda Normal Sem Trânsito Estado Origem</label>
     <picklistValues>
         <picklist>Currency__c</picklist>
