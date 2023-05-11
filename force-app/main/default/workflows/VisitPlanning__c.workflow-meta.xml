@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workflow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <alerts>
+        <fullName>CanceledVisitNotification</fullName>
+        <description>Notificação de Visita Cancelada</description>
+        <protected>false</protected>
+        <recipients>
+            <field>VisitSeller__c</field>
+            <type>userLookup</type>
+        </recipients>
+        <senderType>DefaultWorkflowUser</senderType>
+        <template>unfiled$public/Planejamento_de_Visita_Cancelado_1683056308747</template>
+    </alerts>
+    <alerts>
+        <fullName>RescheduledVisitNotification</fullName>
+        <description>Notificação de Visita Reagendada</description>
+        <protected>false</protected>
+        <recipients>
+            <field>VisitSeller__c</field>
+            <type>userLookup</type>
+        </recipients>
+        <senderType>DefaultWorkflowUser</senderType>
+        <template>unfiled$public/Planejamento_de_Visita_Reagendada_1683056206321</template>
+    </alerts>
+    <alerts>
+        <fullName>ScheduledVisitNotification</fullName>
+        <description>Notificação de Visita Agendada</description>
+        <protected>false</protected>
+        <recipients>
+            <field>VisitSeller__c</field>
+            <type>userLookup</type>
+        </recipients>
+        <senderType>DefaultWorkflowUser</senderType>
+        <template>unfiled$public/Planejamento_de_Visita_1683037542617</template>
+    </alerts>
+</Workflow>
