@@ -1,0 +1,7 @@
+<html>
+ <head>
+  <title></title>
+ </head>
+ <body style="height: auto; min-height: auto;"><br /> <img alt="LogoAGXY-removebg-preview" src="{[devName:LogoAGXYremovebgpreview]}" style="max-width: 1125.75px; width: 215.75px; height: 32px;" title="LogoAGXY-removebg-preview" /><br /> <br /> <br /> <span style="font-size:14px;"><span style="font-family:Arial,Helvetica,sans-serif;">&nbsp; &nbsp; Olá,&nbsp;{{{VisitPlanning__c.VisitSeller__c}}}.<br /> <br /> <br /> &nbsp; &nbsp; Sua visita agendada no dia {{{VisitPlanning__c.InitialDate__c}}} às&nbsp;{{{VisitPlanning__c.StartTime__c}}} para o cliente&nbsp;{{{VisitPlanning__c.MainBP__c}}} foi cancelada.<br /> <br /> &nbsp; &nbsp; -------<br /> <br /> &nbsp; &nbsp; &nbsp;AgroGalaxy</span></span>
+ </body>
+</html>
