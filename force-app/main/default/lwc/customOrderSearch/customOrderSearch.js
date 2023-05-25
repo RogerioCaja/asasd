@@ -76,7 +76,7 @@ export default class CustomOrderSearch extends LightningElement {
         this.offSet = 0;
         if (this.searchString) {
             this.fetchData();
-        }else if(!this.searchString && this.objectName == 'Account'){
+        }else if(!this.searchString && (this.objectName == 'Account' || this.objectName == 'ObjectTerritory2Association')){
             this.fetchData();
         } else {
             this.showResultList = false;
