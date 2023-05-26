@@ -404,6 +404,7 @@ public without sharing class OrderHelper {
             if(profileId != userProfileId)
                 return '';
             
+            System.debug('Novo desenvolvimento');
             List<Order> orderList = [SELECT Id, OrderNumber, OrderReference__c, Status, StatusSF__c, CodigoSap__c, IsDisableSendIntegration__c, RecordTypeId FROM Order WHERE Id =: orderId];
             if(!orderList[0].IsDisableSendIntegration__c){
                 orderList[0].IsDisableSendIntegration__c = true;
