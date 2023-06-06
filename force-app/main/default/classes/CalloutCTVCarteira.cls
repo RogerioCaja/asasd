@@ -35,7 +35,7 @@ public without sharing class CalloutCTVCarteira {
             accountIdList.add(terrytory.ObjectId);
         }
         Map<Id,Account> accountObjectMap = new Map<Id,Account>([SELECT Id, ExternalId__c  FROM Account WHERE Id =: accountIdList]);
-        List<Company__c> companyList = new List<Company__c>([SELECT Id, Conta__c, Conta__r.ExternalId__c, DistributionChannel__r.Codigo__c, ActivitySector__r.Codigo__c, SalesOrg__r.SalesOrganizationCode__c, SalesOffice__r.Codigo__c, SalesTeam__r.ExternalId__c, SupplierCenter__c, Blocked__c  FROM Company__c WHERE Conta__c =: accountIdList]);
+        List<Company__c> companyList = new List<Company__c>([SELECT Id, Conta__c, Conta__r.ExternalId__c, DistributionChannel__r.Codigo__c, ActivitySector__r.Codigo__c, SalesOrg__r.SalesOrganizationCode__c, SalesOffice__r.Codigo__c, SalesTeam__r.ExternalId__c, SupplierCenter__c, Status__c, Blocked__c  FROM Company__c WHERE Conta__c =: accountIdList]);
         Map<String,List<Company__c>> companyMap = new Map<String,List<Company__c>>();
         for(Company__c comp : companyList){
             if(companyMap.containsKey(comp.Conta__r.ExternalId__c)){
@@ -191,6 +191,7 @@ public without sharing class CalloutCTVCarteira {
                     company.EscritorioVendas = comp.SalesOffice__r.Codigo__c;
                     company.EquipeVendas = comp.SalesTeam__r.ExternalId__c;
                     company.CentroFornecedor = comp.SupplierCenter__c;
+                    company.Status = comp.Status__c;
                     company.Bloqueado = comp.Blocked__c;
                     companyList.add(company);
                 }
