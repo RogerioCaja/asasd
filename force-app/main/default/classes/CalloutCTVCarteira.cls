@@ -172,6 +172,7 @@ public without sharing class CalloutCTVCarteira {
         public String EscritorioVendas;
         public String EquipeVendas;
         public String CentroFornecedor;
+        public String Status;
         public Boolean Bloqueado;
         public EmpresaParameters(){}
     }
