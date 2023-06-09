@@ -227,7 +227,7 @@ global without sharing class IntegrationINOrder {
         }
         
         Map<String, Order> ordersIdsMap = new Map<String, Order>();
-        List<Order> orderSelectList = new List<Order>([SELECT Id, NumeroPedidoApp__c,PaymentDate__c,ShippingDate__c,Type,CustomerOrderNumber__c,
+        List<Order> orderSelectList = new List<Order>([SELECT Id, NumeroPedidoApp__c,PaymentDate__c,ShippingDate__c,Type,CustomerOrderNumber__c, ACMContract__c,
         Currency__c,Description,DescriptionBillingSale__c,FinalTotalValue__c,Hectare__c,OrderMargin__c,OrderType__c,SalesCondition__c,IsOrderMother__c, RecordTypeId, OwnerId, FreightValue__c,
         CodigoSap__c, Pricebook2Id, Pricebook2.Name,EffectiveDate,Status,StatusRecusa__c,Incoterms__c,Incoterms2__c,PaymentForm__c, Crop__r.Code__c, Crop__c, Culture__c, Culture__r.Codigo__c, SalesOrg__r.SalesOrganizationCode__c, SalesOrg__c, SalesCondition__r.ExternalId__c,ActivitySector__r.Codigo__c,
         SalesCTV__r.CodigoSap__c, SalesCTV__c, PaymentCondition__r.Code__c, PaymentCondition__c,OrderReference__r.CodigoSap__c, OrderReference__c, Account.ExternalId__c, AccountId, ShippingAccount__r.ExternalId__c, ShippingAccount__c,Company__r.ExternalID__c,Company__c,DistributionChannel__r.Codigo__c,DistributionChannel__c,MTO__c
@@ -240,6 +240,10 @@ global without sharing class IntegrationINOrder {
         for (TemplateDataIntegrationFields.OrderINData order : request){
             Order ord = ordersIdsMap.get(order.CodigoSap);
             
+            if(order.contratoACM == null || order.contratoACM == ''){
+                order.contratoACM = ord.ACMContract__c;
+            }
+
             if(order.numeroPedidoApp == null || order.numeroPedidoApp == ''){
                 order.numeroPedidoApp = ord.NumeroPedidoApp__c;
             }
