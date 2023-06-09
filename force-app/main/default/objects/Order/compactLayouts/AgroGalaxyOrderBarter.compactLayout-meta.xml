@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CompactLayout xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>AgroGalaxyOrderBarter</fullName>
+    <fields>OrderNumber</fields>
+    <fields>CodigoSap__c</fields>
+    <fields>AccountId</fields>
+    <fields>RecordTypeId</fields>
+    <fields>Crop__c</fields>
+    <fields>ClientGroup__c</fields>
+    <label>AgroGalaxy - Order - Barter</label>
+</CompactLayout>

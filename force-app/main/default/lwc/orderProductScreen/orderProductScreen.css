@@ -78,6 +78,86 @@ lightning-datatable.dt-outer-container {
     width: 30%;
     padding: 10px;
 }
+
+.company-card {
+	width: 50%;
+    padding: 10px;
+    flex-direction: column;
+    display: inline-flex;
+}
+
+.company-card-01 {
+	float: left;
+    width: 85%;
+    padding: 10px;
+}
+
+.company-card-02 {
+	float: left;
+    width: 15%;
+    padding: 40px 0px;
+}
+
+.combo-card {
+	margin: 5px;
+    float: left;
+    width: 24%;
+    padding: 5px;
+    display: flex;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.combo-card-01 {
+	float: left;
+    width: 100%;
+    padding: 10px;
+	text-align: center;
+}
+
+.combo-titlte {
+    font-size: 16px;
+	font-weight: bold;
+}
+
+.quantity-div {
+	padding-top: 15px;
+    text-align: center;
+}
+
+.quantity-button {
+	font-size: 20px;
+    padding: 0px 10px 3px 10px;
+    border: 1px solid #ccc;
+    width: 15%;
+    height: 30px;
+    cursor: pointer;
+}
+
+.quantity-field {
+	text-align: center;
+	width: 60%;
+    padding: 5px 6px;
+    display: inline-block;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    height: 30px;
+}
+
+.checkbox-round {
+	width: 1.3em;
+    height: 1.3em;
+    border-radius: 50%;
+    vertical-align: middle;
+    border: 2px solid #ccc;
+    -webkit-appearance: none;
+    outline: none;
+    cursor: pointer;
+}
+
+.checkbox-round:checked {
+    background-color: #2a9676;
+}
   
 .container {
 	border-radius: 5px;
@@ -86,6 +166,14 @@ lightning-datatable.dt-outer-container {
     overflow: hidden;
     clear: both;
 	padding: 0px;
+	height: 150px;
+}
+
+.combo-container {
+	width: 100%;
+    overflow: hidden;
+    clear: both;
+	padding: 15px;
 }
 
 .product-name {
@@ -189,6 +277,7 @@ lightning-datatable.dt-outer-container {
 	font-size: 20px;
     font-weight: bold;
     text-align: center;
+	margin-bottom: 20px;
 }
 
 .row {
@@ -323,13 +412,17 @@ lightning-datatable.dt-outer-container {
 	}
 
 	.modal-content {
-		width: 90%;
+		width: 90% !important;
 	}
 }
 
 @media screen and (max-width: 520px) {
 	.card {
 		width: 90%;
+	}
+
+	.company-card {
+		width: 100%;
 	}
 
 	.modal-content {
@@ -374,6 +467,14 @@ lightning-datatable.dt-outer-container {
 
 	.card-02 {
 		width: 100%;
+	}
+
+	.company-card-01 {
+		width: 90%;
+	}
+	
+	.company-card-02 {
+		width: 10%;
 	}
 
 	.column-25 {
@@ -427,4 +528,32 @@ lightning-datatable.dt-outer-container {
   
 .tooltip:hover .tooltiptext {
 	visibility: visible;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.navbar_bottom {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    color: #2A9676;
+    margin: 52px 0px 102px 0px;
+    align-items: stretch;
+}
+
+.navbar_bottom span {
+    align-self: center;
+}
+
+.navbar_bottom span {
+    cursor: pointer;
 }

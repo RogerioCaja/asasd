@@ -1,11 +1,9 @@
 public without sharing class CalloutCTVCarteira {
-
     @future(callout = true)
-    public static void processIntegration(){
-        List<Territory2> territoryList = new List<Territory2>([SELECT id, DeveloperName, lastmodifieddate, ParentTerritory2.DeveloperName, name, Territory2Type.DeveloperName FROM territory2]);
-        sendOrder(territoryList);
+    public static void sendOrderFuture(List<String> territoryListId) {
+        List<Territory2> territoryUserList  = new List<Territory2>([SELECT id, DeveloperName, LastModifiedDate, ParentTerritory2.DeveloperName, name, Territory2Type.DeveloperName FROM territory2 WHERE Id =: territoryListId]);
+        CalloutCTVCarteira.sendOrder(territoryUserList);
     }
-
     public static void sendOrder(List<Territory2> territoryList) {
 
         List<RequestParameters> request = new List<RequestParameters>();
@@ -37,7 +35,7 @@ public without sharing class CalloutCTVCarteira {
             accountIdList.add(terrytory.ObjectId);
         }
         Map<Id,Account> accountObjectMap = new Map<Id,Account>([SELECT Id, ExternalId__c  FROM Account WHERE Id =: accountIdList]);
-        List<Company__c> companyList = new List<Company__c>([SELECT Id, Conta__c, Conta__r.ExternalId__c, DistributionChannel__r.Codigo__c, ActivitySector__r.Codigo__c, SalesOrg__r.SalesOrganizationCode__c, SalesOffice__r.Codigo__c, SalesTeam__r.ExternalId__c, SupplierCenter__c, Blocked__c  FROM Company__c WHERE Conta__c =: accountIdList]);
+        List<Company__c> companyList = new List<Company__c>([SELECT Id, Conta__c, Conta__r.ExternalId__c, DistributionChannel__r.Codigo__c, ActivitySector__r.Codigo__c, SalesOrg__r.SalesOrganizationCode__c, SalesOffice__r.Codigo__c, SalesTeam__r.ExternalId__c, SupplierCenter__c, Status__c, Blocked__c  FROM Company__c WHERE Conta__c =: accountIdList]);
         Map<String,List<Company__c>> companyMap = new Map<String,List<Company__c>>();
         for(Company__c comp : companyList){
             if(companyMap.containsKey(comp.Conta__r.ExternalId__c)){
@@ -93,7 +91,8 @@ public without sharing class CalloutCTVCarteira {
         String accessToken = code;
         //Url mock: https://aabb2740-69b0-4737-925c-2c40367a3737.mock.pstmn.io//CalloutCTVCarteira
         //Path geralmente cadastrado dentro de ua customSettings 
-        String endpoint = (!Test.isRunningTest() ? 'https://apim.agrogalaxy.com.br/gtw/sales-territory/v1/webhook/_notify' : 'http://callout.My_Named_Credential.com/some/path');
+        Integration__c data = Integration__c.getInstance('CTV OUT');
+        String endpoint = (!Test.isRunningTest() ? data.Url__c : 'http://callout.My_Named_Credential.com/some/path');
         Map<String, String> headersMap = new Map<String, String>();
         headersMap.put('Content-type', 'application/json');
         headersMap.put('Authorization', 'Bearer '+ accessToken);
@@ -111,11 +110,12 @@ public without sharing class CalloutCTVCarteira {
         }
     }
     public static String getAcessCode(){
+        Integration__c data = Integration__c.getInstance('CTV OUT');
         String payloadToken = 'grant_type=client_credentials';
-        String endpointToken = (!Test.isRunningTest() ? 'https://apim.agrogalaxy.com.br/identityserver/oauth2/token' : 'http://callout.My_Named_Credential.com/some/path');
+        String endpointToken = (!Test.isRunningTest() ? data.UrlToken__c : 'http://callout.My_Named_Credential.com/some/path');
         Map<String, String> headersMapToken = new Map<String, String>();
         headersMapToken.put('Content-type', 'application/x-www-form-urlencoded');
-        headersMapToken.put('Authorization', 'Basic ZVBwb0ZlUm1XZGtUNk9tRnlMQl9Ma2pBUUVrYTpsV3diUVBpa2dNeTRyTnQ5UkNSWmRpS3luMmdh');
+        headersMapToken.put('Authorization', data.Token__c);
         IntegrationUtils.RequestResponseObject responseObject2 = IntegrationUtils.executeCallout(endpointToken, payloadToken, headersMapToken);
         
         if (responseObject2.success) {
@@ -172,6 +172,7 @@ public without sharing class CalloutCTVCarteira {
         public String EscritorioVendas;
         public String EquipeVendas;
         public String CentroFornecedor;
+        public String Status;
         public Boolean Bloqueado;
         public EmpresaParameters(){}
     }
@@ -191,6 +192,7 @@ public without sharing class CalloutCTVCarteira {
                     company.EscritorioVendas = comp.SalesOffice__r.Codigo__c;
                     company.EquipeVendas = comp.SalesTeam__r.ExternalId__c;
                     company.CentroFornecedor = comp.SupplierCenter__c;
+                    company.Status = comp.Status__c;
                     company.Bloqueado = comp.Blocked__c;
                     companyList.add(company);
                 }

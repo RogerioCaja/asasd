@@ -97,6 +97,10 @@
                 <behavior>Edit</behavior>
                 <field>ProductSubgroup2__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>ProductHierarchy__c</field>
+            </layoutItems>
         </layoutColumns>
         <style>TwoColumnsTopToBottom</style>
     </layoutSections>
@@ -198,9 +202,15 @@
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
-        <fields>UnitPrice__c</fields>
+        <fields>SalesOrg__c</fields>
+        <fields>SalesOffice__c</fields>
+        <fields>harvest__c</fields>
         <fields>Cost__c</fields>
-        <fields>CREATED_DATE</fields>
+        <fields>UnitPrice__c</fields>
+        <fields>ConditionType__c</fields>
+        <fields>SalesCondition__c</fields>
+        <fields>StartDate__c</fields>
+        <fields>EndDate__c</fields>
         <relatedList>JurosDescontoAntecipao__c.Product__c</relatedList>
     </relatedLists>
     <showEmailCheckbox>false</showEmailCheckbox>
@@ -209,7 +219,7 @@
     <showRunAssignmentRulesCheckbox>false</showRunAssignmentRulesCheckbox>
     <showSubmitAndAttachButton>false</showSubmitAndAttachButton>
     <summaryLayout>
-        <masterLabel>00h220000017zLD</masterLabel>
+        <masterLabel>00hDE000008gDOP</masterLabel>
         <sizeX>4</sizeX>
         <sizeY>0</sizeY>
         <summaryLayoutStyle>Default</summaryLayoutStyle>

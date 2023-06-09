@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>LastVisit_Date__c</fullName>
+    <externalId>false</externalId>
+    <label>Data da Última Visita</label>
+    <summarizedField>VisitPlanning__c.InitialDate__c</summarizedField>
+    <summaryFilterItems>
+        <field>VisitPlanning__c.Status__c</field>
+        <operation>equals</operation>
+        <value>Concluído</value>
+    </summaryFilterItems>
+    <summaryForeignKey>VisitPlanning__c.MainBP__c</summaryForeignKey>
+    <summaryOperation>max</summaryOperation>
+    <type>Summary</type>
+</CustomField>

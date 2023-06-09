@@ -6,12 +6,15 @@ import {
 import fetchRecords from '@salesforce/apex/CustomLookupController.fetchRecords';
 import fetchOrderRecords from '@salesforce/apex/CustomLookupController.fetchProductsRecords';
 import fetchAccountRecords from '@salesforce/apex/CustomAccountLookupController.fetchAccountRecords';
+import fetchAccountsWithTerritories from '@salesforce/apex/CustomLookupController.fetchAccountsWithTerritories';
+import getNumberOfAccounts from '@salesforce/apex/CustomAccountLookupController.getNumberOfAccounts';
 import {
     ShowToastEvent
 } from 'lightning/platformShowToastEvent';
 
 export default class CustomOrderSearch extends LightningElement {
 
+    @api percentage = 30;
     @api objectName;
     @api fieldName;
     @api value;
@@ -20,8 +23,12 @@ export default class CustomOrderSearch extends LightningElement {
     @api placeholder;
     @api className;
     @api productParams;
+    @api salesOrg;
+    @api territoryParams;
+    @api seedPrice;
     @api required = false;
     @track searchString;
+    @api offSet = 0;
     @track selectedRecord;
     @api recordsList;
     @api message;
@@ -51,6 +58,10 @@ export default class CustomOrderSearch extends LightningElement {
         },
     ];
 
+    get getStyle() {
+        return 'width: ' + this.percentage + '% !important';
+    }
+
     connectedCallback() {
         if (this.value)
             this.fetchData();
@@ -62,22 +73,31 @@ export default class CustomOrderSearch extends LightningElement {
         const tabEvent = new CustomEvent("modesearch");
         this.dispatchEvent(tabEvent)
         console.log(this.searchString);
+        this.offSet = 0;
         if (this.searchString) {
+            this.fetchData();
+        }else if(!this.searchString && (this.objectName == 'Account' || this.objectName == 'ObjectTerritory2Association')){
             this.fetchData();
         } else {
             this.showResultList = false;
-            this.showNotification('Necessário digitar algum nome de conta');
+            if(this.objectName == 'Product2'){
+                this.showNotification('Necessário digitar algum nome de um produto');
+            }else{
+                this.showNotification('Necessário digitar algum nome de conta');
+            }
         }
     }
 
-    fetchData() {
+    @api fetchData() {
         this.showSpinner = true;
         this.message = '';
         this.recordsList = [];
         console.log('this.objectName: ' + this.objectName);
-        if (this.objectName == 'Account') {
+        if (this.objectName == 'Account' || this.objectName == 'BPAccount') {
             fetchAccountRecords({
-                    searchString: this.searchString
+                    searchString: this.searchString,
+                    offSet: this.offSet,
+                    salesOrg: this.objectName == 'BPAccount' ? this.salesOrg : null
                 })
                 .then(result => {
                     const tabEvent = new CustomEvent("showresults");
@@ -91,6 +111,18 @@ export default class CustomOrderSearch extends LightningElement {
                         tabEvent.results = this.recordsList;
                         tabEvent.showResults = true;
                         tabEvent.message = false;
+
+                        if(this.offSet == 0){
+                            getNumberOfAccounts({
+                                searchString: this.searchString,
+                                salesOrg: this.objectName == 'BPAccount' ? this.salesOrg : null
+                            }).then(resultCount => {
+                                const tabEvent = new CustomEvent("showcount");
+                                tabEvent.numberOfAccounts = resultCount;
+                                this.dispatchEvent(tabEvent);
+                            })
+                        }
+                        
                     } else {
                         tabEvent.results = result;
                         tabEvent.showResults = true;
@@ -111,6 +143,7 @@ export default class CustomOrderSearch extends LightningElement {
                     isCommodity: this.objectName == 'Commodity' ? true : false,
                     productsIds: [],
                     priceScreen: false,
+                    getSeedPrices: this.seedPrice,
                     isLimit: false
                 })
                 .then(result => {
@@ -130,14 +163,49 @@ export default class CustomOrderSearch extends LightningElement {
                         tabEvent.showResults = true;
                         tabEvent.message = "Nenhum registro encontrado para '" + this.searchString + "'";
                     }
-
                     this.dispatchEvent(tabEvent);
                     this.showSpinner = false;
                 }).catch(error => {
                     this.message = error.message;
                     this.showSpinner = false;
                 });
-        } else {
+        }else if(this.objectName == 'ObjectTerritory2Association'){
+            console.log('this.territoryParams: ' + JSON.stringify(this.territoryParams));
+            if(this.territoryParams.territory == '' && this.territoryParams.ctv == '' && !this.territoryParams.withoutTerritory) {
+                this.showSpinner = false;
+                this.showNotification('Pelo menos um dos campos deve estar preenchido(CTV ou Território)')
+                return;
+            }
+            
+            fetchAccountsWithTerritories({
+                searchString: this.searchString,
+                data: JSON.stringify(this.territoryParams)
+            })
+            .then(result => {
+                const tabEvent = new CustomEvent("showresults");
+                if (result && result.length > 0) {
+                    this.recordsList = result;
+                    /*console.log(JSON.parse(JSON.stringify(result)));
+                    if (selectedAccount) { this.recordsList.filter(x => x.Id !== this.selectedRecord.Id); }
+                    console.log(JSON.parse(JSON.stringify( this.recordsList)));*/
+                    this.showResultList = true;
+
+                    tabEvent.results = this.recordsList;
+                    tabEvent.showResults = true;
+                    tabEvent.message = false;
+                } else {
+                    tabEvent.results = result;
+                    tabEvent.showResults = true;
+                    tabEvent.message = "Nenhum registro encontrado para '" + this.searchString + "'";
+                }
+                this.dispatchEvent(tabEvent);
+                this.showSpinner = false;
+            }).catch(error => {
+                this.message = error.message;
+                this.showSpinner = false;
+            });
+        }
+         else {
             fetchRecords({
                     objectName: this.objectName,
                     filterField: this.fieldName,
@@ -168,7 +236,7 @@ export default class CustomOrderSearch extends LightningElement {
                     this.showSpinner = false;
                 });
         }
-
+  
     }
 
     dispatchEventHandler(recordId) {

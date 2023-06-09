@@ -7,6 +7,8 @@ public without sharing class CalloutOrderDatalake {
         processIntegration(orderId);
     }
 
+
+    ////
     public static IntegrationUtils.CalloutDatalakeResponse processIntegration(Id orderId){
 
         Order parentOrder = [SELECT CodigoSap__c, Id, NumeroPedidoApp__c,  
@@ -14,7 +16,7 @@ public without sharing class CalloutOrderDatalake {
         ShippingAccount__c, Account.ExternalId__c, AccountId,  
         Crop__r.Code__c, Crop__c, Culture__r.Codigo__c, Culture__c,  
         SalesOrg__r.SalesOrganizationCode__c, SalesOrg__c,  
-        SalesCTV__c, PaymentCondition__c, OrderReference__c, OrderReason__c,
+        SalesCTV__c, PaymentCondition__c, OrderReference__c,OrderReference__r.CodigoSap__c, OrderReason__c,
         OrderNumber, DistributionChannel__c, ActivitySector__c, PaymentDate__c,  
         EffectiveDate, ShippingDate__c, Status, StatusRecusa__c, Type,  
         CustomerOrderNumber__c, PaymentForm__c, StatusSF__c, Currency__c,  
@@ -23,7 +25,7 @@ public without sharing class CalloutOrderDatalake {
         IsOrderMother__c, Company__c, RecordTypeId, TotalAmount, StatusSAP__c,Culture__r.Name,SalesOrg__r.Name,Crop__r.Name,
         SalesCTV__r.CodigoSap__c,PaymentCondition__r.Code__c, Company__r.SupplierCenter__c, Company__r.SalesOffice__r.Codigo__c, Company__r.SalesTeam__r.ExternalId__c,
         DistributionChannel__r.Codigo__c,ActivitySector__r.Codigo__c, PaymentCondition__r.Name,EndDate,
-        SalesCondition__r.ExternalId__c,SalesCondition__r.Name, Company__r.ExternalID__c, (SELECT Id FROM OrderItems) 
+        SalesCondition__r.ExternalId__c,SalesCondition__r.Name, Company__r.ExternalID__c,ACMContract__c,MTO__c, (SELECT Id FROM OrderItems) 
                             FROM Order WHERE Id = :orderId];
         System.debug('parentOrder' + parentOrder);
         List<Order> allOrders = new List<Order>{parentOrder};
@@ -68,6 +70,12 @@ public without sharing class CalloutOrderDatalake {
             
         List<RequestParameters> request = new List<RequestParameters>();
         
+        Integration__c integrationOUT = Integration__c.getInstance('Pedidos OUT');
+        if(integrationOUT != null && integrationOUT.IsInactive__c){
+            IntegrationLog.createLog('Pedido OUT Lake', 'OUT', '', 'Integração INATIVA', true);
+			return new IntegrationUtils.CalloutDatalakeResponse('Integração INATIVA');
+        }
+
         for (Order ord : orders) {
             request.add(new RequestParameters(ord));
         }
@@ -81,7 +89,7 @@ public without sharing class CalloutOrderDatalake {
 
 
 		//Path geralmente cadastrado dentro de ua customSettings
-		String endpoint = (!Test.isRunningTest() ? 'https://apim.agrogalaxy.com.br/gtw/sales-order/v1/webhook/order' : 'http://callout.My_Named_Credential.com/some/path');
+		String endpoint = (!Test.isRunningTest() ? integrationOUT.Url__c : 'http://callout.My_Named_Credential.com/some/path');
 		Map<String, String> ordersMap = new Map<String, String>();
 		ordersMap.put('Content-type', 'application/json');
 		ordersMap.put('Authorization', 'Bearer '+ accessToken);
@@ -122,8 +130,10 @@ public without sharing class CalloutOrderDatalake {
             
 
             Set<Id> orderItemIds = new Set<Id>();
+            Set<Id> orderIds = new Set<Id>();
             List<CalloutOrderDatalake.ScheduleParameters> scheduleList = new List<CalloutOrderDatalake.ScheduleParameters>();
             List<CalloutOrderDatalake.OrderItemParameters> orderItemList = new List<CalloutOrderDatalake.OrderItemParameters>();
+            List<CalloutOrderDatalake.OrderCommoditiesParameters> commodityList = new List<CalloutOrderDatalake.OrderCommoditiesParameters>();
             for(OrderItem orderItem : order.OrderItems){
                 orderItemIds.add(orderItem.Id);
             }
@@ -135,10 +145,16 @@ public without sharing class CalloutOrderDatalake {
                 CommercialMargin__c, DiscountValue__c, FinalTotalValue__c,
                 FinancialDiscountPercent__c, FinancialDiscountValue__c, FinancialAdditionPercent__c,
                 FinancialAdditionValue__c, CommercialAdditionPercent__c, CommercialAdditionValue__c,
-                Dosage__c, ListCost__c, NumeroSap__c, PracticedCost__c, PracticedPrice__c, UnitPrice, ReasonRefuse__c
+                Dosage__c, ListCost__c, NumeroSap__c, PracticedCost__c, PracticedPrice__c, UnitPrice, ReasonRefuse__c, AmountUsed__c,ItemBalance__c
                 FROM OrderItem
                 WHERE Id IN: orderItemIds
             ]);
+
+            for(OrderItem ordItemForCommodity: orderItemMap.values()){
+                orderIds.add(ordItemForCommodity.OrderId);
+            }
+
+           
 
             Map<String, String> orderPayment = new Map<String, String>();
                 Schema.DescribeFieldResult objFieldDescribe = Schema.Order.PaymentForm__c.getDescribe();
@@ -156,6 +172,14 @@ public without sharing class CalloutOrderDatalake {
                 }
                 System.debug(statusDesc.get('1'));
             
+            Map<String, String> orderMTODesc = new Map<String, String>();
+            Schema.DescribeFieldResult ordMtoValues = Schema.Order.MTO__c.getDescribe();
+            List<Schema.PicklistEntry> listOrdMtoValues = ordMtoValues.getPicklistValues();
+            for( Schema.PicklistEntry ordMtoPickList: listOrdMtoValues){
+                orderMTODesc.put(ordMtoPickList.getValue(), ordMtoPickList.getLabel());
+            }
+
+            List<OrderCommodity__c> commoditiesList = [SELECT Id, Name, Product__c, CommodityPrice__c, BagQuantity__c, BagMargin__c, Order__c, StartDate__c, EndDate__c, DeliveryAddress__c, Product__r.ProductCode FROM OrderCommodity__c WHERE Order__c IN: orderIds];  
             List<ShippingDivison__c> divisonList = [SELECT Id,Name, DeliveryDate__c, Quantity__c, OrderItem__c, ExternalId__c, SapNumber__c FROM ShippingDivison__c WHERE OrderItem__c IN: orderItemIds];
             Map<Id, List<ShippingDivison__c>> divisionMap = new  Map<Id, List<ShippingDivison__c>>();
 
@@ -180,6 +204,10 @@ public without sharing class CalloutOrderDatalake {
                 orderItemList.add(new CalloutOrderDatalake.OrderItemParameters(orderItem, shippingCodesList));
                 //System.debug('order' + orders);
             }
+
+            for(OrderCommodity__c orderCommodity : commoditiesList){
+                commodityList.add(new CalloutOrderDatalake.OrderCommoditiesParameters(orderCommodity));
+            }
             System.debug('order ' + order.CodigoSap__c);
             if(order.CodigoSap__c == null){
             
@@ -188,6 +216,7 @@ public without sharing class CalloutOrderDatalake {
                 
                 //Campos Lookups 
                 header.shippingAccount = order.ShippingAccount__r.ExternalId__c; // Já está adicionado na query
+                header.acmContract = order.ACMContract__c;
                 header.paymentAccount = order.Account.ExternalId__c;  // Já está adicionado na query
                 header.crop = order.Crop__r.Code__c;  // Já está adicionado na query
                 header.cropName = order.Crop__r.Name; // Já está adicionado na query
@@ -215,7 +244,7 @@ public without sharing class CalloutOrderDatalake {
                 header.codigoSap = order.CodigoSap__c;
                 header.numeroPedidoApp = order.NumeroPedidoApp__c;
                 //header.pricebook2 = order.Pricebook2Id;
-                header.orderReferencie = order.OrderReference__c;
+                header.orderReference = order.OrderReference__r.CodigoSap__c;
                 header.paymentDate = order.PaymentDate__c;
                 header.effectiveDate = order.EffectiveDate;
                 header.shippingDate = order.ShippingDate__c;
@@ -235,10 +264,13 @@ public without sharing class CalloutOrderDatalake {
                 header.orderMargin = order.OrderMargin__c;
                 header.orderType = order.OrderType__c;
                 header.isOrderMother = order.IsOrderMother__c;
+                header.orderMTO = order.MTO__c;
+                header.orderMTODescription = orderMTODesc.get(order.MTO__c);
                 header.recordType = Schema.getGlobalDescribe().get('Order').getDescribe().getRecordTypeInfosById().get(order.RecordTypeId).getName();
 
                 header.orderItemList = orderItemList;
                 header.scheduleList = scheduleList;
+                header.commodityList = commodityList;
                 this.header = header;
 
                 
@@ -250,6 +282,7 @@ public without sharing class CalloutOrderDatalake {
             else {
                 CalloutOrderDatalake.HeaderUpdate header = new CalloutOrderDatalake.HeaderUpdate();
                 header.shippingAccount = order.ShippingAccount__r.ExternalId__c; // Já está adicionado na query
+                header.acmContract = order.ACMContract__c;
                 header.paymentAccount = order.Account.ExternalId__c;  // Já está adicionado na query
                 header.crop = order.Crop__r.Code__c;  // Já está adicionado na query
                 header.cropName = order.Crop__r.Name; // Já está adicionado na query
@@ -277,7 +310,7 @@ public without sharing class CalloutOrderDatalake {
                 header.codigoSap = order.CodigoSap__c;
                 header.numeroPedidoApp = order.NumeroPedidoApp__c;
                 //header.pricebook2 = order.Pricebook2Id;
-                header.orderReferencie = order.OrderReference__c;
+                header.orderReference = order.OrderReference__r.CodigoSap__c;
                 header.paymentDate = order.PaymentDate__c;
                 header.effectiveDate = order.EffectiveDate;
                 header.shippingDate = order.ShippingDate__c;
@@ -297,10 +330,13 @@ public without sharing class CalloutOrderDatalake {
                 header.orderMargin = order.OrderMargin__c;
                 header.orderType = order.OrderType__c;
                 header.isOrderMother = order.IsOrderMother__c;
+                header.orderMTO = order.MTO__c;
+                header.orderMTODescription = orderMTODesc.get(order.MTO__c);
                 header.recordType = Schema.getGlobalDescribe().get('Order').getDescribe().getRecordTypeInfosById().get(order.RecordTypeId).getName();
 
                 header.orderItemList = orderItemList;
                 header.scheduleList = scheduleList;
+                header.commodityList = commodityList;
                 this.header = header;
             }
 
@@ -316,6 +352,7 @@ public without sharing class CalloutOrderDatalake {
 
     public class HeaderInsert{
         public String orderCodeSf;
+        public String acmContract;
         public String paymentConditionName;
         public String centroFornecedor;
         public String escritorioVendas;
@@ -335,7 +372,7 @@ public without sharing class CalloutOrderDatalake {
         public String cultureName; 
         public String salesOrgName; 
         public String paymentCondition; 
-        public String orderReferencie; 
+        public String orderReference; 
         public String distributionChannel; 
         public String activitySector; 
         public Date paymentDate; 
@@ -361,14 +398,17 @@ public without sharing class CalloutOrderDatalake {
         public Boolean isOrderMother; 
         public String company; 
         public String recordType; 
-
+        public String orderMTO;
+        public String orderMTODescription;
         public List<CalloutOrderDatalake.ScheduleParameters> scheduleList;
         public List<CalloutOrderDatalake.OrderItemParameters> orderItemList;
+        public List<CalloutOrderDatalake.OrderCommoditiesParameters> commodityList;
         public HeaderInsert(){}
     }
 
     public class HeaderUpdate{
         public String orderCodeSf;
+        public String acmContract;
         public String paymentConditionName;
         public String centroFornecedor;
         public String escritorioVendas;
@@ -388,7 +428,7 @@ public without sharing class CalloutOrderDatalake {
         public String cultureName; 
         public String salesOrgName; 
         public String paymentCondition; 
-        public String orderReferencie; 
+        public String orderReference; 
         public String distributionChannel; 
         public String activitySector; 
         public Date paymentDate; 
@@ -414,9 +454,12 @@ public without sharing class CalloutOrderDatalake {
         public Boolean isOrderMother; 
         public String company; 
         public String recordType; 
+        public String orderMTO;
+        public String orderMTODescription;
 
         public List<CalloutOrderDatalake.ScheduleParameters> scheduleList;
         public List<CalloutOrderDatalake.OrderItemParameters> orderItemList;
+        public List<CalloutOrderDatalake.OrderCommoditiesParameters> commodityList;
 
         //public OrderUpdate(){}
     }
@@ -455,6 +498,28 @@ public without sharing class CalloutOrderDatalake {
         }
     }
 
+    public class OrderCommoditiesParameters{
+        public String commodityName;
+        public String material;
+        public Decimal commodityPrice;
+        public Decimal bagQuantity;
+        public Decimal bagMargin;
+        public Date startDate;
+        public Date endDate;
+        public String deliveryAddress;
+
+        public OrderCommoditiesParameters(OrderCommodity__c orderCommodity){
+            this.commodityName = orderCommodity.Name;
+            this.material = orderCommodity.Product__r.ProductCode;
+            this.commodityPrice = orderCommodity.CommodityPrice__c;
+            this.bagQuantity = orderCommodity.BagQuantity__c;
+            this.bagMargin = orderCommodity.BagMargin__c;
+            this.startDate = orderCommodity.StartDate__c;
+            this.endDate = orderCommodity.EndDate__c;
+            this.deliveryAddress = orderCommodity.DeliveryAddress__c;
+        }
+    }
+
     public class OrderItemParameters{
         public String orderId;
         public String material;
@@ -481,10 +546,19 @@ public without sharing class CalloutOrderDatalake {
         public Decimal practicedPrice;
         public Decimal unitPrice;
         public String motivoRecusa;
+        public String descMotivoRecusa;
+        public Decimal quantidadeUtilizada;
+        public Decimal saldoItem;
 
 
 
         public OrderItemParameters(OrderItem orderItem, List<Integer> shippingDivison){
+            Map<String, String> motivoRecusa = new Map<String, String>();
+            Schema.DescribeFieldResult mtrecusaFieldDescribe = Schema.OrderItem.ReasonRefuse__c.getDescribe();
+            List<Schema.PicklistEntry> motivoRecusaPickListValues = mtrecusaFieldDescribe.getPickListValues();
+            for(Schema.PicklistEntry mtrPickList : motivoRecusaPickListValues){
+                motivoRecusa.put(mtrPickList.getValue(), mtrPickList.getLabel());
+            }
             this.orderId = orderItem.OrderId;
             this.material = orderItem.Product2.ExternalId__c;
             //this.orderExternalId = orderItem.ExternalId__c;
@@ -509,6 +583,9 @@ public without sharing class CalloutOrderDatalake {
             this.practicedPrice = orderItem.PracticedPrice__c;
             this.unitPrice = orderItem.UnitPrice;
             this.motivoRecusa = orderItem.ReasonRefuse__c;
+            this.descMotivoRecusa = motivoRecusa.get(orderItem.ReasonRefuse__c);
+            this.quantidadeUtilizada = orderItem.AmountUsed__c;
+            this.saldoItem = orderItem.ItemBalance__c;
         }
     }
 
@@ -540,11 +617,12 @@ public without sharing class CalloutOrderDatalake {
 
 //Método para atualizar access token
     public static String getAcessCode(){
+        Integration__c data = Integration__c.getInstance('Pedidos OUT');
         String payloadToken = 'grant_type=client_credentials';
-        String endpointToken = (!Test.isRunningTest() ? 'https://apim.agrogalaxy.com.br/identityserver/oauth2/token' : 'http://callout.My_Named_Credential.com/some/path');
+        String endpointToken = (!Test.isRunningTest() ? data.UrlToken__c : 'http://callout.My_Named_Credential.com/some/path');
         Map<String, String> headersMapToken = new Map<String, String>();
         headersMapToken.put('Content-type', 'application/x-www-form-urlencoded');
-        headersMapToken.put('Authorization', 'Basic ZVBwb0ZlUm1XZGtUNk9tRnlMQl9Ma2pBUUVrYTpsV3diUVBpa2dNeTRyTnQ5UkNSWmRpS3luMmdh');
+        headersMapToken.put('Authorization', !Test.isRunningTest() ? data.Token__c : 'testeToken');
         IntegrationUtils.RequestResponseObject responseObject2 = IntegrationUtils.executeCallout(endpointToken, payloadToken, headersMapToken);
         System.debug('responseObject2: '+ responseObject2);
         if (responseObject2.success) {
