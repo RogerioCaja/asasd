@@ -294,7 +294,7 @@ global without sharing class IntegrationINOrderInsert {
         System.debug('formPaymentListToUpsert ' + formPaymentListToUpsert.size());
         if(formPaymentListToUpsert.size() != 0){
             formPaymentResponse.putAll(
-                IntegrationINPaymentForm.upsertFormPayment(formPaymentListToUpsert)   
+                IntegrationINPaymentFormInsert.upsertFormPayment(formPaymentListToUpsert)   
             );
             System.debug('teste de entrada'  + formPaymentResponse);
         }
