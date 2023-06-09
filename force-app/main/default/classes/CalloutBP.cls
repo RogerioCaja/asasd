@@ -126,11 +126,34 @@ public without sharing class CalloutBP {
                     userCodigoSapList.add(company.Partner);
                 }
             }          
-            Database.UpsertResult[] resultsAccount;
+            Database.UpsertResult[] resultsAccount = new Database.UpsertResult[]{};
             if (!accountList.isEmpty()) {
+                List<Account> accountListProperties = new List<Account>(); //Lista de Propriedades
+                List<Account> accountListOwner = new List<Account>(); //Lista de Proprietários
+                
+                for(Account refinedAccount: accountList){
+                    if(refinedAccount.BpType__c == 'Proprietario'){
+                        accountListOwner.add(refinedAccount);
+                    } else {
+                        accountListProperties.add(refinedAccount);
+                    }
+                }                
+
                 System.debug('accountList: '+accountList);
-                resultsAccount = Database.upsert(accountList, Account.ExternalId__c, false);
+                
+                if(!accountListOwner.isEmpty()){
+                    System.debug('accountListOwner ' + accountListOwner);
+                    resultsAccount = Database.upsert(accountListOwner, Account.ExternalId__c, false);
+                }
+                
+                   if(!accountListProperties.isEmpty()){
+                       System.debug('accountListProperties ' + accountListProperties);
+                       resultsAccount.addAll(Database.upsert(accountListProperties, Account.ExternalId__c, false));
+                   }
+                //resultsAccount = Database.upsert(accountList, Account.ExternalId__c, false);
             }
+                
+
             List<Account> accountFatherListExternalId = new List<Account>([SELECT Id, ExternalId__c FROM Account WHERE ExternalId__c =: accountFatherIdsList]);
             creatyAccountTerrytoryAssossiation(accountList,accountFatherListExternalId, userCodigoSapList, resp, companyList);
             List<String> accountIdList = new List<String>();
@@ -177,7 +200,7 @@ public without sharing class CalloutBP {
                 }
             }
             
-            if(resultsAccount != null){
+            if(resultsAccount != null && !resultsAccount.isEmpty()){
                 for(Database.UpsertResult results : resultsAccount){
                     System.debug('Database.UpsertResult: ' + results);
                     if(!results.isSuccess()){
@@ -322,10 +345,31 @@ public without sharing class CalloutBP {
                     userCodigoSapList.add(company.Partner);
                 }
             }          
-            Database.UpsertResult[] resultsAccount;
+            Database.UpsertResult[] resultsAccount = new Database.UpsertResult[]{};
             if (!accountList.isEmpty()) {
+                List<Account> accountListProperties = new List<Account>(); //Lista de Propriedades
+                List<Account> accountListOwner = new List<Account>(); //Lista de Proprietários
+                
+                for(Account refinedAccount: accountList){
+                    if(refinedAccount.BpType__c == 'Proprietario'){
+                        accountListOwner.add(refinedAccount);
+                    } else {
+                        accountListProperties.add(refinedAccount);
+                    }
+                }                
+
                 System.debug('accountList: '+accountList);
-                resultsAccount = Database.upsert(accountList, Account.ExternalId__c, false);
+                
+                if(!accountListOwner.isEmpty()){
+                    System.debug('accountListOwner ' + accountListOwner);
+                    resultsAccount = Database.upsert(accountListOwner, Account.ExternalId__c, false);
+                }
+                
+                   if(!accountListProperties.isEmpty()){
+                       System.debug('accountListProperties ' + accountListProperties);
+                       resultsAccount.addAll(Database.upsert(accountListProperties, Account.ExternalId__c, false));
+                   }
+                //resultsAccount = Database.upsert(accountList, Account.ExternalId__c, false);
             }
             List<Account> accountFatherListExternalId = new List<Account>([SELECT Id, ExternalId__c FROM Account WHERE ExternalId__c =: accountFatherIdsList]);
             creatyAccountTerrytoryAssossiation(accountList,accountFatherListExternalId, userCodigoSapList, resp, companyList);
@@ -373,7 +417,7 @@ public without sharing class CalloutBP {
                 }
             }
             
-            if(resultsAccount != null){
+            if(resultsAccount != null && !resultsAccount.isEmpty()){
                 for(Database.UpsertResult results : resultsAccount){
                     System.debug('Database.UpsertResult: ' + results);
                     if(!results.isSuccess()){
