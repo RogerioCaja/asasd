@@ -104,6 +104,7 @@ public without sharing class OrderHelper {
     }
 
     public static void calloutOrderToSAPTest(List<Order> newRecords){
+        System.debug('Debug');
         Set<Id> orderIds = new Set<Id>();
         String orderTypeName = '';
         for(Order order : newRecords){
