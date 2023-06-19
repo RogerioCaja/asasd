@@ -25,7 +25,50 @@ public with sharing class CalloutCTVCarteiraTest {
         TimeZoneSidKey='America/Los_Angeles', UserName='testes_CTV_TEST@testes.com');
 
         insert u;
-        
+
+        SalesOrg__c salesOrg = new SalesOrg__c(
+            Name = 'AgroGalaxy',
+            SalesOrganizationCode__c = '1111'
+        );
+        insert salesOrg;
+        DistributionChannel__c distributionChannel = new DistributionChannel__c(
+            Name = 'Teste',
+            Codigo__c = '0001'
+        );
+        insert distributionChannel;
+
+        SalesOffice__c salesOffice = new SalesOffice__c(
+            Name = 'Sales Office',
+            Codigo__c = '001'
+        );
+        insert salesOffice;
+
+        SalesTeam__c salesTeam = new SalesTeam__c(
+            Name = 'Sales team',
+            ExternalId__c = '001'
+        );
+        insert salesTeam;
+
+        ActivitySector__c activitySector = new ActivitySector__c(
+            Name = 'Teste Activity',
+            Codigo__c = '003'
+        );
+        insert activitySector;
+
+        Company__c company = new Company__c(
+            Name = 'Company',
+            Blocked__c = false,
+            ClientGroup__c = '11',
+            Conta__c = account.Id,
+            SalesOrg__c = salesOrg.Id,
+            SalesOffice__c = salesOffice.Id,
+            SalesTeam__c = salesTeam.Id,
+            ActivitySector__c = activitySector.Id,
+            DistributionChannel__c = distributionChannel.Id,
+            ExternalID__c = '001',
+            SupplierCenter__c = '1010'
+        );
+        insert company;
     }
     @isTest
     static void calloutCTVSuccess(){
@@ -43,9 +86,6 @@ public with sharing class CalloutCTVCarteiraTest {
 
         UserTerritory2Association userTerrAssociation = new UserTerritory2Association(Territory2Id= objTerr.Id, UserId= u.Id, RoleInTerritory2='Sales / Marketing Manager');
         insert userTerrAssociation;
-        //ObjectTerritory2Association objObjectTerritory2Association = new ObjectTerritory2Association(ObjectId = account.Id, Territory2Id =objTerr.Id, AssociationCause='Territory2Manual' );
-        //insert objObjectTerritory2Association;
-
         List<Territory2> territoryList = new List<Territory2>();
         territoryList.add(objTerr);
         CalloutOrder calloutTest = new CalloutOrder();
@@ -53,5 +93,21 @@ public with sharing class CalloutCTVCarteiraTest {
         Test.startTest();
         CalloutCTVCarteira.sendOrder(territoryList);
         Test.stopTest();
+    } 
+
+    @isTest
+    static void calloutCTVRequestMethod(){
+        List<Company__c> companyList = new List<Company__c>([SELECT Name, Status__c, Blocked__c,ClientGroup__c,Conta__c,SalesOrg__c,DistributionChannel__r.Codigo__c, ActivitySector__r.Codigo__c,SalesOrg__r.SalesOrganizationCode__c,SalesOffice__r.Codigo__c,SalesTeam__r.ExternalId__c,SalesOffice__c,SalesTeam__c,ActivitySector__c,DistributionChannel__c,ExternalID__c,SupplierCenter__c FROM Company__c WHERE ExternalID__c = '001']);
+        System.debug('companyList: '+ companyList);
+        Map<String,List<Company__c>> compMap = new Map<String,List<Company__c>>();
+        Map<String,List<Company__c>> compMap2 = new Map<String,List<Company__c>>();
+        compMap.put('001',companyList);
+        compMap2.put('000',companyList);
+        List<CalloutCTVCarteira.ClienteParameters> clientList= new List<CalloutCTVCarteira.ClienteParameters>();
+        Test.startTest();
+        clientList.add(new CalloutCTVCarteira.ClienteParameters('001', compMap));
+        clientList.add(new CalloutCTVCarteira.ClienteParameters('001', compMap2));
+        Test.stopTest();
+        System.debug('clientList: '+ clientList);
     } 
 }

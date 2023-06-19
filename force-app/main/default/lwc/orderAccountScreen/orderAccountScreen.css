@@ -13,6 +13,38 @@
     color: #000;
   }
 
+  .footer-pagination{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .footer-pagination > div{
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    height: 25px;
+    margin: 5px;
+    color: #2a9676;
+    font-weight: bold;
+    background-color: #ccffe6;
+    border-radius: 5px;
+  }
+
+  .buttonToUp{
+    cursor:pointer; 
+    border: solid 1px #2a9676; 
+    border-radius: 50%; 
+    position: fixed; 
+    right: 2%; 
+    top:61%;
+  }
+
+  .selectedIndex{
+    color: white !important;
+    background-color: #2a9676 !important;
+  }
+
   @media screen and (max-width: 500px) {
     .tituloPesquisa{
       width: 90%;

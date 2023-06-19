@@ -232,16 +232,16 @@ global without sharing class IntegrationINPricebook2 {
         // A941 => Org.vendas/Moeda/Safra/Material
         
         // A930 => Org.vendas/Safra/GrpClients/Material
-        // A931 => Org.vendas/Safra/Centro/Material
-        // A932 => Org.vendas/Safra/Centro/Grp.merc.
-        // A933 => Org.vendas/Safra/Centro/Material
+        // A945 => Org.vendas/Safra/Eq.vendas/Material
+        // A946 => Org.vendas/Safra/Eq.vendas/Grp.merc.
+        //? A933 => Org.vendas/Safra/Grp.merc. (Update 06/03/2023)
         // A934 => Org.vendas/Safra
 
         Map<String, List<String>> response = new Map<String, List<String>>();
         response.put('A930', new List<String>{'SalesOrg__c', 'harvest__c', 'ClientGroup__c','Product__c'});
         response.put('A945', new List<String>{'SalesOrg__c', 'harvest__c','SalesTeam__c' ,'Product__c'});
         response.put('A946', new List<String>{'SalesOrg__c', 'harvest__c','SalesTeam__c' ,'ProductGroup__c'});
-        response.put('A933', new List<String>{'SalesOrg__c', 'harvest__c','DistributionCenter__c' ,'Product__c'});
+        response.put('A933', new List<String>{'SalesOrg__c', 'harvest__c' ,'ProductGroup__c'});
         response.put('A934', new List<String>{'SalesOrg__c', 'harvest__c'});
 
         response.put('A935', new List<String>{'SalesOrg__c', 'Currency__c' ,'harvest__c', 'SalesCondition__c', 'Account__c','Product__c'});
@@ -283,7 +283,8 @@ global without sharing class IntegrationINPricebook2 {
                     (prices.ClientGroup__c == null ? '' : String.valueOf(prices.ClientGroup__c)+'_')+
                     (prices.Account__c == null ? '' : String.valueOf(prices.Account__c).subString(0, 15)+'_')+
                     (prices.SalesTeam__c == null ? '' : String.valueOf(prices.SalesTeam__c).subString(0, 15)+'_')+
-                    (prices.Product__c == null ? '' : String.valueOf(prices.Product__c).subString(0, 15))
+                    (prices.Product__c == null ? '' : String.valueOf(prices.Product__c).subString(0, 15)+'_')+
+                    (prices.RecordTypeId == null ? '' : String.valueOf(prices.RecordTypeId).subString(0, 15))
                 );
                 externalIdMap.put(externalId,prices.ExternalId__c);
                 repetitons.add(prices.ExternalId__c);
@@ -352,7 +353,8 @@ global without sharing class IntegrationINPricebook2 {
                 (prices.ClientGroup__c == null ? '' : String.valueOf(prices.ClientGroup__c)+'_')+
                 (prices.Account__c == null ? '' : String.valueOf(prices.Account__c).subString(0, 15)+'_')+
                 (prices.SalesTeam__c == null ? '' : String.valueOf(prices.SalesTeam__c).subString(0, 15)+'_')+
-                (prices.Product__c == null ? '' : String.valueOf(prices.Product__c).subString(0, 15))
+                (prices.Product__c == null ? '' : String.valueOf(prices.Product__c).subString(0, 15)+'_')+
+                String.valueOf(Schema.SObjectType.JurosDescontoAntecipao__c.getRecordTypeInfosByDeveloperName().get('ZPR0').getRecordTypeId()).subString(0, 15)
             );
             externalIdMap.put(externalId,prices.ExternalId__c);
             repetitonsZPRS.add(prices.ExternalId__c);

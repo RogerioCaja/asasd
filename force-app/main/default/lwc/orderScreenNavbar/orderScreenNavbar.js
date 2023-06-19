@@ -23,6 +23,12 @@ export default class OrderScreenNavbar extends LightningElement {
             message: 'Necessário preencher todos os dados obrigatórios antes de seguir'
         },
         {
+            name: 'bp',
+            current: false,
+            enable: false,
+            message: 'Necessário selecionar um LOCAL DE ENTREGA antes de seguir'
+        },
+        {
             name: 'product',
             current: false,
             enable: false,
@@ -73,7 +79,7 @@ export default class OrderScreenNavbar extends LightningElement {
         if (this.currentTab == 0) {
             this.template.querySelector('[data-tab="previous"]').className = 'previous disabled';
             this.template.querySelector('[data-tab="next"]').className = 'next';
-        } else if (this.currentTab == 3) {
+        } else if (this.currentTab == 4) {
             this.template.querySelector('[data-tab="next"]').className = 'next disabled';
             this.template.querySelector('[data-tab="previous"]').className = 'previous';
         } else {
@@ -97,7 +103,7 @@ export default class OrderScreenNavbar extends LightningElement {
     }
 
     handleNext() {
-        if (this.currentTab !== 3) {
+        if (this.currentTab !== 4) {
             if (this.tabs[this.currentTab + 1].enable == true) {
                 this.tabs[this.currentTab].current = false;
                 this.currentTab = this.currentTab + 1;
@@ -136,6 +142,7 @@ export default class OrderScreenNavbar extends LightningElement {
         this.checkPreviousNextBtn();
         this.account = false;
         this.header = false;
+        this.bp = false;
         this.product = false;
         this.summary = false;
 
@@ -147,15 +154,18 @@ export default class OrderScreenNavbar extends LightningElement {
                 this.header = true;
                 break;
             case 2:
-                this.product = true;
+                this.bp = true;
                 break;
             case 3:
+                this.product = true;
+                break;
+            case 4:
                 this.summary = true;
                 break;
         }
 
         const tabEvent = new CustomEvent("changetab");
-        tabEvent.tabs = [this.account, this.header, this.product, this.summary];
+        tabEvent.tabs = [this.account, this.header, this.bp, this.product, this.summary];
         this.dispatchEvent(tabEvent);
 
     }
@@ -177,8 +187,8 @@ export default class OrderScreenNavbar extends LightningElement {
     enableNextScreen(){
         console.log('enableNextScreen');
         console.log(this.currentTab + 1);
-        console.log((this.currentTab + 1) < 3);
-        if((this.currentTab + 1) < 3){
+        console.log((this.currentTab + 1) < 4);
+        if((this.currentTab + 1) < 4){
             console.log('enableNextScreen if 1');
             if(this.tabs[this.currentTab + 1].enable == false){
                 console.log('enableNextScreen if 2');

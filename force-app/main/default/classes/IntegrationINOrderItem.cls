@@ -1,6 +1,5 @@
-global with sharing class IntegrationINOrderItem {
-    public IntegrationINOrderItem() {
-    }
+global without sharing class IntegrationINOrderItem {
+    
     // Integração do OrderItem Upsert
     //@HttpPost 
     global static Map<String, List<TemplateDataIntegrationFields.Response>> upsertOrderItem(List<TemplateDataIntegrationFields.OrderItemINData> request, List<TemplateDataIntegrationFields.ConditionInsert> conditionList) {
@@ -15,6 +14,8 @@ global with sharing class IntegrationINOrderItem {
         
         List<String> idsOrderItem = new List<String>();
 
+        List<String> product2Ids = new List<String>();
+
         //Application of business rules
         for(TemplateDataIntegrationFields.OrderItemINData OrderItemINData : request) {
             // Pega a relação do OrderItem com Order
@@ -26,123 +27,31 @@ global with sharing class IntegrationINOrderItem {
             //Getting product parameters to search
             productLookups.add(OrderItemINData.material);
 
-            idsOrderItem.add(OrderItemINData.orderExternalId + '|' + OrderItemINData.orderItemCode);
-            for(TemplateDataIntegrationFields.ConditionInsert  conditions : conditionList){
-                conditions.KPOSN = conditions.KPOSN.replaceFirst('^0+','');
-                if(conditions.KPOSN == OrderItemINData.orderItemCode){
-
-                    if(conditions.KSCHL == 'ZPR0'){
-                        OrderItemINData.precoUnitario = (Decimal.valueOf(conditions.KBETR) / Decimal.valueOf(conditions.KPEIN));
-                        OrderItemINData.precoPraticado = OrderItemINData.precoUnitario;
-                       //OrderItemINData.multiplicador == conditions.KPEIN;
-                    }
-                    
-                    if(conditions.KSCHL == 'ZDAC'){ //Antigo ZDAN
-                        System.debug('conditions.KSCHL' + conditions.KSCHL);
-                       OrderItemINData.porcentagemDescontoFin = Decimal.valueOf(conditions.KBETR);
-                        System.debug('porcentagemDescontoFin' + OrderItemINData.porcentagemDescontoFin);
-                    }
-                    if(conditions.KSCHL == 'ZJUC'){ //Antigo ZJUR
-                        OrderItemINData.porcentagemAcrescFin = Decimal.valueOf(conditions.KBETR);
-
-                    }
-
-                    if(conditions.KSCHL == 'ZMAR'){
-                        OrderItemINData.margemComercial = Decimal.valueOf(conditions.KBETR);
-                    }
-
-                    if(conditions.KSCHL == 'ZCP0'){
-                        Decimal custoPraticado = Decimal.valueOf(conditions.KBETR) / OrderItemINData.quantidade;
-                        OrderItemINData.custoPreco = custoPraticado;
-                    }
-                    
-                    if(conditions.KSCHL == 'ZDEC'){
-                        
-                        OrderItemINData.porcentagemAcrescComercial = 0;
-                        OrderItemINData.porcentagemDesconto = 0;
-                        
-                        
-                        System.debug('KBETR ' + Decimal.valueOf(conditions.KBETR));
-                        if(Decimal.valueOf(conditions.KBETR) > 0){
-                            OrderItemINData.porcentagemAcrescComercial = Decimal.valueOf(conditions.KBETR);
-                            System.debug('porcentagemAcrescComercial ' + OrderItemINData.porcentagemAcrescComercial);
-
-                        }
-                        else {
-                            OrderItemINData.porcentagemDesconto = Decimal.valueOf(conditions.KBETR);
-                            OrderItemINData.porcentagemDesconto *= (-1);
-                            System.debug('porcentagemDesconto ' + OrderItemINData.porcentagemDesconto);
-                        }
-                    }   
+            if(OrderItemINData.material != null){
+                product2Ids.add(OrderItemINData.material);
             }
-        }
-                    
-                    //Decimal porcentagemDescontoFinanceiro = 0;
-                    Decimal valorDescontoFinanceiro = 0;
-            
-                    //Decimal porcentagemAcrescimoFinanceiro = 0; 
-                    Decimal valorAcrescimoFinanceiro = 0;
-            
-                    //Decimal porcentagemDescontoComercial = 0;
-                    Decimal valorDescontoComercial = 0; 
-                    
-                    //Decimal porcentagemAcrescimoComercial = 0;
-                    Decimal valorAcrescimoComercial = 0;
-                    
-                    Decimal valorFinal = OrderItemINData.precoUnitario * OrderItemINData.quantidade;
-                    OrderItemINData.valorTotal = valorFinal;
-                    
-                    if(OrderItemINData.porcentagemDescontoFin > 0){
-                        //porcentagemDescontoFinanceiro = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemDescontoFin / 100);
-                        valorDescontoFinanceiro = valorFinal * (OrderItemINData.porcentagemDescontoFin / 100);
-                        OrderItemINData.valorDescontoFin = valorDescontoFinanceiro;
-                        valorFinal = valorFinal - valorDescontoFinanceiro; //Bateu
-                        OrderItemINData.precoPraticado = (valorFinal) / OrderItemINData.quantidade;
-                        OrderItemINData.valorTotal = valorFinal;
-                        System.debug('valorFinal ' + valorFinal);
-                        System.debug('valorDescontoFinanceiro ' + valorDescontoFinanceiro);
-                    }
-                    if (OrderItemINData.porcentagemAcrescFin > 0){
-                        //porcentagemAcrescimoFinanceiro = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemAcrescFin / 100);
-                        
-                        valorAcrescimoFinanceiro = valorFinal * (OrderItemINData.porcentagemAcrescFin / 100);     
-                        OrderItemINData.valorAcrescFin = valorAcrescimoFinanceiro;
-                        valorFinal = valorFinal + valorAcrescimoFinanceiro;
-                        OrderItemINData.precoPraticado = (valorFinal) / OrderItemINData.quantidade;
-                        OrderItemINData.valorTotal = valorFinal;
-                        System.debug('valorFinal ' + valorFinal);
-                        System.debug('valorAcrescimoFinanceiro ' + valorAcrescimoFinanceiro);
-                    }
-                    if (OrderItemINData.porcentagemDesconto != 0 && OrderItemINData.porcentagemDesconto != null){ 
-                        //porcentagemDescontoComercial = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemDesconto / 100);
-                        valorDescontoComercial = valorFinal  * (OrderItemINData.porcentagemDesconto / 100);
-                        System.debug('porcentagemDesconto ' + (OrderItemINData.porcentagemDesconto / 100));
-                        System.debug('valorDescontoComercial ' + valorDescontoComercial);
-                        OrderItemINData.precoPraticado = (valorFinal - valorDescontoComercial) / OrderItemINData.quantidade;
-                        OrderItemINData.valorTotal = (valorFinal - valorDescontoComercial);
-                        System.debug('valorFinalFinal  ' + OrderItemINData.valorTotal);
-                        OrderItemINData.descontoValor = valorDescontoComercial;
-                    }
-                    if(OrderItemINData.porcentagemAcrescComercial != 0 && OrderItemINData.porcentagemAcrescComercial != null){
-                        //porcentagemAcrescimoComercial = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemAcrescComercial / 100);
-                        valorAcrescimoComercial = valorFinal * (OrderItemINData.porcentagemAcrescComercial / 100);
-                        System.debug('valorAcrescimoComercial ' + valorAcrescimoComercial);
-                        
-                        OrderItemINData.precoPraticado = (valorFinal + valorAcrescimoComercial) / OrderItemINData.quantidade;
-                        OrderItemINData.valorTotal = (valorFinal + valorAcrescimoComercial);
-                        OrderItemINData.valorAcrescComercial = valorAcrescimoComercial;
-                        //System.debug('porcentagemDesconto ' + OrderItemINData.porcentagemDesconto);
-                    }
-                                        
-                    System.debug('Valor Final   ' + valorFinal);
-                    System.debug('valorAcrescComercial  ' + OrderItemINData.valorAcrescComercial);
-                    
-                    System.debug('Desconto Valor ' + OrderItemINData.descontoValor);
-                    System.debug('Preço Praticado ' + OrderItemINData.precoPraticado);
-                    
+
+            idsOrderItem.add(OrderItemINData.orderExternalId + '|' + OrderItemINData.orderItemCode);
+
+            if(conditionList.size() != 0){
+                OrderItemHelper.conditionsCalc(request, conditionList);
+            }   
         }
 
-        
+        Map<String, PricebookEntry> pricebookEntryList = new Map<String, PricebookEntry>();
+
+        for(PricebookEntry priceEntry : [SELECT 
+        Product2Id, 
+        Pricebook2Id,
+        UnitPrice, 
+        CurrencyIsoCode,
+        Product2.ProductCode 
+        FROM PricebookEntry 
+        WHERE Pricebook2.IsStandard = true 
+        AND Product2.ProductCode IN: product2Ids]){
+            pricebookEntryList.put(priceEntry.Product2.ProductCode + String.valueOf(priceEntry.CurrencyIsoCode), priceEntry);
+        }
+
 
         Map<String, OrderItem> orderItemsIdsMap = new Map<String, OrderItem>();
         List<OrderItem> orderItemSelectList = new List<OrderItem>([SELECT Id, Order.CodigoSap__c, Product2.ProductCode__c, Product2Id, OrderId,
@@ -150,7 +59,7 @@ global with sharing class IntegrationINOrderItem {
         CommercialMargin__c, DiscountValue__c, ExternalId__c, FinalTotalValue__c, FinancialDiscountPercent__c,
         FinancialDiscountValue__c, FinancialAdditionPercent__c, FinancialAdditionValue__c,
         CommercialAdditionPercent__c, CommercialAdditionValue__c, Dosage__c, ListCost__c, NumeroSap__c,
-        PracticedCost__c, PracticedPrice__c, UnitPrice FROM OrderItem WHERE ExternalId__c IN: idsOrderItem]);
+        PracticedCost__c, PracticedPrice__c, UnitPrice, Sieve__c, Class__c, FreightValue__c, RoyaltyAmount__c, TSIValue__c, TotalRoyaltyAmount__c, TotalTSIAmount__c, PricebookEntryId, AmountUsed__c,AgrogalaxyComboDiscount__c,IndustryComboDiscount__c,ItemBalance__c FROM OrderItem WHERE ExternalId__c IN: idsOrderItem]);
     
         for(OrderItem ordItem : orderItemSelectList){
             orderItemsIdsMap.put(ordItem.ExternalId__c, ordItem);
@@ -164,6 +73,8 @@ global with sharing class IntegrationINOrderItem {
     
                 System.debug('orderItem.orderExternalId '+ orderItem.orderExternalId);
                 
+                //ordItem.Description += 'In73gr ins37t x';
+
                 if(orderItem.orderExternalId == null || orderItem.orderExternalId == ''){
                     System.debug('ordItem.OrderId '+ ordItem.OrderId);
                     if(ordItem.OrderId != null){
@@ -172,13 +83,7 @@ global with sharing class IntegrationINOrderItem {
                         System.debug('lookups ' + lookups);
                     }
                 }
-                
-                if(orderItem.material == null || orderItem.material == ''){
-                    if(ordItem.Product2Id != null){
-                        orderItem.material = ordItem.Product2.ProductCode__c;
-                        lookups.put('PricebookEntry' + ordItem.Product2.ProductCode__c, ordItem.Product2Id);
-                    } 
-                }
+            
                 
     
                 if(orderItem.material == null || orderItem.material == ''){
@@ -192,7 +97,11 @@ global with sharing class IntegrationINOrderItem {
                 if(orderItem.quantidade == null){
                     orderItem.quantidade = ordItem.Quantity;
                 }
-    
+                
+                if(orderItem.quantidadeUtilizada == null){
+                    orderItem.quantidadeUtilizada = ordItem.AmountUsed__c;
+                }
+
                 if(orderItem.unidadeMedida == null || orderItem.unidadeMedida == ''){
                     orderItem.unidadeMedida = ordItem.UnitMeasure__c;
                 }
@@ -267,7 +176,51 @@ global with sharing class IntegrationINOrderItem {
     
                 if(orderItem.precoUnitario == null){
                     orderItem.precoUnitario = ordItem.UnitPrice;
-                }  
+                }
+
+                if(orderItem.peneira == null || orderItem.peneira == ''){
+                    orderItem.peneira = ordItem.Sieve__c;
+                }
+
+                if(orderItem.classeCategoria == null || orderItem.classeCategoria == ''){
+                    orderItem.classeCategoria = ordItem.class__c;
+                }
+
+                if(orderItem.freteItem == null){
+                    orderItem.freteItem = ordItem.FreightValue__c;
+                }
+
+                if(OrderItem.valorZroy == null){
+                    orderItem.valorZroy = ordItem.RoyaltyAmount__c;
+                }
+
+                if(OrderItem.valorTotalZroy == null){
+                    orderItem.valorTotalZroy = ordItem.TotalRoyaltyAmount__c;
+                }
+
+                if(OrderItem.valorZtra == null){
+                    OrderItem.valorZtra = ordItem.TSIValue__c;
+                }
+
+                if(OrderItem.valorTotalZtra == null){
+                    OrderItem.valorTotalZtra = ordItem.TotalTSIAmount__c;
+                }
+
+                if(OrderItem.pricebookEntryId == null || OrderItem.pricebookEntryId == ''){
+                    OrderItem.pricebookEntryId = ordItem.PricebookEntryId;
+                }
+
+                if(OrderItem.valorZCBI == null){
+                    OrderItem.valorZCBI = ordItem.IndustryComboDiscount__c;
+                }
+
+                if(OrderItem.valorZCBA == null){
+                    OrderItem.valorZCBA = ordItem.AgrogalaxyComboDiscount__c;
+                }
+
+                if(OrderItem.saldoItem == null){
+                    OrderItem.saldoItem = ordItem.ItemBalance__c;
+                }
             }
         }
         // Pega o produto com base no ExternalID recebido
@@ -293,6 +246,11 @@ global with sharing class IntegrationINOrderItem {
         for(TemplateDataIntegrationFields.OrderItemINData orderItem : request) {
             // como estava = parentMapKeys.put(ORDEREXTERNALID + '|' + ORDERITEMEXTERNALID, lookups.containsKey('Order'+ORDEREXTERNALID) ? lookups.get('Order'+ORDEREXTERNALID) : ORDEREXTERNALID);
             parentMapKeys.put(orderItem.orderExternalId + '|' + orderItem.orderItemCode, lookups.containsKey('Order'+orderItem.orderExternalId) ? String.valueOf(lookups.get('Order'+orderItem.orderExternalId)) : orderItem.orderExternalId);
+			
+            if(!Test.isRunningTest()){
+            	orderItem.pricebookEntryId = pricebookEntryList.get(orderItem.material + String.valueOf(orderItem.currencyOrder)).Id;    
+            }
+            
         }
         // Valida e adiciona os OrderItem na lista para o upsert
         //Converting template to object list and validating required fields
