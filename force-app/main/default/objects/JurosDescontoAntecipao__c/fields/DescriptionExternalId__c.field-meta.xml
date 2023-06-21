@@ -13,7 +13,8 @@ IF(ISBLANK( Culture__c ), &apos;&apos;,  Culture__c +&apos;_&apos;)+
 IF(ISPICKVAL(ClientGroup__c, "" ), '', TEXT(ClientGroup__c) +'_')+
 IF(ISBLANK(Account__c  ), &apos;&apos;,  Account__c +&apos;_&apos;)+
 IF(ISBLANK(SalesTeam__c ), &apos;&apos;, SalesTeam__c +&apos;_&apos;)+
-IF(ISBLANK(Product__c ), &apos;&apos;, Product__c)</formula>
+IF(ISBLANK(Product__c ), &apos;&apos;, Product__c+&apos;_&apos;)+
+IF(ISBLANK(RecordTypeId ), &apos;&apos;, RecordTypeId)</formula>
     <label>Descrição Externald</label>
     <required>false</required>
     <trackHistory>false</trackHistory>

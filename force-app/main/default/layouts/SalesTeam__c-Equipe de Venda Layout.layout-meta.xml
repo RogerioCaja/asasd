@@ -49,6 +49,10 @@
                 <behavior>Edit</behavior>
                 <field>State__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>ShowBarterPrices__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>

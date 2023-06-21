@@ -121,6 +121,7 @@ public with sharing class CalloutOrderDatalakeTest {
         Order order = new Order(
             AccountId =  account.Id,
             Status = '2',
+            ShippingDate__c = Date.today(),
             PriceBook2Id = Test.getStandardPricebookId(),
             Type =  'Venda Normal',
             ShippingAccount__c =   account.Id,
@@ -147,6 +148,7 @@ public with sharing class CalloutOrderDatalakeTest {
           Order order2 = new Order(
             AccountId =  account.Id,
             CodigoSap__c = '1002',
+            ShippingDate__c = Date.today(),
             Status = 'Draft',
             PriceBook2Id = Test.getStandardPricebookId(),
             Type =  'Venda Normal',
@@ -169,6 +171,21 @@ public with sharing class CalloutOrderDatalakeTest {
             RecordTypeId = Schema.SObjectType.Order.getRecordTypeInfosByName().get('Venda Normal').getRecordTypeId()
         );
 
+        Delimitadores__c delimiter = new Delimitadores__c(
+            Name = '',
+            EndDateBilling__c = System.today().addDays(30),
+            EndDateOV__c = System.today().addDays(30),
+            ExternalId__c = '' ,
+            FinancialBaseDate__c = System.today().addDays(15),
+            Safra__c= safra.Id, 
+            SalesCondition__c = sales.Id, 
+            SalesOrg__c = so.Id,
+            StartDateBilling__c = System.today(),
+            StartDateOV__c = System.today()
+        );
+
+        INSERT delimiter;
+
         INSERT order2;
 
         Product2 prod = new Product2(
@@ -188,7 +205,7 @@ public with sharing class CalloutOrderDatalakeTest {
         OrderItem orderItem = new OrderItem(
             OrderId = order.Id,
             Product2Id = prod.Id,
-            PricebookEntryId = [SELECT Id FROM PricebookEntry WHERE Product2Id =: prod.Id LIMIT 1][0].Id,
+            PricebookEntryId = [SELECT Id FROM PricebookEntry WHERE Product2Id =: prod.Id AND CurrencyIsoCode = 'BRL' LIMIT 1][0].Id,
             ListPrice__c = 150,
             ServiceDate = System.today(),
             Quantity = 10,

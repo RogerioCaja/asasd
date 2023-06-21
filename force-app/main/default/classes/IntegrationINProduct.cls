@@ -1,8 +1,6 @@
 @RestResource(urlMapping='/upsertProduct2/*')
 global with sharing class IntegrationINProduct {
-    public IntegrationINProduct() {
-
-    }
+    
     @HttpPost
     global static ResponseModel upsertProduct(List<TemplateDataIntegrationFields.Product2INData> request) {
         // Guarda a relação da conta com o pedido

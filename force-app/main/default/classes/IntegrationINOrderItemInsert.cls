@@ -1,13 +1,13 @@
-global with sharing class IntegrationINOrderItemInsert {
-    public IntegrationINOrderItemInsert() {
-
-    }
+global without sharing class IntegrationINOrderItemInsert {
+    
     global static Map<String, List<TemplateDataIntegrationFields.Response>> upsertOrderItem(List<TemplateDataIntegrationFields.OrderItemINData> request,List<TemplateDataIntegrationFields.ConditionInsert> conditionList) {
         // Guarda as relações de order e product de preço com OrderItem
         Map<String, Id> lookups = new Map<String, Id>();
 
         Set<String> orderLookups = new Set<String>();
         Set<String> productLookups = new Set<String>();
+
+        List<String> product2Ids = new List<String>();
         // Guarda um mapa com uma lista de respostas
         Map<String, List<TemplateDataIntegrationFields.Response>> responseMap = new Map<String, List<TemplateDataIntegrationFields.Response>>();
         // Guarda uma lista com os OrderItem para fazer o upsert
@@ -15,11 +15,31 @@ global with sharing class IntegrationINOrderItemInsert {
 
         List<String> idsOrderItem = new List<String>();
         //Application of business rules
-        
+        Decimal porcentagemZCBI = 0;
+        Decimal porcentagemZCBA = 0;
         for(TemplateDataIntegrationFields.OrderItemINData OrderItemINData : request){
             idsOrderItem.add(OrderItemINData.orderExternalId + '|' + OrderItemINData.orderItemCode);
             productLookups.add(OrderItemINData.material);
+
+            if(OrderItemINData.material !=null){
+                product2Ids.add(OrderItemINData.material);
+            }
         }
+
+        Map<String, PricebookEntry> pricebookEntryList = new Map<String, PricebookEntry>();
+
+        for(PricebookEntry priceEntry : [SELECT 
+        Product2Id, 
+        Pricebook2Id,
+        UnitPrice, 
+        CurrencyIsoCode,
+        Product2.ProductCode 
+        FROM PricebookEntry 
+        WHERE Pricebook2.IsStandard = true 
+        AND Product2.ProductCode IN: product2Ids]){
+            pricebookEntryList.put(priceEntry.Product2.ProductCode + String.valueOf(priceEntry.CurrencyIsoCode), priceEntry);
+        }
+
 
         Map<String, Product2> prdtMap = new Map<String, Product2>();
         List<Product2> prdList = new List<Product2>([SELECT ProductCode__c, UnidadeMedida__c FROM Product2  WHERE ProductCode__c IN: productLookups]);
@@ -38,6 +58,11 @@ global with sharing class IntegrationINOrderItemInsert {
             //Getting product parameters to search
             productLookups.add(OrderItemINData.material);
             OrderItemINData.dosagem = OrderItemINData.quantidade;
+            if(!Test.isRunningTest()){
+            	OrderItemInData.pricebookEntryId = pricebookEntryList.get(OrderItemInData.material + String.valueOf(OrderItemInData.currencyOrder)).Id;
+            }
+
+            System.debug('pricebookId ' + OrderItemInData.pricebookEntryId);
             idsOrderItem.add(OrderItemINData.orderExternalId + '|' + OrderItemINData.orderItemCode);
 
             
@@ -45,130 +70,10 @@ global with sharing class IntegrationINOrderItemInsert {
                 Product2 prdItem = prdtMap.get(OrderItemINData.material);
                 OrderItemINData.unidadeMedida = prdItem.UnidadeMedida__c;
             }
-            
 
-            for(TemplateDataIntegrationFields.ConditionInsert  conditions : conditionList){
-                conditions.KPOSN = conditions.KPOSN.replaceFirst('^0+','');
-                if(conditions.KPOSN == OrderItemINData.orderItemCode){
-
-                    if(conditions.KSCHL == 'ZPR0'){
-                        OrderItemINData.precoUnitario = (Decimal.valueOf(conditions.KBETR) / Decimal.valueOf(conditions.KPEIN));
-                        System.debug('OrderItemINData.precoUnitario ' + OrderItemINData.precoUnitario);
-                        OrderItemINData.precoPraticado = OrderItemINData.precoUnitario;
-                       //OrderItemINData.multiplicador == conditions.KPEIN;
-                    }
-                    
-                    if(conditions.KSCHL == 'ZDAC'){ //Antigo ZDAN
-                        System.debug('conditions.KSCHL' + conditions.KSCHL);
-                       OrderItemINData.porcentagemDescontoFin = Decimal.valueOf(conditions.KBETR);
-                        System.debug('porcentagemDescontoFin' + OrderItemINData.porcentagemDescontoFin);
-                    }
-                    if(conditions.KSCHL == 'ZJUC'){ //Antigo ZJUR
-                        OrderItemINData.porcentagemAcrescFin = Decimal.valueOf(conditions.KBETR);
-
-                    }
-
-                    if(conditions.KSCHL == 'ZMAR'){
-                        OrderItemINData.margemComercial = Decimal.valueOf(conditions.KBETR);
-                    }
-
-                    if(conditions.KSCHL == 'ZCP0'){
-                        Decimal custoPraticado = Decimal.valueOf(conditions.KBETR) / OrderItemINData.quantidade;
-                        OrderItemINData.custoPreco = custoPraticado;
-                    }
-                    
-                    if(conditions.KSCHL == 'ZDEC'){
-                        
-                        OrderItemINData.porcentagemAcrescComercial = 0;
-                        OrderItemINData.porcentagemDesconto = 0;
-                        
-                        
-                        System.debug('KBETR ' + Decimal.valueOf(conditions.KBETR));
-                        if(Decimal.valueOf(conditions.KBETR) > 0){
-                            OrderItemINData.porcentagemAcrescComercial = Decimal.valueOf(conditions.KBETR);
-                            System.debug('porcentagemAcrescComercial ' + OrderItemINData.porcentagemAcrescComercial);
-
-                        }
-                        else {
-                            OrderItemINData.porcentagemDesconto = Decimal.valueOf(conditions.KBETR);
-                            OrderItemINData.porcentagemDesconto *= (-1);
-                            System.debug('porcentagemDesconto ' + OrderItemINData.porcentagemDesconto);
-                        }
-                    }   
+            if(conditionList.size() != 0){
+                OrderItemHelper.conditionsCalc(request, conditionList);
             }
-        }
-
-        //Decimal porcentagemDescontoFinanceiro = 0;
-        Decimal valorDescontoFinanceiro = 0;
-            
-        //Decimal porcentagemAcrescimoFinanceiro = 0; 
-        Decimal valorAcrescimoFinanceiro = 0;
-
-        //Decimal porcentagemDescontoComercial = 0;
-        Decimal valorDescontoComercial = 0; 
-        
-        //Decimal porcentagemAcrescimoComercial = 0;
-        Decimal valorAcrescimoComercial = 0;
-        
-        Decimal valorFinal = OrderItemINData.precoUnitario * OrderItemINData.quantidade;
-        OrderItemINData.valorTotal = valorFinal;
-        
-        if(OrderItemINData.porcentagemDescontoFin > 0){
-            //porcentagemDescontoFinanceiro = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemDescontoFin / 100);
-            valorDescontoFinanceiro = valorFinal * (OrderItemINData.porcentagemDescontoFin / 100);
-            OrderItemINData.valorDescontoFin = valorDescontoFinanceiro;
-            valorFinal = valorFinal - valorDescontoFinanceiro; //Bateu
-            OrderItemINData.precoPraticado = (valorFinal) / OrderItemINData.quantidade;
-            OrderItemINData.valorTotal = valorFinal;
-            System.debug('valorFinal ' + valorFinal);
-            System.debug('valorDescontoFinanceiro ' + valorDescontoFinanceiro);
-        }
-        if (OrderItemINData.porcentagemAcrescFin > 0){
-            //porcentagemAcrescimoFinanceiro = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemAcrescFin / 100);
-            
-            valorAcrescimoFinanceiro = valorFinal * (OrderItemINData.porcentagemAcrescFin / 100);     
-            OrderItemINData.valorAcrescFin = valorAcrescimoFinanceiro;
-            valorFinal = valorFinal + valorAcrescimoFinanceiro;
-            OrderItemINData.precoPraticado = (valorFinal) / OrderItemINData.quantidade;
-            OrderItemINData.valorTotal = valorFinal;
-            System.debug('valorFinal ' + valorFinal);
-            System.debug('valorAcrescimoFinanceiro ' + valorAcrescimoFinanceiro);
-        }
-        if (OrderItemINData.porcentagemDesconto != 0 && OrderItemINData.porcentagemDesconto != null){ 
-            //porcentagemDescontoComercial = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemDesconto / 100);
-            valorDescontoComercial = valorFinal  * (OrderItemINData.porcentagemDesconto / 100);
-            System.debug('porcentagemDesconto ' + (OrderItemINData.porcentagemDesconto / 100));
-            System.debug('valorDescontoComercial ' + valorDescontoComercial);
-            OrderItemINData.precoPraticado = (valorFinal - valorDescontoComercial) / OrderItemINData.quantidade;
-            OrderItemINData.valorTotal = (valorFinal - valorDescontoComercial);
-            System.debug('valorFinalFinal  ' + OrderItemINData.valorTotal);
-            OrderItemINData.descontoValor = valorDescontoComercial;
-        }
-        if(OrderItemINData.porcentagemAcrescComercial != 0 && OrderItemINData.porcentagemAcrescComercial != null){
-            //porcentagemAcrescimoComercial = OrderItemINData.precoUnitario * (OrderItemINData.porcentagemAcrescComercial / 100);
-            valorAcrescimoComercial = valorFinal * (OrderItemINData.porcentagemAcrescComercial / 100);
-            System.debug('valorAcrescimoComercial ' + valorAcrescimoComercial);
-            
-            OrderItemINData.precoPraticado = (valorFinal + valorAcrescimoComercial) / OrderItemINData.quantidade;
-            OrderItemINData.valorTotal = (valorFinal + valorAcrescimoComercial);
-            OrderItemINData.valorAcrescComercial = valorAcrescimoComercial;
-            //System.debug('porcentagemDesconto ' + OrderItemINData.porcentagemDesconto);
-        }
-            
-            //Atualização para Insert - 26.07.22
-        	System.debug('OrderItemINData.precoUnitario ' + OrderItemINData.precoUnitario);
-            if(OrderItemINData.precoPraticado == null){
-                OrderItemINData.precoPraticado = OrderItemINData.precoUnitario;
-                System.debug('OrderItemINData.precoPraticado ' + OrderItemINData.precoPraticado);
-            }
-        //OrderItemINData.precoUnitario  += valorAcrescimoFinanceiro - valorDescontoFinanceiro  ;
-        //OrderItemINData.precoUnitario  += valorAcrescimoComercial - valorDescontoComercial  ;
-        
-        
-        System.debug('valorAcrescComercial  ' + OrderItemINData.valorAcrescComercial);
-        
-        System.debug('Desconto Valor ' + OrderItemINData.descontoValor);
-        System.debug('Preço Praticado ' + OrderItemINData.precoPraticado);
         }
 
 
