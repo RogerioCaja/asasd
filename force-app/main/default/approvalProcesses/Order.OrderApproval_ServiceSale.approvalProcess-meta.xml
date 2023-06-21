@@ -16,7 +16,7 @@
         <allowDelegate>false</allowDelegate>
         <assignedApprover>
             <approver>
-                <name>luiza.ribeiro@nescara.com</name>
+                <name>demo@nescara.com.prd</name>
                 <type>user</type>
             </approver>
             <whenMultipleApprovers>FirstResponse</whenMultipleApprovers>
@@ -46,7 +46,7 @@
         <allowDelegate>false</allowDelegate>
         <assignedApprover>
             <approver>
-                <name>sergio.neto@nescara.com.agrogalaxy</name>
+                <name>demo@nescara.com.prd</name>
                 <type>user</type>
             </approver>
             <whenMultipleApprovers>FirstResponse</whenMultipleApprovers>
