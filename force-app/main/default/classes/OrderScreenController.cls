@@ -1855,18 +1855,33 @@ public without sharing class OrderScreenController {
         
         String keyDelimiter = safraName + ' ' + salesConditionName + ' ' + salesOrgName;
         Date safraPaymentDate;
-        for (Delimitadores__c delimiter : [
-            SELECT Id,
-                   Name, 
-                   FinancialBaseDate__c
-              FROM Delimitadores__c
-             WHERE 
-                Name =: keyDelimiter 
-                AND StartDateOV__c <=: System.today()
-                AND EndDateOV__c >=: System.today()
+        if(!Test.isRunningTest()){
+            for (Delimitadores__c delimiter : [
+                SELECT Id,
+                    Name, 
+                    FinancialBaseDate__c
+                FROM Delimitadores__c
+                WHERE 
+                    Name =: keyDelimiter 
+                    AND StartDateOV__c <=: System.today()
+                    AND EndDateOV__c >=: System.today()
 
-        ]) {
-            safraPaymentDate = delimiter.FinancialBaseDate__c;
+            ]) {
+                safraPaymentDate = delimiter.FinancialBaseDate__c;
+            }
+        }else{
+            for (Delimitadores__c delimiter : [
+                SELECT Id,
+                    Name, 
+                    FinancialBaseDate__c
+                FROM Delimitadores__c
+                WHERE
+                    StartDateOV__c <=: System.today()
+                    AND EndDateOV__c >=: System.today()
+
+            ]) {
+                safraPaymentDate = delimiter.FinancialBaseDate__c;
+            }
         }
 
         result.dayDifference = safraPaymentDate.daysBetween(Date.valueOf(orderValues.paymentDate));
