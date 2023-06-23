@@ -1857,10 +1857,10 @@ public without sharing class OrderScreenController {
         Date safraPaymentDate;
         for (Delimitadores__c delimiter : [
             SELECT Id,
-                Name, 
-                FinancialBaseDate__c
-            FROM Delimitadores__c
-            WHERE 
+                   Name, 
+                   FinancialBaseDate__c
+              FROM Delimitadores__c
+             WHERE 
                 Name =: keyDelimiter 
                 AND StartDateOV__c <=: System.today()
                 AND EndDateOV__c >=: System.today()

@@ -1221,16 +1221,16 @@ public without sharing class FactoryBuilder {
         String keyDelimiter = order.Crop__r.Name +' '+ order.SalesCondition__r.ExternalId__c +' '+  order.SalesOrg__r.Name;
         
         Delimitadores__c delimiter = [
-                SELECT Id,
-                    StartDateBilling__c,
-                    StartDateOV__c,
-                    EndDateOV__c,
-                    LimitDateAfterPayment__c,
-                    EndDateBilling__c,
-                    FinancialBaseDate__c
-                FROM Delimitadores__c
-                WHERE Name =: keyDelimiter
-            ];
+            SELECT Id,
+                StartDateBilling__c,
+                StartDateOV__c,
+                EndDateOV__c,
+                LimitDateAfterPayment__c,
+                EndDateBilling__c,
+                FinancialBaseDate__c
+            FROM Delimitadores__c
+            WHERE Name =: keyDelimiter
+        ];
 
         return delimiter;
     }
