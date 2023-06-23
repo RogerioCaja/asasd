@@ -225,7 +225,7 @@ public with sharing class IntegrationINInvoiceTest {
         listInvoice.invoiceName = 'Invoice AgroGalaxy';
         listInvoice.serie = '001';
         listInvoice.numeroNotaFiscal = '90001';
-        listInvoice.chaveAcesso =  '35220765651788000141550020000011611391381530';
+        listInvoice.chaveAcesso =  '35220765651788000141550020000011611391381539';
         listInvoice.localNegocios = 'São Paulo';
         listInvoice.codigoStatus = 'Aprovado';
         listInvoice.dataCriacao = Date.valueOf('2022-09-21');
@@ -254,6 +254,7 @@ public with sharing class IntegrationINInvoiceTest {
         listInvoiceList.add(listInvoice);
         Test.startTest();
         IntegrationINInvoice.ResponseModel modelo = IntegrationINInvoice.upsertInvoice(listInvoiceList);
+        System.debug(modelo);
         Test.stopTest();
     }
 }

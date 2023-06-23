@@ -1,7 +1,5 @@
-global with sharing class IntegrationINShippingDivison {
-    public IntegrationINShippingDivison() {
-
-    }
+global without sharing class IntegrationINShippingDivison {
+   
     global static Map<String, List<TemplateDataIntegrationFields.Response>> upsertShippingDivison(List<TemplateDataIntegrationFields.ShippingDivisonINData> request) {
         // Guarda as relações de order e product de preço com OrderItem
         Map<String, Id> lookups = new Map<String, Id>();
