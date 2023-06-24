@@ -77,7 +77,13 @@ public without sharing class CalloutOrderUpdate {
     }
 
 	public static IntegrationUtils.CalloutUpdateResponse sendOrder(List<Order> orders,  String rmCode, String agCode, String zcCode) {
-			
+        
+        Integration__c integrationOUT = Integration__c.getInstance('Pedidos OUT SAP');
+        if(integrationOUT != null && integrationOUT.IsInactive__c){
+            IntegrationLog.createLog('Pedido OUT SAP Atualização', 'OUT', '', 'Integração INATIVA', true);
+			return new IntegrationUtils.CalloutUpdateResponse('Integração INATIVA');
+        }
+        
 		RequestParameters request = new RequestParameters(orders[0], rmCode, agCode, zcCode);
 
 		String payload = JSON.serialize(request);
