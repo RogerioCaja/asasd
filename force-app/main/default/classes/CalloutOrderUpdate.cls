@@ -236,29 +236,17 @@ public without sharing class CalloutOrderUpdate {
         private Delimitadores__c getDelimiterByKey(Order order){
             String keyDelimiter = order.Crop__r.Name +' '+ order.SalesCondition__r.ExternalId__c +' '+  order.SalesOrg__r.Name;
             
-            Delimitadores__c delimiter;
-            if(!Test.isRunningTest()){
-                delimiter = [
-                    SELECT Id,
-                        StartDateBilling__c,
-                        StartDateOV__c,
-                        EndDateOV__c,
-                        LimitDateAfterPayment__c,
-                        EndDateBilling__c,
-                        FinancialBaseDate__c
-                    FROM Delimitadores__c
-                    WHERE Name =: keyDelimiter
-                ];
-            }else{
-                delimiter = [SELECT Id,
-                        StartDateBilling__c,
-                        StartDateOV__c,
-                        EndDateOV__c,
-                        LimitDateAfterPayment__c,
-                        EndDateBilling__c,
-                        FinancialBaseDate__c
-                    FROM Delimitadores__c LIMIT 1];
-            }
+            Delimitadores__c delimiter = [
+                SELECT Id,
+                    StartDateBilling__c,
+                    StartDateOV__c,
+                    EndDateOV__c,
+                    LimitDateAfterPayment__c,
+                    EndDateBilling__c,
+                    FinancialBaseDate__c
+                FROM Delimitadores__c
+                WHERE Name =: keyDelimiter
+            ];
     
             return delimiter;
         }
