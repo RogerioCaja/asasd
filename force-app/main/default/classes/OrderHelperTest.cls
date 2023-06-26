@@ -514,7 +514,7 @@ public with sharing class OrderHelperTest {
 
     @IsTest
     public static void sendToIntegrationTest(){
-        List<Order> newRecords = [SELECT Id, StatusSF__c, CodigoSap__c FROM Order LIMIT 10];
+        List<Order> newRecords = [SELECT Id, OrderNumber, OrderReference__c, Status, StatusSF__c, CodigoSap__c, IsDisableSendIntegration__c, RecordTypeId FROM Order LIMIT 10];
         OrderHelper.calloutOrderToSAPTest(newRecords);
     }
 
