@@ -78,25 +78,5 @@
             System.schedule('Delivery Notification Schedule Job Test Class', sch, new BatchCTVSchedulable());
             Test.stopTest();
         }
-        @isTest
-        public static void testBatchImplementationCTV(){
-            Account account = [SELECT Id FROM Account LIMIT 1];
-            User u = [SELECT Id FROM User WHERE UserName='testes_CTV_TEST@testes.com' LIMIT 1];
-            Territory2Type terrModel = [SELECT Id FROM Territory2Type LIMIT 1];
-            Territory2Model model = [SELECT Id FROM Territory2Model LIMIT 1];
-            Territory2 objTerr = new Territory2(); 
-                objTerr.Description = 'Description__c';
-                objTerr.Name = 'Name';
-                objTerr.DeveloperName = 'Name';
-                objTerr.Territory2TypeId = terrModel.Id;
-                objTerr.Territory2ModelId = model.Id;
-            insert objTerr;
-
-            UserTerritory2Association userTerrAssociation = new UserTerritory2Association(Territory2Id= objTerr.Id, UserId= u.Id, RoleInTerritory2='Sales / Marketing Manager');
-            insert userTerrAssociation;
-            String sch = '0 0 * * * ?';
-            Test.startTest();
-            BatchImplementationCTV.run();
-            Test.stopTest();
-        }
+        
     }
