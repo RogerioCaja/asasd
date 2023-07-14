@@ -46,7 +46,7 @@
         <allowDelegate>false</allowDelegate>
         <assignedApprover>
             <approver>
-                <name>maria.pilar@agrogalaxy.com.br.prod</name>
+                <name>hermano.conde@agrogalaxy.com.br.prod</name>
                 <type>user</type>
             </approver>
             <whenMultipleApprovers>FirstResponse</whenMultipleApprovers>
