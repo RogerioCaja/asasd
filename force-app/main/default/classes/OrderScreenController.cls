@@ -2823,7 +2823,7 @@ public without sharing class OrderScreenController {
             this.orderId = OrderId;
             this.serviceDate = orderItem.ServiceDate;
             this.quantity = !cloneOrder ? (orderItem.ItemBalance__c != null ? orderItem.ItemBalance__c : orderItem.Quantity) : orderItem.Quantity;
-            this.amountUsed = orderItem.Quantity - orderItem.ItemBalance__c;
+            this.amountUsed = orderItem.Quantity - (orderItem.ItemBalance__c != null ? orderItem.ItemBalance__c : 0);
             this.invoicedQuantity = orderItem.InvoicedQuantity__c;
             this.motherAvailableQuantity = orderItem.ItemBalance__c != null ? orderItem.ItemBalance__c : null;
             this.listPrice = orderItem.ListPrice__c;
