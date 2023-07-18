@@ -41,9 +41,13 @@ public with sharing class OrderPageController {
         List<String> args = new String[]{'0','number','###,###,##0.00'};
 
         Decimal totalValue = 0;
-        for(OrderItemDAO orderItem : this.orderToPage.orderItemList){
-            totalValue += Decimal.valueOf(orderItem.totalAmount.replace(' sacas', '').replace('R$', '').replace('USD', '').replace(',00', '').replace('.', '').replace(',', '.').trim());
-            
+
+        if(this.orderToPage.currencyOrder != 'Barter'){
+            for(OrderItemDAO orderItem : this.orderToPage.orderItemList){
+                totalValue += Decimal.valueOf(orderItem.totalAmount.replace(' sacas', '').replace('R$', '').replace('USD', '').replace(',00', '').replace('.', '').replace(',', '.').trim()); 
+            }
+        }else{
+            totalValue = commodity.BagQuantity__c;
         }
         
         if(!this.orderToPage.isNormalSales){
