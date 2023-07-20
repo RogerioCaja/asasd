@@ -41,15 +41,19 @@ public with sharing class OrderPageController {
         List<String> args = new String[]{'0','number','###,###,##0.00'};
 
         Decimal totalValue = 0;
-        for(OrderItemDAO orderItem : this.orderToPage.orderItemList){
-            totalValue += Decimal.valueOf(orderItem.totalAmount.replace(' sacas', '').replace('R$', '').replace('USD', '').replace(',00', '').replace('.', '').replace(',', '.').trim());
-            
+
+        if(this.orderToPage.currencyOrder != 'Barter'){
+            for(OrderItemDAO orderItem : this.orderToPage.orderItemList){
+                totalValue += Decimal.valueOf(orderItem.totalAmount.replace(' sacas', '').replace('R$', '').replace('USD', '').replace(',00', '').replace('.', '').replace(',', '.').trim()); 
+            }
+        }else{
+            totalValue = commodity.BagQuantity__c.setScale(2);
         }
         
         if(!this.orderToPage.isNormalSales){
 			totalValue += Decimal.valueOf(this.orderToPage.freightValue.replace('R$', '').replace('USD', '').replace(',00', '').replace('.', '').replace(',', '.').trim());
         }
-        this.orderToPage.totalAmount = this.orderToPage.currencyOrder == 'Barter' ? String.valueOf(totalValue) + ' sacas' : ('R$ ' + String.format(totalValue.format(), args)).contains(',') == true ?  'R$ ' + String.format(totalValue.format(), args): 'R$ ' + String.format(totalValue.format(), args) + ',00';
+        this.orderToPage.totalAmount = this.orderToPage.currencyOrder == 'Barter' ? String.valueOf(totalValue).replace('.', ',') + ' sacas' : ('R$ ' + String.format(totalValue.format(), args)).contains(',') == true ?  'R$ ' + String.format(totalValue.format(), args): 'R$ ' + String.format(totalValue.format(), args) + ',00';
         
         String downloadingFileName = 'Pedido de Venda-' + this.orderToPage.codeSap + '.pdf';
         Apexpages.currentPage().getHeaders().put( 'content-disposition', 'inline; filename=' + downloadingFileName );
