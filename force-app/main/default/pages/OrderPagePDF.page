@@ -152,8 +152,8 @@
                         <td valign="top" style="width: 25%;">Descrição</td>
                         <td valign="top">Unid. Medida</td>
                         <td valign="top">{! orderToPage.messageDivisionOrNo }</td>
-                        <td valign="top">Preço Unit.</td>
-                        <td valign="top">Valor Total</td>
+                        <td valign="top" style="{!IF((CONTAINS(orderToPage.currencyOrder, 'Barter')), 'display: none', '')};">Preço Unit.</td>
+                        <td valign="top" style="{!IF((CONTAINS(orderToPage.currencyOrder, 'Barter')), 'display: none', '')};">Valor Total</td>
                     </tr>
                     <apex:repeat value="{! orderToPage.orderItemList }" var="oI">
                         <tr>
@@ -175,10 +175,10 @@
                                     {! oI.quantity}
                                 </apex:outputText>
                             </td>
-                            <td>
+                            <td style="{!IF((CONTAINS(orderToPage.currencyOrder, 'Barter')), 'display: none', '')};">
                                 {! oI.unitPrice}
                             </td>
-                            <td>
+                            <td style="{!IF((CONTAINS(orderToPage.currencyOrder, 'Barter')), 'display: none', '')};">
                                 {! oI.totalAmount}
                             </td>
                         </tr>
