@@ -155,10 +155,9 @@
     <externalSharingModel>Private</externalSharingModel>
     <label>Motivo de Cancelamento</label>
     <nameField>
-        <displayFormat>{00000000}</displayFormat>
         <label>Nome</label>
         <trackHistory>false</trackHistory>
-        <type>AutoNumber</type>
+        <type>Text</type>
     </nameField>
     <pluralLabel>Motivos de Cancelamento</pluralLabel>
     <searchLayouts></searchLayouts>
