@@ -44,6 +44,7 @@ export default class ModalSupimpa extends LightningElement {
 
     async handleSave(){
         if(this.valueCancel === '' || this.valueCancel === undefined || this.valueCancel === null){
+            this.showToast('warning', 'Atenção', 'Selecione um motivo!')
             return;
         }
         await this.saveOrder();
