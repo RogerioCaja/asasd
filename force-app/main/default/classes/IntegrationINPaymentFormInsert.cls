@@ -23,7 +23,7 @@ global without sharing class IntegrationINPaymentFormInsert {
         
 
         Map<String, FormPayment__c> formPaymentIdsMap = new Map<String, FormPayment__c>();
-        List<FormPayment__c> formPaymentSelectList = new List<FormPayment__c>([SELECT Id FROM FormPayment__c WHERE ExternalId__c IN: idsOrderItem]);
+        List<FormPayment__c> formPaymentSelectList = new List<FormPayment__c>([SELECT Id, ExternalId__c FROM FormPayment__c WHERE ExternalId__c IN: idsOrderItem]);
     
         for(FormPayment__c formPayment : formPaymentSelectList){
             formPaymentIdsMap.put(formPayment.ExternalId__c, formPayment);
