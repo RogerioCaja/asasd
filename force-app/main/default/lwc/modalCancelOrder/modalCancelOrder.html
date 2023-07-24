@@ -1,0 +1,39 @@
+<!-- sldsValidatorIgnore -->
+<template>
+    <lightning-quick-action-panel header="Cancelar Pedido">
+        
+        <lightning-combobox
+            name="cancelReason"
+            data-id="cancel_reason"
+            label="Motivo de Cancelamento" 
+            value={valueCancel} 
+            options={options}
+            onchange={changeValue}
+        ></lightning-combobox>
+        <template if:true={shouldHasDescription}>
+            <lightning-textarea 
+                name="description" 
+                data-id="cancel_description"
+                label="Descrição Outros"
+                class="not-resize"
+                placeholder="Descrição sobre o cancelamento"
+                value={description}
+                onchange={changeValue}
+            ></lightning-textarea>
+        </template>
+        <div slot="footer" class="slds-align_absolute-center">
+            <lightning-button
+                class="slds-m-right_xxx-small"
+                variant="neutral"
+                label="Cancelar"
+                onclick={handleClose}
+            ></lightning-button>
+            <lightning-button
+                class="slds-m-left_xxx-small"
+                variant="brand"
+                label="Salvar"
+                onclick={handleSave}
+            ></lightning-button>
+        </div>
+    </lightning-quick-action-panel>
+</template>
