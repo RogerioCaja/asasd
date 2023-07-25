@@ -5,7 +5,7 @@ import getCancelReasons from '@salesforce/apex/CancelOrderPopUpController.getCan
 import saveOrder from '@salesforce/apex/CancelOrderPopUpController.saveOrder';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
-export default class ModalSupimpa extends LightningElement {
+export default class ModalCancelOrder extends LightningElement {
     @api recordId;
     
     valueCancel = '';
