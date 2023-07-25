@@ -23,9 +23,9 @@ public without sharing class CancelOrderPopUpController {
         try {
             CancelOrderWrapper dataToSave = (CancelOrderWrapper) JSON.deserialize(data, CancelOrderWrapper.class);
 
-            Order order = [SELECT Id, CancelReason__c, Description FROM Order WHERE Id =: dataToSave.recordId LIMIT 1];
+            Order order = [SELECT Id, CancelReason__c, OthersDescription__c FROM Order WHERE Id =: dataToSave.recordId LIMIT 1];
             order.CancelReason__c = dataToSave.reasonId;
-            order.Description = dataToSave.description;
+            order.OthersDescription__c = dataToSave.description;
             
             Database.SaveResult upsResult = Database.update(order, Order.Id);
 
