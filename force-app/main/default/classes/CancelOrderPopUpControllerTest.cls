@@ -48,4 +48,15 @@ public with sharing class CancelOrderPopUpControllerTest {
         CancelOrderPopUpController.saveOrder(JSON.serialize(cancelOrderWrapper));
         Test.stopTest();
    }
+
+   @IsTest 
+   static void getOrderByIdTest(){
+		Id orderId = [SELECT Id FROM Order LIMIT 1][0].Id;
+
+		Test.startTest();
+		Order order = CancelOrderPopUpController.getOrderById(orderId);
+		Test.stopTest();
+
+		Assert.areEqual(orderId, order.Id, 'Deveria trazer o mesmo pedido coletado antes do teste');
+   }
 }

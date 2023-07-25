@@ -17,17 +17,27 @@ public without sharing class CancelOrderPopUpController {
         }
     }
 
+    @AuraEnabled(cacheable=false)
+    public static Order getOrderById(String id){
+        try {
+            return [SELECT Id, CancelReason__c,Status,OthersDescription__c FROM Order WHERE Id =: id LIMIT 1];
+        } catch (Exception e) {
+            throw new AuraHandledException(e.getMessage());
+        }
+    }
+
     @AuraEnabled
     public static string saveOrder(String data){
         Savepoint sp = Database.setSavepoint();
         try {
             CancelOrderWrapper dataToSave = (CancelOrderWrapper) JSON.deserialize(data, CancelOrderWrapper.class);
 
-            Order order = [SELECT Id, CancelReason__c, OthersDescription__c FROM Order WHERE Id =: dataToSave.recordId LIMIT 1];
+            Order order = [SELECT Id, CancelReason__c, OthersDescription__c, Status FROM Order WHERE Id =: dataToSave.recordId LIMIT 1];
+            order.Status = 'X';
             order.CancelReason__c = dataToSave.reasonId;
             order.OthersDescription__c = dataToSave.description;
-            
-            Database.SaveResult upsResult = Database.update(order, Order.Id);
+
+            Database.SaveResult upsResult = Database.update(order);
 
             if(upsResult.isSuccess()){
                 return 'Pedido cancelado com sucesso!';
