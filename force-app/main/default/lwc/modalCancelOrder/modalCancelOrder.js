@@ -6,8 +6,11 @@ import getOrderById from '@salesforce/apex/CancelOrderPopUpController.getOrderBy
 import saveOrder from '@salesforce/apex/CancelOrderPopUpController.saveOrder';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
+const STATUS_INVALID_TO_UPTADE_LIST = ['001', '0001', '1', '2', '3', '4', '5'];
 export default class ModalCancelOrder extends LightningElement {
     @api recordId;
+    isLoading = true;
+    
     
     valueCancel = '';
     valueDescription = '';
@@ -19,25 +22,22 @@ export default class ModalCancelOrder extends LightningElement {
         return this.optionList;
     }
 
-    @wire(getOrderById, {id : '$recordId'})
-    wireOrderData({data, error}){
-        if(data){
-            let order = data;
-            if(order.Status != '0'){
-                this.showToast('warning', 'Atenção', 'Pedido não pode ou já foi cancelado.');
-                this.handleClose(); 
-            }
-        }
-    }
 
-    renderedCallback(){
+    connectedCallback(){
+        this.loadVariable();
+    }
+    
+    async loadVariable(){
+        await this.recordId;
         if(this.recordId){
+            this.isLoading = false;
             getOrderById({id : this.recordId}).then((result) => {
                 let order = result;
-                console.log(JSON.stringify(order));
-                console.log(order.Status === 'X');
-                if(order.Status != '0'){
-                    this.showToast('warning', 'Atenção', 'Pedido não pode ou já foi cancelado.');
+                if(STATUS_INVALID_TO_UPTADE_LIST.includes(order.Status)){
+                    this.showToast('warning', 'Atenção', 'Não é possível cancelar o pedido!');
+                    this.handleClose(); 
+                }else if(order.Status == 'X'){
+                    this.showToast('warning', 'Atenção', 'Pedido já está cancelado!');
                     this.handleClose(); 
                 }
             })
