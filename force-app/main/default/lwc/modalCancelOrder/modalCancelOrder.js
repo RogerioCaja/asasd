@@ -1,7 +1,8 @@
 import { LightningElement, wire, api } from 'lwc';
 import {CloseActionScreenEvent} from 'lightning/actions'
-import notifyRecordUpdateAvailable from 'lightning/uiRecordApi'
+import { notifyRecordUpdateAvailable } from 'lightning/uiRecordApi';
 import getCancelReasons from '@salesforce/apex/CancelOrderPopUpController.getCancelReasons';
+import getOrderById from '@salesforce/apex/CancelOrderPopUpController.getOrderById';
 import saveOrder from '@salesforce/apex/CancelOrderPopUpController.saveOrder';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
@@ -18,12 +19,45 @@ export default class ModalCancelOrder extends LightningElement {
         return this.optionList;
     }
 
+    @wire(getOrderById, {id : '$recordId'})
+    wireOrderData({data, error}){
+        if(data){
+            let order = data;
+            if(order.Status != '0'){
+                this.showToast('warning', 'Atenção', 'Pedido não pode ou já foi cancelado.');
+                this.handleClose(); 
+            }
+        }
+    }
+
+    renderedCallback(){
+        if(this.recordId){
+            getOrderById({id : this.recordId}).then((result) => {
+                let order = result;
+                console.log(JSON.stringify(order));
+                console.log(order.Status === 'X');
+                if(order.Status === 'X'){
+                    this.showToast('warning', 'Atenção', 'Pedido já está cancelado!');
+                    this.handleClose(); 
+                }
+            })
+        }
+    }
+
     @wire(getCancelReasons)
     wireCancelReasons({data, error}){
-        if(data){
-            this.optionData = data;
-            this.createOptions(data);
+        try{
+            if(data){
+                this.optionData = data;
+                this.createOptions(data);
+            }
+            if(error){
+                console.log(error);
+            }
+        }catch(e){
+            console.log(e);
         }
+        
     }
 
     changeValue(event){
@@ -40,31 +74,28 @@ export default class ModalCancelOrder extends LightningElement {
         }
     }
 
-    
+    disconnectedCallback(){
+        notifyRecordUpdateAvailable([{recordId : this.recordId}]);
+    }
 
-    async handleSave(){
+    async saveChangeOrder(){
         if(this.valueCancel === '' || this.valueCancel === undefined || this.valueCancel === null){
             this.showToast('warning', 'Atenção', 'Selecione um motivo!')
             return;
         }
-        await this.saveOrder();
-        this.handleClose();
-    
-    }
 
-    async saveChangeOrder(){
         saveOrder({data: JSON.stringify({recordId : this.recordId, reasonId: this.valueCancel, description: this.description})})
         .then((result) =>{
-            //TO-DO popup sucesso ou falha
             if(result === 'Pedido cancelado com sucesso!'){
                 this.showToast('success', 'Sucesso', result);
-                notifyRecordUpdateAvailable([{recordId : this.recordId}]);
             }else{
                 this.showToast('error', 'Erro', result);
             }
         }).catch((e) => {
             console.error(e);
-        })
+        }).finally(() => {
+            this.handleClose();
+        })  
     }
 
     handleClose(){
