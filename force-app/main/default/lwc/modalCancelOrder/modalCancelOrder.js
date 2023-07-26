@@ -19,6 +19,17 @@ export default class ModalCancelOrder extends LightningElement {
         return this.optionList;
     }
 
+    @wire(getOrderById, {id : '$recordId'})
+    wireOrderData({data, error}){
+        if(data){
+            let order = data;
+            if(order.Status != '0'){
+                this.showToast('warning', 'Atenção', 'Pedido não pode ou já foi cancelado.');
+                this.handleClose(); 
+            }
+        }
+    }
+
     renderedCallback(){
         if(this.recordId){
             getOrderById({id : this.recordId}).then((result) => {
