@@ -36,8 +36,8 @@ export default class ModalCancelOrder extends LightningElement {
                 let order = result;
                 console.log(JSON.stringify(order));
                 console.log(order.Status === 'X');
-                if(order.Status === 'X'){
-                    this.showToast('warning', 'Atenção', 'Pedido já está cancelado!');
+                if(order.Status != '0'){
+                    this.showToast('warning', 'Atenção', 'Pedido não pode ou já foi cancelado.');
                     this.handleClose(); 
                 }
             })
