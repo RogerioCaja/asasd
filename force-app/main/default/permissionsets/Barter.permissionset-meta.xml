@@ -351,6 +351,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Account.StorageBp__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Account.Supplier__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -372,6 +377,16 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>ActivitySector__c.Codigo__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>BarterTaxes__c.Commodity__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>BarterTaxes__c.TaxPercentage__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -527,6 +542,26 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>CommodityPrice__c.ValidityStart_DateTime__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>CommodityTaxes__c.Commodity__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>CommodityTaxes__c.DeductionAmount__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>CommodityTaxes__c.PercentageDeducted__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>CommodityTaxes__c.Tax__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -826,12 +861,27 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>CustomerTaxes__c.TaxCode__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>CustomerTaxes__c.Tax__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
         <field>DistributionCenter__c.Code__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>DistributionCenter__c.SalesOrg__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>DistributionCenter__c.SalesTeam__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -1296,11 +1346,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Order.ApprovalJustification__c</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
         <field>Order.ApprovalRegionalManager__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1331,11 +1376,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Order.ClientGroup__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
         <field>Order.CodigoSap__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1350,14 +1390,9 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>Order.Company__c</field>
         <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Order.ContagemItens__c</field>
-        <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
@@ -1400,7 +1435,7 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
+        <editable>true</editable>
         <field>Order.Description</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1417,17 +1452,12 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Order.DistributionCenter__c</field>
-        <readable>false</readable>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
         <field>Order.DistributionChannel__c</field>
         <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Order.EffectiveOrderDate__c</field>
-        <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
@@ -1461,11 +1491,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Order.Higher_Discount__c</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
         <field>Order.Incoterms2__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1473,11 +1498,6 @@
         <editable>false</editable>
         <field>Order.Incoterms__c</field>
         <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Order.IsDisableSendIntegration__c</field>
-        <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
@@ -1511,11 +1531,6 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>Order.OpportunityId</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
         <field>Order.OrderMargin__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1595,7 +1610,7 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>Order.SalesOrg__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1652,25 +1667,20 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Order.TotalAmountBrokerage__c</field>
-        <readable>false</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>false</editable>
-        <field>Order.TotalDicountValue__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
         <field>Order.TotalRoyaltiesAmount__c</field>
-        <readable>false</readable>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
         <field>Order.TotalTSIAmount__c</field>
-        <readable>false</readable>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>Order.Type</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1710,27 +1720,32 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>OrderItem.AmountUsed__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>false</editable>
+        <field>OrderItem.Brokerage__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>true</editable>
+        <field>OrderItem.Class__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>OrderItem.Client_OrderItem__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>OrderItem.ComboPromotion__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <editable>true</editable>
         <field>OrderItem.ComissionValue__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>OrderItem.CommercialAdditionPercent__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1740,32 +1755,37 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>OrderItem.CommercialMargin__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
+        <field>OrderItem.CommitteeTrigger__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>OrderItem.Description</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>OrderItem.DiscountPercent__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>OrderItem.DiscountValue__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>OrderItem.Dosage__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>OrderItem.EndDate</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1775,7 +1795,7 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>OrderItem.FinancialAdditionPercent__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1785,7 +1805,7 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>OrderItem.FinancialDiscountPercent__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1800,13 +1820,8 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
-        <field>OrderItem.InvoicedQuantity__c</field>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
         <editable>false</editable>
-        <field>OrderItem.ItemBalance__c</field>
+        <field>OrderItem.InvoicedQuantity__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -1815,7 +1830,7 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>OrderItem.ListPrice</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1830,7 +1845,7 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>OrderItem.PercentComission__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1850,27 +1865,52 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>OrderItem.QuoteLineItemId</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>OrderItem.ReasonRefuse__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
+        <field>OrderItem.RoyaltyAmount__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>OrderItem.ServiceDate</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>OrderItem.Sieve__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>OrderItem.Status__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
+        <field>OrderItem.TSIValue__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>OrderItem.TotalRoyaltyAmount__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>OrderItem.TotalTSIAmount__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>OrderItem.UnitMeasure__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1910,27 +1950,27 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>PotencialCompra__c.ArableArea__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>PotencialCompra__c.Client__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>PotencialCompra__c.Key__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>PotencialCompra__c.PotentialPurchaseValue__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>PotencialCompra__c.harvest__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -2315,6 +2355,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>true</editable>
+        <field>SalesTeam__c.ShowBarterPrices__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>false</editable>
         <field>SalesTeam__c.State__c</field>
         <readable>true</readable>
@@ -2330,27 +2375,27 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>ShippingDivison__c.ConfirmedQuantity__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>ShippingDivison__c.DeliveryDate__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>ShippingDivison__c.ExternalId__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>ShippingDivison__c.OrderItem__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>ShippingDivison__c.Quantity__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -2386,6 +2431,21 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>TaxCommodities__c.Commodity__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>TaxCommodities__c.Impostos_Barter__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>TaxCommodities__c.TaxPercentage__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>TechnicalReport__c.CancellationReason__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -2400,32 +2460,32 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>VisitPlanning__c.CTVvisit__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>VisitPlanning__c.CancellationReason__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>VisitPlanning__c.Culture__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>VisitPlanning__c.Displacement__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>VisitPlanning__c.Email__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>VisitPlanning__c.EndDate__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -2435,12 +2495,12 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>VisitPlanning__c.Note__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>VisitPlanning__c.Presential__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -2450,27 +2510,27 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>VisitPlanning__c.Reminder__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>VisitPlanning__c.ReschedulingReason__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>VisitPlanning__c.SellOrg__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>true</editable>
+        <editable>false</editable>
         <field>VisitPlanning__c.VisitSeller__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <hasActivationRequired>false</hasActivationRequired>
-    <label>Franqueado</label>
+    <label>Barter</label>
     <license>Salesforce</license>
     <objectPermissions>
         <allowCreate>false</allowCreate>
@@ -2488,6 +2548,15 @@
         <allowRead>true</allowRead>
         <modifyAllRecords>false</modifyAllRecords>
         <object>ActivitySector__c</object>
+        <viewAllRecords>false</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>false</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>BarterTaxes__c</object>
         <viewAllRecords>false</viewAllRecords>
     </objectPermissions>
     <objectPermissions>
@@ -2523,7 +2592,25 @@
         <allowEdit>false</allowEdit>
         <allowRead>true</allowRead>
         <modifyAllRecords>false</modifyAllRecords>
+        <object>Comissao__c</object>
+        <viewAllRecords>false</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>false</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>false</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
         <object>CommodityPrice__c</object>
+        <viewAllRecords>false</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>false</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>false</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>CommodityTaxes__c</object>
         <viewAllRecords>false</viewAllRecords>
     </objectPermissions>
     <objectPermissions>
@@ -2590,6 +2677,15 @@
         <viewAllRecords>false</viewAllRecords>
     </objectPermissions>
     <objectPermissions>
+        <allowCreate>false</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>false</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>DistributionCenter__c</object>
+        <viewAllRecords>false</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
         <allowCreate>true</allowCreate>
         <allowDelete>false</allowDelete>
         <allowEdit>true</allowEdit>
@@ -2653,9 +2749,9 @@
         <viewAllRecords>false</viewAllRecords>
     </objectPermissions>
     <objectPermissions>
-        <allowCreate>true</allowCreate>
+        <allowCreate>false</allowCreate>
         <allowDelete>false</allowDelete>
-        <allowEdit>true</allowEdit>
+        <allowEdit>false</allowEdit>
         <allowRead>true</allowRead>
         <modifyAllRecords>false</modifyAllRecords>
         <object>Order</object>
@@ -2680,18 +2776,18 @@
         <viewAllRecords>false</viewAllRecords>
     </objectPermissions>
     <objectPermissions>
-        <allowCreate>true</allowCreate>
+        <allowCreate>false</allowCreate>
         <allowDelete>false</allowDelete>
-        <allowEdit>true</allowEdit>
+        <allowEdit>false</allowEdit>
         <allowRead>true</allowRead>
         <modifyAllRecords>false</modifyAllRecords>
         <object>PlanejamentoVendas__c</object>
         <viewAllRecords>false</viewAllRecords>
     </objectPermissions>
     <objectPermissions>
-        <allowCreate>true</allowCreate>
+        <allowCreate>false</allowCreate>
         <allowDelete>false</allowDelete>
-        <allowEdit>true</allowEdit>
+        <allowEdit>false</allowEdit>
         <allowRead>true</allowRead>
         <modifyAllRecords>false</modifyAllRecords>
         <object>PotencialCompra__c</object>
@@ -2722,7 +2818,7 @@
         <allowRead>true</allowRead>
         <modifyAllRecords>false</modifyAllRecords>
         <object>ProductGroup__c</object>
-        <viewAllRecords>true</viewAllRecords>
+        <viewAllRecords>false</viewAllRecords>
     </objectPermissions>
     <objectPermissions>
         <allowCreate>false</allowCreate>
@@ -2775,15 +2871,6 @@
         <allowEdit>false</allowEdit>
         <allowRead>true</allowRead>
         <modifyAllRecords>false</modifyAllRecords>
-        <object>SalesCondition__c</object>
-        <viewAllRecords>false</viewAllRecords>
-    </objectPermissions>
-    <objectPermissions>
-        <allowCreate>false</allowCreate>
-        <allowDelete>false</allowDelete>
-        <allowEdit>false</allowEdit>
-        <allowRead>true</allowRead>
-        <modifyAllRecords>false</modifyAllRecords>
         <object>SalesOffice__c</object>
         <viewAllRecords>false</viewAllRecords>
     </objectPermissions>
@@ -2817,16 +2904,25 @@
     <objectPermissions>
         <allowCreate>true</allowCreate>
         <allowDelete>false</allowDelete>
-        <allowEdit>true</allowEdit>
+        <allowEdit>false</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>TaxCommodities__c</object>
+        <viewAllRecords>false</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>false</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>false</allowEdit>
         <allowRead>true</allowRead>
         <modifyAllRecords>false</modifyAllRecords>
         <object>TechnicalReport__c</object>
         <viewAllRecords>false</viewAllRecords>
     </objectPermissions>
     <objectPermissions>
-        <allowCreate>true</allowCreate>
+        <allowCreate>false</allowCreate>
         <allowDelete>false</allowDelete>
-        <allowEdit>true</allowEdit>
+        <allowEdit>false</allowEdit>
         <allowRead>true</allowRead>
         <modifyAllRecords>false</modifyAllRecords>
         <object>VisitPlanning__c</object>
@@ -2857,6 +2953,14 @@
         <visible>true</visible>
     </recordTypeVisibilities>
     <recordTypeVisibilities>
+        <recordType>JurosDescontoAntecipao__c.ZDAN</recordType>
+        <visible>true</visible>
+    </recordTypeVisibilities>
+    <recordTypeVisibilities>
+        <recordType>JurosDescontoAntecipao__c.ZJUR</recordType>
+        <visible>true</visible>
+    </recordTypeVisibilities>
+    <recordTypeVisibilities>
         <recordType>JurosDescontoAntecipao__c.ZPR0</recordType>
         <visible>true</visible>
     </recordTypeVisibilities>
@@ -2877,9 +2981,21 @@
         <visible>true</visible>
     </recordTypeVisibilities>
     <recordTypeVisibilities>
+        <recordType>Order.VendaOrdemSimplesFaturamento</recordType>
+        <visible>true</visible>
+    </recordTypeVisibilities>
+    <recordTypeVisibilities>
+        <recordType>Order.VendaServico</recordType>
+        <visible>true</visible>
+    </recordTypeVisibilities>
+    <recordTypeVisibilities>
         <recordType>Pricebook2.RecordTypeId</recordType>
         <visible>true</visible>
     </recordTypeVisibilities>
+    <tabSettings>
+        <tab>BarterTaxes__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
     <tabSettings>
         <tab>Boletos__c</tab>
         <visibility>Visible</visibility>
@@ -2893,7 +3009,15 @@
         <visibility>Visible</visibility>
     </tabSettings>
     <tabSettings>
+        <tab>Comissao__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
         <tab>CommodityPrice__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>CommodityTaxes__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
     <tabSettings>
@@ -2914,6 +3038,10 @@
     </tabSettings>
     <tabSettings>
         <tab>CustomerTaxes__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>DistributionCenter__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
     <tabSettings>
@@ -2946,10 +3074,6 @@
     </tabSettings>
     <tabSettings>
         <tab>PotencialCompra__c</tab>
-        <visibility>Visible</visibility>
-    </tabSettings>
-    <tabSettings>
-        <tab>PriceSearch</tab>
         <visibility>Visible</visibility>
     </tabSettings>
     <tabSettings>
@@ -2990,6 +3114,10 @@
     </tabSettings>
     <tabSettings>
         <tab>ShippingDivison__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>TaxCommodities__c</tab>
         <visibility>Visible</visibility>
     </tabSettings>
     <tabSettings>
@@ -3080,14 +3208,6 @@
         <tab>standard-report</tab>
         <visibility>Visible</visibility>
     </tabSettings>
-    <userPermissions>
-        <enabled>true</enabled>
-        <name>EditEvent</name>
-    </userPermissions>
-    <userPermissions>
-        <enabled>true</enabled>
-        <name>EditTask</name>
-    </userPermissions>
     <userPermissions>
         <enabled>true</enabled>
         <name>ViewPublicDashboards</name>
