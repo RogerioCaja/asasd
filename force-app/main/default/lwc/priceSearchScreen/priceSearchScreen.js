@@ -77,9 +77,7 @@ export default class PriceSearchScreen extends LightningElement {
         {label: 'Safra', fieldName: 'safra'},
         {label: 'Tabela de Preços', fieldName: 'salesCondition'},
         {label: 'Valor Data Informada', fieldName: 'valueDiscounted'},
-        {label: 'Valor Data Safra', fieldName: 'realValue'},
-        {label: 'Time de Vendas', fieldName: 'salesTeamName'},
-        {label: 'Escritório de Vendas', fieldName: 'salesOfficeName'}
+        {label: 'Valor Data Safra', fieldName: 'realValue'}
     ];
 
     connectedCallback() {
@@ -232,9 +230,7 @@ export default class PriceSearchScreen extends LightningElement {
                         safra: this.searchData.safra.Name,
                         salesCondition: priorityInfos.salesCondition,
                         valueDiscounted: discountedValue,
-                        realValue: realValue.split(',').length == 1 ? realValue + ',00' : realValue,
-                        salesTeamName: priorityInfos.salesTeamName,
-                        salesOfficeName: priorityInfos.salesOfficeName
+                        realValue: realValue.split(',').length == 1 ? realValue + ',00' : realValue
                     })
                 }
 

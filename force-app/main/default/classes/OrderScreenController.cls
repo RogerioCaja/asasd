@@ -583,6 +583,7 @@ public without sharing class OrderScreenController {
             Set<Id> setProductHierarchyIds = new Set<Id>();
             Map<String, Decimal> quantitiesById = new Map<String, Decimal>();
             Map<String, Decimal> smallerMarginByProductGroup = new Map<String, Decimal>();
+            Map<String, Decimal> IdOrderItemToQuantity = new Map<String, Decimal>();
             
             Decimal productQuantities = 0;
             for (ProductDeserialize orderProduct : orderData.productData) {
@@ -597,6 +598,7 @@ public without sharing class OrderScreenController {
                 }
 
                 if (orderProduct.productId != null) {
+                    IdOrderItemToQuantity.put(orderProduct.productId, orderProduct.quantity);
                     listProductsIds.add(orderProduct.productId);
                 }
 
@@ -657,6 +659,23 @@ public without sharing class OrderScreenController {
                     return JSON.serializePretty(new AGRO_RemotingResult(true, '200', 'Quantidade indisponível no(s) produto(s) ' + quantitiesResult.invalidProductsNames + '.'));
                 }
             }
+            
+            try {
+                for (Id orderItemId : setOrderItemsIds) {
+                    Double auxiliar = 0;
+                    for (DivisionDeserialize division : orderData.divisionData) {
+                        if (division.orderItemKey == orderItemId) {
+                            auxiliar += division.quantity;
+                        }
+                        if (auxiliar > IdOrderItemToQuantity.get(division.orderItemKey)) {
+                            ApexPages.addmessage(new ApexPages.message(ApexPages.severity.FATAL,'Não é possível ultrapassar nas remessas a quantidade adquirida.'));
+                        }
+                    }
+                }
+            } catch (Exception ex) {
+                System.debug('Erro: ' + ex.getMessage() + '  -  ' + ex.getStackTraceString());
+            }
+            
 
             Map<String, Decimal> orderMarginMap = new Map<String, Decimal>();
             if (orderData.headerData.pedido_mae.Id == null && company != null && company.ClientGroup__c != null) {
