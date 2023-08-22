@@ -184,7 +184,7 @@ export default class OrderSummaryScreen extends LightningElement {
         });
     }
 
-    get isSeedsAndInputs(){
+    isSeedsAndInputs(){
         try{
             return (this.headerData.companySector.toUpperCase() == 'INSUMOS');
         }catch(err){
