@@ -90,6 +90,8 @@ export default class OrderSummaryScreen extends LightningElement {
     @api taxData;
     @api bpData;
 
+    styleAndConfigsForPayment = {};
+
     connectedCallback(){
         if (this.formsOfPayment === undefined) {
             this.formsOfPayment = [];
@@ -182,9 +184,11 @@ export default class OrderSummaryScreen extends LightningElement {
             let safraResult = JSON.parse(result);
             this.safraData = {initialDate:safraResult.initialDate,endDate:safraResult.endDateBilling};
         });
+
+        this.configStylesForPayments();
     }
 
-    get isSeedsAndInputs(){
+    isSeedsAndInputs(){
         try{
             return (this.headerData.companySector.toUpperCase() == 'INSUMOS');
         }catch(err){
@@ -194,21 +198,24 @@ export default class OrderSummaryScreen extends LightningElement {
         
     }
 
-    get labelForPayment(){
+    configStylesForPayments(){
         if(!this.isSeedsAndInputs()){
+            this.styleAndConfigsForPayment['label'] = 'Germoplasma';
+            this.styleAndConfigsForPayment['display'] = '';
+            this.styleAndConfigsForPayment['padding'] = 'padding-top: 70px;';
+            this.styleAndConfigsForPayment['width'] = '';
             return 'Germoplasma';
         }
 
+        this.styleAndConfigsForPayment['label'] = '';
+        this.styleAndConfigsForPayment['display'] = 'display: none';
+        this.styleAndConfigsForPayment['padding'] = 'padding-top: 20px;';
+        this.styleAndConfigsForPayment['width'] = 'width: 45% !important';
         return '';
     }
 
-    get styleForPayment(){
-        if(!this.isSeedsAndInputs()){
-            return '';
-        }
-
-        return 'display: none';
-    }
+    
+    
 
     getDistributionCenters() {
         this.showLoading = true;
