@@ -383,19 +383,16 @@
 
                 <div class="quantities-div">
                     <div class="column">
-                        Total de Pagamento {labelForPayment}:
-                        <label class="quantities-bold">{orderTotalPriceFront}</label><br>
+                        Total de Pagamento {labelForPayment}:<label class="quantities-bold">{orderTotalPriceFront}</label><br>
                     </div>
                     <template if:true={showRed}>
                         <div class="column">
-                            Total a Distribuir {labelForPayment}:
-                            <label class="quantities-red">{orderTotalToDistribution}</label><br>
+                            Total a Distribuir {labelForPayment}:<label class="quantities-red">{orderTotalToDistribution}</label><br>
                         </div>
                     </template>
                     <template if:false={showRed}>
                         <div class="column">
-                            Total a Distribuir {labelForPayment}:
-                            <label class="quantities-bold">{orderTotalToDistribution}</label><br>
+                            Total a Distribuir {labelForPayment}:<label class="quantities-bold">{orderTotalToDistribution}</label><br>
                         </div>
                     </template>
                 </div>
