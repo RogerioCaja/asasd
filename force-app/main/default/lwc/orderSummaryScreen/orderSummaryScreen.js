@@ -185,7 +185,13 @@ export default class OrderSummaryScreen extends LightningElement {
     }
 
     get isSeedsAndInputs(){
-        return (this.headerData.companySector.toUpperCase() == 'INSUMOS');
+        try{
+            return (this.headerData.companySector.toUpperCase() == 'INSUMOS');
+        }catch(err){
+            console.log(err);
+            return false;
+        }
+        
     }
 
     get labelForPayment(){
