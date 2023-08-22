@@ -620,6 +620,16 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>false</editable>
+        <field>CondicaoPagamento__c.BarterCondition__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>CondicaoPagamento__c.CashPayment__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>true</editable>
         <field>Contact.AccountId</field>
         <readable>true</readable>
@@ -1812,6 +1822,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>OrderItem.InvoicedQuantity__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>OrderItem.ItemBalance__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

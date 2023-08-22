@@ -184,6 +184,32 @@ export default class OrderSummaryScreen extends LightningElement {
         });
     }
 
+    isSeedsAndInputs(){
+        try{
+            return (this.headerData.companySector.toUpperCase() == 'INSUMOS');
+        }catch(err){
+            console.log(err);
+            return false;
+        }
+        
+    }
+
+    get labelForPayment(){
+        if(!this.isSeedsAndInputs()){
+            return 'Germoplasma';
+        }
+
+        return '';
+    }
+
+    get styleForPayment(){
+        if(!this.isSeedsAndInputs()){
+            return '';
+        }
+
+        return 'display: none';
+    }
+
     getDistributionCenters() {
         this.showLoading = true;
         this.showUnavailableProducts = false;
@@ -671,7 +697,7 @@ export default class OrderSummaryScreen extends LightningElement {
         
         if(allFromsOfPayment.length < 10){
             allFromsOfPayment.push({
-                paymentType: '',
+                paymentType: this.isSeedsAndInputs() ? 'Germoplasma' : '',
                 paymentDay: null,
                 value: '',
                 paymentPosition: this.paymentLastPosition,
