@@ -15,4 +15,26 @@
             <default>false</default>
         </values>
     </picklistValues>
+    <picklistValues>
+        <picklist>Condition__c</picklist>
+        <values>
+            <fullName>Parcial</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Total</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Status__c</picklist>
+        <values>
+            <fullName>Ativo</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Desativado</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
 </RecordType>
