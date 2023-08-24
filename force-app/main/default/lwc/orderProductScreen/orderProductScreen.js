@@ -9,6 +9,7 @@ import getAccountCompanies from '@salesforce/apex/OrderScreenController.getAccou
 import getMixAndConditionCombos from '@salesforce/apex/OrderScreenController.getMixAndConditionCombos';
 import getTaxes from '@salesforce/apex/OrderScreenController.getTaxes';
 import fetchOrderRecords from '@salesforce/apex/CustomLookupController.fetchProductsRecords';
+import { applyComboOnProductLogicInclude, applyComboOnProductLogicChange, createComboAndProductMap } from './orderProductScreenUtil';
 
 let actions = [];
 let commodityActions = [{label: 'Excluir', name: 'delete'}];
@@ -609,7 +610,7 @@ export default class OrderProductScreen extends LightningElement {
                             let combosAndPromotions = JSON.parse(result);
                             if (combosAndPromotions.length > 0) {
                                 this.combosData = combosAndPromotions;
-                                this.comboTotalsData = this.createComboAndProductMap(this.combosData);
+                                this.comboTotalsData = createComboAndProductMap(this.combosData);
                             }
                         });
                     }
@@ -1251,10 +1252,10 @@ export default class OrderProductScreen extends LightningElement {
             if(typeof(comboDiscountPercent) == 'object' && Array.isArray(comboDiscountPercent)){
                 comboDiscountPercent.forEach((comboDiscount) => {
                     let allProducts = this.parseObject(this.products);
-                    this.applyComboOnProductLogicInclude(comboDiscount.productId, comboDiscount.data, (this.products.find(e => e.productId == comboDiscount.productId) ?? this.addProduct), allProducts);
+                    applyComboOnProductLogicInclude(comboDiscount.productId, comboDiscount.data, (this.products.find(e => e.productId == comboDiscount.productId) ?? this.addProduct), allProducts, this);
                 })
             }else{
-                this.applyComboOnProductLogicInclude(prod, comboDiscountPercent, this.addProduct, allProducts);
+                applyComboOnProductLogicInclude(prod, comboDiscountPercent, this.addProduct, allProducts, this);
             }
 
             this.showToast('success', 'Sucesso!', 'Produto incluído.');
@@ -1266,48 +1267,7 @@ export default class OrderProductScreen extends LightningElement {
         this.recalculateCommodities();
     }
 
-    applyComboOnProductLogicInclude(prod, comboDiscountPercent, prodRoot, allProducts){
-        prod = this.applyComboOnProduct(prodRoot, comboDiscountPercent);
-
-        let margin = this.isFilled(prodRoot.practicedCost) ? this.fixDecimalPlaces((1 - (Number(prodRoot.practicedCost) / (prod.totalPrice / prod.quantity))) * 100) : 0;
-        prod.commercialMarginPercentage = margin;
-        prod.costPrice = this.costPrice;
-        prod.multiplicity = this.multiplicity > 0 ? this.multiplicity : 1;
-        allProducts.push(prod);
-
-        console.log(JSON.stringify(allProducts));
-        this.showIncludedProducts = true;
-        prodRoot = {};
-        this.products = this.parseObject(allProducts);
-        this.message = false;
-    }
-
-    applyComboOnProductLogicChange(comboDiscountPercent, prodRoot, allProducts, index){
-        prodRoot = this.applyComboOnProduct(prodRoot, comboDiscountPercent);
-
-        let margin = this.isFilled(prodRoot.practicedCost) ? this.fixDecimalPlaces(((1 - (Number(prodRoot.practicedCost) / (Number(prodRoot.totalPrice) / Number(prodRoot.quantity)))) * 100)) : null;
-        prodRoot.commercialMarginPercentage = this.headerData.IsOrderChild ? prodRoot.commercialMarginPercentage : margin;
-        prodRoot.multiplicity = this.multiplicity > 0 ? this.multiplicity : 1;
-        index = index ?? allProducts.indexOf(allProducts.find(e => e.productId == prodRoot.productId))
-        allProducts[index] = this.parseObject(prodRoot);
-    }
-
-    //combos : uma lista de objetos(do tipo combo) para filtrar e gerar um objeto apenas com combos de condição totais
-    //comboTotalsData : retorno de uma lista de objetos { comboId, productIds, comboFull}
-    createComboAndProductMap(combos){
-        const comboTotalsData = combos.map((value) => {
-            if(value.comboCondition == 'Total' && value.recTypeDevName == 'ProductMix'){
-                return {comboId: value.comboId, 
-                        productsIds: value.groupQuantities.map((e) => {return e.productId}), 
-                        comboFull: value
-                    }
-            }
-        })
-        console.log('comboTotalsData');
-        console.log(comboTotalsData);
-        return comboTotalsData;
-    }
-
+    
     verifyComboAndPromotionTotal(){
         this.existingCombosTotal = false;
         const productIds = this.products.map((prod) => {return prod.productId});
@@ -1497,16 +1457,16 @@ export default class OrderProductScreen extends LightningElement {
                     if(Array.isArray(comboDiscountPercent)){
                         comboDiscountPercent.forEach((comboDiscount) => {
                             let includedProducts = this.parseObject(this.products);
-                            this.applyComboOnProductLogicChange(comboDiscount.data, (this.products.find(e => e.productId == comboDiscount.productId) ?? this.addProduct), includedProducts, null);
+                            applyComboOnProductLogicChange(comboDiscount.data, (this.products.find(e => e.productId == comboDiscount.productId) ?? this.addProduct), includedProducts, null, this);
                         })
                             
                     }else if(this.existingCombosTotal && !Array.isArray(comboDiscountPercent)){
                         this.productIncludesInComboTotal.forEach((elem) => {
-                            this.applyComboOnProductLogicChange(null, (this.products.find(e => e.productId == elem) ?? this.addProduct), includedProducts, null);
+                            applyComboOnProductLogicChange(null, (this.products.find(e => e.productId == elem) ?? this.addProduct), includedProducts, null, this);
                         })
                         this.existingCombosTotal = false;
                     }else{
-                        this.applyComboOnProductLogicChange(comboDiscountPercent, this.addProduct, includedProducts, index);
+                        applyComboOnProductLogicChange(comboDiscountPercent, this.addProduct, includedProducts, index, this);
                     }
                     break;
                 } else {
