@@ -1,5 +1,5 @@
 
-function applyComboOnProductLogicInclude(prod, comboDiscountPercent, prodRoot, allProducts, t){
+export function applyComboOnProductLogicInclude(prod, comboDiscountPercent, prodRoot, allProducts, t){
     prod = t.applyComboOnProduct(prodRoot, comboDiscountPercent);
 
     let margin = t.isFilled(prodRoot.practicedCost) ? t.fixDecimalPlaces((1 - (Number(prodRoot.practicedCost) / (prod.totalPrice / prod.quantity))) * 100) : 0;
@@ -15,7 +15,7 @@ function applyComboOnProductLogicInclude(prod, comboDiscountPercent, prodRoot, a
     t.message = false;
 }
 
-function applyComboOnProductLogicChange(comboDiscountPercent, prodRoot, allProducts, index, t){
+export function applyComboOnProductLogicChange(comboDiscountPercent, prodRoot, allProducts, index, t){
     prodRoot = t.applyComboOnProduct(prodRoot, comboDiscountPercent);
 
     let margin = t.isFilled(prodRoot.practicedCost) ? t.fixDecimalPlaces(((1 - (Number(prodRoot.practicedCost) / (Number(prodRoot.totalPrice) / Number(prodRoot.quantity)))) * 100)) : null;
@@ -27,7 +27,7 @@ function applyComboOnProductLogicChange(comboDiscountPercent, prodRoot, allProdu
 
 //combos : uma lista de objetos(do tipo combo) para filtrar e gerar um objeto apenas com combos de condição totais
 //comboTotalsData : retorno de uma lista de objetos { comboId, productIds, comboFull}
-function createComboAndProductMap(combos){
+export function createComboAndProductMap(combos){
     const comboTotalsData = combos.map((value) => {
         if(value.comboCondition == 'Total' && value.recTypeDevName == 'ProductMix'){
             return {comboId: value.comboId, 
