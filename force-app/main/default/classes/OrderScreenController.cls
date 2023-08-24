@@ -2021,6 +2021,7 @@ public without sharing class OrderScreenController {
             for (ComboPromotion__c promotion : [
                 SELECT Id,
                        ComboType__c,
+                       Condition__c,
                        CombosQuantity__c,
                        PaymentCondition__c,
                        DiscountPercentage__c,
@@ -2040,6 +2041,7 @@ public without sharing class OrderScreenController {
                 comboPromotionData.comboQuantity = 0;
                 comboPromotionData.comboId = promotion.Id;
                 comboPromotionData.comboType = promotion.ComboType__c;
+                comboPromotionData.comboCondition = promotion.Condition__c;
                 comboPromotionData.recTypeDevName = promotion.RecordType.DeveloperName;
                 comboPromotionData.comboAvailableQuantity = promotion.CombosQuantity__c;
                 comboPromotionData.comboDiscountPercentage = promotion.DiscountPercentage__c;
@@ -3118,6 +3120,7 @@ public without sharing class OrderScreenController {
         public Decimal comboDiscountPercentage;
         public Boolean specificItemCombo;
         public Integer comboQuantity;
+        public String  comboCondition;
         public List<GroupData>  groupQuantities;
         public List<ComboItems> formerItems;
         public List<ComboItems> benefitItems;

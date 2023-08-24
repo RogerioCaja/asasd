@@ -103,6 +103,7 @@ export default class OrderProductScreen extends LightningElement {
     itensToRemove=[];
     comboProducts={formerIds: [], benefitsIds: []};
     hidePrices=false;
+    comboTotalsData;
 
     @track products=[];
     @track commoditiesData=[];
@@ -604,7 +605,10 @@ export default class OrderProductScreen extends LightningElement {
                         getMixAndConditionCombos({data: JSON.stringify(headerValues)})
                         .then((result) => {
                             let combosAndPromotions = JSON.parse(result);
-                            if (combosAndPromotions.length > 0) this.combosData = combosAndPromotions;
+                            if (combosAndPromotions.length > 0) {
+                                this.combosData = combosAndPromotions;
+                                this.comboTotalsData = this.createComboAndProductMap(this.combosData);
+                            }
                         });
                     }
                 })
@@ -1263,6 +1267,51 @@ export default class OrderProductScreen extends LightningElement {
             this.showToast('error', 'Atenção!', 'Campos obrigatórios não preenchidos.');
         }
         this.recalculateCommodities();
+    }
+
+    //combos : uma lista de objetos(do tipo combo) para filtrar e gerar um objeto apenas com combos de condição totais
+    //comboTotalsData : retorno de uma lista de objetos { comboId, productIds, comboFull}
+    createComboAndProductMap(combos){
+        const comboTotalsData = combos.map((value) => {
+            if(value.comboCondition == 'Total' && value.recTypeDevName == 'ProductMix'){
+                return {comboId: value.comboId, 
+                        productsIds: value.groupQuantities.map((e) => {return e.productId}), 
+                        comboFull: value
+                    }
+            }
+        })
+        console.log('comboTotalsData');
+        console.log(comboTotalsData);
+        return comboTotalsData;
+    }
+
+    verifyComboAndPromotionTotal(){
+        const productIds = this.products.map((prod) => {return prod.productId});
+        let comboSelected = null;
+
+        if(this.isFilled(this.comboTotalsData)){
+            this.comboTotalsData.forEach((value) => {
+                const hasAllElements = productIds.every(elem => value.productsIds.includes(elem));
+                if(hasAllElements){
+                    comboSelected = value;
+                }
+            })
+        }
+        
+
+        if(this.isFilled(comboSelected)){
+            //TO DO logica de aplicação de desconto
+            let groupData =  comboSelected.comboFull.groupQuantities;
+            let productDiscount = [];
+            for(let index = 0; index < productIds.length; index++){
+                let productGroupCombo = groupData.find(e => e.productId == productIds[index]);
+                let product = this.products.find(e => e.productId == productIds[index])
+                if (this.isFilled(productGroupCombo) && product.quantity >= productGroupCombo.quantity) {
+                    productDiscount.push({productId: productIds[index], data: {discount: comboSelected.comboDiscountPercentage,comboId: comboSelected.comboId,industryCombo: comboSelected.comboType == 'Indústria',comboQuantity: Math.floor(product.quantity / productGroupCombo.quantity)}});
+                }
+            }
+        }
+        return productDiscount;
     }
 
     verifyComboAndPromotion(quantity) {
