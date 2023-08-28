@@ -69,6 +69,7 @@ const verifyComboAndPromotionTotal = (t) => {
         })
     }
     
+    let counter = 0;
     let productDiscount = [];
     if(t.isFilled(comboSelected)){
         //TO DO logica de aplicação de desconto
@@ -76,14 +77,16 @@ const verifyComboAndPromotionTotal = (t) => {
         
         for(let index = 0; index < productIds.length; index++){
             let productGroupCombo = groupData.find(e => e.productId == productIds[index]);
-            let product = t.products.find(e => e.productId == productIds[index])
-            product = product ?? t.addProduct
+            let product = t.products.find(e => e.productId == productIds[index]);
+            product = product ?? t.addProduct;
             if (t.isFilled(productGroupCombo) && product.quantity >= productGroupCombo.quantity) {
+                counter++;
                 productDiscount.push({productId: productIds[index], data: {discount: comboSelected.comboFull.comboDiscountPercentage,comboId: comboSelected.comboId,industryCombo: comboSelected.comboFull.comboType == 'Indústria',comboQuantity: Math.floor(product.quantity / productGroupCombo.quantity)}});
             }
         }
     }
-    if(productDiscount.length > 0){
+
+    if(productDiscount.length > 0 && t.isFilled(comboSelected) && (comboSelected.productIds.length == counter)){
         t.existingCombosTotal = true;
         t.productIncludesInComboTotal = productDiscount.map((elem) => {return elem.productId});
         return productDiscount;
