@@ -9,7 +9,6 @@ import getAccountCompanies from '@salesforce/apex/OrderScreenController.getAccou
 import getMixAndConditionCombos from '@salesforce/apex/OrderScreenController.getMixAndConditionCombos';
 import getTaxes from '@salesforce/apex/OrderScreenController.getTaxes';
 import fetchOrderRecords from '@salesforce/apex/CustomLookupController.fetchProductsRecords';
-import { applyComboOnProductLogicInclude, applyComboOnProductLogicChange, createComboAndProductMap } from './orderProductScreenUtil';
 
 let actions = [];
 let commodityActions = [{label: 'Excluir', name: 'delete'}];
@@ -104,9 +103,6 @@ export default class OrderProductScreen extends LightningElement {
     itensToRemove=[];
     comboProducts={formerIds: [], benefitsIds: []};
     hidePrices=false;
-    comboTotalsData;
-    existingCombosTotal=false;
-    productIncludesInComboTotal=[];
 
     @track products=[];
     @track commoditiesData=[];
@@ -612,10 +608,7 @@ export default class OrderProductScreen extends LightningElement {
                         getMixAndConditionCombos({data: JSON.stringify(headerValues)})
                         .then((result) => {
                             let combosAndPromotions = JSON.parse(result);
-                            if (combosAndPromotions.length > 0) {
-                                this.combosData = combosAndPromotions;
-                                this.comboTotalsData = createComboAndProductMap(this.combosData);
-                            }
+                            if (combosAndPromotions.length > 0) this.combosData = combosAndPromotions;
                         });
                     }
                 })
@@ -1257,14 +1250,19 @@ export default class OrderProductScreen extends LightningElement {
         if (this.checkRequiredFields(prod)) {
             let allProducts = this.parseObject(this.products);
             let comboDiscountPercent = this.verifyComboAndPromotion(prod.quantity);
-            if(typeof(comboDiscountPercent) == 'object' && Array.isArray(comboDiscountPercent)){
-                comboDiscountPercent.forEach((comboDiscount) => {
-                    let allProducts = this.parseObject(this.products);
-                    applyComboOnProductLogicInclude(comboDiscount.productId, comboDiscount.data, (this.products.find(e => e.productId == comboDiscount.productId) ?? this.addProduct), allProducts, this);
-                })
-            }else{
-                applyComboOnProductLogicInclude(prod, comboDiscountPercent, this.addProduct, allProducts, this);
-            }
+            prod = this.applyComboOnProduct(this.addProduct, comboDiscountPercent);
+
+            let margin = this.isFilled(this.addProduct.practicedCost) ? this.fixDecimalPlaces((1 - (Number(this.addProduct.practicedCost) / (prod.totalPrice / prod.quantity))) * 100) : 0;
+            prod.commercialMarginPercentage = margin;
+            prod.costPrice = this.costPrice;
+            prod.multiplicity = this.multiplicity > 0 ? this.multiplicity : 1;
+            allProducts.push(prod);
+
+            console.log(JSON.stringify(allProducts));
+            this.showIncludedProducts = true;
+            this.addProduct = {};
+            this.products = this.parseObject(allProducts);
+            this.message = false;
 
             this.showToast('success', 'Sucesso!', 'Produto incluído.');
             this._verifyFieldsToSave();
@@ -1275,49 +1273,9 @@ export default class OrderProductScreen extends LightningElement {
         this.recalculateCommodities();
     }
 
-    
-    verifyComboAndPromotionTotal(){
-        this.existingCombosTotal = false;
-        const productIds = this.products.map((prod) => {return prod.productId});
-        let comboSelected = null;
-
-        if(this.isFilled(this.comboTotalsData)){
-            this.comboTotalsData.forEach((value) => {
-                const hasAllElements = productIds.every(elem => value.productsIds.includes(elem));
-                if(hasAllElements){
-                    comboSelected = value;
-                }
-            })
-        }
-        
-        let productDiscount = [];
-        if(this.isFilled(comboSelected)){
-            //TO DO logica de aplicação de desconto
-            let groupData =  comboSelected.comboFull.groupQuantities;
-            
-            for(let index = 0; index < productIds.length; index++){
-                let productGroupCombo = groupData.find(e => e.productId == productIds[index]);
-                let product = this.products.find(e => e.productId == productIds[index])
-                if (this.isFilled(productGroupCombo) && product.quantity >= productGroupCombo.quantity) {
-                    productDiscount.push({productId: productIds[index], data: {discount: comboSelected.comboDiscountPercentage,comboId: comboSelected.comboId,industryCombo: comboSelected.comboType == 'Indústria',comboQuantity: Math.floor(product.quantity / productGroupCombo.quantity)}});
-                }
-            }
-        }
-        if(productDiscount.length > 0){
-            this.productIncludesInComboTotal = productDiscount.map((elem) => {return elem.productId});
-            return productDiscount;
-        }
-        this.existingCombosTotal = true;
-        return null;
-    }
-
     verifyComboAndPromotion(quantity) {
         if (this.isFilled(this.combosData)) {
             let combos = this.parseObject(this.combosData);
-            let results = this.verifyComboAndPromotionTotal();
-            if(this.isFilled(results) && results.length > 0){
-                return results;
-            }
             for (let index = 0; index < combos.length; index++) {
                 if (combos[index].recTypeDevName == 'ProductMix') {
                     let groupsData = combos[index].groupQuantities;
@@ -1462,20 +1420,12 @@ export default class OrderProductScreen extends LightningElement {
                     }
 
                     let comboDiscountPercent = this.verifyComboAndPromotion(this.addProduct.quantity);
-                    if(Array.isArray(comboDiscountPercent)){
-                        comboDiscountPercent.forEach((comboDiscount) => {
-                            let includedProducts = this.parseObject(this.products);
-                            applyComboOnProductLogicChange(comboDiscount.data, (this.products.find(e => e.productId == comboDiscount.productId) ?? this.addProduct), includedProducts, null, this);
-                        })
-                            
-                    }else if(this.existingCombosTotal && !Array.isArray(comboDiscountPercent)){
-                        this.productIncludesInComboTotal.forEach((elem) => {
-                            applyComboOnProductLogicChange(null, (this.products.find(e => e.productId == elem) ?? this.addProduct), includedProducts, null, this);
-                        })
-                        this.existingCombosTotal = false;
-                    }else{
-                        applyComboOnProductLogicChange(comboDiscountPercent, this.addProduct, includedProducts, index, this);
-                    }
+                    this.addProduct = this.applyComboOnProduct(this.addProduct, comboDiscountPercent);
+
+                    let margin = this.isFilled(this.addProduct.practicedCost) ? this.fixDecimalPlaces(((1 - (Number(this.addProduct.practicedCost) / (Number(this.addProduct.totalPrice) / Number(this.addProduct.quantity)))) * 100)) : null;
+                    this.addProduct.commercialMarginPercentage = this.headerData.IsOrderChild ? this.addProduct.commercialMarginPercentage : margin;
+                    this.addProduct.multiplicity = this.multiplicity > 0 ? this.multiplicity : 1;
+                    includedProducts[index] = this.parseObject(this.addProduct);
                     break;
                 } else {
                     this.showToast('error', 'Atenção!', 'Campos obrigatórios não preenchidos.');
