@@ -9,6 +9,7 @@ import getAccountCompanies from '@salesforce/apex/OrderScreenController.getAccou
 import getMixAndConditionCombos from '@salesforce/apex/OrderScreenController.getMixAndConditionCombos';
 import getTaxes from '@salesforce/apex/OrderScreenController.getTaxes';
 import fetchOrderRecords from '@salesforce/apex/CustomLookupController.fetchProductsRecords';
+import { reloadProducts } from './orderProductScreenUtil';
 
 let actions = [];
 let commodityActions = [{label: 'Excluir', name: 'delete'}];
@@ -99,6 +100,8 @@ export default class OrderProductScreen extends LightningElement {
     combosData;
     showCombos=false;
     checkCombo=false;
+    checkComboPermission=false;
+    canReload=true;
     comboRowsToSkip=0;
     itensToRemove=[];
     comboProducts={formerIds: [], benefitsIds: []};
@@ -604,7 +607,8 @@ export default class OrderProductScreen extends LightningElement {
                         getMixAndConditionCombos({data: JSON.stringify(headerValues)})
                         .then((result) => {
                             let combosAndPromotions = JSON.parse(result);
-                            if (combosAndPromotions.length > 0) this.combosData = combosAndPromotions;
+                            if (combosAndPromotions.length > 0) 
+                            {this.combosData = combosAndPromotions; reloadProducts(this)}
                         });
                     }
                 })
@@ -1263,13 +1267,23 @@ export default class OrderProductScreen extends LightningElement {
             this.showToast('error', 'Atenção!', 'Campos obrigatórios não preenchidos.');
         }
         this.recalculateCommodities();
+        if(this.canReload) reloadProducts(this);
     }
 
     verifyComboAndPromotion(quantity) {
         if (this.isFilled(this.combosData)) {
             let combos = this.parseObject(this.combosData);
             for (let index = 0; index < combos.length; index++) {
-                if (combos[index].recTypeDevName == 'ProductMix') {
+                if (combos[index].recTypeDevName == 'ProductMix' && combos[index].comboCondition == 'Parcial') {
+                    let groupsData = combos[index].groupQuantities;
+
+                    if (this.isFilled(groupsData)) {
+                        let productGroupCombo = groupsData.find(e => e.productId == this.addProduct.productId);
+                        if (this.isFilled(productGroupCombo) && quantity >= productGroupCombo.quantity && combos[index].recTypeDevName == 'ProductMix') {
+                            return {discount: combos[index].comboDiscountPercentage,comboId: combos[index].comboId,industryCombo: combos[index].comboType == 'Indústria',comboQuantity: Math.floor(quantity / productGroupCombo.quantity)};
+                        }
+                    }
+                }else if(combos[index].recTypeDevName == 'ProductMix' && combos[index].comboCondition == 'Total' && this.checkComboPermission){
                     let groupsData = combos[index].groupQuantities;
 
                     if (this.isFilled(groupsData)) {
@@ -1402,58 +1416,60 @@ export default class OrderProductScreen extends LightningElement {
     }
 
     changeProduct() {
-        let includedProducts = this.parseObject(this.products);
+        var t = this
+        let includedProducts = t.parseObject(t.products);
         for (let index = 0; index < includedProducts.length; index++) {
-            if (includedProducts[index].position == this.productPosition) {
-                if (this.checkRequiredFields(this.addProduct)) {
-                    if (this.verifyQuota && this.showRoyaltyTsi) {
-                        let availableQuota = this.verifyProductQuota(this.addProduct);
+            if (includedProducts[index].position == t.productPosition) {
+                if (t.checkRequiredFields(t.addProduct)) {
+                    if (t.verifyQuota && t.showRoyaltyTsi) {
+                        let availableQuota = t.verifyProductQuota(t.addProduct);
                         if (!availableQuota) return;
                     }
 
-                    let comboDiscountPercent = this.verifyComboAndPromotion(this.addProduct.quantity);
-                    this.addProduct = this.applyComboOnProduct(this.addProduct, comboDiscountPercent);
+                    let comboDiscountPercent = t.verifyComboAndPromotion(t.addProduct.quantity);
+                    t.addProduct = t.applyComboOnProduct(t.addProduct, comboDiscountPercent);
 
-                    let margin = this.isFilled(this.addProduct.practicedCost) ? this.fixDecimalPlaces(((1 - (Number(this.addProduct.practicedCost) / (Number(this.addProduct.totalPrice) / Number(this.addProduct.quantity)))) * 100)) : null;
-                    this.addProduct.commercialMarginPercentage = this.headerData.IsOrderChild ? this.addProduct.commercialMarginPercentage : margin;
-                    this.addProduct.multiplicity = this.multiplicity > 0 ? this.multiplicity : 1;
-                    includedProducts[index] = this.parseObject(this.addProduct);
+                    let margin = t.isFilled(t.addProduct.practicedCost) ? t.fixDecimalPlaces(((1 - (Number(t.addProduct.practicedCost) / (Number(t.addProduct.totalPrice) / Number(t.addProduct.quantity)))) * 100)) : null;
+                    t.addProduct.commercialMarginPercentage = t.headerData.IsOrderChild ? t.addProduct.commercialMarginPercentage : margin;
+                    t.addProduct.multiplicity = t.multiplicity > 0 ? t.multiplicity : 1;
+                    includedProducts[index] = t.parseObject(t.addProduct);
                     break;
                 } else {
-                    this.showToast('error', 'Atenção!', 'Campos obrigatórios não preenchidos.');
+                    t.showToast('error', 'Atenção!', 'Campos obrigatórios não preenchidos.');
                     return;
                 }
             }
         }
 
-        this.products = this.parseObject(includedProducts);
-        if (this.recalculatePrice) {
-            this._verifyFieldsToSave();
-            return this.addProduct.unitPrice;
+        t.products = t.parseObject(includedProducts);
+        if (t.recalculatePrice) {
+            t._verifyFieldsToSave();
+            return t.addProduct.unitPrice;
         } else {
-            this.updateProduct = false;
-            this.createNewProduct = !this.createNewProduct;
-            let allDivisions = this.parseObject(this.allDivisionProducts);
+            t.updateProduct = false;
+            t.createNewProduct = !t.createNewProduct;
+            let allDivisions = t.parseObject(t.allDivisionProducts);
             if (allDivisions.length > 0) {
                 let allDivisionQuantitys = 0;
                 for (let index = 0; index < allDivisions.length; index++) {
                     let existingProductDivision = allDivisions[index];
-                    if (existingProductDivision.productPosition == this.productPosition)  allDivisionQuantitys += Number(existingProductDivision.quantity);
+                    if (existingProductDivision.productPosition == t.productPosition)  allDivisionQuantitys += Number(existingProductDivision.quantity);
                 }
 
-                if (allDivisionQuantitys > Number(this.addProduct.quantity)) {
-                    this.showToast('warning', 'Atenção!', 'A soma das quantidades não pode ultrapassar ' + this.addProduct.quantity + '.');
-                    this.productDivision(this.productPosition);
+                if (allDivisionQuantitys > Number(t.addProduct.quantity)) {
+                    t.showToast('warning', 'Atenção!', 'A soma das quantidades não pode ultrapassar ' + t.addProduct.quantity + '.');
+                    t.productDivision(t.productPosition);
                 } else {
-                    this.showToast('success', 'Sucesso!', 'Produto alterado.');
+                    t.showToast('success', 'Sucesso!', 'Produto alterado.');
                 }
             } else {
-                this.showToast('success', 'Sucesso!', 'Produto alterado.');
+                t.showToast('success', 'Sucesso!', 'Produto alterado.');
             }
         }
-        this._verifyFieldsToSave();
-        this.recalculateCommodities();
-        console.log(JSON.stringify(this.products));
+        t._verifyFieldsToSave();
+        t.recalculateCommodities();
+        if(t.getCurrentProductPosition() == t.addProduct.position && t.canReload) reloadProducts(t);
+        console.log(JSON.stringify(t.products));
     }
 
     showDivisionModal() {
@@ -1525,7 +1541,7 @@ export default class OrderProductScreen extends LightningElement {
         }
     }
 
-    editProduct(position, recalculateFinancialValues) {
+    editProduct(position, recalculateFinancialValues, isReload) {
         this.productPosition = position;
         let currentProduct = this.products.find(e => e.position == position);
         isSeedSale({salesOrgId: this.selectedCompany.salesOrgId, productGroupName: currentProduct.productGroupName})
@@ -1536,8 +1552,9 @@ export default class OrderProductScreen extends LightningElement {
         this.multiplicity = this.isFilled(currentProduct.multiplicity) && currentProduct.multiplicity > 0 ? currentProduct.multiplicity : 1;
         this.addProduct = this.newProduct(currentProduct);
         console.log('this.addProduct: ' + JSON.stringify(this.addProduct));
+        if(isReload) return;
         if (recalculateFinancialValues) {
-            this.calculateFinancialInfos();
+            this.calculateFinancialInfos()
         } else {
             this.createNewProduct = !this.createNewProduct;
             this.updateProduct = true;
@@ -1654,6 +1671,7 @@ export default class OrderProductScreen extends LightningElement {
         this._setExcludedesItems();
         this._setData();
         this._setDivisionData();
+        reloadProducts(this)
         this.showToast('success', 'Produto removido!', '');
     }
 
