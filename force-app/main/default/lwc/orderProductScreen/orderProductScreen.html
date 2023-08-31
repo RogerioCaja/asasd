@@ -708,6 +708,20 @@
 									</div>
 								</div>
 							</div>
+							<div if:false={combo.specificItemCombo} key={combo.comboId} class="combo-card combo-total">
+								<div class="combo-card-01">
+									<p class="combo-titlte">Produtos Combo</p>
+									<p class="combo-titlte">Percentual de Desconto : {combo.comboDiscountPercentage}</p>
+									<template for:each={combo.groupQuantities} for:item="prod">
+										<p key={prod.productId}>{prod.productCode} - {prod.productName} - {prod.quantity} UNIDADES</p>
+									</template>
+									
+									<br><br>
+									<div class="quantity-div">
+										<b data-target-id={combo.comboId} class="quantity-button" onclick={lessOne}>-</b><input type="number" data-target-id={combo.comboId} class="quantity-field" value={combo.comboQuantity} onblur={changeComboQuantity}/><b data-target-id={combo.comboId} class="quantity-button" onclick={addOne}>+</b>
+									</div>
+								</div>
+							</div>
 						</template>
 					</div>
 					<div if:true={showComboArrows} class="product-column product-right"><span class="arrow-style" onclick={nextComboScreen}>&#8250;</span></div>

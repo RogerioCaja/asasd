@@ -61,6 +61,10 @@ lightning-datatable.dt-outer-container {
     clear: both;
 }
 
+.combo-total{
+	border: 3px solid #2A9676 !important;
+}
+
 .card {
 	float: left;
     width: 33.3%;

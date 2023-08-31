@@ -1496,17 +1496,21 @@ public without sharing class OrderScreenController {
         Map<Id, ComboPromotionData> result = new Map<Id, ComboPromotionData>();
         Map<Id, Set<Id>> combosByProductId = new Map<Id, Set<Id>>();
         Set<Id> combosIds = new Set<Id>();
-        Id specificItemsRecordType = Schema.SObjectType.ComboPromotion__c.getRecordTypeInfosByDeveloperName().get('Specific_Items').getRecordTypeId();
+        Set<Id> mixCombosIds = new Set<Id>();
+        Set<Id> recTypes = new Set<Id>();
+        recTypes.add(Schema.SObjectType.ComboPromotion__c.getRecordTypeInfosByDeveloperName().get('ProductMix').getRecordTypeId());
+        recTypes.add(Schema.SObjectType.ComboPromotion__c.getRecordTypeInfosByDeveloperName().get('Specific_Items').getRecordTypeId());
         
         for (ComboPromotion__c promotion : [
             SELECT Id,
                    ComboType__c,
+                   Condition__c,
                    CombosQuantity__c,
                    PaymentCondition__c,
                    DiscountPercentage__c,
                    RecordType.DeveloperName
               FROM ComboPromotion__c
-             WHERE RecordTypeId =: specificItemsRecordType
+             WHERE RecordTypeId IN: recTypes
                AND Status__c = 'Ativo'
                AND 
                (
@@ -1516,6 +1520,7 @@ public without sharing class OrderScreenController {
                         Safra__c =: comboData.cropId
                     AND SalesOrg__c =: company.salesOrgId
                     AND SalesCondition__c =: comboData.salesConditionId
+                    AND (PaymentCondition__c = null OR PaymentCondition__c =: comboData.paymentConditionId)
                     AND CombosQuantity__c > 0
                     AND (SalesTeam__c = null OR SalesTeam__c =: productParams.salesTeamId)
                     AND (SalesOffice__c = null OR SalesOffice__c =: productParams.salesOfficeId)
@@ -1524,20 +1529,28 @@ public without sharing class OrderScreenController {
              LIMIT 4
             OFFSET :comboData.rowsToSkip
         ]) {
-            ComboPromotionData comboPromotionData = new ComboPromotionData();
-            comboPromotionData.comboQuantity = 0;
-            comboPromotionData.comboId = promotion.Id;
-            comboPromotionData.comboType = promotion.ComboType__c;
-            comboPromotionData.paymentConditionId = promotion.PaymentCondition__c;
-            comboPromotionData.comboAvailableQuantity = promotion.CombosQuantity__c;
-            comboPromotionData.comboDiscountPercentage = promotion.DiscountPercentage__c;
-            comboPromotionData.specificItemCombo = true;
-            comboPromotionData.recTypeDevName = promotion.RecordType.DeveloperName;
-            comboPromotionData.formerItems = new List<ComboItems>();
-            comboPromotionData.benefitItems = new List<ComboItems>();
-            
-            combosIds.add(promotion.Id);
-            result.put(promotion.Id, comboPromotionData);
+            if(promotion.RecordType.DeveloperName == 'Specific_Items' || (promotion.RecordType.DeveloperName == 'ProductMix' && promotion.Condition__c == 'Total')){
+                ComboPromotionData comboPromotionData = new ComboPromotionData();
+                comboPromotionData.comboQuantity = 0;
+                comboPromotionData.comboId = promotion.Id;
+                comboPromotionData.comboType = promotion.ComboType__c;
+                comboPromotionData.comboCondition = promotion.Condition__c;
+                comboPromotionData.paymentConditionId = promotion.PaymentCondition__c;
+                comboPromotionData.comboAvailableQuantity = promotion.CombosQuantity__c;
+                comboPromotionData.comboDiscountPercentage = promotion.DiscountPercentage__c;
+                comboPromotionData.specificItemCombo = promotion.RecordType.DeveloperName == 'Specific_Items' ? true : false;
+                comboPromotionData.recTypeDevName = promotion.RecordType.DeveloperName;
+                comboPromotionData.groupQuantities = new List<GroupData>();
+                comboPromotionData.formerItems = new List<ComboItems>();
+                comboPromotionData.benefitItems = new List<ComboItems>();
+
+                if (promotion.RecordType.DeveloperName == 'ProductMix') {
+                    mixCombosIds.add(promotion.Id);
+                }
+
+                combosIds.add(promotion.Id);
+                result.put(promotion.Id, comboPromotionData);
+            }
         }
 
         List<String> prodsIds = new List<String>();
@@ -1559,6 +1572,15 @@ public without sharing class OrderScreenController {
             formerItem.productName = formerProd.Product__r.Name;
             formerItem.productCode = productCode;
             formerItem.minQUantity = formerProd.MinQuantity__c;
+
+            if(mixCombosIds.contains(formerProd.ComboPromotion__c)){
+                GroupData groupData = new GroupData();
+                groupData.productId = formerProd.Product__c;
+                groupData.productName = formerProd.Product__r.Name;
+                groupData.productCode = productCode;
+                groupData.quantity = formerProd.MinQuantity__c;
+                comboPromotionData.groupQuantities.add(groupData);
+            }
             
             prodsIds.add(formerProd.Product__c);
             comboPromotionData.formerItems.add(formerItem);
@@ -1626,7 +1648,6 @@ public without sharing class OrderScreenController {
                 availableCombos.add(result.get(idCombo));
             }
         }
-
         return JSON.serialize(availableCombos);
     }
 
@@ -2010,6 +2031,7 @@ public without sharing class OrderScreenController {
     public static String getMixAndConditionCombos(String data) {
         try {
             HeaderValues comboData = (HeaderValues) JSON.deserialize(data, HeaderValues.class);
+            System.debug('ComboData => ' + comboData);
             Map<Id, ComboPromotionData> result = new Map<Id, ComboPromotionData>();
             Set<Id> mixCombosIds = new Set<Id>();
             Set<Id> conditionCombosIds = new Set<Id>();
@@ -2021,6 +2043,7 @@ public without sharing class OrderScreenController {
             for (ComboPromotion__c promotion : [
                 SELECT Id,
                        ComboType__c,
+                       Condition__c,
                        CombosQuantity__c,
                        PaymentCondition__c,
                        DiscountPercentage__c,
@@ -2040,6 +2063,7 @@ public without sharing class OrderScreenController {
                 comboPromotionData.comboQuantity = 0;
                 comboPromotionData.comboId = promotion.Id;
                 comboPromotionData.comboType = promotion.ComboType__c;
+                comboPromotionData.comboCondition = promotion.Condition__c;
                 comboPromotionData.recTypeDevName = promotion.RecordType.DeveloperName;
                 comboPromotionData.comboAvailableQuantity = promotion.CombosQuantity__c;
                 comboPromotionData.comboDiscountPercentage = promotion.DiscountPercentage__c;
@@ -2059,6 +2083,8 @@ public without sharing class OrderScreenController {
             for (FormerProduct__c formerProd : [
                 SELECT Id,
                        Product__c,
+                       Product__r.Name,
+                       Product__r.ExternalId__c,
                        MinQuantity__c,
                        ComboPromotion__c
                   FROM FormerProduct__c
@@ -2067,6 +2093,8 @@ public without sharing class OrderScreenController {
                 ComboPromotionData comboPromotionData = result.get(formerProd.ComboPromotion__c);
                 GroupData groupData = new GroupData();
                 groupData.productId = formerProd.Product__c;
+                groupData.productName = formerProd.Product__r.Name;
+                groupData.productCode = formerProd.Product__r.ExternalId__c;
                 groupData.quantity = formerProd.MinQuantity__c;
                 comboPromotionData.groupQuantities.add(groupData);
             }
@@ -3113,6 +3141,7 @@ public without sharing class OrderScreenController {
         public String  comboId;
         public String  comboType;
         public String  recTypeDevName;
+        public String  comboCondition;
         public String  paymentConditionId;
         public Decimal comboAvailableQuantity;
         public Decimal comboDiscountPercentage;
@@ -3134,6 +3163,8 @@ public without sharing class OrderScreenController {
 
     public class GroupData {
         public String  productId;
+        public String  productName;
+        public String  productCode;
         public String  productGroupId;
         public Decimal quantity;
     }
