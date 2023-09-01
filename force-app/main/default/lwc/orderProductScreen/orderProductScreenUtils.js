@@ -1,3 +1,5 @@
+
+import fetchOrderRecords from '@salesforce/apex/CustomLookupController.fetchProductsRecords';
 const totalCombosLogic = (t, combosAndPromotions, index, currentCombo) => {
     let productCombo = combosAndPromotions[index].groupQuantities.find(e => e.productId == currentCombo.prodId);
 
@@ -60,4 +62,31 @@ const loadComboProducts = (t, currentCombo) => {
     }
 }
 
-export {totalCombosLogic, isTotal, loadComboMix, logicApplyCombo, loadComboProducts}
+const updateCommodities = (t) => {
+    fetchOrderRecords(
+        {searchString: '', 
+        data: JSON.stringify(t.productParams), 
+        isCommodity: true, 
+        productsIds: t.commoditiesData.map((e) => {return e.productId}), 
+        priceScreen: false, 
+        getSeedPrices: t.showRoyaltyTsi, 
+        isLimit: true})
+    .then(result => {
+        t.productsPriceMap = result.recordsDataMap;
+        t.salesInfos = result.salesResult;
+        let priorityInfos = t.getProductByPriority({Id: t.commoditiesData[0].productId}).priorityPrice;
+        
+        if(t.isFilled(priorityInfos)){
+            if(t.commoditiesData[0].cotation != priorityInfos.listPrice){
+                let oldPrice = t.commoditiesData[0].cotation
+                let newPrice = priorityInfos.listPrice
+                t.commoditiesData[0].cotation = t.isFilled(priorityInfos.listPrice) ? t.fixDecimalPlaces(priorityInfos.listPrice) : 0;
+                t.commoditiesData[0].commodityPrice = t.isFilled(priorityInfos.listPrice) ? t.fixDecimalPlaces(priorityInfos.listPrice) : 0;
+                let priceChangeMessage = 'O preço de lista da Commodity foi alterado de ' + oldPrice + ' para ' + newPrice + '.\n';
+                t.showToast('warning', 'Alteração nos preços!', priceChangeMessage);
+            }
+        }                  
+    })
+}
+
+export {totalCombosLogic, isTotal, loadComboMix, logicApplyCombo, loadComboProducts, updateCommodities}

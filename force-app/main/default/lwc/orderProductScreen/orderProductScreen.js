@@ -9,7 +9,7 @@ import getAccountCompanies from '@salesforce/apex/OrderScreenController.getAccou
 import getMixAndConditionCombos from '@salesforce/apex/OrderScreenController.getMixAndConditionCombos';
 import getTaxes from '@salesforce/apex/OrderScreenController.getTaxes';
 import fetchOrderRecords from '@salesforce/apex/CustomLookupController.fetchProductsRecords';
-import {totalCombosLogic, loadComboMix, logicApplyCombo, loadComboProducts} from './orderProductScreenUtils';
+import {totalCombosLogic, loadComboMix, logicApplyCombo, loadComboProducts, updateCommodities} from './orderProductScreenUtils';
 
 let actions = [];
 let commodityActions = [{label: 'Excluir', name: 'delete'}];
@@ -678,7 +678,10 @@ export default class OrderProductScreen extends LightningElement {
                     this.showToast('warning', 'Alteração nos preços!', priceChangeMessage);
                 }
                 if (showQuantityChange) this.showToast('warning', 'Alteração nas quantidades!', 'As quantidades foram recalculados devido a alteração no hectar. Verifique-os.');
-                if (this.headerData.tipo_venda == 'Venda Barter') this.recalculateCommodities();
+                if (this.headerData.tipo_venda == 'Venda Barter') {
+                    updateCommodities(this);
+                    this.recalculateCommodities();
+                }
                 this.showLoading = false;
                 this._setData();
             } else {
