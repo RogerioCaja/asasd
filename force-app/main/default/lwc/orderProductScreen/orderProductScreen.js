@@ -680,7 +680,6 @@ export default class OrderProductScreen extends LightningElement {
                 if (showQuantityChange) this.showToast('warning', 'Alteração nas quantidades!', 'As quantidades foram recalculados devido a alteração no hectar. Verifique-os.');
                 if (this.headerData.tipo_venda == 'Venda Barter') {
                     updateCommodities(this);
-                    this.recalculateCommodities();
                 }
                 this.showLoading = false;
                 this._setData();
@@ -2020,37 +2019,39 @@ export default class OrderProductScreen extends LightningElement {
     }
 
     recalculateCommodities() {
-        if (this.isFilled(this.commoditiesData) && this.commoditiesData.length > 0 && !this.headerData.IsOrderChild) {
+        let t = this
+        if (t.isFilled(t.commoditiesData) && t.commoditiesData.length > 0 && !t.headerData.IsOrderChild) {
             let totalProducts = 0;
             let orderTotalCost = 0;
             let productsQuantity = 0;
             let totalDiscount = 0;
-            for (let index = 0; index < this.products.length; index++) {
-                totalProducts += Number(this.products[index].totalPrice);
-                orderTotalCost += Number(this.products[index].listCost) * Number(this.products[index].quantity);
-                productsQuantity += Number(this.products[index].quantity);
-                totalDiscount += Number(this.products[index].commercialDiscountValue);
+            for (let index = 0; index < t.products.length; index++) {
+                totalProducts += Number(t.products[index].totalPrice);
+                orderTotalCost += Number(t.products[index].listCost) * Number(t.products[index].quantity);
+                productsQuantity += Number(t.products[index].quantity);
+                totalDiscount += Number(t.products[index].commercialDiscountValue);
             }
             let marginPercent = ((1 - (orderTotalCost / totalProducts)) * 100);
 
-            let currentCommodityValues = this.parseObject(this.commoditiesData[0]);
-            let commodityPrice = currentCommodityValues.cotation - this.calculateTaxes(currentCommodityValues.cotation, currentCommodityValues.productId);
-
-            currentCommodityValues.area = this.headerData.hectares;
+            let currentCommodityValues = t.parseObject(t.commoditiesData[0]);
+            let commodityPrice = currentCommodityValues.cotation - t.calculateTaxes(currentCommodityValues.cotation, currentCommodityValues.productId);
+            
+            currentCommodityValues.area = t.headerData.hectares;
             currentCommodityValues.quantity = productsQuantity;
-            currentCommodityValues.discount = this.fixDecimalPlaces(totalDiscount / Number(commodityPrice)) + ' sacas';
-            currentCommodityValues.discountFront = this.fixDecimalPlacesFront(totalDiscount / Number(commodityPrice)) + ' sacas';
-            currentCommodityValues.margin = this.fixDecimalPlaces(marginPercent) + '%';
-            currentCommodityValues.marginFront = this.fixDecimalPlacesFront(marginPercent) + '%';
-            currentCommodityValues.marginValue = this.fixDecimalPlaces(((totalProducts * marginPercent) / 100) / Number(commodityPrice)) + ' sacas';
-            currentCommodityValues.marginValueFront = this.fixDecimalPlacesFront(((totalProducts * marginPercent) / 100) / Number(commodityPrice)) + ' sacas';
+            currentCommodityValues.discount = t.fixDecimalPlaces(totalDiscount / Number(commodityPrice)) + ' sacas';
+            currentCommodityValues.discountFront = t.fixDecimalPlacesFront(totalDiscount / Number(commodityPrice)) + ' sacas';
+            currentCommodityValues.margin = t.fixDecimalPlaces(marginPercent) + '%';
+            currentCommodityValues.marginFront = t.fixDecimalPlacesFront(marginPercent) + '%';
+            currentCommodityValues.marginValue = t.fixDecimalPlaces(((totalProducts * marginPercent) / 100) / Number(commodityPrice)) + ' sacas';
+            currentCommodityValues.marginValueFront = t.fixDecimalPlacesFront(((totalProducts * marginPercent) / 100) / Number(commodityPrice)) + ' sacas';
             currentCommodityValues.totalDelivery = Math.ceil((totalProducts / commodityPrice)) + ' sacas';
             currentCommodityValues.totalDeliveryFront = Math.ceil((totalProducts / commodityPrice)) + ' sacas';
-            this.commoditiesData = [];
-            this.commoditiesData.push(currentCommodityValues);
-            this._setCommodityData();
-            this._setTaxData();
-            this.showToast('warning', 'Atenção!', 'Os valores da commodity foram alterados de acordo com a alteração/inclusão de um produto.');
+            
+            t.commoditiesData = [];
+            t.commoditiesData.push(currentCommodityValues);
+            t._setCommodityData();
+            t._setTaxData();
+            t.showToast('warning', 'Atenção!', 'Os valores da commodity foram alterados de acordo com a alteração/inclusão de um produto.');
         }
     }
 

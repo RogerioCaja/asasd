@@ -75,17 +75,20 @@ const updateCommodities = (t) => {
         t.productsPriceMap = result.recordsDataMap;
         t.salesInfos = result.salesResult;
         let priorityInfos = t.getProductByPriority({Id: t.commoditiesData[0].productId}).priorityPrice;
-        
+        let currentCommodity = t.parseObject(t.commoditiesData[0])
         if(t.isFilled(priorityInfos)){
-            if(t.commoditiesData[0].cotation != priorityInfos.listPrice){
-                let oldPrice = t.commoditiesData[0].cotation
+            if(currentCommodity.cotation != priorityInfos.listPrice){
+                let oldPrice = currentCommodity.cotation
                 let newPrice = priorityInfos.listPrice
-                t.commoditiesData[0].cotation = t.isFilled(priorityInfos.listPrice) ? t.fixDecimalPlaces(priorityInfos.listPrice) : 0;
-                t.commoditiesData[0].commodityPrice = t.isFilled(priorityInfos.listPrice) ? t.fixDecimalPlaces(priorityInfos.listPrice) : 0;
+                currentCommodity.cotation = t.isFilled(priorityInfos.listPrice) ? t.fixDecimalPlaces(priorityInfos.listPrice) : 0;
+                currentCommodity.commodityPrice = t.isFilled(priorityInfos.listPrice) ? t.fixDecimalPlaces(priorityInfos.listPrice) : 0;
                 let priceChangeMessage = 'O preço de lista da Commodity foi alterado de ' + oldPrice + ' para ' + newPrice + '.\n';
                 t.showToast('warning', 'Alteração nos preços!', priceChangeMessage);
+                t.commoditiesData = [];
+                t.commoditiesData.push(currentCommodity);
             }
-        }                  
+        }  
+        t.recalculateCommodities();               
     })
 }
 
