@@ -51,6 +51,7 @@ export default class OrderHeaderScreen extends LightningElement {
     fieldKey = true;
     paymentDisabled = false;
     blockPaymentForm = false;
+    needSupplierDeliveredAccount=false;
     barterSale = false;
     seedSale = false;
     safraName = null;
@@ -99,6 +100,8 @@ export default class OrderHeaderScreen extends LightningElement {
         isCompleted : false,
         companyId: null,
         companySector: null,
+        companyFromDeliveredAccount: null,
+        supplierCenterDeliveredAccount: null,
         hectares: '',
         freightPerUnit: null,
         motherTotalQuantity: null,
@@ -392,6 +395,7 @@ export default class OrderHeaderScreen extends LightningElement {
         })
         .catch((err)=>{
         });
+        this.needSupplierDeliveredAccount = (this.headerData.IsOrderChild || (!this.headerData.IsOrderChild && this.headerData.tipo_pedido != 'Pedido Mãe' && !this.headerData.pedido_mae_check))
     }
 
     @api sequentialDict ={
@@ -607,16 +611,19 @@ export default class OrderHeaderScreen extends LightningElement {
                     if(field == 'ctv_venda'){
                         let getCompanyData = {
                             ctvId: this.headerDictLocale.ctv_venda.Id != null ? this.headerDictLocale.ctv_venda.Id : '',
-                            accountId: this.accountData.Id != null ? this.accountData.Id : '',
+                            accountId: this.needSupplierDeliveredAccount ? this.headerData.cliente_entrega.Id : (this.accountData.Id != null ? this.accountData.Id : ''),
                             orderType: this.headerData.tipo_venda,
                             approvalNumber: 1
                         }
                         console.log('this.childOrder: ' + this.childOrder);
                         getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: true, verifyUserType: false, priceScreen: false, childOrder: this.childOrder})
                         .then((result) => {
-                           this.salesOrgId = result;
-                           this.headerDictLocale.organizacao_vendas = {Id: result};
-                           isSeedSale({salesOrgId: result, productGroupName: null})
+                            let data = JSON.parse(result).companyInfoHeader;
+                           this.salesOrgId = data.salesOrgId;
+                           this.headerDictLocale.organizacao_vendas = {Id: data.salesOrgId};
+                           this.headerDictLocale.companyFromDeliveredAccount = {Id: data.companyId};
+                           this.headerDictLocale.supplierCenterDeliveredAccount = data.supplierCenter;
+                           isSeedSale({salesOrgId: data.salesOrgId, productGroupName: null})
                            .then((result1) => {
                                 this.seedSale = result1;
                                 if(this.seedSale == true){
@@ -637,7 +644,7 @@ export default class OrderHeaderScreen extends LightningElement {
         catch(err){
             console.log(err);
         }
-        
+        this.needSupplierDeliveredAccount = (this.headerData.IsOrderChild || (!this.headerData.IsOrderChild && this.headerData.tipo_pedido != 'Pedido Mãe' && !this.headerDictLocale.pedido_mae_check))
         this._verifyFieldsToSave();
     }
 
