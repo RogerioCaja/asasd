@@ -2691,7 +2691,7 @@ public without sharing class OrderScreenController {
         public String  billing_sale_observation;
         public String  orderMargin;
         public String  companyId;
-        public String  companyFromDeliveredAccount;
+        public InformationFields  companyFromDeliveredAccount;
         public String  supplierCenterDeliveredAccount;
         public String  recTypeId;
         public String  hectares;
@@ -2762,7 +2762,7 @@ public without sharing class OrderScreenController {
             this.freightValue = order.FreightValue__c;
             this.orderMargin = String.valueOf(order.OrderMargin__c) + '%';
             this.companyId = order.Company__c;
-            this.companyFromDeliveredAccount = order.CompanyReceiver__c;
+            this.companyFromDeliveredAccount = new InformationFields(order.CompanyReceiver__c, '');
             this.supplierCenterDeliveredAccount = order.CompanyReceiver__r.SupplierCenter__c;
             this.recTypeId = order.RecordTypeId;
         }
