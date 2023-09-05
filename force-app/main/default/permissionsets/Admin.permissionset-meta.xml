@@ -1648,6 +1648,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>false</editable>
+        <field>Order.ApprovalJustification__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>true</editable>
         <field>Order.ApprovalRegionalManager__c</field>
         <readable>true</readable>
@@ -1695,6 +1700,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Order.CompanyAuthorizedDate</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Order.CompanyReceiver__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -1771,6 +1781,11 @@
         <editable>true</editable>
         <field>Order.DistributionChannel__c</field>
         <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Order.EffectiveOrderDate__c</field>
+        <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
