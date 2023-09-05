@@ -1361,6 +1361,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Order.CompanyReceiver__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Order.Company__c</field>
         <readable>true</readable>
     </fieldPermissions>
