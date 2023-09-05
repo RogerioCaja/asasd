@@ -272,7 +272,7 @@ export default class OrderSummaryScreen extends LightningElement {
 
             getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: true, verifyUserType: false})
             .then((result) => {
-               this.salesOrgId = result;
+               this.salesOrgId = JSON.parse(result).companyInfoHeader.salesOrgId;
                if(this.headerData.frete == 'CIF'){
                     checkSalesOrgFreight({salesOrgId: this.salesOrgId})
                     .then((result) => {
