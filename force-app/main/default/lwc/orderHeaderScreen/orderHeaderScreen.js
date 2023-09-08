@@ -90,7 +90,7 @@ export default class OrderHeaderScreen extends LightningElement {
         tipo_pedido: " ",
         moeda: " ",
         ctv_venda: " ",
-        pedido_mae: {},
+        pedido_mae: null,
         pedido_mae_check : true,
         pre_pedido : false,
         frete: "CIF",
@@ -395,7 +395,7 @@ export default class OrderHeaderScreen extends LightningElement {
         })
         .catch((err)=>{
         });
-        this.needSupplierDeliveredAccount = (this.headerData.IsOrderChild || (!this.headerData.IsOrderChild && this.headerData.tipo_pedido != 'Pedido Mãe' && !this.headerData.pedido_mae_check))
+        this.needSupplierDeliveredAccount = (this.headerDictLocale.IsOrderChild || (Object.keys(this.headerDictLocale.pedido_mae).length == 0 && !this.headerDictLocale.pedido_mae_check))
     }
 
     @api sequentialDict ={
@@ -642,7 +642,7 @@ export default class OrderHeaderScreen extends LightningElement {
         catch(err){
             console.log(err);
         }
-        this.needSupplierDeliveredAccount = (this.headerData.IsOrderChild || (!this.headerData.IsOrderChild && this.headerData.tipo_pedido != 'Pedido Mãe' && !this.headerDictLocale.pedido_mae_check))
+        this.needSupplierDeliveredAccount = (this.headerDictLocale.IsOrderChild || (Object.keys(this.headerDictLocale.pedido_mae).length == 0 && !this.headerDictLocale.pedido_mae_check))
         this._verifyFieldsToSave();
     }
 
