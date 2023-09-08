@@ -1748,7 +1748,7 @@ public without sharing class OrderScreenController {
         Q proQuery = new Q(Company__c.SObjectType);
         proQuery.selectFields(fieldSet);
         if (companyInfos.accountId != '') proQuery.add(Q.condition('Conta__c').equalsTo(companyInfos.accountId));
-        if (childOrder == null || !childOrder) proQuery.add(Q.condition('Status__c').equalsTo('Adicionada'));
+        proQuery.add(Q.condition('Status__c').equalsTo('Adicionada'));
         List<CompanyInfos> companyList = new List<CompanyInfos>();
         if (salesTeamTerritories != null && salesTeamTerritories.size() > 0) {
             List<String> salesTeamsDevNames = new List<String>();
