@@ -23,43 +23,58 @@ public with sharing class OrderPageController {
         if(this.orderToPage.currencyOrder == 'Barter'){
             commodity = getCommodityByOrderId(orderId)[0];
         }
-
-        if(!this.orderToPage.isNormalSales){
-            List<FormPayment__c> paymentFormList = getFormPaymentByOrderId(orderId);
-            for(FormPayment__c form : paymentFormList){
-                this.orderToPage.paymentFormList.add(new PaymentFormDAO(form,  this.orderToPage.currencyOrder));
-            }
-        }
-        
         Map<Id, List<DivisonDAO>> divisonMap = getDivisonByList(orderItemList);
 
+        // if(!this.orderToPage.isNormalSales){
+        //     List<FormPayment__c> paymentFormList = getFormPaymentByOrderId(orderId);
+        //     for(FormPayment__c form : paymentFormList){
+        //         this.orderToPage.paymentFormList.add(new PaymentFormDAO(form,  this.orderToPage.currencyOrder));
+        //     }
+        // }
+        
+
+        Decimal numberOfProducts = 0;
         for(OrderItem orderItem : orderItemList){
-            this.orderToPage.orderItemList.add(new OrderItemDAO(orderItem, this.orderToPage.culture, this.orderToPage.currencyOrder, divisonMap.get(orderItem.Id), commodity));
+            numberOfProducts += orderItem.Quantity;
+        
+        }
+        Decimal freightValue = replaceAllCurrencies(this.orderToPage.freightValue);
+        Decimal freightPerUnit = 0;
+        if(!this.orderToPage.isNormalSales){
+            freightPerUnit = freightValue / numberOfProducts;
+        }
+
+        for(OrderItem orderItem : orderItemList){
+            numberOfProducts += orderItem.Quantity;
+            this.orderToPage.orderItemList.add(new OrderItemDAO(orderItem, this.orderToPage.culture, this.orderToPage.currencyOrder, divisonMap.get(orderItem.Id), commodity, freightPerUnit));
         }
         
         
-        List<String> args = new String[]{'0','number','###,###,##0.00'};
-
+        
         Decimal totalValue = 0;
 
         if(this.orderToPage.currencyOrder != 'Barter'){
-            for(OrderItemDAO orderItem : this.orderToPage.orderItemList){
-                totalValue += Decimal.valueOf(orderItem.totalAmount.replace(' sacas', '').replace('R$', '').replace('USD', '').replace(',00', '').replace('.', '').replace(',', '.').trim()); 
+            for(Integer i = 0; i < this.orderToPage.orderItemList.size(); i++){
+                totalValue += replaceAllCurrencies(this.orderToPage.orderItemList[i].totalAmount);    
             }
         }else{
             totalValue = commodity.BagQuantity__c.setScale(2);
         }
         
-        if(!this.orderToPage.isNormalSales){
-			totalValue += Decimal.valueOf(this.orderToPage.freightValue.replace('R$', '').replace('USD', '').replace(',00', '').replace('.', '').replace(',', '.').trim());
-        }
+        List<String> args = new String[]{'0','number','###,###,##0.00'};
+
         this.orderToPage.totalAmount = this.orderToPage.currencyOrder == 'Barter' ? String.valueOf(totalValue).replace('.', ',') + ' sacas' : ('R$ ' + String.format(totalValue.format(), args)).contains(',') == true ?  'R$ ' + String.format(totalValue.format(), args): 'R$ ' + String.format(totalValue.format(), args) + ',00';
         
-        String downloadingFileName = 'Pedido de Venda-' + this.orderToPage.codeSap + '.pdf';
+        String downloadingFileName = 'Pedido de Venda - ' + this.orderToPage.codeSap + '.pdf';
         Apexpages.currentPage().getHeaders().put( 'content-disposition', 'inline; filename=' + downloadingFileName );
        
         return this.orderToPage;
 
+    }
+
+    private static Decimal replaceAllCurrencies(Object obj){
+        if(obj instanceof String) return Decimal.valueOf(((String)obj).replace(' sacas', '').replace('R$', '').replace('USD', '').replace(',00', '').replace('.', '').replace(',', '.').trim()); 
+        return (Decimal)obj;
     }
 
     public static Order getOrderById(Id orderId){
@@ -293,14 +308,14 @@ public with sharing class OrderPageController {
         public String totalAmount           {get; set;}
         public List<DivisonDAO> divisonList {get; set;}
 
-        public OrderItemDAO(OrderItem orderItem, String culture, String currencyCode, List<DivisonDAO> divisonList, OrderCommodity__c commodity){
+        public OrderItemDAO(OrderItem orderItem, String culture, String currencyCode, List<DivisonDAO> divisonList, OrderCommodity__c commodity, Decimal freightPerUnit){
             this.productCode = orderItem.Product2.ProductCode.replaceFirst('^0+','');
             this.brokerage = orderItem.Brokerage__c != null ? (orderItem.Brokerage__c / orderItem.Quantity) : 0;
             this.description = orderItem.Product2.Name;
             this.unitOfMeasure = orderItem.Product2.GrossWeightUnitOfMeasure__c;
-            this.unitPrice = commodity != null ? formatCurrency(orderItem.UnitPricePerBag__c, currencyCode) + ' por saca': formatCurrency((orderItem.PracticedPrice__c + (this.brokerage != null ? this.brokerage : 0) + (orderItem.TotalTSIAmount__c != null ? (orderItem.TotalTSIAmount__c / orderItem.Quantity) : 0) + (orderItem.TotalRoyaltyAmount__c != null ? (orderItem.TotalRoyaltyAmount__c / orderItem.Quantity) : 0 )), currencyCode);
+            this.unitPrice = commodity != null ? formatCurrency(orderItem.UnitPricePerBag__c, currencyCode) + ' por saca': formatCurrency((orderItem.PracticedPrice__c + (this.brokerage != null ? this.brokerage : 0) + (orderItem.TotalTSIAmount__c != null ? (orderItem.TotalTSIAmount__c / orderItem.Quantity) : 0) + (orderItem.TotalRoyaltyAmount__c != null ? (orderItem.TotalRoyaltyAmount__c / orderItem.Quantity) : 0 ) + freightPerUnit), currencyCode);
             this.quantity =  String.valueOf(orderItem.Quantity);
-            this.totalAmount = commodity != null ? formatCurrency((orderItem.UnitPricePerBag__c * orderItem.Quantity).round(System.RoundingMode.UP), currencyCode) + ' sacas' : formatCurrency( ((orderItem.PracticedPrice__c + (this.brokerage != null ? this.brokerage : 0))* Decimal.valueOf(this.quantity)) + (orderItem.TotalTSIAmount__c != null ? orderItem.TotalTSIAmount__c : 0) + (orderItem.TotalRoyaltyAmount__c != null ? orderItem.TotalRoyaltyAmount__c : 0), currencyCode) ;
+            this.totalAmount = commodity != null ? formatCurrency((orderItem.UnitPricePerBag__c * orderItem.Quantity).round(System.RoundingMode.UP), currencyCode) + ' sacas' : formatCurrency( ((orderItem.PracticedPrice__c + (this.brokerage != null ? this.brokerage : 0))* Decimal.valueOf(this.quantity)) + (orderItem.TotalTSIAmount__c != null ? orderItem.TotalTSIAmount__c : 0) + (orderItem.TotalRoyaltyAmount__c != null ? orderItem.TotalRoyaltyAmount__c : 0) + (freightPerUnit * orderItem.Quantity), currencyCode) ;
             this.culture = culture;
             this.divisonList = divisonList;
         }
