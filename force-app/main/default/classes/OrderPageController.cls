@@ -72,26 +72,9 @@ public with sharing class OrderPageController {
 
     }
 
-    private static Decimal replaceAllCurrencies(Object obj)
-    {
+    private static Decimal replaceAllCurrencies(Object obj){
         if(obj instanceof String) return Decimal.valueOf(((String)obj).replace(' sacas', '').replace('R$', '').replace('USD', '').replace(',00', '').replace('.', '').replace(',', '.').trim()); 
         return (Decimal)obj;
-    }
-
-    public static String formatCurrency(Decimal value, String currencyCode){
-        List<String> args = new String[]{'0','number','###,###,##0.00'};
-        String valueToFormat = String.valueOf((value).setScale(2));
-        if(currencyCode == 'BRL'){
-            valueToFormat = valueToFormat.replace('.', ',');
-            valueToFormat = ('R$ ' + String.format(value.format(), args)).contains(',') == true ? 'R$ ' + String.format(value.setScale(2).format(), args): 'R$ ' + String.format(value.format(), args) + ',00';
-        }
-        else if(currencyCode == 'USD'){
-            valueToFormat = '$ ' + valueToFormat;
-        }else{
-            valueToFormat = valueToFormat.replace('.', ','); 
-        }
-
-        return valueToFormat;
     }
 
     public static Order getOrderById(Id orderId){
