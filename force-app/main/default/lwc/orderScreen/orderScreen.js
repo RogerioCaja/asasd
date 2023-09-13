@@ -520,7 +520,7 @@ export default class OrderScreen extends NavigationMixin(LightningElement) {
         let yyyy = today.getFullYear();
         let currentDate = yyyy + '-' + mm + '-' + dd;
 
-        if (this.headerData.status_pedido.toLowerCase() == 'em aprovação - gerente filial' || this.headerData.status_pedido.toLowerCase() == 'em aprovação - gerente regional' ||
+        if (this.headerData.status_pedido.toLowerCase() == 'em aprovação - gerente filial' || this.headerData.status_pedido.toLowerCase() == 'em aprovação - gerente regional' || this.headerData.status_pedido.toLowerCase() == 'em aprovação - diretor torre' ||
             this.headerData.status_pedido.toLowerCase() == 'em aprovação - diretor' || this.headerData.status_pedido.toLowerCase() == 'em aprovação - comitê margem' || this.headerData.status_pedido.toLowerCase() == 'em aprovação - mesa de grãos') {
             this.showNotification('O pedido está Em Aprovação, portanto não pode ser alterado', 'Atenção', 'warning');
             this.isLoading = false;

@@ -298,7 +298,7 @@ export default class OrderSummaryScreen extends LightningElement {
                }
             });
            
-            if (this.headerData.status_pedido == 'Em aprovação - Gerente Filial' || this.headerData.status_pedido == 'Em aprovação - Gerente Regional' ||
+            if (this.headerData.status_pedido == 'Em aprovação - Gerente Filial' || this.headerData.status_pedido == 'Em aprovação - Gerente Regional' || this.headerData.status_pedido == 'Em Aprovação - Diretor Torre' ||
                 this.headerData.status_pedido == 'Em aprovação - Diretor' || this.headerData.status_pedido == 'Em aprovação - Comitê Margem' || this.headerData.status_pedido == 'Em aprovação - Mesa de Grãos') {
                 this.disabled = true;
             }

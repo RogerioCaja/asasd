@@ -222,6 +222,11 @@ export default class OrderHeaderScreen extends LightningElement {
             description: 'Em Aprovação - Diretor',
         },
         {
+            value: 'Em Aprovação - Diretor Torre',
+            label: 'Em Aprovação - Diretor Torre',
+            description: 'Em Aprovação - Diretor Torre',
+        },
+        {
             value: 'Em Aprovação - Mesa de Grãos',
             label: 'Em Aprovação - Mesa de Grãos',
             description: 'Em Aprovação - Mesa de Grãos',
@@ -502,7 +507,7 @@ export default class OrderHeaderScreen extends LightningElement {
                 }
 
                 this.barterSale = this.headerDictLocale.tipo_venda == 'Venda Barter' ? true : false;
-                if (this.headerData.status_pedido.toLowerCase() == 'em aprovação - gerente filial' || this.headerData.status_pedido.toLowerCase() == 'em aprovação - gerente regional' ||
+                if (this.headerData.status_pedido.toLowerCase() == 'em aprovação - gerente filial' || this.headerData.status_pedido.toLowerCase() == 'em aprovação - gerente regional' || this.headerData.status_pedido.toLowerCase() == 'em aprovação - diretor torre' ||
                 this.headerData.status_pedido.toLowerCase() == 'em aprovação - diretor' || this.headerData.status_pedido.toLowerCase() == 'em aprovação - comitê margem' || this.headerData.status_pedido.toLowerCase() == 'em aprovação - mesa de grãos') {
                     this.disabled = true;
                     this.paymentDisabled = true;
