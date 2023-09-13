@@ -187,7 +187,7 @@
             </td>
         </tr>
 
-        <apex:outputText rendered="{!orderToPage.isNormalSales == false}">
+        <!-- <apex:outputText rendered="{!orderToPage.isNormalSales == false}">
             <tr>
                 <td colspan="2" class="padd-b">
                     <table class="tb-item-ped" cellSpacing="0">
@@ -212,7 +212,7 @@
                     </table>
                 </td>
             </tr>
-        </apex:outputText>
+        </apex:outputText> -->
 
         <tr>
             
