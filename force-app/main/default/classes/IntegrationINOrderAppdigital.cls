@@ -721,8 +721,8 @@ global without sharing class IntegrationINOrderAppdigital {
             orderDiscount.Gerente_Regional__c = false;
             orderDiscount.ApprovalDirector__c = null;
             orderDiscount.Director__c = false;
-            order.ApprovalTowerDirector__c = null;
-            order.TowerDirector__c = false;
+            orderDiscount.ApprovalTowerDirector__c = null;
+            orderDiscount.TowerDirector__c = false;
 
             if (approvalNumber >= 1) {
                 orderDiscount.ApprovalBranchManager__c = approvalsByTerritory.get(approvalByCounter.get(0));
@@ -737,8 +737,8 @@ global without sharing class IntegrationINOrderAppdigital {
                 orderDiscount.Director__c = true;
             }
             if (approvalNumber >= 4){
-                order.ApprovalTowerDirector__c = approvalsByTerritory.get(approvalByCounter.get(3));
-                order.TowerDirector__c = true;
+                orderDiscount.ApprovalTowerDirector__c = approvalsByTerritory.get(approvalByCounter.get(3));
+                orderDiscount.TowerDirector__c = true;
             }  
         }
         orderDiscount.Description += '1n73gr4ção N3sc4r4 5F x 4PP';
