@@ -31,6 +31,11 @@
                 <label>Em Aprovação - Diretor</label>
             </value>
             <value>
+                <fullName>Em Aprovação - Diretor Torre</fullName>
+                <default>false</default>
+                <label>Em Aprovação - Diretor Torre</label>
+            </value>
+            <value>
                 <fullName>Em Aprovação - Comitê Margem</fullName>
                 <default>false</default>
                 <label>Em Aprovação - Comitê Margem</label>
