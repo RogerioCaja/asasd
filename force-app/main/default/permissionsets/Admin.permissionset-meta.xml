@@ -1648,8 +1648,18 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>false</editable>
+        <field>Order.ApprovalJustification__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>true</editable>
         <field>Order.ApprovalRegionalManager__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Order.ApprovalTowerDirector__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -1776,6 +1786,11 @@
         <editable>true</editable>
         <field>Order.DistributionChannel__c</field>
         <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Order.EffectiveOrderDate__c</field>
+        <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
@@ -2015,6 +2030,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Order.TotalTSIAmount__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Order.TowerDirector__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

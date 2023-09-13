@@ -24,7 +24,12 @@
             <value>
                 <fullName>Diretor</fullName>
                 <default>false</default>
-                <label>Diretor</label>
+                <label>Diretor BU</label>
+            </value>
+            <value>
+                <fullName>Diretor Torre</fullName>
+                <default>false</default>
+                <label>Diretor Torre</label>
             </value>
             <value>
                 <fullName>ComiteMargem</fullName>
