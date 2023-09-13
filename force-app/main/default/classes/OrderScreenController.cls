@@ -801,7 +801,8 @@ public without sharing class OrderScreenController {
                 Map<String, Integer> approvalLevels = new Map<String, Integer>{
                     'GerenteFilial' => 1,
                     'GerenteRegional' => 2,
-                    'Diretor' => 3
+                    'Diretor' => 3,
+                    'Diretor Torre' => 4
                 };
 
                 Map<Id, Discount__c> discountByGroups = new Map<Id, Discount__c>();
@@ -869,6 +870,8 @@ public without sharing class OrderScreenController {
                 order.Gerente_Regional__c = false;
                 order.ApprovalDirector__c = null;
                 order.Director__c = false;
+                order.ApprovalTowerDirector__c = null;
+                order.TowerDirector__c = false;
 
                 if (approvalNumber >= 1) {
                     order.ApprovalBranchManager__c = approvalsByTerritory.get(approvalByCounter.get(0));
@@ -881,6 +884,10 @@ public without sharing class OrderScreenController {
                 if (approvalNumber >= 3) {
                     order.ApprovalDirector__c = approvalsByTerritory.get(approvalByCounter.get(2));
                     order.Director__c = true;
+                }
+                if (approvalNumber >= 4){
+                    order.ApprovalTowerDirector__c = approvalsByTerritory.get(approvalByCounter.get(3));
+                    order.TowerDirector__c = true;
                 }
             }
 
@@ -1715,7 +1722,8 @@ public without sharing class OrderScreenController {
         Map<String, Integer> approvalLevels = new Map<String, Integer>{
             'GerenteFilial' => 1,
             'GerenteRegional' => 2,
-            'Diretor' => 3
+            'Diretor' => 3,
+            'Diretor Torre' => 4
         };
         Integer counter = 0;
         List<Territory2> salesTeamTerritories;
@@ -2213,7 +2221,8 @@ public without sharing class OrderScreenController {
             Map<String, Integer> approvalLevels = new Map<String, Integer>{
                 'GerenteFilial' => 1,
                 'GerenteRegional' => 2,
-                'Diretor' => 3
+                'Diretor' => 3,
+                'Diretor Torre' => 4
             };
 
             Map<Id, Discount__c> discountByGroups = new Map<Id, Discount__c>();
@@ -2252,8 +2261,11 @@ public without sharing class OrderScreenController {
                 approvalNumber = approvalNumber > discountNumber ? approvalNumber : discountNumber;
             }
 
+            if(approvalNumber == 4){
+                approval += 'Gerente Filial/Gerente Regional/Diretor BU/Diretor Torre';
+            }
             if(approvalNumber == 3){
-                approval += 'Gerente Filial/Gerente Regional/Diretor';
+                approval += 'Gerente Filial/Gerente Regional/Diretor BU';
             }
             if(approvalNumber == 2){
                 approval += 'Gerente Filial/Gerente Regional';

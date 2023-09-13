@@ -1617,8 +1617,18 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>false</editable>
+        <field>Order.ApprovalJustification__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>true</editable>
         <field>Order.ApprovalRegionalManager__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Order.ApprovalTowerDirector__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -1647,6 +1657,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>false</editable>
+        <field>Order.ClientGroup__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>true</editable>
         <field>Order.CodigoSap__c</field>
         <readable>true</readable>
@@ -1670,6 +1685,11 @@
         <editable>true</editable>
         <field>Order.Company__c</field>
         <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Order.ContagemItens__c</field>
+        <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
@@ -1738,6 +1758,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Order.EffectiveOrderDate__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Order.ErrorIntegrationSAP__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1767,6 +1792,11 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
+        <editable>false</editable>
+        <field>Order.Higher_Discount__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
         <editable>true</editable>
         <field>Order.Incoterms2__c</field>
         <readable>true</readable>
@@ -1775,6 +1805,11 @@
         <editable>true</editable>
         <field>Order.Incoterms__c</field>
         <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Order.IsDisableSendIntegration__c</field>
+        <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
@@ -1953,12 +1988,22 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Order.TotalDicountValue__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Order.TotalRoyaltiesAmount__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
         <field>Order.TotalTSIAmount__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Order.TowerDirector__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
