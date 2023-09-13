@@ -273,6 +273,10 @@
             <default>false</default>
         </values>
         <values>
+            <fullName>Em Aprovação - Diretor Torre</fullName>
+            <default>false</default>
+        </values>
+        <values>
             <fullName>Em Aprovação - Gerente Regional</fullName>
             <default>false</default>
         </values>

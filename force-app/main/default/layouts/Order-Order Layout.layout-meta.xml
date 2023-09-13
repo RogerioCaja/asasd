@@ -118,6 +118,14 @@
                 <behavior>Edit</behavior>
                 <field>OthersDescription__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>ApprovalTowerDirector__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>TowerDirector__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>

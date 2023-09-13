@@ -54,6 +54,16 @@
         <reevaluateOnChange>false</reevaluateOnChange>
     </fieldUpdates>
     <fieldUpdates>
+        <fullName>AprovacaoDiretorTorre</fullName>
+        <field>StatusSF__c</field>
+        <literalValue>Em Aprovação - Diretor Torre</literalValue>
+        <name>Aprovação - Diretor Torre</name>
+        <notifyAssignee>false</notifyAssignee>
+        <operation>Literal</operation>
+        <protected>false</protected>
+        <reevaluateOnChange>false</reevaluateOnChange>
+    </fieldUpdates>
+    <fieldUpdates>
         <fullName>AprovacaoGerenteRegional</fullName>
         <field>StatusSF__c</field>
         <literalValue>Em Aprovação - Gerente Regional</literalValue>
