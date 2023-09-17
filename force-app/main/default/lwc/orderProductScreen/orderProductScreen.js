@@ -166,7 +166,7 @@ export default class OrderProductScreen extends LightningElement {
             this._setData();
         }
 
-        let orderStatus = ['Em aprovação - Gerente Filial', 'Em aprovação - Gerente Regional', 'Em aprovação - Diretor', 'Em aprovação - Comitê Margem', 'Em aprovação - Mesa de Grãos'];
+        let orderStatus = ['Em aprovação - Gerente Filial', 'Em aprovação - Gerente Regional', 'Em aprovação - Diretor', 'Em aprovação - Comitê Margem', 'Em aprovação - Mesa de Grãos', 'Em Aprovação - Diretor Torre'];
         if (orderStatus.includes(this.headerData.status_pedido)) {
             this.disabled = true;
             this.disableSearch = true;

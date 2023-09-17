@@ -806,6 +806,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Discount__c.Approver__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>DistributionCenter__c.Code__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1291,6 +1296,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Order.ApprovalTowerDirector__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Order.Aprovador_ComiteMargem__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -1652,6 +1662,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Order.TotalTSIAmount__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Order.TowerDirector__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
