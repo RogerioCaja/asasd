@@ -41,6 +41,7 @@ global without sharing class IntegrationINOrderAppdigital {
             // Pega a relação da conta com o pedido
             //Getting account parameters to search
             accountLookups.add(order.PaymentAccount);
+            accountLookups.add(order.BPStorage);
             salesOrgLookups.add(order.SalesOrg);
             cropLookups.add(order.Crop);
             cultureLookups.add(order.Culture);
