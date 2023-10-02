@@ -256,6 +256,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String Type;
         public String ShippingAccount;
         public String PaymentAccount;
+        public String BPStorage;
         public Date PaymentDate;
         public String CustomerOrderNumber;
         public Date EffectiveDate;
@@ -386,6 +387,7 @@ global with sharing class TemplateDataIntegrationFields {
                 Pricebook2Id = lookups.containsKey('Pricebook2Id'+this.pricebook2Id) ? lookups.get('Pricebook2Id'+this.pricebook2Id) : null,
                 ShippingAccount__c = lookups.containsKey('Account'+this.shippingAccount) ? lookups.get('Account'+this.shippingAccount) : null,
                 AccountId = lookups.containsKey('Account'+ this.PaymentAccount) ? lookups.get('Account'+this.PaymentAccount) : null,
+                BPStorage__c = lookups.containsKey('Account'+ this.BPStorage) ? lookups.get('Account'+ this.BPStorage) : null,
                 Crop__c = lookups.containsKey('Safra__c'+this.crop) ? lookups.get('Safra__c'+this.crop) : null,
                 Culture__c = lookups.containsKey('Cultura__c'+this.culture) ? lookups.get('Cultura__c'+this.culture) : null,
                 SalesOrg__c = lookups.containsKey('SalesOrg__c'+this.salesOrg) ? lookups.get('SalesOrg__c'+this.salesOrg) : null,
