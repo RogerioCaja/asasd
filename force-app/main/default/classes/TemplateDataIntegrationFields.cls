@@ -484,6 +484,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String currencyOrder;
         public String pricebookEntryId; // Passar do Order para o OrderItem.
         public Decimal quantidadeUtilizada;
+        public Decimal quantidadeFaturada;
         public Decimal saldoItem;
         public OrderItem serialize(Map<String, Id> lookups){
 
@@ -527,6 +528,7 @@ global with sharing class TemplateDataIntegrationFields {
                 TotalRoyaltyAmount__c = this.valorTotalZroy,
                 TotalTSIAmount__c = this.valorTotalZtra,
                 AmountUsed__c = this.quantidadeUtilizada,
+                QuantityConsumed__c = this.quantidadeFaturada != null ? this.quantidadeFaturada : 0,
                 AgrogalaxyComboDiscount__c = this.valorZCBA,
                 IndustryComboDiscount__c = this.valorZCBI,
                 ItemBalance__c = this.saldoItem
