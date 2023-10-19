@@ -79,6 +79,7 @@ public class CallExcludePageControllerTest {
             UnitPrice = 10000,
             Quantity = 1,
             ExternalId__c = 'texto',
+            CurrencyIsoCode = 'BRL'
             PricebookEntryId = [SELECT Id FROM PricebookEntry WHERE Product2Id =: prod.Id LIMIT 1][0].Id
         );
         insert orderItem;
