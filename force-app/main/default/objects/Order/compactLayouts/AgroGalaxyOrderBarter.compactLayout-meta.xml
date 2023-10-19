@@ -7,5 +7,6 @@
     <fields>RecordTypeId</fields>
     <fields>Crop__c</fields>
     <fields>ClientGroup__c</fields>
+    <fields>ItemBalanceValue__c</fields>
     <label>AgroGalaxy - Order - Barter</label>
 </CompactLayout>
