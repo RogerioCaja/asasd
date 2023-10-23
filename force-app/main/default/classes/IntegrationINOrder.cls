@@ -79,6 +79,7 @@ global without sharing class IntegrationINOrder {
         Set<String> paymentConditionLookups = new Set<String>();
         Set<String> salesConditionLookups = new Set<String>(); 
         Set<String> activitySectorLookups = new Set<String>();
+        Set<String> companyLookups = new Set<String>();
         
         
         
@@ -206,7 +207,8 @@ global without sharing class IntegrationINOrder {
                     }
             }
 
-                //order.company = order.PaymentAccount + order.CentroFornecedor + order.salesOrg + order.activitySector + order.distributionChannel + order.EscritorioVendas + order.EquipeVendas;
+                order.company = order.PaymentAccount + order.CentroFornecedor + order.salesOrg + order.activitySector + order.distributionChannel + order.EscritorioVendas + order.EquipeVendas;
+                companyLookups.add(order.company);
                 conditionList.addAll(order.conditions);
                 
             
@@ -412,7 +414,11 @@ global without sharing class IntegrationINOrder {
         for (Pricebook2 pricebook2Id : [SELECT Id, ExternalId__c, Name FROM Pricebook2 WHERE Name IN : pricebook2IdLookups ]){
             lookups.put('Pricebook2Id' + pricebook2Id.Name, pricebook2Id.Id);
         }
-
+        
+        for (Company__c companyOrd: [SELECT Id, ExternalID__c FROM Company__c WHERE ExternalID__c IN : companyLookups]){
+            lookups.put('Company__c' + companyOrd.ExternalID__c, companyOrd.Id);
+            System.debug('Lookup Company ' + lookups);
+        }
         for (Order order : [SELECT Id, CodigoSap__c FROM Order WHERE CodigoSap__c IN : orderLookups]) {
             lookups.put('Order' + order.CodigoSap__c, order.Id);
         }
