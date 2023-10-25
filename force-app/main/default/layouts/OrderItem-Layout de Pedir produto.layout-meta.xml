@@ -104,7 +104,7 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>InvoicedQuantity__c</field>
+                <field>QuantityInvoiced__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
