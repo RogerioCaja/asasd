@@ -612,7 +612,7 @@ export default class OrderHeaderScreen extends LightningElement {
                     if (field == 'cliente_entrega') 
                     {
                         this.deliveryId = this.headerDictLocale.cliente_entrega.Id;
-                        if(this.headerDictLocale.IsOrderChild){
+                        if(this.headerDictLocale.IsOrderChild || (this.headerDictLocale.ctv_venda.Id != null)){
                             let getCompanyData = {
                                 ctvId: this.headerDictLocale.ctv_venda.Id != null ? this.headerDictLocale.ctv_venda.Id : '',
                                 accountId: this.needSupplierDeliveredAccount ? this.headerData.cliente_entrega.Id : (this.accountData.Id != null ? this.accountData.Id : ''),
