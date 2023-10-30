@@ -90,6 +90,8 @@ export default class OrderSummaryScreen extends LightningElement {
     @api taxData;
     @api bpData;
 
+    styleAndConfigsForPayment = {};
+
     connectedCallback(){
         if (this.formsOfPayment === undefined) {
             this.formsOfPayment = [];
@@ -182,7 +184,38 @@ export default class OrderSummaryScreen extends LightningElement {
             let safraResult = JSON.parse(result);
             this.safraData = {initialDate:safraResult.initialDate,endDate:safraResult.endDateBilling};
         });
+
+        this.configStylesForPayments();
     }
+
+    isSeedsAndInputs(){
+        try{
+            return (this.headerData.companySector.toUpperCase() == 'INSUMOS');
+        }catch(err){
+            console.log(err);
+            return false;
+        }
+        
+    }
+
+    configStylesForPayments(){
+        if(!this.isSeedsAndInputs()){
+            this.styleAndConfigsForPayment['label'] = 'Germoplasma';
+            this.styleAndConfigsForPayment['display'] = '';
+            this.styleAndConfigsForPayment['padding'] = 'padding-top: 70px;';
+            this.styleAndConfigsForPayment['width'] = '';
+            return 'Germoplasma';
+        }
+
+        this.styleAndConfigsForPayment['label'] = '';
+        this.styleAndConfigsForPayment['display'] = 'display: none';
+        this.styleAndConfigsForPayment['padding'] = 'padding-top: 20px;';
+        this.styleAndConfigsForPayment['width'] = 'width: 45% !important';
+        return '';
+    }
+
+    
+    
 
     getDistributionCenters() {
         this.showLoading = true;
@@ -670,7 +703,7 @@ export default class OrderSummaryScreen extends LightningElement {
         
         if(allFromsOfPayment.length < 10){
             allFromsOfPayment.push({
-                paymentType: '',
+                paymentType: this.isSeedsAndInputs() ? 'Germoplasma' : '',
                 paymentDay: null,
                 value: '',
                 paymentPosition: this.paymentLastPosition,

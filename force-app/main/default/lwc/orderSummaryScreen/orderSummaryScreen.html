@@ -383,21 +383,21 @@
 
                 <div class="quantities-div">
                     <div class="column">
-                        Total de Pagamento Germoplasma: <label class="quantities-bold">{orderTotalPriceFront}</label><br>
+                        Total de Pagamento {styleAndConfigsForPayment.label}:<label class="quantities-bold">{orderTotalPriceFront}</label><br>
                     </div>
                     <template if:true={showRed}>
                         <div class="column">
-                            Total a Distribuir Germoplasma: <label class="quantities-red">{orderTotalToDistribution}</label><br>
+                            Total a Distribuir {styleAndConfigsForPayment.label}:<label class="quantities-red">{orderTotalToDistribution}</label><br>
                         </div>
                     </template>
                     <template if:false={showRed}>
                         <div class="column">
-                            Total a Distribuir Germoplasma: <label class="quantities-bold">{orderTotalToDistribution}</label><br>
+                            Total a Distribuir {styleAndConfigsForPayment.label}:<label class="quantities-bold">{orderTotalToDistribution}</label><br>
                         </div>
                     </template>
                 </div>
 
-                <div if:true={seedSale} class="quantities-div">
+                <div if:true={seedSale} class="quantities-div" style={styleAndConfigsForPayment.display}>
                     <div class="column">
                         Total de Pagamento Royalties: <label class="quantities-bold">{royaltiesTotalPriceFront}</label><br>
                     </div>
@@ -413,7 +413,7 @@
                     </template>
                 </div>
 
-                <div if:true={seedSale} class="quantities-div">
+                <div if:true={seedSale} class="quantities-div" style={styleAndConfigsForPayment.display}>
                     <div class="column">
                         Total de Pagamento Tsi: <label class="quantities-bold">{tsiTotalPriceFront}</label><br>
                     </div>
@@ -428,10 +428,13 @@
                         </div>
                     </template>
                 </div>
+               
 
                 <template for:each={formsOfPayment} for:item="payments">
-                    <div class="slds-form-element__row" style="padding-top: 70px;" key={payments.paymentPosition}>
-                        <div class="slds-form-element payment-column">
+                    <div class="slds-form-element__row" style={styleAndConfigsForPayment.padding} key={payments.paymentPosition}>
+                        
+                        
+                        <div class="slds-form-element payment-column" style={styleAndConfigsForPayment.display} >
                             <lightning-combobox 
                                 data-target-id={payments.paymentTypeId}
                                 label="Tipo de Pagamento"
@@ -443,8 +446,9 @@
                                 disabled={blockPaymentFields}>
                             </lightning-combobox>
                         </div>
+                        
 
-                        <div class="slds-form-element payment-column">
+                        <div class="slds-form-element payment-column" style={styleAndConfigsForPayment.width}>
                             <lightning-input
                                 data-target-id={payments.paymentDayId}
                                 label="Data de Pagamento" 
@@ -460,7 +464,7 @@
                             </lightning-input>
                         </div>
 
-                        <div class="slds-form-element payment-column">
+                        <div class="slds-form-element payment-column" style={styleAndConfigsForPayment.width}>
                             <lightning-input 
                                 data-target-id={payments.valueId}
                                 label="Valor" 
