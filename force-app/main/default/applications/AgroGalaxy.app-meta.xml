@@ -12,14 +12,27 @@
     <isNavPersonalizationDisabled>false</isNavPersonalizationDisabled>
     <label>AgroGalaxy</label>
     <navType>Standard</navType>
-    <profileActionOverrides>
-        <actionName>Tab</actionName>
-        <content>Home_Page_Default</content>
-        <formFactor>Large</formFactor>
-        <pageOrSobjectType>standard-home</pageOrSobjectType>
-        <type>Flexipage</type>
-        <profile>Admin</profile>
-    </profileActionOverrides>
+    **/jsconfig.json
+    **/profiles
+    **/profileSessionSettings
+    **/profilePasswordPolicies
+    **/customindex
+    **/appMenus
+    force-app/main/default/appMenus
+    **/fieldRestrictionRule
+    **/Settings
+    **/ForecastingType
+    force-app/main/default/customindex
+    force-app/main/default/profiles
+    force-app/main/default/profileSessionSettings
+    force-app/main/default/profilePasswordPolicies
+    force-app/main/default/fieldRestrictionRule
+    force-app/main/default/Settings
+    force-app/main/default/ForecastingType
+    force-app/main/default/flexipages/Home_Page_Default.flexipage-meta.xml
+    **/.eslintrc.json
+    # LWC Jest
+    **/__tests__/**
     <profileActionOverrides>
         <actionName>View</actionName>
         <content>Relatorio_Tecnico</content>
