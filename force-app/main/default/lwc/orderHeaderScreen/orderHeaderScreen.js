@@ -575,6 +575,9 @@ export default class OrderHeaderScreen extends LightningElement {
                         this.headerDictLocale[field] = field != 'pedido_mae_check' ? event.detail.value : event.target.checked;
                     }
 
+                    if(field == 'pedido_mae_check'){
+                        this.getCompaniesInHeader();
+                    }
                     if(field == 'moeda'){
                         this.currencyOption = event.target.value;
                     }
@@ -614,34 +617,7 @@ export default class OrderHeaderScreen extends LightningElement {
                     if (field == 'cliente_entrega') 
                     {
                         this.deliveryId = this.headerDictLocale.cliente_entrega.Id;
-                        if(this.headerDictLocale.IsOrderChild || (this.headerDictLocale.ctv_venda.Id != null)){
-                            let getCompanyData = {
-                                ctvId: this.headerDictLocale.ctv_venda.Id != null ? this.headerDictLocale.ctv_venda.Id : '',
-                                accountId: this.needSupplierDeliveredAccount ? this.headerData.cliente_entrega.Id : (this.accountData.Id != null ? this.accountData.Id : ''),
-                                orderType: this.headerData.tipo_venda,
-                                approvalNumber: 1
-                            }
-                            console.log('this.childOrder: ' + this.childOrder);
-                            getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: true, verifyUserType: false, priceScreen: false, childOrder: this.childOrder})
-                            .then((result) => {
-                                let data = JSON.parse(result).companyInfoHeader;
-                            this.salesOrgId = data.salesOrgId;
-                            this.headerDictLocale.organizacao_vendas = {Id: data.salesOrgId};
-                            this.headerDictLocale.companyFromDeliveredAccount = {Id: data.companyId};
-                            this.headerDictLocale.supplierCenterDeliveredAccount = data.supplierCenter;
-                            isSeedSale({salesOrgId: data.salesOrgId, productGroupName: null})
-                            .then((result1) => {
-                                    this.seedSale = result1;
-                                    if(this.seedSale == true){
-                                        setTimeout(()=>this.template.querySelector('lightning-input[data-name="hectares"]').style.display = 'none');
-                                        this.headerDictLocale.hectares = 1
-                                    }else{
-                                        setTimeout(()=>this.template.querySelector('lightning-input[data-name="hectares"]').style.display = '');
-                                    }
-                                    
-                            });
-                            });
-                        }
+                        this.getCompaniesInHeader();
                     }
 
                     if(field == 'ctv_venda'){
@@ -682,6 +658,38 @@ export default class OrderHeaderScreen extends LightningElement {
         }
         this.needSupplierDeliveredAccount = (this.headerDictLocale.IsOrderChild || (Object.keys(this.headerDictLocale.pedido_mae).length == 0 && !this.headerDictLocale.pedido_mae_check))
         this._verifyFieldsToSave();
+    }
+
+    getCompaniesInHeader(){
+        this.needSupplierDeliveredAccount = (this.headerDictLocale.IsOrderChild || (Object.keys(this.headerDictLocale.pedido_mae).length == 0 && !this.headerDictLocale.pedido_mae_check))
+        if(this.headerDictLocale.IsOrderChild || (this.headerDictLocale.ctv_venda.Id != null)){
+            let getCompanyData = {
+                ctvId: this.headerDictLocale.ctv_venda.Id != null ? this.headerDictLocale.ctv_venda.Id : '',
+                accountId: this.needSupplierDeliveredAccount ? this.headerData.cliente_entrega.Id : (this.accountData.Id != null ? this.accountData.Id : ''),
+                orderType: this.headerData.tipo_venda,
+                approvalNumber: 1
+            }
+            console.log('this.childOrder: ' + this.childOrder);
+            getAccountCompanies({data: JSON.stringify(getCompanyData), isHeader: true, verifyUserType: false, priceScreen: false, childOrder: this.childOrder})
+            .then((result) => {
+                let data = JSON.parse(result).companyInfoHeader;
+            this.salesOrgId = data.salesOrgId;
+            this.headerDictLocale.organizacao_vendas = {Id: data.salesOrgId};
+            this.headerDictLocale.companyFromDeliveredAccount = {Id: data.companyId};
+            this.headerDictLocale.supplierCenterDeliveredAccount = data.supplierCenter;
+            isSeedSale({salesOrgId: data.salesOrgId, productGroupName: null})
+            .then((result1) => {
+                    this.seedSale = result1;
+                    if(this.seedSale == true){
+                        setTimeout(()=>this.template.querySelector('lightning-input[data-name="hectares"]').style.display = 'none');
+                        this.headerDictLocale.hectares = 1
+                    }else{
+                        setTimeout(()=>this.template.querySelector('lightning-input[data-name="hectares"]').style.display = '');
+                    }
+                    
+            });
+            });
+        }
     }
 
     resolveRegister(record){
