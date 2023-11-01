@@ -54,7 +54,10 @@ global without sharing class IntegrationINOrderAppdigital {
             distributionChannelLookups.add(order.DistributionChannel);
             salesConditionLookups.add(order.condicaoVenda);
             order.company = order.PaymentAccount + order.CentroFornecedor + order.salesOrg + order.activitySector + order.distributionChannel + order.EscritorioVendas + order.EquipeVendas;
+            order.companyReceiver = order.shippingAccount + order.CentroFornecedor + order.salesOrg + order.activitySector + order.distributionChannel + order.EscritorioVendas + order.EquipeVendas;
             companyLookups.add(order.company);
+            companyLookups.add(order.companyReceiver);
+
             idOrders.add(order.CodigoSap);
 
             if(order.orderItems != null) {

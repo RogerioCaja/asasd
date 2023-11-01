@@ -208,7 +208,9 @@ global without sharing class IntegrationINOrder {
             }
 
                 order.company = order.PaymentAccount + order.CentroFornecedor + order.salesOrg + order.activitySector + order.distributionChannel + order.EscritorioVendas + order.EquipeVendas;
+                order.companyReceiver = order.shippingAccount + order.CentroFornecedor + order.salesOrg + order.activitySector + order.distributionChannel + order.EscritorioVendas + order.EquipeVendas;
                 companyLookups.add(order.company);
+                companyLookups.add(order.companyReceiver);
                 conditionList.addAll(order.conditions);
                 
             
