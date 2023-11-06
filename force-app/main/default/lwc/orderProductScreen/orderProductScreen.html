@@ -111,28 +111,18 @@
 
 							<div class="column">
 								<label>Qtd</label><br>
-								<template if:true={addProduct.containsCombo}>
-									<input class="input-design" type="text" value={addProduct.quantityFront} onchange={changeValue} data-target-id="quantity" disabled/>
-								</template>
-								<template if:false={addProduct.containsCombo}>
-									<input class="input-design" type="text" value={addProduct.quantityFront} onchange={changeValue} data-target-id="quantity" disabled={disabled}/>
-								</template>
+								<input class="input-design" type="text" value={addProduct.quantityFront} onchange={changeValue} data-target-id="quantity" disabled={disabled}/>
 							</div>
 						</div>
 
 						<div class="row" if:false={hidePrices}>
 							<div class="column">
 								<label>Preço Praticado (un)</label><br>
-								<template if:true={addProduct.containsCombo}>
+								<template if:true={headerData.IsOrderChild}>
 									<input class="input-design" type="text" value={addProduct.unitPriceFront} onchange={changeValue} data-target-id="unitPrice" disabled/>
 								</template>
-								<template if:false={addProduct.containsCombo}>
-									<template if:true={headerData.IsOrderChild}>
-										<input class="input-design" type="text" value={addProduct.unitPriceFront} onchange={changeValue} data-target-id="unitPrice" disabled/>
-									</template>
-									<template if:false={headerData.IsOrderChild}>
-										<input class="input-design" type="text" value={addProduct.unitPriceFront} onchange={changeValue} data-target-id="unitPrice" disabled={disabled}/>
-									</template>
+								<template if:false={headerData.IsOrderChild}>
+									<input class="input-design" type="text" value={addProduct.unitPriceFront} onchange={changeValue} data-target-id="unitPrice" disabled={disabled}/>
 								</template>
 							</div>
 							<div class="column">
