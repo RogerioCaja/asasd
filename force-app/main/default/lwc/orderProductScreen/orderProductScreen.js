@@ -454,7 +454,7 @@ export default class OrderProductScreen extends LightningElement {
 
                     
                 }
-                if (this.isFilled(currentCombo.groupQuantities) && currentCombo.groupQuantities.length > 0) {
+                if (this.isFilled(currentCombo.groupQuantities) && currentCombo.comboQuantity > 0 && currentCombo.groupQuantities.length > 0) {
                     const data = loadComboMix(currentCombo, mixTotal, prodsIds);
                     mixTotal = data.mixTotal;
                     prodsIds = data.prodsIds;
@@ -1593,6 +1593,10 @@ export default class OrderProductScreen extends LightningElement {
         for (let index = 0; index < excludeProduct.length; index++) {
             if (excludeProduct[index].position == position) {
                 counter = index;
+                if(excludeProduct[index].containsCombo){
+                    this.showToast('warning', 'Produtos combos não podem ser excluídos!');
+                    return;
+                }
                 if (excludeProduct[index].containsCombo) comboId = excludeProduct[index].comboId;
             }
         }
