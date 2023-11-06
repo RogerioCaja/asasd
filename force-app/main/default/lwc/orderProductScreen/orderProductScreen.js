@@ -59,7 +59,6 @@ export default class OrderProductScreen extends LightningElement {
     changeColumns=false;
     showProductDivision=false;
     barterSale=false;
-    needSupplierDeliveredAccount=false;
     selectedProducts;
     columns=[];
     productName='';
@@ -219,7 +218,6 @@ export default class OrderProductScreen extends LightningElement {
             orderType: t.headerData.tipo_venda,
             approvalNumber: 1
         }
-        t.needSupplierDeliveredAccount = (t.headerData.IsOrderChild || (!t.headerData.IsOrderChild && t.headerData.tipo_pedido != 'Pedido Mãe'))
         if (!t.headerData.IsOrderChild && !t.isFilled(t.headerData.codigo_sap)) t.getCombos();
         else t.getCompanies(getCompanyData);
     }
@@ -423,7 +421,7 @@ export default class OrderProductScreen extends LightningElement {
                 productCurrency: t.headerData.moeda,
                 culture: t.headerData.cultura.Id,
                 orderType: t.headerData.tipo_venda,
-                supplierCenter: !t.needSupplierDeliveredAccount ? t.selectedCompany.supplierCenter : t.headerData.supplierCenterDeliveredAccount,
+                supplierCenter: t.headerData.supplierCenterDeliveredAccount,
                 activitySectorName: t.selectedCompany.activitySectorName,
                 salesOrgId: t.selectedCompany.salesOrgId != null ? t.selectedCompany.salesOrgId : '',
                 salesOfficeId: t.selectedCompany.salesOfficeId != null ? t.selectedCompany.salesOfficeId : '',

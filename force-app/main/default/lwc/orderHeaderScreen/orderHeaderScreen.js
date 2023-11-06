@@ -51,7 +51,6 @@ export default class OrderHeaderScreen extends LightningElement {
     fieldKey = true;
     paymentDisabled = false;
     blockPaymentForm = false;
-    needSupplierDeliveredAccount=false;
     barterSale = false;
     seedSale = false;
     safraName = null;
@@ -400,7 +399,6 @@ export default class OrderHeaderScreen extends LightningElement {
         })
         .catch((err)=>{
         });
-        this.needSupplierDeliveredAccount = (this.headerDictLocale.IsOrderChild || (Object.keys(this.headerDictLocale.pedido_mae).length == 0 && !this.headerDictLocale.pedido_mae_check))
     }
 
     @api sequentialDict ={
@@ -623,7 +621,7 @@ export default class OrderHeaderScreen extends LightningElement {
                     if(field == 'ctv_venda'){
                         let getCompanyData = {
                             ctvId: this.headerDictLocale.ctv_venda.Id != null ? this.headerDictLocale.ctv_venda.Id : '',
-                            accountId: this.needSupplierDeliveredAccount ? this.headerData.cliente_entrega.Id : (this.accountData.Id != null ? this.accountData.Id : ''),
+                            accountId: this.headerData.cliente_entrega.Id != null ? this.headerData.cliente_entrega.Id : (this.accountData.Id != null ? this.accountData.Id : ''),
                             orderType: this.headerData.tipo_venda,
                             approvalNumber: 1
                         }
@@ -656,16 +654,14 @@ export default class OrderHeaderScreen extends LightningElement {
         catch(err){
             console.log(err);
         }
-        this.needSupplierDeliveredAccount = (this.headerDictLocale.IsOrderChild || (Object.keys(this.headerDictLocale.pedido_mae).length == 0 && !this.headerDictLocale.pedido_mae_check))
         this._verifyFieldsToSave();
     }
 
     getCompaniesInHeader(){
-        this.needSupplierDeliveredAccount = (this.headerDictLocale.IsOrderChild || (Object.keys(this.headerDictLocale.pedido_mae).length == 0 && !this.headerDictLocale.pedido_mae_check))
-        if(this.headerDictLocale.IsOrderChild || (this.headerDictLocale.ctv_venda.Id != null)){
+        if(this.headerDictLocale.ctv_venda.Id != null){
             let getCompanyData = {
                 ctvId: this.headerDictLocale.ctv_venda.Id != null ? this.headerDictLocale.ctv_venda.Id : '',
-                accountId: this.needSupplierDeliveredAccount ? this.headerData.cliente_entrega.Id : (this.accountData.Id != null ? this.accountData.Id : ''),
+                accountId: this.headerData.cliente_entrega.Id != null ? this.headerData.cliente_entrega.Id : (this.accountData.Id != null ? this.accountData.Id : ''),
                 orderType: this.headerData.tipo_venda,
                 approvalNumber: 1
             }

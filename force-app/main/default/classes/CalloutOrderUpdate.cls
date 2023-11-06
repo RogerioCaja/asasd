@@ -233,7 +233,7 @@ public without sharing class CalloutOrderUpdate {
                     }
                 }
                 
-                IT_ITEMS_IN.add(new CalloutOrderUpdate.OrderItemParameters(orderItem, (order.IsOrderMother__c ? order.Company__r.SupplierCenter__c : order.CompanyReceiver__r.SupplierCenter__c)));
+                IT_ITEMS_IN.add(new CalloutOrderUpdate.OrderItemParameters(orderItem, (order.CompanyReceiver__r.SupplierCenter__c == null ? order.Company__r.SupplierCenter__c : order.CompanyReceiver__r.SupplierCenter__c)));
                 
             }
         }

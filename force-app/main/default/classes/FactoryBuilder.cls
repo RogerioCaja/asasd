@@ -1075,7 +1075,7 @@ public without sharing class FactoryBuilder {
        List<OrderItemParameters> orderItemParametersList = new List<OrderItemParameters>();
        for(OrderItem ordIt : orderItemMap.values()){
             String refItem = referenceItemMotherMap.containsKey(ordIt.Product2.ExternalId__c) ?  referenceItemMotherMap.get(ordIt.Product2.ExternalId__c) : '';
-            String plant = order.DistributionCenter__r.Code__c == null ? ( order.IsOrderMother__c ? order.Company__r.SupplierCenter__c : order.CompanyReceiver__r.SupplierCenter__c) : order.DistributionCenter__r.Code__c;
+            String plant = order.DistributionCenter__r.Code__c == null ? ( order.CompanyReceiver__r.SupplierCenter__c == null ? order.Company__r.SupplierCenter__c : order.CompanyReceiver__r.SupplierCenter__c) : order.DistributionCenter__r.Code__c;
             orderItemParametersList.add(new OrderItemParameters(ordIt, refItem, plant));
        }
 
