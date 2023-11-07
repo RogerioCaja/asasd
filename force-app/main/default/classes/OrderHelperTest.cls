@@ -254,8 +254,8 @@ public with sharing class OrderHelperTest {
             CodigoSap__c = '005',
             Status = '0',
             PriceBook2Id = Test.getStandardPricebookId(),
-            Type =  'Venda Barter',
-            RecordTypeId = recordTypeMap.get('Venda Barter').getRecordTypeId(),
+            Type =  'Venda Normal',
+            RecordTypeId = recordTypeMap.get('Venda Normal').getRecordTypeId(),
             ShippingAccount__c =   account.Id,
             ShippingDate__c =  Date.today(),
             PaymentDate__c =  Date.today(),
@@ -267,13 +267,13 @@ public with sharing class OrderHelperTest {
             SalesOrg__c =  so.Id,
             FinalTotalValue__c = 1000.00,
             SalesCondition__c = sales.Id,
-            Description = '1n73gr4ção N3sc4r4 5F x 4PP',
             DistributionChannel__c =  distributionChannel.Id,
             Currency__c =  'BRL',
             SalesCTV__c =  u.Id,
             StatusSF__c = 'Em digitação',
             EndDate = Date.today(),
             Incoterms__c = 'CIF',
+            StageStatusApproval__c = '',
             MarginCommittee__c = true,
             Manager_BranchOffice__c = false,
             Gerente_Regional__c = false,
@@ -500,9 +500,15 @@ public with sharing class OrderHelperTest {
 
     @isTest
     public static void verifySendApprovalUpdate(){
-        Order order = [SELECT Id, Status FROM Order WHERE CodigoSap__c = '005' LIMIT 1];
+        Order order = [SELECT Id, Status, StageStatusApproval__c, Description  FROM Order WHERE CodigoSap__c = '005' LIMIT 1];
         order.Status = '001';
+        Test.startTest();
         UPDATE order;
+        
+        Test.stopTest();
+        order = [SELECT Id, Status, StageStatusApproval__c FROM Order WHERE CodigoSap__c = '005' LIMIT 1];
+        
+        System.assertEquals('Aprovação Comitê de Margem / Pendente', order.StageStatusApproval__c, 'Deveria ser Aprovação Comitê de Margem / Pendente');
     }
 
     @isTest

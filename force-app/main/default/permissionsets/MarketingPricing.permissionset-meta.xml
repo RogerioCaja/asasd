@@ -1939,6 +1939,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Order.StageStatusApproval__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Order.StatusRecusa__c</field>
         <readable>true</readable>
     </fieldPermissions>
