@@ -284,6 +284,7 @@ global with sharing class TemplateDataIntegrationFields {
         public String escritorioVendas;
         public String equipeVendas;
         public String company;
+        public String companyReceiver;
         public Boolean eCalendarizacao;
         /*ATUALIZAÇÃO 05.07.22*/
         public String salesType;
@@ -414,7 +415,7 @@ global with sharing class TemplateDataIntegrationFields {
                 SalesCondition__c = lookups.containsKey('SalesCondition__c'+this.condicaoVenda) ? lookups.get('SalesCondition__c'+this.condicaoVenda) : null,
                 IsOrderMother__c = this.pedidoMae,
                 Company__c = lookups.containsKey('Company__c' + this.company) ? lookups.get('Company__c' + this.company):null,
-                
+                CompanyReceiver__c = lookups.containsKey('Company__c' + this.companyReceiver) ? lookups.get('Company__c' + this.companyReceiver):null,
                 /* ATUALIZAÇÃO 05.07.2022*/
                 RecordTypeId = this.salesType != null ? Schema.SObjectType.Order.getRecordTypeInfosByName().get(this.salesType).getRecordTypeId() : this.recordIdToUpdate,//
                 Type = this.salesType != null ? this.salesType : Schema.getGlobalDescribe().get('Order').getDescribe().getRecordTypeInfosById().get(this.recordIdToUpdate).getName(),

@@ -121,60 +121,60 @@ export default class OrderProductScreen extends LightningElement {
     @api bpData;
 
     connectedCallback(event) {
-        if (!this.isFilled(this.taxData)) this.taxData=[];
-        if (!this.isFilled(this.combosSelecteds)) this.combosSelecteds=[];
+        let t = this
+        if (!t.isFilled(t.taxData)) t.taxData=[];
+        if (!t.isFilled(t.combosSelecteds)) t.combosSelecteds=[];
 
         let today = new Date();
         let dd = String(today.getDate()).padStart(2, '0');
         let mm = String(today.getMonth() + 1).padStart(2, '0');
         let yyyy = today.getFullYear();
-        this.currentDate = yyyy + '-' + mm + '-' + dd;
+        t.currentDate = yyyy + '-' + mm + '-' + dd;
 
-        this.paymentDate = this.headerData.data_pagamento;
-        this.hectares = this.headerData.hectares.toString().includes(',') ? Number(this.headerData.hectares.toString().replace(',', '.')) : Number(this.headerData.hectares);
-        this.salesConditionId = this.headerData.condicao_venda.Id;
-        this.commoditiesData = this.isFilled(this.commodityData) ? this.commodityData : [];
-        this.barterSale = this.headerData.tipo_venda == 'Venda Barter' && this.commoditiesData.length == 0 ? true : false;
+        t.paymentDate = t.headerData.data_pagamento;
+        t.hectares = t.headerData.hectares.toString().includes(',') ? Number(t.headerData.hectares.toString().replace(',', '.')) : Number(t.headerData.hectares);
+        t.salesConditionId = t.headerData.condicao_venda.Id;
+        t.commoditiesData = t.isFilled(t.commodityData) ? t.commodityData : [];
+        t.barterSale = t.headerData.tipo_venda == 'Venda Barter' && t.commoditiesData.length == 0 ? true : false;
 
-        if (this.cloneData.cloneOrder) {
-            this.products = this.isFilled(this.productData) ? this.productData : [];
-            this.allDivisionProducts = [];
+        if (t.cloneData.cloneOrder) {
+            t.products = t.isFilled(t.productData) ? t.productData : [];
+            t.allDivisionProducts = [];
         } else {
-            this.products = this.isFilled(this.productData) ? this.productData : [];
-            this.allDivisionProducts = this.isFilled(this.divisionData) ? this.divisionData : [];
+            t.products = t.isFilled(t.productData) ? t.productData : [];
+            t.allDivisionProducts = t.isFilled(t.divisionData) ? t.divisionData : [];
         }
 
         let combosIds = [];
         let newProducts = [];
         let comboAndQuantities = [];
-        let allProducts = this.parseObject(this.products);
+        let allProducts = t.parseObject(t.products);
 
         for (let index = 0; index < allProducts.length; index++) {
             if (allProducts[index].comboId != null) {
                 combosIds.push(allProducts[index].comboId);
                 comboAndQuantities.push({combo: allProducts[index].comboId, quantity: allProducts[index].quantity, prodId: allProducts[index].productId});
             }
-            newProducts.push(this.newProduct(allProducts[index]));
+            newProducts.push(t.newProduct(allProducts[index]));
+        }
+        t.combosIds = t.parseObject(combosIds);
+        t.products = t.parseObject(newProducts);
+        t.comboAndQuantities = t.parseObject(comboAndQuantities);
+
+        if (t.headerData.IsOrderChild) {
+            t.disableSearch = true;
+            t._setData();
         }
 
-        this.combosIds = this.parseObject(combosIds);
-        this.products = this.parseObject(newProducts);
-        this.comboAndQuantities = this.parseObject(comboAndQuantities);
-
-        if (this.headerData.IsOrderChild) {
-            this.disableSearch = true;
-            this._setData();
+        let orderStatus = ['Em aprovação - Gerente Filial', 'Em aprovação - Gerente Regional', 'Em aprovação - Diretor', 'Em aprovação - Comitê Margem', 'Em aprovação - Mesa de Grãos'];
+        if (orderStatus.includes(t.headerData.status_pedido)) {
+            t.disabled = true;
+            t.disableSearch = true;
         }
 
-        let orderStatus = ['Em aprovação - Gerente Filial', 'Em aprovação - Gerente Regional', 'Em aprovação - Diretor', 'Em aprovação - Comitê Margem', 'Em aprovação - Mesa de Grãos', 'Em Aprovação - Diretor Torre'];
-        if (orderStatus.includes(this.headerData.status_pedido)) {
-            this.disabled = true;
-            this.disableSearch = true;
-        }
-
-        if (this.isFilled(this.commoditiesData) && this.commoditiesData.length > 0) this.showCommodityData = true;
-        this.visualizeCommodityColumns = this.parseObject(this.commodityColumns);
-        this.visualizeCommodityColumns.push({
+        if (t.isFilled(t.commoditiesData) && t.commoditiesData.length > 0) t.showCommodityData = true;
+        t.visualizeCommodityColumns = t.parseObject(t.commodityColumns);
+        t.visualizeCommodityColumns.push({
             type: 'action',
             typeAttributes: {
                 rowActions: commodityActions,
@@ -183,14 +183,14 @@ export default class OrderProductScreen extends LightningElement {
         });
 
         actions = [];
-        if (this.disabled) actions.push({ label: 'Visualizar', name: 'visualize' })
-        else if(this.headerData.IsOrderChild) actions.push({ label: 'Editar', name: 'edit' }, { label: 'Divisão de Remessas', name: 'shippingDivision' }, { label: 'Excluir', name: 'delete' });
-        else if (this.headerData.pedido_mae_check) actions.push({ label: 'Editar', name: 'edit' }, { label: 'Excluir', name: 'delete' });
+        if (t.disabled) actions.push({ label: 'Visualizar', name: 'visualize' })
+        else if(t.headerData.IsOrderChild) actions.push({ label: 'Editar', name: 'edit' }, { label: 'Divisão de Remessas', name: 'shippingDivision' }, { label: 'Excluir', name: 'delete' });
+        else if (t.headerData.pedido_mae_check) actions.push({ label: 'Editar', name: 'edit' }, { label: 'Excluir', name: 'delete' });
         else actions.push({ label: 'Editar', name: 'edit' }, { label: 'Divisão de Remessas', name: 'shippingDivision' }, { label: 'Excluir', name: 'delete' });
 
-        this.showIncludedProducts = this.products.length > 0;
-        if (this.headerData.tipo_venda == 'Venda Barter') {
-            this.hideChooseColumns = true;
+        t.showIncludedProducts = t.products.length > 0;
+        if (t.headerData.tipo_venda == 'Venda Barter') {
+            t.hideChooseColumns = true;
             let barterColumns = [
                 {label: 'Produto', fieldName: 'name'},
                 {label: 'Unidade de Medida', fieldName: 'unity'},
@@ -204,22 +204,21 @@ export default class OrderProductScreen extends LightningElement {
                     menuAlignment: 'auto'
                 }
             });
-            this.columns = barterColumns;
-            this.changeColumns = false;
+            t.columns = barterColumns;
+            t.changeColumns = false;
         } else {
-            this.applySelectedColumns(event);
+            t.applySelectedColumns(event);
         }
 
-        this.headerData = this.parseObject(this.headerData);
+        t.headerData = t.parseObject(t.headerData);
         let getCompanyData = {
-            ctvId: this.headerData.ctv_venda.Id != null ? this.headerData.ctv_venda.Id : '',
-            accountId: this.accountData.Id != null ? this.accountData.Id : '',
-            orderType: this.headerData.tipo_venda,
+            ctvId: t.headerData.ctv_venda.Id != null ? t.headerData.ctv_venda.Id : '',
+            accountId: t.accountData.Id != null ? t.accountData.Id : '',
+            orderType: t.headerData.tipo_venda,
             approvalNumber: 1
         }
-
-        if (!this.headerData.IsOrderChild && !this.isFilled(this.headerData.codigo_sap)) this.getCombos();
-        else this.getCompanies(getCompanyData);
+        if (!t.headerData.IsOrderChild && !t.isFilled(t.headerData.codigo_sap)) t.getCombos();
+        else t.getCompanies(getCompanyData);
     }
 
     parseObject(obj) {
@@ -414,7 +413,7 @@ export default class OrderProductScreen extends LightningElement {
                 productCurrency: this.headerData.moeda,
                 culture: this.headerData.cultura.Id,
                 orderType: this.headerData.tipo_venda,
-                supplierCenter: this.selectedCompany.supplierCenter,
+                supplierCenter: this.headerData.supplierCenterDeliveredAccount,
                 activitySectorName: this.selectedCompany.activitySectorName,
                 salesOrgId: this.selectedCompany.salesOrgId != null ? this.selectedCompany.salesOrgId : '',
                 salesOfficeId: this.selectedCompany.salesOfficeId != null ? this.selectedCompany.salesOfficeId : '',

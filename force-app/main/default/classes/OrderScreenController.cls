@@ -75,7 +75,7 @@ public without sharing class OrderScreenController {
         ShippingAccount__r.BillingCity, ShippingAccount__r.BillingState ,ShippingAccount__r.CPF__c, ShippingAccount__r.CNPJ__c , SalesCondition__c, SalesCondition__r.Name, FreightValue__c,
         Pricebook2.InitialDate__c, Pricebook2.EndDate__c, PaymentDate__c,  CustomerOrderNumber__c, Crop__c , Crop__r.Name, Culture__c , Culture__r.Name, OrderMargin__c, RecordTypeId, MTO__c,
         PaymentForm__c, StatusSF__c, CodigoSAP__c, SalesOrg__c, SalesOrg__r.Name, DistributionChannel__c, ActivitySector__c, Currency__c, SalesCTV__c, SalesCTV__r.Name, OrderType__c, BPStorage__c,
-        PaymentCondition__c, PaymentCondition__r.Name, ShippingDate__c, Incoterms__c, OrderReference__c, OrderReference__r.Name, IsOrderMother__c, Company__c, Hectare__c, Status, DistributionCenter__c
+        PaymentCondition__c, PaymentCondition__r.Name, ShippingDate__c, Incoterms__c, OrderReference__c, OrderReference__r.Name, IsOrderMother__c, Company__c, CompanyReceiver__c, CompanyReceiver__r.SupplierCenter__c, Hectare__c, Status, DistributionCenter__c
         FROM Order 
         WHERE Id = :orderId LIMIT 1];
         return new HeaderSerialize(order, cloneOrder);
@@ -924,6 +924,7 @@ public without sharing class OrderScreenController {
             order.MTO__c = orderData.headerData.mto;
             order.FinalTotalValue__c = orderTotalValue;
             order.Company__c = company.Id;
+            order.CompanyReceiver__c = orderData.headerData.companyFromDeliveredAccount.Id;
             order.DistributionCenter__c = orderData.summaryData.centerId != null ? orderData.summaryData.centerId : orderData.headerData.centerId;
             order.OrderType__c = orderData.headerData.pedido_mae.Id != null ? 'Pedido Filho' : (order.IsOrderMother__c ? 'Pedido Mãe' : 'Pedido Normal');
             order.OrderMargin__c = orderData.summaryData.orderMargin != null ? (orderData.summaryData.orderMargin.contains(' sacas') ?
@@ -1734,7 +1735,7 @@ public without sharing class OrderScreenController {
         Q proQuery = new Q(Company__c.SObjectType);
         proQuery.selectFields(fieldSet);
         if (companyInfos.accountId != '') proQuery.add(Q.condition('Conta__c').equalsTo(companyInfos.accountId));
-        if (childOrder == null || !childOrder) proQuery.add(Q.condition('Status__c').equalsTo('Adicionada'));
+        proQuery.add(Q.condition('Status__c').equalsTo('Adicionada'));
         List<CompanyInfos> companyList = new List<CompanyInfos>();
         if (salesTeamTerritories != null && salesTeamTerritories.size() > 0) {
             List<String> salesTeamsDevNames = new List<String>();
@@ -1774,7 +1775,7 @@ public without sharing class OrderScreenController {
             }
         }
         if(isHeader)
-            return companyList[0].salesOrgId;
+            return JSON.serialize(new CompanyInfosHeaderSerialize(companyList[0].companyId, companyList[0].salesOrgId, companyList[0].supplierCenter));
         else
             return JSON.serialize(new CompanyInfosSerialize(companyList));
     }
@@ -2378,6 +2379,7 @@ public without sharing class OrderScreenController {
         public InformationFields condicao_venda;
         public InformationFields condicao_pagamento;
         public InformationFields organizacao_vendas;
+        public InformationFields companyFromDeliveredAccount;
         public InformationFields ctv_venda;
         public InformationFields pedido_mae;
         //public InformationFields filial;
@@ -2673,6 +2675,8 @@ public without sharing class OrderScreenController {
         public String  billing_sale_observation;
         public String  orderMargin;
         public String  companyId;
+        public InformationFields  companyFromDeliveredAccount;
+        public String  supplierCenterDeliveredAccount;
         public String  recTypeId;
         public String  hectares;
         public String  bpStorage;
@@ -2742,6 +2746,8 @@ public without sharing class OrderScreenController {
             this.freightValue = order.FreightValue__c;
             this.orderMargin = String.valueOf(order.OrderMargin__c) + '%';
             this.companyId = order.Company__c;
+            this.companyFromDeliveredAccount = new InformationFields(order.CompanyReceiver__c, '');
+            this.supplierCenterDeliveredAccount = order.CompanyReceiver__r.SupplierCenter__c;
             this.recTypeId = order.RecordTypeId;
         }
     }
@@ -3069,6 +3075,24 @@ public without sharing class OrderScreenController {
 
         CompanyInfosSerialize(List<CompanyInfos> companyInfos) {
             this.listCompanyInfos = companyInfos;
+        }
+    }
+
+    public class CompanyInfosHeader {
+        public String  companyId;
+        public String  salesOrgId;
+        public String  supplierCenter;
+    }
+
+    public class CompanyInfosHeaderSerialize {
+        public CompanyInfosHeader companyInfoHeader = new CompanyInfosHeader();
+
+        CompanyInfosHeaderSerialize() {}
+
+        CompanyInfosHeaderSerialize(String companyId, String salesOrgId, String supllierCenter) {
+            this.companyInfoHeader.companyId      = companyId;
+            this.companyInfoHeader.salesOrgId     = salesOrgId;
+            this.companyInfoHeader.supplierCenter = supllierCenter;
         }
     }
 

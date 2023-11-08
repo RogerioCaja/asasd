@@ -11,7 +11,7 @@ public without sharing class CalloutOrderUpdate {
     public static IntegrationUtils.CalloutUpdateResponse processIntegration(Id orderId, String rmCode, String agCode, String zcCode){
 
         Order parentOrder = [SELECT Id, CodigoSap__c,ShippingDate__c,  ShippingAccount__r.ExternalId__c, Company__r.SupplierCenter__c, Account.ExternalId__c, Type, SalesOrg__r.SalesOrganizationCode__c, DistributionChannel__c, DistributionChannel__r.Codigo__c, SalesCondition__r.ExternalId__c, Company__r.salesOffice__r.Codigo__c,
-                            ActivitySector__c, ActivitySector__r.Codigo__c, PaymentCondition__r.CashPayment__c, Incoterms__c, Incoterms2__c, PaymentCondition__r.Code__c, OrderReason__c , SalesCTV__r.CodigoSap__c, PaymentDate__c,EffectiveDate, OrderReference__r.CodigoSap__c, Company__r.salesTeam__r.ExternalId__c, Crop__r.Name,
+                            ActivitySector__c, ActivitySector__r.Codigo__c, PaymentCondition__r.CashPayment__c, Incoterms__c, Incoterms2__c, PaymentCondition__r.Code__c, OrderReason__c , SalesCTV__r.CodigoSap__c, PaymentDate__c,EffectiveDate, OrderReference__r.CodigoSap__c, Company__r.salesTeam__r.ExternalId__c, Crop__r.Name, CompanyReceiver__c, CompanyReceiver__r.SupplierCenter__c,
                             OrderNumber, Crop__r.Code__c, Crop__r.StartDateOrderInsertion__c, Crop__r.EndDateInsertionOrders__c ,Culture__r.Codigo__c, EndDate, TotalAmount, PaymentForm__c, OrderReference__c, CustomerOrderNumber__c, SalesCTV__r.SellerType__c, EffectiveOrderDate__c, NumeroPedidoApp__c, SalesOrg__r.Name,
                             Currency__c, Crop__r.PaymentBaseDate__c,IsOrderMother__c, RecordTypeId,Description,DescriptionBillingSale__c, DistributionCenter__r.Code__c, RecordType.DeveloperName, (SELECT Id FROM OrderItems) 
                             FROM Order WHERE Id = :orderId];
@@ -228,7 +228,7 @@ public without sharing class CalloutOrderUpdate {
                     }
                 }
                 
-                IT_ITEMS_IN.add(new CalloutOrderUpdate.OrderItemParameters(orderItem, order.Company__r.SupplierCenter__c));
+                IT_ITEMS_IN.add(new CalloutOrderUpdate.OrderItemParameters(orderItem, (order.CompanyReceiver__r.SupplierCenter__c == null ? order.Company__r.SupplierCenter__c : order.CompanyReceiver__r.SupplierCenter__c)));
                 
             }
         }
