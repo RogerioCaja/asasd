@@ -1086,7 +1086,7 @@ public without sharing class FactoryBuilder {
         List<OrderItemParametersSeeds> orderItemParametersList = new List<OrderItemParametersSeeds>();
         for(OrderItem ordIt : orderItemMap.values()){
              String refItem = referenceItemMotherMap.containsKey(ordIt.Product2.ExternalId__c) ?  referenceItemMotherMap.get(ordIt.Product2.ExternalId__c) : '';
-             String plant = order.DistributionCenter__r.Code__c == null ? ( order.IsOrderMother__c ? order.Company__r.SupplierCenter__c : order.CompanyReceiver__r.SupplierCenter__c) : order.DistributionCenter__r.Code__c;
+             String plant = order.DistributionCenter__r.Code__c == null ? ( order.CompanyReceiver__r.SupplierCenter__c == null ? order.Company__r.SupplierCenter__c : order.CompanyReceiver__r.SupplierCenter__c) : order.DistributionCenter__r.Code__c;
              orderItemParametersList.add(new OrderItemParametersSeeds(ordIt, refItem, plant));
         }
  
@@ -1096,7 +1096,7 @@ public without sharing class FactoryBuilder {
      private static List<OrderItemParametersBarter> generateOrderItemParameterBarterList(Order order){
         List<OrderItemParametersBarter> orderItemParametersList = new List<OrderItemParametersBarter>();
         OrderCommodity__c orderCommodity = [SELECT CommodityPrice__c, Product__r.ExternalId__c, BagQuantity__c FROM OrderCommodity__c WHERE Order__c =: order.Id LIMIT 1];
-        String plant = order.DistributionCenter__r.Code__c == null ? ( order.IsOrderMother__c ? order.Company__r.SupplierCenter__c : order.CompanyReceiver__r.SupplierCenter__c) : order.DistributionCenter__r.Code__c;
+        String plant = order.DistributionCenter__r.Code__c == null ? ( order.CompanyReceiver__r.SupplierCenter__c == null ? order.Company__r.SupplierCenter__c : order.CompanyReceiver__r.SupplierCenter__c) : order.DistributionCenter__r.Code__c;
         orderItemParametersList.add(new OrderItemParametersBarter(orderCommodity, plant));
         return orderItemParametersList;
      }
