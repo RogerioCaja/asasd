@@ -15,6 +15,7 @@ public without sharing class OrderTriggerHandler {
     public void OnAfterInsert(){
         OrderHelper.sendApprovalProccess(this.newRecords);
         OrderHelper.creatyShareRecord(this.newRecords);
+        OrderHelper.setStageApprovalProcess(this.newMap.keySet());
     }
     
     public void OnBeforeUpdate(){
@@ -27,6 +28,7 @@ public without sharing class OrderTriggerHandler {
         OrderHelper.sendApprovalProccess(this.oldMap, this.newMap);
         OrderHelper.calloutOrderToSAP(this.newRecords);
         OrderHelper.creatyShareRecord(this.newRecords);
+        OrderHelper.setStageApprovalProcess(this.newMap.keySet());
     }
     
     

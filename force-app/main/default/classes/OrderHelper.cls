@@ -529,4 +529,46 @@ public without sharing class OrderHelper {
         }
 
     }
+
+    @Future
+    public static void setStageApprovalProcess(Set<Id> records){
+        Set<Id> orderIds = new Set<Id>();
+        Map<Id, Order> orderMap = new Map<Id, Order>();
+        Map<Id, Datetime> mostRecentProcess = new Map<Id, Datetime>();
+        Map<String, String> statusMap = new Map<String, String>{'Pending' => 'Pendente', 'Approved'=> 'Aprovado', 'Rejected'=> 'Rejeitado'};
+        Id key;
+        
+        for(Order order : [SELECT Id, StageStatusApproval__c, Status FROM Order WHERE Id IN: records AND Status = '0001']){
+            orderMap.put(order.Id, order);
+            orderIds.add(order.Id);
+        }
+       
+  
+        List<ProcessInstanceNode> nodes = [SELECT Id, NodeStatus, ProcessNodeName, ProcessInstanceId, ProcessInstance.TargetObjectId, CreatedDate 
+                                            FROM ProcessInstanceNode WHERE ProcessInstance.TargetObjectId IN: orderIds ORDER BY CreatedDate];
+
+        for(ProcessInstanceNode node : nodes){
+            key = node.ProcessInstance.TargetObjectId;
+            if(!mostRecentProcess.containsKey(key) || 
+                mostRecentProcess.containsKey(key) && mostRecentProcess.get(key) <= node.CreatedDate){
+
+                
+                Order order = orderMap.get(key);
+                order.StageStatusApproval__c = node.ProcessNodeName + ' / ' + statusMap.get(node.NodeStatus);
+                orderMap.put(order.Id, order);
+
+                mostRecentProcess.put(key, node.CreatedDate);
+            }  
+            
+        }
+
+        if(!orderMap.values().isEmpty()){
+            OrderHelper.disableTrigger();
+            update orderMap.values();
+            OrderHelper.enableTrigger();
+        }
+
+       
+    }
+
 }
