@@ -632,9 +632,9 @@ global without sharing class IntegrationINOrderAppdigital {
                 System.debug('ordItems.Product2.ProductGroup__c' + ordItems.Product2.ProductGroup__c);
                 currentDiscount = ordItems.DiscountPercent__c;
                 if(currentDiscount > biggerDiscount){
-                    productGroupsIds.add(orderProduct.productGroupId);
-                    productSubGroupsIds.add(orderProduct.productSubgroupId);
-                    discountByProductIds.put(orderProduct.productId, currentDiscount);
+                    productGroupsIds.add(ordItems.Product2.ProductGroup__c);
+                    productSubGroupsIds.add(ordItems.Product2.ProductSubgroup__c);
+                    discountByProductIds.put(ordItems.Product2Id, currentDiscount);
                     //productGroupId = ordItems.Product2.ProductGroup__c;
                 }
                 
