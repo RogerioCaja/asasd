@@ -207,7 +207,7 @@ public class OrderScreenControllerTest {
             Status__c = '5',
             UnitMeasure__c = 'Each',
             FinalTotalValue__c = 1600,
-            DiscountPercent__c = 2,
+            DiscountPercent__c = 10,
             DiscountValue__c = 0,
             CommercialAdditionPercent__c = 6.6666,
             CommercialAdditionValue__c = 100,
@@ -350,9 +350,49 @@ public class OrderScreenControllerTest {
             Approver__c = 'ComiteMargem',
             ClientGroup__c = '01',
             InitialDate__c = System.today().addDays(-90),
-            EndDate__c = System.today().addDays(90)
+            EndDate__c = System.today().addDays(90),
+            SalesOrg__c = salesOrg.Id
         );
         insert discount;
+
+        Discount__c discount1 = new Discount__c(
+            ProductGroup__c = productGroup.Id,
+            Status__c = 'Aprovado',
+            MinPercentage__c = 9,
+            MaxPercentage__c = 15,
+            Approver__c = 'GerenteFilial',
+            ClientGroup__c = '01',
+            InitialDate__c = System.today().addDays(-90),
+            EndDate__c = System.today().addDays(90),
+            SalesOrg__c = salesOrg.Id
+        );
+        insert discount1;
+
+        Discount__c discount2 = new Discount__c(
+            Product__c = product.Id,
+            Status__c = 'Aprovado',
+            MinPercentage__c = 9,
+            MaxPercentage__c = 15,
+            Approver__c = 'GerenteRegional',
+            ClientGroup__c = '01',
+            InitialDate__c = System.today().addDays(-90),
+            EndDate__c = System.today().addDays(90),
+            SalesOrg__c = salesOrg.Id
+        );
+        insert discount2;
+
+        Discount__c discount3 = new Discount__c(
+            Product__c = product.Id,
+            Status__c = 'Aprovado',
+            MinPercentage__c = 9,
+            MaxPercentage__c = 15,
+            Approver__c = 'Diretor',
+            ClientGroup__c = '01',
+            InitialDate__c = System.today().addDays(-90),
+            EndDate__c = System.today().addDays(90),
+            SalesOrg__c = salesOrg.Id
+        );
+        insert discount3;
 
         GeneralQuotas__c generalQuota = new GeneralQuotas__c(
             Quantity__c = 1000,
@@ -493,9 +533,11 @@ public class OrderScreenControllerTest {
         commodity.endDate = '2099-01-01';
         commodity.saved = true;
 
+
         String data = JSON.serialize(new OrderScreenController.OrderSerializeAll(order, ordItemList, divisionList, new List<OrderScreenController.CommodityDeserialize>{commodity}, formsOfPayment, account, summary, null, null));
         OrderScreenController.saveOrder(null, false, data, '', null);
-        OrderScreenController.approvals(data);
+        String valueToValidate = OrderScreenController.approvals(data);
+        Assert.areEqual('Gerente Filial/Gerente Regional/Diretor BU', valueToValidate, 'Deveria vir o valor de Gerente Filial/Gerente Regional/Diretor BU');
     }
 
     @isTest

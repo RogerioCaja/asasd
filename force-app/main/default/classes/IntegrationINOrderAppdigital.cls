@@ -614,34 +614,39 @@ global without sharing class IntegrationINOrderAppdigital {
             }
             Decimal currentDiscount = 0;
             Decimal biggerDiscount = 0;
+
+        
             
-            Map<Id, Decimal> discountByProductGroups = new Map<Id, Decimal>();
+            Map<Id, Decimal> discountByProductIds = new Map<Id, Decimal>();
+            Set<Id> productGroupsIds = new Set<Id>();
+            Set<Id> productSubGroupsIds = new Set<Id>();
+            List<Id> listProductsIds = new List<Id>();
+
             System.debug('orderItemList APROVACAO => '+ orderItemList);
             for(OrderItem ordItems : orderItemList){ 
+                listProductsIds.add(ordItems.Product2Id);
                 System.debug('ordItems.DiscountPercent__c => '+ ordItems.DiscountPercent__c);
                 System.debug('Product2.ProductGroup__c' + ordItems.Product2Id);
                 System.debug('ordItems.Product2.ProductGroup__c' + ordItems.Product2.ProductGroup__c);
                 currentDiscount = ordItems.DiscountPercent__c;
                 if(currentDiscount > biggerDiscount){
-                    biggerDiscount = ordItems.DiscountPercent__c;
-                    if(!discountByProductGroups.containsKey(ordItems.Product2.ProductGroup__c)){
-                        discountByProductGroups.put(ordItems.Product2.ProductGroup__c, currentDiscount);
-                    } else{
-                        Decimal currentBiggerDiscount = discountByProductGroups.get(ordItems.Product2.ProductGroup__c);
-                        discountByProductGroups.put(ordItems.Product2.ProductGroup__c, currentBiggerDiscount > currentDiscount ? currentBiggerDiscount : currentDiscount);
-                    }
+                    productGroupsIds.add(orderProduct.productGroupId);
+                    productSubGroupsIds.add(orderProduct.productSubgroupId);
+                    discountByProductIds.put(orderProduct.productId, currentDiscount);
                     //productGroupId = ordItems.Product2.ProductGroup__c;
                 }
                 
             }
             Order orders = [SELECT Id, Company__r.ClientGroup__c, Company__r.SalesOrg__c FROM Order WHERE Id =: orderDiscount.Id];
             //Discount__c orderDisc = new Discount__c();
-            Map<Id, Discount__c> discountByGroups = new Map<Id, Discount__c>();
+            Map<String, Discount__c> discountByPriority = new Map<String, Discount__c>();
             Decimal greaterDiscount = 0;
             Decimal smallerDiscount;
-            for(Decimal actualDiscount : discountByProductGroups.values()){
-                greaterDiscount = greaterDiscount > actualDiscount ? greaterDiscount : actualDiscount;
-                smallerDiscount = smallerDiscount == null ? (smallerDiscount < actualDiscount ? smallerDiscount : actualDiscount) : smallerDiscount;
+            if(!discountByProductIds.values().isEmpty()){
+                List<Decimal> discountSorted = discountByProductIds.values();
+                discountSorted.sort();
+                greaterDiscount = discountSorted[discountSorted.size() - 1];
+                smallerDiscount = discountSorted[0];
             }
             
             Map<String, Integer> approvalLevels = new Map<String, Integer>{
@@ -658,30 +663,32 @@ global without sharing class IntegrationINOrderAppdigital {
                 SELECT Id,
                         Approver__c,
                         ProductGroup__c,
+                        ProductsSubGroup__c,
+                        Product__c,
                         MinPercentage__c,
                         MaxPercentage__c
-                    FROM Discount__c
-                    WHERE Status__c = 'Aprovado'
+                FROM Discount__c
+                WHERE Status__c = 'Aprovado'
                     AND ClientGroup__c =: orders.Company__r.ClientGroup__c
                     AND SalesOrg__c =: orders.Company__r.SalesOrg__c
-                    AND ProductGroup__c =: discountByProductGroups.keySet() //Vamos rever esse daqui
+                    AND (
+                        ProductGroup__c IN: productGroupsIds OR
+                        ProductsSubGroup__c IN: productSubGroupsIds OR 
+                        Product__c IN: listProductsIds
+                    )
                     AND InitialDate__c <=: System.today()
                     AND EndDate__c >=: System.today()
-                    AND (MinPercentage__c <=: smallerDiscount OR MaxPercentage__c >=: greaterDiscount)
-                ORDER BY MinPercentage__c, MaxPercentage__c
+                    AND (MinPercentage__c <=: smallerDiscount AND MaxPercentage__c >=: greaterDiscount)
+            ORDER BY MinPercentage__c, MaxPercentage__c
             ]) {
                 System.debug('discount => ' + discount);
                 //orderDisc = discount;
-                Decimal groupDiscount = discountByProductGroups.get(discount.ProductGroup__c);
-                if(discount.MinPercentage__c <= groupDiscount && discount.MaxPercentage__c >= groupDiscount){
-                    if(!discountByGroups.containsKey(discount.ProductGroup__c)){
-                        discountByGroups.put(discount.ProductGroup__c, discount); 
-                    } else {
-                        String discountApprover = discountByGroups.get(discount.ProductGroup__c).Approver__c;
-                        if(approvalLevels.get(Discount.Approver__c) > approvalLevels.get(discountApprover)){
-                            discountByGroups.put(discount.ProductGroup__c, discount);
-                        }
-                    } 
+                if(discount.Product__c != null){
+                    discountLogics(discountByPriority, discount, ('p-' + String.valueOf(discount.Product__c)), approvalLevels);
+                }else if(discount.ProductsSubGroup__c != null){
+                    discountLogics(discountByPriority, discount, ('sg-' + String.valueOf(discount.ProductsSubGroup__c)), approvalLevels);
+                }else if(discount.ProductGroup__c != null){
+                    discountLogics(discountByPriority, discount, ('g-' + String.valueOf(discount.ProductGroup__c)), approvalLevels);
                 }
             }
             //System.debug('orderDisc => ' + orderDisc);
@@ -691,10 +698,8 @@ global without sharing class IntegrationINOrderAppdigital {
             
             //Integer approvalNumber = approvalLevels.get(orderDisc.Approver__c);
             Integer approvalNumber = 0;
-            for(Discount__c approverDiscount : discountByGroups.values()){
-                Integer discountNumber = approvalLevels.get(discountByGroups.get(approverDiscount.ProductGroup__c).Approver__c);
-                approvalNumber = approvalNumber > discountNumber ? approvalNumber : discountNumber;
-            }
+            approvalNumber = setApprovalNumber(discountByPriority, approvalLevels);
+                
             Map<Integer, Id> approvalByCounter = new Map<Integer, Id>();
             while (counter < approvalNumber) {
                 Territory2 territory = territoryAndParents.containsKey(userTerritoryId) ? territoryAndParents.get(userTerritoryId) : new Territory2();
@@ -745,5 +750,61 @@ global without sharing class IntegrationINOrderAppdigital {
         }
         orderDiscount.Description += '1n73gr4ção N3sc4r4 5F x 4PP';
         Database.update(orderDiscount, Order.Id);
+    }
+
+    private static void discountLogics(Map<String, Discount__c> discountByPriority, Discount__c discount, String keyDiscount,Map<String, Integer> approvalLevels){
+        if (!discountByPriority.containsKey(keyDiscount)) {
+            discountByPriority.put(keyDiscount, discount);
+        } else {
+            String discountApprover = discountByPriority.get(keyDiscount).Approver__c;
+            if (approvalLevels.get(discount.Approver__c) > approvalLevels.get(discountApprover)) {
+                discountByPriority.put(keyDiscount, discount);
+            }
+        }
+    }
+
+    private static Integer setApprovalNumber(Map<String, Discount__c> discountByPriority, Map<String, Integer> approvalLevels){
+       Map<String, List<Integer>> discountNumberMap = new Map<String, List<Integer>>();
+        discountNumberMap.put('p', new List<Integer>());
+        discountNumberMap.put('sg', new List<Integer>());
+        discountNumberMap.put('g', new List<Integer>());
+        String key1 = '';
+        String key2 = '';
+        String key3 = '';
+
+        for (Discount__c approverDiscount : discountByPriority.values()) {
+            key1 = 'p-' + String.valueOf(approverDiscount.Product__c);
+            key2 = 'sg-' + String.valueOf(approverDiscount.ProductsSubGroup__c);
+            key3 = 'g-' + String.valueOf(approverDiscount.ProductGroup__c);
+
+            if(discountByPriority.containsKey(key1)){
+                discountNumberMap.get('p').add(approvalLevels.get(discountByPriority.get(key1).Approver__c));
+            }else if(discountByPriority.containsKey(key2)){
+                discountNumberMap.get('sg').add(approvalLevels.get(discountByPriority.get(key2).Approver__c));
+            }else if(discountByPriority.containsKey(key3)){
+                discountNumberMap.get('g').add(approvalLevels.get(discountByPriority.get(key3).Approver__c));
+            }
+        }
+
+        List<Integer> discountNumberSorted = new List<Integer>();
+        if(!discountNumberMap.get('p').isEmpty()){
+            discountNumberSorted = discountNumberMap.get('p');
+            discountNumberSorted.sort();
+            return discountNumberSorted[discountNumberSorted.size() - 1];
+        }
+
+        if(!discountNumberMap.get('sg').isEmpty()){
+            discountNumberSorted = discountNumberMap.get('sg');
+            discountNumberSorted.sort();
+            return discountNumberSorted[discountNumberSorted.size() - 1];
+        }
+
+        if(!discountNumberMap.get('g').isEmpty()){
+            discountNumberSorted = discountNumberMap.get('g');
+            discountNumberSorted.sort();
+            return discountNumberSorted[discountNumberSorted.size() - 1];
+        }
+
+        return 0;
     }
 }

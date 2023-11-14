@@ -576,13 +576,18 @@ public without sharing class OrderScreenController {
             Decimal tsiTotalValue = 0;
             Decimal royaltyTotalValue = 0;
             Boolean seedSale = isSeedSale(company.SalesOrg__c, null);
-            Map<Id, Decimal> discountByProductGroups = new Map<Id, Decimal>();
+            Map<Id, Decimal> discountByProductIds = new Map<Id, Decimal>();
+            Set<Id> productGroupsIds = new Set<Id>();
+            Set<Id> productSubGroupsIds = new Set<Id>();
+
             
             Set<Id> setOrderItemsIds = new Set<Id>();
             List<Id> listProductsIds = new List<Id>();
             Set<Id> setProductHierarchyIds = new Set<Id>();
             Map<String, Decimal> quantitiesById = new Map<String, Decimal>();
             Map<String, Decimal> smallerMarginByProductGroup = new Map<String, Decimal>();
+            Map<String, Decimal> smallerMarginByProductSubGroup = new Map<String, Decimal>();
+            Map<String, Decimal> smallerMarginByProductId = new Map<String, Decimal>();
             Map<String, Decimal> IdOrderItemToQuantity = new Map<String, Decimal>();
             
             Decimal productQuantities = 0;
@@ -600,7 +605,23 @@ public without sharing class OrderScreenController {
                 if (orderProduct.productId != null) {
                     IdOrderItemToQuantity.put(orderProduct.productId, orderProduct.quantity);
                     listProductsIds.add(orderProduct.productId);
-                    IdOrderItemToQuantity.put(orderProduct.productId, orderProduct.quantity);
+                    if (!smallerMarginByProductId.containsKey(orderProduct.productId)) {
+                        smallerMarginByProductId.put(orderProduct.productId, orderProduct.commercialMarginPercentage);
+                    } else {
+                        Decimal currentMargin = smallerMarginByProductId.get(orderProduct.productId);
+                        currentMargin = currentMargin > orderProduct.commercialMarginPercentage ? orderProduct.commercialMarginPercentage : currentMargin;
+                        smallerMarginByProductId.put(orderProduct.productId, currentMargin);
+                    }
+                }
+
+                if(orderProduct.productSubgroupId != null){
+                    if (!smallerMarginByProductSubGroup.containsKey(orderProduct.productSubgroupId)) {
+                        smallerMarginByProductSubGroup.put(orderProduct.productSubgroupId, orderProduct.commercialMarginPercentage);
+                    } else {
+                        Decimal currentMargin = smallerMarginByProductSubGroup.get(orderProduct.productSubgroupId);
+                        currentMargin = currentMargin > orderProduct.commercialMarginPercentage ? orderProduct.commercialMarginPercentage : currentMargin;
+                        smallerMarginByProductSubGroup.put(orderProduct.productSubgroupId, currentMargin);
+                    }
                 }
 
                 if (orderProduct.productGroupId != null && !orderProduct.containsCombo) {
@@ -619,13 +640,9 @@ public without sharing class OrderScreenController {
 
                 Decimal currentDiscount = orderProduct.commercialDiscountPercentage != '' ? (stringToDecimal(orderProduct.commercialDiscountPercentage) != null ? stringToDecimal(orderProduct.commercialDiscountPercentage) : 0) : 0;
                 if (currentDiscount > 0) {
-                    biggerDiscount = biggerDiscount > currentDiscount ? biggerDiscount : currentDiscount;
-                    if (!discountByProductGroups.containsKey(orderProduct.productGroupId)) {
-                        discountByProductGroups.put(orderProduct.productGroupId, currentDiscount);
-                    } else {
-                        Decimal currentBiggerDiscount = discountByProductGroups.get(orderProduct.productGroupId);
-                        discountByProductGroups.put(orderProduct.productGroupId, currentBiggerDiscount > currentDiscount ? currentBiggerDiscount : currentDiscount);
-                    }
+                    productGroupsIds.add(orderProduct.productGroupId);
+                    productSubGroupsIds.add(orderProduct.productSubgroupId);
+                    discountByProductIds.put(orderProduct.productId, currentDiscount);
                 }
 
                 if (order.OrderReference__c != null && motherItems.containsKey(orderProduct.productId) && order.Status == '0' && typeOrder != 'prepedido') {
@@ -699,28 +716,57 @@ public without sharing class OrderScreenController {
                 for (Discount__c discount : [
                     SELECT Id,
                            Margin__c,
-                           ProductGroup__c
+                           ProductGroup__c,
+                           ProductsSubGroup__c,
+                           Product__c
                       FROM Discount__c
                      WHERE Status__c = 'Aprovado'
                        AND Approver__c = 'ComiteMargem'
                        AND ClientGroup__c =: company.ClientGroup__c
                        AND SalesOrg__c =: company.SalesOrg__c
                        AND CurrencyIsoCode =: orderData.headerData.moeda
-                       AND ProductGroup__c IN: smallerMarginByProductGroup.keySet()
+                       AND (
+                            ProductGroup__c IN: smallerMarginByProductGroup.keySet() OR
+                            ProductsSubGroup__c IN: smallerMarginByProductSubGroup.keySet() OR
+                            Product__c IN: smallerMarginByProductId.keySet()
+                       )
                        AND InitialDate__c <=: System.today()
                        AND EndDate__c >=: System.today()
                   ORDER BY Margin__c
                 ]) {
-                    orderMarginMap.put(discount.ProductGroup__c, discount.Margin__c);
+                    if(discount.Product__c != null){
+                        orderMarginMap.put(discount.Product__c, discount.Margin__c);
+                    }else if(discount.ProductsSubGroup__c != null){
+                        orderMarginMap.put(discount.ProductsSubGroup__c, discount.Margin__c);
+                    }else if(discount.ProductGroup__c != null){
+                        orderMarginMap.put(discount.ProductGroup__c, discount.Margin__c);
+                    }
                 }
             }
 
             order.MarginCommittee__c = false;
-            for (String groupId : smallerMarginByProductGroup.keySet()) {
-                if (orderMarginMap.get(groupId) >= smallerMarginByProductGroup.get(groupId)) {
+            for (String productId : smallerMarginByProductId.keySet()) {
+                if (orderMarginMap.get(productId) >= smallerMarginByProductId.get(productId)) {
                     order.MarginCommittee__c = true;
                 }
             }
+
+            if(!order.MarginCommittee__c){
+                for (String subGroupId : smallerMarginByProductSubGroup.keySet()) {
+                    if (orderMarginMap.get(subGroupId) >= smallerMarginByProductGroup.get(subGroupId)) {
+                        order.MarginCommittee__c = true;
+                    }
+                }
+            }
+            
+            if(!order.MarginCommittee__c){
+                for (String groupId : smallerMarginByProductGroup.keySet()) {
+                    if (orderMarginMap.get(groupId) >= smallerMarginByProductGroup.get(groupId)) {
+                        order.MarginCommittee__c = true;
+                    }
+                }
+            }
+            
 
             Map<String, PricebookEntry> entriesByProductsIds = new Map<String, PricebookEntry>();
             Id pricebookId;
@@ -810,11 +856,15 @@ public without sharing class OrderScreenController {
                     territoryAndParents.put(territory.Id, territory);
                 }
 
+                
                 Decimal greaterDiscount = 0;
                 Decimal smallerDiscount;
-                for (Decimal actualDiscount : discountByProductGroups.values()) {
-                    greaterDiscount = greaterDiscount > actualDiscount ? greaterDiscount : actualDiscount;
-                    smallerDiscount = smallerDiscount == null ? (smallerDiscount < actualDiscount ? smallerDiscount : actualDiscount) : smallerDiscount;
+
+                if(!discountByProductIds.values().isEmpty()){
+                    List<Decimal> discountSorted = discountByProductIds.values();
+                    discountSorted.sort();
+                    greaterDiscount = discountSorted[discountSorted.size() - 1];
+                    smallerDiscount = discountSorted[0];
                 }
 
                 Map<String, Integer> approvalLevels = new Map<String, Integer>{
@@ -824,11 +874,13 @@ public without sharing class OrderScreenController {
                     'Diretor Torre' => 4
                 };
 
-                Map<Id, Discount__c> discountByGroups = new Map<Id, Discount__c>();
+                Map<String, Discount__c> discountByPriority = new Map<String, Discount__c>();
                 for (Discount__c discount : [
                     SELECT Id,
                            Approver__c,
                            ProductGroup__c,
+                           ProductsSubGroup__c,
+                           Product__c,
                            MinPercentage__c,
                            MaxPercentage__c
                       FROM Discount__c
@@ -836,31 +888,30 @@ public without sharing class OrderScreenController {
                        AND ClientGroup__c =: company.ClientGroup__c
                        AND SalesOrg__c =: company.SalesOrg__c
                        AND CurrencyIsoCode =: orderData.headerData.moeda
-                       AND ProductGroup__c IN: discountByProductGroups.keySet()
+                       AND (
+                            ProductGroup__c IN: productGroupsIds OR
+                            ProductsSubGroup__c IN: productSubGroupsIds OR 
+                            Product__c IN: listProductsIds
+                       )
                        AND InitialDate__c <=: System.today()
                        AND EndDate__c >=: System.today()
-                       AND (MinPercentage__c <=: smallerDiscount OR MaxPercentage__c >=: greaterDiscount)
+                       AND (MinPercentage__c <=: smallerDiscount AND MaxPercentage__c >=: greaterDiscount)
                   ORDER BY MinPercentage__c, MaxPercentage__c
                 ]) {
-                    Decimal groupDiscount = discountByProductGroups.get(discount.ProductGroup__c);
-                    if (discount.MinPercentage__c <= groupDiscount && discount.MaxPercentage__c >= groupDiscount) {
-                        if (!discountByGroups.containsKey(discount.ProductGroup__c)) {
-                            discountByGroups.put(discount.ProductGroup__c, discount);
-                        } else {
-                            String discountApprover = discountByGroups.get(discount.ProductGroup__c).Approver__c;
-                            if (approvalLevels.get(discount.Approver__c) > approvalLevels.get(discountApprover)) {
-                                discountByGroups.put(discount.ProductGroup__c, discount);
-                            }
-                        }
+                    
+                    if(discount.Product__c != null){
+                        discountLogics(discountByPriority, discount, ('p-' + String.valueOf(discount.Product__c)), approvalLevels);
+                    }else if(discount.ProductsSubGroup__c != null){
+                        discountLogics(discountByPriority, discount, ('sg-' + String.valueOf(discount.ProductsSubGroup__c)), approvalLevels);
+                    }else if(discount.ProductGroup__c != null){
+                        discountLogics(discountByPriority, discount, ('g-' + String.valueOf(discount.ProductGroup__c)), approvalLevels);
                     }
+        
                 }
 
                 Integer approvalNumber = 0;
-                for (Discount__c approverDiscount : discountByGroups.values()) {
-                    Integer discountNumber = approvalLevels.get(discountByGroups.get(approverDiscount.ProductGroup__c).Approver__c);
-                    approvalNumber = approvalNumber > discountNumber ? approvalNumber : discountNumber;
-                }
-
+                approvalNumber = setApprovalNumber(discountByPriority, approvalLevels);
+                
                 Integer counter = 0;
                 Map<Integer, Id> approvalByCounter = new Map<Integer, Id>();
                 while (counter < approvalNumber) {
@@ -1487,6 +1538,63 @@ public without sharing class OrderScreenController {
             return JSON.serializePretty(new AGRO_RemotingResult(true, '200', msg));
 		}
     }
+
+    private static void discountLogics(Map<String, Discount__c> discountByPriority, Discount__c discount, String keyDiscount,Map<String, Integer> approvalLevels){
+        if (!discountByPriority.containsKey(keyDiscount)) {
+            discountByPriority.put(keyDiscount, discount);
+        } else {
+            String discountApprover = discountByPriority.get(keyDiscount).Approver__c;
+            if (approvalLevels.get(discount.Approver__c) > approvalLevels.get(discountApprover)) {
+                discountByPriority.put(keyDiscount, discount);
+            }
+        }
+    }
+
+    private static Integer setApprovalNumber(Map<String, Discount__c> discountByPriority, Map<String, Integer> approvalLevels){
+       Map<String, List<Integer>> discountNumberMap = new Map<String, List<Integer>>();
+        discountNumberMap.put('p', new List<Integer>());
+        discountNumberMap.put('sg', new List<Integer>());
+        discountNumberMap.put('g', new List<Integer>());
+        String key1 = '';
+        String key2 = '';
+        String key3 = '';
+
+        for (Discount__c approverDiscount : discountByPriority.values()) {
+            key1 = 'p-' + String.valueOf(approverDiscount.Product__c);
+            key2 = 'sg-' + String.valueOf(approverDiscount.ProductsSubGroup__c);
+            key3 = 'g-' + String.valueOf(approverDiscount.ProductGroup__c);
+
+            if(discountByPriority.containsKey(key1)){
+                discountNumberMap.get('p').add(approvalLevels.get(discountByPriority.get(key1).Approver__c));
+            }else if(discountByPriority.containsKey(key2)){
+                discountNumberMap.get('sg').add(approvalLevels.get(discountByPriority.get(key2).Approver__c));
+            }else if(discountByPriority.containsKey(key3)){
+                discountNumberMap.get('g').add(approvalLevels.get(discountByPriority.get(key3).Approver__c));
+            }
+        }
+
+        List<Integer> discountNumberSorted = new List<Integer>();
+        if(!discountNumberMap.get('p').isEmpty()){
+            discountNumberSorted = discountNumberMap.get('p');
+            discountNumberSorted.sort();
+            return discountNumberSorted[discountNumberSorted.size() - 1];
+        }
+
+        if(!discountNumberMap.get('sg').isEmpty()){
+            discountNumberSorted = discountNumberMap.get('sg');
+            discountNumberSorted.sort();
+            return discountNumberSorted[discountNumberSorted.size() - 1];
+        }
+
+        if(!discountNumberMap.get('g').isEmpty()){
+            discountNumberSorted = discountNumberMap.get('g');
+            discountNumberSorted.sort();
+            return discountNumberSorted[discountNumberSorted.size() - 1];
+        }
+
+        return 0;
+    }
+
 
     public static Map<Id, Integer> getDivisionCounter(Map<Id, Integer> divisionCounterByItemId, String orderItemId) {
         Integer divisionCounter;
@@ -2171,19 +2279,41 @@ public without sharing class OrderScreenController {
        
         Decimal biggerDiscount = 0;
         Set<Id> setProductGroups = new Set<Id>();
-        Map<Id, Decimal> discountByProductGroups = new Map<Id, Decimal>();
-        
+        List<Id> listProductsIds = new List<Id>();
+        Map<Id, Decimal> discountByProductIds = new Map<Id, Decimal>();
+        Set<Id> productGroupsIds = new Set<Id>();
+        Set<Id> productSubGroupsIds = new Set<Id>();
+        Map<String, Decimal> smallerMarginByProductSubGroup = new Map<String, Decimal>();
+        Map<String, Decimal> smallerMarginByProductId = new Map<String, Decimal>();
+            
         for (ProductDeserialize orderProduct : orderData.productData) {
             orderTotalValue += orderProduct.totalPrice;
 
             Decimal currentDiscount = orderProduct.commercialDiscountPercentage != '' ? (stringToDecimal(orderProduct.commercialDiscountPercentage) != null ? stringToDecimal(orderProduct.commercialDiscountPercentage) : 0) : 0;
             if (currentDiscount > 0) {
-                biggerDiscount = biggerDiscount > currentDiscount ? biggerDiscount : currentDiscount;
-                if (!discountByProductGroups.containsKey(orderProduct.productGroupId)) {
-                    discountByProductGroups.put(orderProduct.productGroupId, currentDiscount);
+                productGroupsIds.add(orderProduct.productGroupId);
+                productSubGroupsIds.add(orderProduct.productSubgroupId);
+                discountByProductIds.put(orderProduct.productId, currentDiscount);
+            }
+
+            if (orderProduct.productId != null) {
+                listProductsIds.add(orderProduct.productId);
+                if (!smallerMarginByProductId.containsKey(orderProduct.productId)) {
+                    smallerMarginByProductId.put(orderProduct.productId, orderProduct.commercialMarginPercentage);
                 } else {
-                    Decimal currentBiggerDiscount = discountByProductGroups.get(orderProduct.productGroupId);
-                    discountByProductGroups.put(orderProduct.productGroupId, currentBiggerDiscount > currentDiscount ? currentBiggerDiscount : currentDiscount);
+                    Decimal currentMargin = smallerMarginByProductId.get(orderProduct.productId);
+                    currentMargin = currentMargin > orderProduct.commercialMarginPercentage ? orderProduct.commercialMarginPercentage : currentMargin;
+                    smallerMarginByProductId.put(orderProduct.productId, currentMargin);
+                }
+            }
+
+            if(orderProduct.productSubgroupId != null){
+                if (!smallerMarginByProductSubGroup.containsKey(orderProduct.productSubgroupId)) {
+                    smallerMarginByProductSubGroup.put(orderProduct.productSubgroupId, orderProduct.commercialMarginPercentage);
+                } else {
+                    Decimal currentMargin = smallerMarginByProductSubGroup.get(orderProduct.productSubgroupId);
+                    currentMargin = currentMargin > orderProduct.commercialMarginPercentage ? orderProduct.commercialMarginPercentage : currentMargin;
+                    smallerMarginByProductSubGroup.put(orderProduct.productSubgroupId, currentMargin);
                 }
             }
 
@@ -2208,35 +2338,68 @@ public without sharing class OrderScreenController {
             for (Discount__c discount : [
                 SELECT Id,
                        Margin__c,
-                       ProductGroup__c
+                       ProductGroup__c,
+                       ProductsSubGroup__c,
+                       Product__c
                   FROM Discount__c
                  WHERE Status__c = 'Aprovado'
                    AND Approver__c = 'ComiteMargem'
                    AND ClientGroup__c =: company.ClientGroup__c
                    AND SalesOrg__c =: company.SalesOrg__c
                    AND CurrencyIsoCode =: orderData.headerData.moeda
-                   AND ProductGroup__c IN: smallerMarginByProductGroup.keySet()
+                   AND (
+                            ProductGroup__c IN: smallerMarginByProductGroup.keySet() OR
+                            ProductsSubGroup__c IN: smallerMarginByProductSubGroup.keySet() OR
+                            Product__c IN: smallerMarginByProductId.keySet()
+                       )
                    AND InitialDate__c <=: System.today()
                    AND EndDate__c >=: System.today()
               ORDER BY Margin__c
             ]) {
-                orderMarginMap.put(discount.ProductGroup__c, discount.Margin__c);
+                if(discount.Product__c != null){
+                    orderMarginMap.put(discount.Product__c, discount.Margin__c);
+                }else if(discount.ProductsSubGroup__c != null){
+                    orderMarginMap.put(discount.ProductsSubGroup__c, discount.Margin__c);
+                }else if(discount.ProductGroup__c != null){
+                    orderMarginMap.put(discount.ProductGroup__c, discount.Margin__c);
+                }
             }
         }
 
-        for (String groupId : smallerMarginByProductGroup.keySet()) {
-            if (orderMarginMap.get(groupId) >= smallerMarginByProductGroup.get(groupId)) {
+        
+        for (String productId : smallerMarginByProductId.keySet()) {
+            if (orderMarginMap.get(productId) >= smallerMarginByProductId.get(productId)) {
                 approval += '- ' + 'Comitê de Margem';
             }
         }
+
+        if(!approval.contains('- Comitê de Margem')){
+            for (String subGroupId : smallerMarginByProductSubGroup.keySet()) {
+                if (orderMarginMap.get(subGroupId) >= smallerMarginByProductGroup.get(subGroupId)) {
+                    approval += '- ' + 'Comitê de Margem';
+                }
+            }
+        }
+        
+        if(!approval.contains('- Comitê de Margem')){
+            for (String groupId : smallerMarginByProductGroup.keySet()) {
+                if (orderMarginMap.get(groupId) >= smallerMarginByProductGroup.get(groupId)) {
+                    approval += '- ' + 'Comitê de Margem';
+                }
+            }
+        }
+
+      
         
         if (company != null) {
             Decimal greaterDiscount = 0;
             Decimal smallerDiscount;
 
-            for (Decimal actualDiscount : discountByProductGroups.values()) {
-                greaterDiscount = greaterDiscount > actualDiscount ? greaterDiscount : actualDiscount;
-                smallerDiscount = smallerDiscount == null ? (smallerDiscount < actualDiscount ? smallerDiscount : actualDiscount) : smallerDiscount;
+            if(!discountByProductIds.values().isEmpty()){
+                List<Decimal> discountSorted = discountByProductIds.values();
+                discountSorted.sort();
+                greaterDiscount = discountSorted[discountSorted.size() - 1];
+                smallerDiscount = discountSorted[0];
             }
 
             Map<String, Integer> approvalLevels = new Map<String, Integer>{
@@ -2246,11 +2409,13 @@ public without sharing class OrderScreenController {
                 'Diretor Torre' => 4
             };
 
-            Map<Id, Discount__c> discountByGroups = new Map<Id, Discount__c>();
+            Map<String, Discount__c> discountByPriority = new Map<String, Discount__c>();
             for (Discount__c discount : [
                 SELECT Id,
                        Approver__c,
                        ProductGroup__c,
+                       ProductsSubGroup__c,
+                       Product__c,
                        MinPercentage__c,
                        MaxPercentage__c
                   FROM Discount__c
@@ -2258,31 +2423,28 @@ public without sharing class OrderScreenController {
                    AND ClientGroup__c =: company.ClientGroup__c
                    AND SalesOrg__c =: company.SalesOrg__c
                    AND CurrencyIsoCode =: orderData.headerData.moeda
-                   AND ProductGroup__c IN: discountByProductGroups.keySet()
-                   AND InitialDate__c <=: System.today()
+                   AND (
+                            ProductGroup__c IN: productGroupsIds OR
+                            ProductsSubGroup__c IN: productSubGroupsIds OR 
+                            Product__c IN: listProductsIds
+                       )
+                    AND InitialDate__c <=: System.today()
                    AND EndDate__c >=: System.today()
-                   AND (MinPercentage__c <=: smallerDiscount OR MaxPercentage__c >=: greaterDiscount)
+                   AND (MinPercentage__c <=: smallerDiscount AND MaxPercentage__c >=: greaterDiscount)
               ORDER BY MinPercentage__c, MaxPercentage__c
             ]) {
-                Decimal groupDiscount = discountByProductGroups.get(discount.ProductGroup__c);
-                if (discount.MinPercentage__c <= groupDiscount && discount.MaxPercentage__c >= groupDiscount) {
-                    if (!discountByGroups.containsKey(discount.ProductGroup__c)) {
-                        discountByGroups.put(discount.ProductGroup__c, discount);
-                    } else {
-                        String discountApprover = discountByGroups.get(discount.ProductGroup__c).Approver__c;
-                        if (approvalLevels.get(discount.Approver__c) > approvalLevels.get(discountApprover)) {
-                            discountByGroups.put(discount.ProductGroup__c, discount);
-                        }
-                    }
+                if(discount.Product__c != null){
+                    discountLogics(discountByPriority, discount, ('p-' + String.valueOf(discount.Product__c)), approvalLevels);
+                }else if(discount.ProductsSubGroup__c != null){
+                    discountLogics(discountByPriority, discount, ('sg-' + String.valueOf(discount.ProductsSubGroup__c)), approvalLevels);
+                }else if(discount.ProductGroup__c != null){
+                    discountLogics(discountByPriority, discount, ('g-' + String.valueOf(discount.ProductGroup__c)), approvalLevels);
                 }
             }
 
             Integer approvalNumber = 0;
-            for (Discount__c approverDiscount : discountByGroups.values()) {
-                Integer discountNumber = approvalLevels.get(discountByGroups.get(approverDiscount.ProductGroup__c).Approver__c);
-                approvalNumber = approvalNumber > discountNumber ? approvalNumber : discountNumber;
-            }
-
+            approvalNumber = setApprovalNumber(discountByPriority, approvalLevels);
+                
             if(approvalNumber == 4){
                 approval += 'Gerente Filial/Gerente Regional/Diretor BU/Diretor Torre';
             }
