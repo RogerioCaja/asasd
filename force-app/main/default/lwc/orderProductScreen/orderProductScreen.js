@@ -380,66 +380,67 @@ export default class OrderProductScreen extends LightningElement {
     }
 
     onSelectCompany() {
-        if (!this.isFilled(this.headerData.companyId)) {
-            this.selectCompany = !this.selectCompany;
-            this.headerData.companyId = this.selectedCompany.companyId;
-            this.headerData.companySector = this.selectedCompany.activitySectorName;
+        let t = this
+        if (!t.isFilled(t.headerData.companyId)) {
+            t.selectCompany = !t.selectCompany;
+            t.headerData.companyId = t.selectedCompany.companyId;
+            t.headerData.companySector = t.selectedCompany.activitySectorName;
         }
-        this._setHeaderValues();
+        t._setHeaderValues();
 
-        this.hidePrices = false;
-        if (this.headerData.tipo_venda == 'Venda Barter') {
-            this.hidePrices = !this.selectedCompany.showBarterPrices;
-            getTaxes({accountId: this.accountData.Id, salesOrgId: this.selectedCompany.salesOrgId})
+        t.hidePrices = false;
+        if (t.headerData.tipo_venda == 'Venda Barter') {
+            t.hidePrices = !t.selectedCompany.showBarterPrices;
+            getTaxes({accountId: t.accountData.Id, salesOrgId: t.selectedCompany.salesOrgId})
             .then((result) => {
-                this.taxData = JSON.parse(result);
-                console.log('this.taxData: ' + JSON.stringify(this.taxData));
+                t.taxData = JSON.parse(result);
+                console.log('t.taxData: ' + JSON.stringify(t.taxData));
             });
         }
         
-        isSeedSale({salesOrgId: this.selectedCompany.salesOrgId, productGroupName: null})
+        isSeedSale({salesOrgId: t.selectedCompany.salesOrgId, productGroupName: null})
         .then((result) => {
             
-            this.seedSale = result;
+            t.seedSale = result;
             
-            if (this.isFilled(this.selectedCompany.activitySectorName) && (this.selectedCompany.activitySectorName.toUpperCase() == 'SEMENTES' || this.selectedCompany.activitySectorName.toUpperCase() == 'SEMENTE')) {
-                this.showRoyaltyTsi = result;
+            if (t.isFilled(t.selectedCompany.activitySectorName) && (t.selectedCompany.activitySectorName.toUpperCase() == 'SEMENTES' || t.selectedCompany.activitySectorName.toUpperCase() == 'SEMENTE')) {
+                t.showRoyaltyTsi = result;
             }
 
-            if (this.seedSale && this.isFilled(this.selectedCompany.activitySectorName) && (this.selectedCompany.activitySectorName.toUpperCase() == 'INSUMOS' || this.selectedCompany.activitySectorName.toUpperCase() == 'INSUMO')) {
-                this.dontGetSeeds = true;
+            if (t.seedSale && t.isFilled(t.selectedCompany.activitySectorName) && (t.selectedCompany.activitySectorName.toUpperCase() == 'INSUMOS' || t.selectedCompany.activitySectorName.toUpperCase() == 'INSUMO')) {
+                t.dontGetSeeds = true;
             }
 
-            this.productParams = {
-                salesConditionId: this.headerData.condicao_venda.Id,
-                accountId: this.accountData.Id,
-                ctvId: this.headerData.ctv_venda.Id,
-                safra: this.headerData.safra.Id,
-                productCurrency: this.headerData.moeda,
-                culture: this.headerData.cultura.Id,
-                orderType: this.headerData.tipo_venda,
-                supplierCenter: this.headerData.supplierCenterDeliveredAccount,
-                activitySectorName: this.selectedCompany.activitySectorName,
-                salesOrgId: this.selectedCompany.salesOrgId != null ? this.selectedCompany.salesOrgId : '',
-                salesOfficeId: this.selectedCompany.salesOfficeId != null ? this.selectedCompany.salesOfficeId : '',
-                salesTeamId: this.selectedCompany.salesTeamId != null ? this.selectedCompany.salesTeamId : '',
-                numberOfRowsToSkip: this.numberOfRowsToSkip,
-                dontGetSeeds: this.isFilled(this.dontGetSeeds) ? this.dontGetSeeds : false,
-                paymentDate: this.headerData.data_pagamento
+            t.productParams = {
+                salesConditionId: t.headerData.condicao_venda.Id,
+                accountId: t.accountData.Id,
+                ctvId: t.headerData.ctv_venda.Id,
+                safra: t.headerData.safra.Id,
+                productCurrency: t.headerData.moeda,
+                culture: t.headerData.cultura.Id,
+                orderType: t.headerData.tipo_venda,
+                supplierCenter: t.headerData.supplierCenterDeliveredAccount,
+                activitySectorName: t.selectedCompany.activitySectorName,
+                salesOrgId: t.selectedCompany.salesOrgId != null ? t.selectedCompany.salesOrgId : '',
+                salesOfficeId: t.selectedCompany.salesOfficeId != null ? t.selectedCompany.salesOfficeId : '',
+                salesTeamId: t.selectedCompany.salesTeamId != null ? t.selectedCompany.salesTeamId : '',
+                numberOfRowsToSkip: t.numberOfRowsToSkip,
+                dontGetSeeds: t.isFilled(t.dontGetSeeds) ? t.dontGetSeeds : false,
+                paymentDate: t.headerData.data_pagamento
             };
 
             let prodsIds = [];
-            for (let index = 0; index < this.products.length; index++) {
-                prodsIds.push(this.products[index].productId);
+            for (let index = 0; index < t.products.length; index++) {
+                prodsIds.push(t.products[index].productId);
             }
 
             let formerItens = [];
             let benefitItens = [];
             let mixTotal = [];
-            for (let index = 0; index < this.combosSelecteds.length; index++) {
-                let currentCombo = this.combosSelecteds[index];
-                if (this.isFilled(currentCombo) && currentCombo.comboQuantity > 0 && currentCombo.specificItemCombo) {
-                    if (this.isFilled(currentCombo.formerItems) && currentCombo.formerItems.length > 0) {
+            for (let index = 0; index < t.combosSelecteds.length; index++) {
+                let currentCombo = t.combosSelecteds[index];
+                if (t.isFilled(currentCombo) && currentCombo.comboQuantity > 0 && currentCombo.specificItemCombo) {
+                    if (t.isFilled(currentCombo.formerItems) && currentCombo.formerItems.length > 0) {
                         for (let i = 0; i < currentCombo.formerItems.length; i++) {
                             let former = currentCombo.formerItems[i];
                             formerItens.push({productName: former.productName, productId: former.productId, productCode: former.productCode, minQUantity: former.minQUantity, discountPercentage: former.discountPercentage, comboId: former.comboId, comboQuantity: currentCombo.comboQuantity, industryCombo: currentCombo.comboType == 'Indústria'});
@@ -447,7 +448,7 @@ export default class OrderProductScreen extends LightningElement {
                         }
                     }
 
-                    if (this.isFilled(currentCombo.benefitItems) && currentCombo.benefitItems.length > 0) {
+                    if (t.isFilled(currentCombo.benefitItems) && currentCombo.benefitItems.length > 0) {
                         for (let i = 0; i < currentCombo.benefitItems.length; i++) {
                             let benefit = currentCombo.benefitItems[i];
                             benefitItens.push({productName: benefit.productName, productId: benefit.productId, productCode: benefit.productCode, minQUantity: benefit.minQUantity, discountPercentage: benefit.discountPercentage, comboId: benefit.comboId, comboQuantity:currentCombo.comboQuantity, industryCombo: currentCombo.comboType == 'Indústria'});
@@ -457,46 +458,46 @@ export default class OrderProductScreen extends LightningElement {
 
                     
                 }
-                if (this.isFilled(currentCombo.groupQuantities) && currentCombo.comboQuantity > 0 && currentCombo.groupQuantities.length > 0) {
+                if (t.isFilled(currentCombo.groupQuantities) && currentCombo.comboQuantity > 0 && currentCombo.groupQuantities.length > 0) {
                     const data = loadComboMix(currentCombo, mixTotal, prodsIds);
                     mixTotal = data.mixTotal;
                     prodsIds = data.prodsIds;
                 }
             }
 
-            if (this.seedSale && this.headerData.tipo_pedido != 'Pedido Filho' && !this.headerData.IsOrderChild) {
-                this.verifyQuota = true;
+            if (t.seedSale && t.headerData.tipo_pedido != 'Pedido Filho' && !t.headerData.IsOrderChild) {
+                t.verifyQuota = true;
                 if (prodsIds.length > 0) {
-                    let quoteData = {cropId:this.headerData.safra.Id,sellerId:this.headerData.ctv_venda.Id,productsIds:prodsIds};
-                    if (this.verifyQuota && this.showRoyaltyTsi) {
+                    let quoteData = {cropId:t.headerData.safra.Id,sellerId:t.headerData.ctv_venda.Id,productsIds:prodsIds};
+                    if (t.verifyQuota && t.showRoyaltyTsi) {
                         checkQuotaQuantity({data: JSON.stringify(quoteData)})
                         .then((result) => {
-                            this.allProductQuotas = JSON.parse(result);
+                            t.allProductQuotas = JSON.parse(result);
                         });
                     }
                 }
             } else {
-                this.verifyQuota = false;
+                t.verifyQuota = false;
             }
 
-            if (this.isFilled(this.headerData.safra.Id)) {
-                getSafraInfos({safraId: this.headerData.safra.Id, salesConditionId: this.salesConditionId, salesOrgId: this.headerData.organizacao_vendas.Id})
+            if (t.isFilled(t.headerData.safra.Id)) {
+                getSafraInfos({safraId: t.headerData.safra.Id, salesConditionId: t.salesConditionId, salesOrgId: t.headerData.organizacao_vendas.Id})
                 .then((result) => {
                     
                     let safraResult = JSON.parse(result);
-                    this.safraData = {initialDate:safraResult.initialDate,endDate:safraResult.endDateBilling};
-                    let orderData = {paymentDate:this.headerData.data_pagamento != null ? this.headerData.data_pagamento : '',salesOrg:this.selectedCompany.salesOrgId != null ? this.selectedCompany.salesOrgId : '',salesOffice:this.selectedCompany.salesOfficeId != null ? this.selectedCompany.salesOfficeId : '',salesTeam:this.selectedCompany.salesTeamId != null ? this.selectedCompany.salesTeamId : '',salesCondition:this.salesConditionId != null ? this.salesConditionId : '',safra:this.headerData.safra.Id != null ? this.headerData.safra.Id : '',culture:this.headerData.cultura.Id != null ? this.headerData.cultura.Id : '',clientGroup: this.selectedCompany.clientGroup != null ? this.selectedCompany.clientGroup : ''};
-                    let allowChange = (this.headerData.tipo_pedido != 'Pedido Filho' && !this.headerData.IsOrderChild && this.isFilled(this.headerData.codigo_sap)) || (this.headerData.tipo_pedido == 'Pedido Filho' && this.isFilled(this.headerData.codigo_sap)) ? false : true;
+                    t.safraData = {initialDate:safraResult.initialDate,endDate:safraResult.endDateBilling};
+                    let orderData = {paymentDate:t.headerData.data_pagamento != null ? t.headerData.data_pagamento : '',salesOrg:t.selectedCompany.salesOrgId != null ? t.selectedCompany.salesOrgId : '',salesOffice:t.selectedCompany.salesOfficeId != null ? t.selectedCompany.salesOfficeId : '',salesTeam:t.selectedCompany.salesTeamId != null ? t.selectedCompany.salesTeamId : '',salesCondition:t.salesConditionId != null ? t.salesConditionId : '',safra:t.headerData.safra.Id != null ? t.headerData.safra.Id : '',culture:t.headerData.cultura.Id != null ? t.headerData.cultura.Id : '',clientGroup: t.selectedCompany.clientGroup != null ? t.selectedCompany.clientGroup : ''};
+                    let allowChange = (t.headerData.tipo_pedido != 'Pedido Filho' && !t.headerData.IsOrderChild && t.isFilled(t.headerData.codigo_sap)) || (t.headerData.tipo_pedido == 'Pedido Filho' && t.isFilled(t.headerData.codigo_sap)) ? false : true;
                     let checkFinancialInfos = true;
 
-                    if (this.headerData.pre_pedido && (allowChange || this.checkCombo)) {
-                        this.financialInfoLogic(orderData);
+                    if (t.headerData.pre_pedido && (allowChange || t.checkCombo)) {
+                        t.financialInfoLogic(orderData);
                         checkFinancialInfos = false;
 
-                        fetchOrderRecords({searchString: '', data: JSON.stringify(this.productParams), isCommodity: false, productsIds: prodsIds, priceScreen: false, getSeedPrices: this.showRoyaltyTsi, isLimit: true})
+                        fetchOrderRecords({searchString: '', data: JSON.stringify(t.productParams), isCommodity: false, productsIds: prodsIds, priceScreen: false, getSeedPrices: t.showRoyaltyTsi, isLimit: true})
                         .then(result => {
-                            this.productsPriceMap = result.recordsDataMap;
-                            this.salesInfos = result.salesResult;
+                            t.productsPriceMap = result.recordsDataMap;
+                            t.salesInfos = result.salesResult;
                             let productsWithoutPrice = '';
                             let listPriceChange = false;
                             let orderProducts = [];
@@ -507,128 +508,126 @@ export default class OrderProductScreen extends LightningElement {
                             
                             for (let index = 0; index < formerItens.length; index++) {
                                 let formerProductQuantity = formerItens[index].minQUantity * formerItens[index].comboQuantity;
-                                let currentItem = this.products.find(e => e.productId == formerItens[index].productId);
-                                if (this.isFilled(currentItem)) {
+                                let currentItem = t.products.find(e => e.productId == formerItens[index].productId);
+                                if (t.isFilled(currentItem)) {
                                     currentItem.quantity = formerProductQuantity;
-                                    currentItem.dosage = formerProductQuantity / this.hectares;
-                                    currentItem.dosageFront = this.fixDecimalPlacesFront(currentItem.dosage);
+                                    currentItem.dosage = formerProductQuantity / t.hectares;
+                                    currentItem.dosageFront = t.fixDecimalPlacesFront(currentItem.dosage);
                                     currentItem.comboId = formerItens[index].comboId;
                                     currentItem.industryCombo = formerItens[index].industryCombo;
                                     currentItem.containsCombo = true;
                                     currentItem.containsComboString = 'Sim';
                                     currentItem.formerItem = true;
-                                    currentItem = this.emptyDiscounFields(currentItem);
+                                    currentItem = t.emptyDiscounFields(currentItem);
                                     comboItens.push(currentItem);
 
-                                    for (let i = 0; i < this.products.length; i++) {
+                                    for (let i = 0; i < t.products.length; i++) {
                                         if (currentItem.productId == formerItens[index].productId) idsToRemove.push(currentItem.productId);
                                     }
                                 } else {
-                                    let comboValues = {dosage: formerProductQuantity / this.hectares, quantity: formerProductQuantity, comboDiscount: 0, comboId: formerItens[index].comboId, industryCombo: formerItens[index].industryCombo, containsCombo: true, formerItem: true, benefitItem: false};
-                                    let productInfos = this.getProductByPriority({Id: formerItens[index].productId});
+                                    let comboValues = {dosage: formerProductQuantity / t.hectares, quantity: formerProductQuantity, comboDiscount: 0, comboId: formerItens[index].comboId, industryCombo: formerItens[index].industryCombo, containsCombo: true, formerItem: true, benefitItem: false};
+                                    let productInfos = t.getProductByPriority({Id: formerItens[index].productId});
                                     let priorityPrice = {listPrice: productInfos.priorityPrice.listPrice, costPrice: productInfos.priorityPrice.costPrice, priceListCode: productInfos.priorityPrice.priceListCode};
-                                    comboItens.push(this.createProduct(productInfos.productInfos, priorityPrice, comboValues, this.getCurrentProductPosition() + counter));
+                                    comboItens.push(t.createProduct(productInfos.productInfos, priorityPrice, comboValues, t.getCurrentProductPosition() + counter));
                                     counter++;
                                 }
                             }
 
                             for (let index = 0; index < benefitItens.length; index++) {
                                 let benefitProductQuantity = benefitItens[index].minQUantity * benefitItens[index].comboQuantity;
-                                let currentItem = this.products.find(e => e.productId == benefitItens[index].productId)
-                                if (this.isFilled(currentItem)) {
+                                let currentItem = t.products.find(e => e.productId == benefitItens[index].productId)
+                                if (t.isFilled(currentItem)) {
                                     currentItem.quantity = benefitProductQuantity;
-                                    currentItem.dosage = benefitProductQuantity / this.hectares;
-                                    currentItem.dosageFront = this.fixDecimalPlacesFront(currentItem.dosage);
+                                    currentItem.dosage = benefitProductQuantity / t.hectares;
+                                    currentItem.dosageFront = t.fixDecimalPlacesFront(currentItem.dosage);
                                     currentItem.comboId = formerItens[index].comboId;
                                     currentItem.industryCombo = formerItens[index].industryCombo;
                                     currentItem.containsCombo = true;
                                     currentItem.containsComboString = 'Sim';
                                     currentItem.benefitItem = true;
-                                    currentItem = this.emptyDiscounFields(currentItem);
+                                    currentItem = t.emptyDiscounFields(currentItem);
                                     currentItem.comboDiscountPercent = benefitItens[index].discountPercentage + '%';
                                     comboItens.push(currentItem);
-                                    for (let i = 0; i < this.products.length; i++) {
+                                    for (let i = 0; i < t.products.length; i++) {
                                         if (currentItem.productId == benefitItens[index].productId) idsToRemove.push(currentItem.productId);
                                     }
                                 } else {
-                                    let comboValues = {dosage: benefitProductQuantity / this.hectares, quantity: benefitProductQuantity, comboDiscount: benefitItens[index].discountPercentage, comboId: benefitItens[index].comboId, industryCombo: benefitItens[index].industryCombo, containsCombo: true, formerItem: false, benefitItem: true};
-                                    let productInfos = this.getProductByPriority({Id: benefitItens[index].productId});
+                                    let comboValues = {dosage: benefitProductQuantity / t.hectares, quantity: benefitProductQuantity, comboDiscount: benefitItens[index].discountPercentage, comboId: benefitItens[index].comboId, industryCombo: benefitItens[index].industryCombo, containsCombo: true, formerItem: false, benefitItem: true};
+                                    let productInfos = t.getProductByPriority({Id: benefitItens[index].productId});
                                     let priorityPrice = {listPrice: productInfos.priorityPrice.listPrice, costPrice: productInfos.priorityPrice.costPrice, priceListCode: productInfos.priorityPrice.priceListCode};
-                                    comboItens.push(this.createProduct(productInfos.productInfos, priorityPrice, comboValues, this.getCurrentProductPosition() + counter));
+                                    comboItens.push(t.createProduct(productInfos.productInfos, priorityPrice, comboValues, t.getCurrentProductPosition() + counter));
                                     counter++;
                                 }
                             }
 
-                            const data1 = logicApplyCombo(this, mixTotal, comboItens, counter, idsToRemove);
+                            const data1 = logicApplyCombo(t, mixTotal, comboItens, counter, idsToRemove);
                             comboItens = data1.comboItens;
                             idsToRemove = data1.idsToRemove;
                             let allProducts = [];
-                            for (let index = 0; index < this.products.length; index++) {
-                                if (!idsToRemove.includes(this.products[index].productId)) allProducts.push(this.products[index]);
+                            for (let index = 0; index < t.products.length; index++) {
+                                if (!idsToRemove.includes(t.products[index].productId)) allProducts.push(t.products[index]);
                             }
                             comboItens.push.apply(comboItens, allProducts);
-                            this.products = this.parseObject(comboItens);
+                            t.products = t.parseObject(comboItens);
                         
                             
-                            for (let index = 0; index < this.products.length; index++) {
-                                this.addProduct = this.products[index];
-                                let priorityInfos = this.getProductByPriority({Id: this.addProduct.productId}).priorityPrice;
-                                if (this.isFilled(priorityInfos)) {
-                                    if (priorityInfos.listPrice != this.addProduct.listPrice || priorityInfos.costPrice != this.addProduct.listCost || this.checkCombo) {
-                                        this.addProduct.listPrice = this.isFilled(priorityInfos.listPrice) ? this.fixDecimalPlaces(priorityInfos.listPrice) : 0;
-                                        this.addProduct.listPriceFront = this.isFilled(priorityInfos.listPrice) ? this.fixDecimalPlacesFront(priorityInfos.listPrice) : 0;
-                                        this.addProduct.listCost = this.isFilled(priorityInfos.costPrice) ? this.fixDecimalPlaces(priorityInfos.costPrice) : 0;
-                                        this.addProduct.practicedCost = this.isFilled(priorityInfos.costPrice) ? this.fixDecimalPlaces(priorityInfos.costPrice) : 0;
-                                        this.addProduct.priceListCode = priorityInfos.priceListCode;
+                            for (let index = 0; index < t.products.length; index++) {
+                                t.addProduct = t.products[index];
+                                let priorityInfos = t.getProductByPriority({Id: t.addProduct.productId}).priorityPrice;
+                                if (t.isFilled(priorityInfos)) {
+                                    if (priorityInfos.listPrice != t.addProduct.listPrice || priorityInfos.costPrice != t.addProduct.listCost || t.checkCombo) {
+                                        t.addProduct.listPrice = t.isFilled(priorityInfos.listPrice) ? t.fixDecimalPlaces(priorityInfos.listPrice) : 0;
+                                        t.addProduct.listPriceFront = t.isFilled(priorityInfos.listPrice) ? t.fixDecimalPlacesFront(priorityInfos.listPrice) : 0;
+                                        t.addProduct.listCost = t.isFilled(priorityInfos.costPrice) ? t.fixDecimalPlaces(priorityInfos.costPrice) : 0;
+                                        t.addProduct.practicedCost = t.isFilled(priorityInfos.costPrice) ? t.fixDecimalPlaces(priorityInfos.costPrice) : 0;
+                                        t.addProduct.priceListCode = priorityInfos.priceListCode;
 
-                                        this.addProduct.tListPrice = this.isFilled(priorityInfos.tListPrice) ? priorityInfos.tListPrice : 0;
-                                        this.addProduct.tListPriceFront = this.isFilled(priorityInfos.tListPrice) ? 'R$' + this.fixDecimalPlacesFront(priorityInfos.tListPrice) : 'R$0';
-                                        
-                                        this.addProduct.rListPrice = this.isFilled(priorityInfos.rListPrice) ? priorityInfos.rListPrice : 0;
-                                        this.addProduct.rListPriceFront = this.isFilled(priorityInfos.rListPrice) ? 'R$' + this.fixDecimalPlacesFront(priorityInfos.rListPrice) : 'R$0';
+                                        t.addProduct.tListPrice = t.isFilled(priorityInfos.tListPrice) ? priorityInfos.tListPrice : 0;
+                                        t.addProduct.tListPriceFront = t.isFilled(priorityInfos.tListPrice) ? 'R$' + t.fixDecimalPlacesFront(priorityInfos.tListPrice) : 'R$0';
+                                        t.addProduct.rListPrice = t.isFilled(priorityInfos.rListPrice) ? priorityInfos.rListPrice : 0;
+                                        t.addProduct.rListPriceFront = t.isFilled(priorityInfos.rListPrice) ? 'R$' + t.fixDecimalPlacesFront(priorityInfos.rListPrice) : 'R$0';
 
-                                        if (this.addProduct.commercialAdditionPercentage != '0%') this.addProduct.unitPrice = this.addProduct.listPrice + this.calculateValue(this.addProduct.commercialAdditionPercentage, this.addProduct.listPrice);
-                                        else if (this.addProduct.commercialDiscountPercentage != '0%') this.addProduct.unitPrice = this.addProduct.listPrice - this.calculateValue(this.addProduct.commercialDiscountPercentage, this.addProduct.listPrice);
+                                        if (t.addProduct.commercialAdditionPercentage != '0%') t.addProduct.unitPrice = t.addProduct.listPrice + t.calculateValue(t.addProduct.commercialAdditionPercentage, t.addProduct.listPrice);
+                                        else if (t.addProduct.commercialDiscountPercentage != '0%') t.addProduct.unitPrice = t.addProduct.listPrice - t.calculateValue(t.addProduct.commercialDiscountPercentage, t.addProduct.listPrice);
+
+                                        t.addProduct.unitPriceFront = t.fixDecimalPlacesFront(t.addProduct.unitPrice);
                                         
-                                        this.addProduct.unitPriceFront = this.fixDecimalPlacesFront(this.addProduct.unitPrice);
-                                        this.addProduct.unitPriceFront = this.fixDecimalPlacesFront(this.addProduct.unitPrice);
-                                        
-                                        this.calculateDiscountOrAddition();
-                                        this.calculateTotalPrice(true, this.addProduct.commercialDiscountValue > 0);
-                                        let margin = this.isFilled(this.addProduct.practicedCost) ? this.fixDecimalPlaces((1 - (Number(this.addProduct.practicedCost) / (this.addProduct.totalPrice / this.addProduct.quantity))) * 100) : 0;
-                                        this.addProduct.commercialMarginPercentage = margin;
+                                        t.calculateDiscountOrAddition();
+                                        t.calculateTotalPrice(true, t.addProduct.commercialDiscountValue > 0);
+                                        let margin = t.isFilled(t.addProduct.practicedCost) ? t.fixDecimalPlaces((1 - (Number(t.addProduct.practicedCost) / (t.addProduct.totalPrice / t.addProduct.quantity))) * 100) : 0;
+                                        t.addProduct.commercialMarginPercentage = margin;
                                         listPriceChange = true;
                                     }
-                                    orderProducts.push(this.addProduct);
+                                    orderProducts.push(t.addProduct);
                                 } else {
-                                    productsWithoutPrice = productsWithoutPrice != '' ? productsWithoutPrice + ', ' + this.addProduct.name : this.addProduct.name;
-                                    itemToExclude.push(this.addProduct.orderItemId)
+                                    productsWithoutPrice = productsWithoutPrice != '' ? productsWithoutPrice + ', ' + t.addProduct.name : t.addProduct.name;
+                                    itemToExclude.push(t.addProduct.orderItemId)
                                 }
                             }
-                            this.products = this.parseObject(orderProducts);
-                            this.showIncludedProducts = this.products.length > 0;
-                            this.excludedItems = this.isFilled(this.excludedItems) ? this.excludedItems : this.parseObject(itemToExclude);
-                            this._setExcludedesItems();
-                            if (this.products.length > 0) this._setData();
-                            if (listPriceChange && !this.checkCombo) this.showToast('warning', 'Alteração na lista de preço!', 'Os preços foram ajustados de acordo com os valores da lista de preço. Verifique-os.');
-                            if (productsWithoutPrice != '') this.showToast('warning', 'Produtos sem preço!', 'Os produtos ' + productsWithoutPrice + ' foram removidos do pedido.');
+                            t.products = t.parseObject(orderProducts);
+                            t.showIncludedProducts = t.products.length > 0;
+                            t.excludedItems = t.isFilled(t.excludedItems) ? t.excludedItems : t.parseObject(itemToExclude);
+                            t._setExcludedesItems();
+                            if (t.products.length > 0) t._setData();
+                            if (listPriceChange && !t.checkCombo) t.showToast('warning', 'Alteração na lista de preço!', 'Os preços foram ajustados de acordo com os valores da lista de preço. Verifique-os.');
+                            if (productsWithoutPrice != '') t.showToast('warning', 'Produtos sem preço!', 'Os produtos ' + productsWithoutPrice + ' foram removidos do pedido.');
                         });
                     }
 
-                    if (!this.headerData.IsOrderChild && allowChange && checkFinancialInfos) this.financialInfoLogic(orderData);
-                    else this.showLoading = false;
+                    if (!t.headerData.IsOrderChild && allowChange && checkFinancialInfos) t.financialInfoLogic(orderData);
+                    else t.showLoading = false;
 
-                    if (!this.headerData.IsOrderChild && !this.isFilled(this.headerData.codigo_sap)) {
-                        let headerValues = {cropId:this.headerData.safra.Id,salesOrgId:this.selectedCompany.salesOrgId,salesTeamId:this.selectedCompany.salesTeamId,salesOfficeId:this.selectedCompany.salesOfficeId,salesConditionId:this.headerData.condicao_venda.Id, paymentConditionId:this.headerData.condicao_pagamento.Id};
+                    if (!t.headerData.IsOrderChild && !t.isFilled(t.headerData.codigo_sap)) {
+                        let headerValues = {cropId:t.headerData.safra.Id,salesOrgId:t.selectedCompany.salesOrgId,salesTeamId:t.selectedCompany.salesTeamId,salesOfficeId:t.selectedCompany.salesOfficeId,salesConditionId:t.headerData.condicao_venda.Id, paymentConditionId:t.headerData.condicao_pagamento.Id};
                         getMixAndConditionCombos({data: JSON.stringify(headerValues)})
                         .then((result) => {
                             let combosAndPromotions = JSON.parse(result);
-                            if (combosAndPromotions.length > 0) this.combosData = combosAndPromotions;
+                            if (combosAndPromotions.length > 0) t.combosData = combosAndPromotions;
                         });
                     }
                 })
             } else {
-                this.showLoading = false;
+                t.showLoading = false;
             }
         });
     }
@@ -649,59 +648,61 @@ export default class OrderProductScreen extends LightningElement {
     }
 
     financialInfoLogic(orderData) {
+        let t = this
         getFinancialInfos({data: JSON.stringify(orderData)})
         .then((result) => {
-            this.financialInfos = JSON.parse(result);
+            t.financialInfos = JSON.parse(result);
 
-            if (this.products.length > 0) {
+            if (t.products.length > 0) {
                 let showPriceChange = false;
                 let showQuantityChange = false;
                 let priceChangeMessage = '';
-                let currentProducts = this.products;
+                let currentProducts = t.products;
 
                 for (let index = 0; index < currentProducts.length; index++) {
-                    this.recalculatePrice = true;
-                    this.editProduct(currentProducts[index].position, true);
+                    t.recalculatePrice = true;
+                    t.editProduct(currentProducts[index].position, true);
                     let oldQUantity = currentProducts[index].quantity;
-                    this.addProduct.quantity = this.calculateMultiplicity(this.addProduct.dosage * this.hectares, false);
-                    if (this.addProduct.quantity != oldQUantity) showQuantityChange = true;
+                    t.addProduct.quantity = t.calculateMultiplicity(t.addProduct.dosage * t.hectares, false);
+                    if (t.addProduct.quantity != oldQUantity) showQuantityChange = true;
 
                     let oldPrice = currentProducts[index].unitPrice;
-                    this.calculateTotalPrice(true);
-                    let newPrice = this.changeProduct(this.addProduct);
+                    t.calculateTotalPrice(true);
+                    let newPrice = t.changeProduct(t.addProduct);
 
                     if (oldPrice != newPrice) {
                         showPriceChange = true;
                         priceChangeMessage += 'O preço do ' + currentProducts[index].name + ' foi alterado de ' + oldPrice + ' para ' + newPrice + '.\n';
                     }
-                    this.addProduct.quantityFront = this.fixDecimalPlacesFront(this.addProduct.quantity);
+                    t.addProduct.quantityFront = t.fixDecimalPlacesFront(t.addProduct.quantity);
                 }
 
-                this.recalculatePrice = false;
+                t.recalculatePrice = false;
                 if (showPriceChange) {
                     if (currentProducts.length > 1) priceChangeMessage = 'Os preços foram recalculados devido a alteração de data de pagamento. Verifique-os.';
-                    this.showToast('warning', 'Alteração nos preços!', priceChangeMessage);
+                    t.showToast('warning', 'Alteração nos preços!', priceChangeMessage);
                 }
-                if (showQuantityChange) this.showToast('warning', 'Alteração nas quantidades!', 'As quantidades foram recalculados devido a alteração no hectar. Verifique-os.');
-                if (this.headerData.tipo_venda == 'Venda Barter') {
-                    updateCommodities(this);
+                if (showQuantityChange) t.showToast('warning', 'Alteração nas quantidades!', 'As quantidades foram recalculados devido a alteração no hectar. Verifique-os.');
+                if (t.headerData.tipo_venda == 'Venda Barter') {
+                    updateCommodities(t);
                 }
-                this.showLoading = false;
-                this._setData();
+                t.showLoading = false;
+                t._setData();
             } else {
-                this.showLoading = false;
+                t.showLoading = false;
             }
         })
     }
 
     getProductByPriority(selectedProduct) {
-        let productsPrice = this.productsPriceMap;
-        let productId = this.isFilled(selectedProduct.Id) ? selectedProduct.Id : selectedProduct.productId;
+        let t = this
+        let productsPrice = t.productsPriceMap;
+        let productId = t.isFilled(selectedProduct.Id) ? selectedProduct.Id : selectedProduct.productId;
         let priorityPrice = {Id: productId, costPrice: 0, listPrice: 0, priceListCode: 0, rCostPrice: 0, rListPrice: 0, rPriceListCode: 0, tCostPrice: 0, tListPrice: 0, tPriceListCode: 0};
 
         let counter = 1;
         let currentinfos;
-        let counterMax = this.showRoyaltyTsi ? 3 : 1;
+        let counterMax = t.showRoyaltyTsi ? 3 : 1;
 
         while (counter <= counterMax) {
             let prefix;
@@ -709,24 +710,24 @@ export default class OrderProductScreen extends LightningElement {
             if (counter == 2) prefix = 'R-';
             if (counter == 3) prefix = 'T-';
 
-            let key1 = prefix + this.accountData.Id + '-' + productId;
-            let key2 = prefix + this.salesInfos.segmento + '-' + productId;
-            let key3 = prefix + this.headerData.cultura.Id + '-' + this.salesInfos.salesTeamId + '-' + productId;
-            let key4 = prefix + this.salesInfos.salesTeamId + '-' + productId;
-            let key5 = prefix + this.salesInfos.salesOfficeId + '-' + productId;
+            let key1 = prefix + t.accountData.Id + '-' + productId;
+            let key2 = prefix + t.salesInfos.segmento + '-' + productId;
+            let key3 = prefix + t.headerData.cultura.Id + '-' + t.salesInfos.salesTeamId + '-' + productId;
+            let key4 = prefix + t.salesInfos.salesTeamId + '-' + productId;
+            let key5 = prefix + t.salesInfos.salesOfficeId + '-' + productId;
             let key6 = prefix + selectedProduct.productGroupId;
             let key7 = prefix + productId;
 
             let currentPrice;
-            if (this.isFilled(productsPrice[key1])) currentPrice = productsPrice[key1];
-            else if (this.isFilled(productsPrice[key2])) currentPrice = productsPrice[key2];
-            else if (this.isFilled(productsPrice[key3])) currentPrice = productsPrice[key3];
-            else if (this.isFilled(productsPrice[key4])) currentPrice = productsPrice[key4];
-            else if (this.isFilled(productsPrice[key5])) currentPrice = productsPrice[key5];
-            else if (this.isFilled(productsPrice[key6])) currentPrice = productsPrice[key6];
-            else if (this.isFilled(productsPrice[key7])) currentPrice = productsPrice[key7];
+            if (t.isFilled(productsPrice[key1])) currentPrice = productsPrice[key1];
+            else if (t.isFilled(productsPrice[key2])) currentPrice = productsPrice[key2];
+            else if (t.isFilled(productsPrice[key3])) currentPrice = productsPrice[key3];
+            else if (t.isFilled(productsPrice[key4])) currentPrice = productsPrice[key4];
+            else if (t.isFilled(productsPrice[key5])) currentPrice = productsPrice[key5];
+            else if (t.isFilled(productsPrice[key6])) currentPrice = productsPrice[key6];
+            else if (t.isFilled(productsPrice[key7])) currentPrice = productsPrice[key7];
 
-            if (this.isFilled(currentPrice)) {
+            if (t.isFilled(currentPrice)) {
                 if (counter == 1) {
                     priorityPrice.costPrice = currentPrice.costPrice;
                     priorityPrice.listPrice = currentPrice.listPrice;
@@ -750,56 +751,58 @@ export default class OrderProductScreen extends LightningElement {
     }
 
     showProductModal(event) {
+        let t = this
         let productId = event.target.dataset.targetId;
-        let productValidation = this.baseProducts.find(e => e.Id == productId);
-        let quoteData = {cropId:this.headerData.safra.Id,sellerId:this.headerData.ctv_venda.Id,productsIds:[productValidation.Id]};
+        let productValidation = t.baseProducts.find(e => e.Id == productId);
+        let quoteData = {cropId:t.headerData.safra.Id,sellerId:t.headerData.ctv_venda.Id,productsIds:[productValidation.Id]};
 
-        if (this.verifyQuota && this.showRoyaltyTsi) {
-            this.showLoading = true;
+        if (t.verifyQuota && t.showRoyaltyTsi) {
+            t.showLoading = true;
             checkQuotaQuantity({data: JSON.stringify(quoteData)})
             .then((result) => {
-                let allQuotas = this.parseObject(this.allProductQuotas);
+                let allQuotas = t.parseObject(t.allProductQuotas);
                 let productQuota = JSON.parse(result);
                 let currentQuota;
 
                 if (allQuotas.length > 0) currentQuota = allQuotas.find(e => e.individualQuotaId == productQuota.individualQuotaId);
-                if (!this.isFilled(currentQuota) && productQuota.length > 0) allQuotas.push(productQuota[0]);
+                if (!t.isFilled(currentQuota) && productQuota.length > 0) allQuotas.push(productQuota[0]);
 
-                this.allProductQuotas = this.parseObject(allQuotas);
+                t.allProductQuotas = t.parseObject(allQuotas);
                 if (productQuota.length == 0 || productQuota[0].balance == 0) {
-                    this.showLoading = false;
-                    this.showToast('warning', 'Quantidade indisponível', 'Cota indisponível para o produto nos parâmetros atuais');
+                    t.showLoading = false;
+                    t.showToast('warning', 'Quantidade indisponível', 'Cota indisponível para o produto nos parâmetros atuais');
                 } else {
-                    this.showLoading = false;
-                    this.openModalLogic(productValidation, productId);
+                    t.showLoading = false;
+                    t.openModalLogic(productValidation, productId);
                 }
             });
         } else {
-            this.openModalLogic(productValidation, productId);
+            t.openModalLogic(productValidation, productId);
         }
     }
 
     openModalLogic(productValidation, productId) {
-        isSeedSale({salesOrgId: this.selectedCompany.salesOrgId, productGroupName: productValidation.productGroupName})
+        let t = this
+        isSeedSale({salesOrgId: t.selectedCompany.salesOrgId, productGroupName: productValidation.productGroupName})
         .then((result) => {
-            this.seedSale = result;
+            t.seedSale = result;
         });
 
-        this.createNewProduct = !this.createNewProduct;
-        if (this.createNewProduct) {
-            let existProduct = this.products.find(e => e.productId == productId);
-            if (this.isFilled(existProduct)) {
-                this.createNewProduct = false;
-                this.editProduct(existProduct.position, false);
+        t.createNewProduct = !t.createNewProduct;
+        if (t.createNewProduct) {
+            let existProduct = t.products.find(e => e.productId == productId);
+            if (t.isFilled(existProduct)) {
+                t.createNewProduct = false;
+                t.editProduct(existProduct.position, false);
             } else {
-                console.log('this.baseProducts: ' + JSON.stringify(this.baseProducts));
-                let currentProduct = this.baseProducts.find(e => e.Id == productId);
-                let priorityInfos = this.getProductByPriority(currentProduct);
-                this.updateProduct = false;
-                this.multiplicity = this.isFilled(currentProduct.multiplicity) && currentProduct.multiplicity > 0 ? currentProduct.multiplicity : 1;
-                this.costPrice = priorityInfos.priorityPrice.costPrice;
-                let currentPosition = this.getCurrentProductPosition() + 1;
-                this.addProduct = this.createProduct(currentProduct, priorityInfos.priorityPrice, null, currentPosition);
+                console.log('this.baseProducts: ' + JSON.stringify(t.baseProducts));
+                let currentProduct = t.baseProducts.find(e => e.Id == productId);
+                let priorityInfos = t.getProductByPriority(currentProduct);
+                t.updateProduct = false;
+                t.multiplicity = t.isFilled(currentProduct.multiplicity) && currentProduct.multiplicity > 0 ? currentProduct.multiplicity : 1;
+                t.costPrice = priorityInfos.priorityPrice.costPrice;
+                let currentPosition = t.getCurrentProductPosition() + 1;
+                t.addProduct = t.createProduct(currentProduct, priorityInfos.priorityPrice, null, currentPosition);
             }
         }
     }
@@ -851,6 +854,7 @@ export default class OrderProductScreen extends LightningElement {
             brand: prod.brand != null ? prod.brand : '',
             productGroupId: prod.productGroupId != null ? prod.productGroupId : '',
             productGroupName: prod.productGroupName != null ? prod.productGroupName : '',
+            productSubgroupId: prod.productSubgroupId != null ? prod.productSubgroupId : '',
             productSubgroupName: prod.productSubgroupName != null ? prod.productSubgroupName : '',
             productHierarchyId: prod.productHierarchyId != null ? prod.productHierarchyId : '',
             sapStatus: prod.sapStatus != null ? prod.sapStatus : '',
