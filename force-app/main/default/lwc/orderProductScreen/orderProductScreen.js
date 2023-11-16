@@ -1332,7 +1332,7 @@ export default class OrderProductScreen extends LightningElement {
             prod.comboDiscountPercent = removeCombo ? '0%' : combo.discount + '%';
             prod.comboDiscountValue = removeCombo ? 0 : this.calculateValue(combo.discount + '%', totalPrice);
             prod.totalPrice = removeCombo ? totalPrice : Number(totalPrice) - Number(prod.comboDiscountValue);
-            prod.totalPriceFront = this.fixDecimalPlacesFront(totalPrice);
+            prod.totalPriceFront = this.fixDecimalPlacesFront(prod.totalPrice);
             prod.industryCombo = removeCombo ? false : combo.industryCombo;
             prod.unitPrice = this.fixDecimalPlaces(prod.totalPrice / prod.quantity);
             prod.unitPriceFront = this.fixDecimalPlacesFront(prod.unitPrice);
