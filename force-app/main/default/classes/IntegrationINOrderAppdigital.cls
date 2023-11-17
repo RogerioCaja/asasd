@@ -570,6 +570,7 @@ global without sharing class IntegrationINOrderAppdigital {
         List<OrderItem> orderItemList = [SELECT Id, OrderId,
         Product2Id,
         Product2.ProductGroup__c,
+        Product2.ProductSubgroup__c,
         PricebookEntryId, 
         ExternalId__c, 
         Quantity,
